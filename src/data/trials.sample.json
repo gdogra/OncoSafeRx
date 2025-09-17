@@ -1,0 +1,23 @@
+[
+  {
+    "nct_id": "NCT01234567",
+    "title": "Targeted Therapy for EGFR-mutant NSCLC",
+    "condition": "Non-Small Cell Lung Cancer",
+    "biomarkers": ["EGFR"],
+    "phase": "Phase 3",
+    "status": "Recruiting",
+    "line_of_therapy": "1st line",
+    "locations": [{ "name": "Memorial Center", "lat": 40.764, "lon": -73.955 }]
+  },
+  {
+    "nct_id": "NCT07654321",
+    "title": "PARP Inhibitor in BRCA-mutated Ovarian Cancer",
+    "condition": "Ovarian Cancer",
+    "biomarkers": ["BRCA1", "BRCA2"],
+    "phase": "Phase 2",
+    "status": "Active, not recruiting",
+    "line_of_therapy": "2nd line",
+    "locations": [{ "name": "Stanford", "lat": 37.434, "lon": -122.175 }]
+  }
+]
+

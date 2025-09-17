@@ -161,6 +161,43 @@ GET /api/interactions/known?drugA=codeine&drugB=fluoxetine&view=enriched&resolve
 GET /api/interactions/known?severity=major&view=csv
 ```
 
+### Dosing (MVP)
+
+```
+# Context-aware dosing adjustments
+POST /api/dosing/adjust
+{
+  "regimenId": "FOLFOX-6",
+  "labs": { "ANC": 1200, "platelets": 90000, "CrCl": 25, "LVEF": 48 },
+  "phenotypes": { "DPYD": "poor metabolizer" }
+}
+```
+
+### Trials (MVP)
+
+```
+# Search trials by condition/biomarker/line/status/location radius
+GET /api/trials/search?condition=lung&biomarker=EGFR&line=1st&lat=37.77&lon=-122.42&radius_km=50
+```
+
+### Prescribing & Exports (MVP)
+
+```
+# Format a structured SIG
+POST /api/prescribe/sig
+{ "drug": {"name": "Clopidogrel", "rxcui": "42463"}, "dose": "75 mg", "route": "PO", "frequency": "daily" }
+
+# Regimen PDF export
+GET /api/export/regimen/FOLFOX-6/pdf
+```
+
+### Search & Synonyms (MVP)
+
+```
+GET /api/search/drugs?q=aspirin
+GET /api/search/synonyms?q=pump
+```
+
 ### Genomics (Sample Data)
 
 ```bash

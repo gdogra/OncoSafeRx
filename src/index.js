@@ -24,6 +24,12 @@ import alternativesRoutes from './routes/alternativesRoutes.js';
 import regimenRoutes from './routes/regimenRoutes.js';
 import cdsHooksRoutes from './routes/cdsHooksRoutes.js';
 import smartRoutes from './routes/smartRoutes.js';
+import trialRoutes from './routes/trialRoutes.js';
+import exportRoutes from './routes/exportRoutes.js';
+import prescribeRoutes from './routes/prescribeRoutes.js';
+import dosingRoutes from './routes/dosingRoutes.js';
+import editorialRoutes from './routes/editorialRoutes.js';
+import searchRoutes from './routes/searchRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -117,6 +123,12 @@ app.use('/api/genomics', genomicsRoutes);
 app.use('/api/genomics', genomicsFhirRoutes);
 app.use('/api/alternatives', alternativesRoutes);
 app.use('/api/regimens', regimenRoutes);
+app.use('/api/trials', trialRoutes);
+app.use('/api/export', exportRoutes);
+app.use('/api/prescribe', prescribeRoutes);
+app.use('/api/dosing', dosingRoutes);
+app.use('/api/editorial', editorialRoutes);
+app.use('/api/search', searchRoutes);
 app.use('/', cdsHooksRoutes);
 app.use('/', smartRoutes);
 

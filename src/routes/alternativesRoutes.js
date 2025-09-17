@@ -24,7 +24,7 @@ router.post('/suggest',
 
       // PGx-aware suggestions (MVP)
       const names = details.map(d => (d.name || '').toLowerCase());
-      const addSuggestion = (forName, altName, rationale, withName) => {
+      const addSuggestion = (forName, altName, rationale, withName, pgx) => {
         const forDrug = details.find(d => d.name?.toLowerCase().includes(forName));
         const withDrug = withName ? details.find(d => d.name?.toLowerCase().includes(withName)) : null;
         if (forDrug) {
@@ -33,20 +33,26 @@ router.post('/suggest',
             withDrug: withDrug ? { rxcui: withDrug.rxcui, name: withDrug.name } : undefined,
             alternative: { name: altName, rxcui: null },
             rationale,
-            citations: ['CPIC', 'Clinical guidance']
+            citations: [
+              { label: 'CPIC', url: 'https://cpicpgx.org/' },
+              { label: 'FDA Label', url: 'https://dailymed.nlm.nih.gov/dailymed/' }
+            ],
+            pgx: pgx ? [pgx] : []
           });
         }
       };
 
       const cyp2d6 = String(phenotypes.CYP2D6 || '').toLowerCase();
       if (cyp2d6.includes('poor') || cyp2d6.includes('intermediate')) {
-        if (names.some(n => n.includes('codeine'))) addSuggestion('codeine', 'morphine', 'CYP2D6 PM/IM: avoid codeine; use non–CYP2D6-dependent opioid.');
-        if (names.some(n => n.includes('tramadol'))) addSuggestion('tramadol', 'morphine', 'CYP2D6 PM/IM: avoid tramadol; use non–CYP2D6-dependent opioid.');
+        const pgx = { gene: 'CYP2D6', phenotype: phenotypes.CYP2D6 };
+        if (names.some(n => n.includes('codeine'))) addSuggestion('codeine', 'morphine', 'CYP2D6 PM/IM: avoid codeine; use non–CYP2D6-dependent opioid.', undefined, pgx);
+        if (names.some(n => n.includes('tramadol'))) addSuggestion('tramadol', 'morphine', 'CYP2D6 PM/IM: avoid tramadol; use non–CYP2D6-dependent opioid.', undefined, pgx);
       }
 
       const cyp2c19 = String(phenotypes.CYP2C19 || '').toLowerCase();
       if (cyp2c19.includes('poor') || cyp2c19.includes('intermediate')) {
-        if (names.some(n => n.includes('clopidogrel'))) addSuggestion('clopidogrel', 'prasugrel or ticagrelor', 'CYP2C19 PM/IM: reduced clopidogrel activation; consider alternative P2Y12 inhibitor.');
+        const pgx = { gene: 'CYP2C19', phenotype: phenotypes.CYP2C19 };
+        if (names.some(n => n.includes('clopidogrel'))) addSuggestion('clopidogrel', 'prasugrel or ticagrelor', 'CYP2C19 PM/IM: reduced clopidogrel activation; consider alternative P2Y12 inhibitor.', undefined, pgx);
       }
 
       res.json({
@@ -68,4 +74,3 @@ router.post('/suggest',
 );
 
 export default router;
-

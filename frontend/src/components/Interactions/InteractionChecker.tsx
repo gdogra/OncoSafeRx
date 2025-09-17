@@ -247,7 +247,7 @@ const InteractionChecker: React.FC = () => {
                   const resp = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3000/api'}/alternatives/suggest`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ drugs: selectedDrugs.map(d => d.rxcui) })
+                    body: JSON.stringify({ drugs: selectedDrugs.map(d => d.rxcui), phenotypes: savedPhenotypes || {} })
                   });
                   if (!resp.ok) throw new Error(`Alt API ${resp.status}`);
                   const data = await resp.json();
@@ -262,6 +262,9 @@ const InteractionChecker: React.FC = () => {
             </button>
           </div>
           {altError && <Alert type="error" title="Error">{altError}</Alert>}
+          {savedPhenotypes && (
+            <div className="text-xs text-green-700 bg-green-50 inline-block px-2 py-1 rounded mb-3">Applying PGx phenotypes: {Object.entries(savedPhenotypes).map(([g,p]) => `${g}: ${p}`).join('; ')}</div>
+          )}
           {altResults && (
             <div className="space-y-4">
               {altResults.length === 0 && (
@@ -270,10 +273,20 @@ const InteractionChecker: React.FC = () => {
               {altResults.map((s, idx) => (
                 <div key={idx} className="p-4 border rounded-md">
                   <div className="text-sm text-gray-700">
-                    Consider replacing <strong>{s.forDrug?.name}</strong> (with {s.withDrug?.name})
-                    with <strong>{s.alternative?.name}</strong>.
-                  </div>
-                  <div className="text-sm text-gray-600 mt-1">Reason: {s.rationale}</div>
+                  {Array.isArray(s.pgx) && s.pgx.length > 0 && (
+                    <div className="mt-2 space-x-2 text-xs">
+                      {s.pgx.map((p: any, i: number) => (
+                        <span key={i} className="inline-block bg-purple-50 text-purple-700 px-2 py-0.5 rounded">PGx: {p.gene}: {p.phenotype}</span>
+                      ))}
+                    </div>
+                  )}
+                  {s.citations?.length > 0 && (
+                    <div className="text-xs text-gray-500 mt-1 space-x-2">
+                      {s.citations.map((c: any, i: number) => (
+                        typeof c === 'string' ? <span key={i}>{c}</span> : <a key={i} href={c.url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">{c.label}</a>
+                      ))}
+                    </div>
+                  )}
                   {s.citations?.length > 0 && (
                     <div className="text-xs text-gray-500 mt-1">Sources: {s.citations.join(', ')}</div>
                   )}

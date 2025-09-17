@@ -40,7 +40,8 @@ function mapCYP2D6(text) {
   // Simple rules: PM if two no-function (*4/*4, *5), IM if one no-function, UM if duplication xN of *1/*2, NM otherwise
   if (/(CYP2D6\s*)?\*4\/\*4|\*5\/\*5/i.test(text)) return 'Poor metabolizer';
   if (/\*1xN|\*2xN|\*1\/*1xN|\*2\/*2xN/i.test(text)) return 'Ultra-rapid metabolizer';
-  if (/\*1\/\*4|\*1\/\*5|\*2\/\*4|\*2\/\*5/i.test(text)) return 'Intermediate metabolizer';
+  // Common reduced-function alleles: *10, *41
+  if (/\*1\/\*4|\*1\/\*5|\*2\/\*4|\*2\/\*5|\*1\/\*10|\*1\/\*41|\*2\/\*10|\*2\/\*41|\*10\/\*10|\*41\/\*41/i.test(text)) return 'Intermediate metabolizer';
   if (/\*1\/\*1|\*1\/\*2|\*2\/\*2/i.test(text)) return 'Normal metabolizer';
   return null;
 }
@@ -69,7 +70,7 @@ function mapTPMT(text) {
 }
 
 function mapDPYD(text) {
-  if (/DPYD\s*(\*2A|C\.1905\+1G>A|C\.2846A>T|HAPB3)/i.test(text)) return 'Intermediate metabolizer';
+  if (/DPYD\s*(\*2A|C\.1905\+1G>A|C\.2846A>T|HAPB3|C\.1679T>G|\*13|C\.1236G>A)/i.test(text)) return 'Intermediate metabolizer';
   // Truly poor is rare; if homozygous for no-function variants (not detected here), treat as poor.
   if (/NO VARIANT|WILDTYPE/i.test(text)) return 'Normal metabolizer';
   return null;

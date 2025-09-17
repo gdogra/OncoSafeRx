@@ -37,4 +37,16 @@ describe('PGx phenotype mapping', () => {
     const res = mapObservationsToPhenotypes(obs);
     expect(res).toEqual(expect.arrayContaining([{ gene: 'CYP2C19', phenotype: 'Ultra-rapid metabolizer' }]));
   });
+
+  test('CYP2D6 *10/*10 -> IM', () => {
+    const obs = [{ code: { text: 'CYP2D6' }, valueString: 'CYP2D6 *10/*10' }];
+    const res = mapObservationsToPhenotypes(obs);
+    expect(res).toEqual(expect.arrayContaining([{ gene: 'CYP2D6', phenotype: 'Intermediate metabolizer' }]));
+  });
+
+  test('DPYD c.1679T>G -> Intermediate', () => {
+    const obs = [{ code: { text: 'DPYD' }, valueString: 'DPYD c.1679T>G' }];
+    const res = mapObservationsToPhenotypes(obs);
+    expect(res).toEqual(expect.arrayContaining([{ gene: 'DPYD', phenotype: 'Intermediate metabolizer' }]));
+  });
 });

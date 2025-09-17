@@ -26,9 +26,8 @@
     Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
 
 [context.production.environment]
-  # Point this at your API base URL
-  REACT_APP_API_URL = "https://your-api-host.example.com/api"
+  # Point this at your API base URL (override in Netlify UI if needed)
+  REACT_APP_API_URL = "https://api.oncosaferx.com/api"
 
 [context.deploy-preview.environment]
   REACT_APP_API_URL = "https://your-preview-api.example.com/api"
-

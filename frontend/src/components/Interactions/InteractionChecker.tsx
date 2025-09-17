@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Drug, InteractionCheckResult } from '../../types';
 import { interactionService } from '../../services/api';
@@ -15,6 +15,7 @@ const InteractionChecker: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [altLoading, setAltLoading] = useState(false);
+  const [savedPhenotypes, setSavedPhenotypes] = useState<Record<string, string> | null>(null);
   const [altError, setAltError] = useState<string | null>(null);
   const [altResults, setAltResults] = useState<any[] | null>(null);
 
@@ -52,6 +53,12 @@ const InteractionChecker: React.FC = () => {
   };
 
   const getTotalInteractions = () => {
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('pgxPhenotypes');
+      if (saved) setSavedPhenotypes(JSON.parse(saved));
+    } catch {}
+  }, []);
     if (!results) return 0;
     return results.interactions.stored.length + results.interactions.external.length;
   };
@@ -96,42 +103,66 @@ const InteractionChecker: React.FC = () => {
             <div className="space-y-2">
               {selectedDrugs.map((drug) => (
                 <div
-                  key={drug.rxcui}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                      <span className="text-primary-600 font-medium text-sm">
-                        {selectedDrugs.indexOf(drug) + 1}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{drug.name}</p>
-                      <p className="text-sm text-gray-500">RXCUI: {drug.rxcui}</p>
-                    </div>
+      {/* Detailed Results */}
+      {results && <InteractionResults results={results} />}
+
+      {/* Alternatives (beta) */}
+      {selectedDrugs.length >= 2 && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">Alternatives (beta)</h2>
+            <button
+              onClick={async () => {
+                setAltLoading(true); setAltError(null);
+                try {
+                  const alt = await interactionService.getKnownInteractions(); // placeholder to preserve import
+                } catch {}
+                try {
+                  const resp = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3000/api'}/alternatives/suggest`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ drugs: selectedDrugs.map(d => d.rxcui), phenotypes: savedPhenotypes || {} })
+                  });
+                  if (!resp.ok) throw new Error(`Alt API ${resp.status}`);
+                  const data = await resp.json();
+                  setAltResults(data.suggestions || []);
+                } catch (e) {
+                  setAltError(e instanceof Error ? e.message : 'Failed to load alternatives');
+                } finally { setAltLoading(false); }
+              }}
+              className="px-4 py-2 bg-primary-600 text-white rounded-md"
+            >
+              {altLoading ? 'Loading…' : 'Suggest Alternatives'}
+            </button>
+          </div>
+          {savedPhenotypes && (
+            <div className="text-xs text-green-700 bg-green-50 inline-block px-2 py-1 rounded mb-3">Applying PGx phenotypes: {Object.entries(savedPhenotypes).map(([g,p]) => `${g}: ${p}`).join('; ')}</div>
+          )}
+          {altError && <Alert type="error" title="Error">{altError}</Alert>}
+          {altResults && (
+            <div className="space-y-4">
+              {altResults.length === 0 && (
+                <Alert type="info" title="No Suggestions">No alternatives available for the selected combination.</Alert>
+              )}
+              {altResults.map((s, idx) => (
+                <div key={idx} className="p-4 border rounded-md">
+                  <div className="text-sm text-gray-700">
+                    Consider replacing <strong>{s.forDrug?.name}</strong> (with {s.withDrug?.name})
+                    with <strong>{s.alternative?.name}</strong>.
                   </div>
-                  <button
-                    onClick={() => handleRemoveDrug(drug.rxcui)}
-                    className="p-1 text-gray-400 hover:text-red-600 focus:outline-none"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                  <div className="text-sm text-gray-600 mt-1">Reason: {s.rationale}</div>
+                  {s.citations?.length > 0 && (
+                    <div className="text-xs text-gray-500 mt-1">Sources: {s.citations.join(', ')}</div>
+                  )}
                 </div>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className="mt-6 flex justify-center space-x-3">
-          <button
-            onClick={handleCheckInteractions}
-            disabled={selectedDrugs.length < 2 || loading}
-            className="flex items-center space-x-2 px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <>
-                <LoadingSpinner size="sm" className="border-white" />
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
                 <span>Checking Interactions...</span>
               </>
             ) : (

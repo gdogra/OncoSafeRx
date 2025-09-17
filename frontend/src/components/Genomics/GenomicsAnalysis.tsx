@@ -142,7 +142,12 @@ const GenomicsAnalysis: React.FC = () => {
               )}
 
               {activeTab === 'pgx-upload' && (
-                <PgxUploader />
+                <PgxUploader onPhenotypes={(map) => {
+                  try {
+                    localStorage.setItem('pgxPhenotypes', JSON.stringify(map));
+                    alert('PGx phenotypes saved and will be applied to dosing/alternatives.');
+                  } catch {}
+                }} />
               )}
             </>
           )}

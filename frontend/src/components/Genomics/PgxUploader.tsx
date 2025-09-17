@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import Alert from '../UI/Alert';
 
-const PgxUploader: React.FC = () => {
+interface PgxUploaderProps {
+  onPhenotypes?: (map: Record<string, string>) => void;
+}
+
+const PgxUploader: React.FC<PgxUploaderProps> = ({ onPhenotypes }) => {
   const [json, setJson] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +31,13 @@ const PgxUploader: React.FC = () => {
       });
       if (!resp.ok) throw new Error(`API ${resp.status}`);
       const data = await resp.json();
-      setPhenos(data.phenotypes || []);
+      const ph = (data.phenotypes || []) as any[];
+      setPhenos(ph as any);
+      if (onPhenotypes) {
+        const map: Record<string, string> = {};
+        ph.forEach((p: any) => { if (p?.gene && p?.phenotype) map[p.gene] = p.phenotype; });
+        onPhenotypes(map);
+      }
     } catch (e: any) {
       setError(e?.message || 'Failed to analyze PGx data');
     } finally { setLoading(false); }
@@ -61,4 +71,3 @@ const PgxUploader: React.FC = () => {
 };
 
 export default PgxUploader;
-

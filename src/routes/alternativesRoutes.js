@@ -12,6 +12,7 @@ router.post('/suggest',
   async (req, res) => {
     try {
       const { drugs } = req.body; // array of RXCUIs
+      const phenotypes = (req.body && req.body.phenotypes) || {};
 
       const details = [];
       for (const id of drugs) {
@@ -19,7 +20,41 @@ router.post('/suggest',
         const d = await rxnormService.getDrugDetails(id);
         if (d) details.push({ rxcui: d.rxcui, name: d.name });
       }
+      let suggestions = suggestAlternatives(details);
 
+      // PGx-aware suggestions (MVP)
+      const names = details.map(d => (d.name || '').toLowerCase());
+      const addSuggestion = (forName, altName, rationale, withName) => {
+        const forDrug = details.find(d => d.name?.toLowerCase().includes(forName));
+        const withDrug = withName ? details.find(d => d.name?.toLowerCase().includes(withName)) : null;
+        if (forDrug) {
+          suggestions.push({
+            forDrug: { rxcui: forDrug.rxcui, name: forDrug.name },
+            withDrug: withDrug ? { rxcui: withDrug.rxcui, name: withDrug.name } : undefined,
+            alternative: { name: altName, rxcui: null },
+            rationale,
+            citations: ['CPIC', 'Clinical guidance']
+          });
+        }
+      };
+
+      const cyp2d6 = String(phenotypes.CYP2D6 || '').toLowerCase();
+      if (cyp2d6.includes('poor') || cyp2d6.includes('intermediate')) {
+        if (names.some(n => n.includes('codeine'))) addSuggestion('codeine', 'morphine', 'CYP2D6 PM/IM: avoid codeine; use non–CYP2D6-dependent opioid.');
+        if (names.some(n => n.includes('tramadol'))) addSuggestion('tramadol', 'morphine', 'CYP2D6 PM/IM: avoid tramadol; use non–CYP2D6-dependent opioid.');
+      }
+
+      const cyp2c19 = String(phenotypes.CYP2C19 || '').toLowerCase();
+      if (cyp2c19.includes('poor') || cyp2c19.includes('intermediate')) {
+        if (names.some(n => n.includes('clopidogrel'))) addSuggestion('clopidogrel', 'prasugrel or ticagrelor', 'CYP2C19 PM/IM: reduced clopidogrel activation; consider alternative P2Y12 inhibitor.');
+      }
+
+      res.json({
+        input: details,
+        phenotypes,
+        count: suggestions.length,
+        suggestions
+      });
       const suggestions = suggestAlternatives(details);
       res.json({
         input: details,

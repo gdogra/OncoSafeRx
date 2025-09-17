@@ -14,6 +14,9 @@ const InteractionChecker: React.FC = () => {
   const [results, setResults] = useState<InteractionCheckResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [altLoading, setAltLoading] = useState(false);
+  const [altError, setAltError] = useState<string | null>(null);
+  const [altResults, setAltResults] = useState<any[] | null>(null);
 
   const handleAddDrug = (drug: Drug) => {
     if (!selectedDrugs.find(d => d.rxcui === drug.rxcui)) {
@@ -197,6 +200,58 @@ const InteractionChecker: React.FC = () => {
 
       {/* Detailed Results */}
       {results && <InteractionResults results={results} />}
+
+      {/* Alternatives (beta) */}
+      {selectedDrugs.length >= 2 && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">Alternatives (beta)</h2>
+            <button
+              onClick={async () => {
+                setAltLoading(true); setAltError(null);
+                try {
+                  const alt = await interactionService.getKnownInteractions(); // placeholder to preserve import
+                } catch {}
+                try {
+                  const resp = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3000/api'}/alternatives/suggest`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ drugs: selectedDrugs.map(d => d.rxcui) })
+                  });
+                  if (!resp.ok) throw new Error(`Alt API ${resp.status}`);
+                  const data = await resp.json();
+                  setAltResults(data.suggestions || []);
+                } catch (e) {
+                  setAltError(e instanceof Error ? e.message : 'Failed to load alternatives');
+                } finally { setAltLoading(false); }
+              }}
+              className="px-4 py-2 bg-primary-600 text-white rounded-md"
+            >
+              {altLoading ? 'Loading…' : 'Suggest Alternatives'}
+            </button>
+          </div>
+          {altError && <Alert type="error" title="Error">{altError}</Alert>}
+          {altResults && (
+            <div className="space-y-4">
+              {altResults.length === 0 && (
+                <Alert type="info" title="No Suggestions">No alternatives available for the selected combination.</Alert>
+              )}
+              {altResults.map((s, idx) => (
+                <div key={idx} className="p-4 border rounded-md">
+                  <div className="text-sm text-gray-700">
+                    Consider replacing <strong>{s.forDrug?.name}</strong> (with {s.withDrug?.name})
+                    with <strong>{s.alternative?.name}</strong>.
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1">Reason: {s.rationale}</div>
+                  {s.citations?.length > 0 && (
+                    <div className="text-xs text-gray-500 mt-1">Sources: {s.citations.join(', ')}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

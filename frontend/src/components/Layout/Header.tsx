@@ -31,6 +31,7 @@ const Header: React.FC = () => {
     { path: '/search', label: 'Drug Search', icon: Search },
     { path: '/interactions', label: 'Interactions', icon: AlertTriangle },
     { path: '/genomics', label: 'Genomics', icon: Dna },
+    { path: '/regimens', label: 'Regimens', icon: FileText },
     { path: '/curated', label: 'Curated', icon: FileText },
     { path: '/protocols', label: 'Protocols', icon: FileText },
   ];

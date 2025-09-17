@@ -116,3 +116,33 @@ router.post('/profile/check', async (req, res) => {
 });
 
 export default router;
+// FHIR PGx phenotype mapping (MVP stub)
+export const fhirRouter = express.Router();
+
+// Map FHIR Observations to coarse phenotypes (demo logic)
+fhirRouter.post('/fhir/phenotype', async (req, res) => {
+  try {
+    const { observations = [] } = req.body || {};
+    const phenotypes = [];
+
+    const map = {
+      'CYP2D6 *1/*1': 'Normal metabolizer',
+      'CYP2D6 *1/*4': 'Intermediate metabolizer',
+      'CYP2D6 *4/*4': 'Poor metabolizer'
+    };
+
+    for (const obs of observations) {
+      const text = (obs.valueString || obs.value || obs.interpretation?.text || '').toString();
+      const codeText = `${obs.code?.text || ''} ${text}`.trim();
+      const matched = Object.keys(map).find(k => codeText.toUpperCase().includes(k.toUpperCase()));
+      if (matched) {
+        const gene = matched.split(' ')[0];
+        phenotypes.push({ gene, phenotype: map[matched] });
+      }
+    }
+
+    res.json({ count: phenotypes.length, phenotypes });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});

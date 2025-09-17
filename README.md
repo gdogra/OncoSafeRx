@@ -94,6 +94,51 @@ POST /api/interactions/check
 # Get all interactions for a drug
 GET /api/interactions/drug/161
 
+### Alternatives (MVP)
+
+```
+# Suggest safer alternatives for a set of RXCUIs
+POST /api/alternatives/suggest
+{
+  "drugs": ["42463", "1811631"]
+}
+
+# Response
+{
+  "count": 1,
+  "suggestions": [
+    {
+      "forDrug": {"name": "omeprazole"},
+      "withDrug": {"name": "clopidogrel"},
+      "alternative": {"name": "pantoprazole", "rxcui": null},
+      "rationale": "Pantoprazole has minimal CYP2C19 inhibition...",
+      "citations": ["FDA", "CPIC"]
+    }
+  ]
+}
+```
+
+### Regimens (MVP)
+
+```
+# List regimen templates
+GET /api/regimens
+
+# Get regimen details
+GET /api/regimens/FOLFOX-6
+```
+
+### CDS Hooks (Demo)
+
+```
+# Discovery
+GET /cds-services
+
+# medication-prescribe
+POST /cds-services/oncosaferx-medication-prescribe
+{ "context": { "medications": ["42463", "1811631"] } }
+```
+
 # List curated (local) interactions
 GET /api/interactions/known
 

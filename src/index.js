@@ -19,7 +19,11 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 // Routes
 import drugRoutes from './routes/drugRoutes.js';
 import interactionRoutes from './routes/interactionRoutes.js';
-import genomicsRoutes from './routes/genomicsRoutes.js';
+import genomicsRoutes, { fhirRouter as genomicsFhirRoutes } from './routes/genomicsRoutes.js';
+import alternativesRoutes from './routes/alternativesRoutes.js';
+import regimenRoutes from './routes/regimenRoutes.js';
+import cdsHooksRoutes from './routes/cdsHooksRoutes.js';
+import smartRoutes from './routes/smartRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -110,6 +114,11 @@ app.get('/metrics', async (req, res) => {
 app.use('/api/drugs', drugRoutes);
 app.use('/api/interactions', interactionRoutes);
 app.use('/api/genomics', genomicsRoutes);
+app.use('/api/genomics', genomicsFhirRoutes);
+app.use('/api/alternatives', alternativesRoutes);
+app.use('/api/regimens', regimenRoutes);
+app.use('/', cdsHooksRoutes);
+app.use('/', smartRoutes);
 
 // Serve frontend build (SPA) for non-API routes, if available
 try {

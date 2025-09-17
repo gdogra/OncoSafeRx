@@ -7,6 +7,7 @@ import InteractionChecker from './components/Interactions/InteractionChecker';
 import GenomicsAnalysis from './components/Genomics/GenomicsAnalysis';
 import Protocols from './pages/Protocols';
 import CuratedInteractions from './pages/CuratedInteractions';
+import Regimens from './pages/Regimens';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/search" element={<DrugSearch />} />
           <Route path="/interactions" element={<InteractionChecker />} />
           <Route path="/curated" element={<CuratedInteractions />} />
+          <Route path="/regimens" element={<Regimens />} />
           <Route path="/genomics" element={<GenomicsAnalysis />} />
           <Route path="/protocols" element={<Protocols />} />
         </Routes>

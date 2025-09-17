@@ -33,6 +33,7 @@ const Header: React.FC = () => {
     { path: '/genomics', label: 'Genomics', icon: Dna },
     { path: '/regimens', label: 'Regimens', icon: FileText },
     { path: '/curated', label: 'Curated', icon: FileText },
+    { path: '/trials', label: 'Trials', icon: FileText },
     { path: '/protocols', label: 'Protocols', icon: FileText },
   ];
 

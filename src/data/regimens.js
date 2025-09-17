@@ -39,6 +39,79 @@ export const REGIMENS = [
       { criterion: 'ANC < 1500/µL', action: 'Delay and/or add G-CSF per risk protocol' }
     ]
   }
+  ,
+  {
+    id: 'FOLFIRI',
+    name: 'FOLFIRI',
+    indication: 'Colorectal cancer',
+    cycleLengthDays: 14,
+    components: [
+      { name: 'Irinotecan', dose: '180 mg/m² IV day 1' },
+      { name: 'Leucovorin', dose: '400 mg/m² IV day 1' },
+      { name: '5-FU (bolus)', dose: '400 mg/m² IV day 1' },
+      { name: '5-FU (infusion)', dose: '2400 mg/m² CI over 46h' }
+    ],
+    pretreatment: ['CBC', 'CMP'],
+    monitoring: ['ANC/Platelets', 'Diarrhea risk management'],
+    notes: ['UGT1A1 *28/*28: consider dose reduction for irinotecan'],
+    adjustments: [
+      { criterion: 'UGT1A1 *28/*28', action: 'Reduce irinotecan starting dose (25–50%) and monitor neutropenia' }
+    ]
+  },
+  {
+    id: 'R-CHOP',
+    name: 'R-CHOP',
+    indication: 'Diffuse Large B-Cell Lymphoma',
+    cycleLengthDays: 21,
+    components: [
+      { name: 'Rituximab', dose: '375 mg/m² IV day 1' },
+      { name: 'Cyclophosphamide', dose: '750 mg/m² IV day 1' },
+      { name: 'Doxorubicin', dose: '50 mg/m² IV day 1' },
+      { name: 'Vincristine', dose: '1.4 mg/m² (max 2 mg) IV day 1' },
+      { name: 'Prednisone', dose: '100 mg PO daily days 1–5' }
+    ],
+    pretreatment: ['CBC', 'CMP', 'Hepatitis B screening', 'Echocardiogram'],
+    monitoring: ['ANC/Platelets', 'Cardiac function with anthracyclines'],
+    notes: ['HBV prophylaxis if indicated', 'Neutropenia management with G-CSF per risk'],
+    adjustments: [
+      { criterion: 'LVEF < limit of normal', action: 'Avoid/hold doxorubicin; cardiology evaluation' }
+    ]
+  },
+  {
+    id: 'FOLFOXIRI',
+    name: 'FOLFOXIRI',
+    indication: 'Metastatic colorectal cancer',
+    cycleLengthDays: 14,
+    components: [
+      { name: 'Irinotecan', dose: '165 mg/m² IV day 1' },
+      { name: 'Oxaliplatin', dose: '85 mg/m² IV day 1' },
+      { name: 'Leucovorin', dose: '200 mg/m² IV day 1' },
+      { name: '5-FU (infusion)', dose: '3200 mg/m² over 48h' }
+    ],
+    pretreatment: ['CBC', 'CMP'],
+    monitoring: ['ANC/Platelets', 'Diarrhea and neuropathy monitoring'],
+    notes: ['Aggressive regimen; consider patient fitness'],
+    adjustments: [
+      { criterion: 'UGT1A1 *28/*28', action: 'Reduce irinotecan starting dose' }
+    ]
+  },
+  {
+    id: 'CAPOX',
+    name: 'CAPOX (XELOX)',
+    indication: 'Colorectal cancer',
+    cycleLengthDays: 21,
+    components: [
+      { name: 'Capecitabine', dose: '1000 mg/m² PO BID days 1–14' },
+      { name: 'Oxaliplatin', dose: '130 mg/m² IV day 1' }
+    ],
+    pretreatment: ['CBC', 'CMP'],
+    monitoring: ['ANC/Platelets', 'Hand-foot syndrome', 'Neuropathy'],
+    notes: ['Renal dosing for capecitabine if CrCl < 50 mL/min'],
+    adjustments: [
+      { criterion: 'CrCl 30–50 mL/min', action: 'Reduce capecitabine dose (75%)' },
+      { criterion: 'CrCl < 30 mL/min', action: 'Avoid capecitabine' }
+    ]
+  }
 ];
 
 export default REGIMENS;

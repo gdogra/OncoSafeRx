@@ -1,6 +1,7 @@
 import express from 'express';
 import { GeneDrugInteraction } from '../models/Interaction.js';
 import CPIC_GUIDELINES_DB from '../data/cpicGuidelines.js';
+import mapObservationsToPhenotypes from '../engine/pgxPhenotype.js';
 
 const router = express.Router();
 
@@ -123,24 +124,7 @@ export const fhirRouter = express.Router();
 fhirRouter.post('/fhir/phenotype', async (req, res) => {
   try {
     const { observations = [] } = req.body || {};
-    const phenotypes = [];
-
-    const map = {
-      'CYP2D6 *1/*1': 'Normal metabolizer',
-      'CYP2D6 *1/*4': 'Intermediate metabolizer',
-      'CYP2D6 *4/*4': 'Poor metabolizer'
-    };
-
-    for (const obs of observations) {
-      const text = (obs.valueString || obs.value || obs.interpretation?.text || '').toString();
-      const codeText = `${obs.code?.text || ''} ${text}`.trim();
-      const matched = Object.keys(map).find(k => codeText.toUpperCase().includes(k.toUpperCase()));
-      if (matched) {
-        const gene = matched.split(' ')[0];
-        phenotypes.push({ gene, phenotype: map[matched] });
-      }
-    }
-
+    const phenotypes = mapObservationsToPhenotypes(observations);
     res.json({ count: phenotypes.length, phenotypes });
   } catch (e) {
     res.status(500).json({ error: e.message });

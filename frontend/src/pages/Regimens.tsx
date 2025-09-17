@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 
@@ -17,6 +17,9 @@ const Regimens: React.FC = () => {
   const [list, setList] = useState<Regimen[]>([]);
   const [selected, setSelected] = useState<Regimen | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [labs, setLabs] = useState<{ ANC?: number; platelets?: number; CrCl?: number; LVEF?: number }>({});
+  const [phenotypes, setPhenotypes] = useState<{ [gene: string]: string }>({});
+  const [dosingRecs, setDosingRecs] = useState<string[] | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -39,6 +42,28 @@ const Regimens: React.FC = () => {
       setSelected(data);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load regimen');
+    }
+  };
+
+  const apiBase = useMemo(() => process.env.REACT_APP_API_URL || 'http://localhost:3000/api', []);
+
+  const downloadPdf = (id: string) => {
+    const url = `${apiBase}/export/regimen/${encodeURIComponent(id)}/pdf`;
+    window.open(url, '_blank');
+  };
+
+  const adjustDosing = async () => {
+    if (!selected) return;
+    try {
+      const resp = await fetch(`${apiBase}/dosing/adjust`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ regimenId: selected.id, labs, phenotypes })
+      });
+      const data = await resp.json();
+      setDosingRecs(data.recommendations || []);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to adjust dosing');
     }
   };
 
@@ -72,6 +97,9 @@ const Regimens: React.FC = () => {
                 {selected.cycleLengthDays && (
                   <div className="text-gray-600">Cycle length: {selected.cycleLengthDays} days</div>
                 )}
+                <div>
+                  <button onClick={() => downloadPdf(selected.id)} className="px-3 py-2 bg-gray-800 text-white rounded-md">Download PDF</button>
+                </div>
                 {selected.components && (
                   <div>
                     <div className="font-medium">Components</div>
@@ -106,6 +134,53 @@ const Regimens: React.FC = () => {
                     </ul>
                   </div>
                 )}
+
+                {/* Dosing calculator */}
+                <div className="mt-4">
+                  <div className="font-medium mb-2">Dosing Adjustments (MVP)</div>
+                  <div className="grid md:grid-cols-4 gap-3 text-sm">
+                    <label className="block">ANC (/µL)
+                      <input type="number" className="w-full border rounded px-2 py-1" value={labs.ANC ?? ''} onChange={e => setLabs({ ...labs, ANC: e.target.value ? Number(e.target.value) : undefined })} />
+                    </label>
+                    <label className="block">Platelets (/µL)
+                      <input type="number" className="w-full border rounded px-2 py-1" value={labs.platelets ?? ''} onChange={e => setLabs({ ...labs, platelets: e.target.value ? Number(e.target.value) : undefined })} />
+                    </label>
+                    <label className="block">CrCl (mL/min)
+                      <input type="number" className="w-full border rounded px-2 py-1" value={labs.CrCl ?? ''} onChange={e => setLabs({ ...labs, CrCl: e.target.value ? Number(e.target.value) : undefined })} />
+                    </label>
+                    <label className="block">LVEF (%)
+                      <input type="number" className="w-full border rounded px-2 py-1" value={labs.LVEF ?? ''} onChange={e => setLabs({ ...labs, LVEF: e.target.value ? Number(e.target.value) : undefined })} />
+                    </label>
+                  </div>
+                  <div className="grid md:grid-cols-4 gap-3 text-sm mt-3">
+                    <label className="block">DPYD phenotype
+                      <select className="w-full border rounded px-2 py-1" value={phenotypes.DPYD || ''} onChange={e => setPhenotypes({ ...phenotypes, DPYD: e.target.value })}>
+                        <option value="">Unknown</option>
+                        <option>Normal metabolizer</option>
+                        <option>Intermediate metabolizer</option>
+                        <option>Poor metabolizer</option>
+                      </select>
+                    </label>
+                    <label className="block">CYP2D6 phenotype
+                      <select className="w-full border rounded px-2 py-1" value={phenotypes.CYP2D6 || ''} onChange={e => setPhenotypes({ ...phenotypes, CYP2D6: e.target.value })}>
+                        <option value="">Unknown</option>
+                        <option>Normal metabolizer</option>
+                        <option>Intermediate metabolizer</option>
+                        <option>Poor metabolizer</option>
+                        <option>Ultra-rapid metabolizer</option>
+                      </select>
+                    </label>
+                  </div>
+                  <div className="mt-3">
+                    <button onClick={adjustDosing} className="px-3 py-2 bg-primary-600 text-white rounded-md">Apply Adjustments</button>
+                  </div>
+                  {dosingRecs && (
+                    <div className="mt-3 space-y-1 text-sm text-gray-700">
+                      {dosingRecs.length === 0 && <div>No adjustments recommended.</div>}
+                      {dosingRecs.map((r, idx) => <div key={idx}>• {r}</div>)}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </Card>
@@ -116,4 +191,3 @@ const Regimens: React.FC = () => {
 };
 
 export default Regimens;
-

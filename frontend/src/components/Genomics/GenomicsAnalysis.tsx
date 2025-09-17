@@ -6,10 +6,11 @@ import Alert from '../UI/Alert';
 import LoadingSpinner from '../UI/LoadingSpinner';
 import CpicGuidelines from './CpicGuidelines';
 import DrugGenomicsAnalysis from './DrugGenomicsAnalysis';
-import { Dna, Search, BookOpen } from 'lucide-react';
+import { Dna, Search, BookOpen, Upload } from 'lucide-react';
+import PgxUploader from './PgxUploader';
 
 const GenomicsAnalysis: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'guidelines' | 'drug-analysis'>('guidelines');
+  const [activeTab, setActiveTab] = useState<'guidelines' | 'drug-analysis' | 'pgx-upload'>('guidelines');
   const [cpicGuidelines, setCpicGuidelines] = useState<CpicGuidelinesResult | null>(null);
   const [drugAnalysis, setDrugAnalysis] = useState<GenomicAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
@@ -27,6 +28,12 @@ const GenomicsAnalysis: React.FC = () => {
       label: 'Drug Analysis',
       icon: Search,
       description: 'Analyze genomic factors for specific drugs'
+    },
+    {
+      id: 'pgx-upload' as const,
+      label: 'PGx Upload',
+      icon: Upload,
+      description: 'Paste FHIR Observations to derive phenotypes'
     }
   ];
 
@@ -132,6 +139,10 @@ const GenomicsAnalysis: React.FC = () => {
                   analysis={drugAnalysis}
                   onAnalyze={handleDrugAnalysis}
                 />
+              )}
+
+              {activeTab === 'pgx-upload' && (
+                <PgxUploader />
               )}
             </>
           )}

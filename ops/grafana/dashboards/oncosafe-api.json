@@ -1,0 +1,56 @@
+{
+  "__inputs": [],
+  "__requires": [
+    { "type": "grafana", "id": "grafana", "name": "Grafana", "version": "11.2.0" },
+    { "type": "panel", "id": "timeseries", "name": "Time series", "version": "11.2.0" },
+    { "type": "datasource", "id": "prometheus", "name": "Prometheus", "version": "2.0.0" }
+  ],
+  "title": "OncoSafeRx API Overview",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "HTTP Requests Rate (req/s)",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum by (method, route) (rate(http_request_duration_seconds_count[5m]))",
+          "legendFormat": "{{method}} {{route}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Latency (p50/p90/p99)",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.50, sum by (le, route) (rate(http_request_duration_seconds_bucket[5m])))", "legendFormat": "p50 {{route}}" },
+        { "expr": "histogram_quantile(0.90, sum by (le, route) (rate(http_request_duration_seconds_bucket[5m])))", "legendFormat": "p90 {{route}}" },
+        { "expr": "histogram_quantile(0.99, sum by (le, route) (rate(http_request_duration_seconds_bucket[5m])))", "legendFormat": "p99 {{route}}" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Active Heap (Bytes)",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "nodejs_heap_size_used_bytes", "legendFormat": "heap used" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Event Loop Lag (Seconds)",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "nodejs_eventloop_lag_seconds", "legendFormat": "event loop lag" }
+      ]
+    }
+  ],
+  "templating": { "list": [] },
+  "schemaVersion": 38,
+  "version": 1
+}
+

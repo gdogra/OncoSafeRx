@@ -1,0 +1,104 @@
+# Removed version as it's obsolete in newer Docker Compose
+
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: oncosaferx
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./hasura/migrations:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432"
+
+  hasura:
+    image: hasura/graphql-engine:v2.36.0
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+    restart: always
+    environment:
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgres@postgres:5432/oncosaferx
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgres@postgres:5432/oncosaferx
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET:-jrVx4KlySc1PoNUkbn6S41x958VtU6pR9loQHrpe44bSTlYE3qq9NGjGttaZGtR5}
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: anonymous
+      HASURA_GRAPHQL_CORS_DOMAIN: "*"
+
+  oncosaferx-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - hasura
+      - postgres
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      SERVE_FRONTEND: "true"
+      CORS_ORIGIN: "*"
+      HASURA_ENDPOINT: http://hasura:8080/v1/graphql
+      HASURA_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET:-jrVx4KlySc1PoNUkbn6S41x958VtU6pR9loQHrpe44bSTlYE3qq9NGjGttaZGtR5}
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/oncosaferx
+
+  nginx:
+    image: nginx:1.27-alpine
+    depends_on:
+      - oncosaferx-api
+    profiles: ["proxy"]
+    ports:
+      - "80:80"
+      # - "443:443" # enable when TLS configured
+    volumes:
+      - ./ops/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend/build:/usr/share/nginx/html:ro
+      - ./ops/nginx/certs:/etc/nginx/certs:ro
+      - ./ops/nginx/www:/var/www/certbot
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot:latest
+    profiles: ["proxy"]
+    volumes:
+      - ./ops/nginx/certs:/etc/letsencrypt
+      - ./ops/nginx/www:/var/www/certbot
+    entrypoint: /bin/sh
+    command: -c "trap : TERM INT; while :; do certbot renew --webroot -w /var/www/certbot --quiet --agree-tos; sleep 12h & wait $${!}; done"
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.55.0
+    profiles: ["monitoring"]
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./ops/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    depends_on:
+      - oncosaferx-api
+      - nginx
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    profiles: ["monitoring"]
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

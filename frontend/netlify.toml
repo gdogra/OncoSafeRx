@@ -1,0 +1,34 @@
+[build]
+  base = "frontend"
+  publish = "build"
+  command = "npm ci && npm run build"
+
+# SPA fallback so client-side routes work
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Cache static assets aggressively
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, immutable"
+
+# Basic security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer-when-downgrade"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+
+[context.production.environment]
+  # Point this at your API base URL
+  REACT_APP_API_URL = "https://your-api-host.example.com/api"
+
+[context.deploy-preview.environment]
+  REACT_APP_API_URL = "https://your-preview-api.example.com/api"
+

@@ -1,9 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import { FileText, ExternalLink, Search, Calendar, Users, TrendingUp } from 'lucide-react';
 
 const Protocols: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const [selectedDrug, setSelectedDrug] = useState<string | null>(null);
+
+  // Handle URL drug parameter
+  useEffect(() => {
+    const drugParam = searchParams.get('drug');
+    if (drugParam) {
+      setSelectedDrug(drugParam);
+    }
+  }, [searchParams]);
+
   const protocols = [
     {
       name: 'FOLFOX',
@@ -67,6 +79,23 @@ const Protocols: React.FC = () => {
     }
   ];
 
+  // Filter protocols and trials based on selected drug
+  const filteredProtocols = selectedDrug 
+    ? protocols.filter(protocol => 
+        protocol.drugs.some(drug => 
+          drug.toLowerCase().includes(selectedDrug.toLowerCase())
+        )
+      )
+    : protocols;
+
+  const filteredTrials = selectedDrug
+    ? trials.filter(trial =>
+        trial.drugs.some(drug =>
+          drug.toLowerCase().includes(selectedDrug.toLowerCase())
+        )
+      )
+    : trials;
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -79,6 +108,13 @@ const Protocols: React.FC = () => {
           Access evidence-based oncology treatment protocols and discover relevant clinical trials for precision medicine.
         </p>
       </div>
+
+      {/* Selected Drug Alert */}
+      {selectedDrug && (
+        <Alert type="info" title={`Showing protocols and trials for: ${selectedDrug}`}>
+          Protocols and trials have been filtered to show those containing or related to "{selectedDrug}".
+        </Alert>
+      )}
 
       {/* Search and Filters */}
       <Card>
@@ -127,7 +163,7 @@ const Protocols: React.FC = () => {
         <h2 className="text-2xl font-bold text-gray-900">Oncology Treatment Protocols</h2>
         
         <div className="grid gap-6">
-          {protocols.map((protocol, index) => (
+          {filteredProtocols.map((protocol, index) => (
             <Card key={index} className="hover:shadow-md transition-shadow">
               <div className="space-y-4">
                 <div className="flex items-start justify-between">
@@ -199,7 +235,7 @@ const Protocols: React.FC = () => {
         <h2 className="text-2xl font-bold text-gray-900">Relevant Clinical Trials</h2>
         
         <div className="grid gap-6">
-          {trials.map((trial, index) => (
+          {filteredTrials.map((trial, index) => (
             <Card key={index} className="hover:shadow-md transition-shadow">
               <div className="space-y-4">
                 <div className="flex items-start justify-between">

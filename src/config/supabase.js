@@ -1,74 +1,116 @@
-// Lightweight no-op Supabase service for environments without Supabase/Hasura
-// This avoids importing '@supabase/supabase-js' (and its Headers dependency)
-// while preserving the same interface used across the app.
+// Supabase service - automatically uses real implementation if credentials are available
+// Falls back to no-op implementation for development without Supabase setup
 
-export class SupabaseService {
+import dotenv from 'dotenv';
+dotenv.config();
+
+// Check if Supabase credentials are available
+const hasSupabaseCredentials = process.env.SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY);
+
+// No-op Supabase service for environments without Supabase
+export class NoOpSupabaseService {
   constructor() {
     this.enabled = false;
   }
 
   // Drug operations (no-op)
-  async searchDrugs(_searchTerm, _limit = 50) {
-    return [];
+  searchDrugs(_searchTerm, _limit = 50) {
+    return Promise.resolve([]);
   }
 
-  async getDrugByRxcui(_rxcui) {
-    return null;
+  getDrugByRxcui(_rxcui) {
+    return Promise.resolve(null);
   }
 
-  async upsertDrug(drugData) {
+  upsertDrug(drugData) {
     // pretend success and echo back
-    return drugData;
+    return Promise.resolve(drugData);
   }
 
   // Drug interaction operations (no-op)
-  async getDrugInteractions(_rxcui) {
-    return [];
+  getDrugInteractions(_rxcui) {
+    return Promise.resolve([]);
   }
 
-  async checkMultipleInteractions(_rxcuis) {
-    return [];
+  checkMultipleInteractions(_rxcuis) {
+    return Promise.resolve([]);
   }
 
-  async insertDrugInteraction(interactionData) {
-    return interactionData;
+  insertDrugInteraction(interactionData) {
+    return Promise.resolve(interactionData);
   }
 
   // Gene operations (no-op)
-  async upsertGene(geneData) {
-    return geneData;
+  upsertGene(geneData) {
+    return Promise.resolve(geneData);
   }
 
-  async getGeneDrugInteractions(_geneSymbol, _drugRxcui) {
-    return [];
+  getGeneDrugInteractions(_geneSymbol, _drugRxcui) {
+    return Promise.resolve([]);
   }
 
-  async getCpicGuidelines() {
-    return [];
+  getCpicGuidelines() {
+    return Promise.resolve([]);
   }
 
-  async insertGeneDrugInteraction(interactionData) {
-    return interactionData;
+  insertGeneDrugInteraction(interactionData) {
+    return Promise.resolve(interactionData);
   }
 
   // Oncology protocols (no-op)
-  async getOncologyProtocols(_cancerType) {
-    return [];
+  getOncologyProtocols(_cancerType) {
+    return Promise.resolve([]);
   }
 
   // Clinical trials (no-op)
-  async getClinicalTrials(_condition, _drugs) {
-    return [];
+  getClinicalTrials(_condition, _drugs) {
+    return Promise.resolve([]);
+  }
+
+  // User management (no-op)
+  createUser(userData) {
+    return Promise.resolve(userData);
+  }
+
+  getUserByEmail(_email) {
+    return Promise.resolve(null);
+  }
+
+  getAllUsers() {
+    return Promise.resolve([]);
+  }
+
+  updateUser(_userId, updateData) {
+    return Promise.resolve(updateData);
   }
 
   // Data sync logging (no-op)
-  async logSyncActivity(logData) {
-    return { id: 'noop', ...logData };
+  logSyncActivity(logData) {
+    return Promise.resolve({ id: 'noop', ...logData });
   }
 
-  async updateSyncStatus(id, updateData) {
-    return { id, ...updateData };
+  updateSyncStatus(id, updateData) {
+    return Promise.resolve({ id, ...updateData });
   }
 }
 
-export default new SupabaseService();
+// Function to create the appropriate service
+async function createSupabaseService() {
+  if (hasSupabaseCredentials) {
+    try {
+      const { SupabaseService } = await import('./supabase.real.js');
+      console.log('✅ Using real Supabase service');
+      return new SupabaseService();
+    } catch (error) {
+      console.log('⚠️  Failed to load real Supabase service, falling back to no-op:', error.message);
+      return new NoOpSupabaseService();
+    }
+  } else {
+    console.log('⚠️  Supabase credentials not found, using no-op service');
+    return new NoOpSupabaseService();
+  }
+}
+
+// Create and export the service instance
+const supabaseService = await createSupabaseService();
+export default supabaseService;

@@ -23,16 +23,22 @@ export const schemas = {
   // Interaction check validation
   interactionCheck: Joi.object({
     drugs: Joi.array()
-      .items(Joi.string().pattern(/^\d+$/))
+      .items(
+        Joi.object({
+          rxcui: Joi.string().pattern(/^\d+$/).required(),
+          name: Joi.string().optional()
+        }).unknown(true)
+      )
       .min(2)
       .max(10)
       .required()
       .messages({
         'array.min': 'At least 2 drugs are required for interaction checking',
         'array.max': 'Maximum 10 drugs allowed for interaction checking',
-        'string.pattern.base': 'Each drug must be a valid RXCUI (numbers only)',
         'any.required': 'Drugs array is required'
-      })
+      }),
+    patient_context: Joi.object().optional(),
+    include_recommendations: Joi.boolean().optional()
   }),
 
   // Genomics profile validation

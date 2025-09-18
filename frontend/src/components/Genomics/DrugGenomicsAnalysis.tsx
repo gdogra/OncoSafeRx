@@ -3,7 +3,8 @@ import { GenomicAnalysis } from '../../types';
 import { drugService } from '../../services/api';
 import Card from '../UI/Card';
 import Alert from '../UI/Alert';
-import DrugSearchBar from '../DrugSearch/DrugSearchBar';
+import Tooltip from '../UI/Tooltip';
+import EnhancedDrugSearchBar from '../DrugSearch/EnhancedDrugSearchBar';
 import { Search, Dna, AlertTriangle, Info } from 'lucide-react';
 
 interface DrugGenomicsAnalysisProps {
@@ -100,15 +101,19 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
       <Card>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Search Drug for Genomic Analysis
-            </label>
-            <DrugSearchBar
-              onSearch={handleDrugSearch}
-              loading={searchLoading}
+            <div className="flex items-center space-x-2 mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Search Drug for Genomic Analysis
+              </label>
+              <Tooltip content="Search for medications to view their pharmacogenomic profile including gene-drug interactions, dosing recommendations, and clinical guidelines">
+                <Info className="w-3 h-3 text-gray-400" />
+              </Tooltip>
+            </div>
+            <EnhancedDrugSearchBar
+              onDrugSelect={(drug) => onAnalyze(drug.rxcui)}
               placeholder="Search for a drug to analyze (e.g., clopidogrel, fluorouracil)..."
-              value={searchQuery}
-              onChange={setSearchQuery}
+              showTooltips={false}
+              className="w-full"
             />
           </div>
           
@@ -148,7 +153,12 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
             {/* Genes Overview */}
             {analysis.genes.length > 0 && (
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">Associated Genes</h4>
+                <div className="flex items-center space-x-2 mb-2">
+                  <h4 className="font-medium text-gray-900">Associated Genes</h4>
+                  <Tooltip content="Pharmacogenes that influence this drug's metabolism, efficacy, or safety. Genetic variants in these genes may affect patient response">
+                    <Info className="w-3 h-3 text-gray-400" />
+                  </Tooltip>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {analysis.genes.map((gene, index) => (
                     <span
@@ -171,7 +181,12 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
             </Alert>
           ) : (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">Genomic Recommendations</h3>
+              <div className="flex items-center space-x-2">
+                <h3 className="text-lg font-semibold text-gray-900">Genomic Recommendations</h3>
+                <Tooltip content="Evidence-based clinical guidelines for gene-drug interactions from CPIC, FDA, and other authoritative sources. Includes dosing adjustments and therapeutic alternatives">
+                  <Info className="w-4 h-4 text-gray-400" />
+                </Tooltip>
+              </div>
               
               {analysis.recommendations.map((rec, index) => {
                 const severity = getRecommendationSeverity(rec.recommendation);
@@ -195,9 +210,11 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
                         </div>
                         
                         {rec.evidenceLevel && (
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getEvidenceColor(rec.evidenceLevel)}`}>
-                            Evidence Level {rec.evidenceLevel}
-                          </span>
+                          <Tooltip content={`CPIC Evidence Level ${rec.evidenceLevel}: ${rec.evidenceLevel === 'A' ? 'Strong evidence from high-quality studies' : rec.evidenceLevel === 'B' ? 'Moderate evidence from good studies' : rec.evidenceLevel === 'C' ? 'Weak evidence or expert opinion' : 'Insufficient evidence'}`}>
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium cursor-help ${getEvidenceColor(rec.evidenceLevel)}`}>
+                              Evidence Level {rec.evidenceLevel}
+                            </span>
+                          </Tooltip>
                         )}
                       </div>
 

@@ -12,15 +12,5 @@ export default {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
-  transform: {},
-  extensionsToTreatAsEsm: ['.js'],
-  globals: {
-    'ts-jest': {
-      useESM: true
-    }
-  },
-  moduleNameMapping: {
-    '^(\\.{1,2}/.*)\\.js$': '$1'
-  }
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.js']
 };

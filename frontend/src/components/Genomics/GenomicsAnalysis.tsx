@@ -1,39 +1,47 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { CpicGuidelinesResult, GenomicAnalysis } from '../../types';
-import { genomicsService } from '../../services/api';
+import { genomicsService, drugService } from '../../services/api';
 import Card from '../UI/Card';
 import Alert from '../UI/Alert';
 import LoadingSpinner from '../UI/LoadingSpinner';
+import Tooltip from '../UI/Tooltip';
 import CpicGuidelines from './CpicGuidelines';
 import DrugGenomicsAnalysis from './DrugGenomicsAnalysis';
-import { Dna, Search, BookOpen, Upload } from 'lucide-react';
+import { Dna, Search, BookOpen, Upload, Info } from 'lucide-react';
 import PgxUploader from './PgxUploader';
+import { useSelection } from '../../context/SelectionContext';
 
 const GenomicsAnalysis: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<'guidelines' | 'drug-analysis' | 'pgx-upload'>('guidelines');
   const [cpicGuidelines, setCpicGuidelines] = useState<CpicGuidelinesResult | null>(null);
   const [drugAnalysis, setDrugAnalysis] = useState<GenomicAnalysis | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const selection = useSelection();
 
   const tabs = [
     {
       id: 'guidelines' as const,
       label: 'CPIC Guidelines',
       icon: BookOpen,
-      description: 'Browse pharmacogenomic guidelines from CPIC'
+      description: 'Browse pharmacogenomic guidelines from CPIC',
+      tooltip: 'Clinical Pharmacogenetics Implementation Consortium (CPIC) evidence-based guidelines for gene-drug interactions'
     },
     {
       id: 'drug-analysis' as const,
       label: 'Drug Analysis',
       icon: Search,
-      description: 'Analyze genomic factors for specific drugs'
+      description: 'Analyze genomic factors for specific drugs',
+      tooltip: 'Comprehensive pharmacogenomic analysis for individual medications including gene variants, metabolizer status, and dosing recommendations'
     },
     {
       id: 'pgx-upload' as const,
       label: 'PGx Upload',
       icon: Upload,
-      description: 'Paste FHIR Observations to derive phenotypes'
+      description: 'Paste FHIR Observations to derive phenotypes',
+      tooltip: 'Upload genetic test results in FHIR format to automatically derive pharmacogenomic phenotypes and metabolizer status'
     }
   ];
 
@@ -65,6 +73,22 @@ const GenomicsAnalysis: React.FC = () => {
     }
   };
 
+  // Handle URL drug parameter and selection context
+  useEffect(() => {
+    const drugParam = searchParams.get('drug');
+    
+    if (drugParam && !drugAnalysis) {
+      // Prioritize URL parameter
+      setActiveTab('drug-analysis');
+      handleDrugAnalysis(drugParam);
+    } else if (!drugAnalysis && selection.lastSelected?.rxcui) {
+      // Fallback to selection context if no URL parameter
+      setActiveTab('drug-analysis');
+      handleDrugAnalysis(selection.lastSelected.rxcui);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -85,18 +109,20 @@ const GenomicsAnalysis: React.FC = () => {
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`group inline-flex items-center space-x-2 py-4 px-6 border-b-2 font-medium text-sm ${
-                    activeTab === tab.id
-                      ? 'border-primary-500 text-primary-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{tab.label}</span>
-                </button>
+                <Tooltip key={tab.id} content={tab.tooltip}>
+                  <button
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`group inline-flex items-center space-x-2 py-4 px-6 border-b-2 font-medium text-sm ${
+                      activeTab === tab.id
+                        ? 'border-primary-500 text-primary-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{tab.label}</span>
+                    <Info className="w-3 h-3 opacity-50" />
+                  </button>
+                </Tooltip>
               );
             })}
           </nav>

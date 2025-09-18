@@ -66,13 +66,27 @@ export const interactionService = {
     return response.data;
   },
 
-  checkInteractions: async (drugs: string[]) => {
+  checkInteractions: async (drugs: { rxcui: string; name: string }[]) => {
     const response = await api.post('/interactions/check', { drugs });
     return response.data;
   },
 
   getDrugInteractions: async (rxcui: string) => {
     const response = await api.get(`/interactions/drug/${rxcui}`);
+    return response.data;
+  }
+};
+
+// Override / Audit services
+export const overrideService = {
+  record: async (payload: {
+    userId?: string;
+    patientId?: string;
+    context?: any;
+    reason: string;
+    action: 'override' | 'accept';
+  }) => {
+    const response = await api.post('/overrides', payload);
     return response.data;
   }
 };

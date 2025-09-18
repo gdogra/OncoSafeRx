@@ -2,20 +2,23 @@ import express from 'express';
 import { RxNormService } from '../services/rxnormService.js';
 import { DailyMedService } from '../services/dailymedService.js';
 import supabaseService from '../config/supabase.js';
+import clinicalIntelligenceService from '../services/clinicalIntelligenceService.js';
 import { searchLimiter } from '../middleware/rateLimiter.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { validate, schemas } from '../utils/validation.js';
+import { optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 const rxnormService = new RxNormService();
 const dailymedService = new DailyMedService();
 
-// Search for drugs
+// Enhanced drug search with clinical insights
 router.get('/search', 
   searchLimiter,
+  optionalAuth,
   validate(schemas.drugSearch, 'query'),
   asyncHandler(async (req, res) => {
-    const { q } = req.query;
+    const { q, patient_context } = req.query;
     
     // Search both local database and external API
     let localResults = [];
@@ -32,6 +35,24 @@ router.get('/search',
     const uniqueResults = combinedResults.filter((drug, index, self) => 
       index === self.findIndex(d => d.rxcui === drug.rxcui)
     );
+
+    // Enhance results with clinical insights
+    const enhancedResults = await Promise.all(
+      uniqueResults.slice(0, 10).map(async (drug) => {
+        try {
+          const patientData = patient_context ? JSON.parse(patient_context) : {};
+          const insights = await clinicalIntelligenceService.getEnhancedDrugInfo(drug.rxcui, patientData);
+          
+          return {
+            ...drug,
+            insights
+          };
+        } catch (error) {
+          console.warn(`Failed to enhance drug ${drug.rxcui}:`, error.message);
+          return drug;
+        }
+      })
+    );
     
     res.json({
       query: q,
@@ -40,16 +61,18 @@ router.get('/search',
         local: localResults.length,
         rxnorm: rxnormResults.length
       },
-      results: uniqueResults
+      results: enhancedResults
     });
   })
 );
 
-// Get drug details by RXCUI
+// Enhanced drug details with comprehensive clinical intelligence
 router.get('/:rxcui',
+  optionalAuth,
   validate(schemas.rxcui, 'params'),
   asyncHandler(async (req, res) => {
     const { rxcui } = req.params;
+    const { patient_context } = req.query;
     
     // Try to get from local database first
     let drug;

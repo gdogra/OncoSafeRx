@@ -2,7 +2,9 @@ import React from 'react';
 import { InteractionCheckResult, DrugInteraction } from '../../types';
 import Card from '../UI/Card';
 import Alert from '../UI/Alert';
-import { AlertTriangle, Info, Database, Globe } from 'lucide-react';
+import { AlertTriangle, Info, Database, Globe, MapPinned } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { inferBiomarkerForDrug } from '../../utils/biomarkers';
 
 interface InteractionResultsProps {
   results: InteractionCheckResult;
@@ -51,6 +53,8 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
         return 'bg-gray-100 text-gray-700';
     }
   };
+
+  const navigate = useNavigate();
 
   const renderInteractionCard = (interaction: DrugInteraction, source: 'stored' | 'external') => (
     <Card 
@@ -153,6 +157,23 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
               </div>
             </div>
           )}
+
+          {/* Quick Trials link */}
+          <div>
+            <button
+              type="button"
+              onClick={() => {
+                const name1 = interaction.drug1?.name;
+                const name2 = interaction.drug2?.name;
+                const m = inferBiomarkerForDrug(name1 || '') || inferBiomarkerForDrug(name2 || '');
+                if (m) navigate(`/trials?biomarker=${encodeURIComponent(m)}`);
+                else navigate('/trials');
+              }}
+              className="inline-flex items-center px-3 py-1.5 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200"
+            >
+              <MapPinned className="w-3 h-3 mr-1" /> Find Trials
+            </button>
+          </div>
         </div>
       </div>
     </Card>

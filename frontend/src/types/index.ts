@@ -168,3 +168,173 @@ export interface HealthCheck {
   timestamp: string;
   version: string;
 }
+
+// Patient profile types
+export interface PatientDemographics {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  sex: 'male' | 'female' | 'other';
+  race?: string;
+  ethnicity?: string;
+  heightCm?: number;
+  weightKg?: number;
+  bsa?: number; // Body surface area
+  mrn?: string; // Medical record number
+  contact?: {
+    phone?: string;
+    email?: string;
+    address?: string;
+  };
+}
+
+export interface PatientLabValues {
+  timestamp: string;
+  labType: string;
+  value: number;
+  unit: string;
+  referenceRange?: string;
+  isAbnormal?: boolean;
+  criticalFlag?: boolean;
+}
+
+export interface PatientAllergy {
+  id: string;
+  allergen: string;
+  allergenType: 'drug' | 'food' | 'environmental' | 'other';
+  reaction: string;
+  severity: 'mild' | 'moderate' | 'severe' | 'life-threatening';
+  dateReported: string;
+  verified: boolean;
+  notes?: string;
+}
+
+export interface PatientMedication {
+  id: string;
+  drug: Drug;
+  dosage: string;
+  frequency: string;
+  route: string;
+  startDate: string;
+  endDate?: string;
+  indication: string;
+  prescriber?: string;
+  isActive: boolean;
+  adherence?: 'excellent' | 'good' | 'fair' | 'poor';
+  sideEffects?: string[];
+}
+
+export interface PatientCondition {
+  id: string;
+  condition: string;
+  icd10Code?: string;
+  status: 'active' | 'resolved' | 'inactive';
+  dateOfOnset: string;
+  dateResolved?: string;
+  severity?: 'mild' | 'moderate' | 'severe';
+  notes?: string;
+}
+
+export interface PatientGenetics {
+  geneSymbol: string;
+  alleles: string[];
+  phenotype: string;
+  metabolizerStatus?: 'poor' | 'intermediate' | 'normal' | 'rapid' | 'ultra-rapid';
+  testDate: string;
+  testMethod?: string;
+  clinicalSignificance?: string;
+  notes?: string;
+}
+
+export interface PatientVitals {
+  timestamp: string;
+  bloodPressureSystolic?: number;
+  bloodPressureDiastolic?: number;
+  heartRate?: number;
+  respiratoryRate?: number;
+  temperature?: number;
+  oxygenSaturation?: number;
+  painScore?: number; // 0-10 scale
+  performanceStatus?: number; // ECOG 0-4
+}
+
+export interface TreatmentHistory {
+  id: string;
+  treatmentType: 'chemotherapy' | 'radiation' | 'surgery' | 'immunotherapy' | 'targeted' | 'other';
+  regimen?: string;
+  drugs?: string[];
+  startDate: string;
+  endDate?: string;
+  cycles?: number;
+  response?: 'complete' | 'partial' | 'stable' | 'progression';
+  toxicities?: Array<{
+    grade: 1 | 2 | 3 | 4 | 5;
+    description: string;
+    action: string;
+  }>;
+  notes?: string;
+}
+
+export interface PatientProfile {
+  id: string;
+  demographics: PatientDemographics;
+  allergies: PatientAllergy[];
+  medications: PatientMedication[];
+  conditions: PatientCondition[];
+  labValues: PatientLabValues[];
+  genetics: PatientGenetics[];
+  vitals: PatientVitals[];
+  treatmentHistory: TreatmentHistory[];
+  notes: Array<{
+    id: string;
+    timestamp: string;
+    author: string;
+    type: 'clinical' | 'pharmacy' | 'nursing' | 'other';
+    content: string;
+  }>;
+  preferences: {
+    primaryLanguage?: string;
+    communicationPreferences?: string[];
+    emergencyContact?: {
+      name: string;
+      relationship: string;
+      phone: string;
+    };
+  };
+  lastUpdated: string;
+  createdBy: string;
+  isActive: boolean;
+}
+
+// Clinical alerts and safety
+export interface ClinicalAlert {
+  id: string;
+  patientId: string;
+  type: 'allergy' | 'interaction' | 'dosing' | 'lab' | 'contraindication' | 'monitoring';
+  severity: 'low' | 'moderate' | 'high' | 'critical';
+  message: string;
+  details?: string;
+  recommendedAction?: string;
+  isAcknowledged: boolean;
+  acknowledgedBy?: string;
+  acknowledgedAt?: string;
+  createdAt: string;
+  expiresAt?: string;
+}
+
+// Session and workflow types
+export interface ClinicalSession {
+  id: string;
+  patientId: string;
+  sessionType: 'consultation' | 'dosing' | 'interaction-check' | 'regimen-planning';
+  startTime: string;
+  endTime?: string;
+  participants: string[];
+  decisions: Array<{
+    timestamp: string;
+    decision: string;
+    rationale: string;
+    decidedBy: string;
+  }>;
+  notes?: string;
+}

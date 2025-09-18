@@ -55,15 +55,38 @@ router.post('/suggest',
         if (names.some(n => n.includes('clopidogrel'))) addSuggestion('clopidogrel', 'prasugrel or ticagrelor', 'CYP2C19 PM/IM: reduced clopidogrel activation; consider alternative P2Y12 inhibitor.', undefined, pgx);
       }
 
+      // Simple scoring and cost/formulary hints
+      const costMap = {
+        'pantoprazole': 'low-cost generic',
+        'morphine': 'low-cost generic',
+        'prasugrel or ticagrelor': 'brand (check coverage)'
+      };
+      suggestions = suggestions.map(s => {
+        let score = 0;
+        const reasons = [];
+        if (s.pgx && s.pgx.length) score += 2;
+        if (s.pgx && s.pgx.length) reasons.push('PGx compatibility (+2)');
+        if (/prasugrel|ticagrelor/i.test(s.alternative?.name || '')) score -= 1;
+        if (/prasugrel|ticagrelor/i.test(s.alternative?.name || '')) reasons.push('Brand agent (-1)');
+        if (/morphine|pantoprazole/i.test(s.alternative?.name || '')) score += 1;
+        if (/morphine|pantoprazole/i.test(s.alternative?.name || '')) reasons.push('Low-cost generic (+1)');
+        return {
+          ...s,
+          score,
+          explanation: reasons.join('; '),
+          costHint: costMap[(s.alternative?.name || '').toLowerCase()] || null,
+          formulary: /generic/i.test(costMap[(s.alternative?.name || '').toLowerCase()] || '') ? 'likely-covered' : 'check-coverage'
+        };
+      }).sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+
+      // Mark the top suggestion as best
+      if (suggestions.length > 0) {
+        suggestions = suggestions.map((s, idx) => ({ ...s, best: idx === 0 }));
+      }
+
       res.json({
         input: details,
         phenotypes,
-        count: suggestions.length,
-        suggestions
-      });
-      const suggestions = suggestAlternatives(details);
-      res.json({
-        input: details,
         count: suggestions.length,
         suggestions
       });

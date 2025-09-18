@@ -30,6 +30,12 @@ import prescribeRoutes from './routes/prescribeRoutes.js';
 import dosingRoutes from './routes/dosingRoutes.js';
 import editorialRoutes from './routes/editorialRoutes.js';
 import searchRoutes from './routes/searchRoutes.js';
+import overrideRoutes from './routes/overrideRoutes.js';
+import epaRoutes from './routes/epaRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+import enhancedDrugRoutes from './routes/enhancedDrugRoutes.js';
+import enhancedInteractionRoutes from './routes/enhancedInteractionRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -117,35 +123,64 @@ app.get('/metrics', async (req, res) => {
 });
 
 // API routes
+app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/drugs', drugRoutes);
+app.use('/api/drugs/enhanced', enhancedDrugRoutes);
 app.use('/api/interactions', interactionRoutes);
+app.use('/api/interactions/enhanced', enhancedInteractionRoutes);
 app.use('/api/genomics', genomicsRoutes);
 app.use('/api/genomics', genomicsFhirRoutes);
 app.use('/api/alternatives', alternativesRoutes);
 app.use('/api/regimens', regimenRoutes);
 app.use('/api/trials', trialRoutes);
 app.use('/api/export', exportRoutes);
+app.use('/api/export/epa', epaRoutes);
 app.use('/api/prescribe', prescribeRoutes);
 app.use('/api/dosing', dosingRoutes);
 app.use('/api/editorial', editorialRoutes);
 app.use('/api/search', searchRoutes);
+app.use('/api/overrides', overrideRoutes);
 app.use('/', cdsHooksRoutes);
 app.use('/', smartRoutes);
 
-// Serve frontend build (SPA) for non-API routes, if available
-try {
-  const clientBuildPath = join(__dirname, '../frontend/build');
-  if (process.env.SERVE_FRONTEND !== 'false') {
-    app.use(express.static(clientBuildPath));
-    // Route all non-API requests to React index.html
-    app.get(/^\/(?!api).*/, (req, res, next) => {
-      res.sendFile(join(clientBuildPath, 'index.html'), (err) => {
-        if (err) next();
-      });
+// Serve static files from public directory
+app.use(express.static(join(__dirname, '../public')));
+
+// In development, mount Vite dev server middleware so you don't need
+// a separate terminal/process for the frontend. Requests for the SPA
+// are served by Vite; API routes remain handled above.
+if (NODE_ENV === 'development' && process.env.USE_VITE !== 'false') {
+  try {
+    const { createServer: createViteServer } = await import('vite');
+    const vite = await createViteServer({
+      root: join(__dirname, '../frontend'),
+      server: { middlewareMode: true },
+      appType: 'custom',
     });
+    app.use(vite.middlewares);
+    console.log('Vite dev middleware enabled on / (frontend)');
+  } catch (e) {
+    console.warn('Vite middleware failed, continuing without it:', e?.message || e);
   }
-} catch (e) {
-  // ignore if build folder not present
+}
+
+// Serve frontend build (SPA) for non-API routes in production
+if (NODE_ENV !== 'development' || process.env.USE_VITE === 'false') {
+  try {
+    const clientBuildPath = join(__dirname, '../frontend/build');
+    if (process.env.SERVE_FRONTEND !== 'false') {
+      app.use(express.static(clientBuildPath));
+      // Route all non-API requests to React index.html
+      app.get(/^\/(?!api).*/, (req, res, next) => {
+        res.sendFile(join(clientBuildPath, 'index.html'), (err) => {
+          if (err) next();
+        });
+      });
+    }
+  } catch (e) {
+    // ignore if build folder not present
+  }
 }
 
 // 404 handler

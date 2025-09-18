@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { PatientProvider } from './context/PatientContext';
+import { SelectionProvider } from './context/SelectionContext';
 import Layout from './components/Layout/Layout';
 import Dashboard from './pages/Dashboard';
 import DrugSearch from './pages/DrugSearch';
@@ -9,22 +11,37 @@ import Protocols from './pages/Protocols';
 import CuratedInteractions from './pages/CuratedInteractions';
 import Regimens from './pages/Regimens';
 import Trials from './pages/Trials';
+import Patients from './pages/Patients';
+import DrugDatabase from './pages/DrugDatabase';
+import Analytics from './pages/Analytics';
+import EHRIntegration from './components/EHR/EHRIntegration';
+import Help from './pages/Help';
 
 function App() {
   return (
     <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/search" element={<DrugSearch />} />
-          <Route path="/interactions" element={<InteractionChecker />} />
-          <Route path="/curated" element={<CuratedInteractions />} />
-          <Route path="/regimens" element={<Regimens />} />
-          <Route path="/trials" element={<Trials />} />
-          <Route path="/genomics" element={<GenomicsAnalysis />} />
-          <Route path="/protocols" element={<Protocols />} />
-        </Routes>
-      </Layout>
+      <PatientProvider>
+        <SelectionProvider>
+          <Layout>
+            {/* Minimal visible header to confirm render */}
+            <div className="text-xs text-gray-500 mb-2">Env: {process.env.REACT_APP_VERSION || 'dev'} • API: {process.env.REACT_APP_API_URL || 'http://localhost:3000/api'}</div>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/search" element={<DrugSearch />} />
+              <Route path="/interactions" element={<InteractionChecker />} />
+              <Route path="/curated" element={<CuratedInteractions />} />
+              <Route path="/regimens" element={<Regimens />} />
+              <Route path="/trials" element={<Trials />} />
+              <Route path="/genomics" element={<GenomicsAnalysis />} />
+              <Route path="/protocols" element={<Protocols />} />
+              <Route path="/patients" element={<Patients />} />
+              <Route path="/database" element={<DrugDatabase />} />
+              <Route path="/ehr" element={<EHRIntegration />} />
+              <Route path="/help" element={<Help />} />
+            </Routes>
+          </Layout>
+        </SelectionProvider>
+      </PatientProvider>
     </Router>
   );
 }

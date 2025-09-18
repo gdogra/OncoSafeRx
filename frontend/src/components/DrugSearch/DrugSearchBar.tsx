@@ -8,6 +8,7 @@ interface DrugSearchBarProps {
   placeholder?: string;
   value?: string;
   onChange?: (value: string) => void;
+  inputId?: string;
 }
 
 const DrugSearchBar: React.FC<DrugSearchBarProps> = ({
@@ -16,6 +17,7 @@ const DrugSearchBar: React.FC<DrugSearchBarProps> = ({
   placeholder = "Search drugs by name (e.g., aspirin, ibuprofen)...",
   value,
   onChange,
+  inputId,
 }) => {
   const [localValue, setLocalValue] = useState(value || '');
 
@@ -44,9 +46,17 @@ const DrugSearchBar: React.FC<DrugSearchBarProps> = ({
           <Search className="h-5 w-5 text-gray-400" />
         </div>
         <input
+          id={inputId}
           type="text"
           value={value !== undefined ? value : localValue}
           onChange={handleInputChange}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              handleClear();
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
           placeholder={placeholder}
           className="block w-full pl-10 pr-16 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
           disabled={loading}

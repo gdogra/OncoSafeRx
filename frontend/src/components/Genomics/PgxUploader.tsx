@@ -46,6 +46,23 @@ const PgxUploader: React.FC<PgxUploaderProps> = ({ onPhenotypes }) => {
   return (
     <div className="space-y-3">
       <p className="text-sm text-gray-600">Paste FHIR Observations (or a Bundle containing Observations). We will map common PGx genotypes to phenotypes.</p>
+      <div>
+        <input
+          type="file"
+          accept="application/json,.json"
+          onChange={async (e) => {
+            try {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              const text = await file.text();
+              setJson(text);
+            } catch (err) {
+              setError(err instanceof Error ? err.message : 'Failed to read file');
+            }
+          }}
+          className="text-sm"
+        />
+      </div>
       <textarea
         className="w-full border rounded-md p-2 font-mono text-sm h-40"
         placeholder='[{"resourceType":"Observation","code":{"text":"CYP2D6"},"valueString":"CYP2D6 *1/*1xN"}]'

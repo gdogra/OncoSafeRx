@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OncoSafeRx Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .login-form {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 2rem auto;
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .dashboard.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .tabs {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .tab-headers {
+            display: flex;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .tab-header {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .tab-header.active {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .tab-content {
+            padding: 1.5rem;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 12px;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .user-logout {
+            float: right;
+            margin-top: -0.5rem;
+        }
+
+        .user-logout button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>OncoSafeRx Admin Dashboard</h1>
+        <p>System administration and monitoring</p>
+        <div class="user-logout" style="display: none;">
+            <span id="user-info"></span>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Login Form -->
+        <div id="login-section" class="login-form">
+            <h2>Admin Login</h2>
+            <div id="login-error" class="alert alert-danger" style="display: none;"></div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard-section" class="dashboard">
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Users</h3>
+                    <div class="stat-value" id="total-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Active Users</h3>
+                    <div class="stat-value" id="active-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>System Status</h3>
+                    <div class="stat-value" id="system-status">
+                        <span class="badge badge-success">Online</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h3>Database</h3>
+                    <div class="stat-value" id="database-status">-</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab-headers">
+                    <button class="tab-header active" onclick="showTab('users')">Users</button>
+                    <button class="tab-header" onclick="showTab('logs')">System Logs</button>
+                    <button class="tab-header" onclick="showTab('config')">Configuration</button>
+                    <button class="tab-header" onclick="showTab('sync')">Data Sync</button>
+                </div>
+
+                <!-- Users Tab -->
+                <div id="users-tab" class="tab-content active">
+                    <div class="loading" id="users-loading">Loading users...</div>
+                    <div id="users-content" style="display: none;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Logs Tab -->
+                <div id="logs-tab" class="tab-content">
+                    <div class="loading" id="logs-loading">Loading logs...</div>
+                    <div id="logs-content" style="display: none;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Records</th>
+                                    <th>Started</th>
+                                    <th>Completed</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Configuration Tab -->
+                <div id="config-tab" class="tab-content">
+                    <div class="loading" id="config-loading">Loading configuration...</div>
+                    <div id="config-content" style="display: none;">
+                        <div id="config-data"></div>
+                    </div>
+                </div>
+
+                <!-- Data Sync Tab -->
+                <div id="sync-tab" class="tab-content">
+                    <h3>Data Synchronization</h3>
+                    <p>Trigger data sync operations for external APIs and databases.</p>
+                    
+                    <div id="sync-status" style="display: none;" class="alert alert-success"></div>
+                    
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" onclick="triggerSync('rxnorm')">Sync RxNorm Data</button>
+                        <button class="btn btn-primary" onclick="triggerSync('cpic')">Sync CPIC Guidelines</button>
+                        <button class="btn btn-primary" onclick="triggerSync('trials')">Sync Clinical Trials</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = localStorage.getItem('adminToken');
+        let currentUser = null;
+
+        // Check if already logged in
+        if (authToken) {
+            checkAuthStatus();
+        }
+
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/auth/status', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.authenticated && data.user.role === 'admin') {
+                    currentUser = data.user;
+                    showDashboard();
+                } else {
+                    showLogin();
+                }
+            } catch (error) {
+                showLogin();
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    if (data.user.role !== 'admin') {
+                        showError('Access denied. Admin privileges required.');
+                        return;
+                    }
+                    
+                    authToken = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('adminToken', authToken);
+                    showDashboard();
+                } else {
+                    showError(data.error || 'Login failed');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            }
+        });
+
+        function showLogin() {
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('dashboard-section').style.display = 'none';
+            document.querySelector('.user-logout').style.display = 'none';
+        }
+
+        function showDashboard() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('dashboard-section').style.display = 'block';
+            document.querySelector('.user-logout').style.display = 'block';
+            document.getElementById('user-info').textContent = currentUser.email;
+            
+            loadDashboardData();
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('login-error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function logout() {
+            localStorage.removeItem('adminToken');
+            authToken = null;
+            currentUser = null;
+            showLogin();
+        }
+
+        async function loadDashboardData() {
+            try {
+                // Load dashboard stats
+                const response = await fetch('/api/admin/dashboard', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('total-users').textContent = data.stats.users.total;
+                    document.getElementById('active-users').textContent = data.stats.users.active;
+                    document.getElementById('database-status').innerHTML = 
+                        `<span class="badge ${data.stats.system.supabase ? 'badge-success' : 'badge-warning'}">
+                            ${data.stats.system.supabase ? 'Connected' : 'No-op Mode'}
+                        </span>`;
+                }
+            } catch (error) {
+                console.error('Failed to load dashboard data:', error);
+            }
+            
+            // Load initial tab content
+            loadUsers();
+        }
+
+        function showTab(tabName) {
+            // Update tab headers
+            document.querySelectorAll('.tab-header').forEach(header => {
+                header.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Load tab data
+            switch(tabName) {
+                case 'users':
+                    loadUsers();
+                    break;
+                case 'logs':
+                    loadLogs();
+                    break;
+                case 'config':
+                    loadConfig();
+                    break;
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/admin/users', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const tbody = document.getElementById('users-tbody');
+                    tbody.innerHTML = data.users.map(user => `
+                        <tr>
+                            <td>${user.email}</td>
+                            <td>${user.full_name}</td>
+                            <td>${user.role}</td>
+                            <td>
+                                <span class="badge ${user.is_active ? 'badge-success' : 'badge-danger'}">
+                                    ${user.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                            </td>
+                            <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                        </tr>
+                    `).join('');
+                    
+                    document.getElementById('users-loading').style.display = 'none';
+                    document.getElementById('users-content').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Failed to load users:', error);
+            }
+        }
+
+        async function loadLogs() {
+            try {
+                const response = await fetch('/api/admin/logs', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const tbody = document.getElementById('logs-tbody');
+                    tbody.innerHTML = data.logs.map(log => `
+                        <tr>
+                            <td>${log.sync_type}</td>
+                            <td>
+                                <span class="badge ${log.status === 'completed' ? 'badge-success' : 'badge-warning'}">
+                                    ${log.status}
+                                </span>
+                            </td>
+                            <td>${log.records_processed || 0}</td>
+                            <td>${new Date(log.started_at).toLocaleString()}</td>
+                            <td>${log.completed_at ? new Date(log.completed_at).toLocaleString() : '-'}</td>
+                        </tr>
+                    `).join('');
+                    
+                    document.getElementById('logs-loading').style.display = 'none';
+                    document.getElementById('logs-content').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Failed to load logs:', error);
+            }
+        }
+
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/admin/config', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const configDiv = document.getElementById('config-data');
+                    configDiv.innerHTML = `
+                        <h4>Database Configuration</h4>
+                        <p><strong>Type:</strong> ${data.config.database.type}</p>
+                        <p><strong>Status:</strong> ${data.config.database.enabled ? 'Connected' : 'Disabled'}</p>
+                        
+                        <h4>Environment</h4>
+                        <p><strong>Node Environment:</strong> ${data.config.environment.nodeEnv}</p>
+                        <p><strong>Port:</strong> ${data.config.environment.port}</p>
+                        
+                        <h4>Features</h4>
+                        <p><strong>CORS Origin:</strong> ${data.config.features.cors}</p>
+                        <p><strong>Rate Limiting:</strong> ${data.config.features.rateLimiting ? 'Enabled' : 'Disabled'}</p>
+                        <p><strong>Serve Frontend:</strong> ${data.config.features.serveFrontend ? 'Enabled' : 'Disabled'}</p>
+                    `;
+                    
+                    document.getElementById('config-loading').style.display = 'none';
+                    document.getElementById('config-content').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Failed to load config:', error);
+            }
+        }
+
+        async function triggerSync(type) {
+            try {
+                const response = await fetch(`/api/admin/sync/${type}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const statusDiv = document.getElementById('sync-status');
+                    statusDiv.textContent = `${type} sync initiated successfully. Sync ID: ${data.syncId}`;
+                    statusDiv.style.display = 'block';
+                } else {
+                    alert('Sync failed: ' + data.error);
+                }
+            } catch (error) {
+                alert('Network error during sync');
+            }
+        }
+    </script>
+</body>
+</html>

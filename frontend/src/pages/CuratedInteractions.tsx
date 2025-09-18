@@ -4,6 +4,8 @@ import { interactionService } from '../services/api';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
+import { useSelection } from '../context/SelectionContext';
+import EnhancedDrugSearchBar from '../components/DrugSearch/EnhancedDrugSearchBar';
 
 type KnownInteraction = {
   drugs: string[];
@@ -28,6 +30,7 @@ const CuratedInteractions: React.FC = () => {
   const [results, setResults] = useState<{ count: number; total: number; interactions: KnownInteraction[] } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const selection = useSelection();
 
   const load = async () => {
     setLoading(true);
@@ -57,6 +60,17 @@ const CuratedInteractions: React.FC = () => {
     setSeverity(qSev);
     setResolveRx(qResolve ? qResolve === 'true' : true);
   }, [location.search]);
+
+  // Prefill from global selection if available and no query params
+  useEffect(() => {
+    if (!drug && selection.selectedDrugs.length > 0) {
+      const names = selection.selectedDrugs.map(d => d.name);
+      setDrug(names[0] || '');
+      setDrugA(names[0] || '');
+      setDrugB(names[1] || '');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Load whenever filters change
   useEffect(() => {
@@ -90,15 +104,30 @@ const CuratedInteractions: React.FC = () => {
         <div className="grid md:grid-cols-5 gap-4">
           <div>
             <label className="block text-sm text-gray-700 mb-1">Drug</label>
-            <input value={drug} onChange={e => setDrug(e.target.value)} placeholder="e.g., aspirin" className="w-full border rounded-md px-3 py-2" />
+            <EnhancedDrugSearchBar
+              onDrugSelect={(d) => setDrug(d.name)}
+              placeholder="Search or select a drug (e.g., aspirin)"
+              showTooltips={false}
+              className="w-full"
+            />
           </div>
           <div>
             <label className="block text-sm text-gray-700 mb-1">Drug A</label>
-            <input value={drugA} onChange={e => setDrugA(e.target.value)} placeholder="e.g., aspirin" className="w-full border rounded-md px-3 py-2" />
+            <EnhancedDrugSearchBar
+              onDrugSelect={(d) => setDrugA(d.name)}
+              placeholder="Search or select Drug A"
+              showTooltips={false}
+              className="w-full"
+            />
           </div>
           <div>
             <label className="block text-sm text-gray-700 mb-1">Drug B</label>
-            <input value={drugB} onChange={e => setDrugB(e.target.value)} placeholder="e.g., warfarin" className="w-full border rounded-md px-3 py-2" />
+            <EnhancedDrugSearchBar
+              onDrugSelect={(d) => setDrugB(d.name)}
+              placeholder="Search or select Drug B"
+              showTooltips={false}
+              className="w-full"
+            />
           </div>
           <div>
             <label className="block text-sm text-gray-700 mb-1">Severity</label>

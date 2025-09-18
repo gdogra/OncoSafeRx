@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, Search, AlertTriangle, Dna, FileText } from 'lucide-react';
+import { Activity, Search, AlertTriangle, Dna, FileText, HelpCircle, Users } from 'lucide-react';
 import { interactionService } from '../../services/api';
 
 const Header: React.FC = () => {
@@ -28,6 +28,7 @@ const Header: React.FC = () => {
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: Activity },
+    { path: '/patients', label: 'Patients', icon: Users },
     { path: '/search', label: 'Drug Search', icon: Search },
     { path: '/interactions', label: 'Interactions', icon: AlertTriangle },
     { path: '/genomics', label: 'Genomics', icon: Dna },
@@ -35,6 +36,7 @@ const Header: React.FC = () => {
     { path: '/curated', label: 'Curated', icon: FileText },
     { path: '/trials', label: 'Trials', icon: FileText },
     { path: '/protocols', label: 'Protocols', icon: FileText },
+    { path: '/help', label: 'Help', icon: HelpCircle },
   ];
 
   return (

@@ -1,5 +1,11 @@
 import express from 'express';
-import trials from '../data/trials.sample.json' assert { type: 'json' };
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const trials = JSON.parse(readFileSync(join(__dirname, '../data/trials.sample.json'), 'utf8'));
 
 const router = express.Router();
 
@@ -33,15 +39,23 @@ router.get('/search', (req, res) => {
     const s = String(status).toLowerCase();
     results = results.filter(x => (x.status || '').toLowerCase().includes(s));
   }
-  if (lat && lon && radius_km) {
+  let withDistance = results;
+  if (lat && lon) {
     const alat = parseFloat(String(lat));
     const alon = parseFloat(String(lon));
-    const r = parseFloat(String(radius_km));
-    results = results.filter(x => (x.locations || []).some(loc => haversine(alat, alon, loc.lat, loc.lon) <= r));
+    withDistance = results.map(x => {
+      const distances = (x.locations || []).map(loc => haversine(alat, alon, loc.lat, loc.lon)).filter(Number.isFinite);
+      const minKm = distances.length ? Math.min(...distances) : null;
+      return { ...x, distance_km: minKm };
+    });
+    if (radius_km) {
+      const r = parseFloat(String(radius_km));
+      withDistance = withDistance.filter(x => x.distance_km === null || x.distance_km <= r);
+    }
+    withDistance.sort((a, b) => (a.distance_km ?? Infinity) - (b.distance_km ?? Infinity));
   }
 
-  res.json({ count: results.length, trials: results });
+  res.json({ count: withDistance.length, trials: withDistance });
 });
 
 export default router;
-

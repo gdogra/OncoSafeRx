@@ -1,11 +1,21 @@
 import React from 'react';
 import Header from './Header';
+import MobileLayout from '../Mobile/MobileLayout';
+import { useIsMobile } from '../../hooks/useResponsive';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const isMobile = useIsMobile();
+
+  // Use mobile layout for mobile devices
+  if (isMobile) {
+    return <MobileLayout>{children}</MobileLayout>;
+  }
+
+  // Desktop layout
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />

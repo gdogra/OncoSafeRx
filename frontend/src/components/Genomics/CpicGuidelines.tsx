@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { CpicGuidelinesResult, CpicGuideline } from '../../types';
 import Card from '../UI/Card';
 import Alert from '../UI/Alert';
-import { Search, BookOpen, ExternalLink } from 'lucide-react';
+import Tooltip from '../UI/Tooltip';
+import { Search, BookOpen, ExternalLink, Info } from 'lucide-react';
 
 interface CpicGuidelinesProps {
   guidelines: CpicGuidelinesResult | null;
@@ -77,16 +78,17 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
           
           <div className="flex items-center space-x-2">
             {guideline.evidenceLevel && (
-              <span 
-                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getEvidenceColor(guideline.evidenceLevel)}`}
-                title={getEvidenceDescription(guideline.evidenceLevel)}
-              >
-                Level {guideline.evidenceLevel}
-              </span>
+              <Tooltip content={getEvidenceDescription(guideline.evidenceLevel)}>
+                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium cursor-help ${getEvidenceColor(guideline.evidenceLevel)}`}>
+                  Level {guideline.evidenceLevel}
+                </span>
+              </Tooltip>
             )}
-            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
-              RXCUI: {guideline.drugRxcui}
-            </span>
+            <Tooltip content="RxNorm Concept Unique Identifier - A unique identifier for this medication in the RxNorm database maintained by the National Library of Medicine">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800 cursor-help">
+                RXCUI: {guideline.drugRxcui}
+              </span>
+            </Tooltip>
           </div>
         </div>
 
@@ -147,9 +149,14 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
         <form onSubmit={handleSearch} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="gene" className="block text-sm font-medium text-gray-700 mb-1">
-                Gene Symbol
-              </label>
+              <div className="flex items-center space-x-2 mb-1">
+                <label htmlFor="gene" className="block text-sm font-medium text-gray-700">
+                  Gene Symbol
+                </label>
+                <Tooltip content="Search by pharmacogene symbols like CYP2D6, CYP2C19, TPMT, DPYD, UGT1A1, or SLCO1B1. These genes encode enzymes that metabolize medications">
+                  <Info className="w-3 h-3 text-gray-400" />
+                </Tooltip>
+              </div>
               <input
                 type="text"
                 id="gene"
@@ -161,9 +168,14 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
             </div>
             
             <div>
-              <label htmlFor="drug" className="block text-sm font-medium text-gray-700 mb-1">
-                Drug Name
-              </label>
+              <div className="flex items-center space-x-2 mb-1">
+                <label htmlFor="drug" className="block text-sm font-medium text-gray-700">
+                  Drug Name
+                </label>
+                <Tooltip content="Search by drug name (generic or brand) like clopidogrel, warfarin, fluorouracil, or irinotecan. Use standard drug nomenclature or common names">
+                  <Info className="w-3 h-3 text-gray-400" />
+                </Tooltip>
+              </div>
               <input
                 type="text"
                 id="drug"
@@ -211,9 +223,14 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
         <div className="space-y-6">
           {/* Results Summary */}
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              CPIC Guidelines ({guidelines.count})
-            </h3>
+            <div className="flex items-center space-x-2 mb-2">
+              <h3 className="text-lg font-semibold text-gray-900">
+                CPIC Guidelines ({guidelines.count})
+              </h3>
+              <Tooltip content="Clinical Pharmacogenetics Implementation Consortium guidelines provide evidence-based recommendations for gene-drug interactions. Each guideline includes phenotype definitions, therapeutic recommendations, and dosing adjustments">
+                <Info className="w-4 h-4 text-gray-400" />
+              </Tooltip>
+            </div>
             <p className="text-sm text-gray-600">
               {geneQuery || drugQuery 
                 ? `Results for ${geneQuery ? `gene: ${geneQuery}` : ''}${geneQuery && drugQuery ? ', ' : ''}${drugQuery ? `drug: ${drugQuery}` : ''}`

@@ -5,6 +5,32 @@ import { Drug } from '../models/Drug.js';
 const RXNORM_BASE_URL = 'https://rxnav.nlm.nih.gov/REST';
 
 export class RxNormService {
+  constructor() {
+    this.isOnline = true;
+    this.lastConnectivityCheck = null;
+    this.connectivityCheckInterval = 5 * 60 * 1000; // 5 minutes
+  }
+
+  // Check if RxNorm API is accessible
+  async checkConnectivity() {
+    const now = Date.now();
+    if (this.lastConnectivityCheck && (now - this.lastConnectivityCheck) < this.connectivityCheckInterval) {
+      return this.isOnline;
+    }
+
+    try {
+      const response = await axios.get(`${RXNORM_BASE_URL}/version`, { timeout: 5000 });
+      this.isOnline = response.status === 200;
+      this.lastConnectivityCheck = now;
+      console.log(`RxNorm API connectivity: ${this.isOnline ? 'online' : 'offline'}`);
+      return this.isOnline;
+    } catch (error) {
+      this.isOnline = false;
+      this.lastConnectivityCheck = now;
+      console.warn('RxNorm API appears to be offline:', error.message);
+      return false;
+    }
+  }
   
   // Search for drugs by name
   async searchDrugs(searchTerm) {
@@ -15,9 +41,17 @@ export class RxNormService {
       return cached;
     }
 
+    // Check connectivity before making request
+    const isOnline = await this.checkConnectivity();
+    if (!isOnline) {
+      console.warn('RxNorm API offline, returning empty results');
+      return [];
+    }
+
     try {
       const response = await axios.get(
-        `${RXNORM_BASE_URL}/drugs.json?name=${encodeURIComponent(searchTerm)}`
+        `${RXNORM_BASE_URL}/drugs.json?name=${encodeURIComponent(searchTerm)}`,
+        { timeout: 10000 }
       );
 
       const results = response.data.drugGroup?.conceptGroup?.map(group => 
@@ -32,8 +66,19 @@ export class RxNormService {
       cache.set(cacheKey, results);
       return results;
     } catch (error) {
-      console.error('RxNorm search error:', error.message);
-      throw new Error('Failed to search RxNorm database');
+      if (error.response?.status === 404) {
+        // No results found
+        console.log(`No drugs found for search term: ${searchTerm}`);
+        cache.set(cacheKey, []);
+        return [];
+      } else if (error.code === 'ECONNABORTED') {
+        // Timeout
+        console.warn(`RxNorm search timeout for: ${searchTerm}`);
+        return [];
+      } else {
+        console.error('RxNorm search error:', error.message);
+        return [];
+      }
     }
   }
 
@@ -49,12 +94,14 @@ export class RxNormService {
     try {
       // Get basic properties
       const propsResponse = await axios.get(
-        `${RXNORM_BASE_URL}/rxcui/${rxcui}/properties.json`
+        `${RXNORM_BASE_URL}/rxcui/${rxcui}/properties.json`,
+        { timeout: 10000 }
       );
 
       // Get related concepts (ingredients, brand names, etc.)
       const relatedResponse = await axios.get(
-        `${RXNORM_BASE_URL}/rxcui/${rxcui}/related.json?tty=IN+BN+SCD+GPCK`
+        `${RXNORM_BASE_URL}/rxcui/${rxcui}/related.json?tty=IN+BN+SCD+GPCK`,
+        { timeout: 10000 }
       );
 
       const properties = propsResponse.data?.properties;
@@ -80,8 +127,16 @@ export class RxNormService {
       cache.set(cacheKey, drug);
       return drug;
     } catch (error) {
-      console.error('RxNorm details error:', error.message);
-      throw new Error('Failed to get drug details from RxNorm');
+      if (error.response?.status === 404) {
+        console.log(`No drug details found for RXCUI ${rxcui}`);
+        return null;
+      } else if (error.code === 'ECONNABORTED') {
+        console.warn(`RxNorm details timeout for RXCUI ${rxcui}`);
+        return null;
+      } else {
+        console.error('RxNorm details error:', error.message);
+        return null;
+      }
     }
   }
 
@@ -120,8 +175,24 @@ export class RxNormService {
       cache.set(cacheKey, interactions);
       return interactions;
     } catch (error) {
-      console.error('RxNorm interactions error:', error.message);
-      throw new Error('Failed to get interactions from RxNorm');
+      // Handle common RxNorm API responses
+      if (error.response?.status === 404) {
+        // 404 typically means no interactions found, not an error
+        console.log(`No interactions found for RXCUI ${rxcui}`);
+        cache.set(cacheKey, []);
+        return [];
+      } else if (error.response?.status === 503) {
+        // Service temporarily unavailable
+        console.warn(`RxNorm service temporarily unavailable for ${rxcui}`);
+        return [];
+      } else if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+        // Network connectivity issues
+        console.warn(`Network issue accessing RxNorm for ${rxcui}: ${error.message}`);
+        return [];
+      } else {
+        console.error('RxNorm interactions error:', error.message);
+        return []; // Return empty array instead of throwing
+      }
     }
   }
 

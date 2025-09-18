@@ -72,11 +72,13 @@ export const config: AppConfig = {
   security: {
     encryptLocalStorage: environment === 'production',
     logLevel: environment === 'production' ? 'error' : 'debug',
-    enableCSP: environment === 'production'
+    // Rely on server headers for CSP; avoid conflicting meta CSP
+    enableCSP: false
   },
   
   performance: {
-    enableServiceWorker: environment !== 'development',
+    // Disable by default to avoid chrome-extension cache errors; consider enabling once sw.js is hardened
+    enableServiceWorker: false,
     enableLazyLoading: true,
     cacheStrategy: environment === 'production' ? 'stale-while-revalidate' : 'network-first'
   }

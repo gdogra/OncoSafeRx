@@ -229,13 +229,8 @@ export class SecurityManager {
 
     // In production, send to security monitoring service
     if (config.environment === 'production') {
-      fetch('/api/security/audit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(logEntry)
-      }).catch(console.error);
+      // Optionally send to backend if endpoint exists
+      // fetch('/api/security/audit', { ... }).catch(() => {});
     } else {
       console.log('Security Event:', logEntry);
     }

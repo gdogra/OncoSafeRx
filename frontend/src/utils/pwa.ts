@@ -8,8 +8,14 @@ export class PWAManager {
   // Initialize PWA features
   public static initialize(): void {
     if (typeof window === 'undefined') return;
-
-    this.registerServiceWorker();
+    // If SW disabled, ensure any previous registrations are cleaned up and skip SW-related features
+    if (!config.performance.enableServiceWorker) {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())).catch(() => {});
+      }
+    } else {
+      this.registerServiceWorker();
+    }
     this.setupInstallPrompt();
     this.setupAppInstalledDetection();
     this.setupOfflineDetection();

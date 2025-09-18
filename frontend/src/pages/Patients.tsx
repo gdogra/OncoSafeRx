@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { usePatient } from '../context/PatientContext';
 import PatientSelector from '../components/Patient/PatientSelector';
 import PatientDashboard from '../components/Patient/PatientDashboard';
@@ -7,8 +8,27 @@ import { Users, Info } from 'lucide-react';
 import Tooltip from '../components/UI/Tooltip';
 
 const Patients: React.FC = () => {
+  const navigate = useNavigate();
   const { state } = usePatient();
   const { currentPatient } = state;
+
+  const handleCheckInteractions = () => {
+    if (currentPatient) {
+      navigate('/interactions?patient=' + currentPatient.id);
+    }
+  };
+
+  const handleGenomicAnalysis = () => {
+    if (currentPatient) {
+      navigate('/genomics?patient=' + currentPatient.id);
+    }
+  };
+
+  const handlePlanRegimen = () => {
+    if (currentPatient) {
+      navigate('/regimens?patient=' + currentPatient.id);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -59,13 +79,22 @@ const Patients: React.FC = () => {
               <p className="text-sm text-gray-600">Common clinical workflows for this patient</p>
             </div>
             <div className="flex space-x-3">
-              <button className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
+              <button 
+                onClick={handleCheckInteractions}
+                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700"
+              >
                 Check Interactions
               </button>
-              <button className="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700">
+              <button 
+                onClick={handleGenomicAnalysis}
+                className="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-md hover:bg-purple-700"
+              >
                 Genomic Analysis
               </button>
-              <button className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700">
+              <button 
+                onClick={handlePlanRegimen}
+                className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700"
+              >
                 Plan Regimen
               </button>
             </div>

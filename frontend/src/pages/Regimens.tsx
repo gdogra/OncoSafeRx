@@ -52,7 +52,7 @@ const Regimens: React.FC = () => {
     (async () => {
       setLoading(true);
       try {
-        const base = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+        const base = apiBaseUrl();
         const resp = await fetch(`${base}/regimens`);
         if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
         const data = await resp.json();
@@ -76,7 +76,7 @@ const Regimens: React.FC = () => {
     setDetailsLoading(true);
     setError(null);
     try {
-      const base = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+      const base = apiBaseUrl();
       const resp = await fetch(`${base}/regimens/${id}`);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
       const data = await resp.json();

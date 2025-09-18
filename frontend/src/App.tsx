@@ -3,7 +3,7 @@ import { appVersion } from './utils/env';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { PatientProvider } from './context/PatientContext';
 import { SelectionProvider } from './context/SelectionContext';
-import { ErrorBoundary } from './components/ErrorBoundary';
+import ErrorBoundary from './components/ErrorBoundary';
 import SecurityManager from './utils/security';
 import PerformanceMonitor from './utils/performance';
 import PWAManager from './utils/pwa';

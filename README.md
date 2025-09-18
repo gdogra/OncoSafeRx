@@ -274,3 +274,29 @@ npm run format
 
 MIT License - see LICENSE file for details
 # OncoSafeRx
+## Deploy
+
+### Netlify (recommended)
+
+- Netlify settings
+  - Base directory: `frontend`
+  - Build command: `npm ci && npm run build`
+  - Publish directory: `dist`
+  - Environment variables:
+    - `VITE_API_URL` = https://your-api.example.com/api
+    - Optional: `VITE_APP_VERSION` = 1.0.0
+
+- GitHub Actions (auto-deploy on push)
+  - This repo includes `.github/workflows/deploy-netlify.yml`
+  - Add repository secrets under Settings → Secrets and variables → Actions:
+    - `NETLIFY_AUTH_TOKEN` = your Netlify token (starts with `nfp_...`)
+    - `NETLIFY_SITE_ID` = your Netlify site ID
+    - Optional: `VITE_API_URL` to override at build time
+
+### Badge
+
+Add a Netlify status badge to this README by replacing `YOUR-SITE-ID`:
+
+```
+[![Netlify Status](https://api.netlify.com/api/v1/badges/YOUR-SITE-ID/deploy-status)](https://app.netlify.com/sites/YOUR-SITE-NAME/deploys)
+```

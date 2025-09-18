@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { apiBaseUrl } from '../utils/env';
 import { interactionService } from '../services/api';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
@@ -86,7 +87,7 @@ const CuratedInteractions: React.FC = () => {
     if (severity) params.set('severity', severity);
     if (resolveRx) params.set('resolveRx', 'true');
     params.set('view', format);
-    const url = `${require('../utils/env').apiBaseUrl()}/interactions/known?${params.toString()}`;
+    const url = `${apiBaseUrl()}/interactions/known?${params.toString()}`;
     window.open(url, '_blank');
   };
 

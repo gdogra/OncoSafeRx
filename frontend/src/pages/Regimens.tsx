@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { apiBaseUrl } from '../utils/env';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
@@ -92,7 +93,7 @@ const Regimens: React.FC = () => {
     }
   };
 
-  const apiBase = useMemo(() => require('../utils/env').apiBaseUrl(), []);
+  const apiBase = useMemo(() => apiBaseUrl(), []);
 
   const downloadPdf = (id: string) => {
     try {

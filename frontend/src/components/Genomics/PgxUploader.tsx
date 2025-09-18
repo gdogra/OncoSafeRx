@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiBaseUrl } from '../../utils/env';
 import Alert from '../UI/Alert';
 
 interface PgxUploaderProps {
@@ -24,7 +25,7 @@ const PgxUploader: React.FC<PgxUploaderProps> = ({ onPhenotypes }) => {
       } else if (parsed.observations) {
         observations = parsed.observations;
       }
-      const base = require('../../utils/env').apiBaseUrl();
+      const base = apiBaseUrl();
       const resp = await fetch(`${base}/genomics/fhir/phenotype`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ observations })

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { apiBaseUrl } from '../utils/env';
 import { MapContainer, TileLayer, Marker, Popup, useMap, CircleMarker } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -34,7 +35,7 @@ type Trial = {
 
 const Trials: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const apiBase = useMemo(() => require('../utils/env').apiBaseUrl(), []);
+  const apiBase = useMemo(() => apiBaseUrl(), []);
   const [condition, setCondition] = useState('');
   const [biomarker, setBiomarker] = useState('');
   const [line, setLine] = useState('');

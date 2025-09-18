@@ -2,11 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
+import ProtocolDetailModal from '../components/Protocols/ProtocolDetailModal';
 import { FileText, ExternalLink, Search, Calendar, Users, TrendingUp } from 'lucide-react';
 
 const Protocols: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [selectedDrug, setSelectedDrug] = useState<string | null>(null);
+  const [cancerTypeFilter, setCancerTypeFilter] = useState<string>('');
+  const [stageFilter, setStageFilter] = useState<string>('');
+  const [sourceFilter, setSourceFilter] = useState<string>('');
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [selectedProtocol, setSelectedProtocol] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Handle URL drug parameter
   useEffect(() => {
@@ -79,14 +86,32 @@ const Protocols: React.FC = () => {
     }
   ];
 
-  // Filter protocols and trials based on selected drug
-  const filteredProtocols = selectedDrug 
-    ? protocols.filter(protocol => 
-        protocol.drugs.some(drug => 
-          drug.toLowerCase().includes(selectedDrug.toLowerCase())
-        )
-      )
-    : protocols;
+  // Filter protocols based on selected drug and filter criteria
+  const filteredProtocols = protocols.filter(protocol => {
+    // Drug filter
+    if (selectedDrug && !protocol.drugs.some(drug => 
+      drug.toLowerCase().includes(selectedDrug.toLowerCase())
+    )) {
+      return false;
+    }
+    
+    // Cancer type filter
+    if (cancerTypeFilter && !protocol.cancerType.toLowerCase().includes(cancerTypeFilter.toLowerCase())) {
+      return false;
+    }
+    
+    // Stage filter
+    if (stageFilter && !protocol.stage.toLowerCase().includes(stageFilter.toLowerCase())) {
+      return false;
+    }
+    
+    // Source filter
+    if (sourceFilter && !protocol.source.toLowerCase().includes(sourceFilter.toLowerCase())) {
+      return false;
+    }
+    
+    return true;
+  });
 
   const filteredTrials = selectedDrug
     ? trials.filter(trial =>
@@ -95,6 +120,44 @@ const Protocols: React.FC = () => {
         )
       )
     : trials;
+
+  // Search protocols function
+  const handleSearchProtocols = async () => {
+    setSearchLoading(true);
+    
+    // Simulate API call with loading delay
+    setTimeout(() => {
+      setSearchLoading(false);
+      
+      // Show a notification that search was performed
+      alert(`Search performed with filters:
+Cancer Type: ${cancerTypeFilter || 'All'}
+Stage: ${stageFilter || 'All'}
+Source: ${sourceFilter || 'All'}
+
+Found ${filteredProtocols.length} matching protocols.`);
+    }, 1000);
+  };
+
+  // View protocol details
+  const handleViewProtocol = (protocol: any) => {
+    setSelectedProtocol(protocol);
+    setIsModalOpen(true);
+  };
+
+  // View trial on ClinicalTrials.gov
+  const handleViewTrial = (trial: any) => {
+    const url = `https://clinicaltrials.gov/ct2/show/${trial.id}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  // Reset all filters
+  const handleResetFilters = () => {
+    setCancerTypeFilter('');
+    setStageFilter('');
+    setSourceFilter('');
+    setSelectedDrug(null);
+  };
 
   return (
     <div className="space-y-8">
@@ -123,7 +186,11 @@ const Protocols: React.FC = () => {
           <div className="grid md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Cancer Type</label>
-              <select className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              <select 
+                value={cancerTypeFilter}
+                onChange={(e) => setCancerTypeFilter(e.target.value)}
+                className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              >
                 <option value="">All Cancer Types</option>
                 <option value="breast">Breast Cancer</option>
                 <option value="colorectal">Colorectal Cancer</option>
@@ -134,7 +201,11 @@ const Protocols: React.FC = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Stage</label>
-              <select className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              <select 
+                value={stageFilter}
+                onChange={(e) => setStageFilter(e.target.value)}
+                className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              >
                 <option value="">All Stages</option>
                 <option value="early">Early Stage</option>
                 <option value="advanced">Advanced</option>
@@ -143,7 +214,11 @@ const Protocols: React.FC = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
-              <select className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              <select 
+                value={sourceFilter}
+                onChange={(e) => setSourceFilter(e.target.value)}
+                className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              >
                 <option value="">All Sources</option>
                 <option value="nccn">NCCN</option>
                 <option value="asco">ASCO</option>
@@ -151,10 +226,25 @@ const Protocols: React.FC = () => {
               </select>
             </div>
           </div>
-          <button className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white font-medium rounded-md hover:bg-primary-700">
-            <Search className="w-4 h-4" />
-            <span>Search Protocols</span>
-          </button>
+          <div className="flex items-center space-x-3">
+            <button 
+              onClick={handleSearchProtocols}
+              disabled={searchLoading}
+              className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white font-medium rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Search className="w-4 h-4" />
+              <span>{searchLoading ? 'Searching...' : 'Search Protocols'}</span>
+            </button>
+            <button 
+              onClick={handleResetFilters}
+              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-md hover:bg-gray-200"
+            >
+              <span>Reset Filters</span>
+            </button>
+            <div className="text-sm text-gray-600">
+              Found <span className="font-semibold">{filteredProtocols.length}</span> protocols
+            </div>
+          </div>
         </div>
       </Card>
 
@@ -219,7 +309,10 @@ const Protocols: React.FC = () => {
                     <span>Last updated: 2 weeks ago</span>
                     <span>Evidence level: A</span>
                   </div>
-                  <button className="flex items-center space-x-1 text-primary-600 hover:text-primary-700 font-medium">
+                  <button 
+                    onClick={() => handleViewProtocol(protocol)}
+                    className="flex items-center space-x-1 text-primary-600 hover:text-primary-700 font-medium"
+                  >
                     <span>View Full Protocol</span>
                     <ExternalLink className="w-3 h-3" />
                   </button>
@@ -275,7 +368,10 @@ const Protocols: React.FC = () => {
                     <span>Updated: 1 week ago</span>
                     <span>Locations: Multiple sites</span>
                   </div>
-                  <button className="flex items-center space-x-1 text-primary-600 hover:text-primary-700 font-medium">
+                  <button 
+                    onClick={() => handleViewTrial(trial)}
+                    className="flex items-center space-x-1 text-primary-600 hover:text-primary-700 font-medium"
+                  >
                     <span>View on ClinicalTrials.gov</span>
                     <ExternalLink className="w-3 h-3" />
                   </button>
@@ -291,6 +387,16 @@ const Protocols: React.FC = () => {
         These protocols and trials are provided for educational purposes. Always consult current guidelines, 
         institutional protocols, and discuss treatment options with qualified oncology specialists before making clinical decisions.
       </Alert>
+
+      {/* Protocol Detail Modal */}
+      <ProtocolDetailModal
+        protocol={selectedProtocol}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedProtocol(null);
+        }}
+      />
     </div>
   );
 };

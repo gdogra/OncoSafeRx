@@ -24,6 +24,7 @@
     Referrer-Policy = "no-referrer-when-downgrade"
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'self'; object-src 'none'"
 
 [context.production.environment]
   # Point this at your API base URL (override in Netlify UI if needed)

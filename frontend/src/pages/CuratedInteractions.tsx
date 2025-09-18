@@ -86,7 +86,7 @@ const CuratedInteractions: React.FC = () => {
     if (severity) params.set('severity', severity);
     if (resolveRx) params.set('resolveRx', 'true');
     params.set('view', format);
-    const url = `${process.env.REACT_APP_API_URL || 'http://localhost:3000/api'}/interactions/known?${params.toString()}`;
+    const url = `${require('../utils/env').apiBaseUrl()}/interactions/known?${params.toString()}`;
     window.open(url, '_blank');
   };
 

@@ -92,7 +92,7 @@ const Regimens: React.FC = () => {
     }
   };
 
-  const apiBase = useMemo(() => process.env.REACT_APP_API_URL || 'http://localhost:3000/api', []);
+  const apiBase = useMemo(() => require('../utils/env').apiBaseUrl(), []);
 
   const downloadPdf = (id: string) => {
     try {

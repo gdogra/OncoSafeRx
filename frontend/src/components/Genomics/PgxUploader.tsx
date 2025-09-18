@@ -24,7 +24,7 @@ const PgxUploader: React.FC<PgxUploaderProps> = ({ onPhenotypes }) => {
       } else if (parsed.observations) {
         observations = parsed.observations;
       }
-      const base = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+      const base = require('../../utils/env').apiBaseUrl();
       const resp = await fetch(`${base}/genomics/fhir/phenotype`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ observations })

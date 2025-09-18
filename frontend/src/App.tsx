@@ -1,4 +1,5 @@
 import React from 'react';
+import { appVersion } from './utils/env';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { PatientProvider } from './context/PatientContext';
 import { SelectionProvider } from './context/SelectionContext';
@@ -23,8 +24,8 @@ function App() {
       <PatientProvider>
         <SelectionProvider>
           <Layout>
-            {/* Minimal visible header to confirm render */}
-            <div className="text-xs text-gray-500 mb-2">Env: {process.env.REACT_APP_VERSION || 'dev'} • API: {process.env.REACT_APP_API_URL || 'http://localhost:3000/api'}</div>
+        {/* Minimal visible header to confirm render */}
+        <div className="text-xs text-gray-500 mb-2">Env: {appVersion()}</div>
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/search" element={<DrugSearch />} />

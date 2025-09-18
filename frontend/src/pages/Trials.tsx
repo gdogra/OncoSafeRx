@@ -34,7 +34,7 @@ type Trial = {
 
 const Trials: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const apiBase = useMemo(() => process.env.REACT_APP_API_URL || 'http://localhost:3000/api', []);
+  const apiBase = useMemo(() => require('../utils/env').apiBaseUrl(), []);
   const [condition, setCondition] = useState('');
   const [biomarker, setBiomarker] = useState('');
   const [line, setLine] = useState('');

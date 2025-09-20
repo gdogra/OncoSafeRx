@@ -153,10 +153,14 @@ export class SupabaseAuthService {
   static async login(data: LoginData): Promise<UserProfile> {
     const { email, password } = data
 
+    console.log('Starting login process for:', email)
+    
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password
     })
+
+    console.log('Supabase auth response:', { authData, authError })
 
     if (authError) {
       console.error('Login error:', authError)
@@ -170,9 +174,12 @@ export class SupabaseAuthService {
       throw new Error('Failed to authenticate user')
     }
 
+    console.log('Attempting to fetch user profile...')
+    
     // Try to get user profile from users table
     let profileData = null
     try {
+      console.log('Querying users table for user ID:', authData.user.id)
       const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -181,6 +188,7 @@ export class SupabaseAuthService {
       
       if (!error) {
         profileData = data
+        console.log('Users table query successful, updating last login')
         // Update last login if users table is available
         await supabase
           .from('users')
@@ -194,6 +202,7 @@ export class SupabaseAuthService {
     }
 
     if (!profileData) {
+      console.log('Creating profile from auth user metadata')
       // Create profile from auth user metadata
       return {
         id: authData.user.id,

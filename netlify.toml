@@ -30,6 +30,12 @@
 
 [context.production.environment]
   REACT_APP_API_URL = "https://api.oncosaferx.com/api"
+  VITE_API_URL = "https://api.oncosaferx.com/api"
+  VITE_SUPABASE_URL = "https://emfrwckxctyarphjvfeu.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c"
 
 [context.deploy-preview.environment]
   REACT_APP_API_URL = "https://api.oncosaferx.com/api"
+  VITE_API_URL = "https://api.oncosaferx.com/api"
+  VITE_SUPABASE_URL = "https://emfrwckxctyarphjvfeu.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c"

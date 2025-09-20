@@ -14,14 +14,15 @@ export default defineConfig({
     chunkSizeWarningLimit: 600, // Stricter warning limit
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Put React and React-DOM in same chunk to avoid context issues
-          react: ['react', 'react-dom'],
-          vendor: ['axios', 'crypto-js'],
-          icons: ['lucide-react'],
-          router: ['react-router-dom'],
-          maps: ['leaflet', 'react-leaflet'],
-          sentry: ['@sentry/react']
+        manualChunks(id) {
+          // React and React-DOM together
+          if (id.includes('react') || id.includes('react-dom')) {
+            return 'react-vendor';
+          }
+          // Other vendor libraries
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
         },
       },
     },

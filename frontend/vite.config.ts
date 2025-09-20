@@ -10,6 +10,11 @@ export default defineConfig({
       REACT_APP_VERSION: process.env.REACT_APP_VERSION || '',
     }),
   },
+  server: {
+    hmr: {
+      port: 24678,
+    },
+  },
   build: {
     sourcemap: true, // Enable source maps for debugging
     minify: 'esbuild',

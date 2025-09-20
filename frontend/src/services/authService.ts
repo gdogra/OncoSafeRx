@@ -8,7 +8,7 @@ export class SupabaseAuthService {
   static async signup(data: SignupData): Promise<UserProfile> {
     const { email, password, firstName, lastName, role, specialty, institution, licenseNumber, yearsExperience } = data
 
-    // Create auth user
+    // Create auth user - the database trigger will handle creating the profile
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
@@ -26,6 +26,7 @@ export class SupabaseAuthService {
     })
 
     if (authError) {
+      console.error('Signup error:', authError)
       throw new Error(authError.message)
     }
 
@@ -33,17 +34,81 @@ export class SupabaseAuthService {
       throw new Error('Failed to create user account')
     }
 
-    // Create user profile in users table
-    const userProfile: Omit<UserProfile, 'id'> = {
-      email,
-      firstName,
-      lastName,
-      role,
-      specialty,
-      institution,
-      licenseNumber,
-      yearsExperience,
-      preferences: {
+    console.log('Signup successful:', {
+      userId: authData.user.id,
+      email: authData.user.email,
+      emailConfirmed: authData.user.email_confirmed_at,
+      needsConfirmation: !authData.session
+    })
+
+    // If email confirmation is required, throw a specific error
+    if (!authData.session) {
+      throw new Error('Please check your email and click the confirmation link to complete your registration.')
+    }
+
+    // Wait a moment for the trigger to create the profile
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    // Fetch the created profile
+    const { data: profileData, error: profileError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', authData.user.id)
+      .single()
+
+    if (profileError) {
+      console.error('Failed to fetch user profile after signup:', profileError)
+      // Return a basic profile if the trigger didn't work
+      return {
+        id: authData.user.id,
+        email,
+        firstName,
+        lastName,
+        role,
+        specialty: specialty || '',
+        institution: institution || '',
+        licenseNumber: licenseNumber || '',
+        yearsExperience: yearsExperience || 0,
+        preferences: {
+          theme: 'light',
+          language: 'en',
+          notifications: {
+            email: true,
+            push: true,
+            criticalAlerts: true,
+            weeklyReports: true,
+          },
+          dashboard: {
+            defaultView: 'overview',
+            refreshInterval: 5000,
+            compactMode: false,
+          },
+          clinical: {
+            showGenomicsByDefault: role === 'oncologist' || role === 'pharmacist',
+            autoCalculateDosing: role === 'oncologist' || role === 'pharmacist',
+            requireInteractionAck: true,
+            showPatientPhotos: false,
+          },
+        },
+        persona: this.createDefaultPersona(role),
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString(),
+        isActive: true,
+      }
+    }
+
+    // Convert database fields to frontend format
+    return {
+      id: profileData.id,
+      email: profileData.email,
+      firstName: profileData.first_name,
+      lastName: profileData.last_name,
+      role: profileData.role,
+      specialty: profileData.specialty || '',
+      institution: profileData.institution || '',
+      licenseNumber: profileData.license_number || '',
+      yearsExperience: profileData.years_experience || 0,
+      preferences: profileData.preferences || {
         theme: 'light',
         language: 'en',
         notifications: {
@@ -64,28 +129,11 @@ export class SupabaseAuthService {
           showPatientPhotos: false,
         },
       },
-      persona: this.createDefaultPersona(role),
-      createdAt: new Date().toISOString(),
-      lastLogin: new Date().toISOString(),
-      isActive: true,
+      persona: profileData.persona || this.createDefaultPersona(role),
+      createdAt: profileData.created_at,
+      lastLogin: profileData.last_login,
+      isActive: profileData.is_active,
     }
-
-    const { data: profileData, error: profileError } = await supabase
-      .from('users')
-      .insert([{ 
-        id: authData.user.id,
-        ...userProfile
-      }])
-      .select()
-      .single()
-
-    if (profileError) {
-      // If profile creation fails, clean up auth user
-      await supabase.auth.admin.deleteUser(authData.user.id)
-      throw new Error(`Failed to create user profile: ${profileError.message}`)
-    }
-
-    return { id: authData.user.id, ...userProfile }
   }
 
   /**
@@ -100,6 +148,10 @@ export class SupabaseAuthService {
     })
 
     if (authError) {
+      console.error('Login error:', authError)
+      if (authError.message.includes('Email not confirmed')) {
+        throw new Error('Please check your email and click the confirmation link before signing in.')
+      }
       throw new Error(authError.message)
     }
 
@@ -121,10 +173,46 @@ export class SupabaseAuthService {
     // Update last login
     await supabase
       .from('users')
-      .update({ lastLogin: new Date().toISOString() })
+      .update({ last_login: new Date().toISOString() })
       .eq('id', authData.user.id)
 
-    return profileData
+    // Convert database fields to frontend format
+    return {
+      id: profileData.id,
+      email: profileData.email,
+      firstName: profileData.first_name,
+      lastName: profileData.last_name,
+      role: profileData.role,
+      specialty: profileData.specialty || '',
+      institution: profileData.institution || '',
+      licenseNumber: profileData.license_number || '',
+      yearsExperience: profileData.years_experience || 0,
+      preferences: profileData.preferences || {
+        theme: 'light',
+        language: 'en',
+        notifications: {
+          email: true,
+          push: true,
+          criticalAlerts: true,
+          weeklyReports: true,
+        },
+        dashboard: {
+          defaultView: 'overview',
+          refreshInterval: 5000,
+          compactMode: false,
+        },
+        clinical: {
+          showGenomicsByDefault: profileData.role === 'oncologist' || profileData.role === 'pharmacist',
+          autoCalculateDosing: profileData.role === 'oncologist' || profileData.role === 'pharmacist',
+          requireInteractionAck: true,
+          showPatientPhotos: false,
+        },
+      },
+      persona: profileData.persona || this.createDefaultPersona(profileData.role),
+      createdAt: profileData.created_at,
+      lastLogin: profileData.last_login,
+      isActive: profileData.is_active,
+    }
   }
 
   /**
@@ -158,7 +246,43 @@ export class SupabaseAuthService {
       return null
     }
 
-    return profileData
+    // Convert database fields to frontend format
+    return {
+      id: profileData.id,
+      email: profileData.email,
+      firstName: profileData.first_name,
+      lastName: profileData.last_name,
+      role: profileData.role,
+      specialty: profileData.specialty || '',
+      institution: profileData.institution || '',
+      licenseNumber: profileData.license_number || '',
+      yearsExperience: profileData.years_experience || 0,
+      preferences: profileData.preferences || {
+        theme: 'light',
+        language: 'en',
+        notifications: {
+          email: true,
+          push: true,
+          criticalAlerts: true,
+          weeklyReports: true,
+        },
+        dashboard: {
+          defaultView: 'overview',
+          refreshInterval: 5000,
+          compactMode: false,
+        },
+        clinical: {
+          showGenomicsByDefault: profileData.role === 'oncologist' || profileData.role === 'pharmacist',
+          autoCalculateDosing: profileData.role === 'oncologist' || profileData.role === 'pharmacist',
+          requireInteractionAck: true,
+          showPatientPhotos: false,
+        },
+      },
+      persona: profileData.persona || this.createDefaultPersona(profileData.role),
+      createdAt: profileData.created_at,
+      lastLogin: profileData.last_login,
+      isActive: profileData.is_active,
+    }
   }
 
   /**
@@ -260,14 +384,63 @@ export class SupabaseAuthService {
   }
 
   /**
+   * Get backend API URL
+   */
+  private static getApiUrl(): string {
+    return import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+  }
+
+  /**
+   * Get current session token for API calls
+   */
+  static async getSessionToken(): Promise<string | null> {
+    const { data: { session } } = await supabase.auth.getSession()
+    return session?.access_token || null
+  }
+
+  /**
+   * Verify authentication with backend using Supabase token
+   */
+  static async verifyWithBackend(): Promise<UserProfile | null> {
+    try {
+      const token = await this.getSessionToken()
+      if (!token) return null
+
+      const response = await fetch(`${this.getApiUrl()}/supabase-auth/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        console.error('Backend verification failed:', response.status)
+        return null
+      }
+
+      const data = await response.json()
+      return data.user
+    } catch (error) {
+      console.error('Backend verification error:', error)
+      return null
+    }
+  }
+
+  /**
    * Subscribe to auth state changes
    */
   static onAuthStateChange(callback: (user: UserProfile | null) => void) {
     return supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         try {
+          // First try to get profile from Supabase
           const profile = await this.getCurrentUser()
-          callback(profile)
+          
+          // Also verify with backend (for hybrid auth)
+          const backendProfile = await this.verifyWithBackend()
+          
+          // Use backend profile if available, otherwise use Supabase profile
+          callback(backendProfile || profile)
         } catch (error) {
           console.error('Error fetching user profile:', error)
           callback(null)

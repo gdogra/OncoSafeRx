@@ -265,6 +265,11 @@ export class SecurityManager {
   }
 
   private static setupSecurityMonitoring(): void {
+    // Skip security monitoring in development
+    if (process.env.NODE_ENV === 'development') {
+      return;
+    }
+
     // Monitor for suspicious activity
     let rapidClickCount = 0;
     let lastClickTime = 0;

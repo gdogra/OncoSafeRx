@@ -205,7 +205,7 @@ export function useGlobalKeyboardShortcuts() {
     const shortcut = shortcuts.find(s => {
       if (s.disabled) return false;
       
-      const keyMatches = s.key.toLowerCase() === event.key.toLowerCase();
+      const keyMatches = s.key?.toLowerCase() === event.key?.toLowerCase();
       const ctrlMatches = !s.modifiers?.ctrl || event.ctrlKey;
       const altMatches = !s.modifiers?.alt || event.altKey;
       const shiftMatches = !s.modifiers?.shift || event.shiftKey;

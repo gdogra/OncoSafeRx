@@ -33,6 +33,7 @@ import searchRoutes from './routes/searchRoutes.js';
 import overrideRoutes from './routes/overrideRoutes.js';
 import epaRoutes from './routes/epaRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import supabaseAuthRoutes from './routes/supabaseAuthRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import enhancedDrugRoutes from './routes/enhancedDrugRoutes.js';
 import enhancedInteractionRoutes from './routes/enhancedInteractionRoutes.js';
@@ -124,6 +125,7 @@ app.get('/metrics', async (req, res) => {
 
 // API routes
 app.use('/api/auth', authRoutes);
+app.use('/api/supabase-auth', supabaseAuthRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/drugs', drugRoutes);
 app.use('/api/drugs/enhanced', enhancedDrugRoutes);

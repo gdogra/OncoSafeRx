@@ -49,16 +49,27 @@ export class SupabaseAuthService {
     // Wait a moment for the trigger to create the profile
     await new Promise(resolve => setTimeout(resolve, 1000))
 
-    // Fetch the created profile
-    const { data: profileData, error: profileError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', authData.user.id)
-      .single()
+    // Try to fetch the created profile from users table
+    let profileData = null
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', authData.user.id)
+        .single()
+      
+      if (!error) {
+        profileData = data
+      } else {
+        console.warn('Users table not accessible, using auth metadata:', error.message)
+      }
+    } catch (error) {
+      console.warn('Users table not available, using auth metadata:', error)
+    }
 
-    if (profileError) {
-      console.error('Failed to fetch user profile after signup:', profileError)
-      // Return a basic profile if the trigger didn't work
+    if (!profileData) {
+      console.log('Creating profile from auth metadata')
+      // Return a basic profile using auth user metadata
       return {
         id: authData.user.id,
         email,
@@ -159,22 +170,68 @@ export class SupabaseAuthService {
       throw new Error('Failed to authenticate user')
     }
 
-    // Get user profile from users table
-    const { data: profileData, error: profileError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', authData.user.id)
-      .single()
-
-    if (profileError) {
-      throw new Error(`Failed to fetch user profile: ${profileError.message}`)
+    // Try to get user profile from users table
+    let profileData = null
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', authData.user.id)
+        .single()
+      
+      if (!error) {
+        profileData = data
+        // Update last login if users table is available
+        await supabase
+          .from('users')
+          .update({ last_login: new Date().toISOString() })
+          .eq('id', authData.user.id)
+      } else {
+        console.warn('Users table not accessible, using auth metadata:', error.message)
+      }
+    } catch (error) {
+      console.warn('Users table not available, using auth metadata:', error)
     }
 
-    // Update last login
-    await supabase
-      .from('users')
-      .update({ last_login: new Date().toISOString() })
-      .eq('id', authData.user.id)
+    if (!profileData) {
+      // Create profile from auth user metadata
+      return {
+        id: authData.user.id,
+        email: authData.user.email || email,
+        firstName: authData.user.user_metadata?.first_name || '',
+        lastName: authData.user.user_metadata?.last_name || '',
+        role: authData.user.user_metadata?.role || 'user',
+        specialty: authData.user.user_metadata?.specialty || '',
+        institution: authData.user.user_metadata?.institution || '',
+        licenseNumber: authData.user.user_metadata?.license_number || '',
+        yearsExperience: authData.user.user_metadata?.years_experience || 0,
+        preferences: {
+          theme: 'light',
+          language: 'en',
+          notifications: {
+            email: true,
+            push: true,
+            criticalAlerts: true,
+            weeklyReports: true,
+          },
+          dashboard: {
+            defaultView: 'overview',
+            refreshInterval: 5000,
+            compactMode: false,
+          },
+          clinical: {
+            showGenomicsByDefault: authData.user.user_metadata?.role === 'oncologist' || authData.user.user_metadata?.role === 'pharmacist',
+            autoCalculateDosing: authData.user.user_metadata?.role === 'oncologist' || authData.user.user_metadata?.role === 'pharmacist',
+            requireInteractionAck: true,
+            showPatientPhotos: false,
+          },
+        },
+        persona: this.createDefaultPersona(authData.user.user_metadata?.role || 'user'),
+        createdAt: authData.user.created_at,
+        lastLogin: new Date().toISOString(),
+        isActive: true,
+      }
+    }
 
     // Convert database fields to frontend format
     return {
@@ -235,15 +292,62 @@ export class SupabaseAuthService {
       return null
     }
 
-    const { data: profileData, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', session.user.id)
-      .single()
+    // Try to get user profile from users table
+    let profileData = null
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', session.user.id)
+        .single()
+      
+      if (!error) {
+        profileData = data
+      } else {
+        console.warn('Users table not accessible, using auth metadata:', error.message)
+      }
+    } catch (error) {
+      console.warn('Users table not available, using auth metadata:', error)
+    }
 
-    if (error) {
-      console.error('Failed to fetch user profile:', error)
-      return null
+    if (!profileData) {
+      // Create profile from auth user metadata
+      return {
+        id: session.user.id,
+        email: session.user.email || '',
+        firstName: session.user.user_metadata?.first_name || '',
+        lastName: session.user.user_metadata?.last_name || '',
+        role: session.user.user_metadata?.role || 'user',
+        specialty: session.user.user_metadata?.specialty || '',
+        institution: session.user.user_metadata?.institution || '',
+        licenseNumber: session.user.user_metadata?.license_number || '',
+        yearsExperience: session.user.user_metadata?.years_experience || 0,
+        preferences: {
+          theme: 'light',
+          language: 'en',
+          notifications: {
+            email: true,
+            push: true,
+            criticalAlerts: true,
+            weeklyReports: true,
+          },
+          dashboard: {
+            defaultView: 'overview',
+            refreshInterval: 5000,
+            compactMode: false,
+          },
+          clinical: {
+            showGenomicsByDefault: session.user.user_metadata?.role === 'oncologist' || session.user.user_metadata?.role === 'pharmacist',
+            autoCalculateDosing: session.user.user_metadata?.role === 'oncologist' || session.user.user_metadata?.role === 'pharmacist',
+            requireInteractionAck: true,
+            showPatientPhotos: false,
+          },
+        },
+        persona: this.createDefaultPersona(session.user.user_metadata?.role || 'user'),
+        createdAt: session.user.created_at,
+        lastLogin: new Date().toISOString(),
+        isActive: true,
+      }
     }
 
     // Convert database fields to frontend format
@@ -403,10 +507,18 @@ export class SupabaseAuthService {
    */
   static async verifyWithBackend(): Promise<UserProfile | null> {
     try {
+      const apiUrl = this.getApiUrl()
+      
+      // Skip backend verification if no API URL or localhost in production
+      if (!apiUrl || apiUrl.includes('localhost')) {
+        console.log('Skipping backend verification - no backend API available')
+        return null
+      }
+
       const token = await this.getSessionToken()
       if (!token) return null
 
-      const response = await fetch(`${this.getApiUrl()}/supabase-auth/profile`, {
+      const response = await fetch(`${apiUrl}/supabase-auth/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -421,7 +533,7 @@ export class SupabaseAuthService {
       const data = await response.json()
       return data.user
     } catch (error) {
-      console.error('Backend verification error:', error)
+      console.log('Backend verification skipped due to error:', error.message)
       return null
     }
   }

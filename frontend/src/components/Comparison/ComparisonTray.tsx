@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useComparison } from '../../contexts/ComparisonContext';
-import { X, Compare, ChevronUp, ChevronDown, Trash2, RotateCcw, ExternalLink } from 'lucide-react';
+import { X, GitCompare, ChevronUp, ChevronDown, Trash2, RotateCcw, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Tooltip from '../UI/Tooltip';
 
@@ -59,7 +59,7 @@ const ComparisonTray: React.FC = () => {
             )}
           </button>
           <div className="flex items-center space-x-2">
-            <Compare className="w-5 h-5 text-primary-600" />
+            <GitCompare className="w-5 h-5 text-primary-600" />
             <span className="font-medium text-gray-900">
               Drug Comparison ({state.items.length}/{state.maxItems})
             </span>
@@ -73,7 +73,7 @@ const ComparisonTray: React.FC = () => {
                 onClick={handleCompare}
                 className="px-3 py-1.5 bg-primary-600 text-white text-sm font-medium rounded hover:bg-primary-700 transition-colors flex items-center space-x-1"
               >
-                <Compare className="w-4 h-4" />
+                <GitCompare className="w-4 h-4" />
                 <span>Compare</span>
               </button>
             </Tooltip>
@@ -164,7 +164,7 @@ const ComparisonTray: React.FC = () => {
             {state.items.length < state.maxItems && (
               <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-3 flex items-center justify-center text-gray-500">
                 <div className="text-center">
-                  <Compare className="w-6 h-6 mx-auto mb-1 text-gray-400" />
+                  <GitCompare className="w-6 h-6 mx-auto mb-1 text-gray-400" />
                   <p className="text-xs">Add drug to compare</p>
                 </div>
               </div>

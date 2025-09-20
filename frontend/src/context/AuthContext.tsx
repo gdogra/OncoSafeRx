@@ -1,13 +1,14 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { UserProfile, AuthState, SignupData, LoginData, UserPersona } from '../types/user';
 import { getRoleConfig } from '../utils/roleConfig';
+import { SupabaseAuthService } from '../services/authService';
 
 interface AuthActions {
   login: (data: LoginData) => Promise<void>;
   signup: (data: SignupData) => Promise<void>;
   logout: () => void;
-  updateProfile: (updates: Partial<UserProfile>) => void;
-  switchPersona: (persona: UserPersona) => void;
+  updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
+  switchPersona: (persona: UserPersona) => Promise<void>;
   setError: (error: string | null) => void;
 }
 
@@ -80,199 +81,8 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
   }
 }
 
-// Mock authentication service - replace with real API calls
-class AuthService {
-  static async login(data: LoginData): Promise<UserProfile> {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock user data
-    const mockUser: UserProfile = {
-      id: 'user-123',
-      email: data.email,
-      firstName: 'Dr. Sarah',
-      lastName: 'Chen',
-      role: 'oncologist', // Default role, can be changed
-      specialty: 'Medical Oncology',
-      institution: 'Memorial Cancer Center',
-      licenseNumber: 'MD123456',
-      yearsExperience: 8,
-      preferences: {
-        theme: 'light',
-        language: 'en',
-        notifications: {
-          email: true,
-          push: true,
-          criticalAlerts: true,
-          weeklyReports: false,
-        },
-        dashboard: {
-          defaultView: 'overview',
-          refreshInterval: 5000,
-          compactMode: false,
-        },
-        clinical: {
-          showGenomicsByDefault: true,
-          autoCalculateDosing: true,
-          requireInteractionAck: true,
-          showPatientPhotos: false,
-        },
-      },
-      persona: {
-        id: 'persona-1',
-        name: 'Experienced Oncologist',
-        description: 'Senior medical oncologist with focus on precision medicine',
-        role: 'oncologist',
-        experienceLevel: 'expert',
-        specialties: ['breast cancer', 'lung cancer', 'precision medicine'],
-        preferences: {
-          riskTolerance: 'moderate',
-          alertSensitivity: 'medium',
-          workflowStyle: 'thorough',
-          decisionSupport: 'consultative',
-        },
-        customSettings: {},
-      },
-      createdAt: '2024-01-01T00:00:00Z',
-      lastLogin: new Date().toISOString(),
-      isActive: true,
-    };
-
-    localStorage.setItem('oncosafe_user', JSON.stringify(mockUser));
-    return mockUser;
-  }
-
-  static async signup(data: SignupData): Promise<UserProfile> {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    const newUser: UserProfile = {
-      id: `user-${Date.now()}`,
-      email: data.email,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      role: data.role,
-      specialty: data.specialty,
-      institution: data.institution,
-      licenseNumber: data.licenseNumber,
-      yearsExperience: data.yearsExperience,
-      preferences: {
-        theme: 'light',
-        language: 'en',
-        notifications: {
-          email: true,
-          push: true,
-          criticalAlerts: true,
-          weeklyReports: true,
-        },
-        dashboard: {
-          defaultView: 'overview',
-          refreshInterval: 5000,
-          compactMode: false,
-        },
-        clinical: {
-          showGenomicsByDefault: data.role === 'oncologist' || data.role === 'pharmacist',
-          autoCalculateDosing: data.role === 'oncologist' || data.role === 'pharmacist',
-          requireInteractionAck: true,
-          showPatientPhotos: false,
-        },
-      },
-      persona: this.createDefaultPersona(data.role),
-      createdAt: new Date().toISOString(),
-      lastLogin: new Date().toISOString(),
-      isActive: true,
-    };
-
-    localStorage.setItem('oncosafe_user', JSON.stringify(newUser));
-    return newUser;
-  }
-
-  static createDefaultPersona(role: UserProfile['role']): UserPersona {
-    const personaConfigs = {
-      oncologist: {
-        name: 'Medical Oncologist',
-        description: 'Comprehensive cancer care specialist',
-        experienceLevel: 'expert' as const,
-        specialties: ['solid tumors', 'precision medicine'],
-        preferences: {
-          riskTolerance: 'moderate' as const,
-          alertSensitivity: 'medium' as const,
-          workflowStyle: 'thorough' as const,
-          decisionSupport: 'consultative' as const,
-        },
-      },
-      pharmacist: {
-        name: 'Clinical Pharmacist',
-        description: 'Medication therapy management specialist',
-        experienceLevel: 'expert' as const,
-        specialties: ['oncology pharmacy', 'drug interactions'],
-        preferences: {
-          riskTolerance: 'conservative' as const,
-          alertSensitivity: 'high' as const,
-          workflowStyle: 'thorough' as const,
-          decisionSupport: 'guided' as const,
-        },
-      },
-      nurse: {
-        name: 'Oncology Nurse',
-        description: 'Direct patient care and medication administration',
-        experienceLevel: 'intermediate' as const,
-        specialties: ['patient care', 'medication administration'],
-        preferences: {
-          riskTolerance: 'conservative' as const,
-          alertSensitivity: 'high' as const,
-          workflowStyle: 'efficient' as const,
-          decisionSupport: 'guided' as const,
-        },
-      },
-      researcher: {
-        name: 'Clinical Researcher',
-        description: 'Cancer research and data analysis specialist',
-        experienceLevel: 'expert' as const,
-        specialties: ['clinical trials', 'genomics research'],
-        preferences: {
-          riskTolerance: 'moderate' as const,
-          alertSensitivity: 'low' as const,
-          workflowStyle: 'collaborative' as const,
-          decisionSupport: 'autonomous' as const,
-        },
-      },
-      student: {
-        name: 'Healthcare Student',
-        description: 'Learning healthcare professional',
-        experienceLevel: 'novice' as const,
-        specialties: ['general medicine'],
-        preferences: {
-          riskTolerance: 'conservative' as const,
-          alertSensitivity: 'high' as const,
-          workflowStyle: 'guided' as const,
-          decisionSupport: 'guided' as const,
-        },
-      },
-    };
-
-    const config = personaConfigs[role];
-    return {
-      id: `persona-${Date.now()}`,
-      name: config.name,
-      description: config.description,
-      role,
-      experienceLevel: config.experienceLevel,
-      specialties: config.specialties,
-      preferences: config.preferences,
-      customSettings: {},
-    };
-  }
-
-  static logout(): void {
-    localStorage.removeItem('oncosafe_user');
-  }
-
-  static getCurrentUser(): UserProfile | null {
-    const stored = localStorage.getItem('oncosafe_user');
-    return stored ? JSON.parse(stored) : null;
-  }
-}
+// Use Supabase authentication service
+const AuthService = SupabaseAuthService;
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
@@ -303,19 +113,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       dispatch({ type: 'AUTH_LOGOUT' });
     },
 
-    updateProfile: (updates: Partial<UserProfile>) => {
-      dispatch({ type: 'UPDATE_PROFILE', payload: updates });
-      if (state.user) {
-        const updatedUser = { ...state.user, ...updates };
-        localStorage.setItem('oncosafe_user', JSON.stringify(updatedUser));
+    updateProfile: async (updates: Partial<UserProfile>) => {
+      if (!state.user) return;
+      
+      try {
+        const updatedUser = await AuthService.updateProfile(state.user.id, updates);
+        dispatch({ type: 'UPDATE_PROFILE', payload: updates });
+      } catch (error) {
+        dispatch({ type: 'AUTH_FAILURE', payload: 'Failed to update profile' });
       }
     },
 
-    switchPersona: (persona: UserPersona) => {
-      dispatch({ type: 'SWITCH_PERSONA', payload: persona });
-      if (state.user) {
-        const updatedUser = { ...state.user, persona };
-        localStorage.setItem('oncosafe_user', JSON.stringify(updatedUser));
+    switchPersona: async (persona: UserPersona) => {
+      if (!state.user) return;
+      
+      try {
+        await AuthService.updateProfile(state.user.id, { persona });
+        dispatch({ type: 'SWITCH_PERSONA', payload: persona });
+      } catch (error) {
+        dispatch({ type: 'AUTH_FAILURE', payload: 'Failed to update persona' });
       }
     },
 
@@ -324,12 +140,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     },
   };
 
-  // Check for existing user on mount
+  // Check for existing user on mount and set up auth state listener
   useEffect(() => {
-    const user = AuthService.getCurrentUser();
-    if (user) {
-      dispatch({ type: 'AUTH_SUCCESS', payload: user });
-    }
+    let mounted = true;
+
+    // Check for current session
+    const checkCurrentUser = async () => {
+      try {
+        const user = await AuthService.getCurrentUser();
+        if (mounted && user) {
+          dispatch({ type: 'AUTH_SUCCESS', payload: user });
+        }
+      } catch (error) {
+        console.error('Error checking current user:', error);
+      }
+    };
+
+    checkCurrentUser();
+
+    // Set up auth state listener
+    const { data: { subscription } } = AuthService.onAuthStateChange((user) => {
+      if (mounted) {
+        if (user) {
+          dispatch({ type: 'AUTH_SUCCESS', payload: user });
+        } else {
+          dispatch({ type: 'AUTH_LOGOUT' });
+        }
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription?.unsubscribe();
+    };
   }, []);
 
   const roleConfig = state.user ? getRoleConfig(state.user.role) : null;

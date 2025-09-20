@@ -13,6 +13,7 @@ import Layout from './components/Layout/Layout';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import FeedbackButton from './components/Feedback/FeedbackButton';
 import { useGlobalKeyboardShortcuts } from './hooks/useGlobalKeyboardShortcuts';
+import setupErrorSuppression from './utils/errorSuppression';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const DrugSearch = lazy(() => import('./pages/DrugSearch'));
 const InteractionChecker = lazy(() => import('./components/Interactions/InteractionChecker'));
@@ -45,6 +46,9 @@ function App() {
     SecurityManager.initialize();
     PerformanceMonitor.initialize();
     PWAManager.initialize();
+    
+    // Setup error suppression for external/extension errors
+    setupErrorSuppression();
 
     // Initialize Sentry (optional, behind env)
     const dsn = (import.meta as any)?.env?.VITE_SENTRY_DSN;

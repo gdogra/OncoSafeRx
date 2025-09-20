@@ -37,33 +37,16 @@ const AuthPage = lazy(() => import('./pages/AuthPage'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Testing = lazy(() => import('./pages/Testing'));
 
-function App() {
-  // Initialize global keyboard shortcuts
+// Component that handles keyboard shortcuts inside Router context
+function AppWithRouter() {
+  // Initialize global keyboard shortcuts (now inside Router context)
   useGlobalKeyboardShortcuts();
 
-  useEffect(() => {
-    // Initialize production-ready features
-    SecurityManager.initialize();
-    PerformanceMonitor.initialize();
-    PWAManager.initialize();
-    
-    // Setup error suppression for external/extension errors
-    setupErrorSuppression();
-
-    // Initialize Sentry (optional, behind env)
-    const dsn = (import.meta as any)?.env?.VITE_SENTRY_DSN;
-    if (dsn) {
-      import('./utils/sentry').then((m) => m.initSentry(dsn)).catch(() => {});
-    }
-  }, []);
-
   return (
-    <ErrorBoundary>
-      <Router>
-        <AuthProvider>
-          <PatientProvider>
-            <SelectionProvider>
-              <ComparisonProvider>
+    <AuthProvider>
+      <PatientProvider>
+        <SelectionProvider>
+          <ComparisonProvider>
             <Suspense fallback={<div className="p-4 text-sm text-gray-500">Loading…</div>}>
               <Routes>
                 {/* Public routes */}
@@ -225,6 +208,30 @@ function App() {
             </SelectionProvider>
           </PatientProvider>
         </AuthProvider>
+    );
+}
+
+function App() {
+  useEffect(() => {
+    // Initialize production-ready features
+    SecurityManager.initialize();
+    PerformanceMonitor.initialize();
+    PWAManager.initialize();
+    
+    // Setup error suppression for external/extension errors
+    setupErrorSuppression();
+
+    // Initialize Sentry (optional, behind env)
+    const dsn = (import.meta as any)?.env?.VITE_SENTRY_DSN;
+    if (dsn) {
+      import('./utils/sentry').then((m) => m.initSentry(dsn)).catch(() => {});
+    }
+  }, []);
+
+  return (
+    <ErrorBoundary>
+      <Router>
+        <AppWithRouter />
       </Router>
     </ErrorBoundary>
   );

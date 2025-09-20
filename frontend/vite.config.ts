@@ -11,30 +11,7 @@ export default defineConfig({
     }),
   },
   build: {
-    chunkSizeWarningLimit: 600, // Stricter warning limit
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          // React and React-DOM together
-          if (id.includes('react') || id.includes('react-dom')) {
-            return 'react-vendor';
-          }
-          // Other vendor libraries
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-        },
-      },
-    },
-    // Enable tree shaking
-    treeshake: true,
-    // Minify for production
+    sourcemap: true, // Enable source maps for debugging
     minify: 'esbuild',
-    // Source maps for debugging but not inline
-    sourcemap: false,
-  },
-  // Enable compression
-  esbuild: {
-    drop: ['console', 'debugger'], // Remove console.log in production
   },
 });

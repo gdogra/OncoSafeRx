@@ -69,7 +69,16 @@ self.addEventListener('activate', (event) => {
 // Fetch event - implement caching strategies
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-  const url = new URL(request.url);
+  
+  // Skip unsupported schemes (chrome-extension, etc.)
+  try {
+    const url = new URL(request.url);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      return;
+    }
+  } catch (error) {
+    return; // Invalid URL
+  }
 
   // Skip non-GET requests
   if (request.method !== 'GET') {
@@ -160,13 +169,19 @@ self.addEventListener('notificationclick', (event) => {
 // Caching strategies
 async function cacheFirst(request) {
   try {
+    // Skip caching for unsupported schemes (chrome-extension, etc.)
+    const url = new URL(request.url);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      return fetch(request);
+    }
+
     const cached = await caches.match(request);
     if (cached) {
       return cached;
     }
     
     const response = await fetch(request);
-    if (response.status === 200) {
+    if (response.status === 200 && response.type !== 'opaque') {
       const cache = await caches.open(STATIC_CACHE_NAME);
       cache.put(request, response.clone());
     }

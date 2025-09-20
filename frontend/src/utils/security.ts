@@ -238,10 +238,8 @@ export class SecurityManager {
 
   // Initialize security features
   public static initialize(): void {
-    this.setupCSP();
-    
-    // Set up security headers via meta tags
-    this.addSecurityHeaders();
+    // Rely on server-provided security headers (CSP, HSTS, etc.)
+    // Avoid injecting CSP/meta headers from client.
     
     // Monitor for suspicious activity
     this.setupSecurityMonitoring();

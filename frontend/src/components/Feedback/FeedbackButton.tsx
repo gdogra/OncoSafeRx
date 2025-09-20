@@ -127,7 +127,7 @@ const FeedbackButton: React.FC<FeedbackButtonProps> = ({
       />
 
       {/* CSS for animations */}
-      <style jsx>{`
+      <style>{`
         @keyframes slideIn {
           from {
             opacity: 0;

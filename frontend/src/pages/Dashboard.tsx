@@ -1,9 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Card from '../components/UI/Card';
+import Tooltip from '../components/UI/Tooltip';
+import RoleSwitcher from '../components/Auth/RoleSwitcher';
+import MockLogin from '../components/Auth/MockLogin';
+import { useAuth } from '../context/AuthContext';
 import { Activity, Search, AlertTriangle, Dna, FileText, Users, TrendingUp, Shield } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
+  const { state: authState, roleConfig } = useAuth();
   const features = [
     {
       icon: Search,
@@ -68,6 +73,8 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      <MockLogin />
+      
       {/* Header */}
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">
@@ -77,6 +84,11 @@ const Dashboard: React.FC = () => {
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
           Advanced oncology drug interaction and pharmacogenomic analysis platform for precision medicine
         </p>
+      </div>
+
+      {/* Role Switcher Demo */}
+      <div className="mb-8">
+        <RoleSwitcher />
       </div>
 
       {/* Stats */}
@@ -115,19 +127,25 @@ const Dashboard: React.FC = () => {
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <Link key={index} to={feature.link}>
-                <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 border-l-transparent hover:border-l-primary-500">
-                  <div className="flex items-start space-x-4">
-                    <div className={`w-12 h-12 ${feature.color} rounded-lg flex items-center justify-center`}>
-                      <Icon className="w-6 h-6 text-white" />
+              <Tooltip
+                key={index}
+                content={`Click to access ${feature.title} - ${feature.description}`}
+                position="bottom"
+              >
+                <Link to={feature.link}>
+                  <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 border-l-transparent hover:border-l-primary-500">
+                    <div className="flex items-start space-x-4">
+                      <div className={`w-12 h-12 ${feature.color} rounded-lg flex items-center justify-center`}>
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
+                        <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                      <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
-                    </div>
-                  </div>
-                </Card>
-              </Link>
+                  </Card>
+                </Link>
+              </Tooltip>
             );
           })}
         </div>

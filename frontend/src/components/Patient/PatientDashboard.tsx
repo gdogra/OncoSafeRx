@@ -101,9 +101,9 @@ const PatientDashboard: React.FC = () => {
       {/* Active Alerts */}
       {getActiveAlerts().length > 0 && (
         <div className="space-y-2">
-          {getActiveAlerts().map((alert) => (
+          {getActiveAlerts().map((alert, index) => (
             <Alert
-              key={alert.id}
+              key={alert.id || `alert-${index}`}
               type={alert.severity === 'critical' ? 'error' : alert.severity === 'high' ? 'warning' : 'info'}
               title={alert.message}
             >
@@ -295,7 +295,7 @@ const PatientDashboard: React.FC = () => {
                   {getRecentVitals() ? (
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       {getRecentVitals().bloodPressureSystolic && (
-                        <div>
+                        <div key="blood-pressure">
                           <span className="text-gray-600">BP:</span>
                           <span className="ml-1 font-medium">
                             {getRecentVitals().bloodPressureSystolic}/{getRecentVitals().bloodPressureDiastolic}
@@ -303,19 +303,19 @@ const PatientDashboard: React.FC = () => {
                         </div>
                       )}
                       {getRecentVitals().heartRate && (
-                        <div>
+                        <div key="heart-rate">
                           <span className="text-gray-600">HR:</span>
                           <span className="ml-1 font-medium">{getRecentVitals().heartRate} bpm</span>
                         </div>
                       )}
                       {getRecentVitals().temperature && (
-                        <div>
+                        <div key="temperature">
                           <span className="text-gray-600">Temp:</span>
                           <span className="ml-1 font-medium">{getRecentVitals().temperature}°C</span>
                         </div>
                       )}
                       {getRecentVitals().performanceStatus !== undefined && (
-                        <div>
+                        <div key="performance-status">
                           <span className="text-gray-600">ECOG:</span>
                           <span className="ml-1 font-medium">{getRecentVitals().performanceStatus}</span>
                         </div>
@@ -343,9 +343,9 @@ const PatientDashboard: React.FC = () => {
                 </div>
                 {currentPatient.allergies.length > 0 ? (
                   <div className="space-y-2">
-                    {currentPatient.allergies.map((allergy) => (
+                    {currentPatient.allergies.map((allergy, index) => (
                       <div
-                        key={allergy.id}
+                        key={allergy.id || `allergy-${index}`}
                         className={`p-3 rounded-lg border-l-4 ${
                           allergy.severity === 'life-threatening' ? 'border-red-500 bg-red-50' :
                           allergy.severity === 'severe' ? 'border-orange-500 bg-orange-50' :
@@ -398,7 +398,7 @@ const PatientDashboard: React.FC = () => {
                       </thead>
                       <tbody className="divide-y divide-gray-200">
                         {getRecentLabs().map((lab, index) => (
-                          <tr key={index}>
+                          <tr key={`${lab.labType}-${lab.timestamp}-${index}`}>
                             <td className="px-3 py-2 text-sm font-medium text-gray-900">{lab.labType}</td>
                             <td className={`px-3 py-2 text-sm ${lab.isAbnormal ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
                               {lab.value} {lab.unit}

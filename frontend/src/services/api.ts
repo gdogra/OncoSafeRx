@@ -31,50 +31,114 @@ api.interceptors.response.use(
 // Drug services
 export const drugService = {
   searchDrugs: async (query: string) => {
-    const response = await api.get(`/drugs/search?q=${encodeURIComponent(query)}`);
-    return response.data;
+    try {
+      const response = await api.get(`/drugs/search?q=${encodeURIComponent(query)}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn(`Drug search API not available for query: ${query}`);
+        return { results: [], message: 'Drug search service is currently unavailable' };
+      }
+      throw error;
+    }
   },
 
   getDrugDetails: async (rxcui: string) => {
-    const response = await api.get(`/drugs/${rxcui}`);
-    return response.data;
+    try {
+      const response = await api.get(`/drugs/${rxcui}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn(`Drug details API not available for rxcui: ${rxcui}`);
+        return { error: 'Drug details service is currently unavailable' };
+      }
+      throw error;
+    }
   },
 
   getDrugInteractions: async (rxcui: string) => {
-    const response = await api.get(`/drugs/${rxcui}/interactions`);
-    return response.data;
+    try {
+      const response = await api.get(`/drugs/${rxcui}/interactions`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn(`Drug interactions API not available for rxcui: ${rxcui}`);
+        return { interactions: [], message: 'Drug interactions service is currently unavailable' };
+      }
+      throw error;
+    }
   },
 
   searchLabels: async (query: string) => {
-    const response = await api.get(`/drugs/labels/search?q=${encodeURIComponent(query)}`);
-    return response.data;
+    try {
+      const response = await api.get(`/drugs/labels/search?q=${encodeURIComponent(query)}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn(`Drug labels search API not available for query: ${query}`);
+        return { results: [], message: 'Drug labels service is currently unavailable' };
+      }
+      throw error;
+    }
   },
 
   getLabelDetails: async (setId: string) => {
-    const response = await api.get(`/drugs/labels/${setId}`);
-    return response.data;
+    try {
+      const response = await api.get(`/drugs/labels/${setId}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn(`Drug label details API not available for setId: ${setId}`);
+        return { error: 'Drug label details service is currently unavailable' };
+      }
+      throw error;
+    }
   }
 };
 
 // Interaction services
 export const interactionService = {
   getKnownInteractions: async (params: Record<string, string | number | boolean> = {}) => {
-    const search = new URLSearchParams();
-    for (const [k,v] of Object.entries(params)) {
-      if (v !== undefined && v !== null && v !== '') search.append(k, String(v));
+    try {
+      const search = new URLSearchParams();
+      for (const [k,v] of Object.entries(params)) {
+        if (v !== undefined && v !== null && v !== '') search.append(k, String(v));
+      }
+      const response = await api.get(`/interactions/known?${search.toString()}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn('Known interactions API not available');
+        return { interactions: [], message: 'Interactions service is currently unavailable' };
+      }
+      throw error;
     }
-    const response = await api.get(`/interactions/known?${search.toString()}`);
-    return response.data;
   },
 
   checkInteractions: async (drugs: { rxcui: string; name: string }[]) => {
-    const response = await api.post('/interactions/check', { drugs });
-    return response.data;
+    try {
+      const response = await api.post('/interactions/check', { drugs });
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn('Interaction check API not available');
+        return { interactions: [], message: 'Interaction checking service is currently unavailable' };
+      }
+      throw error;
+    }
   },
 
   getDrugInteractions: async (rxcui: string) => {
-    const response = await api.get(`/interactions/drug/${rxcui}`);
-    return response.data;
+    try {
+      const response = await api.get(`/interactions/drug/${rxcui}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn(`Drug interactions API not available for rxcui: ${rxcui}`);
+        return { interactions: [], message: 'Drug interactions service is currently unavailable' };
+      }
+      throw error;
+    }
   }
 };
 
@@ -95,22 +159,46 @@ export const overrideService = {
 // Genomics services
 export const genomicsService = {
   getCpicGuidelines: async (gene?: string, drug?: string) => {
-    const params = new URLSearchParams();
-    if (gene) params.append('gene', gene);
-    if (drug) params.append('drug', drug);
-    
-    const response = await api.get(`/genomics/cpic/guidelines?${params.toString()}`);
-    return response.data;
+    try {
+      const params = new URLSearchParams();
+      if (gene) params.append('gene', gene);
+      if (drug) params.append('drug', drug);
+      
+      const response = await api.get(`/genomics/cpic/guidelines?${params.toString()}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn('CPIC guidelines API not available');
+        return { guidelines: [], message: 'Genomics service is currently unavailable' };
+      }
+      throw error;
+    }
   },
 
   getDrugGenomics: async (rxcui: string) => {
-    const response = await api.get(`/genomics/drug/${rxcui}/genomics`);
-    return response.data;
+    try {
+      const response = await api.get(`/genomics/drug/${rxcui}/genomics`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn(`Drug genomics API not available for rxcui: ${rxcui}`);
+        return { genomics: [], message: 'Drug genomics service is currently unavailable' };
+      }
+      throw error;
+    }
   },
 
   checkGenomicProfile: async (genes: string[], drugs: string[]) => {
-    const response = await api.post('/genomics/profile/check', { genes, drugs });
-    return response.data;
+    try {
+      const response = await api.post('/genomics/profile/check', { genes, drugs });
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn('Genomic profile check API not available');
+        return { profile: [], message: 'Genomic profile service is currently unavailable' };
+      }
+      throw error;
+    }
   }
 };
 

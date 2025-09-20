@@ -3,6 +3,7 @@ import { usePatient } from '../../context/PatientContext';
 import { PatientProfile, PatientDemographics } from '../../types';
 import Card from '../UI/Card';
 import Tooltip from '../UI/Tooltip';
+import ComprehensivePatientForm from './ComprehensivePatientForm';
 import { 
   Search, 
   User, 
@@ -35,10 +36,11 @@ const PatientSelector: React.FC = () => {
 
   const [searchResults, setSearchResults] = useState<PatientProfile[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [showAllPatients, setShowAllPatients] = useState(false);
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
-    if (query.trim().length < 2) {
+    if (query.trim().length === 0) {
       setSearchResults([]);
       return;
     }
@@ -58,18 +60,47 @@ const PatientSelector: React.FC = () => {
     actions.setCurrentPatient(patient);
     setSearchQuery('');
     setSearchResults([]);
+    setShowAllPatients(false);
   };
 
-  const createNewPatient = (demographics: PatientDemographics) => {
+  const handleSearchFocus = () => {
+    if (searchQuery.trim() === '') {
+      setShowAllPatients(true);
+      setSearchResults(recentPatients);
+    }
+  };
+
+  const handleSearchBlur = () => {
+    // Delay hiding to allow for clicks
+    setTimeout(() => {
+      setShowAllPatients(false);
+      if (searchQuery.trim() === '') {
+        setSearchResults([]);
+      }
+    }, 200);
+  };
+
+  const createNewPatient = (patientData: any) => {
+    // Extract demographics and other data from comprehensive form
+    const demographics: PatientDemographics = {
+      firstName: patientData.firstName,
+      lastName: patientData.lastName,
+      dateOfBirth: patientData.dateOfBirth,
+      sex: patientData.sex,
+      mrn: patientData.mrn,
+      heightCm: patientData.heightCm,
+      weightKg: patientData.weightKg,
+    };
+
     const newPatient: PatientProfile = {
       id: `patient-${Date.now()}`,
       demographics,
-      allergies: [],
+      allergies: patientData.allergies || [],
       medications: [],
-      conditions: [],
-      labValues: [],
+      conditions: patientData.medicalConditions || [],
+      labValues: patientData.labValues ? [patientData.labValues] : [],
       genetics: [],
-      vitals: [],
+      vitals: patientData.vitals ? [patientData.vitals] : [],
       treatmentHistory: [],
       notes: [],
       preferences: {},
@@ -130,8 +161,12 @@ const PatientSelector: React.FC = () => {
         <div className="flex items-center space-x-2 mb-4">
           <Search className="w-5 h-5 text-gray-400" />
           <h3 className="text-lg font-semibold text-gray-900">Patient Search</h3>
-          <Tooltip content="Search for existing patients by name or MRN, or create a new patient profile">
-            <Info className="w-4 h-4 text-gray-400" />
+          <Tooltip 
+            content="Search for existing patients by name or MRN, or create a new patient profile. Focus on the search field to see all available patients."
+            type="help"
+            position="bottom"
+          >
+            <Info className="w-4 h-4 text-gray-400 hover:text-blue-600 cursor-help transition-colors" />
           </Tooltip>
         </div>
 
@@ -141,6 +176,8 @@ const PatientSelector: React.FC = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
+              onFocus={handleSearchFocus}
+              onBlur={handleSearchBlur}
               placeholder="Search by patient name or MRN..."
               className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             />
@@ -150,19 +187,26 @@ const PatientSelector: React.FC = () => {
               </div>
             )}
           </div>
-          <button
-            onClick={() => setShowCreateForm(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700"
+          <Tooltip 
+            content="Create a new patient profile with comprehensive clinical information"
+            position="bottom"
           >
-            <Plus className="w-4 h-4" />
-            <span>New Patient</span>
-          </button>
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700"
+            >
+              <Plus className="w-4 h-4" />
+              <span>New Patient</span>
+            </button>
+          </Tooltip>
         </div>
 
         {/* Search Results */}
         {searchResults.length > 0 && (
           <div className="mt-4 space-y-2">
-            <h4 className="text-sm font-medium text-gray-700">Search Results:</h4>
+            <h4 className="text-sm font-medium text-gray-700">
+              {showAllPatients ? 'Available Patients:' : 'Search Results:'}
+            </h4>
             {searchResults.map((patient) => (
               <div
                 key={patient.id}
@@ -187,7 +231,7 @@ const PatientSelector: React.FC = () => {
           </div>
         )}
 
-        {searchQuery.length >= 2 && searchResults.length === 0 && !isSearching && (
+        {searchQuery.length >= 1 && searchResults.length === 0 && !isSearching && (
           <div className="mt-4 text-sm text-gray-500">
             No patients found matching "{searchQuery}"
           </div>
@@ -237,135 +281,10 @@ const PatientSelector: React.FC = () => {
 
       {/* Create New Patient Form */}
       {showCreateForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Create New Patient</h3>
-            
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const demographics: PatientDemographics = {
-                  firstName: formData.get('firstName') as string,
-                  lastName: formData.get('lastName') as string,
-                  dateOfBirth: formData.get('dateOfBirth') as string,
-                  sex: formData.get('sex') as 'male' | 'female' | 'other',
-                  mrn: formData.get('mrn') as string,
-                  heightCm: formData.get('heightCm') ? Number(formData.get('heightCm')) : undefined,
-                  weightKg: formData.get('weightKg') ? Number(formData.get('weightKg')) : undefined,
-                };
-                createNewPatient(demographics);
-              }}
-              className="space-y-4"
-            >
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    First Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="firstName"
-                    required
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Last Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    required
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date of Birth *
-                </label>
-                <input
-                  type="date"
-                  name="dateOfBirth"
-                  required
-                  className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Sex *
-                </label>
-                <select
-                  name="sex"
-                  required
-                  className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                >
-                  <option value="">Select sex</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Medical Record Number
-                </label>
-                <input
-                  type="text"
-                  name="mrn"
-                  className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Height (cm)
-                  </label>
-                  <input
-                    type="number"
-                    name="heightCm"
-                    min="0"
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Weight (kg)
-                  </label>
-                  <input
-                    type="number"
-                    name="weightKg"
-                    min="0"
-                    step="0.1"
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  />
-                </div>
-              </div>
-
-              <div className="flex space-x-3 pt-4">
-                <button
-                  type="submit"
-                  className="flex-1 bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                >
-                  Create Patient
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowCreateForm(false)}
-                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <ComprehensivePatientForm
+          onSubmit={createNewPatient}
+          onCancel={() => setShowCreateForm(false)}
+        />
       )}
     </div>
   );

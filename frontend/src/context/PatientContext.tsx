@@ -177,6 +177,229 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         recents.forEach((patient: PatientProfile) => {
           dispatch({ type: 'ADD_RECENT_PATIENT', payload: patient });
         });
+      } else {
+        // Add sample patients if none exist
+        const samplePatients: PatientProfile[] = [
+          {
+            id: 'patient-001',
+            demographics: {
+              firstName: 'Sarah',
+              lastName: 'Johnson',
+              dateOfBirth: '1975-03-15',
+              sex: 'female',
+              mrn: 'MRN-001234',
+              heightCm: 165,
+              weightKg: 68.5,
+            },
+            allergies: [
+              {
+                id: 'allergy-1',
+                allergen: 'Penicillin',
+                allergenType: 'drug',
+                reaction: 'Rash and itching',
+                severity: 'moderate',
+                dateReported: '2023-01-15T00:00:00Z',
+                verified: true,
+              }
+            ],
+            medications: [
+              {
+                id: 'med-1',
+                drugName: 'Tamoxifen',
+                dosage: '20 mg',
+                frequency: 'Daily',
+                route: 'Oral',
+                startDate: '2024-01-01',
+                isActive: true,
+                prescribedBy: 'Dr. Smith',
+              }
+            ],
+            conditions: [
+              {
+                id: 'cond-1',
+                name: 'Breast Cancer',
+                icd10: 'C50.9',
+                dateOfDiagnosis: '2023-12-15',
+                status: 'active',
+                stage: 'T2N0M0',
+              }
+            ],
+            labValues: [
+              {
+                id: 'lab-1',
+                labType: 'Complete Blood Count',
+                value: '4.5',
+                unit: 'x10^9/L',
+                referenceRange: '4.0-11.0',
+                timestamp: '2024-01-15T10:00:00Z',
+                isAbnormal: false,
+                criticalFlag: false,
+              }
+            ],
+            genetics: [],
+            vitals: [
+              {
+                id: 'vitals-1',
+                timestamp: '2024-01-15T09:00:00Z',
+                bloodPressureSystolic: 120,
+                bloodPressureDiastolic: 80,
+                heartRate: 72,
+                temperature: 36.5,
+                performanceStatus: 0,
+              }
+            ],
+            treatmentHistory: [],
+            notes: [],
+            preferences: {},
+            lastUpdated: '2024-01-15T10:00:00Z',
+            createdBy: 'demo-user',
+            isActive: true,
+          },
+          {
+            id: 'patient-002',
+            demographics: {
+              firstName: 'Michael',
+              lastName: 'Chen',
+              dateOfBirth: '1962-08-22',
+              sex: 'male',
+              mrn: 'MRN-005678',
+              heightCm: 178,
+              weightKg: 85.2,
+            },
+            allergies: [],
+            medications: [
+              {
+                id: 'med-2',
+                drugName: 'Carboplatin',
+                dosage: 'AUC 5',
+                frequency: 'Every 3 weeks',
+                route: 'IV',
+                startDate: '2024-01-08',
+                isActive: true,
+                prescribedBy: 'Dr. Johnson',
+              }
+            ],
+            conditions: [
+              {
+                id: 'cond-2',
+                name: 'Non-Small Cell Lung Cancer',
+                icd10: 'C78.0',
+                dateOfDiagnosis: '2023-11-20',
+                status: 'active',
+                stage: 'IIIA',
+              }
+            ],
+            labValues: [
+              {
+                id: 'lab-2',
+                labType: 'Creatinine',
+                value: '1.2',
+                unit: 'mg/dL',
+                referenceRange: '0.7-1.3',
+                timestamp: '2024-01-14T08:30:00Z',
+                isAbnormal: false,
+                criticalFlag: false,
+              }
+            ],
+            genetics: [],
+            vitals: [
+              {
+                id: 'vitals-2',
+                timestamp: '2024-01-14T14:00:00Z',
+                bloodPressureSystolic: 135,
+                bloodPressureDiastolic: 85,
+                heartRate: 78,
+                temperature: 36.8,
+                performanceStatus: 1,
+              }
+            ],
+            treatmentHistory: [],
+            notes: [],
+            preferences: {},
+            lastUpdated: '2024-01-14T14:00:00Z',
+            createdBy: 'demo-user',
+            isActive: true,
+          },
+          {
+            id: 'patient-003',
+            demographics: {
+              firstName: 'Emma',
+              lastName: 'Rodriguez',
+              dateOfBirth: '1958-12-03',
+              sex: 'female',
+              mrn: 'MRN-009012',
+              heightCm: 160,
+              weightKg: 72.8,
+            },
+            allergies: [
+              {
+                id: 'allergy-2',
+                allergen: 'Sulfa drugs',
+                allergenType: 'drug',
+                reaction: 'Stevens-Johnson syndrome',
+                severity: 'severe',
+                dateReported: '2020-05-10T00:00:00Z',
+                verified: true,
+              }
+            ],
+            medications: [
+              {
+                id: 'med-3',
+                drugName: 'Bevacizumab',
+                dosage: '15 mg/kg',
+                frequency: 'Every 3 weeks',
+                route: 'IV',
+                startDate: '2024-01-02',
+                isActive: true,
+                prescribedBy: 'Dr. Williams',
+              }
+            ],
+            conditions: [
+              {
+                id: 'cond-3',
+                name: 'Colorectal Cancer',
+                icd10: 'C18.9',
+                dateOfDiagnosis: '2023-10-05',
+                status: 'active',
+                stage: 'IV',
+              }
+            ],
+            labValues: [
+              {
+                id: 'lab-3',
+                labType: 'CEA',
+                value: '8.5',
+                unit: 'ng/mL',
+                referenceRange: '<3.0',
+                timestamp: '2024-01-13T11:15:00Z',
+                isAbnormal: true,
+                criticalFlag: false,
+              }
+            ],
+            genetics: [],
+            vitals: [
+              {
+                id: 'vitals-3',
+                timestamp: '2024-01-13T09:30:00Z',
+                bloodPressureSystolic: 110,
+                bloodPressureDiastolic: 70,
+                heartRate: 68,
+                temperature: 37.1,
+                performanceStatus: 2,
+              }
+            ],
+            treatmentHistory: [],
+            notes: [],
+            preferences: {},
+            lastUpdated: '2024-01-13T11:15:00Z',
+            createdBy: 'demo-user',
+            isActive: true,
+          }
+        ];
+        
+        samplePatients.forEach(patient => {
+          dispatch({ type: 'ADD_RECENT_PATIENT', payload: patient });
+        });
       }
     } catch (error) {
       console.warn('Failed to load patient data from localStorage:', error);

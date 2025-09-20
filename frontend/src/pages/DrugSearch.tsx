@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Drug, DrugSearchResult } from '../types';
 import { drugService } from '../services/api';
 import SimpleDrugSearch from '../components/DrugSearch/SimpleDrugSearch';
+import PredictiveSearchBar from '../components/DrugSearch/PredictiveSearchBar';
 import DrugSearchResults from '../components/DrugSearch/DrugSearchResults';
 import DrugCard from '../components/DrugSearch/DrugCard';
 import SearchWithFavorites from '../components/Search/SearchWithFavorites';
@@ -12,6 +13,8 @@ import { useSelection } from '../context/SelectionContext';
 import { analytics } from '../utils/analytics';
 import { getPins, clearPins, togglePin, reorderPins } from '../utils/pins';
 import { SearchFilter as AdvancedSearchFilter } from '../hooks/useAdvancedSearch';
+import { useUrlState, useUrlFilters, useUrlPagination, useUrlSort } from '../hooks/useUrlState';
+import { useUserPreferences, useRecentSearches } from '../hooks/useLocalStorage';
 
 interface SearchFilters {
   drugType?: string;
@@ -24,41 +27,78 @@ interface SearchFilters {
 
 const DrugSearch: React.FC = () => {
   const selection = useSelection();
+  
+  // Search state with URL persistence
+  const [searchQuery, setSearchQuery] = useUrlState<string>('q', { defaultValue: '' });
+  
+  // Filter state with URL persistence
+  const [filters, updateFilters, clearFilters] = useUrlFilters({
+    onlyOncology: false,
+    onlyPinned: false,
+    drugType: '',
+    category: '',
+    hasInteractions: false,
+    hasGenomics: false,
+    approvalStatus: '',
+    BN: false,
+    SCD: false,
+    SBD: false,
+    IN: false,
+    MIN: false
+  });
+  
+  // Pagination with URL persistence
+  const { page, pageSize, setPage, setPageSize, resetPagination } = useUrlPagination(1, 20);
+  
+  // Sort state with URL persistence
+  const { sortBy, sortDirection, updateSort } = useUrlSort<string>('relevance', 'desc');
+  
+  // User preferences in localStorage
+  const { preferences, updatePreference } = useUserPreferences({
+    defaultPageSize: 20,
+    showDescriptions: true,
+    compactView: false
+  }, 'drug_search_preferences');
+  
+  // Recent searches in localStorage
+  const { searches: searchHistory, addSearch } = useRecentSearches(10, 'drug_search_history');
+  
+  // Component state
   const [searchResults, setSearchResults] = useState<DrugSearchResult | null>(null);
   const [selectedDrug, setSelectedDrug] = useState<Drug | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [searchHistory] = useState<string[]>([
-    'aspirin',
-    'ibuprofen', 
-    'fluorouracil',
-    'clopidogrel'
-  ]);
-  // Filters
-  const [onlyOncology, setOnlyOncology] = useState<boolean>(() => {
-    try { return JSON.parse(localStorage.getItem('drugSearchFilters') || '{}').onlyOncology || false; } catch { return false; }
-  });
-  const [onlyPinned, setOnlyPinned] = useState<boolean>(false);
-  const [ttyFilters, setTtyFilters] = useState<Record<string, boolean>>(() => {
-    const base: Record<string, boolean> = { BN:false, SCD:false, SBD:false, IN:false, MIN:false };
-    try { const saved = JSON.parse(localStorage.getItem('drugSearchFilters') || '{}').ttyFilters || {}; return { ...base, ...saved }; } catch { return base; }
-  });
-  useEffect(() => {
-    try { localStorage.setItem('drugSearchFilters', JSON.stringify({ onlyOncology, ttyFilters })); } catch {}
-  }, [onlyOncology, ttyFilters]);
-  const activeTtySet = useMemo(() => new Set(Object.entries(ttyFilters).filter(([,v]) => v).map(([k]) => k)), [ttyFilters]);
   const [pinsTick, setPinsTick] = useState(0);
+  
+  // Derived state
+  const activeTtySet = useMemo(() => new Set(
+    Object.entries(filters)
+      .filter(([key, value]) => ['BN', 'SCD', 'SBD', 'IN', 'MIN'].includes(key) && value)
+      .map(([key]) => key)
+  ), [filters]);
   const pinnedList = useMemo(() => Object.entries(getPins()).map(([rxcui, v]) => ({ rxcui, name: v.name })), [pinsTick]);
 
   const handleAdvancedSearch = async (query: string, advancedFilters?: AdvancedSearchFilter) => {
-    // Convert advanced filters to our search filters format
-    const filters: SearchFilters = {};
-    if (advancedFilters?.category) filters.category = advancedFilters.category;
+    // Update URL state
+    setSearchQuery(query);
     
-    return handleSearch(query, filters);
+    // Add to search history
+    if (query.trim()) {
+      addSearch(query.trim());
+    }
+    
+    // Reset pagination when searching
+    resetPagination();
+    
+    // Convert advanced filters to our search filters format and update state
+    if (advancedFilters?.category) {
+      updateFilters({ category: advancedFilters.category });
+    }
+    
+    return handleSearch(query);
   };
 
-  const handleSearch = async (query: string, filters?: SearchFilters) => {
+  const handleSearch = async (query: string) => {
     setLoading(true);
     setError(null);
     setSelectedDrug(null);
@@ -241,14 +281,28 @@ const DrugSearch: React.FC = () => {
         </p>
       </div>
 
-      {/* Enhanced Search Interface with Favorites */}
+      {/* Enhanced Predictive Search Interface */}
       <div className="space-y-4">
-        <SearchWithFavorites
-          onSearch={handleAdvancedSearch}
-          placeholder="Search drugs, interactions, protocols..."
-          showFilters={true}
-          className="w-full"
-        />
+        <div className="max-w-4xl mx-auto">
+          <div id="search" role="search" aria-label="Drug search">
+            <PredictiveSearchBar
+              onSearch={handleAdvancedSearch}
+              placeholder="Search drugs by name, ingredient, or indication... (type to see suggestions)"
+              showHistory={true}
+              showSuggestions={true}
+              maxSuggestions={6}
+              loading={loading}
+            onSuggestionSelect={(suggestion) => {
+              analytics.track('drug_suggestion_selected', {
+                suggestion: suggestion.name,
+                category: suggestion.category,
+                confidence: suggestion.confidence
+              });
+              handleAdvancedSearch(suggestion.name);
+            }}
+            />
+          </div>
+        </div>
         {/* Pinned quick access chips */}
         <div className="flex items-center justify-between">
           <div className="flex flex-wrap gap-2 items-center">

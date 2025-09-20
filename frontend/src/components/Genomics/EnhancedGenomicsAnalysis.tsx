@@ -24,7 +24,7 @@ import {
   BiomarkerPanel 
 } from '../../types/genomics';
 import { Patient } from '../../types/clinical';
-import { genomicAnalysisService } from '../../services/genomicAnalysisService';
+import { GenomicAnalysisService } from '../../services/genomicAnalysisService';
 import { patientService } from '../../services/patientService';
 
 interface TabInfo {
@@ -44,7 +44,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [biomarkerPanels] = useState<BiomarkerPanel[]>(
-    genomicAnalysisService.getBiomarkerPanels()
+    GenomicAnalysisService.getBiomarkerPanels()
   );
 
   useEffect(() => {
@@ -96,7 +96,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
 
     setUploading(true);
     try {
-      const report = await genomicAnalysisService.processNGSReport(file, selectedPatient.id);
+      const report = await GenomicAnalysisService.processNGSReport(file, selectedPatient.id);
       setNgsReports(prev => [...prev, report]);
       setSelectedReport(report);
       setActiveTab('analysis');
@@ -112,7 +112,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
 
     setAnalyzing(true);
     try {
-      const results = await genomicAnalysisService.analyzeGenomicProfile(
+      const results = await GenomicAnalysisService.analyzeGenomicProfile(
         selectedPatient,
         selectedReport
       );

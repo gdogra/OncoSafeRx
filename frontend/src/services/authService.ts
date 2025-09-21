@@ -155,10 +155,17 @@ export class SupabaseAuthService {
 
     console.log('Starting login process for:', email)
     
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    // Add timeout to prevent infinite hanging
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Login timeout - please try again')), 30000)
+    )
+    
+    const loginPromise = supabase.auth.signInWithPassword({
       email,
       password
     })
+    
+    const { data: authData, error: authError } = await Promise.race([loginPromise, timeoutPromise])
 
     console.log('Supabase auth response:', { authData, authError })
 

@@ -182,11 +182,10 @@ const DrugSearch: React.FC = () => {
         setSearchResults(null);
       } else if (e.key.toLowerCase() === 'r' && !e.metaKey && !e.ctrlKey) {
         // Reset filters
-        setTtyFilters({ BN:false,SCD:false,SBD:false,IN:false,MIN:false });
-        setOnlyOncology(false);
+        updateFilters({ BN: false, SCD: false, SBD: false, IN: false, MIN: false, onlyOncology: false });
       } else if (e.key.toLowerCase() === 'o' && !e.metaKey && !e.ctrlKey) {
         // Toggle oncology filter
-        setOnlyOncology((v) => !v);
+        updateFilters({ onlyOncology: !filters.onlyOncology });
       }
     };
     window.addEventListener('keydown', handler);
@@ -353,10 +352,10 @@ const DrugSearch: React.FC = () => {
           <div className="flex items-center space-x-3">
             <button
               type="button"
-              className={`text-xs px-2 py-1 rounded-full border ${onlyPinned ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 'text-gray-600 bg-gray-50 border-gray-200 hover:text-gray-800'}`}
-              onClick={() => setOnlyPinned(v => !v)}
-              aria-pressed={onlyPinned}
-              aria-label={`Show only pinned ${onlyPinned ? 'on' : 'off'}`}
+              className={`text-xs px-2 py-1 rounded-full border ${filters.onlyPinned ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 'text-gray-600 bg-gray-50 border-gray-200 hover:text-gray-800'}`}
+              onClick={() => updateFilters({ onlyPinned: !filters.onlyPinned })}
+              aria-pressed={filters.onlyPinned}
+              aria-label={`Show only pinned ${filters.onlyPinned ? 'on' : 'off'}`}
               title="Show only pinned in results"
             >
               Show only pinned
@@ -371,7 +370,7 @@ const DrugSearch: React.FC = () => {
                 const visible = searchResults.results.filter((drug) => {
                   const ttyOk = activeTtySet.size === 0 || (drug.tty ? activeTtySet.has(drug.tty) : false);
                   const isOnco = oncoNames.some(n => (drug.name || '').toLowerCase().includes(n));
-                  const oncoOk = !onlyOncology || isOnco;
+                  const oncoOk = !filters.onlyOncology || isOnco;
                   return ttyOk && oncoOk && pins[drug.rxcui];
                 });
                 visible.forEach(d => { if (pins[d.rxcui]) togglePin(d.rxcui, d.name); });
@@ -484,35 +483,35 @@ const DrugSearch: React.FC = () => {
           <button
             key={tty}
             type="button"
-            onClick={() => setTtyFilters((prev) => ({ ...prev, [tty]: !prev[tty] }))}
-            className={`px-2 py-1 rounded-full text-xs border ${ttyFilters[tty] ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}
-            aria-pressed={ttyFilters[tty]}
-            aria-label={`Filter ${tty} ${ttyFilters[tty] ? 'on' : 'off'}`}
+            onClick={() => updateFilters({ [tty]: !filters[tty as keyof typeof filters] })}
+            className={`px-2 py-1 rounded-full text-xs border ${filters[tty as keyof typeof filters] ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}
+            aria-pressed={filters[tty as keyof typeof filters]}
+            aria-label={`Filter ${tty} ${filters[tty as keyof typeof filters] ? 'on' : 'off'}`}
           >
             {tty}
           </button>
         ))}
         <button
           type="button"
-          onClick={() => setOnlyOncology((v) => !v)}
-          className={`px-2 py-1 rounded-full text-xs border ${onlyOncology ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}
-          aria-pressed={onlyOncology}
-          aria-label={`Oncology filter ${onlyOncology ? 'on' : 'off'}`}
+          onClick={() => updateFilters({ onlyOncology: !filters.onlyOncology })}
+          className={`px-2 py-1 rounded-full text-xs border ${filters.onlyOncology ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}
+          aria-pressed={filters.onlyOncology}
+          aria-label={`Oncology filter ${filters.onlyOncology ? 'on' : 'off'}`}
         >
           Oncology
         </button>
         <button
           type="button"
-          onClick={() => setOnlyPinned((v) => !v)}
-          className={`px-2 py-1 rounded-full text-xs border ${onlyPinned ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}
-          aria-pressed={onlyPinned}
-          aria-label={`Pinned filter ${onlyPinned ? 'on' : 'off'}`}
+          onClick={() => updateFilters({ onlyPinned: !filters.onlyPinned })}
+          className={`px-2 py-1 rounded-full text-xs border ${filters.onlyPinned ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}
+          aria-pressed={filters.onlyPinned}
+          aria-label={`Pinned filter ${filters.onlyPinned ? 'on' : 'off'}`}
         >
           Pinned only
         </button>
         <button
           type="button"
-          onClick={() => { setTtyFilters({ BN:false,SCD:false,SBD:false,IN:false,MIN:false }); setOnlyOncology(false); }}
+          onClick={() => updateFilters({ BN: false, SCD: false, SBD: false, IN: false, MIN: false, onlyOncology: false })}
           className="px-2 py-1 rounded-full text-xs border bg-gray-50 text-gray-600 border-gray-200"
         >
           Reset
@@ -526,7 +525,7 @@ const DrugSearch: React.FC = () => {
             const visible = searchResults.results.filter((drug) => {
               const ttyOk = activeTtySet.size === 0 || (drug.tty ? activeTtySet.has(drug.tty) : false);
               const isOnco = oncoNames.some(n => (drug.name || '').toLowerCase().includes(n));
-              const oncoOk = !onlyOncology || isOnco;
+              const oncoOk = !filters.onlyOncology || isOnco;
               return ttyOk && oncoOk;
             });
             visible.forEach(d => { if (!pins[d.rxcui]) togglePin(d.rxcui, d.name); });
@@ -547,7 +546,7 @@ const DrugSearch: React.FC = () => {
             loading={loading}
             error={error}
             onDrugSelect={handleDrugSelect}
-            filters={{ onlyOncology, onlyPinned, tty: activeTtySet }}
+            filters={{ onlyOncology: filters.onlyOncology, onlyPinned: filters.onlyPinned, tty: activeTtySet }}
             pinVersion={pinsTick}
           />
         </div>

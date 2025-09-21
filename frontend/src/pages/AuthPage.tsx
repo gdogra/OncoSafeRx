@@ -48,6 +48,7 @@ const AuthPage: React.FC = () => {
   
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [resetMessage, setResetMessage] = useState<string>('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Redirect if already authenticated
@@ -163,6 +164,23 @@ const AuthPage: React.FC = () => {
       await actions.login(loginData);
     } catch (error) {
       setErrors({ submit: 'Invalid email or password. Please try again.' });
+    }
+  };
+
+  const handleResetPassword = async () => {
+    setResetMessage('');
+    const email = loginData.email.trim();
+    if (!email) {
+      setErrors(prev => ({ ...prev, email: 'Enter your email above, then click Forgot password' }));
+      return;
+    }
+    try {
+      const redirectTo = `${window.location.origin}/reset-password`;
+      const { SupabaseAuthService } = await import('../services/authService');
+      await SupabaseAuthService.requestPasswordReset(email, redirectTo);
+      setResetMessage('Password reset email sent. Check your inbox.');
+    } catch (e: any) {
+      setErrors(prev => ({ ...prev, submit: e?.message || 'Failed to send reset email' }));
     }
   };
 
@@ -327,6 +345,16 @@ const AuthPage: React.FC = () => {
                   >
                     {showPassword ? <EyeOff /> : <Eye />}
                   </button>
+                </div>
+                <div className="flex items-center justify-between mt-2">
+                  <button
+                    type="button"
+                    onClick={handleResetPassword}
+                    className="text-xs text-blue-600 hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                  {resetMessage && <span className="text-xs text-green-700">{resetMessage}</span>}
                 </div>
                 {errors.password && (
                   <p className="mt-1 text-xs text-red-600">{errors.password}</p>

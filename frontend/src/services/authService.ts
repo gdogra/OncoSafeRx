@@ -11,22 +11,73 @@ export class SupabaseAuthService {
     console.log('Starting signup process for:', email)
 
     try {
-      // Create auth user with metadata
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            first_name: firstName,
-            last_name: lastName,
-            role,
-            specialty,
-            institution,
-            license_number: licenseNumber,
-            years_experience: yearsExperience
+      const viaProxy = (import.meta as any)?.env?.VITE_SUPABASE_AUTH_VIA_PROXY === 'true'
+      let authData: any = null
+      let authError: any = null
+
+      if (viaProxy) {
+        try {
+          console.log('Attempting proxy signup...')
+          const apiUrl = this.getApiUrl()
+          const resp = await fetch(`${apiUrl}/supabase-auth/proxy/signup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email,
+              password,
+              metadata: {
+                first_name: firstName,
+                last_name: lastName,
+                role,
+                specialty,
+                institution,
+                license_number: licenseNumber,
+                years_experience: yearsExperience
+              }
+            })
+          })
+          const body = await resp.json().catch(() => ({}))
+          if (!resp.ok) {
+            console.warn('Proxy signup failed, falling back to direct:', resp.status, body)
+            throw new Error(body?.error || `Proxy signup failed: ${resp.status}`)
           }
+          if (body?.access_token && body?.refresh_token) {
+            const { data: setData, error: setErr } = await supabase.auth.setSession({
+              access_token: body.access_token,
+              refresh_token: body.refresh_token
+            })
+            if (setErr) throw setErr
+            authData = setData
+          } else {
+            // Confirmation email required; no session set yet
+            authData = { user: { id: body?.user?.id || 'pending', email }, session: null }
+          }
+        } catch (e: any) {
+          console.warn('Proxy signup failed, falling back to direct Supabase:', e?.message || e)
+          authError = null // Reset error to try direct signup
         }
-      })
+      }
+      
+      if (!authData) {
+        // Create auth user with metadata (direct)
+        const res = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              first_name: firstName,
+              last_name: lastName,
+              role,
+              specialty,
+              institution,
+              license_number: licenseNumber,
+              years_experience: yearsExperience
+            }
+          }
+        })
+        authData = res.data
+        authError = res.error
+      }
 
       if (authError) {
         console.error('Signup error:', authError)
@@ -45,7 +96,7 @@ export class SupabaseAuthService {
         throw new Error(authError.message)
       }
 
-      if (!authData.user) {
+      if (!authData?.user) {
         throw new Error('Failed to create user account')
       }
 
@@ -84,31 +135,97 @@ export class SupabaseAuthService {
   static async login(data: LoginData): Promise<UserProfile> {
     const { email, password } = data
 
-    console.log('Starting login process for:', email)
+    console.log('🔑 Starting login process for:', email)
     
     // Check for demo credentials
     if (email === 'demo@oncosaferx.com' && password === 'demo123') {
-      console.log('Demo credentials detected - using demo mode')
+      console.log('🎭 Demo credentials detected - using demo mode')
       return this.createDemoUser()
     }
 
     try {
-      console.log('Calling Supabase signInWithPassword...')
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      })
+      const viaProxy = (import.meta as any)?.env?.VITE_SUPABASE_AUTH_VIA_PROXY === 'true'
+      console.log('🔧 Proxy mode:', viaProxy ? 'enabled' : 'disabled')
+      
+      let authData: any = null
+      let authError: any = null
 
-      if (authError) {
-        console.error('Login error:', authError)
-        this.handleAuthError(authError, email)
+      // Add timeout wrapper for all auth operations
+      const timeoutMs = 15000 // 15 second timeout
+      console.log('⏱️  Setting timeout:', timeoutMs + 'ms')
+
+      const authPromise = async () => {
+        if (viaProxy) {
+          // Prefer server proxy to avoid client-side blockers
+          try {
+            console.log('🌐 Attempting proxy login...')
+            const apiUrl = this.getApiUrl()
+            console.log('🌐 API URL:', apiUrl)
+            
+            const resp = await fetch(`${apiUrl}/supabase-auth/proxy/login`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password })
+            })
+            const body = await resp.json()
+            if (resp.ok && body?.access_token && body?.refresh_token) {
+              const { data: setData, error: setErr } = await supabase.auth.setSession({
+                access_token: body.access_token,
+                refresh_token: body.refresh_token
+              })
+              if (setErr) throw setErr
+              authData = setData
+              console.log('✅ Proxy login successful')
+            } else {
+              throw new Error(body?.error || 'Proxy login failed')
+            }
+          } catch (e: any) {
+            console.warn('❌ Proxy login failed, attempting direct sign-in...', e?.message || e)
+            authData = null // Reset to try direct
+          }
+        }
+
+        if (!authData) {
+          console.log('🔗 Calling Supabase signInWithPassword directly...')
+          const res = await supabase.auth.signInWithPassword({ email, password })
+          authData = res.data
+          authError = res.error
+          console.log('📡 Direct Supabase response:', { 
+            hasUser: !!authData?.user, 
+            hasSession: !!authData?.session, 
+            error: authError?.message 
+          })
+        }
+
+        return { authData, authError }
       }
 
-      if (!authData.user || !authData.session) {
+      // Wrap in timeout
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => {
+          console.error('⏰ Login timeout after', timeoutMs + 'ms')
+          reject(new Error(`Login timeout after ${timeoutMs/1000} seconds`))
+        }, timeoutMs)
+      )
+
+      const result = await Promise.race([authPromise(), timeoutPromise]) as any
+      authData = result.authData
+      authError = result.authError
+
+      if (authError) {
+        console.error('❌ Login error:', authError)
+        await this.handleAuthError(authError, email)
+      }
+
+      if (!authData?.user || !authData?.session) {
+        console.error('❌ Invalid auth data:', { 
+          hasUser: !!authData?.user, 
+          hasSession: !!authData?.session 
+        })
         throw new Error('Failed to authenticate user')
       }
 
-      console.log('Login successful for user:', authData.user.id)
+      console.log('✅ Login successful for user:', authData.user.id)
 
       // Update last login in users table if it exists
       try {
@@ -116,17 +233,28 @@ export class SupabaseAuthService {
           .from('users')
           .update({ last_login: new Date().toISOString() })
           .eq('id', authData.user.id)
+        console.log('📝 Updated last_login timestamp')
       } catch (error) {
-        console.log('Could not update last_login in users table:', error)
+        console.log('⚠️  Could not update last_login in users table:', error)
       }
 
       // Return user profile
-      return this.buildUserProfile(authData.user)
+      console.log('👤 Building user profile...')
+      const profile = await this.buildUserProfile(authData.user)
+      console.log('✅ User profile built successfully')
+      return profile
 
     } catch (error) {
-      console.error('Login failed:', error)
+      console.error('💥 Login failed:', error)
       throw error
     }
+  }
+
+  /**
+   * Get backend API URL
+   */
+  private static getApiUrl(): string {
+    return (import.meta as any)?.env?.VITE_API_URL || `${window.location.origin.replace(':5173',':3000')}/api`
   }
 
   /**
@@ -174,9 +302,12 @@ export class SupabaseAuthService {
    * Build user profile from Supabase auth user
    */
   private static async buildUserProfile(authUser: any, fallbackData?: any): Promise<UserProfile> {
+    console.log('🏗️  Building user profile for user ID:', authUser.id)
+    
     // Try to get profile from users table first
     let profileData = null
     try {
+      console.log('🔍 Querying users table...')
       const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -185,12 +316,12 @@ export class SupabaseAuthService {
       
       if (!error) {
         profileData = data
-        console.log('Found user profile in users table')
+        console.log('✅ Found user profile in users table:', profileData.email)
       } else {
-        console.log('Users table not accessible, using auth metadata:', error.message)
+        console.log('⚠️  Users table not accessible, using auth metadata:', error.message)
       }
     } catch (error) {
-      console.log('Users table not available, using auth metadata')
+      console.log('⚠️  Users table not available, using auth metadata:', error)
     }
 
     if (profileData) {
@@ -417,6 +548,31 @@ export class SupabaseAuthService {
     if (error) {
       throw new Error(error.message)
     }
+  }
+
+  /**
+   * Request password reset email
+   */
+  static async requestPasswordReset(email: string, redirectTo?: string): Promise<void> {
+    const viaProxy = (import.meta as any)?.env?.VITE_SUPABASE_AUTH_VIA_PROXY === 'true'
+    if (viaProxy) {
+      const apiUrl = this.getApiUrl()
+      const resp = await fetch(`${apiUrl}/supabase-auth/proxy/reset`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, redirectTo })
+      })
+      if (!resp.ok) {
+        const j = await resp.json().catch(() => ({}))
+        throw new Error(j?.error || 'Failed to send password reset email')
+      }
+      return
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectTo || `${window.location.origin}/reset-password`
+    })
+    if (error) throw new Error(error.message)
   }
 
   /**

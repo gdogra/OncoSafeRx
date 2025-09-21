@@ -152,6 +152,82 @@ router.post('/proxy/login', asyncHandler(async (req, res) => {
   });
 }));
 
+/**
+ * Server-side proxy signup to Supabase
+ * Body: { email, password, metadata?: {...} }
+ */
+router.post('/proxy/signup', asyncHandler(async (req, res) => {
+  const { email, password, metadata = {} } = req.body || {};
+  if (!email || !password) {
+    return res.status(400).json({ error: 'email and password are required' });
+  }
+
+  const url = process.env.SUPABASE_URL;
+  const anon = process.env.SUPABASE_ANON_KEY;
+  if (!url || !anon) {
+    return res.status(500).json({ error: 'Supabase not configured on server' });
+  }
+
+  const endpoint = `${url}/auth/v1/signup`;
+  const resp = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': anon,
+      'Authorization': `Bearer ${anon}`
+    },
+    body: JSON.stringify({ email, password, data: metadata })
+  });
+
+  const body = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    return res.status(resp.status).json({ error: body?.error_description || body?.error || 'Signup failed' });
+  }
+
+  // If email confirmations are required, no session is returned
+  return res.json({
+    access_token: body.access_token,
+    refresh_token: body.refresh_token,
+    expires_in: body.expires_in,
+    token_type: body.token_type,
+    user: body.user,
+    needs_confirmation: !body.access_token
+  });
+}));
+
+/**
+ * Server-side proxy: request password reset email
+ * Body: { email, redirectTo? }
+ */
+router.post('/proxy/reset', asyncHandler(async (req, res) => {
+  const { email, redirectTo } = req.body || {};
+  if (!email) return res.status(400).json({ error: 'email is required' });
+
+  const url = process.env.SUPABASE_URL;
+  const anon = process.env.SUPABASE_ANON_KEY;
+  if (!url || !anon) return res.status(500).json({ error: 'Supabase not configured on server' });
+
+  const endpoint = `${url}/auth/v1/recover`;
+  const body = { email };
+  if (redirectTo) body.redirect_to = redirectTo;
+
+  const resp = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': anon,
+      'Authorization': `Bearer ${anon}`
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!resp.ok) {
+    const j = await resp.json().catch(() => ({}));
+    return res.status(resp.status).json({ error: j?.error_description || j?.error || 'Password reset failed' });
+  }
+  return res.json({ ok: true });
+}));
+
 // Helper functions for default persona data
 function getDefaultPersonaName(role) {
   const names = {

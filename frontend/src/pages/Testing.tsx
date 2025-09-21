@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import PersonaSelector from '../components/User/PersonaSelector';
 import { 
   TestTube, 
   Target, 
@@ -16,18 +14,9 @@ import Card from '../components/UI/Card';
 import Tooltip from '../components/UI/Tooltip';
 
 const Testing: React.FC = () => {
-  const { state } = useAuth();
-  const { user } = state;
   const [testHistory, setTestHistory] = useState<any[]>([]);
   const [currentTest, setCurrentTest] = useState<string | null>(null);
 
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">Please log in to access testing features.</p>
-      </div>
-    );
-  }
 
   const testScenarios = [
     {
@@ -76,7 +65,7 @@ const Testing: React.FC = () => {
       const testResult = {
         id: Date.now(),
         scenarioId,
-        persona: user.persona.name,
+        persona: 'Oncologist',
         timestamp: new Date().toISOString(),
         result: 'completed',
         score: Math.floor(Math.random() * 100) + 1
@@ -118,7 +107,6 @@ const Testing: React.FC = () => {
       </div>
 
       {/* Persona Selector */}
-      <PersonaSelector />
 
       {/* Test Scenarios */}
       <Card className="p-6">

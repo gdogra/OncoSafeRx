@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
 import Card from '../components/UI/Card';
 import Tooltip from '../components/UI/Tooltip';
 import { 
@@ -28,7 +27,6 @@ import {
 } from 'lucide-react';
 
 const Research: React.FC = () => {
-  const { state: authState } = useAuth();
   const [activeTab, setActiveTab] = useState<'overview' | 'studies' | 'data' | 'analytics'>('overview');
   const [selectedStudy, setSelectedStudy] = useState<any>(null);
   const [showStudyModal, setShowStudyModal] = useState(false);
@@ -580,17 +578,6 @@ const Research: React.FC = () => {
     );
   };
 
-  if (authState.user?.role !== 'researcher' && authState.user?.role !== 'oncologist') {
-    return (
-      <div className="text-center py-12">
-        <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-        <h3 className="text-xl font-semibold text-gray-500 mb-2">Access Restricted</h3>
-        <p className="text-gray-400 max-w-md mx-auto">
-          Research features are available to researchers and oncologists with research permissions.
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">

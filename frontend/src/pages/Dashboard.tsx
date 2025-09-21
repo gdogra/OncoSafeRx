@@ -2,13 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Card from '../components/UI/Card';
 import Tooltip from '../components/UI/Tooltip';
-import RoleSwitcher from '../components/Auth/RoleSwitcher';
-import MockLogin from '../components/Auth/MockLogin';
-import { useAuth } from '../context/AuthContext';
 import { Activity, Search, AlertTriangle, Dna, FileText, Users, TrendingUp, Shield } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
-  const { state: authState, roleConfig } = useAuth();
   const features = [
     {
       icon: Search,
@@ -73,7 +69,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <MockLogin />
       
       {/* Header */}
       <div className="text-center">
@@ -88,7 +83,6 @@ const Dashboard: React.FC = () => {
 
       {/* Role Switcher Demo */}
       <div className="mb-8">
-        <RoleSwitcher />
       </div>
 
       {/* Stats */}

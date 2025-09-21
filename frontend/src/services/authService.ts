@@ -165,7 +165,49 @@ export class SupabaseAuthService {
       console.log('Supabase connectivity test result:', healthCheck.status)
     } catch (error) {
       console.error('Supabase connectivity test failed:', error)
-      throw new Error('Cannot reach Supabase servers - check network connection')
+      
+      // Fallback to demo mode when Supabase is unreachable
+      console.log('Using demo mode authentication')
+      if (email === 'demo@oncosaferx.com' && password === 'demo123') {
+        return {
+          id: 'demo-user-id',
+          email: 'demo@oncosaferx.com',
+          firstName: 'Demo',
+          lastName: 'User',
+          role: 'oncologist' as const,
+          specialty: 'Medical Oncology',
+          institution: 'Demo Hospital',
+          licenseNumber: 'DEMO-12345',
+          yearsExperience: 5,
+          preferences: {
+            theme: 'light',
+            language: 'en',
+            notifications: {
+              email: true,
+              push: true,
+              criticalAlerts: true,
+              weeklyReports: true,
+            },
+            dashboard: {
+              defaultView: 'overview',
+              refreshInterval: 5000,
+              compactMode: false,
+            },
+            clinical: {
+              showGenomicsByDefault: true,
+              autoCalculateDosing: true,
+              requireInteractionAck: true,
+              showPatientPhotos: false,
+            },
+          },
+          persona: this.createDefaultPersona('oncologist'),
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+          isActive: true,
+        }
+      }
+      
+      throw new Error('Cannot reach Supabase servers - try demo login: demo@oncosaferx.com / demo123')
     }
     
     // Add shorter timeout for Supabase auth call

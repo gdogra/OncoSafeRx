@@ -35,6 +35,7 @@ const AuthDiagnostics = lazy(() => import('./pages/AuthDiagnostics'));
 const ClinicalDecisionSupport = lazy(() => import('./pages/ClinicalDecisionSupport'));
 const Research = lazy(() => import('./pages/Research'));
 const AuthPage = lazy(() => import('./pages/AuthPage'));
+const SimpleAuth = lazy(() => import('./pages/SimpleAuth'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Testing = lazy(() => import('./pages/Testing'));
 
@@ -51,7 +52,8 @@ function AppWithRouter() {
             <Suspense fallback={<div className="p-4 text-sm text-gray-500">Loading…</div>}>
               <Routes>
                 {/* Public routes */}
-                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/auth" element={<SimpleAuth />} />
+                <Route path="/auth-old" element={<AuthPage />} />
                 <Route path="/login" element={<AuthPage />} />
                 <Route path="/signup" element={<AuthPage />} />
                 

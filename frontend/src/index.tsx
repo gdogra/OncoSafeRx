@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import SimpleApp from './SimpleApp';
 import ErrorBoundary from './components/System/ErrorBoundary';
 import reportWebVitals from './reportWebVitals';
 
@@ -11,7 +12,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
-      <App />
+      <SimpleApp />
     </ErrorBoundary>
   </React.StrictMode>
 );

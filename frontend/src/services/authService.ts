@@ -155,14 +155,21 @@ export class SupabaseAuthService {
 
     console.log('Starting login process for:', email)
     
-    // Test Supabase connectivity first
+    // Test Supabase connectivity first with timeout
+    let supabaseReachable = false
     try {
       console.log('Testing Supabase connectivity...')
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 3000) // 3 second timeout
+      
       const healthCheck = await fetch('https://emfrwckxctyarphjvfeu.supabase.co/rest/v1/', {
         method: 'HEAD',
-        headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c' }
+        headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c' },
+        signal: controller.signal
       })
+      clearTimeout(timeoutId)
       console.log('Supabase connectivity test result:', healthCheck.status)
+      supabaseReachable = true
     } catch (error) {
       console.error('Supabase connectivity test failed:', error)
       
@@ -208,6 +215,47 @@ export class SupabaseAuthService {
       }
       
       throw new Error('Cannot reach Supabase servers - try demo login: demo@oncosaferx.com / demo123')
+    }
+
+    // Check for demo credentials even if Supabase is reachable
+    if (email === 'demo@oncosaferx.com' && password === 'demo123') {
+      console.log('Demo credentials detected - using demo mode')
+      return {
+        id: 'demo-user-id',
+        email: 'demo@oncosaferx.com',
+        firstName: 'Demo',
+        lastName: 'User',
+        role: 'oncologist' as const,
+        specialty: 'Medical Oncology',
+        institution: 'Demo Hospital',
+        licenseNumber: 'DEMO-12345',
+        yearsExperience: 5,
+        preferences: {
+          theme: 'light',
+          language: 'en',
+          notifications: {
+            email: true,
+            push: true,
+            criticalAlerts: true,
+            weeklyReports: true,
+          },
+          dashboard: {
+            defaultView: 'overview',
+            refreshInterval: 5000,
+            compactMode: false,
+          },
+          clinical: {
+            showGenomicsByDefault: true,
+            autoCalculateDosing: true,
+            requireInteractionAck: true,
+            showPatientPhotos: false,
+          },
+        },
+        persona: this.createDefaultPersona('oncologist'),
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString(),
+        isActive: true,
+      }
     }
     
     // Add shorter timeout for Supabase auth call

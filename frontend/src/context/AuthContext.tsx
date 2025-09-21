@@ -37,10 +37,13 @@ const initialState: AuthState = {
 };
 
 function authReducer(state: AuthState, action: AuthAction): AuthState {
+  console.log('AuthReducer: Action received:', action.type, action);
   switch (action.type) {
     case 'AUTH_START':
+      console.log('AuthReducer: Starting authentication...');
       return { ...state, isLoading: true, error: null };
     case 'AUTH_SUCCESS':
+      console.log('AuthReducer: Authentication successful, user:', action.payload);
       return {
         ...state,
         user: action.payload,
@@ -49,6 +52,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         error: null,
       };
     case 'AUTH_FAILURE':
+      console.log('AuthReducer: Authentication failed:', action.payload);
       return {
         ...state,
         user: null,
@@ -89,12 +93,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const actions: AuthActions = {
     login: async (data: LoginData) => {
+      console.log('AuthContext: Starting login for', data.email);
       dispatch({ type: 'AUTH_START' });
       try {
         const user = await AuthService.login(data);
+        console.log('AuthContext: Login successful, user:', user);
         dispatch({ type: 'AUTH_SUCCESS', payload: user });
       } catch (error) {
-        dispatch({ type: 'AUTH_FAILURE', payload: 'Login failed' });
+        console.error('AuthContext: Login failed:', error);
+        dispatch({ type: 'AUTH_FAILURE', payload: error instanceof Error ? error.message : 'Login failed' });
       }
     },
 

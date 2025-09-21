@@ -73,6 +73,13 @@ const Help: React.FC = () => {
       icon: Users,
       action: () => window.open('https://community.oncosaferx.com', '_blank'),
       actionText: 'Visit Forum'
+    },
+    {
+      title: 'Auth Diagnostics',
+      description: 'Check your session, server verification, and profile status',
+      icon: ExternalLink,
+      action: () => window.location.assign('/auth-diagnostics'),
+      actionText: 'Open Diagnostics'
     }
   ];
 

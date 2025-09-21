@@ -47,6 +47,121 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
     GenomicAnalysisService.getBiomarkerPanels()
   );
 
+  // Panel/Versions drawer state
+  const [showMetaDrawer, setShowMetaDrawer] = useState(false);
+  const [panelInfo, setPanelInfo] = useState<any | null>(null);
+  const [versionsInfo, setVersionsInfo] = useState<any | null>(null);
+  const [loadingMeta, setLoadingMeta] = useState(false);
+
+  const openMetaDrawer = async () => {
+    setShowMetaDrawer(true);
+    if (panelInfo && versionsInfo) return;
+    setLoadingMeta(true);
+    try {
+      const [p, v] = await Promise.all([
+        fetch('/api/genomics/panel').then(r => r.json()),
+        fetch('/api/genomics/versions').then(r => r.json())
+      ]);
+      setPanelInfo(p);
+      setVersionsInfo(v);
+    } catch (e) {
+      console.error('Failed to load panel/versions', e);
+    } finally {
+      setLoadingMeta(false);
+    }
+  };
+
+  const gotoPgxReport = async (rxcui: string) => {
+    setReportRxcui(rxcui);
+    setActiveTab('pgx-report');
+    // allow state to update before fetching
+    setTimeout(() => fetchPgxReport(), 0);
+  };
+
+  const downloadPanelCsv = async () => {
+    try {
+      const res = await fetch('/api/genomics/panel.csv');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'pgx_panel.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Failed to download panel CSV', e);
+    }
+  };
+
+  const downloadVersionsCsv = async () => {
+    try {
+      const res = await fetch('/api/genomics/versions.csv');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'pgx_versions.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Failed to download versions CSV', e);
+    }
+  };
+
+  const downloadBundleJson = async () => {
+    try {
+      const res = await fetch('/api/genomics/panel.bundle');
+      const data = await res.json();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'pgx_panel_bundle.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Failed to download bundle JSON', e);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+      }
+    } catch (e) {
+      console.error('Failed to copy text', e);
+    }
+  };
+
+  const copyCurlPanelCsv = () => {
+    const origin = window.location.origin;
+    copyToClipboard(`curl -sSL ${origin}/api/genomics/panel.csv -o pgx_panel.csv`);
+  };
+
+  const copyCurlVersionsCsv = () => {
+    const origin = window.location.origin;
+    copyToClipboard(`curl -sSL ${origin}/api/genomics/versions.csv -o pgx_versions.csv`);
+  };
+
+  const copyCurlBundleJson = () => {
+    const origin = window.location.origin;
+    copyToClipboard(`curl -sSL ${origin}/api/genomics/panel.bundle -o pgx_panel_bundle.json`);
+  };
+
   useEffect(() => {
     setPatients(patientService.getPatients());
   }, []);
@@ -87,6 +202,18 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
       label: 'Hereditary Risk',
       icon: AlertTriangle,
       description: 'Germline risk assessment'
+    },
+    {
+      id: 'pgx-report',
+      label: 'PGx Report',
+      icon: FileText,
+      description: 'Dynamic gene–drug report'
+    },
+    {
+      id: 'pgx-roi',
+      label: 'PGx ROI',
+      icon: TrendingUp,
+      description: 'Program ROI calculator'
     }
   ];
 
@@ -121,6 +248,60 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
       console.error('Analysis failed:', error);
     } finally {
       setAnalyzing(false);
+    }
+  };
+
+  // PGx Dynamic Report state
+  const [reportRxcui, setReportRxcui] = useState<string>('11289');
+  const [pgxReport, setPgxReport] = useState<any | null>(null);
+  const [loadingReport, setLoadingReport] = useState(false);
+
+  const fetchPgxReport = async () => {
+    if (!reportRxcui) return;
+    setLoadingReport(true);
+    try {
+      const res = await fetch(`/api/genomics/report/${encodeURIComponent(reportRxcui)}`);
+      const data = await res.json();
+      setPgxReport(data);
+    } catch (e) {
+      console.error('Failed to load PGx report', e);
+    } finally {
+      setLoadingReport(false);
+    }
+  };
+
+  const copyCurlPgxReport = () => {
+    if (!reportRxcui) return;
+    const origin = window.location.origin;
+    const cmd = `curl -sSL ${origin}/api/genomics/report/${encodeURIComponent(reportRxcui)}`;
+    copyToClipboard(cmd);
+  };
+
+  // PGx ROI state
+  const [roiInputs, setRoiInputs] = useState({
+    annualADECost: 10000000,
+    testCost: 300,
+    targetPopulation: 5000,
+    expectedTestingRate: 0.4,
+    expectedADEreductionPct: 0.25,
+  });
+  const [roiResult, setRoiResult] = useState<any | null>(null);
+  const [loadingRoi, setLoadingRoi] = useState(false);
+
+  const calculateRoi = async () => {
+    setLoadingRoi(true);
+    try {
+      const res = await fetch('/api/roi/pgx', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(roiInputs)
+      });
+      const data = await res.json();
+      setRoiResult(data);
+    } catch (e) {
+      console.error('Failed to calculate ROI', e);
+    } finally {
+      setLoadingRoi(false);
     }
   };
 
@@ -655,13 +836,145 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
     );
   };
 
+  const renderPgxReportTab = () => (
+    <div className="space-y-4">
+      <div className="flex items-end gap-3">
+        <div>
+          <label className="block text-sm text-gray-600 mb-1">Drug RXCUI</label>
+          <input
+            value={reportRxcui}
+            onChange={(e) => setReportRxcui(e.target.value)}
+            placeholder="e.g., 11289 (warfarin)"
+            className="border border-gray-300 rounded px-3 py-2 w-64"
+          />
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={fetchPgxReport}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            disabled={loadingReport}
+          >
+            {loadingReport ? 'Loading…' : 'Load Report'}
+          </button>
+          <button
+            onClick={copyCurlPgxReport}
+            className="px-3 py-2 text-sm bg-gray-100 border border-gray-300 rounded hover:bg-gray-200"
+            title="Copy cURL"
+          >
+            Copy cURL
+          </button>
+        </div>
+      </div>
+
+      {pgxReport && (
+        <div className="bg-white border border-gray-200 rounded p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">PGx Report</h3>
+              <p className="text-sm text-gray-600">Version {pgxReport.version} • {pgxReport.count} recommendations</p>
+            </div>
+            <div className="text-right text-sm text-gray-500">
+              Last updated: {pgxReport.lastUpdated}
+            </div>
+          </div>
+          <div className="divide-y divide-gray-200">
+            {(pgxReport.recommendations || []).map((rec: any, idx: number) => (
+              <div key={idx} className="py-3">
+                <div className="flex items-center justify-between">
+                  <div className="font-medium text-gray-900">{rec.gene}</div>
+                  <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">Level {rec.evidenceLevel}</span>
+                </div>
+                <div className="text-sm text-gray-700">Phenotype: {rec.phenotype}</div>
+                <div className="text-sm text-gray-700">Recommendation: {rec.recommendation}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderPgxRoiTab = () => (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {(
+          [
+            { key: 'annualADECost', label: 'Annual ADE Cost ($)' },
+            { key: 'testCost', label: 'Test Cost ($)' },
+            { key: 'targetPopulation', label: 'Target Population' },
+            { key: 'expectedTestingRate', label: 'Testing Rate (0-1)' },
+            { key: 'expectedADEreductionPct', label: 'ADE Reduction Among Tested (0-1)' }
+          ] as const
+        ).map((f) => (
+          <div key={f.key}>
+            <label className="block text-sm text-gray-600 mb-1">{f.label}</label>
+            <input
+              type="number"
+              step="any"
+              value={(roiInputs as any)[f.key]}
+              onChange={(e) => setRoiInputs((s) => ({ ...s, [f.key]: Number(e.target.value) }))}
+              className="border border-gray-300 rounded px-3 py-2 w-full"
+            />
+          </div>
+        ))}
+      </div>
+      <button
+        onClick={calculateRoi}
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        disabled={loadingRoi}
+      >
+        {loadingRoi ? 'Calculating…' : 'Calculate ROI'}
+      </button>
+
+      {roiResult && (
+        <div className="bg-white border border-gray-200 rounded p-4">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">ROI Results</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <div className="text-gray-500">Tests</div>
+              <div className="text-gray-900 font-medium">{roiResult.outputs.tests}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Program Cost</div>
+              <div className="text-gray-900 font-medium">${roiResult.outputs.programCost.toLocaleString()}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Savings</div>
+              <div className="text-gray-900 font-medium">${roiResult.outputs.savings.toLocaleString()}</div>
+            </div>
+            <div>
+              <div className="text-gray-500">Net</div>
+              <div className={`font-medium ${roiResult.outputs.net >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                ${roiResult.outputs.net.toLocaleString()}
+              </div>
+            </div>
+            <div>
+              <div className="text-gray-500">ROI</div>
+              <div className="text-gray-900 font-medium">{roiResult.outputs.roi !== null ? (roiResult.outputs.roi * 100).toFixed(1) + '%' : '—'}</div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="max-w-7xl mx-auto p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Enhanced Genomics Analysis</h1>
-        <p className="text-gray-600">
-          Comprehensive NGS report processing and genomic analysis platform
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Enhanced Genomics Analysis</h1>
+          <p className="text-gray-600">
+            Comprehensive NGS report processing and genomic analysis platform
+          </p>
+        </div>
+        <div className="pt-1">
+          <button
+            onClick={openMetaDrawer}
+            className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded"
+          >
+            Panel & Versions
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -697,7 +1010,175 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
         {activeTab === 'trials' && renderTrialsTab()}
         {activeTab === 'biomarkers' && renderBiomarkersTab()}
         {activeTab === 'hereditary' && renderHereditaryTab()}
+        {activeTab === 'pgx-report' && renderPgxReportTab()}
+        {activeTab === 'pgx-roi' && renderPgxRoiTab()}
       </div>
+
+      {/* Panel/Versions Drawer */}
+      {showMetaDrawer && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/30 z-40"
+            onClick={() => setShowMetaDrawer(false)}
+          />
+          <aside className="fixed top-0 right-0 h-full w-full sm:w-[28rem] bg-white shadow-xl z-50 flex flex-col">
+            <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">PGx Panel & Versions</h2>
+                <p className="text-xs text-gray-500">Evidence-driven, multi-specialty panel overview</p>
+              </div>
+              <button
+                onClick={() => setShowMetaDrawer(false)}
+                className="text-gray-500 hover:text-gray-700"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto">
+              {loadingMeta && (
+                <div className="text-sm text-gray-500">Loading…</div>
+              )}
+
+              {!loadingMeta && panelInfo && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-gray-800 mb-2">Panel</h3>
+                  <div className="text-xs text-gray-500 mb-2">Version {panelInfo.version}</div>
+                  <div className="space-y-3">
+                    <div>
+                      <div className="text-xs font-medium text-gray-600 mb-1">Genes</div>
+                      <div className="flex flex-wrap gap-2">
+                        {(panelInfo.genes || []).map((g: any, i: number) => (
+                          <span key={i} className={`px-2 py-1 rounded text-xs border ${g.implemented ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+                            {g.symbol}{g.implemented ? '' : ' (planned)'}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-medium text-gray-600 mb-1">HLA Alleles</div>
+                      <div className="flex flex-wrap gap-2">
+                        {(panelInfo.hla || []).map((h: any, i: number) => (
+                          <span key={i} className={`px-2 py-1 rounded text-xs border ${h.implemented ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+                            {h.symbol}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {!loadingMeta && versionsInfo && (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-2">Version Log</h3>
+                  <div className="text-xs text-gray-500 mb-2">Current {versionsInfo.currentVersion}</div>
+                  <div className="space-y-3">
+                    {(versionsInfo.changes || []).map((chg: any, i: number) => (
+                      <div key={i} className="border border-gray-200 rounded p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="text-sm font-medium text-gray-900">{chg.version}</div>
+                          <div className="text-xs text-gray-500">{chg.date}</div>
+                        </div>
+                        <ul className="mt-2 list-disc list-inside text-sm text-gray-700 space-y-1">
+                          {(chg.notes || []).map((n: string, j: number) => (
+                            <li key={j}>{n}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Quick Actions */}
+              <div className="mt-6 border-t border-gray-200 pt-4">
+                <h3 className="text-sm font-semibold text-gray-800 mb-2">Actions</h3>
+                <div className="flex flex-wrap items-end gap-3 mb-3">
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Open PGx Report by RXCUI</label>
+                    <div className="flex gap-2">
+                      <input
+                        className="border border-gray-300 rounded px-2 py-1 w-40"
+                        placeholder="e.g., 11289"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            const v = (e.target as HTMLInputElement).value.trim();
+                            if (v) gotoPgxReport(v);
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={() => gotoPgxReport('11289')}
+                        className="px-2 py-1 text-xs bg-gray-100 border border-gray-300 rounded hover:bg-gray-200"
+                        title="Warfarin"
+                      >11289</button>
+                      <button
+                        onClick={() => gotoPgxReport('42463')}
+                        className="px-2 py-1 text-xs bg-gray-100 border border-gray-300 rounded hover:bg-gray-200"
+                        title="Clopidogrel"
+                      >42463</button>
+                      <button
+                        onClick={() => gotoPgxReport('39998')}
+                        className="px-2 py-1 text-xs bg-gray-100 border border-gray-300 rounded hover:bg-gray-200"
+                        title="Irinotecan"
+                      >39998</button>
+                    </div>
+                  </div>
+
+                  <div className="ml-auto flex flex-wrap gap-2 items-center">
+                    <div className="flex gap-1">
+                      <button
+                        onClick={downloadPanelCsv}
+                        className="px-3 py-2 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
+                      >
+                        Export Panel CSV
+                      </button>
+                      <button
+                        onClick={copyCurlPanelCsv}
+                        className="px-2 py-2 text-xs bg-gray-100 border border-gray-300 rounded hover:bg-gray-200"
+                        title="Copy cURL"
+                      >
+                        Copy cURL
+                      </button>
+                    </div>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={downloadVersionsCsv}
+                        className="px-3 py-2 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
+                      >
+                        Export Versions CSV
+                      </button>
+                      <button
+                        onClick={copyCurlVersionsCsv}
+                        className="px-2 py-2 text-xs bg-gray-100 border border-gray-300 rounded hover:bg-gray-200"
+                        title="Copy cURL"
+                      >
+                        Copy cURL
+                      </button>
+                    </div>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={downloadBundleJson}
+                        className="px-3 py-2 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
+                      >
+                        Export Bundle JSON
+                      </button>
+                      <button
+                        onClick={copyCurlBundleJson}
+                        className="px-2 py-2 text-xs bg-gray-100 border border-gray-300 rounded hover:bg-gray-200"
+                        title="Copy cURL"
+                      >
+                        Copy cURL
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </>
+      )}
     </div>
   );
 };

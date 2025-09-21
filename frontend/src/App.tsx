@@ -31,6 +31,7 @@ const AIRecommendations = lazy(() => import('./pages/AIRecommendations'));
 const EHRIntegration = lazy(() => import('./components/EHR/EHRIntegration'));
 const Help = lazy(() => import('./pages/Help'));
 const FeedbackAdmin = lazy(() => import('./pages/FeedbackAdmin'));
+const AuthDiagnostics = lazy(() => import('./pages/AuthDiagnostics'));
 const ClinicalDecisionSupport = lazy(() => import('./pages/ClinicalDecisionSupport'));
 const Research = lazy(() => import('./pages/Research'));
 const AuthPage = lazy(() => import('./pages/AuthPage'));
@@ -199,6 +200,13 @@ function AppWithRouter() {
                   <ProtectedRoute>
                     <Layout>
                       <Testing />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/auth-diagnostics" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <AuthDiagnostics />
                     </Layout>
                   </ProtectedRoute>
                 } />

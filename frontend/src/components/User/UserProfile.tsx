@@ -118,6 +118,13 @@ const UserProfile: React.FC = () => {
           <p className="text-gray-600">Manage your account settings and preferences</p>
         </div>
         <div className="flex items-center space-x-3">
+          <a
+            href="/auth-diagnostics"
+            className="hidden sm:inline-flex items-center px-3 py-2 text-sm bg-gray-100 border border-gray-300 rounded hover:bg-gray-200"
+            title="Open Auth Diagnostics"
+          >
+            Auth Diagnostics
+          </a>
           <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
             <span className="text-lg font-semibold text-primary-700">
               {user.firstName.charAt(0)}{user.lastName.charAt(0)}

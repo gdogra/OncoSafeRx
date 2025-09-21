@@ -1,6 +1,7 @@
 import express from 'express';
 import { authenticateSupabase, optionalSupabaseAuth } from '../middleware/supabaseAuth.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
+import fetch from 'node-fetch';
 
 const router = express.Router();
 
@@ -108,6 +109,48 @@ router.get('/health',
     });
   }
 );
+
+/**
+ * Server-side proxy login to Supabase (fallback for environments blocking direct auth)
+ * Body: { email, password }
+ */
+router.post('/proxy/login', asyncHandler(async (req, res) => {
+  const { email, password } = req.body || {};
+  if (!email || !password) {
+    return res.status(400).json({ error: 'email and password are required' });
+  }
+
+  const url = process.env.SUPABASE_URL;
+  const anon = process.env.SUPABASE_ANON_KEY;
+  if (!url || !anon) {
+    return res.status(500).json({ error: 'Supabase not configured on server' });
+  }
+
+  const endpoint = `${url}/auth/v1/token?grant_type=password`;
+  const resp = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': anon,
+      'Authorization': `Bearer ${anon}`
+    },
+    body: JSON.stringify({ email, password })
+  });
+
+  const body = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    return res.status(resp.status).json({ error: body?.error_description || body?.error || 'Login failed' });
+  }
+
+  // Return only the fields needed to set the session client-side
+  return res.json({
+    access_token: body.access_token,
+    refresh_token: body.refresh_token,
+    expires_in: body.expires_in,
+    token_type: body.token_type,
+    user: body.user
+  });
+}));
 
 // Helper functions for default persona data
 function getDefaultPersonaName(role) {

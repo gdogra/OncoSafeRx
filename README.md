@@ -198,6 +198,26 @@ GET /api/search/drugs?q=aspirin
 GET /api/search/synonyms?q=pump
 ```
 
+### Billing & ROI (PGx)
+
+```
+# CPT reference for PGx
+GET /api/billing/pgx/codes
+
+# Payer policy notes
+GET /api/billing/pgx/payers
+
+# ROI calculator for a PGx program
+POST /api/roi/pgx
+{
+  "annualADECost": 10000000,
+  "testCost": 300,
+  "targetPopulation": 5000,
+  "expectedTestingRate": 0.4,
+  "expectedADEreductionPct": 0.25
+}
+```
+
 ### Genomics (Sample Data)
 
 ```bash
@@ -207,11 +227,35 @@ GET /api/genomics/cpic/guidelines
 # Get genomic recommendations for a drug
 GET /api/genomics/drug/161/genomics
 
-# Check genomic profile
+# Check genomic profile (with optional HLA observations)
 POST /api/genomics/profile/check
 {
   "genes": ["CYP2D6", "CYP2C19"],
-  "drugs": ["161", "42463"]
+  "drugs": ["161", "42463"],
+  "observations": [ { "code": {"text": "HLA-B*57:01"}, "valueString": "positive" } ]
+}
+```
+
+### Genomics Panel & Versions
+
+```
+# Panel descriptor (17 genes + 4 HLA overview)
+GET /api/genomics/panel
+
+# Version/change log for dynamic PGx reporting
+GET /api/genomics/versions
+
+# Dynamic PGx report (includes current version metadata)
+GET /api/genomics/report/{rxcui}
+```
+
+### Partner PGx Decision Support (stub)
+
+```
+POST /api/genomics/partner/gene-dose/summarize
+{
+  "medications": [ {"name": "Clopidogrel"}, {"name": "Irinotecan"} ],
+  "phenotypes": { "CYP2C19": "Poor metabolizer", "UGT1A1": "*28/*28" }
 }
 ```
 

@@ -27,52 +27,46 @@ export const authenticateSupabase = async (req, res, next) => {
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
-    // First try to verify with Supabase JWT secret if available
-    if (supabaseJwtSecret) {
-      try {
-        const decoded = jwt.verify(token, supabaseJwtSecret);
-        
-        // Get user profile from Supabase
-        if (supabaseAdmin) {
-          const { data: user, error } = await supabaseAdmin.auth.admin.getUserById(decoded.sub);
-          
-          if (error) {
-            console.error('Error fetching user from Supabase:', error);
-            return res.status(401).json({ error: 'Invalid token' });
-          }
-
-          // Attach user info to request
-          req.user = {
-            id: user.id,
-            email: user.email,
-            role: user.user_metadata?.role || 'user',
-            supabaseUser: user
-          };
-          
-          return next();
-        }
-      } catch (jwtError) {
-        console.error('JWT verification failed:', jwtError.message);
-      }
-    }
-
-    // Fallback: verify token with Supabase client
+    // Prefer server-side introspection via Supabase (works with new signing keys)
     if (supabaseAdmin) {
-      const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+      const { data, error } = await supabaseAdmin.auth.getUser(token);
       
-      if (error || !user) {
+      if (error || !data?.user) {
         return res.status(401).json({ error: 'Invalid token' });
       }
 
       // Attach user info to request
       req.user = {
-        id: user.id,
-        email: user.email,
-        role: user.user_metadata?.role || 'user',
-        supabaseUser: user
+        id: data.user.id,
+        email: data.user.email,
+        role: data.user.user_metadata?.role || 'user',
+        supabaseUser: data.user
       };
       
       return next();
+    }
+
+    // Legacy path: try verifying HS256 tokens with SUPABASE_JWT_SECRET then fetch user by id
+    if (supabaseJwtSecret) {
+      try {
+        const decoded = jwt.verify(token, supabaseJwtSecret);
+        if (supabaseAdmin && decoded?.sub) {
+          const { data, error } = await supabaseAdmin.auth.admin.getUserById(decoded.sub);
+          if (error || !data?.user) {
+            return res.status(401).json({ error: 'Invalid token' });
+          }
+          req.user = {
+            id: data.user.id,
+            email: data.user.email,
+            role: data.user.user_metadata?.role || 'user',
+            supabaseUser: data.user
+          };
+          return next();
+        }
+      } catch (e) {
+        // With new JWT signing keys, HS256 verification will fail; advise configuring service role.
+        console.warn('HS256 JWT verification failed; ensure SUPABASE_SERVICE_ROLE_KEY is set for token introspection.');
+      }
     }
 
     // If no Supabase configuration available

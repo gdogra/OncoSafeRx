@@ -98,7 +98,108 @@ export const CPIC_GUIDELINES_DB = [
     dosage_adjustment: 'Use morphine or other non-tramadol opioid',
     sources: ['CPIC', 'FDA']
   }
+  ,
+  // --- HLA examples (presence-based risk alleles) ---
+  {
+    gene_symbol: 'HLA-B',
+    gene: { name: 'Human Leukocyte Antigen B' },
+    drug_rxcui: '1596450',
+    drug: { name: 'Abacavir', generic_name: 'abacavir' },
+    phenotype: 'HLA-B*57:01 positive',
+    recommendation: 'Do not use abacavir',
+    evidence_level: 'A',
+    implications: 'High risk of hypersensitivity reaction',
+    dosage_adjustment: 'Avoid drug',
+    sources: ['CPIC', 'FDA']
+  },
+  {
+    gene_symbol: 'HLA-B',
+    gene: { name: 'Human Leukocyte Antigen B' },
+    drug_rxcui: '2002',
+    drug: { name: 'Carbamazepine', generic_name: 'carbamazepine' },
+    phenotype: 'HLA-B*15:02 positive',
+    recommendation: 'Avoid carbamazepine',
+    evidence_level: 'A',
+    implications: 'Increased risk of SJS/TEN',
+    dosage_adjustment: 'Avoid drug; consider alternatives',
+    sources: ['CPIC', 'FDA']
+  },
+  {
+    gene_symbol: 'HLA-A',
+    gene: { name: 'Human Leukocyte Antigen A' },
+    drug_rxcui: '2002',
+    drug: { name: 'Carbamazepine', generic_name: 'carbamazepine' },
+    phenotype: 'HLA-A*31:01 positive',
+    recommendation: 'Consider alternatives to reduce hypersensitivity risk',
+    evidence_level: 'A',
+    implications: 'Higher risk of hypersensitivity reactions',
+    dosage_adjustment: 'Avoid drug when possible',
+    sources: ['CPIC']
+  },
+  {
+    gene_symbol: 'HLA-B',
+    gene: { name: 'Human Leukocyte Antigen B' },
+    drug_rxcui: '3529',
+    drug: { name: 'Allopurinol', generic_name: 'allopurinol' },
+    phenotype: 'HLA-B*58:01 positive',
+    recommendation: 'Avoid allopurinol',
+    evidence_level: 'A',
+    implications: 'Risk of severe cutaneous adverse reactions',
+    dosage_adjustment: 'Avoid drug; use alternatives (e.g., febuxostat if appropriate)',
+    sources: ['CPIC', 'FDA']
+  }
+  ,
+  // NUDT15 for thiopurines (adds to TPMT guidance)
+  {
+    gene_symbol: 'NUDT15',
+    gene: { name: 'Nudix Hydrolase 15' },
+    drug_rxcui: '18631',
+    drug: { name: '6-Mercaptopurine', generic_name: 'mercaptopurine' },
+    phenotype: 'Poor Metabolizer',
+    recommendation: 'Drastically reduce dose or avoid; consider alternative therapy',
+    evidence_level: 'A',
+    implications: 'Severe myelosuppression risk',
+    dosage_adjustment: 'Start with 10% of standard dose or avoid',
+    sources: ['CPIC']
+  },
+  {
+    gene_symbol: 'NUDT15',
+    gene: { name: 'Nudix Hydrolase 15' },
+    drug_rxcui: '6387',
+    drug: { name: 'Azathioprine', generic_name: 'azathioprine' },
+    phenotype: 'Poor Metabolizer',
+    recommendation: 'Consider alternative non-thiopurine therapy',
+    evidence_level: 'A',
+    implications: 'Severe myelosuppression risk',
+    dosage_adjustment: 'If used, start at 10% of standard dose',
+    sources: ['CPIC']
+  },
+  // VKORC1 for warfarin
+  {
+    gene_symbol: 'VKORC1',
+    gene: { name: 'Vitamin K Epoxide Reductase Complex Subunit 1' },
+    drug_rxcui: '11289',
+    drug: { name: 'Warfarin', generic_name: 'warfarin' },
+    phenotype: 'Sensitive (lower dose)',
+    recommendation: 'Start with lower initial dose; consider genotype-based algorithm',
+    evidence_level: 'A',
+    implications: 'Higher bleeding risk at standard dose',
+    dosage_adjustment: 'Reduce starting dose by 10-30% and monitor INR',
+    sources: ['CPIC', 'FDA']
+  },
+  // SLCO1B1 for statins (non-oncology, illustrative)
+  {
+    gene_symbol: 'SLCO1B1',
+    gene: { name: 'Solute Carrier Organic Anion Transporter Family Member 1B1' },
+    drug_rxcui: null,
+    drug: { name: 'Simvastatin', generic_name: 'simvastatin' },
+    phenotype: 'Decreased function (c.521T>C)',
+    recommendation: 'Use lower dose or alternative statin (e.g., pravastatin)',
+    evidence_level: 'A',
+    implications: 'Increased myopathy risk',
+    dosage_adjustment: 'Avoid high doses; consider alternative statin',
+    sources: ['CPIC']
+  }
 ];
 
 export default CPIC_GUIDELINES_DB;
-

@@ -8,142 +8,73 @@ export class SupabaseAuthService {
   static async signup(data: SignupData): Promise<UserProfile> {
     const { email, password, firstName, lastName, role, specialty, institution, licenseNumber, yearsExperience } = data
 
-    // Create auth user - the database trigger will handle creating the profile
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          first_name: firstName,
-          last_name: lastName,
-          role,
-          specialty,
-          institution,
-          license_number: licenseNumber,
-          years_experience: yearsExperience
-        }
-      }
-    })
+    console.log('Starting signup process for:', email)
 
-    if (authError) {
-      console.error('Signup error:', authError)
-      throw new Error(authError.message)
-    }
-
-    if (!authData.user) {
-      throw new Error('Failed to create user account')
-    }
-
-    console.log('Signup successful:', {
-      userId: authData.user.id,
-      email: authData.user.email,
-      emailConfirmed: authData.user.email_confirmed_at,
-      needsConfirmation: !authData.session
-    })
-
-    // If email confirmation is required, throw a specific error
-    if (!authData.session) {
-      throw new Error('Please check your email and click the confirmation link to complete your registration.')
-    }
-
-    // Wait a moment for the trigger to create the profile
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    // Try to fetch the created profile from users table
-    let profileData = null
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', authData.user.id)
-        .single()
-      
-      if (!error) {
-        profileData = data
-      } else {
-        console.warn('Users table not accessible, using auth metadata:', error.message)
-      }
-    } catch (error) {
-      console.warn('Users table not available, using auth metadata:', error)
-    }
-
-    if (!profileData) {
-      console.log('Creating profile from auth metadata')
-      // Return a basic profile using auth user metadata
-      return {
-        id: authData.user.id,
+      // Create auth user with metadata
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
+        password,
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+            role,
+            specialty,
+            institution,
+            license_number: licenseNumber,
+            years_experience: yearsExperience
+          }
+        }
+      })
+
+      if (authError) {
+        console.error('Signup error:', authError)
+        
+        // Provide user-friendly error messages
+        if (authError.message.includes('User already registered')) {
+          throw new Error('An account with this email already exists. Please sign in instead.')
+        }
+        if (authError.message.includes('Password should be at least')) {
+          throw new Error('Password must be at least 6 characters long.')
+        }
+        if (authError.message.includes('Invalid email')) {
+          throw new Error('Please enter a valid email address.')
+        }
+        
+        throw new Error(authError.message)
+      }
+
+      if (!authData.user) {
+        throw new Error('Failed to create user account')
+      }
+
+      console.log('Signup successful:', {
+        userId: authData.user.id,
+        email: authData.user.email,
+        emailConfirmed: authData.user.email_confirmed_at,
+        hasSession: !!authData.session
+      })
+
+      // If email confirmation is required
+      if (!authData.session) {
+        throw new Error('Account created successfully! Please check your email and click the confirmation link to complete registration.')
+      }
+
+      // Return user profile (session exists, so user is confirmed)
+      return this.buildUserProfile(authData.user, {
         firstName,
         lastName,
         role,
-        specialty: specialty || '',
-        institution: institution || '',
-        licenseNumber: licenseNumber || '',
-        yearsExperience: yearsExperience || 0,
-        preferences: {
-          theme: 'light',
-          language: 'en',
-          notifications: {
-            email: true,
-            push: true,
-            criticalAlerts: true,
-            weeklyReports: true,
-          },
-          dashboard: {
-            defaultView: 'overview',
-            refreshInterval: 5000,
-            compactMode: false,
-          },
-          clinical: {
-            showGenomicsByDefault: role === 'oncologist' || role === 'pharmacist',
-            autoCalculateDosing: role === 'oncologist' || role === 'pharmacist',
-            requireInteractionAck: true,
-            showPatientPhotos: false,
-          },
-        },
-        persona: this.createDefaultPersona(role),
-        createdAt: new Date().toISOString(),
-        lastLogin: new Date().toISOString(),
-        isActive: true,
-      }
-    }
+        specialty,
+        institution,
+        licenseNumber,
+        yearsExperience
+      })
 
-    // Convert database fields to frontend format
-    return {
-      id: profileData.id,
-      email: profileData.email,
-      firstName: profileData.first_name,
-      lastName: profileData.last_name,
-      role: profileData.role,
-      specialty: profileData.specialty || '',
-      institution: profileData.institution || '',
-      licenseNumber: profileData.license_number || '',
-      yearsExperience: profileData.years_experience || 0,
-      preferences: profileData.preferences || {
-        theme: 'light',
-        language: 'en',
-        notifications: {
-          email: true,
-          push: true,
-          criticalAlerts: true,
-          weeklyReports: true,
-        },
-        dashboard: {
-          defaultView: 'overview',
-          refreshInterval: 5000,
-          compactMode: false,
-        },
-        clinical: {
-          showGenomicsByDefault: role === 'oncologist' || role === 'pharmacist',
-          autoCalculateDosing: role === 'oncologist' || role === 'pharmacist',
-          requireInteractionAck: true,
-          showPatientPhotos: false,
-        },
-      },
-      persona: profileData.persona || this.createDefaultPersona(role),
-      createdAt: profileData.created_at,
-      lastLogin: profileData.last_login,
-      isActive: profileData.is_active,
+    } catch (error) {
+      console.error('Signup failed:', error)
+      throw error
     }
   }
 
@@ -155,262 +86,46 @@ export class SupabaseAuthService {
 
     console.log('Starting login process for:', email)
     
-    // Test Supabase connectivity first with timeout
-    let supabaseReachable = false
-    try {
-      console.log('Testing Supabase connectivity...')
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 3000) // 3 second timeout
-      
-      const healthCheck = await fetch('https://emfrwckxctyarphjvfeu.supabase.co/rest/v1/', {
-        method: 'HEAD',
-        headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c' },
-        signal: controller.signal
-      })
-      clearTimeout(timeoutId)
-      console.log('Supabase connectivity test result:', healthCheck.status)
-      supabaseReachable = true
-    } catch (error) {
-      console.error('Supabase connectivity test failed:', error)
-      
-      // Fallback to demo mode when Supabase is unreachable
-      console.log('Using demo mode authentication')
-      if (email === 'demo@oncosaferx.com' && password === 'demo123') {
-        return {
-          id: 'demo-user-id',
-          email: 'demo@oncosaferx.com',
-          firstName: 'Demo',
-          lastName: 'User',
-          role: 'oncologist' as const,
-          specialty: 'Medical Oncology',
-          institution: 'Demo Hospital',
-          licenseNumber: 'DEMO-12345',
-          yearsExperience: 5,
-          preferences: {
-            theme: 'light',
-            language: 'en',
-            notifications: {
-              email: true,
-              push: true,
-              criticalAlerts: true,
-              weeklyReports: true,
-            },
-            dashboard: {
-              defaultView: 'overview',
-              refreshInterval: 5000,
-              compactMode: false,
-            },
-            clinical: {
-              showGenomicsByDefault: true,
-              autoCalculateDosing: true,
-              requireInteractionAck: true,
-              showPatientPhotos: false,
-            },
-          },
-          persona: this.createDefaultPersona('oncologist'),
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
-          isActive: true,
-        }
-      }
-      
-      throw new Error('Cannot reach Supabase servers - try demo login: demo@oncosaferx.com / demo123')
-    }
-
-    // Check for demo credentials even if Supabase is reachable
+    // Check for demo credentials
     if (email === 'demo@oncosaferx.com' && password === 'demo123') {
       console.log('Demo credentials detected - using demo mode')
-      return {
-        id: 'demo-user-id',
-        email: 'demo@oncosaferx.com',
-        firstName: 'Demo',
-        lastName: 'User',
-        role: 'oncologist' as const,
-        specialty: 'Medical Oncology',
-        institution: 'Demo Hospital',
-        licenseNumber: 'DEMO-12345',
-        yearsExperience: 5,
-        preferences: {
-          theme: 'light',
-          language: 'en',
-          notifications: {
-            email: true,
-            push: true,
-            criticalAlerts: true,
-            weeklyReports: true,
-          },
-          dashboard: {
-            defaultView: 'overview',
-            refreshInterval: 5000,
-            compactMode: false,
-          },
-          clinical: {
-            showGenomicsByDefault: true,
-            autoCalculateDosing: true,
-            requireInteractionAck: true,
-            showPatientPhotos: false,
-          },
-        },
-        persona: this.createDefaultPersona('oncologist'),
-        createdAt: new Date().toISOString(),
-        lastLogin: new Date().toISOString(),
-        isActive: true,
-      }
-    }
-    
-    // Add shorter timeout for Supabase auth call
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Supabase auth timeout - check network connection')), 10000)
-    )
-    
-    console.log('Calling Supabase signInWithPassword...')
-    const loginPromise = supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-    
-    const { data: authData, error: authError } = await Promise.race([loginPromise, timeoutPromise])
-
-    console.log('Supabase auth response:', { authData, authError })
-
-    if (authError) {
-      console.error('Login error:', authError)
-      console.error('Error details:', {
-        message: authError.message,
-        status: authError.status,
-        statusCode: authError.__isAuthError ? 'AuthError' : 'Unknown'
-      })
-      
-      if (authError.message.includes('Email not confirmed')) {
-        throw new Error('Please check your email and click the confirmation link before signing in.')
-      }
-      if (authError.message.includes('Invalid login credentials')) {
-        // Check if user exists to provide better guidance
-        const userExists = await this.checkUserExists(email)
-        if (userExists) {
-          throw new Error('Invalid password or email not confirmed. Please check your password or confirm your email.')
-        } else {
-          throw new Error('No account found with this email. Please sign up first.')
-        }
-      }
-      if (authError.message.includes('Email link is invalid or has expired')) {
-        throw new Error('Email confirmation link has expired. Please request a new confirmation email.')
-      }
-      if (authError.message.includes('too many requests')) {
-        throw new Error('Too many login attempts. Please wait a few minutes before trying again.')
-      }
-      
-      throw new Error(authError.message || 'Authentication failed')
+      return this.createDemoUser()
     }
 
-    if (!authData.user) {
-      throw new Error('Failed to authenticate user')
-    }
-
-    console.log('Attempting to fetch user profile...')
-    
-    // Try to get user profile from users table
-    let profileData = null
     try {
-      console.log('Querying users table for user ID:', authData.user.id)
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', authData.user.id)
-        .single()
-      
-      if (!error) {
-        profileData = data
-        console.log('Users table query successful, updating last login')
-        // Update last login if users table is available
+      console.log('Calling Supabase signInWithPassword...')
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+
+      if (authError) {
+        console.error('Login error:', authError)
+        this.handleAuthError(authError, email)
+      }
+
+      if (!authData.user || !authData.session) {
+        throw new Error('Failed to authenticate user')
+      }
+
+      console.log('Login successful for user:', authData.user.id)
+
+      // Update last login in users table if it exists
+      try {
         await supabase
           .from('users')
           .update({ last_login: new Date().toISOString() })
           .eq('id', authData.user.id)
-      } else {
-        console.warn('Users table not accessible, using auth metadata:', error.message)
+      } catch (error) {
+        console.log('Could not update last_login in users table:', error)
       }
+
+      // Return user profile
+      return this.buildUserProfile(authData.user)
+
     } catch (error) {
-      console.warn('Users table not available, using auth metadata:', error)
-    }
-
-    if (!profileData) {
-      console.log('Creating profile from auth user metadata')
-      // Create profile from auth user metadata
-      return {
-        id: authData.user.id,
-        email: authData.user.email || email,
-        firstName: authData.user.user_metadata?.first_name || '',
-        lastName: authData.user.user_metadata?.last_name || '',
-        role: authData.user.user_metadata?.role || 'user',
-        specialty: authData.user.user_metadata?.specialty || '',
-        institution: authData.user.user_metadata?.institution || '',
-        licenseNumber: authData.user.user_metadata?.license_number || '',
-        yearsExperience: authData.user.user_metadata?.years_experience || 0,
-        preferences: {
-          theme: 'light',
-          language: 'en',
-          notifications: {
-            email: true,
-            push: true,
-            criticalAlerts: true,
-            weeklyReports: true,
-          },
-          dashboard: {
-            defaultView: 'overview',
-            refreshInterval: 5000,
-            compactMode: false,
-          },
-          clinical: {
-            showGenomicsByDefault: authData.user.user_metadata?.role === 'oncologist' || authData.user.user_metadata?.role === 'pharmacist',
-            autoCalculateDosing: authData.user.user_metadata?.role === 'oncologist' || authData.user.user_metadata?.role === 'pharmacist',
-            requireInteractionAck: true,
-            showPatientPhotos: false,
-          },
-        },
-        persona: this.createDefaultPersona(authData.user.user_metadata?.role || 'user'),
-        createdAt: authData.user.created_at,
-        lastLogin: new Date().toISOString(),
-        isActive: true,
-      }
-    }
-
-    // Convert database fields to frontend format
-    return {
-      id: profileData.id,
-      email: profileData.email,
-      firstName: profileData.first_name,
-      lastName: profileData.last_name,
-      role: profileData.role,
-      specialty: profileData.specialty || '',
-      institution: profileData.institution || '',
-      licenseNumber: profileData.license_number || '',
-      yearsExperience: profileData.years_experience || 0,
-      preferences: profileData.preferences || {
-        theme: 'light',
-        language: 'en',
-        notifications: {
-          email: true,
-          push: true,
-          criticalAlerts: true,
-          weeklyReports: true,
-        },
-        dashboard: {
-          defaultView: 'overview',
-          refreshInterval: 5000,
-          compactMode: false,
-        },
-        clinical: {
-          showGenomicsByDefault: profileData.role === 'oncologist' || profileData.role === 'pharmacist',
-          autoCalculateDosing: profileData.role === 'oncologist' || profileData.role === 'pharmacist',
-          requireInteractionAck: true,
-          showPatientPhotos: false,
-        },
-      },
-      persona: profileData.persona || this.createDefaultPersona(profileData.role),
-      createdAt: profileData.created_at,
-      lastLogin: profileData.last_login,
-      isActive: profileData.is_active,
+      console.error('Login failed:', error)
+      throw error
     }
   }
 
@@ -434,101 +149,7 @@ export class SupabaseAuthService {
       return null
     }
 
-    // Try to get user profile from users table
-    let profileData = null
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
-      
-      if (!error) {
-        profileData = data
-      } else {
-        console.warn('Users table not accessible, using auth metadata:', error.message)
-      }
-    } catch (error) {
-      console.warn('Users table not available, using auth metadata:', error)
-    }
-
-    if (!profileData) {
-      // Create profile from auth user metadata
-      return {
-        id: session.user.id,
-        email: session.user.email || '',
-        firstName: session.user.user_metadata?.first_name || '',
-        lastName: session.user.user_metadata?.last_name || '',
-        role: session.user.user_metadata?.role || 'user',
-        specialty: session.user.user_metadata?.specialty || '',
-        institution: session.user.user_metadata?.institution || '',
-        licenseNumber: session.user.user_metadata?.license_number || '',
-        yearsExperience: session.user.user_metadata?.years_experience || 0,
-        preferences: {
-          theme: 'light',
-          language: 'en',
-          notifications: {
-            email: true,
-            push: true,
-            criticalAlerts: true,
-            weeklyReports: true,
-          },
-          dashboard: {
-            defaultView: 'overview',
-            refreshInterval: 5000,
-            compactMode: false,
-          },
-          clinical: {
-            showGenomicsByDefault: session.user.user_metadata?.role === 'oncologist' || session.user.user_metadata?.role === 'pharmacist',
-            autoCalculateDosing: session.user.user_metadata?.role === 'oncologist' || session.user.user_metadata?.role === 'pharmacist',
-            requireInteractionAck: true,
-            showPatientPhotos: false,
-          },
-        },
-        persona: this.createDefaultPersona(session.user.user_metadata?.role || 'user'),
-        createdAt: session.user.created_at,
-        lastLogin: new Date().toISOString(),
-        isActive: true,
-      }
-    }
-
-    // Convert database fields to frontend format
-    return {
-      id: profileData.id,
-      email: profileData.email,
-      firstName: profileData.first_name,
-      lastName: profileData.last_name,
-      role: profileData.role,
-      specialty: profileData.specialty || '',
-      institution: profileData.institution || '',
-      licenseNumber: profileData.license_number || '',
-      yearsExperience: profileData.years_experience || 0,
-      preferences: profileData.preferences || {
-        theme: 'light',
-        language: 'en',
-        notifications: {
-          email: true,
-          push: true,
-          criticalAlerts: true,
-          weeklyReports: true,
-        },
-        dashboard: {
-          defaultView: 'overview',
-          refreshInterval: 5000,
-          compactMode: false,
-        },
-        clinical: {
-          showGenomicsByDefault: profileData.role === 'oncologist' || profileData.role === 'pharmacist',
-          autoCalculateDosing: profileData.role === 'oncologist' || profileData.role === 'pharmacist',
-          requireInteractionAck: true,
-          showPatientPhotos: false,
-        },
-      },
-      persona: profileData.persona || this.createDefaultPersona(profileData.role),
-      createdAt: profileData.created_at,
-      lastLogin: profileData.last_login,
-      isActive: profileData.is_active,
-    }
+    return this.buildUserProfile(session.user)
   }
 
   /**
@@ -547,6 +168,153 @@ export class SupabaseAuthService {
     }
 
     return data
+  }
+
+  /**
+   * Build user profile from Supabase auth user
+   */
+  private static async buildUserProfile(authUser: any, fallbackData?: any): Promise<UserProfile> {
+    // Try to get profile from users table first
+    let profileData = null
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', authUser.id)
+        .single()
+      
+      if (!error) {
+        profileData = data
+        console.log('Found user profile in users table')
+      } else {
+        console.log('Users table not accessible, using auth metadata:', error.message)
+      }
+    } catch (error) {
+      console.log('Users table not available, using auth metadata')
+    }
+
+    if (profileData) {
+      // Return profile from users table
+      return {
+        id: profileData.id,
+        email: profileData.email,
+        firstName: profileData.first_name,
+        lastName: profileData.last_name,
+        role: profileData.role,
+        specialty: profileData.specialty || '',
+        institution: profileData.institution || '',
+        licenseNumber: profileData.license_number || '',
+        yearsExperience: profileData.years_experience || 0,
+        preferences: profileData.preferences || this.getDefaultPreferences(profileData.role),
+        persona: profileData.persona || this.createDefaultPersona(profileData.role),
+        createdAt: profileData.created_at,
+        lastLogin: profileData.last_login,
+        isActive: profileData.is_active,
+      }
+    }
+
+    // Fallback to auth user metadata
+    const role = authUser.user_metadata?.role || fallbackData?.role || 'student'
+    return {
+      id: authUser.id,
+      email: authUser.email || fallbackData?.email || '',
+      firstName: authUser.user_metadata?.first_name || fallbackData?.firstName || '',
+      lastName: authUser.user_metadata?.last_name || fallbackData?.lastName || '',
+      role,
+      specialty: authUser.user_metadata?.specialty || fallbackData?.specialty || '',
+      institution: authUser.user_metadata?.institution || fallbackData?.institution || '',
+      licenseNumber: authUser.user_metadata?.license_number || fallbackData?.licenseNumber || '',
+      yearsExperience: authUser.user_metadata?.years_experience || fallbackData?.yearsExperience || 0,
+      preferences: this.getDefaultPreferences(role),
+      persona: this.createDefaultPersona(role),
+      createdAt: authUser.created_at || new Date().toISOString(),
+      lastLogin: new Date().toISOString(),
+      isActive: true,
+    }
+  }
+
+  /**
+   * Handle authentication errors with user-friendly messages
+   */
+  private static async handleAuthError(authError: any, email: string): Promise<never> {
+    const errorMessage = authError.message || 'Authentication failed'
+    
+    if (errorMessage.includes('Email not confirmed')) {
+      throw new Error('Please check your email and click the confirmation link before signing in.')
+    }
+    
+    if (errorMessage.includes('Invalid login credentials')) {
+      // Check if user exists to provide better guidance
+      const userExists = await this.checkUserExists(email)
+      if (userExists) {
+        throw new Error('Invalid password. Please check your password and try again.')
+      } else {
+        throw new Error('No account found with this email. Please sign up first.')
+      }
+    }
+    
+    if (errorMessage.includes('Email link is invalid or has expired')) {
+      throw new Error('Email confirmation link has expired. Please request a new confirmation email.')
+    }
+    
+    if (errorMessage.includes('too many requests')) {
+      throw new Error('Too many login attempts. Please wait a few minutes before trying again.')
+    }
+    
+    if (errorMessage.includes('Network error') || errorMessage.includes('timeout')) {
+      throw new Error('Connection timeout. Please check your internet connection and try again.')
+    }
+    
+    throw new Error(errorMessage)
+  }
+
+  /**
+   * Create demo user profile
+   */
+  private static createDemoUser(): UserProfile {
+    return {
+      id: 'demo-user-id',
+      email: 'demo@oncosaferx.com',
+      firstName: 'Demo',
+      lastName: 'User',
+      role: 'oncologist',
+      specialty: 'Medical Oncology',
+      institution: 'Demo Hospital',
+      licenseNumber: 'DEMO-12345',
+      yearsExperience: 5,
+      preferences: this.getDefaultPreferences('oncologist'),
+      persona: this.createDefaultPersona('oncologist'),
+      createdAt: new Date().toISOString(),
+      lastLogin: new Date().toISOString(),
+      isActive: true,
+    }
+  }
+
+  /**
+   * Get default preferences based on role
+   */
+  private static getDefaultPreferences(role: UserProfile['role']) {
+    return {
+      theme: 'light',
+      language: 'en',
+      notifications: {
+        email: true,
+        push: true,
+        criticalAlerts: true,
+        weeklyReports: true,
+      },
+      dashboard: {
+        defaultView: 'overview',
+        refreshInterval: 5000,
+        compactMode: false,
+      },
+      clinical: {
+        showGenomicsByDefault: role === 'oncologist' || role === 'pharmacist',
+        autoCalculateDosing: role === 'oncologist' || role === 'pharmacist',
+        requireInteractionAck: true,
+        showPatientPhotos: false,
+      },
+    }
   }
 
   /**
@@ -630,56 +398,11 @@ export class SupabaseAuthService {
   }
 
   /**
-   * Get backend API URL
-   */
-  private static getApiUrl(): string {
-    const url = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
-    console.log('API URL from environment:', url)
-    return url
-  }
-
-  /**
    * Get current session token for API calls
    */
   static async getSessionToken(): Promise<string | null> {
     const { data: { session } } = await supabase.auth.getSession()
     return session?.access_token || null
-  }
-
-  /**
-   * Verify authentication with backend using Supabase token
-   */
-  static async verifyWithBackend(): Promise<UserProfile | null> {
-    try {
-      const apiUrl = this.getApiUrl()
-      
-      // Skip backend verification if no API URL, localhost, or api.oncosaferx.com
-      if (!apiUrl || apiUrl.includes('localhost') || apiUrl.includes('api.oncosaferx.com')) {
-        console.log('Skipping backend verification - no backend API available or invalid URL')
-        return null
-      }
-
-      const token = await this.getSessionToken()
-      if (!token) return null
-
-      const response = await fetch(`${apiUrl}/supabase-auth/profile`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-
-      if (!response.ok) {
-        console.error('Backend verification failed:', response.status)
-        return null
-      }
-
-      const data = await response.json()
-      return data.user
-    } catch (error) {
-      console.log('Backend verification skipped due to error:', error.message)
-      return null
-    }
   }
 
   /**
@@ -720,14 +443,8 @@ export class SupabaseAuthService {
     return supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         try {
-          // First try to get profile from Supabase
           const profile = await this.getCurrentUser()
-          
-          // Also verify with backend (for hybrid auth)
-          const backendProfile = await this.verifyWithBackend()
-          
-          // Use backend profile if available, otherwise use Supabase profile
-          callback(backendProfile || profile)
+          callback(profile)
         } catch (error) {
           console.error('Error fetching user profile:', error)
           callback(null)

@@ -219,6 +219,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             requiresPermission: null
           },
           { 
+            path: '/auth-diagnostics', 
+            label: 'Auth Diagnostics', 
+            icon: Clipboard, 
+            description: 'Session, server verify, profile check',
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            requiresPermission: null
+          },
+          { 
             path: '/testing', 
             label: 'Testing', 
             icon: TestTube, 

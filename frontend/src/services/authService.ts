@@ -155,11 +155,12 @@ export class SupabaseAuthService {
 
     console.log('Starting login process for:', email)
     
-    // Add timeout to prevent infinite hanging
+    // Add shorter timeout for Supabase auth call
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Login timeout - please try again')), 30000)
+      setTimeout(() => reject(new Error('Supabase auth timeout - check network connection')), 10000)
     )
     
+    console.log('Calling Supabase signInWithPassword...')
     const loginPromise = supabase.auth.signInWithPassword({
       email,
       password

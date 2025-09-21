@@ -275,10 +275,32 @@ export class SupabaseAuthService {
 
     if (authError) {
       console.error('Login error:', authError)
+      console.error('Error details:', {
+        message: authError.message,
+        status: authError.status,
+        statusCode: authError.__isAuthError ? 'AuthError' : 'Unknown'
+      })
+      
       if (authError.message.includes('Email not confirmed')) {
         throw new Error('Please check your email and click the confirmation link before signing in.')
       }
-      throw new Error(authError.message)
+      if (authError.message.includes('Invalid login credentials')) {
+        // Check if user exists to provide better guidance
+        const userExists = await this.checkUserExists(email)
+        if (userExists) {
+          throw new Error('Invalid password or email not confirmed. Please check your password or confirm your email.')
+        } else {
+          throw new Error('No account found with this email. Please sign up first.')
+        }
+      }
+      if (authError.message.includes('Email link is invalid or has expired')) {
+        throw new Error('Email confirmation link has expired. Please request a new confirmation email.')
+      }
+      if (authError.message.includes('too many requests')) {
+        throw new Error('Too many login attempts. Please wait a few minutes before trying again.')
+      }
+      
+      throw new Error(authError.message || 'Authentication failed')
     }
 
     if (!authData.user) {
@@ -657,6 +679,37 @@ export class SupabaseAuthService {
     } catch (error) {
       console.log('Backend verification skipped due to error:', error.message)
       return null
+    }
+  }
+
+  /**
+   * Resend confirmation email
+   */
+  static async resendConfirmation(email: string): Promise<void> {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email
+    })
+
+    if (error) {
+      throw new Error(error.message)
+    }
+  }
+
+  /**
+   * Check if user exists in auth.users
+   */
+  static async checkUserExists(email: string): Promise<boolean> {
+    try {
+      // Try to trigger password reset to see if user exists
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      })
+      
+      // If no error, user exists
+      return !error
+    } catch (error) {
+      return false
     }
   }
 

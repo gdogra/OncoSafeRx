@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import SimpleApp from './SimpleApp';
+import NoAuthApp from './NoAuthApp';
 import ErrorBoundary from './components/System/ErrorBoundary';
 import reportWebVitals from './reportWebVitals';
 
@@ -12,7 +12,7 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
-      <SimpleApp />
+      <NoAuthApp />
     </ErrorBoundary>
   </React.StrictMode>
 );

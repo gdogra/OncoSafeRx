@@ -507,7 +507,9 @@ export class SupabaseAuthService {
    * Get backend API URL
    */
   private static getApiUrl(): string {
-    return import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+    const url = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+    console.log('API URL from environment:', url)
+    return url
   }
 
   /**
@@ -525,9 +527,9 @@ export class SupabaseAuthService {
     try {
       const apiUrl = this.getApiUrl()
       
-      // Skip backend verification if no API URL or localhost in production
-      if (!apiUrl || apiUrl.includes('localhost')) {
-        console.log('Skipping backend verification - no backend API available')
+      // Skip backend verification if no API URL, localhost, or api.oncosaferx.com
+      if (!apiUrl || apiUrl.includes('localhost') || apiUrl.includes('api.oncosaferx.com')) {
+        console.log('Skipping backend verification - no backend API available or invalid URL')
         return null
       }
 

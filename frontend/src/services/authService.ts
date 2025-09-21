@@ -155,6 +155,19 @@ export class SupabaseAuthService {
 
     console.log('Starting login process for:', email)
     
+    // Test Supabase connectivity first
+    try {
+      console.log('Testing Supabase connectivity...')
+      const healthCheck = await fetch('https://emfrwckxctyarphjvfeu.supabase.co/rest/v1/', {
+        method: 'HEAD',
+        headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c' }
+      })
+      console.log('Supabase connectivity test result:', healthCheck.status)
+    } catch (error) {
+      console.error('Supabase connectivity test failed:', error)
+      throw new Error('Cannot reach Supabase servers - check network connection')
+    }
+    
     // Add shorter timeout for Supabase auth call
     const timeoutPromise = new Promise((_, reject) => 
       setTimeout(() => reject(new Error('Supabase auth timeout - check network connection')), 10000)

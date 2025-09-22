@@ -226,6 +226,12 @@ export class SupabaseAuthService {
         throw new Error('Failed to authenticate user')
       }
 
+      try {
+        const path = viaProxy ? 'proxy' : 'direct'
+        const meta = { path, at: new Date().toISOString(), user: authData.user.id }
+        window.localStorage.setItem('osrx_auth_path', JSON.stringify(meta))
+      } catch {}
+
       console.log('✅ Login successful for user:', authData.user.id)
 
       // Update last login in users table if it exists

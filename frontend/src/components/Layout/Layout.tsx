@@ -111,6 +111,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       
       {/* Drug Comparison Tray */}
       <ComparisonTray />
+
+      {/* Auth path indicator (dev/debug) */}
+      {String((import.meta as any)?.env?.VITE_SHOW_AUTH_PATH || '') === 'true' && (
+        <div className="fixed bottom-3 left-3 z-50 text-xs text-gray-700 bg-white/90 border border-gray-200 rounded px-2 py-1 shadow-sm">
+          {(() => {
+            try {
+              const raw = window.localStorage.getItem('osrx_auth_path');
+              if (!raw) return 'Auth: n/a';
+              const meta = JSON.parse(raw);
+              return `Auth: ${meta.path} @ ${new Date(meta.at).toLocaleTimeString()}`;
+            } catch {
+              return 'Auth: n/a';
+            }
+          })()}
+        </div>
+      )}
     </div>
     </>
   );

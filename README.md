@@ -55,6 +55,17 @@ npm run sync:cpic
   - Frontend: set `REACT_APP_API_URL=http://localhost:3001/api` then `npm start` (serves on 3000)
   - This avoids port conflicts and enables hot reload.
 
+### Production Env (Frontend)
+
+- Required:
+  - `VITE_SUPABASE_URL` = your Supabase project URL
+  - `VITE_SUPABASE_ANON_KEY` = your Supabase anon key
+  - `VITE_API_URL` = https://your-api.example.com/api
+- Optional:
+  - `VITE_SKIP_SUPABASE_PREFLIGHT=true` (skip connectivity HEAD)
+  - `VITE_SUPABASE_AUTH_VIA_PROXY=true` (use server proxy for auth)
+  - `VITE_ALLOW_DEMO_LOGIN=false` (keep disabled in prod)
+
 ### Health Check
 
 ```bash
@@ -138,6 +149,31 @@ GET /cds-services
 POST /cds-services/oncosaferx-medication-prescribe
 { "context": { "medications": ["42463", "1811631"] } }
 ```
+
+### Supabase Auth Proxy (Server)
+
+These endpoints are optional and disabled by default. Enable by setting on the API server:
+
+- `AUTH_PROXY_ENABLED=true`
+- `PROXY_ALLOWED_ORIGINS` = comma-separated list of allowed frontend origins (e.g. `https://app.example.com,http://localhost:5173`)
+
+Endpoints:
+
+```
+# Login via server proxy (rate-limited, origin-checked)
+POST /api/supabase-auth/proxy/login
+{ "email": "you@example.com", "password": "***" }
+
+# Signup via server proxy (passes metadata to Supabase)
+POST /api/supabase-auth/proxy/signup
+{ "email": "you@example.com", "password": "***", "metadata": { "first_name": "Jane", "role": "oncologist" } }
+
+# Request password reset email
+POST /api/supabase-auth/proxy/reset
+{ "email": "you@example.com", "redirectTo": "https://app.example.com/reset-password" }
+```
+
+Responses follow Supabase patterns; error JSON includes a `code` field for UI mapping.
 
 # List curated (local) interactions
 GET /api/interactions/known

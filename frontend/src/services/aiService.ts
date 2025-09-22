@@ -532,7 +532,6 @@ export class AIService {
     if (existingRecommendations.length > 0) return;
 
     // Generate sample data would go here
-    console.log('AI sample data generation completed');
   }
 }
 

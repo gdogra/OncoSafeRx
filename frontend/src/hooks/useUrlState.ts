@@ -156,7 +156,7 @@ export function useUrlFilters<T extends Record<string, StateValue>>(
     });
     
     return filters;
-  }, [defaultFilters, location.search]);
+  }, [location.search]);
 
   const [filters, setFilters] = useState<T>(getFiltersFromUrl);
 
@@ -186,7 +186,7 @@ export function useUrlFilters<T extends Record<string, StateValue>>(
     } else {
       navigate(newUrl);
     }
-  }, [defaultFilters, location.pathname, location.search, navigate, replace]);
+  }, [location.pathname, location.search, navigate, replace]);
 
   // Sync filters with URL changes
   useEffect(() => {
@@ -208,7 +208,7 @@ export function useUrlFilters<T extends Record<string, StateValue>>(
   const clearFilters = useCallback(() => {
     setFilters(defaultFilters);
     updateUrl(defaultFilters);
-  }, [defaultFilters, updateUrl]);
+  }, [updateUrl]);
 
   return [filters, updateFilters, clearFilters];
 }

@@ -6,6 +6,7 @@ import PredictiveSearchBar from '../components/DrugSearch/PredictiveSearchBar';
 import DrugSearchResults from '../components/DrugSearch/DrugSearchResults';
 import DrugCard from '../components/DrugSearch/DrugCard';
 import SearchWithFavorites from '../components/Search/SearchWithFavorites';
+import EnhancedDrugSearch from '../components/DrugSearch/EnhancedDrugSearch';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import { Search, History, Star, Database, Filter, X } from 'lucide-react';
@@ -279,6 +280,13 @@ const DrugSearch: React.FC = () => {
           Search our comprehensive drug database with quick access shortcuts for common medications.
         </p>
       </div>
+
+      {/* Enhanced AI-Powered Search Interface */}
+      <EnhancedDrugSearch 
+        onSearch={(query, filters) => handleAdvancedSearch(query, filters)}
+        loading={loading}
+        results={searchResults?.results}
+      />
 
       {/* Enhanced Predictive Search Interface */}
       <div className="space-y-4">

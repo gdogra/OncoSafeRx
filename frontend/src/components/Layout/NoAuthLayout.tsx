@@ -9,6 +9,7 @@ interface NoAuthLayoutProps {
 const NoAuthLayout: React.FC<NoAuthLayoutProps> = ({ children }) => {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarExpanded, setSidebarExpanded] = useState(true);
 
   // Close sidebar on mobile when route changes
   useEffect(() => {
@@ -32,10 +33,15 @@ const NoAuthLayout: React.FC<NoAuthLayoutProps> = ({ children }) => {
       )}
 
       {/* Sidebar */}
-      <NoAuthSidebar isOpen={sidebarOpen} onToggle={toggleSidebar} />
+      <NoAuthSidebar 
+        isOpen={sidebarOpen} 
+        onToggle={toggleSidebar}
+        expanded={sidebarExpanded}
+        onExpandedChange={setSidebarExpanded}
+      />
 
       {/* Main content */}
-      <div className="lg:pl-16 xl:pl-64">
+      <div className={`min-h-screen transition-all duration-300 ${isMobile ? 'pl-0' : sidebarExpanded ? 'pl-64' : 'pl-16'}`}>
         {/* Mobile header */}
         {isMobile && (
           <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-4 py-3">
@@ -56,7 +62,7 @@ const NoAuthLayout: React.FC<NoAuthLayoutProps> = ({ children }) => {
 
         {/* Page content */}
         <main className="flex-1">
-          <div className="h-full">
+          <div className="h-full p-6">
             {children}
           </div>
         </main>

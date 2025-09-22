@@ -2,37 +2,63 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Card from '../components/UI/Card';
 import Tooltip from '../components/UI/Tooltip';
-import { Activity, Search, AlertTriangle, Dna, FileText, Users, TrendingUp, Shield } from 'lucide-react';
+import { Activity, Search, AlertTriangle, Dna, FileText, Users, TrendingUp, Shield, Brain } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const features = [
     {
       icon: Search,
-      title: 'Drug Search',
-      description: 'Search and explore comprehensive drug information from RxNorm and FDA databases',
+      title: 'AI-Enhanced Drug Search',
+      description: 'Smart search with ML-powered suggestions, advanced filtering, and real-time oncology drug database',
       link: '/search',
       color: 'bg-blue-500',
+      badge: 'AI-Powered',
+      features: ['Real-time suggestions', 'Advanced filters', 'Biomarker matching', 'Evidence-based results']
     },
     {
       icon: AlertTriangle,
-      title: 'Interaction Checker',
-      description: 'Check for potential drug-drug interactions and safety alerts',
+      title: 'Advanced Interaction Analysis',
+      description: 'Comprehensive interaction checking with severity analysis, clinical recommendations, and patient-specific considerations',
       link: '/interactions',
       color: 'bg-yellow-500',
+      badge: 'Clinical-Grade',
+      features: ['Severity analysis', 'Clinical recommendations', 'Patient-specific', 'Evidence-based']
+    },
+    {
+      icon: Brain,
+      title: 'AI Clinical Decision Support',
+      description: 'Intelligent treatment recommendations based on patient profile, genomics, and evidence-based medicine',
+      link: '/clinical',
+      color: 'bg-purple-500',
+      badge: 'AI-Powered',
+      features: ['Precision medicine', 'Genomic insights', 'Risk assessment', 'Treatment optimization']
     },
     {
       icon: Dna,
-      title: 'Genomics Analysis',
-      description: 'Explore pharmacogenomic guidelines and gene-drug interactions',
+      title: 'Pharmacogenomics',
+      description: 'Personalized medicine insights with genetic variant analysis and drug metabolism predictions',
       link: '/genomics',
-      color: 'bg-purple-500',
+      color: 'bg-green-500',
+      badge: 'Precision Medicine',
+      features: ['Genetic testing', 'Drug metabolism', 'Personalized dosing', 'Biomarker analysis']
+    },
+    {
+      icon: TrendingUp,
+      title: 'Real-World Analytics',
+      description: 'Advanced analytics and insights from real-world evidence, treatment outcomes, and population data',
+      link: '/analytics',
+      color: 'bg-indigo-500',
+      badge: 'Big Data',
+      features: ['Treatment outcomes', 'Population insights', 'Efficacy analysis', 'Safety monitoring']
     },
     {
       icon: FileText,
       title: 'Clinical Protocols',
-      description: 'Access oncology treatment protocols and NCCN guidelines',
+      description: 'Comprehensive oncology treatment protocols, guidelines, and evidence-based recommendations',
       link: '/protocols',
-      color: 'bg-green-500',
+      color: 'bg-teal-500',
+      badge: 'Evidence-Based',
+      features: ['NCCN guidelines', 'Treatment protocols', 'Best practices', 'Clinical pathways']
     },
   ];
 
@@ -129,12 +155,34 @@ const Dashboard: React.FC = () => {
                 <Link to={feature.link}>
                   <Card className="hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4 border-l-transparent hover:border-l-primary-500">
                     <div className="flex items-start space-x-4">
-                      <div className={`w-12 h-12 ${feature.color} rounded-lg flex items-center justify-center`}>
+                      <div className={`w-12 h-12 ${feature.color} rounded-lg flex items-center justify-center relative`}>
                         <Icon className="w-6 h-6 text-white" />
+                        {feature.badge && (
+                          <div className="absolute -top-2 -right-2 px-1.5 py-0.5 bg-primary-600 text-white text-xs rounded-full font-medium">
+                            {feature.badge === 'AI-Powered' && <Brain className="w-3 h-3" />}
+                            {feature.badge !== 'AI-Powered' && feature.badge}
+                          </div>
+                        )}
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                        <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+                        <div className="flex items-center space-x-2 mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900">{feature.title}</h3>
+                          {feature.badge && feature.badge !== 'AI-Powered' && (
+                            <span className="px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-full font-medium">
+                              {feature.badge}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-gray-600 text-sm leading-relaxed mb-3">{feature.description}</p>
+                        {feature.features && (
+                          <div className="flex flex-wrap gap-1">
+                            {feature.features.map((feat, idx) => (
+                              <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                                {feat}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </Card>

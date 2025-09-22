@@ -19,4 +19,10 @@ export default defineConfig({
     sourcemap: true, // Enable source maps for debugging
     minify: 'esbuild',
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/setupTests.ts',
+    css: true,
+  },
 });

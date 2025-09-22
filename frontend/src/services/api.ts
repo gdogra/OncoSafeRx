@@ -1,7 +1,32 @@
 import axios from 'axios';
-import { apiBaseUrl } from '../utils/env';
 
-const API_BASE_URL = apiBaseUrl();
+// Static API URL calculation to prevent repeated calls
+const getApiUrl = () => {
+  const vite = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
+  // @ts-ignore
+  const cra = typeof process !== 'undefined' ? (process as any)?.env?.REACT_APP_API_URL as string | undefined : undefined;
+  
+  if (vite?.trim()) {
+    return vite;
+  }
+  if (cra?.trim()) {
+    return cra;
+  }
+  
+  // For development, always use localhost:3000 API
+  if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
+    return 'http://localhost:3000/api';
+  }
+  
+  // Prefer same-origin '/api' in production to avoid CSP issues
+  if (typeof window !== 'undefined' && window.location && window.location.origin) {
+    return `${window.location.origin}/api`;
+  }
+  
+  return 'http://localhost:3000/api';
+};
+
+const API_BASE_URL = getApiUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,

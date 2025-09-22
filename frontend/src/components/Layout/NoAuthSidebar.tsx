@@ -23,11 +23,12 @@ import {
 interface NoAuthSidebarProps {
   isOpen: boolean;
   onToggle: () => void;
+  expanded: boolean;
+  onExpandedChange: (expanded: boolean) => void;
 }
 
-const NoAuthSidebar: React.FC<NoAuthSidebarProps> = ({ isOpen, onToggle }) => {
+const NoAuthSidebar: React.FC<NoAuthSidebarProps> = ({ isOpen, onToggle, expanded, onExpandedChange }) => {
   const location = useLocation();
-  const [expanded, setExpanded] = useState(true);
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -115,14 +116,14 @@ const NoAuthSidebar: React.FC<NoAuthSidebarProps> = ({ isOpen, onToggle }) => {
     }
   ];
 
-  const toggleExpanded = () => setExpanded(!expanded);
+  const toggleExpanded = () => onExpandedChange(!expanded);
 
   return (
     <aside className={`
       fixed left-0 top-0 z-40 h-screen transition-all duration-300 ease-in-out bg-white border-r border-gray-200 shadow-lg
       ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       ${expanded ? 'w-64' : 'w-16'}
-      lg:translate-x-0 lg:static lg:inset-0
+      lg:translate-x-0
     `}>
       <div className="flex flex-col h-full">
         {/* Header */}

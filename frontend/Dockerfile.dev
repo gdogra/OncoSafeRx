@@ -1,0 +1,40 @@
+# Development Dockerfile for OncoSafeRx Frontend
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init curl
+
+# Create node user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 -G nodejs
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (including dev dependencies)
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Change ownership to nodejs user
+RUN chown -R nodejs:nodejs /app
+
+# Switch to non-root user
+USER nodejs
+
+# Expose development server port and HMR port
+EXPOSE 5173 24678
+
+# Health check for development server
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:5173/ || exit 1
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+
+# Start development server
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

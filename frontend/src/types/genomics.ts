@@ -21,6 +21,12 @@ export interface GenomicVariant {
   consequence: string;
   impact: 'high' | 'moderate' | 'low' | 'modifier';
   annotations: VariantAnnotation[];
+  
+  // AI-powered enhancements
+  aiConfidence?: number;
+  patientSpecificScore?: number;
+  actionabilityScore?: number;
+  aiInterpretation?: string;
 }
 
 export interface TherapeuticImplication {
@@ -194,6 +200,9 @@ export interface GenomicAnalysisResult {
   hereditaryRisks: HereditaryRisk[];
   pharmacogenomics: PharmacogenomicResult[];
   
+  // AI-powered features
+  resistancePredictions?: ResistancePrediction[];
+  
   // Summary
   executiveSummary: string;
   keyRecommendations: string[];
@@ -209,6 +218,10 @@ export interface TreatmentOption {
   contraindications: string[];
   expectedResponse: string;
   references: string[];
+  
+  // AI-powered personalization
+  personalizedScore?: number;
+  aiRecommendation?: string;
 }
 
 export interface HereditaryRisk {
@@ -228,4 +241,16 @@ export interface PharmacogenomicResult {
   recommendation: string;
   dosageAdjustment?: string;
   warningLevel: 'high' | 'moderate' | 'low';
+  
+  // Enhanced features
+  interactionRisk?: 'low' | 'moderate' | 'high';
+  clinicalGuidelines?: string[];
+  aiInsight?: string;
+}
+
+export interface ResistancePrediction {
+  drug: string;
+  resistanceRisk: 'low' | 'moderate' | 'high';
+  mechanisms: string[];
+  monitoringStrategy: string;
 }

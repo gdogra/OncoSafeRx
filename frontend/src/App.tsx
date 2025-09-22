@@ -30,6 +30,7 @@ const Analytics = lazy(() => import('./pages/Analytics'));
 const AIRecommendations = lazy(() => import('./pages/AIRecommendations'));
 const EHRIntegration = lazy(() => import('./components/EHR/EHRIntegration'));
 const Help = lazy(() => import('./pages/Help'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const FeedbackAdmin = lazy(() => import('./pages/FeedbackAdmin'));
 const AuthDiagnostics = lazy(() => import('./pages/AuthDiagnostics'));
 const ClinicalDecisionSupport = lazy(() => import('./pages/ClinicalDecisionSupport'));
@@ -56,6 +57,7 @@ function AppWithRouter() {
                 <Route path="/auth-old" element={<AuthPage />} />
                 <Route path="/login" element={<AuthPage />} />
                 <Route path="/signup" element={<AuthPage />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 
                 {/* Protected routes */}
                 <Route path="/" element={

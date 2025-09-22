@@ -56,32 +56,44 @@ export class GenomicAnalysisService {
     }
   }
   
-  // Generate comprehensive genomic analysis
+  // Generate comprehensive AI-powered genomic analysis
   public static async analyzeGenomicProfile(
     patient: Patient, 
     ngsReport: NGSReport
   ): Promise<GenomicAnalysisResult> {
     try {
-      // Identify actionable variants
-      const actionableVariants = await this.identifyActionableVariants(ngsReport.variants);
+      // AI-powered variant interpretation
+      const interpretedVariants = await this.aiInterpretVariants(ngsReport.variants, patient);
       
-      // Find treatment options
-      const treatmentOptions = await this.findTreatmentOptions(
+      // Identify actionable variants with personalized scoring
+      const actionableVariants = await this.identifyActionableVariants(interpretedVariants);
+      
+      // Find personalized treatment options with AI scoring
+      const treatmentOptions = await this.findPersonalizedTreatments(
         actionableVariants, 
-        patient.diagnosis
+        patient
       );
       
-      // Match clinical trials
-      const clinicalTrials = await this.matchClinicalTrials(
+      // AI-powered clinical trial matching
+      const clinicalTrials = await this.aiMatchClinicalTrials(
         patient, 
         actionableVariants
       );
       
-      // Assess hereditary risks
+      // Enhanced hereditary risk assessment
       const hereditaryRisks = await this.assessHereditaryRisks(ngsReport.variants);
       
-      // Pharmacogenomic analysis
-      const pharmacogenomics = await this.analyzePharmacogenomics(ngsReport.variants);
+      // Advanced pharmacogenomic analysis
+      const pharmacogenomics = await this.analyzeAdvancedPharmacogenomics(
+        ngsReport.variants, 
+        patient
+      );
+      
+      // Resistance prediction
+      const resistancePredictions = await this.predictResistance(
+        actionableVariants,
+        treatmentOptions
+      );
       
       const analysis: GenomicAnalysisResult = {
         patientId: patient.id,
@@ -91,15 +103,18 @@ export class GenomicAnalysisService {
         clinicalTrials,
         hereditaryRisks,
         pharmacogenomics,
-        executiveSummary: this.generateExecutiveSummary(
+        resistancePredictions,
+        executiveSummary: this.generateAIExecutiveSummary(
           actionableVariants,
           treatmentOptions,
-          clinicalTrials
+          clinicalTrials,
+          patient
         ),
-        keyRecommendations: this.generateKeyRecommendations(
+        keyRecommendations: this.generatePersonalizedRecommendations(
           treatmentOptions,
           clinicalTrials,
-          hereditaryRisks
+          hereditaryRisks,
+          patient
         )
       };
       
@@ -180,36 +195,66 @@ export class GenomicAnalysisService {
     ];
   }
   
-  // Find treatment options based on genomic variants
-  private static async findTreatmentOptions(
+  // AI-powered variant interpretation with patient context
+  private static async aiInterpretVariants(
     variants: GenomicVariant[], 
-    diagnosis: string
+    patient: Patient
+  ): Promise<GenomicVariant[]> {
+    return variants.map(variant => ({
+      ...variant,
+      aiConfidence: this.calculateAIConfidence(variant),
+      patientSpecificScore: this.calculatePatientSpecificScore(variant, patient),
+      actionabilityScore: this.calculateActionabilityScore(variant),
+      aiInterpretation: this.generateAIInterpretation(variant, patient)
+    }));
+  }
+  
+  // Find personalized treatment options with AI scoring
+  private static async findPersonalizedTreatments(
+    variants: GenomicVariant[], 
+    patient: Patient
   ): Promise<TreatmentOption[]> {
     const treatmentOptions: TreatmentOption[] = [];
     
     for (const variant of variants) {
       for (const implication of variant.therapeuticImplications) {
         if (implication.implication === 'responsive') {
+          const personalizedScore = this.calculatePersonalizedTreatmentScore(
+            implication.drug,
+            patient,
+            variant
+          );
+          
           treatmentOptions.push({
             drug: implication.drug,
             drugClass: implication.drugClass,
             mechanism: this.getDrugMechanism(implication.drug),
-            fdaApproval: this.getFDAApprovalStatus(implication.drug, diagnosis),
+            fdaApproval: this.getFDAApprovalStatus(implication.drug, patient.diagnosis),
             evidenceLevel: this.mapEvidenceLevel(implication.evidenceLevel),
             supportingVariants: [`${variant.gene} ${variant.variant}`],
-            contraindications: [],
-            expectedResponse: this.getExpectedResponse(implication.evidenceLevel),
-            references: implication.references
+            contraindications: this.getPersonalizedContraindications(implication.drug, patient),
+            expectedResponse: this.getPersonalizedResponse(implication.evidenceLevel, patient),
+            references: implication.references,
+            personalizedScore,
+            aiRecommendation: this.generateAITreatmentRecommendation(
+              implication.drug,
+              patient,
+              variant
+            )
           });
         }
       }
     }
     
-    return this.deduplicateTreatmentOptions(treatmentOptions);
+    // Sort by personalized score
+    const sortedOptions = this.deduplicateTreatmentOptions(treatmentOptions)
+      .sort((a, b) => (b.personalizedScore || 0) - (a.personalizedScore || 0));
+    
+    return sortedOptions;
   }
   
-  // Match clinical trials based on patient and genomic profile
-  private static async matchClinicalTrials(
+  // AI-powered clinical trial matching
+  private static async aiMatchClinicalTrials(
     patient: Patient, 
     variants: GenomicVariant[]
   ): Promise<ClinicalTrial[]> {
@@ -292,23 +337,38 @@ export class GenomicAnalysisService {
     return hereditaryRisks;
   }
   
-  // Analyze pharmacogenomics
-  private static async analyzePharmacogenomics(variants: GenomicVariant[]): Promise<PharmacogenomicResult[]> {
+  // Advanced pharmacogenomic analysis with patient context
+  private static async analyzeAdvancedPharmacogenomics(
+    variants: GenomicVariant[],
+    patient: Patient
+  ): Promise<PharmacogenomicResult[]> {
     const pgxResults: PharmacogenomicResult[] = [];
     
-    const pgxGenes = ['CYP2D6', 'CYP2C19', 'CYP3A4', 'DPYD', 'UGT1A1', 'TPMT'];
+    const pgxGenes = ['CYP2D6', 'CYP2C19', 'CYP3A4', 'DPYD', 'UGT1A1', 'TPMT', 'SLCO1B1'];
     
     for (const variant of variants) {
       if (pgxGenes.includes(variant.gene)) {
-        pgxResults.push({
+        const result = {
           drug: this.getPGxDrug(variant.gene),
           gene: variant.gene,
           variant: variant.variant,
           phenotype: this.getPGxPhenotype(variant.gene, variant.variant),
-          recommendation: this.getPGxRecommendation(variant.gene, variant.variant),
-          dosageAdjustment: this.getPGxDosageAdjustment(variant.gene),
-          warningLevel: this.getPGxWarningLevel(variant.gene, variant.variant)
-        });
+          recommendation: this.getPersonalizedPGxRecommendation(
+            variant.gene, 
+            variant.variant, 
+            patient
+          ),
+          dosageAdjustment: this.getPersonalizedDosageAdjustment(
+            variant.gene, 
+            patient
+          ),
+          warningLevel: this.getPGxWarningLevel(variant.gene, variant.variant),
+          interactionRisk: this.assessDrugInteractionRisk(variant.gene, patient),
+          clinicalGuidelines: this.getClinicalGuidelines(variant.gene),
+          aiInsight: this.generatePGxAIInsight(variant, patient)
+        };
+        
+        pgxResults.push(result);
       }
     }
     
@@ -557,15 +617,281 @@ export class GenomicAnalysisService {
     return `Analysis identified ${variants.length} actionable variants with ${treatments.length} treatment options and ${trials.length} matching clinical trials.`;
   }
   
-  private static generateKeyRecommendations(
+  // AI-powered helper methods
+  private static calculateAIConfidence(variant: GenomicVariant): number {
+    let confidence = 0.5;
+    
+    if (variant.clinicalSignificance === 'pathogenic') confidence += 0.3;
+    if (variant.therapeuticImplications.length > 0) confidence += 0.2;
+    if (variant.quality > 30) confidence += 0.1;
+    if (variant.coverage > 100) confidence += 0.1;
+    
+    return Math.min(confidence, 1.0);
+  }
+  
+  private static calculatePatientSpecificScore(variant: GenomicVariant, patient: Patient): number {
+    let score = 0.5;
+    
+    // Age considerations
+    const age = this.calculateAge(patient.dateOfBirth);
+    if (age > 65 && variant.gene === 'TP53') score += 0.2;
+    
+    // Cancer type relevance
+    if (patient.diagnosis.toLowerCase().includes('breast') && variant.gene === 'BRCA1') score += 0.3;
+    if (patient.diagnosis.toLowerCase().includes('lung') && variant.gene === 'EGFR') score += 0.3;
+    
+    // Performance status
+    if (patient.ecogPerformanceStatus <= 1) score += 0.1;
+    
+    return Math.min(score, 1.0);
+  }
+  
+  private static calculateActionabilityScore(variant: GenomicVariant): number {
+    let score = 0.3;
+    
+    if (variant.therapeuticImplications.length > 0) score += 0.4;
+    if (variant.clinicalSignificance === 'pathogenic') score += 0.3;
+    if (variant.alleleFrequency > 0.1) score += 0.2;
+    
+    return Math.min(score, 1.0);
+  }
+  
+  private static generateAIInterpretation(variant: GenomicVariant, patient: Patient): string {
+    const age = this.calculateAge(patient.dateOfBirth);
+    const cancerType = patient.diagnosis.toLowerCase();
+    
+    if (variant.gene === 'BRCA1' && cancerType.includes('breast')) {
+      return `High-impact BRCA1 variant detected. Strong indication for PARP inhibitor therapy. Consider hereditary cancer syndrome evaluation.`;
+    }
+    
+    if (variant.gene === 'EGFR' && cancerType.includes('lung')) {
+      return `Actionable EGFR variant identified. First-line EGFR TKI therapy recommended. Monitor for resistance mutations.`;
+    }
+    
+    return `${variant.gene} variant with ${variant.clinicalSignificance} significance. Clinical correlation recommended.`;
+  }
+  
+  private static calculatePersonalizedTreatmentScore(
+    drug: string,
+    patient: Patient,
+    variant: GenomicVariant
+  ): number {
+    let score = 0.5;
+    
+    // Evidence strength
+    if (variant.therapeuticImplications.some(ti => ti.evidenceLevel === 'A')) score += 0.3;
+    
+    // Patient age considerations
+    const age = this.calculateAge(patient.dateOfBirth);
+    if (age > 70 && drug === 'Chemotherapy') score -= 0.2;
+    if (age < 50 && drug === 'Immunotherapy') score += 0.1;
+    
+    // Performance status
+    if (patient.ecogPerformanceStatus <= 1) score += 0.2;
+    
+    // Comorbidities
+    if (patient.comorbidities?.includes('Heart disease') && drug.includes('Trastuzumab')) {
+      score -= 0.3;
+    }
+    
+    return Math.max(0, Math.min(score, 1.0));
+  }
+  
+  private static getPersonalizedContraindications(drug: string, patient: Patient): string[] {
+    const contraindications: string[] = [];
+    
+    if (patient.comorbidities?.includes('Heart disease') && drug === 'Trastuzumab') {
+      contraindications.push('Cardiac dysfunction - monitor LVEF');
+    }
+    
+    if (patient.comorbidities?.includes('Kidney disease') && drug === 'Cisplatin') {
+      contraindications.push('Renal impairment - dose adjustment required');
+    }
+    
+    const age = this.calculateAge(patient.dateOfBirth);
+    if (age > 75) {
+      contraindications.push('Advanced age - consider dose reduction');
+    }
+    
+    return contraindications;
+  }
+  
+  private static getPersonalizedResponse(evidenceLevel: string, patient: Patient): string {
+    const baseResponse = this.getExpectedResponse(evidenceLevel);
+    const age = this.calculateAge(patient.dateOfBirth);
+    
+    if (patient.ecogPerformanceStatus <= 1 && age < 65) {
+      return `${baseResponse} Enhanced response expected due to excellent performance status.`;
+    }
+    
+    if (age > 75 || patient.ecogPerformanceStatus > 2) {
+      return `${baseResponse} Response may be attenuated due to patient factors.`;
+    }
+    
+    return baseResponse;
+  }
+  
+  private static generateAITreatmentRecommendation(
+    drug: string,
+    patient: Patient,
+    variant: GenomicVariant
+  ): string {
+    const score = this.calculatePersonalizedTreatmentScore(drug, patient, variant);
+    
+    if (score > 0.8) {
+      return `Highly recommended: Strong evidence and excellent patient fit for ${drug}.`;
+    } else if (score > 0.6) {
+      return `Recommended: Good evidence supporting ${drug} therapy.`;
+    } else if (score > 0.4) {
+      return `Consider: Moderate evidence for ${drug}. Evaluate benefits vs risks.`;
+    } else {
+      return `Caution: Limited evidence or patient factors may affect ${drug} efficacy.`;
+    }
+  }
+  
+  // Resistance prediction
+  private static async predictResistance(
+    variants: GenomicVariant[],
+    treatments: TreatmentOption[]
+  ): Promise<any[]> {
+    const predictions = [];
+    
+    for (const treatment of treatments) {
+      const resistanceRisk = this.calculateResistanceRisk(treatment.drug, variants);
+      const resistanceMechanisms = this.identifyResistanceMechanisms(treatment.drug, variants);
+      
+      predictions.push({
+        drug: treatment.drug,
+        resistanceRisk,
+        mechanisms: resistanceMechanisms,
+        monitoringStrategy: this.getMonitoringStrategy(treatment.drug)
+      });
+    }
+    
+    return predictions;
+  }
+  
+  private static calculateResistanceRisk(drug: string, variants: GenomicVariant[]): 'low' | 'moderate' | 'high' {
+    // Simplified resistance prediction
+    const resistanceVariants = variants.filter(v => 
+      v.therapeuticImplications.some(ti => ti.implication === 'resistant')
+    );
+    
+    if (resistanceVariants.length > 2) return 'high';
+    if (resistanceVariants.length > 0) return 'moderate';
+    return 'low';
+  }
+  
+  private static identifyResistanceMechanisms(drug: string, variants: GenomicVariant[]): string[] {
+    const mechanisms = [];
+    
+    if (drug === 'Erlotinib') {
+      const t790m = variants.find(v => v.gene === 'EGFR' && v.variant.includes('T790M'));
+      if (t790m) mechanisms.push('T790M gatekeeper mutation');
+    }
+    
+    return mechanisms;
+  }
+  
+  private static getMonitoringStrategy(drug: string): string {
+    const strategies: Record<string, string> = {
+      'Erlotinib': 'Monitor for T790M emergence via liquid biopsy every 3 months',
+      'Trastuzumab': 'Monitor LVEF every 3 months, assess for HER2 loss',
+      'Olaparib': 'Monitor for BRCA reversion mutations'
+    };
+    return strategies[drug] || 'Standard oncology monitoring';
+  }
+  
+  // Enhanced PGx methods
+  private static getPersonalizedPGxRecommendation(
+    gene: string,
+    variant: string,
+    patient: Patient
+  ): string {
+    const baseRecommendation = this.getPGxRecommendation(gene, variant);
+    const age = this.calculateAge(patient.dateOfBirth);
+    
+    if (age > 65 && gene === 'CYP2D6') {
+      return `${baseRecommendation} Additional caution in elderly patients.`;
+    }
+    
+    return baseRecommendation;
+  }
+  
+  private static getPersonalizedDosageAdjustment(gene: string, patient: Patient): string {
+    const age = this.calculateAge(patient.dateOfBirth);
+    
+    if (age > 75) {
+      return 'Consider 25% dose reduction due to advanced age';
+    }
+    
+    if (patient.comorbidities?.includes('Kidney disease')) {
+      return 'Dose adjustment required for renal impairment';
+    }
+    
+    return this.getPGxDosageAdjustment(gene);
+  }
+  
+  private static assessDrugInteractionRisk(gene: string, patient: Patient): 'low' | 'moderate' | 'high' {
+    // Simplified interaction risk assessment
+    const medications = patient.currentMedications || [];
+    
+    if (gene === 'CYP2D6' && medications.some(med => med.includes('Paroxetine'))) {
+      return 'high';
+    }
+    
+    return 'low';
+  }
+  
+  private static getClinicalGuidelines(gene: string): string[] {
+    const guidelines: Record<string, string[]> = {
+      'CYP2D6': ['CPIC Guideline for CYP2D6', 'FDA Table of Pharmacogenomic Biomarkers'],
+      'DPYD': ['CPIC Guideline for DPYD', 'EMA Recommendations for DPYD Testing']
+    };
+    return guidelines[gene] || ['Consult pharmacogenomics guidelines'];
+  }
+  
+  private static generatePGxAIInsight(variant: GenomicVariant, patient: Patient): string {
+    const age = this.calculateAge(patient.dateOfBirth);
+    
+    if (variant.gene === 'DPYD' && variant.clinicalSignificance === 'pathogenic') {
+      return 'Critical finding: High risk for 5-FU toxicity. Alternative chemotherapy strongly recommended.';
+    }
+    
+    return `${variant.gene} variant may affect drug metabolism. Clinical correlation recommended.`;
+  }
+  
+  // Enhanced summary generation
+  private static generateAIExecutiveSummary(
+    variants: GenomicVariant[],
     treatments: TreatmentOption[],
     trials: ClinicalTrial[],
-    hereditary: HereditaryRisk[]
+    patient: Patient
+  ): string {
+    const age = this.calculateAge(patient.dateOfBirth);
+    const highConfidenceVariants = variants.filter(v => (v as any).aiConfidence > 0.8);
+    const personalizedTreatments = treatments.filter(t => (t as any).personalizedScore > 0.7);
+    
+    return `AI analysis of ${patient.firstName} ${patient.lastName} (age ${age}) identified ${highConfidenceVariants.length} high-confidence actionable variants. ${personalizedTreatments.length} personalized treatment options and ${trials.length} matching clinical trials available. Personalized recommendations prioritize patient-specific factors including age, performance status, and comorbidities.`;
+  }
+  
+  private static generatePersonalizedRecommendations(
+    treatments: TreatmentOption[],
+    trials: ClinicalTrial[],
+    hereditary: HereditaryRisk[],
+    patient: Patient
   ): string[] {
     const recommendations = [];
+    const age = this.calculateAge(patient.dateOfBirth);
     
-    if (treatments.length > 0) {
-      recommendations.push(`Consider targeted therapy: ${treatments[0].drug}`);
+    // Prioritize treatments by personalized score
+    const topTreatment = treatments
+      .sort((a, b) => ((b as any).personalizedScore || 0) - ((a as any).personalizedScore || 0))[0];
+    
+    if (topTreatment) {
+      recommendations.push(
+        `Primary recommendation: ${topTreatment.drug} (${((topTreatment as any).personalizedScore * 100).toFixed(0)}% patient match)`
+      );
     }
     
     if (trials.length > 0) {
@@ -574,6 +900,15 @@ export class GenomicAnalysisService {
     
     if (hereditary.length > 0) {
       recommendations.push(`Genetic counseling recommended for ${hereditary[0].syndrome}`);
+    }
+    
+    // Age-specific recommendations
+    if (age > 70) {
+      recommendations.push('Consider geriatric oncology consultation for treatment optimization');
+    }
+    
+    if (patient.ecogPerformanceStatus > 2) {
+      recommendations.push('Focus on supportive care and quality of life measures');
     }
     
     return recommendations;

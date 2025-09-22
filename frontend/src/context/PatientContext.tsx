@@ -16,7 +16,7 @@ type PatientAction =
   | { type: 'ADD_RECENT_PATIENT'; payload: PatientProfile }
   | { type: 'SET_ALERTS'; payload: ClinicalAlert[] }
   | { type: 'ADD_ALERT'; payload: ClinicalAlert }
-  | { type: 'ACKNOWLEDGE_ALERT'; payload: string }
+  | { type: 'ACKNOWLEDGE_ALERT'; payload: { alertId: string; userId: string } }
   | { type: 'START_SESSION'; payload: ClinicalSession }
   | { type: 'END_SESSION'; payload: string }
   | { type: 'SET_LOADING'; payload: boolean }
@@ -92,12 +92,12 @@ function patientReducer(state: PatientState, action: PatientAction): PatientStat
       return {
         ...state,
         alerts: state.alerts.map(alert =>
-          alert.id === action.payload
+          alert.id === action.payload.alertId
             ? {
                 ...alert,
                 isAcknowledged: true,
                 acknowledgedAt: new Date().toISOString(),
-                acknowledgedBy: 'current-user', // TODO: Get from auth context
+                acknowledgedBy: action.payload.userId,
               }
             : alert
         ),
@@ -158,8 +158,19 @@ const PatientContext = createContext<{
   };
 } | null>(null);
 
+// Helper function to safely get auth context
+const useAuthSafely = () => {
+  try {
+    const { useAuth } = require('./AuthContext');
+    return useAuth();
+  } catch {
+    return { state: { user: null } };
+  }
+};
+
 export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(patientReducer, initialState);
+  const authContext = useAuthSafely();
 
   // Load persisted data on mount
   useEffect(() => {
@@ -441,7 +452,8 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
     },
     
     acknowledgeAlert: (alertId: string) => {
-      dispatch({ type: 'ACKNOWLEDGE_ALERT', payload: alertId });
+      const userId = authContext.state?.user?.id || 'unknown-user';
+      dispatch({ type: 'ACKNOWLEDGE_ALERT', payload: { alertId, userId } });
     },
     
     startSession: (session: ClinicalSession) => {

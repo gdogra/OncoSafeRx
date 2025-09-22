@@ -7,6 +7,7 @@ import LoadingSpinner from '../UI/LoadingSpinner';
 import Tooltip from '../UI/Tooltip';
 import InteractionResults from './InteractionResults';
 import DrugSelector from './DrugSelector';
+import AdvancedInteractionChecker from './AdvancedInteractionChecker';
 import { AlertTriangle, X, Info } from 'lucide-react';
 import { useSelection } from '../../context/SelectionContext';
 
@@ -338,12 +339,26 @@ const InteractionChecker: React.FC = () => {
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">
           <AlertTriangle className="w-8 h-8 text-warning-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Drug Interaction Checker</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Advanced Drug Interaction Analysis</h1>
         </div>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Check for potential interactions between multiple medications. Add drugs to your list and analyze their compatibility.
+          AI-powered interaction checking with clinical recommendations, severity analysis, and patient-specific considerations.
         </p>
       </div>
+
+      {/* Enhanced Interaction Checker */}
+      <AdvancedInteractionChecker 
+        selectedDrugs={selectedDrugs}
+        onDrugRemove={handleRemoveDrug}
+        patientProfile={{
+          age: 65,
+          weight: 70,
+          renalFunction: 'normal',
+          hepaticFunction: 'normal',
+          comorbidities: ['hypertension', 'diabetes'],
+          allergies: ['penicillin']
+        }}
+      />
 
       {/* Drug Selection */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">

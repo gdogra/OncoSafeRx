@@ -6,25 +6,25 @@ import { ComparisonProvider } from './contexts/ComparisonContext';
 import NoAuthLayout from './components/Layout/NoAuthLayout';
 import ErrorBoundary from './components/ErrorBoundary';
 
-// Lazy load components
-const Dashboard = lazy(() => import('./pages/Dashboard'));
-const DrugSearch = lazy(() => import('./pages/DrugSearch'));
-const InteractionChecker = lazy(() => import('./components/Interactions/InteractionChecker'));
-const GenomicsAnalysis = lazy(() => import('./components/Genomics/GenomicsAnalysis'));
-const Protocols = lazy(() => import('./pages/Protocols'));
-const CuratedInteractions = lazy(() => import('./pages/CuratedInteractions'));
-const Regimens = lazy(() => import('./pages/Regimens'));
-const Trials = lazy(() => import('./pages/Trials'));
-const Patients = lazy(() => import('./pages/Patients'));
-const Collaboration = lazy(() => import('./pages/Collaboration'));
-const AIInsights = lazy(() => import('./pages/AIInsights'));
-const DrugDatabase = lazy(() => import('./pages/DrugDatabase'));
-const Analytics = lazy(() => import('./pages/Analytics'));
-const AIRecommendations = lazy(() => import('./pages/AIRecommendations'));
-const Help = lazy(() => import('./pages/Help'));
-const Research = lazy(() => import('./pages/Research'));
-const Profile = lazy(() => import('./pages/Profile'));
-const Testing = lazy(() => import('./pages/Testing'));
+// Import all components directly to avoid Suspense issues
+import Dashboard from './pages/Dashboard';
+import DrugSearch from './pages/DrugSearch';
+import InteractionChecker from './components/Interactions/InteractionChecker';
+import GenomicsAnalysis from './components/Genomics/GenomicsAnalysis';
+import Protocols from './pages/Protocols';
+import CuratedInteractions from './pages/CuratedInteractions';
+import Regimens from './pages/Regimens';
+import Trials from './pages/Trials';
+import Patients from './pages/Patients';
+import Collaboration from './pages/Collaboration';
+import AIInsights from './pages/AIInsights';
+import DrugDatabase from './pages/DrugDatabase';
+import Analytics from './pages/Analytics';
+import AIRecommendations from './pages/AIRecommendations';
+import Help from './pages/Help';
+import Research from './pages/Research';
+import Profile from './pages/Profile';
+import Testing from './pages/Testing';
 
 const NoAuthApp: React.FC = () => {
   return (
@@ -34,18 +34,11 @@ const NoAuthApp: React.FC = () => {
           <SelectionProvider>
             <ComparisonProvider>
               <NoAuthLayout>
-                <Suspense fallback={
-                  <div className="min-h-screen flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-8 h-8 border-2 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                      <p className="text-sm text-gray-600">Loading...</p>
-                    </div>
-                  </div>
-                }>
-                  <Routes>
+                <Routes>
                     {/* All routes are now public - no authentication required */}
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/drugs" element={<DrugSearch />} />
+                    <Route path="/search" element={<DrugSearch />} />
                     <Route path="/interactions" element={<InteractionChecker />} />
                     <Route path="/curated" element={<CuratedInteractions />} />
                     <Route path="/regimens" element={<Regimens />} />
@@ -66,7 +59,6 @@ const NoAuthApp: React.FC = () => {
                     {/* Catch-all redirect to dashboard */}
                     <Route path="*" element={<Dashboard />} />
                   </Routes>
-                </Suspense>
               </NoAuthLayout>
             </ComparisonProvider>
           </SelectionProvider>

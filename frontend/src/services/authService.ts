@@ -137,8 +137,9 @@ export class SupabaseAuthService {
 
     console.log('🔑 Starting login process for:', email)
     
-    // Check for demo credentials
-    if (email === 'demo@oncosaferx.com' && password === 'demo123') {
+    // Check for demo credentials (guarded by env)
+    const allowDemo = ((import.meta as any)?.env?.VITE_ALLOW_DEMO_LOGIN || '').toString() === 'true'
+    if (allowDemo && email === 'demo@oncosaferx.com' && password === 'demo123') {
       console.log('🎭 Demo credentials detected - using demo mode')
       return this.createDemoUser()
     }

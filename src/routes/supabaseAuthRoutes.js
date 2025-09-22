@@ -1,4 +1,7 @@
 import express from 'express';
+import Joi from 'joi';
+import { rateLimit } from 'express-rate-limit';
+import client from 'prom-client';
 import { authenticateSupabase, optionalSupabaseAuth } from '../middleware/supabaseAuth.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import fetch from 'node-fetch';
@@ -110,20 +113,90 @@ router.get('/health',
   }
 );
 
+// --- Security middlewares for proxy endpoints ---
+const AUTH_PROXY_ENABLED = (process.env.AUTH_PROXY_ENABLED || '').toLowerCase() === 'true';
+
+const proxyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    const email = (req.body?.email || '').toString().toLowerCase();
+    return `${req.ip}:${email}`;
+  },
+});
+
+function requireProxyEnabled(req, res, next) {
+  if (!AUTH_PROXY_ENABLED) {
+    return res.status(404).json({ error: 'Endpoint not found', code: 'proxy_disabled' });
+  }
+  next();
+}
+
+function checkAllowedOrigin(req, res, next) {
+  const allowed = (process.env.PROXY_ALLOWED_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
+  if (allowed.length === 0) return next();
+  const origin = req.headers.origin || req.headers.referer || '';
+  if (!origin) return res.status(403).json({ error: 'Forbidden: missing origin', code: 'forbidden_origin' });
+  const matched = allowed.some(o => origin.startsWith(o));
+  if (!matched) return res.status(403).json({ error: 'Forbidden: origin not allowed', code: 'forbidden_origin' });
+  next();
+}
+
+function validateBody(schema) {
+  return (req, res, next) => {
+    const { error, value } = schema.validate(req.body || {}, { abortEarly: false, stripUnknown: true });
+    if (error) {
+      return res.status(400).json({ error: 'Invalid request', code: 'invalid_request', details: error.details.map(d => d.message) });
+    }
+    req.body = value;
+    next();
+  };
+}
+
+const loginSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(6).required(),
+});
+
+const signupSchema = Joi.object({
+  email: Joi.string().email().required(),
+  password: Joi.string().min(6).required(),
+  metadata: Joi.object().unknown(true).default({}),
+});
+
+const resetSchema = Joi.object({
+  email: Joi.string().email().required(),
+  redirectTo: Joi.string().uri().optional(),
+});
+
+// Metrics
+const proxyAuthCounter = new client.Counter({
+  name: 'auth_proxy_requests_total',
+  help: 'Count of auth proxy requests',
+  labelNames: ['endpoint', 'outcome']
+});
+
+function maskEmail(email = '') {
+  const [name, domain] = String(email).split('@');
+  if (!domain) return '***';
+  const masked = name.length <= 2 ? '*'.repeat(name.length) : name[0] + '*'.repeat(name.length - 2) + name[name.length - 1];
+  return `${masked}@${domain}`;
+}
+
 /**
  * Server-side proxy login to Supabase (fallback for environments blocking direct auth)
  * Body: { email, password }
  */
-router.post('/proxy/login', asyncHandler(async (req, res) => {
+router.post('/proxy/login', requireProxyEnabled, checkAllowedOrigin, proxyLimiter, validateBody(loginSchema), asyncHandler(async (req, res) => {
   const { email, password } = req.body || {};
-  if (!email || !password) {
-    return res.status(400).json({ error: 'email and password are required' });
-  }
 
   const url = process.env.SUPABASE_URL;
   const anon = process.env.SUPABASE_ANON_KEY;
   if (!url || !anon) {
-    return res.status(500).json({ error: 'Supabase not configured on server' });
+    proxyAuthCounter.inc({ endpoint: 'login', outcome: 'error' });
+    return res.status(500).json({ error: 'Supabase not configured on server', code: 'not_configured' });
   }
 
   const endpoint = `${url}/auth/v1/token?grant_type=password`;
@@ -139,10 +212,12 @@ router.post('/proxy/login', asyncHandler(async (req, res) => {
 
   const body = await resp.json().catch(() => ({}));
   if (!resp.ok) {
-    return res.status(resp.status).json({ error: body?.error_description || body?.error || 'Login failed' });
+    console.warn('Proxy login failed for', maskEmail(email), resp.status, body?.error || body?.error_description);
+    proxyAuthCounter.inc({ endpoint: 'login', outcome: 'error' });
+    return res.status(resp.status).json({ error: body?.error_description || body?.error || 'Login failed', code: 'supabase_error' });
   }
 
-  // Return only the fields needed to set the session client-side
+  proxyAuthCounter.inc({ endpoint: 'login', outcome: 'success' });
   return res.json({
     access_token: body.access_token,
     refresh_token: body.refresh_token,
@@ -156,16 +231,14 @@ router.post('/proxy/login', asyncHandler(async (req, res) => {
  * Server-side proxy signup to Supabase
  * Body: { email, password, metadata?: {...} }
  */
-router.post('/proxy/signup', asyncHandler(async (req, res) => {
+router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimiter, validateBody(signupSchema), asyncHandler(async (req, res) => {
   const { email, password, metadata = {} } = req.body || {};
-  if (!email || !password) {
-    return res.status(400).json({ error: 'email and password are required' });
-  }
 
   const url = process.env.SUPABASE_URL;
   const anon = process.env.SUPABASE_ANON_KEY;
   if (!url || !anon) {
-    return res.status(500).json({ error: 'Supabase not configured on server' });
+    proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
+    return res.status(500).json({ error: 'Supabase not configured on server', code: 'not_configured' });
   }
 
   const endpoint = `${url}/auth/v1/signup`;
@@ -181,10 +254,12 @@ router.post('/proxy/signup', asyncHandler(async (req, res) => {
 
   const body = await resp.json().catch(() => ({}));
   if (!resp.ok) {
-    return res.status(resp.status).json({ error: body?.error_description || body?.error || 'Signup failed' });
+    console.warn('Proxy signup failed for', maskEmail(email), resp.status, body?.error || body?.error_description);
+    proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
+    return res.status(resp.status).json({ error: body?.error_description || body?.error || 'Signup failed', code: 'supabase_error' });
   }
 
-  // If email confirmations are required, no session is returned
+  proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'success' });
   return res.json({
     access_token: body.access_token,
     refresh_token: body.refresh_token,
@@ -199,13 +274,12 @@ router.post('/proxy/signup', asyncHandler(async (req, res) => {
  * Server-side proxy: request password reset email
  * Body: { email, redirectTo? }
  */
-router.post('/proxy/reset', asyncHandler(async (req, res) => {
+router.post('/proxy/reset', requireProxyEnabled, checkAllowedOrigin, proxyLimiter, validateBody(resetSchema), asyncHandler(async (req, res) => {
   const { email, redirectTo } = req.body || {};
-  if (!email) return res.status(400).json({ error: 'email is required' });
 
   const url = process.env.SUPABASE_URL;
   const anon = process.env.SUPABASE_ANON_KEY;
-  if (!url || !anon) return res.status(500).json({ error: 'Supabase not configured on server' });
+  if (!url || !anon) return res.status(500).json({ error: 'Supabase not configured on server', code: 'not_configured' });
 
   const endpoint = `${url}/auth/v1/recover`;
   const body = { email };
@@ -223,8 +297,10 @@ router.post('/proxy/reset', asyncHandler(async (req, res) => {
 
   if (!resp.ok) {
     const j = await resp.json().catch(() => ({}));
-    return res.status(resp.status).json({ error: j?.error_description || j?.error || 'Password reset failed' });
+    proxyAuthCounter.inc({ endpoint: 'reset', outcome: 'error' });
+    return res.status(resp.status).json({ error: j?.error_description || j?.error || 'Password reset failed', code: 'supabase_error' });
   }
+  proxyAuthCounter.inc({ endpoint: 'reset', outcome: 'success' });
   return res.json({ ok: true });
 }));
 

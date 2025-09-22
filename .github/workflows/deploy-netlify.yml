@@ -27,8 +27,13 @@ jobs:
 
       - name: Build (Vite)
         env:
-          # Prefer GitHub secret VITE_API_URL if set; otherwise fall back to Netlify env at deploy time
+          # Frontend build-time envs provided via repo secrets
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_AUTH_VIA_PROXY: 'true'
+          VITE_SKIP_SUPABASE_PREFLIGHT: 'true'
+          VITE_ALLOW_DEMO_LOGIN: 'false'
           VITE_APP_VERSION: ${{ github.sha }}
         run: npm run build
 
@@ -39,4 +44,3 @@ jobs:
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-

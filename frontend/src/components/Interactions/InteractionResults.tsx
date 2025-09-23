@@ -56,9 +56,9 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
 
   const navigate = useNavigate();
 
-  const renderInteractionCard = (interaction: DrugInteraction, source: 'stored' | 'external') => (
+  const renderInteractionCard = (interaction: DrugInteraction, source: 'stored' | 'external', index: number) => (
     <Card 
-      key={`${interaction.drug1_rxcui}-${interaction.drug2_rxcui}-${source}`}
+      key={`${interaction.drug1_rxcui || 'unknown'}-${interaction.drug2_rxcui || 'unknown'}-${source}-${index}`}
       className={`border-l-4 ${getSeverityColor(interaction.severity)}`}
       padding="md"
     >
@@ -218,8 +218,8 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
                     <span>{severity} Interactions ({interactions.length})</span>
                   </h3>
                   <div className="space-y-4">
-                    {interactions.map(interaction => 
-                      renderInteractionCard(interaction, interaction.source)
+                    {interactions.map((interaction, index) => 
+                      renderInteractionCard(interaction, interaction.source, index)
                     )}
                   </div>
                 </div>

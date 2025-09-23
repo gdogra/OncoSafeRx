@@ -52,6 +52,7 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [announceText, setAnnounceText] = useState('');
+  const [offlineSuggestions, setOfflineSuggestions] = useState(false);
   
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -99,6 +100,7 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
           const data = await response.json();
           const newSuggestions = data.suggestions || [];
           setSuggestions(newSuggestions);
+          setOfflineSuggestions(!!data.offline);
           
           // Announce to screen readers
           if (newSuggestions.length > 0) {
@@ -109,28 +111,28 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
           // Clear announcement after 1 second
           setTimeout(() => setAnnounceText(''), 1000);
         } else {
-          // Fallback to basic search API
+          // Fallback to basic search API (aligns to server format { results: [...] })
           const fallbackResponse = await fetch(`/api/drugs/search?q=${encodeURIComponent(query)}`);
           if (fallbackResponse.ok) {
             const fallbackData = await fallbackResponse.json();
+            const src = fallbackData.results || fallbackData.drugs || [];
             // Transform search results to suggestions format
-            const fallbackSuggestions = fallbackData.drugs?.slice(0, maxSuggestions).map((drug: any) => ({
+            const fallbackSuggestions = src.slice(0, maxSuggestions).map((drug: any) => ({
               id: drug.rxcui || drug.name,
-              name: drug.name,
-              generic: drug.generic,
-              brand: drug.brand,
+              name: drug.name || drug.synonym,
+              generic: drug.generic || undefined,
+              brand: (drug.brandNames && drug.brandNames[0]) || undefined,
               category: 'drug' as const,
               rxcui: drug.rxcui,
             })) || [];
             setSuggestions(fallbackSuggestions);
-            
-            // Announce to screen readers
+            setOfflineSuggestions(false);
+
             if (fallbackSuggestions.length > 0) {
               setAnnounceText(`${fallbackSuggestions.length} suggestions available`);
             } else {
               setAnnounceText('No suggestions found');
             }
-            // Clear announcement after 1 second
             setTimeout(() => setAnnounceText(''), 1000);
           }
         }
@@ -431,6 +433,11 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
           role="listbox"
           aria-label="Search suggestions and history"
         >
+          {offlineSuggestions && (
+            <div className="px-4 py-2 text-[11px] text-gray-600 bg-gray-50 border-b border-gray-100">
+              Using offline suggestions (RxNorm unavailable)
+            </div>
+          )}
           {isLoadingSuggestions && (
             <div className="px-4 py-8 text-center" role="status" aria-live="polite">
               <LoadingSpinner size="sm" />

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Card from '../components/UI/Card';
 import Tooltip from '../components/UI/Tooltip';
-import { Activity, Search, AlertTriangle, Dna, FileText, Users, TrendingUp, Shield, Brain } from 'lucide-react';
+import { Activity, Search, AlertTriangle, Dna, FileText, Users, TrendingUp, Shield, Brain, Target, Calendar, DollarSign, Zap, Heart, FlaskConical, Database, ShieldAlert } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const features = [
@@ -62,6 +62,100 @@ const Dashboard: React.FC = () => {
     },
   ];
 
+  // Revolutionary AI-Powered Features - First of their kind
+  const aiFeatures = [
+    {
+      icon: Brain,
+      title: 'AI Treatment Planner',
+      description: 'Revolutionary genomic-optimized treatment protocols powered by AI and real-world evidence',
+      link: '/ai-treatment-planner',
+      color: 'bg-gradient-to-r from-purple-600 to-blue-600',
+      badge: 'FIRST OF ITS KIND',
+      features: ['Genomic optimization', 'AI recommendations', 'Outcome predictions', 'Evidence synthesis'],
+      isNew: true
+    },
+    {
+      icon: Zap,
+      title: 'Real-Time Genomic Matcher',
+      description: 'Instant drug-gene interaction analysis with sub-second AI-powered recommendations',
+      link: '/genomic-matcher',
+      color: 'bg-gradient-to-r from-yellow-500 to-orange-500',
+      badge: 'BREAKTHROUGH',
+      features: ['Real-time analysis', 'Instant matching', 'CPIC guidelines', 'Privacy-first'],
+      isNew: true
+    },
+    {
+      icon: Target,
+      title: 'Predictive Efficacy Scoring',
+      description: 'AI-powered treatment efficacy predictions with confidence intervals and multi-factor analysis',
+      link: '/efficacy-scoring',
+      color: 'bg-gradient-to-r from-green-500 to-teal-500',
+      badge: 'AI-POWERED',
+      features: ['Efficacy prediction', 'Confidence intervals', 'Multi-factor analysis', 'Evidence-graded'],
+      isNew: true
+    },
+    {
+      icon: Heart,
+      title: 'Comprehensive Outcome Predictor',
+      description: 'AI survival curves, quality of life predictions, and biomarker trajectories',
+      link: '/outcome-predictor',
+      color: 'bg-gradient-to-r from-red-500 to-pink-500',
+      badge: 'REVOLUTIONARY',
+      features: ['Survival curves', 'QoL predictions', 'Biomarker trends', 'Risk assessment'],
+      isNew: true
+    },
+    {
+      icon: FlaskConical,
+      title: 'Clinical Trial Matcher',
+      description: 'Intelligent trial matching with automated enrollment assistance and AI scoring',
+      link: '/clinical-trial-matcher',
+      color: 'bg-gradient-to-r from-indigo-500 to-purple-500',
+      badge: 'INNOVATIVE',
+      features: ['AI matching', 'Auto-enrollment', 'Eligibility scoring', 'Real-time updates'],
+      isNew: true
+    },
+    {
+      icon: DollarSign,
+      title: 'Practice ROI Analytics',
+      description: 'Comprehensive precision medicine ROI analysis with financial impact and benchmarking',
+      link: '/practice-roi',
+      color: 'bg-gradient-to-r from-emerald-500 to-green-600',
+      badge: 'BUSINESS INTELLIGENCE',
+      features: ['ROI analysis', 'Cost savings', 'Benchmarking', 'Implementation metrics'],
+      isNew: true
+    },
+    {
+      icon: Calendar,
+      title: 'Patient Timeline & Journey',
+      description: 'AI-powered treatment journey with outcome predictions and milestone tracking',
+      link: '/patient-journey',
+      color: 'bg-gradient-to-r from-blue-500 to-indigo-600',
+      badge: 'PATIENT-CENTRIC',
+      features: ['Timeline visualization', 'Outcome predictions', 'Milestone tracking', 'Journey optimization'],
+      isNew: true
+    },
+    {
+      icon: Database,
+      title: 'Real-Time Evidence Engine',
+      description: 'Continuous AI-powered synthesis of global clinical evidence with predictive modeling',
+      link: '/evidence-analysis',
+      color: 'bg-gradient-to-r from-cyan-500 to-blue-600',
+      badge: 'EVIDENCE-BASED',
+      features: ['Real-time updates', 'Evidence synthesis', 'Predictive models', 'Global data sources'],
+      isNew: true
+    },
+    {
+      icon: ShieldAlert,
+      title: 'Dynamic Risk Assessment',
+      description: 'AI-powered real-time safety monitoring with predictive risk modeling and automated interventions',
+      link: '/risk-assessment',
+      color: 'bg-gradient-to-r from-red-500 to-orange-600',
+      badge: 'SAFETY-FIRST',
+      features: ['Risk prediction', 'Safety monitoring', 'Automated alerts', 'Intervention recommendations'],
+      isNew: true
+    }
+  ];
+
   const stats = [
     {
       icon: Users,
@@ -102,9 +196,20 @@ const Dashboard: React.FC = () => {
           <Activity className="w-10 h-10 text-primary-600" />
           <h1 className="text-4xl font-bold text-gray-900">OncoSafeRx</h1>
         </div>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Advanced oncology drug interaction and pharmacogenomic analysis platform for precision medicine
+        <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-4">
+          The world's first AI-powered precision oncology platform with genomic optimization and predictive analytics
         </p>
+        <div className="flex items-center justify-center space-x-4 text-sm">
+          <span className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-1 rounded-full font-medium">
+            🚀 First of its Kind
+          </span>
+          <span className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-3 py-1 rounded-full font-medium">
+            🧬 Genomic-Optimized
+          </span>
+          <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full font-medium">
+            ⚡ Real-Time AI
+          </span>
+        </div>
       </div>
 
       {/* Role Switcher Demo */}
@@ -140,9 +245,64 @@ const Dashboard: React.FC = () => {
         })}
       </div>
 
-      {/* Feature Cards */}
+      {/* Revolutionary AI Features - First of their kind */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Platform Features</h2>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Revolutionary AI Features</h2>
+          <p className="text-lg text-gray-600 mb-4">World's first AI-powered precision oncology capabilities</p>
+          <div className="w-24 h-1 bg-gradient-to-r from-purple-600 to-blue-600 mx-auto rounded-full"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {aiFeatures.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <Link key={index} to={feature.link} className="group block h-full">
+                <Card className="h-full transition-all duration-300 hover:shadow-xl hover:scale-105 hover:-translate-y-1 border-2 border-transparent group-hover:border-purple-200 relative overflow-hidden">
+                  {feature.isNew && (
+                    <div className="absolute top-3 right-3 z-10">
+                      <span className="bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse">
+                        NEW
+                      </span>
+                    </div>
+                  )}
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className={`w-12 h-12 ${feature.color} rounded-xl flex items-center justify-center text-white shadow-lg`}>
+                        <Icon className="w-6 h-6" />
+                      </div>
+                      <span className="bg-gradient-to-r from-gray-800 to-gray-600 text-white text-xs px-3 py-1 rounded-full font-bold">
+                        {feature.badge}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-purple-700 transition-colors">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-600 mb-4 leading-relaxed">
+                      {feature.description}
+                    </p>
+                    <div className="space-y-2">
+                      {feature.features.map((feat, featIndex) => (
+                        <div key={featIndex} className="flex items-center text-sm text-gray-500">
+                          <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full mr-2"></div>
+                          {feat}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-600 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                </Card>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Traditional Platform Features */}
+      <div>
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Core Platform Features</h2>
+          <p className="text-gray-600">Comprehensive oncology tools and clinical decision support</p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {features.map((feature, index) => {
             const Icon = feature.icon;

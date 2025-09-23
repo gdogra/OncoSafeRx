@@ -45,6 +45,8 @@ const Help: React.FC = () => {
     }
   ];
 
+  const COMMUNITY_URL = (import.meta as any)?.env?.VITE_COMMUNITY_URL || 'https://github.com/gdogra/OncoSafeRx/discussions';
+
   const supportOptions = [
     {
       title: 'AI Assistant',
@@ -71,7 +73,7 @@ const Help: React.FC = () => {
       title: 'Community Forum',
       description: 'Connect with other users and share best practices',
       icon: Users,
-      action: () => window.open('https://community.oncosaferx.com', '_blank'),
+      action: () => window.open(COMMUNITY_URL, '_blank', 'noopener,noreferrer'),
       actionText: 'Visit Forum'
     },
     {

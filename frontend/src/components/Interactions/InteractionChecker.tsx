@@ -8,10 +8,11 @@ import Tooltip from '../UI/Tooltip';
 import InteractionResults from './InteractionResults';
 import DrugSelector from './DrugSelector';
 import AdvancedInteractionChecker from './AdvancedInteractionChecker';
+import FeatureErrorBoundary from '../ErrorBoundary/FeatureErrorBoundary';
 import { AlertTriangle, X, Info } from 'lucide-react';
 import { useSelection } from '../../context/SelectionContext';
 
-const InteractionChecker: React.FC = () => {
+const InteractionCheckerInner: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [selectedDrugs, setSelectedDrugs] = useState<Drug[]>([]);
@@ -673,6 +674,17 @@ const InteractionChecker: React.FC = () => {
         </div>
       )}
     </div>
+  );
+};
+
+const InteractionChecker: React.FC = () => {
+  return (
+    <FeatureErrorBoundary 
+      featureName="Drug Interaction Checker"
+      fallbackMessage="The interaction checker is temporarily unavailable. This may be due to connectivity issues or data processing problems."
+    >
+      <InteractionCheckerInner />
+    </FeatureErrorBoundary>
   );
 };
 

@@ -6,10 +6,19 @@ import PredictiveSearchBar from '../components/DrugSearch/PredictiveSearchBar';
 import DrugSearchResults from '../components/DrugSearch/DrugSearchResults';
 import DrugCard from '../components/DrugSearch/DrugCard';
 import SearchWithFavorites from '../components/Search/SearchWithFavorites';
-import EnhancedDrugSearch from '../components/DrugSearch/EnhancedDrugSearch';
+import ImprovedDrugSearch from '../components/DrugSearch/ImprovedDrugSearch';
+import AutocompleteSearch from '../components/DrugSearch/AutocompleteSearch';
+import FeatureErrorBoundary from '../components/ErrorBoundary/FeatureErrorBoundary';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
-import { Search, History, Star, Database, Filter, X } from 'lucide-react';
+// Using existing UI components instead of shadcn
+import { 
+  Search, History, Star, Database, Filter, X, Brain, Zap, Target, 
+  Activity, TrendingUp, Clock, CheckCircle, AlertTriangle, 
+  BookOpen, Microscope, Pill, Heart, Shield, Sparkles,
+  ChevronDown, ChevronUp, BarChart3, Users, Globe,
+  RefreshCw, Download, Upload, Settings, Info
+} from 'lucide-react';
 import { useSelection } from '../context/SelectionContext';
 import { analytics } from '../utils/analytics';
 import { getPins, clearPins, togglePin, reorderPins } from '../utils/pins';
@@ -26,7 +35,7 @@ interface SearchFilters {
   sortBy?: string;
 }
 
-const DrugSearch: React.FC = () => {
+const DrugSearchInner: React.FC = () => {
   const selection = useSelection();
   
   // Search state with URL persistence
@@ -70,6 +79,49 @@ const DrugSearch: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pinsTick, setPinsTick] = useState(0);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [searchMode, setSearchMode] = useState<'basic' | 'advanced' | 'ai'>('advanced');
+  const [aiInsights, setAiInsights] = useState<any>(null);
+  const [drugAnalytics, setDrugAnalytics] = useState<any>(null);
+  const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
+  const [recentInteractions, setRecentInteractions] = useState<any[]>([]);
+  const [rxnormOfflineToast, setRxnormOfflineToast] = useState<boolean>(false);
+  const [rxnormToastDismissed, setRxnormToastDismissed] = useState<boolean>(false);
+  const [connStatus, setConnStatus] = useState<'unknown'|'online'|'offline'|'error'>('unknown');
+  const [connTesting, setConnTesting] = useState<boolean>(false);
+  const [connCheckedAt, setConnCheckedAt] = useState<string | null>(null);
+  const [basicSuggestions, setBasicSuggestions] = useState<Array<{ name: string; rxcui?: string | null }>>([]);
+  const [basicSuggestionsOffline, setBasicSuggestionsOffline] = useState<boolean>(false);
+  const [basicSuggestionsLoading, setBasicSuggestionsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const dismissed = localStorage.getItem('rxnorm_offline_toast_dismissed') === '1';
+    setRxnormToastDismissed(dismissed);
+    // Test connectivity on component mount
+    testConnectivity();
+  }, []);
+
+  async function testConnectivity() {
+    try {
+      setConnTesting(true);
+      const resp = await fetch(`/api/drugs/search?q=aspirin`, { method: 'GET' });
+      if (!resp.ok) {
+        setConnStatus('error');
+      } else {
+        const data = await resp.json();
+        // Check if we have RxNorm data (online) or local data only (offline)
+        const isOnline = data?.sources?.rxnorm > 0;
+        setConnStatus(isOnline ? 'online' : 'offline');
+      }
+      setConnCheckedAt(new Date().toLocaleTimeString());
+    } catch (e) {
+      console.error('Connectivity test failed:', e);
+      setConnStatus('error');
+      setConnCheckedAt(new Date().toLocaleTimeString());
+    } finally {
+      setConnTesting(false);
+    }
+  }
   
   // Derived state
   const activeTtySet = useMemo(() => new Set(
@@ -84,8 +136,8 @@ const DrugSearch: React.FC = () => {
     setSearchQuery(query);
     
     // Add to search history
-    if (query.trim()) {
-      addSearch(query.trim());
+    if (query && String(query).trim()) {
+      addSearch(String(query).trim());
     }
     
     // Reset pagination when searching
@@ -157,6 +209,7 @@ const DrugSearch: React.FC = () => {
   const handleDrugSelect = async (drug: Drug) => {
     setSelectedDrug(drug);
     selection.addDrug(drug);
+    setLoading(true);
     
     // Try to get detailed information
     try {
@@ -165,6 +218,8 @@ const DrugSearch: React.FC = () => {
     } catch (err) {
       console.warn('Failed to load drug details:', err);
       // Keep the basic drug info from search results
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -193,6 +248,32 @@ const DrugSearch: React.FC = () => {
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
+  // Fetch suggestions for basic mode panel
+  useEffect(() => {
+    let abort = false;
+    if (searchMode !== 'basic' || !searchQuery || String(searchQuery).trim().length < 2) {
+      setBasicSuggestions([]);
+      setBasicSuggestionsOffline(false);
+      return;
+    }
+    setBasicSuggestionsLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const resp = await fetch(`/api/drugs/search?q=${encodeURIComponent(searchQuery)}`);
+        if (!resp.ok) throw new Error('suggestions failed');
+        const data = await resp.json();
+        if (abort) return;
+        setBasicSuggestions((data.results || []).slice(0, 8).map((s: any) => ({ name: s.name, rxcui: s.rxcui })));
+        setBasicSuggestionsOffline(!data.sources?.rxnorm || data.sources.rxnorm === 0);
+      } catch {
+        if (!abort) { setBasicSuggestions([]); setBasicSuggestionsOffline(false); }
+      } finally {
+        if (!abort) setBasicSuggestionsLoading(false);
+      }
+    }, 300);
+    return () => { abort = true; clearTimeout(t); };
+  }, [searchMode, searchQuery]);
+
   const handleQuickSearch = (query: string) => {
     handleSearch(query);
   };
@@ -200,6 +281,19 @@ const DrugSearch: React.FC = () => {
   if (selectedDrug) {
     return (
       <div className="space-y-6">
+        {/* Success Banner */}
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex items-center space-x-3">
+            <CheckCircle className="h-6 w-6 text-green-600" />
+            <div>
+              <h3 className="font-medium text-green-800">Drug Selected Successfully!</h3>
+              <p className="text-sm text-green-700">
+                You've selected <strong>{selectedDrug.name}</strong>. Explore the options below to analyze interactions, genomics, or clinical protocols.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Back Button */}
         <button
           onClick={handleBackToResults}
@@ -210,7 +304,18 @@ const DrugSearch: React.FC = () => {
         </button>
 
         {/* Drug Details */}
-        <DrugCard drug={selectedDrug} showDetails={true} />
+        {loading ? (
+          <Card>
+            <div className="flex items-center justify-center p-8">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading drug details...</p>
+              </div>
+            </div>
+          </Card>
+        ) : (
+          <DrugCard drug={selectedDrug} showDetails={true} />
+        )}
 
         {/* Additional Actions */}
         <div className="grid md:grid-cols-3 gap-4">
@@ -261,55 +366,349 @@ const DrugSearch: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center">
-        <div className="flex items-center justify-center space-x-2 mb-4">
-          <Database className="w-8 h-8 text-blue-600" />
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-            Drug Search
-            {pinnedList.length > 0 && (
-              <span className="ml-3 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200" title={`${pinnedList.length} pinned`}>
-                <Star className="w-3 h-3 mr-1" /> {pinnedList.length}
-              </span>
-            )}
-          </h1>
-          <Search className="w-6 h-6 text-primary-600" />
+    <div className="space-y-8">
+      {/* RxNorm Offline Toast (one-time) */}
+      {rxnormOfflineToast && !rxnormToastDismissed && (
+        <div className="p-3 border border-amber-200 bg-amber-50 text-amber-800 rounded flex items-start justify-between">
+          <div>
+            <div className="font-medium">Using offline suggestions</div>
+            <div className="text-sm">RxNorm appears unreachable. Typeahead uses a limited offline list; full results may be reduced.</div>
+          </div>
+          <button
+            className="text-amber-800 hover:text-amber-900 text-sm ml-4"
+            onClick={() => { setRxnormOfflineToast(false); setRxnormToastDismissed(true); localStorage.setItem('rxnorm_offline_toast_dismissed','1'); }}
+            aria-label="Dismiss offline notice"
+          >
+            Dismiss
+          </button>
         </div>
-        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-          Search our comprehensive drug database with quick access shortcuts for common medications.
-        </p>
+      )}
+      {/* Enhanced Header with AI Insights */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-violet-600/10 via-blue-600/10 to-indigo-600/10 rounded-2xl" />
+        <div className="relative p-8 text-center">
+          <div className="flex items-center justify-center space-x-3 mb-6">
+            <div className="p-3 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl">
+              <Database className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+              Intelligent Drug Discovery
+            </h1>
+            <div className="flex items-center space-x-2">
+              <Brain className="w-6 h-6 text-violet-600" />
+              <span className="px-3 py-1 bg-violet-100 text-violet-800 rounded-full text-sm font-medium">
+                AI-Powered
+              </span>
+            </div>
+          </div>
+          <p className="text-xl text-gray-600 max-w-4xl mx-auto mb-6">
+            Advanced drug search with AI-powered insights, molecular analysis, and personalized recommendations
+          </p>
+          
+          {/* Quick Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-violet-200">
+              <div className="flex items-center space-x-2 text-violet-600 mb-2">
+                <Pill className="w-5 h-5" />
+                <span className="font-medium">Drug Database</span>
+              </div>
+              <div className="text-2xl font-bold text-gray-900">50,000+</div>
+              <div className="text-sm text-gray-600">Medications</div>
+            </div>
+            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-blue-200">
+              <div className="flex items-center space-x-2 text-blue-600 mb-2">
+                <Activity className="w-5 h-5" />
+                <span className="font-medium">Interactions</span>
+              </div>
+              <div className="text-2xl font-bold text-gray-900">2.5M+</div>
+              <div className="text-sm text-gray-600">Drug Pairs</div>
+            </div>
+            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-green-200">
+              <div className="flex items-center space-x-2 text-green-600 mb-2">
+                <Microscope className="w-5 h-5" />
+                <span className="font-medium">Clinical Trials</span>
+              </div>
+              <div className="text-2xl font-bold text-gray-900">25,000+</div>
+              <div className="text-sm text-gray-600">Active Studies</div>
+            </div>
+            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-purple-200">
+              <div className="flex items-center space-x-2 text-purple-600 mb-2">
+                <Heart className="w-5 h-5" />
+                <span className="font-medium">Oncology Focus</span>
+              </div>
+              <div className="text-2xl font-bold text-gray-900">5,000+</div>
+              <div className="text-sm text-gray-600">Cancer Drugs</div>
+            </div>
+          </div>
+          
+          {pinnedList.length > 0 && (
+            <div className="mt-6 flex items-center justify-center space-x-2">
+              <Star className="w-5 h-5 text-yellow-500" />
+              <span className="text-lg font-medium text-gray-700">
+                {pinnedList.length} Pinned Medication{pinnedList.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Enhanced AI-Powered Search Interface */}
-      <EnhancedDrugSearch 
-        onSearch={(query, filters) => handleAdvancedSearch(query, filters)}
-        loading={loading}
-        results={searchResults?.results}
-      />
-
-      {/* Enhanced Predictive Search Interface */}
-      <div className="space-y-4">
-        <div className="max-w-4xl mx-auto">
-          <div id="search" role="search" aria-label="Drug search">
-            <PredictiveSearchBar
-              onSearch={handleAdvancedSearch}
-              placeholder="Search drugs by name, ingredient, or indication... (type to see suggestions)"
-              showHistory={true}
-              showSuggestions={true}
-              maxSuggestions={6}
-              loading={loading}
-            onSuggestionSelect={(suggestion) => {
-              analytics.track('drug_suggestion_selected', {
-                suggestion: suggestion.name,
-                category: suggestion.category,
-                confidence: suggestion.confidence
-              });
-              handleAdvancedSearch(suggestion.name);
-            }}
-            />
+      {/* Connectivity status + test */}
+      <div className="flex items-center justify-center mt-2">
+        <div className="inline-flex items-center gap-3 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded px-3 py-2">
+          <div className="inline-flex items-center gap-2">
+            <span className={`inline-block w-2.5 h-2.5 rounded-full ${
+              connStatus === 'online' ? 'bg-green-500' : connStatus === 'offline' ? 'bg-amber-500' : connStatus === 'error' ? 'bg-red-500' : 'bg-gray-400'
+            }`} />
+            <span>
+              {connStatus === 'online' && 'RxNorm connectivity: Online'}
+              {connStatus === 'offline' && 'RxNorm connectivity: Offline (fallback)'}
+              {connStatus === 'error' && 'RxNorm connectivity: Error'}
+              {connStatus === 'unknown' && 'RxNorm connectivity: Unknown'}
+              {connCheckedAt ? ` • Checked ${connCheckedAt}` : ''}
+            </span>
           </div>
+          <button
+            onClick={testConnectivity}
+            disabled={connTesting}
+            className="text-blue-700 hover:text-blue-800 underline disabled:opacity-60"
+          >
+            {connTesting ? 'Testing…' : 'Test connectivity'}
+          </button>
         </div>
+      </div>
+
+      {/* Search Mode Selector */}
+      <div className="flex items-center justify-center space-x-4">
+        <div className="flex bg-gray-100 rounded-lg p-1">
+          {[
+            { mode: 'basic', label: 'Basic Search', icon: Search },
+            { mode: 'advanced', label: 'Advanced Filters', icon: Filter },
+            { mode: 'ai', label: 'AI Assistant', icon: Brain }
+          ].map(({ mode, label, icon: Icon }) => (
+            <button
+              key={mode}
+              onClick={() => setSearchMode(mode as typeof searchMode)}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                searchMode === mode
+                  ? 'bg-white text-violet-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Search Interface Based on Mode */}
+      {searchMode === 'basic' && (
+        <div className="max-w-4xl mx-auto">
+          <AutocompleteSearch
+            placeholder="Search drugs by name, indication, or mechanism..."
+            onSelect={(option) => {
+              setSearchQuery(option.value);
+              // If this is a drug option, treat it as a direct drug selection
+              if (option.type === 'drug') {
+                // Create a drug object from the autocomplete option
+                const drug: Drug = {
+                  rxcui: option.id,
+                  name: option.label,
+                  synonym: option.value,
+                  tty: 'SBD'
+                };
+                handleDrugSelect(drug);
+              } else {
+                // For non-drug options (indications, mechanisms), do a search
+                handleSearch(option.value);
+              }
+            }}
+            onInputChange={(value) => setSearchQuery(value)}
+            value={searchQuery}
+            loading={loading}
+            maxResults={8}
+            showCategories={true}
+            className="w-full"
+            onOfflineChange={(offline) => {
+              if (offline) {
+                if (!rxnormToastDismissed) setRxnormOfflineToast(true);
+              } else {
+                setRxnormOfflineToast(false);
+              }
+            }}
+          />
+          <div className="flex items-center justify-center mt-4">
+            <button 
+              onClick={() => handleSearch(searchQuery)}
+              disabled={loading || !searchQuery || !String(searchQuery).trim()}
+              className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-8 py-3 text-lg rounded-lg hover:from-violet-700 hover:to-indigo-700 disabled:opacity-50 flex items-center space-x-2"
+            >
+              <Search className="h-5 w-5" />
+              <span>Search Drugs</span>
+            </button>
+          </div>
+          {/* Top matches after analyzing */}
+          {searchQuery && String(searchQuery).trim().length >= 2 && (
+            <div className="mt-4 bg-white border border-gray-200 rounded-lg shadow-sm">
+              <div className="px-3 py-2 border-b flex items-center justify-between">
+                <div className="text-sm font-medium text-gray-700">Top matches</div>
+                {basicSuggestionsOffline && (
+                  <div className="text-[11px] text-gray-500">Using offline suggestions</div>
+                )}
+              </div>
+              <div className="p-3">
+                {basicSuggestionsLoading ? (
+                  <div className="text-xs text-gray-500">Analyzing…</div>
+                ) : basicSuggestions.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {basicSuggestions.map((s, i) => (
+                      <button
+                        key={`${s.rxcui || s.name}-${i}`}
+                        onClick={() => setSearchQuery(s.name)}
+                        className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200"
+                        title={s.rxcui ? `RXCUI ${s.rxcui}` : s.name}
+                      >
+                        {s.name}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-xs text-gray-500">No matches</div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      
+      {searchMode === 'advanced' && (
+        <ImprovedDrugSearch onOfflineChange={(offline) => {
+          if (offline) {
+            if (!rxnormToastDismissed) setRxnormOfflineToast(true);
+          } else {
+            setRxnormOfflineToast(false);
+          }
+        }} />
+      )}
+      
+      {searchMode === 'ai' && (
+        <div className="space-y-6">
+          <Card className="border-violet-200 bg-gradient-to-r from-violet-50 to-indigo-50">
+            <div className="p-6">
+              <div className="flex items-center space-x-2 mb-6">
+                <Brain className="h-6 w-6 text-violet-600" />
+                <h2 className="text-xl font-bold text-violet-800">AI Drug Discovery Assistant</h2>
+                <span className="px-2 py-1 bg-violet-100 text-violet-800 rounded-full text-sm font-medium">
+                  Beta
+                </span>
+              </div>
+              
+              <div className="text-center mb-6">
+                <div className="flex items-center justify-center space-x-2 mb-4">
+                  <Sparkles className="h-8 w-8 text-violet-600" />
+                  <span className="text-2xl font-bold text-violet-800">Ask the AI</span>
+                </div>
+                <p className="text-gray-600 mb-6">
+                  Describe your patient case, treatment goals, or ask questions about drug therapy
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="p-4 cursor-pointer hover:bg-blue-50 border border-blue-200 rounded-lg bg-white">
+                  <div className="flex items-center space-x-2 text-blue-600 mb-2">
+                    <Target className="h-5 w-5" />
+                    <span className="font-medium">Find Similar Drugs</span>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    "Find drugs similar to pembrolizumab for lung cancer"
+                  </p>
+                </div>
+                
+                <div className="p-4 cursor-pointer hover:bg-green-50 border border-green-200 rounded-lg bg-white">
+                  <div className="flex items-center space-x-2 text-green-600 mb-2">
+                    <Activity className="h-5 w-5" />
+                    <span className="font-medium">Biomarker Matching</span>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    "What drugs target HER2-positive breast cancer?"
+                  </p>
+                </div>
+                
+                <div className="p-4 cursor-pointer hover:bg-purple-50 border border-purple-200 rounded-lg bg-white">
+                  <div className="flex items-center space-x-2 text-purple-600 mb-2">
+                    <Zap className="h-5 w-5" />
+                    <span className="font-medium">Drug Interactions</span>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    "Check interactions between warfarin and chemotherapy"
+                  </p>
+                </div>
+              </div>
+              
+              <div className="relative">
+                <textarea
+                  id="ai-input"
+                  placeholder="Describe your patient case or ask a question about drug therapy..."
+                  className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500 h-32 resize-none"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <div className="flex items-center justify-between mt-4">
+                  <div className="flex items-center space-x-2 text-sm text-gray-500">
+                    <Info className="h-4 w-4" />
+                    <span>AI responses are for educational purposes only</span>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      if (searchQuery && String(searchQuery).trim()) {
+                        setAiInsights({ 
+                          query: searchQuery,
+                          response: "AI assistant is currently in development. For now, please use the basic or advanced search modes to find specific drugs and their interactions.",
+                          suggestions: [
+                            "Try searching for specific drug names",
+                            "Use the advanced filters to narrow your search",
+                            "Check drug interactions in the interaction checker"
+                          ]
+                        });
+                      }
+                    }}
+                    disabled={!searchQuery || !String(searchQuery).trim() || loading}
+                    className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-violet-700 hover:to-indigo-700 flex items-center space-x-2 disabled:opacity-50"
+                  >
+                    <Brain className="h-4 w-4" />
+                    <span>Ask AI Assistant</span>
+                  </button>
+                </div>
+              </div>
+              
+              {/* AI Response */}
+              {aiInsights && (
+                <div className="mt-6 p-4 bg-violet-50 border border-violet-200 rounded-lg">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Brain className="h-5 w-5 text-violet-600" />
+                    <span className="font-medium text-violet-800">AI Response</span>
+                  </div>
+                  <p className="text-gray-700 mb-4">{aiInsights.response}</p>
+                  {aiInsights.suggestions && (
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">Suggestions:</h4>
+                      <ul className="list-disc list-inside space-y-1">
+                        {aiInsights.suggestions.map((suggestion, index) => (
+                          <li key={index} className="text-sm text-gray-600">{suggestion}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Quick Access Pills and Filters - Only show for basic/advanced modes */}
+      {(searchMode === 'basic' || searchMode === 'advanced') && (
+        <div className="space-y-4">
         {/* Pinned quick access chips */}
         <div className="flex items-center justify-between">
           <div className="flex flex-wrap gap-2 items-center">
@@ -400,89 +799,8 @@ const DrugSearch: React.FC = () => {
           </div>
         </div>
         
-        {/* Legacy Simple Search (hidden by default, can be toggled) */}
-        <details className="group">
-          <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800 flex items-center space-x-2">
-            <Filter className="w-4 h-4" />
-            <span>Show traditional search interface</span>
-          </summary>
-          <div className="mt-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
-      <SimpleDrugSearch
-        onSearch={handleSearch}
-        onDrugSelect={handleDrugSelectFromSearch}
-        loading={loading}
-        className="w-full"
-      />
-
-      {/* Insights: Most selected (local) */}
-      <Card>
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-gray-700">Most Selected (last 30 days)</h3>
-          <div className="flex items-center space-x-3">
-            <button
-              type="button"
-              className="text-xs text-gray-500 hover:text-gray-700 underline"
-              onClick={() => { analytics.clearSelections(); setSearchResults(r => r); }}
-              aria-label="Clear most selected history"
-            >
-              Clear
-            </button>
-            <span className="text-xs text-gray-400">Local device</span>
-          </div>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {analytics.getTopSelections(30, 6).length === 0 ? (
-            <div className="text-xs text-gray-500">No selections yet. Selections you make will appear here.</div>
-          ) : (
-            analytics.getTopSelections(30, 6).map((d) => (
-              <button
-                key={d.rxcui}
-                onClick={() => handleSearch(d.name)}
-                className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 hover:bg-gray-200"
-                title={`${d.name} • ${d.count}x`}
-              >
-                {d.name}
-              </button>
-            ))
-          )}
-        </div>
-      </Card>
-
-      <Card>
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-gray-700">Recent Searches</h3>
-          <div className="flex items-center space-x-3">
-            <button
-              type="button"
-              className="text-xs text-gray-500 hover:text-gray-700 underline"
-              onClick={() => { analytics.clearSearches(); setSearchResults(r => r); }}
-              aria-label="Clear recent searches"
-            >
-              Clear
-            </button>
-            <span className="text-xs text-gray-400">Local device</span>
-          </div>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {analytics.getRecentSearches(10).length === 0 ? (
-            <div className="text-xs text-gray-500">No searches yet. Try typing a query.</div>
-          ) : (
-            analytics.getRecentSearches(10).map((q, i) => (
-              <button
-                key={`${q}-${i}`}
-                onClick={() => handleSearch(q)}
-                className="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 hover:bg-gray-200"
-                title={`Search: ${q}`}
-              >
-                {q}
-              </button>
-            ))
-          )}
-        </div>
-      </Card>
-          </div>
-        </details>
-      </div>
+      )}
 
       {/* Filter chips */}
       <div className="flex flex-wrap gap-2 items-center">
@@ -546,24 +864,26 @@ const DrugSearch: React.FC = () => {
         </button>
       </div>
 
-      {/* Results with optional preview */}
-      <div className={`grid ${selectedDrug ? 'md:grid-cols-2 gap-6' : ''}`}>
-        <div>
-          <DrugSearchResults
-            results={searchResults}
-            loading={loading}
-            error={error}
-            onDrugSelect={handleDrugSelect}
-            filters={{ onlyOncology: filters.onlyOncology, onlyPinned: filters.onlyPinned, tty: activeTtySet }}
-            pinVersion={pinsTick}
-          />
-        </div>
-        {selectedDrug && (
+      {/* Search Results - Only show if we have results */}
+      {searchResults && (
+        <div className={`grid ${selectedDrug ? 'md:grid-cols-2 gap-6' : ''}`}>
           <div>
-            <DrugCard drug={selectedDrug} showDetails={true} />
+            <DrugSearchResults
+              results={searchResults}
+              loading={loading}
+              error={error}
+              onDrugSelect={handleDrugSelect}
+              filters={{ onlyOncology: filters.onlyOncology, onlyPinned: filters.onlyPinned, tty: activeTtySet }}
+              pinVersion={pinsTick}
+            />
           </div>
-        )}
-      </div>
+          {selectedDrug && (
+            <div>
+              <DrugCard drug={selectedDrug} showDetails={true} />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Help Section */}
       {!searchResults && !loading && (
@@ -614,6 +934,17 @@ const DrugSearch: React.FC = () => {
         and our curated database of oncology medications. Data is regularly updated to ensure accuracy.
       </Alert>
     </div>
+  );
+};
+
+const DrugSearch: React.FC = () => {
+  return (
+    <FeatureErrorBoundary 
+      featureName="Drug Search"
+      fallbackMessage="The drug search feature is temporarily unavailable. This may be due to database connectivity or processing issues."
+    >
+      <DrugSearchInner />
+    </FeatureErrorBoundary>
   );
 };
 

@@ -83,7 +83,8 @@ export function useUrlState<T extends StateValue>(
   const updateState = useCallback((value: T | ((prev: T) => T)) => {
     setState(prevState => {
       const newValue = typeof value === 'function' ? (value as (prev: T) => T)(prevState) : value;
-      updateUrl(newValue);
+      // Defer URL update to avoid setState during render
+      setTimeout(() => updateUrl(newValue), 0);
       return newValue;
     });
   }, [updateUrl]);
@@ -199,7 +200,8 @@ export function useUrlFilters<T extends Record<string, StateValue>>(
     setFilters(prevFilters => {
       const updates = typeof newFilters === 'function' ? newFilters(prevFilters) : newFilters;
       const updatedFilters = { ...prevFilters, ...updates };
-      updateUrl(updatedFilters);
+      // Defer URL update to avoid setState during render
+      setTimeout(() => updateUrl(updatedFilters), 0);
       return updatedFilters;
     });
   }, [updateUrl]);
@@ -207,8 +209,9 @@ export function useUrlFilters<T extends Record<string, StateValue>>(
   // Clear all filters
   const clearFilters = useCallback(() => {
     setFilters(defaultFilters);
-    updateUrl(defaultFilters);
-  }, [updateUrl]);
+    // Defer URL update to avoid setState during render
+    setTimeout(() => updateUrl(defaultFilters), 0);
+  }, [updateUrl, defaultFilters]);
 
   return [filters, updateFilters, clearFilters];
 }

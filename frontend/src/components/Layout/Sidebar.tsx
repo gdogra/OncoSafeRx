@@ -25,6 +25,7 @@ import {
   UserCheck,
   Heart,
   Clipboard,
+  Pill,
   GraduationCap,
   LogOut
 } from 'lucide-react';
@@ -137,6 +138,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             icon: AlertTriangle, 
             description: user?.role === 'researcher' ? 'Study adverse events' : 'Drug interactions',
             roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            requiresPermission: null
+          },
+          { 
+            path: '/pain', 
+            label: 'Pain Management', 
+            icon: Pill, 
+            description: 'Opioid MME + safety',
+            roles: ['oncologist', 'pharmacist', 'nurse', 'student'],
             requiresPermission: null
           },
           { 

@@ -39,6 +39,7 @@ const AuthPage = lazy(() => import('./pages/AuthPage'));
 const SimpleAuth = lazy(() => import('./pages/SimpleAuth'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Testing = lazy(() => import('./pages/Testing'));
+const Pain = lazy(() => import('./pages/Pain'));
 
 // Component that handles keyboard shortcuts inside Router context
 function AppWithRouter() {
@@ -155,6 +156,13 @@ function AppWithRouter() {
                   <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'researcher']}>
                     <Layout>
                       <Analytics />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/pain" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <Pain />
                     </Layout>
                   </ProtectedRoute>
                 } />

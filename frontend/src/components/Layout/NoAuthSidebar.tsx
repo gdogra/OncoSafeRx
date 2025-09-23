@@ -43,16 +43,10 @@ const NoAuthSidebar: React.FC<NoAuthSidebarProps> = ({ isOpen, onToggle, expande
       description: 'Overview and quick access'
     },
     {
-      label: 'Drug Search', 
-      path: '/drugs',
-      icon: Search,
-      description: 'Search drug database'
-    },
-    {
-      label: 'Interactions',
-      path: '/interactions', 
-      icon: AlertTriangle,
-      description: 'Check drug interactions'
+      label: 'Drug Search & Interactions',
+      path: '/drug-search-interactions',
+      icon: Stethoscope,
+      description: 'Search drugs and check interactions'
     },
     {
       label: 'Genomics',
@@ -61,10 +55,10 @@ const NoAuthSidebar: React.FC<NoAuthSidebarProps> = ({ isOpen, onToggle, expande
       description: 'Pharmacogenomic analysis'
     },
     {
-      label: 'Protocols',
-      path: '/protocols',
+      label: 'Protocols & Regimens',
+      path: '/protocols-regimens',
       icon: FileText,
-      description: 'Treatment protocols'
+      description: 'Treatment protocols & dosing regimens'
     },
     {
       label: 'Curated Data',
@@ -73,16 +67,10 @@ const NoAuthSidebar: React.FC<NoAuthSidebarProps> = ({ isOpen, onToggle, expande
       description: 'Curated interactions'
     },
     {
-      label: 'Regimens',
-      path: '/regimens',
-      icon: Pill,
-      description: 'Treatment regimens'
-    },
-    {
-      label: 'Clinical Trials',
+      label: 'AI Clinical Trials',
       path: '/trials',
       icon: TestTube,
-      description: 'Clinical trial matching'
+      description: 'AI-powered trial matching & eligibility'
     },
     {
       label: 'Patients',

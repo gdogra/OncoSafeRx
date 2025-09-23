@@ -4,6 +4,7 @@ import MobileLayout from '../Mobile/MobileLayout';
 import FeedbackButton from '../Feedback/FeedbackButton';
 import ComparisonTray from '../Comparison/ComparisonTray';
 import SkipLinks from '../UI/SkipLinks';
+import ConnectivityStatus from '../UI/ConnectivityStatus';
 import { useIsMobile } from '../../hooks/useResponsive';
 
 interface LayoutProps {
@@ -72,13 +73,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </svg>
             </button>
             <h1 className="text-lg font-semibold text-gray-900">OncoSafeRx</h1>
-            <div className="w-10" /> {/* Spacer for centering */}
+            <div className="w-10 text-right">
+              <ConnectivityStatus compact />
+            </div>
           </div>
         )}
 
         {/* Main content area */}
         <main id="main-content" className="flex-1 overflow-y-auto" tabIndex={-1}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            {/* Global connectivity widget for desktop */}
+            {!isMobile && (
+              <div className="flex justify-end mb-4">
+                <ConnectivityStatus />
+              </div>
+            )}
+          </div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
             {children}
           </div>
         </main>

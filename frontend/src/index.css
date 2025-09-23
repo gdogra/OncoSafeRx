@@ -14,6 +14,161 @@
   --mobile-header-height: 60px;
   --mobile-nav-height: 70px;
   --mobile-fab-size: 56px;
+  
+  /* Accessibility variables */
+  --font-size-multiplier: 1;
+  --contrast-bg: #ffffff;
+  --contrast-text: #000000;
+  --contrast-primary: #0066cc;
+  --contrast-border: #333333;
+}
+
+/* Accessibility: Font Size Classes */
+html.font-small {
+  --font-size-multiplier: 0.875;
+}
+
+html.font-normal {
+  --font-size-multiplier: 1;
+}
+
+html.font-large {
+  --font-size-multiplier: 1.25;
+}
+
+html.font-extra-large {
+  --font-size-multiplier: 1.5;
+}
+
+/* Apply font size multiplier */
+body {
+  font-size: calc(1rem * var(--font-size-multiplier));
+}
+
+/* Accessibility: High Contrast Mode */
+html.high-contrast {
+  --tw-bg-white: var(--contrast-bg);
+  --tw-text-gray-900: var(--contrast-text);
+  --tw-text-gray-700: var(--contrast-text);
+  --tw-text-gray-600: var(--contrast-text);
+  --tw-border-gray-300: var(--contrast-border);
+  --tw-border-gray-200: var(--contrast-border);
+}
+
+html.high-contrast * {
+  background-color: var(--contrast-bg) !important;
+  color: var(--contrast-text) !important;
+  border-color: var(--contrast-border) !important;
+}
+
+html.high-contrast .bg-primary-600,
+html.high-contrast .bg-primary-500,
+html.high-contrast .bg-blue-600 {
+  background-color: var(--contrast-primary) !important;
+  color: white !important;
+}
+
+html.high-contrast .text-primary-600,
+html.high-contrast .text-primary-500,
+html.high-contrast .text-blue-600 {
+  color: var(--contrast-primary) !important;
+}
+
+/* Accessibility: Reduced Motion */
+html.reduced-motion *,
+html.reduced-motion *::before,
+html.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Accessibility: Screen Reader Only Content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only:focus,
+.focus\:not-sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Accessibility: Focus Indicators */
+*:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Enhanced focus for high contrast mode */
+html.high-contrast *:focus {
+  outline: 3px solid var(--contrast-primary);
+  outline-offset: 2px;
+  background-color: var(--contrast-bg) !important;
+}
+
+/* Accessibility: Skip Links */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #2563eb;
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 1000;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Accessibility: Keyboard Navigation Indicators */
+[data-keyboard-navigation="true"] button:focus,
+[data-keyboard-navigation="true"] [role="button"]:focus,
+[data-keyboard-navigation="true"] a:focus,
+[data-keyboard-navigation="true"] input:focus,
+[data-keyboard-navigation="true"] select:focus,
+[data-keyboard-navigation="true"] textarea:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+/* Accessibility: Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Accessibility: Color Preferences */
+@media (prefers-contrast: high) {
+  :root {
+    --contrast-bg: #ffffff;
+    --contrast-text: #000000;
+    --contrast-primary: #0000ff;
+    --contrast-border: #000000;
+  }
 }
 
 body {

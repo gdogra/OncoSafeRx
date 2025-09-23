@@ -14,12 +14,31 @@ const rxnormService = new RxNormService();
 // List all locally curated interactions
 // simple in-memory cache for resolved RXCUIs
 const rxcuiCache = new Map();
+// In-memory overlay for runtime additions/edits (non-persistent)
+const CURATED_OVERLAY = [];
+
+function getAllKnown() {
+  return [...KNOWN_INTERACTIONS, ...CURATED_OVERLAY];
+}
+
+// Simple token gate for demo/admin overlay edits
+const ADMIN_TOKEN = process.env.CURATED_EDITOR_TOKEN || process.env.ADMIN_API_TOKEN || null;
+function requireAdminToken(req, res, next) {
+  if (!ADMIN_TOKEN) {
+    return res.status(403).json({ error: 'Admin token not configured' });
+  }
+  const provided = req.headers['x-admin-token'] || req.query.token;
+  if (!provided || String(provided) !== String(ADMIN_TOKEN)) {
+    return res.status(403).json({ error: 'Invalid admin token' });
+  }
+  next();
+}
 
 router.get('/known', async (req, res) => {
   try {
     const { drug, drugA, drugB, severity, limit, resolveRx, view } = req.query;
 
-    let results = [...KNOWN_INTERACTIONS];
+    let results = getAllKnown();
 
     // Filter by single drug name (matches either in the pair, case-insensitive, substring)
     if (drug && typeof drug === 'string') {
@@ -45,7 +64,7 @@ router.get('/known', async (req, res) => {
 
     // Enrich with RXCUI mapping; optionally resolve unknown RXCUIs via RxNorm
     const enriched = await Promise.all(results.map(async (k) => {
-      const drug_rxnorm = await Promise.all(k.drugs.map(async (name) => {
+      const drug_rxnorm = await Promise.all((k.drugs || []).map(async (name) => {
         const key = name.toLowerCase();
         let rxcui = RXCUI_MAP[key] || rxcuiCache.get(key) || null;
 
@@ -142,6 +161,34 @@ router.get('/known', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// Admin-lite: add curated interaction to in-memory overlay (non-persistent)
+router.post('/known', requireAdminToken, asyncHandler(async (req, res) => {
+  const { drugs, severity, mechanism, effect, management, evidence_level, sources } = req.body || {};
+  if (!Array.isArray(drugs) || drugs.length !== 2 || !drugs[0] || !drugs[1]) {
+    return res.status(400).json({ error: 'drugs must be [drugA, drugB]' });
+  }
+  const item = {
+    drugs: [String(drugs[0]).toLowerCase().trim(), String(drugs[1]).toLowerCase().trim()],
+    severity: String(severity || '').toLowerCase() || 'moderate',
+    mechanism: mechanism || '',
+    effect: effect || '',
+    management: management || '',
+    evidence_level: evidence_level || '',
+    sources: Array.isArray(sources) ? sources : (sources ? [sources] : [])
+  };
+  CURATED_OVERLAY.push(item);
+  res.status(201).json({ added: 1, item });
+}));
+
+router.get('/known/overlay', (req, res) => {
+  res.json({ count: CURATED_OVERLAY.length, interactions: CURATED_OVERLAY });
+});
+
+router.delete('/known/overlay', requireAdminToken, (req, res) => {
+  CURATED_OVERLAY.length = 0;
+  res.json({ cleared: true });
 });
 
 // Check interactions between multiple drugs
@@ -304,7 +351,7 @@ function assessRiskLevel(severity) {
 // Known interactions for demo purposes (name-based matching)
 function getKnownInteractions(drugDetails) {
   const interactions = [];
-  const knownPairs = KNOWN_INTERACTIONS;
+  const knownPairs = getAllKnown();
   
   for (let i = 0; i < drugDetails.length; i++) {
     for (let j = i + 1; j < drugDetails.length; j++) {
@@ -347,7 +394,7 @@ function getKnownInteractions(drugDetails) {
 // Local dataset as stored interactions
 function getLocalStoredInteractions(drugDetails) {
   const interactions = [];
-  const knownPairs = KNOWN_INTERACTIONS;
+  const knownPairs = getAllKnown();
 
   for (let i = 0; i < drugDetails.length; i++) {
     for (let j = i + 1; j < drugDetails.length; j++) {

@@ -12,6 +12,61 @@ const router = express.Router();
 const rxnormService = new RxNormService();
 const dailymedService = new DailyMedService();
 
+// Lightweight suggestions endpoint for typeahead
+router.get('/suggestions', 
+  searchLimiter,
+  asyncHandler(async (req, res) => {
+    const q = String(req.query.q || '').trim();
+    const limit = Math.max(1, Math.min(20, Number(req.query.limit) || 8));
+    if (q.length < 2) return res.json({ suggestions: [] });
+
+    // Try RxNorm first
+    const results = await rxnormService.searchDrugs(q);
+    let suggestions = (results || [])
+      .map(d => ({
+        id: d.rxcui || d.name,
+        name: d.name || d.synonym || '',
+        category: 'drug',
+        rxcui: d.rxcui || null
+      }))
+      .filter(s => s.name);
+
+    // Offline/local fallback if RxNorm is unavailable or returned nothing
+    let offline = false;
+    if (!suggestions.length) {
+      const OFFLINE = [
+        { name: 'aspirin' },
+        { name: 'acetylsalicylic acid' },
+        { name: 'acetaminophen' },
+        { name: 'ibuprofen' },
+        { name: 'naproxen' },
+        { name: 'morphine' },
+        { name: 'oxycodone' },
+        { name: 'hydrocodone' },
+        { name: 'hydromorphone' },
+        { name: 'codeine' },
+        { name: 'tramadol' },
+        { name: 'fentanyl' },
+        { name: 'methadone' },
+        { name: 'gabapentin' },
+        { name: 'pregabalin' },
+        { name: 'omeprazole' },
+        { name: 'pantoprazole' },
+        { name: 'clopidogrel' },
+        { name: 'warfarin' }
+      ];
+      const lc = q.toLowerCase();
+      suggestions = OFFLINE
+        .filter(d => d.name.includes(lc))
+        .slice(0, limit)
+        .map(d => ({ id: d.name, name: d.name, category: 'drug', rxcui: null }));
+      offline = true;
+    }
+
+    res.json({ suggestions: suggestions.slice(0, limit), offline });
+  })
+);
+
 // Enhanced drug search with clinical insights
 router.get('/search', 
   searchLimiter,

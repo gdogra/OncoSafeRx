@@ -66,6 +66,33 @@ export const schemas = {
         'any.required': 'Drugs array is required'
       })
   })
+  ,
+  // Pain management: MME calculation
+  mmeCalc: Joi.object({
+    medications: Joi.array().items(Joi.object({
+      name: Joi.string().required(),
+      route: Joi.string().valid('oral', 'transdermal', 'sublingual', 'buccal', 'iv', 'im').optional(),
+      doseMgPerDose: Joi.number().min(0).optional(),
+      dosesPerDay: Joi.number().min(0).optional(),
+      totalDailyDoseMg: Joi.number().min(0).optional(),
+      strengthMcgPerHr: Joi.number().min(0).optional(),
+      mcgPerHr: Joi.number().min(0).optional()
+    })).min(1).required(),
+    patient_context: Joi.object().optional()
+  }),
+
+  // Pain management: safety check
+  painSafetyCheck: Joi.object({
+    medications: Joi.array().items(Joi.alternatives(
+      Joi.string(),
+      Joi.object({ name: Joi.string().required() })
+    )).min(1).required(),
+    phenotypes: Joi.object().optional(),
+    patient_context: Joi.object().optional()
+  }),
+
+  // Fallback pass-through in case routes opt-in lazily
+  passthrough: Joi.object().unknown(true)
 };
 
 // Validation middleware factory

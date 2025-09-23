@@ -65,6 +65,7 @@ npm run sync:cpic
   - `VITE_SKIP_SUPABASE_PREFLIGHT=true` (skip connectivity HEAD)
   - `VITE_SUPABASE_AUTH_VIA_PROXY=true` (use server proxy for auth)
   - `VITE_ALLOW_DEMO_LOGIN=false` (keep disabled in prod)
+  - `VITE_COMMUNITY_URL` = URL to your community forum (defaults to GitHub Discussions)
 
 ### Health Check
 
@@ -107,6 +108,32 @@ GET /api/interactions/drug/161
 
 ### Alternatives (MVP)
 
+```
+
+### Pain Management (Opioids)
+
+```
+# Calculate total MME/day for a regimen
+POST /api/pain/opiates/mme
+{
+  "medications": [
+    { "name": "oxycodone", "doseMgPerDose": 10, "dosesPerDay": 3 },
+    { "name": "hydrocodone", "doseMgPerDose": 5, "dosesPerDay": 4 }
+  ],
+  "patient_context": { "age": 68, "respiratory": true }
+}
+
+# Safety check for opioid-related risks
+POST /api/pain/opiates/safety-check
+{
+  "medications": [
+    { "name": "oxycodone" },
+    { "name": "lorazepam" },
+    { "name": "ketoconazole" }
+  ],
+  "phenotypes": { "CYP2D6": "poor_metabolizer" },
+  "patient_context": { "age": 72, "renal_clearance": 28 }
+}
 ```
 # Suggest safer alternatives for a set of RXCUIs
 POST /api/alternatives/suggest

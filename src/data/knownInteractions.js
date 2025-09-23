@@ -10,6 +10,44 @@ export const KNOWN_INTERACTIONS = [
     evidence_level: 'A',
     sources: ['LOCAL', 'Clinical literature']
   },
+  // Opioid-related curated interactions
+  {
+    drugs: ['oxycodone', 'ketoconazole'],
+    severity: 'major',
+    mechanism: 'CYP3A4 inhibition increases oxycodone exposure',
+    effect: 'Enhanced sedation and respiratory depression',
+    management: 'Avoid or reduce oxycodone dose; monitor closely',
+    evidence_level: 'B',
+    sources: ['LOCAL', 'FDA']
+  },
+  {
+    drugs: ['fentanyl', 'clarithromycin'],
+    severity: 'major',
+    mechanism: 'CYP3A4 inhibition increases fentanyl levels',
+    effect: 'Risk of fatal respiratory depression',
+    management: 'Avoid combination; consider alternative antibiotic',
+    evidence_level: 'A',
+    sources: ['LOCAL', 'FDA']
+  },
+  {
+    drugs: ['methadone', 'amiodarone'],
+    severity: 'major',
+    mechanism: 'Additive QT prolongation',
+    effect: 'Torsades de pointes risk',
+    management: 'Avoid combination; ECG monitoring if unavoidable',
+    evidence_level: 'B',
+    sources: ['LOCAL']
+  },
+  {
+    drugs: ['opioid', 'benzodiazepine'],
+    severity: 'major',
+    mechanism: 'Additive CNS and respiratory depression',
+    effect: 'Overdose and death risk',
+    management: 'Avoid co-prescribing; if necessary, lowest doses and naloxone',
+    evidence_level: 'A',
+    sources: ['LOCAL', 'CDC']
+  },
+  
   {
     drugs: ['ibuprofen', 'warfarin'],
     severity: 'moderate',

@@ -40,6 +40,7 @@ import enhancedDrugRoutes from './routes/enhancedDrugRoutes.js';
 import enhancedInteractionRoutes from './routes/enhancedInteractionRoutes.js';
 import billingRoutes from './routes/billingRoutes.js';
 import roiRoutes from './routes/roiRoutes.js';
+import painRoutes from './routes/painRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -147,6 +148,7 @@ app.use('/api/dosing', dosingRoutes);
 app.use('/api/editorial', editorialRoutes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/roi', roiRoutes);
+app.use('/api/pain', painRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/overrides', overrideRoutes);
 app.use('/', cdsHooksRoutes);

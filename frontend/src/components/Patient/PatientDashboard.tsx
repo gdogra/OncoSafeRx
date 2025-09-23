@@ -5,6 +5,11 @@ import Card from '../UI/Card';
 import Alert from '../UI/Alert';
 import Tooltip from '../UI/Tooltip';
 import LoadingSpinner from '../UI/LoadingSpinner';
+import MedicationManager from './MedicationManager';
+import GenomicsManager from './GenomicsManager';
+import TreatmentTimeline from './TreatmentTimeline';
+import OutcomeTracker from './OutcomeTracker';
+import DataExporter from './DataExporter';
 import { 
   User, 
   Calendar, 
@@ -25,13 +30,21 @@ import {
   Stethoscope,
   History,
   Bell,
-  Info
+  Info,
+  Brain,
+  Shield,
+  TrendingUp,
+  MessageSquare,
+  Smartphone,
+  Target,
+  ArrowRight,
+  Sparkles
 } from 'lucide-react';
 
 const PatientDashboard: React.FC = () => {
   const { state, actions } = usePatient();
   const { currentPatient, alerts, isLoading, error } = state;
-  const [activeTab, setActiveTab] = useState<'overview' | 'medications' | 'labs' | 'genetics' | 'history'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'medications' | 'labs' | 'genetics' | 'history' | 'outcomes' | 'export'>('overview');
 
   if (isLoading) {
     return (
@@ -87,6 +100,8 @@ const PatientDashboard: React.FC = () => {
     { id: 'labs', label: 'Lab Values', icon: TestTube },
     { id: 'genetics', label: 'Genomics', icon: Dna },
     { id: 'history', label: 'History', icon: History },
+    { id: 'outcomes', label: 'Outcomes', icon: Activity },
+    { id: 'export', label: 'Export', icon: FileText },
   ] as const;
 
   return (
@@ -417,21 +432,168 @@ const PatientDashboard: React.FC = () => {
                   <p className="text-sm text-gray-500">No recent lab values</p>
                 )}
               </Card>
+
+              {/* AI & Advanced Features Quick Access */}
+              <Card>
+                <div className="flex items-center space-x-2 mb-6">
+                  <Sparkles className="w-5 h-5 text-purple-500" />
+                  <h3 className="text-lg font-semibold text-gray-900">AI & Advanced Features</h3>
+                  <Tooltip content="Access powerful AI and analytics tools for this patient">
+                    <Info className="w-4 h-4 text-gray-400" />
+                  </Tooltip>
+                </div>
+                
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* AI Decision Engine */}
+                  <div className="group bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
+                       onClick={() => window.location.href = '/ai-decision-engine'}>
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <Brain className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">AI Decision Engine</h4>
+                        <p className="text-xs text-gray-600">Clinical decision support</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 mb-3">Get AI-powered clinical recommendations and drug interaction analysis</p>
+                    <div className="flex items-center text-blue-600 text-sm font-medium group-hover:text-blue-700">
+                      <span>Launch AI Analysis</span>
+                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Safety Alert System */}
+                  <div className="group bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
+                       onClick={() => window.location.href = '/safety-alerts'}>
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                        <Shield className="w-5 h-5 text-green-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Safety Alerts</h4>
+                        <p className="text-xs text-gray-600">Real-time monitoring</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 mb-3">Monitor drug safety alerts and potential adverse events</p>
+                    <div className="flex items-center text-green-600 text-sm font-medium group-hover:text-green-700">
+                      <span>View Safety Dashboard</span>
+                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* ML Analytics */}
+                  <div className="group bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
+                       onClick={() => window.location.href = '/ml-analytics'}>
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <TrendingUp className="w-5 h-5 text-orange-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">ML Analytics</h4>
+                        <p className="text-xs text-gray-600">Advanced insights</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 mb-3">Access machine learning analytics and predictive models</p>
+                    <div className="flex items-center text-orange-600 text-sm font-medium group-hover:text-orange-700">
+                      <span>Open Analytics</span>
+                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Predictive Outcomes */}
+                  <div className="group bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
+                       onClick={() => window.location.href = '/predictive-outcomes'}>
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <Target className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Predictive Outcomes</h4>
+                        <p className="text-xs text-gray-600">Treatment predictions</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 mb-3">Generate AI-powered treatment outcome predictions</p>
+                    <div className="flex items-center text-purple-600 text-sm font-medium group-hover:text-purple-700">
+                      <span>Generate Predictions</span>
+                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Clinical Communication */}
+                  <div className="group bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
+                       onClick={() => window.location.href = '/clinical-communication'}>
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
+                        <MessageSquare className="w-5 h-5 text-teal-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Team Communication</h4>
+                        <p className="text-xs text-gray-600">HIPAA-compliant messaging</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 mb-3">Secure team communication and collaboration</p>
+                    <div className="flex items-center text-teal-600 text-sm font-medium group-hover:text-teal-700">
+                      <span>Open Messenger</span>
+                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* IoT Monitoring */}
+                  <div className="group bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
+                       onClick={() => window.location.href = '/iot-monitoring'}>
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                        <Smartphone className="w-5 h-5 text-indigo-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">IoT Monitoring</h4>
+                        <p className="text-xs text-gray-600">Connected devices</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-700 mb-3">Monitor connected health devices and sensors</p>
+                    <div className="flex items-center text-indigo-600 text-sm font-medium group-hover:text-indigo-700">
+                      <span>View Devices</span>
+                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </div>
+              </Card>
             </div>
           )}
 
+          {/* Medications Tab */}
+          {activeTab === 'medications' && (
+            <MedicationManager />
+          )}
+
+          {/* Genomics Tab */}
+          {activeTab === 'genetics' && (
+            <GenomicsManager />
+          )}
+
+          {/* Treatment History Tab */}
+          {activeTab === 'history' && (
+            <TreatmentTimeline />
+          )}
+
+          {/* Outcomes Tab */}
+          {activeTab === 'outcomes' && (
+            <OutcomeTracker />
+          )}
+
+          {/* Export Tab */}
+          {activeTab === 'export' && (
+            <DataExporter />
+          )}
+
           {/* Other tabs content will be implemented in subsequent components */}
-          {activeTab !== 'overview' && (
+          {activeTab === 'labs' && (
             <div className="text-center py-12">
               <div className="text-gray-400 mb-4">
-                {activeTab === 'medications' && <Pill className="w-12 h-12 mx-auto" />}
-                {activeTab === 'labs' && <TestTube className="w-12 h-12 mx-auto" />}
-                {activeTab === 'genetics' && <Dna className="w-12 h-12 mx-auto" />}
-                {activeTab === 'history' && <History className="w-12 h-12 mx-auto" />}
+                <TestTube className="w-12 h-12 mx-auto" />
               </div>
-              <p className="text-lg font-medium text-gray-500">
-                {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Management
-              </p>
+              <p className="text-lg font-medium text-gray-500">Lab Management</p>
               <p className="text-sm text-gray-400">Coming soon in Phase 2</p>
             </div>
           )}

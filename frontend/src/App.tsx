@@ -41,6 +41,14 @@ const Profile = lazy(() => import('./pages/Profile'));
 const Testing = lazy(() => import('./pages/Testing'));
 const Pain = lazy(() => import('./pages/Pain'));
 
+// New Powerful AI Components
+const ClinicalDecisionEngine = lazy(() => import('./components/AI/ClinicalDecisionEngine'));
+const DrugSafetyAlertSystem = lazy(() => import('./components/Safety/DrugSafetyAlertSystem'));
+const MLAnalyticsDashboard = lazy(() => import('./components/Analytics/MLAnalyticsDashboard'));
+const ClinicalCommunicationHub = lazy(() => import('./components/Communication/ClinicalCommunicationHub'));
+const IoTMonitoringSystem = lazy(() => import('./components/IoT/IoTMonitoringSystem'));
+const TreatmentOutcomesEngine = lazy(() => import('./components/Predictive/TreatmentOutcomesEngine'));
+
 // Component that handles keyboard shortcuts inside Router context
 function AppWithRouter() {
   // Initialize global keyboard shortcuts (now inside Router context)
@@ -219,6 +227,50 @@ function AppWithRouter() {
                   <ProtectedRoute>
                     <Layout>
                       <AuthDiagnostics />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                
+                {/* New Powerful AI Components Routes */}
+                <Route path="/ai-decision-engine" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <ClinicalDecisionEngine />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/safety-alerts" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <DrugSafetyAlertSystem />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/ml-analytics" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'researcher']}>
+                    <Layout>
+                      <MLAnalyticsDashboard />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/clinical-communication" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <ClinicalCommunicationHub />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/iot-monitoring" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <IoTMonitoringSystem />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/predictive-outcomes" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'researcher']}>
+                    <Layout>
+                      <TreatmentOutcomesEngine />
                     </Layout>
                   </ProtectedRoute>
                 } />

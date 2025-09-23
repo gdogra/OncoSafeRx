@@ -27,7 +27,13 @@ import {
   Clipboard,
   Pill,
   GraduationCap,
-  LogOut
+  LogOut,
+  Brain,
+  Shield,
+  TrendingUp,
+  MessageSquare,
+  Smartphone,
+  Target
 } from 'lucide-react';
 import Tooltip from '../UI/Tooltip';
 
@@ -183,6 +189,64 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             icon: TestTube, 
             description: 'Find relevant trials',
             roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            requiresPermission: null
+          },
+        ]
+      },
+      {
+        title: 'AI & Advanced Analytics',
+        items: [
+          { 
+            path: '/ai-decision-engine', 
+            label: 'AI Decision Engine', 
+            icon: Brain, 
+            description: 'AI-powered clinical decision support',
+            roles: ['oncologist', 'pharmacist', 'nurse'],
+            requiresPermission: null
+          },
+          { 
+            path: '/safety-alerts', 
+            label: 'Safety Alert System', 
+            icon: Shield, 
+            description: 'Real-time drug safety monitoring',
+            roles: ['oncologist', 'pharmacist', 'nurse'],
+            requiresPermission: null
+          },
+          { 
+            path: '/ml-analytics', 
+            label: 'ML Analytics', 
+            icon: TrendingUp, 
+            description: 'Machine learning insights dashboard',
+            roles: ['oncologist', 'pharmacist', 'researcher'],
+            requiresPermission: null
+          },
+          { 
+            path: '/predictive-outcomes', 
+            label: 'Predictive Outcomes', 
+            icon: Target, 
+            description: 'Treatment outcome predictions',
+            roles: ['oncologist', 'pharmacist', 'researcher'],
+            requiresPermission: null
+          },
+        ]
+      },
+      {
+        title: 'Connected Health',
+        items: [
+          { 
+            path: '/clinical-communication', 
+            label: 'Clinical Communication', 
+            icon: MessageSquare, 
+            description: 'HIPAA-compliant team messaging',
+            roles: ['oncologist', 'pharmacist', 'nurse'],
+            requiresPermission: null
+          },
+          { 
+            path: '/iot-monitoring', 
+            label: 'IoT Monitoring', 
+            icon: Smartphone, 
+            description: 'Connected device monitoring',
+            roles: ['oncologist', 'pharmacist', 'nurse'],
             requiresPermission: null
           },
         ]

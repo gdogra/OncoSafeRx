@@ -33,7 +33,8 @@ import {
   TrendingUp,
   MessageSquare,
   Smartphone,
-  Target
+  Target,
+  Calculator
 } from 'lucide-react';
 import Tooltip from '../UI/Tooltip';
 
@@ -152,6 +153,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             icon: Pill, 
             description: 'Opioid MME + safety',
             roles: ['oncologist', 'pharmacist', 'nurse', 'student'],
+            requiresPermission: null
+          },
+          { 
+            path: '/opioid-risk-report', 
+            label: 'Opioid Risk Report', 
+            icon: Calculator, 
+            description: 'Addiction risk + pharmacogenomics',
+            roles: ['oncologist', 'pharmacist', 'nurse'],
             requiresPermission: null
           },
           { 

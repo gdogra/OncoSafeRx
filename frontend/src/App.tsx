@@ -48,6 +48,7 @@ const MLAnalyticsDashboard = lazy(() => import('./components/Analytics/MLAnalyti
 const ClinicalCommunicationHub = lazy(() => import('./components/Communication/ClinicalCommunicationHub'));
 const IoTMonitoringSystem = lazy(() => import('./components/IoT/IoTMonitoringSystem'));
 const TreatmentOutcomesEngine = lazy(() => import('./components/Predictive/TreatmentOutcomesEngine'));
+const OpioidRiskReport = lazy(() => import('./components/Pain/OpioidRiskReport'));
 
 // Component that handles keyboard shortcuts inside Router context
 function AppWithRouter() {
@@ -271,6 +272,13 @@ function AppWithRouter() {
                   <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'researcher']}>
                     <Layout>
                       <TreatmentOutcomesEngine />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/opioid-risk-report" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <OpioidRiskReport />
                     </Layout>
                   </ProtectedRoute>
                 } />

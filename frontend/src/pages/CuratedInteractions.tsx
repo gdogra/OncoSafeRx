@@ -85,11 +85,18 @@ const CuratedInteractions: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Load whenever filters change
+  // Load whenever filters change OR on initial mount
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drug, drugA, drugB, severity, resolveRx]);
+
+  // Trigger initial load after component mount and state initialization
+  useEffect(() => {
+    // Load data immediately on mount
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const exportFile = (format: 'csv' | 'tsv') => {
     const params = new URLSearchParams();

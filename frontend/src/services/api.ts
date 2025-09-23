@@ -132,11 +132,49 @@ export const interactionService = {
       const response = await api.get(`/interactions/known?${search.toString()}`);
       return response.data;
     } catch (error: any) {
-      if (error.response?.status === 404) {
-        console.warn('Known interactions API not available');
-        return { interactions: [], message: 'Interactions service is currently unavailable' };
+      console.warn('Known interactions API not available, using fallback data');
+      
+      // Import fallback data dynamically to avoid build issues
+      const { FALLBACK_INTERACTIONS } = await import('../data/fallbackInteractions');
+      
+      // Apply filtering logic similar to backend
+      let results = FALLBACK_INTERACTIONS;
+      const { drug, drugA, drugB, severity } = params;
+      
+      // Filter by single drug name (matches either in the pair, case-insensitive, substring)
+      if (drug && typeof drug === 'string') {
+        const term = drug.toLowerCase();
+        results = results.filter(k => k.drugs.some(d => d.toLowerCase().includes(term)));
       }
-      throw error;
+      
+      // Filter by two drug names (order-insensitive, both must match)
+      if (drugA && drugB && typeof drugA === 'string' && typeof drugB === 'string') {
+        const a = drugA.toLowerCase();
+        const b = drugB.toLowerCase();
+        results = results.filter(k => {
+          const names = k.drugs.map(d => d.toLowerCase());
+          return (names.some(n => n.includes(a)) && names.some(n => n.includes(b)));
+        });
+      }
+      
+      // Filter by severity (exact match, case-insensitive)
+      if (severity && typeof severity === 'string') {
+        const sev = severity.toLowerCase();
+        results = results.filter(k => (k.severity || '').toLowerCase() === sev);
+      }
+      
+      // Add drug_rxnorm mapping for compatibility
+      const enriched = results.map(k => ({
+        ...k,
+        drug_rxnorm: k.drugs.map(name => ({ name, rxcui: null }))
+      }));
+      
+      return {
+        count: enriched.length,
+        total: enriched.length,
+        interactions: enriched,
+        message: 'Using cached interaction data (API unavailable)'
+      };
     }
   },
 

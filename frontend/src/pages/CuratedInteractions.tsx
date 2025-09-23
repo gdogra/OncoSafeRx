@@ -46,6 +46,11 @@ const CuratedInteractions: React.FC = () => {
     try {
       const data = await interactionService.getKnownInteractions({ drug, drugA, drugB, severity, resolveRx: resolveRx ? 'true' : 'false' });
       setResults({ count: data.count, total: data.total, interactions: data.interactions || [] });
+      
+      // Show info message if using fallback data
+      if (data.message && data.message.includes('cached interaction data')) {
+        console.info('Using fallback interaction data - API not available');
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load curated interactions');
     } finally {

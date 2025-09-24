@@ -5,6 +5,7 @@ import FeedbackButton from '../Feedback/FeedbackButton';
 import ComparisonTray from '../Comparison/ComparisonTray';
 import SkipLinks from '../UI/SkipLinks';
 import ConnectivityStatus from '../UI/ConnectivityStatus';
+import LogoutButton from '../Admin/LogoutButton';
 import { useIsMobile } from '../../hooks/useResponsive';
 
 interface LayoutProps {
@@ -58,8 +59,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Main content */}
       <div className={`flex-1 flex flex-col transition-all duration-300 ${
-        !isMobile ? (sidebarExpanded ? 'lg:ml-64' : 'lg:ml-16') : ''
-      }`}>
+        !isMobile ? (sidebarExpanded ? 'lg:ml-60' : 'lg:ml-14') : ''
+      } ${!isMobile ? 'lg:pl-4 xl:pl-6' : ''}`}>
         {/* Top bar for mobile */}
         {isMobile && (
           <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between lg:hidden">
@@ -138,6 +139,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           })()}
         </div>
       )}
+
+      {/* Logout Button */}
+      <LogoutButton />
     </div>
     </>
   );

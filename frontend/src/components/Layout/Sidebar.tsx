@@ -25,7 +25,6 @@ import {
   UserCheck,
   Heart,
   Clipboard,
-  Pill,
   GraduationCap,
   LogOut,
   Brain,
@@ -34,7 +33,10 @@ import {
   MessageSquare,
   Smartphone,
   Target,
-  Calculator
+  Calculator,
+  Zap,
+  Link2,
+  Workflow
 } from 'lucide-react';
 import Tooltip from '../UI/Tooltip';
 
@@ -101,6 +103,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             description: 'Decision support tools',
             roles: ['oncologist', 'pharmacist', 'nurse'],
             requiresPermission: 'canViewFullPatientData'
+          },
+          { 
+            path: '/real-time-support', 
+            label: 'Real-Time Support', 
+            icon: Zap, 
+            description: 'Live clinical alerts & monitoring',
+            roles: ['oncologist', 'pharmacist', 'nurse'],
+            requiresPermission: null
           },
           { 
             path: '/patients', 
@@ -243,6 +253,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         title: 'Connected Health',
         items: [
           { 
+            path: '/ehr-integration', 
+            label: 'EHR Integration', 
+            icon: Link2, 
+            description: 'Connect Epic, Cerner, Allscripts',
+            roles: ['oncologist', 'pharmacist', 'nurse'],
+            requiresPermission: null
+          },
+          { 
             path: '/clinical-communication', 
             label: 'Clinical Communication', 
             icon: MessageSquare, 
@@ -280,12 +298,57 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             requiresPermission: 'canViewAnalytics'
           },
           { 
+            path: '/visitor-analytics', 
+            label: 'Visitor Analytics', 
+            icon: Users, 
+            description: 'Site usage and visitor tracking',
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            requiresPermission: null
+          },
+          { 
             path: '/research', 
             label: 'Research', 
             icon: BarChart3, 
             description: 'Data analysis and research',
             roles: ['researcher', 'oncologist'],
             requiresPermission: 'canAccessResearch'
+          },
+        ]
+      },
+      {
+        title: 'Compliance & Governance',
+        items: [
+          { 
+            path: '/regulatory-compliance', 
+            label: 'Regulatory Compliance', 
+            icon: Shield, 
+            description: 'HIPAA, FDA, GDPR compliance management',
+            roles: ['oncologist', 'pharmacist', 'nurse'],
+            requiresPermission: null
+          },
+          { 
+            path: '/evidence-protocols', 
+            label: 'Evidence-Based Protocols', 
+            icon: BookOpen, 
+            description: 'NCCN, ASCO, ESMO clinical guidelines',
+            roles: ['oncologist', 'pharmacist', 'nurse'],
+            requiresPermission: null
+          },
+          { 
+            path: '/laboratory-integration', 
+            label: 'Laboratory Integration', 
+            icon: TestTube, 
+            description: 'Lab results monitoring & alerts',
+            roles: ['oncologist', 'pharmacist', 'nurse'],
+            requiresPermission: null
+          },
+          { 
+            path: '/workflow-system', 
+            label: 'Advanced Workflows', 
+            icon: Workflow, 
+            description: 'Clinical workflow automation & mobile tools',
+            roles: ['oncologist', 'pharmacist', 'nurse'],
+            requiresPermission: null
           },
         ]
       },
@@ -358,7 +421,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       <div className={`
         fixed top-0 left-0 h-full bg-white border-r border-gray-200 shadow-sm z-50
         transition-all duration-300 ease-in-out
-        ${isOpen ? 'w-64' : 'w-16'}
+        ${isOpen ? 'w-60' : 'w-14'}
         lg:relative lg:translate-x-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>

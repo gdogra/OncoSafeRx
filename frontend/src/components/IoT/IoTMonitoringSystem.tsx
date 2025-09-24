@@ -18,6 +18,7 @@ import {
   BatteryLow,
   AlertTriangle,
   CheckCircle,
+  Plus,
   TrendingUp,
   TrendingDown,
   Calendar,
@@ -33,7 +34,8 @@ import {
   Scale,
   Moon,
   Sun,
-  Navigation
+  Navigation,
+  Search
 } from 'lucide-react';
 
 interface IoTDevice {

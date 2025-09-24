@@ -1,19 +1,23 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useRBAC } from '../../utils/rbac';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: string[];
+  requiredPermission?: string;
   fallbackPath?: string;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requiredRole,
-  fallbackPath = '/auth'
+  requiredPermission,
+  fallbackPath = '/login'
 }) => {
   const { state } = useAuth();
+  const rbac = useRBAC(state.user);
   const location = useLocation();
 
   if (state.isLoading) {
@@ -32,24 +36,48 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to={fallbackPath} state={{ from: location }} replace />;
   }
 
-  if (requiredRole && !requiredRole.includes(state.user.role)) {
-    // User doesn't have required role
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-sm text-gray-600">
-            You don't have permission to access this page.
-          </p>
-          <button
-            onClick={() => window.history.back()}
-            className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
-          >
-            Go Back
-          </button>
+  // Check permission-based access first (preferred)
+  if (requiredPermission) {
+    if (!rbac.hasPermission(requiredPermission)) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h2>
+            <p className="text-sm text-gray-600">
+              You don't have permission to access this page.
+            </p>
+            <button
+              onClick={() => window.history.back()}
+              className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+            >
+              Go Back
+            </button>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
+  } 
+  // Fallback to role-based access (legacy)
+  else if (requiredRole) {
+    const hasRequiredRole = requiredRole.includes(state.user.role) || rbac.hasAnyRole(requiredRole);
+    if (!hasRequiredRole) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h2>
+            <p className="text-sm text-gray-600">
+              You don't have the required role to access this page.
+            </p>
+            <button
+              onClick={() => window.history.back()}
+              className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+            >
+              Go Back
+            </button>
+          </div>
+        </div>
+      );
+    }
   }
 
   return <>{children}</>;

@@ -24,7 +24,7 @@ import {
   ChevronDown,
   ChevronRight,
   Download,
-  Print
+  Printer
 } from 'lucide-react';
 
 interface PharmacogenomicResult {
@@ -169,27 +169,28 @@ const OpioidRiskReport: React.FC = () => {
       },
       {
         factor: 'History of substance abuse',
-        present: currentPatient?.medicalHistory?.some(h => h.condition.toLowerCase().includes('substance') || h.condition.toLowerCase().includes('addiction')) || false,
+        present: currentPatient?.medicalHistory?.some(h => {
+          const cond = String((h as any).condition || '').toLowerCase();
+          return cond.includes('substance') || cond.includes('addiction');
+        }) || false,
         weight: 4,
         description: 'Significantly increases risk of opioid misuse and addiction'
       },
       {
         factor: 'Depression/Anxiety',
-        present: currentPatient?.medicalHistory?.some(h => 
-          h.condition.toLowerCase().includes('depression') || 
-          h.condition.toLowerCase().includes('anxiety') ||
-          h.condition.toLowerCase().includes('psychiatric')
-        ) || false,
+        present: currentPatient?.medicalHistory?.some(h => {
+          const cond = String((h as any).condition || '').toLowerCase();
+          return cond.includes('depression') || cond.includes('anxiety') || cond.includes('psychiatric');
+        }) || false,
         weight: 2,
         description: 'Mental health conditions increase addiction vulnerability'
       },
       {
         factor: 'Chronic pain condition',
-        present: currentPatient?.medicalHistory?.some(h => 
-          h.condition.toLowerCase().includes('pain') ||
-          h.condition.toLowerCase().includes('arthritis') ||
-          h.condition.toLowerCase().includes('fibromyalgia')
-        ) || false,
+        present: currentPatient?.medicalHistory?.some(h => {
+          const cond = String((h as any).condition || '').toLowerCase();
+          return cond.includes('pain') || cond.includes('arthritis') || cond.includes('fibromyalgia');
+        }) || false,
         weight: 1,
         description: 'Long-term opioid use increases dependency risk'
       },
@@ -207,12 +208,11 @@ const OpioidRiskReport: React.FC = () => {
       },
       {
         factor: 'Concurrent benzodiazepines',
-        present: currentPatient?.medications.some(med => 
-          med.name.toLowerCase().includes('alprazolam') ||
-          med.name.toLowerCase().includes('lorazepam') ||
-          med.name.toLowerCase().includes('clonazepam') ||
-          med.name.toLowerCase().includes('diazepam')
-        ) || false,
+        present: currentPatient?.medications.some(med => {
+          const medName = ((med as any).drugName || (med as any).name || '') as string;
+          const n = medName.toLowerCase();
+          return n.includes('alprazolam') || n.includes('lorazepam') || n.includes('clonazepam') || n.includes('diazepam');
+        }) || false,
         weight: 3,
         description: 'Dangerous combination increasing overdose risk'
       }
@@ -262,10 +262,12 @@ const OpioidRiskReport: React.FC = () => {
   const calculateMME = (): MMECalculation[] => {
     if (!currentPatient) return [];
 
-    const opioidMedications = currentPatient.medications.filter(med =>
-      ['codeine', 'morphine', 'oxycodone', 'hydrocodone', 'fentanyl', 'tramadol', 'tapentadol']
-        .some(opioid => med.name.toLowerCase().includes(opioid))
-    );
+    const opioidList = ['codeine', 'morphine', 'oxycodone', 'hydrocodone', 'fentanyl', 'tramadol', 'tapentadol'];
+    const opioidMedications = (currentPatient.medications || []).filter(med => {
+      const medName = (med as any).drugName || (med as any).name || '';
+      const n = String(medName).toLowerCase();
+      return opioidList.some(op => n.includes(op));
+    });
 
     const mmeFactors: Record<string, number> = {
       codeine: 0.15,
@@ -278,27 +280,30 @@ const OpioidRiskReport: React.FC = () => {
     };
 
     return opioidMedications.map(med => {
-      const opioidName = Object.keys(mmeFactors).find(opioid => 
-        med.name.toLowerCase().includes(opioid)
-      ) || 'morphine';
-      
+      const medName = ((med as any).drugName || (med as any).name || '') as string;
+      const lowerName = medName.toLowerCase();
+      const opioidName = (Object.keys(mmeFactors).find(opioid => lowerName.includes(opioid)) || 'morphine') as keyof typeof mmeFactors;
+
       const conversionFactor = mmeFactors[opioidName];
-      const dose = parseFloat(med.dosage.replace(/[^0-9.]/g, '')) || 0;
-      const frequency = med.frequency;
-      
+      const rawDose = String((med as any).dosage || '');
+      const dose = parseFloat(rawDose.replace(/[^0-9.]/g, '')) || 0;
+      const rawFreq = String((med as any).frequency || '');
+      const frequency = rawFreq;
+      const freqLc = rawFreq.toLowerCase();
+
       let dailyDoses = 1;
-      if (frequency.includes('twice') || frequency.includes('BID')) dailyDoses = 2;
-      else if (frequency.includes('three') || frequency.includes('TID')) dailyDoses = 3;
-      else if (frequency.includes('four') || frequency.includes('QID')) dailyDoses = 4;
-      else if (frequency.includes('every 4')) dailyDoses = 6;
-      else if (frequency.includes('every 6')) dailyDoses = 4;
-      else if (frequency.includes('every 8')) dailyDoses = 3;
-      else if (frequency.includes('every 12')) dailyDoses = 2;
+      if (/(twice|bid)/i.test(freqLc)) dailyDoses = 2;
+      else if (/(three|tid)/i.test(freqLc)) dailyDoses = 3;
+      else if (/(four|qid)/i.test(freqLc)) dailyDoses = 4;
+      else if (/every\s*4/i.test(freqLc)) dailyDoses = 6;
+      else if (/every\s*6/i.test(freqLc)) dailyDoses = 4;
+      else if (/every\s*8/i.test(freqLc)) dailyDoses = 3;
+      else if (/every\s*12/i.test(freqLc)) dailyDoses = 2;
 
       const dailyMME = dose * conversionFactor * dailyDoses;
 
       return {
-        medication: med.name,
+        medication: medName,
         dose,
         frequency,
         conversionFactor,
@@ -369,10 +374,96 @@ const OpioidRiskReport: React.FC = () => {
     );
   }
 
+  const handleExport = () => {
+    try {
+      const data = {
+        generatedAt: new Date().toISOString(),
+        patient: {
+          id: currentPatient.id,
+          name: `${currentPatient.demographics.firstName} ${currentPatient.demographics.lastName}`,
+          dob: currentPatient.demographics.dateOfBirth,
+        },
+        riskAssessment,
+        mme: {
+          totalMME: Number(totalMME.toFixed(1)),
+          items: mmeCalculations
+        },
+        pharmacogenomics: pharmacogenomicResults
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const safeName = `${currentPatient.demographics.firstName}-${currentPatient.demographics.lastName}`.replace(/\s+/g, '-').toLowerCase();
+      a.href = url;
+      a.download = `opioid-risk-report-${safeName}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Export failed:', e);
+      alert('Failed to export report.');
+    }
+  };
+
+  const handlePrint = () => {
+    try {
+      window.print();
+    } catch (e) {
+      console.error('Print failed:', e);
+      alert('Failed to open print dialog.');
+    }
+  };
+
+  const handleExportCsv = () => {
+    try {
+      const rows = [
+        ['Medication','Dose (mg)','Frequency','Conversion Factor','Daily MME'],
+        ...mmeCalculations.map(m => [
+          m.medication,
+          String(m.dose),
+          m.frequency,
+          String(m.conversionFactor),
+          m.dailyMME.toFixed(1)
+        ]),
+        ['Total','','','', totalMME.toFixed(1)]
+      ];
+      const csv = rows.map(r => r.map(x => {
+        const s = String(x ?? '');
+        return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+      }).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const safeName = `${currentPatient.demographics.firstName}-${currentPatient.demographics.lastName}`.replace(/\s+/g, '-').toLowerCase();
+      a.href = url;
+      a.download = `mme-breakdown-${safeName}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('CSV export failed:', e);
+      alert('Failed to export CSV.');
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 print-content">
+      {/* Print header (visible only in print) */}
+      <div className="print-only print-header text-xs text-gray-700">
+        <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between">
+          <div>
+            <div className="font-semibold">Opioid Risk & Pain Management Report</div>
+            <div>Patient: {currentPatient.demographics.firstName} {currentPatient.demographics.lastName} (DOB: {new Date(currentPatient.demographics.dateOfBirth).toLocaleDateString()})</div>
+          </div>
+          <div>
+            <div>Date: {new Date().toLocaleString()}</div>
+          </div>
+        </div>
+      </div>
       {/* Header */}
-      <Card className="bg-gradient-to-r from-red-50 to-orange-50 border-red-200">
+      <Card className="bg-gradient-to-r from-red-50 to-orange-50 border-red-200 print-section">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
@@ -385,21 +476,34 @@ const OpioidRiskReport: React.FC = () => {
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+          <div className="flex items-center space-x-2 no-print">
+            <button onClick={handleExport} className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
               <Download className="w-4 h-4" />
               <span>Export Report</span>
             </button>
-            <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-              <Print className="w-4 h-4" />
+            <button onClick={handleExportCsv} className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+              <Download className="w-4 h-4" />
+              <span>Export MME CSV</span>
+            </button>
+            <button onClick={handlePrint} className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+              <Printer className="w-4 h-4" />
               <span>Print</span>
             </button>
           </div>
         </div>
       </Card>
 
+      {/* Print styles */}
+      <style>{`
+        @media print {
+          .no-print { display: none !important; }
+          .rounded-lg { box-shadow: none !important; }
+          .border { border-color: #ddd !important; }
+        }
+      `}</style>
+
       {/* Risk Score Summary */}
-      <div className="grid md:grid-cols-4 gap-4">
+      <div className="grid md:grid-cols-4 gap-4 print-section">
         <Card className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
             <Target className="w-5 h-5 text-gray-600" />
@@ -442,7 +546,7 @@ const OpioidRiskReport: React.FC = () => {
       </div>
 
       {/* Pharmacogenomic Results */}
-      <Card>
+      <Card className="print-section print-break">
         <div 
           className="flex items-center justify-between cursor-pointer"
           onClick={() => toggleSection('genetic')}
@@ -527,7 +631,7 @@ const OpioidRiskReport: React.FC = () => {
       </Card>
 
       {/* Risk Assessment */}
-      <Card>
+      <Card className="print-section">
         <div 
           className="flex items-center justify-between cursor-pointer"
           onClick={() => toggleSection('risk')}
@@ -577,7 +681,7 @@ const OpioidRiskReport: React.FC = () => {
       </Card>
 
       {/* MME Calculator */}
-      <Card>
+      <Card className="print-section print-break">
         <div 
           className="flex items-center justify-between cursor-pointer"
           onClick={() => toggleSection('mme')}
@@ -668,7 +772,7 @@ const OpioidRiskReport: React.FC = () => {
       </Card>
 
       {/* Clinical Recommendations Summary */}
-      <Card>
+      <Card className="print-section">
         <div 
           className="flex items-center justify-between cursor-pointer"
           onClick={() => toggleSection('recommendations')}
@@ -760,6 +864,30 @@ const OpioidRiskReport: React.FC = () => {
           </div>
         )}
       </Card>
+      {/* Print footer (visible only in print) */}
+      <div className="print-only print-footer text-[10px] text-gray-600">
+        <div className="max-w-7xl mx-auto px-6 py-1 flex justify-between">
+          <div>Generated by OncoSafeRx</div>
+          <div>Confidential — For clinical use only</div>
+        </div>
+      </div>
+
+      {/* Print styles */}
+      <style>{`
+        @page { margin: 14mm; }
+        @media print {
+          .no-print { display: none !important; }
+          .print-only { display: block !important; }
+          .print-header { position: fixed; top: 0; left: 0; right: 0; background: white; }
+          .print-footer { position: fixed; bottom: 0; left: 0; right: 0; background: white; }
+          .print-content { margin-top: 56px; margin-bottom: 36px; }
+          .print-section { break-inside: avoid; page-break-inside: avoid; }
+          .print-break { break-before: page; page-break-before: always; }
+        }
+        @media screen {
+          .print-only { display: none; }
+        }
+      `}</style>
     </div>
   );
 };

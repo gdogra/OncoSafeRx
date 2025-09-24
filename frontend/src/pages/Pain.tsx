@@ -51,6 +51,29 @@ export default function Pain() {
     setMedications(prev => prev.map((m, i) => (i === idx ? { ...m, ...patch } : m)));
   };
 
+  // Helper function to extract dose information from drug name
+  const extractDoseFromName = (drugName: string) => {
+    // Look for opioid names and their associated doses
+    const opioids = ['oxycodone', 'morphine', 'fentanyl', 'hydrocodone', 'hydromorphone', 'oxymorphone', 'codeine', 'tramadol'];
+    const lowerName = drugName.toLowerCase();
+    
+    for (const opioid of opioids) {
+      if (lowerName.includes(opioid)) {
+        // Look for dose pattern like "oxycodone 7.5 MG" or "oxycodone hydrochloride 10 MG"
+        const regex = new RegExp(`${opioid}[^\\d]*(\\d+(?:\\.\\d+)?)\\s*mg`, 'i');
+        const match = drugName.match(regex);
+        if (match) {
+          const dose = parseFloat(match[1]);
+          return {
+            doseMgPerDose: dose,
+            dosesPerDay: dose <= 5 ? 6 : dose <= 15 ? 4 : 3  // Reasonable defaults based on strength
+          };
+        }
+      }
+    }
+    return {};
+  };
+
   async function calcMME() {
     setLoading(true); setError(null);
     try {
@@ -296,7 +319,10 @@ export default function Pain() {
                   apiBase={apiBase}
                   value={m.name}
                   onChange={(name) => updateMedication(idx, { name, rxcui: undefined })}
-                  onSelect={(drug) => updateMedication(idx, { name: drug.name, rxcui: drug.rxcui })}
+                  onSelect={(drug) => {
+                    const doseInfo = extractDoseFromName(drug.name);
+                    updateMedication(idx, { name: drug.name, rxcui: drug.rxcui, ...doseInfo });
+                  }}
                 />
                 {m.rxcui && <div className="text-[11px] text-gray-500 mt-1">RXCUI: {m.rxcui}</div>}
                 {sev && reasons.length > 0 && (

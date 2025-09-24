@@ -13,6 +13,7 @@ import Layout from './components/Layout/Layout';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import FeedbackButton from './components/Feedback/FeedbackButton';
 import { useGlobalKeyboardShortcuts } from './hooks/useGlobalKeyboardShortcuts';
+import { useVisitorTracking } from './hooks/useVisitorTracking';
 import setupErrorSuppression from './utils/errorSuppression';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const DrugSearch = lazy(() => import('./pages/DrugSearch'));
@@ -36,10 +37,12 @@ const AuthDiagnostics = lazy(() => import('./pages/AuthDiagnostics'));
 const ClinicalDecisionSupport = lazy(() => import('./pages/ClinicalDecisionSupport'));
 const Research = lazy(() => import('./pages/Research'));
 const AuthPage = lazy(() => import('./pages/AuthPage'));
-const SimpleAuth = lazy(() => import('./pages/SimpleAuth'));
 const Profile = lazy(() => import('./pages/Profile'));
 const Testing = lazy(() => import('./pages/Testing'));
 const Pain = lazy(() => import('./pages/Pain'));
+const Logout = lazy(() => import('./pages/Logout'));
+const AuthDebug = lazy(() => import('./pages/AuthDebug'));
+const ForceLogout = lazy(() => import('./pages/ForceLogout'));
 
 // New Powerful AI Components
 const ClinicalDecisionEngine = lazy(() => import('./components/AI/ClinicalDecisionEngine'));
@@ -49,26 +52,96 @@ const ClinicalCommunicationHub = lazy(() => import('./components/Communication/C
 const IoTMonitoringSystem = lazy(() => import('./components/IoT/IoTMonitoringSystem'));
 const TreatmentOutcomesEngine = lazy(() => import('./components/Predictive/TreatmentOutcomesEngine'));
 const OpioidRiskReport = lazy(() => import('./components/Pain/OpioidRiskReport'));
+const RealTimeClinicalSupport = lazy(() => import('./components/Clinical/RealTimeClinicalSupport'));
+const EHRIntegrationDashboard = lazy(() => import('./components/Integration/EHRIntegrationDashboard'));
+const RegulatoryComplianceSystem = lazy(() => import('./components/Compliance/RegulatoryComplianceSystem'));
+const EvidenceBasedProtocolsSystem = lazy(() => import('./components/Protocols/EvidenceBasedProtocolsSystem'));
+const LaboratoryIntegrationSystem = lazy(() => import('./components/Laboratory/LaboratoryIntegrationSystem'));
+const AdvancedWorkflowSystem = lazy(() => import('./components/Workflow/AdvancedWorkflowSystem'));
+const VisitorAnalyticsDashboard = lazy(() => import('./components/Analytics/VisitorAnalyticsDashboard'));
+const RoutingTest = lazy(() => import('./components/Debug/RoutingTest'));
+const AdminConsole = lazy(() => import('./components/Admin/AdminConsole'));
+const AdminLogin = lazy(() => import('./components/Admin/AdminLogin'));
 
-// Component that handles keyboard shortcuts inside Router context
-function AppWithRouter() {
-  // Initialize global keyboard shortcuts (now inside Router context)
-  useGlobalKeyboardShortcuts();
-
+// Component that handles initialization inside AuthProvider
+function AppWithAuth() {
+  // Initialize visitor tracking (now inside AuthProvider)
+  useVisitorTracking();
+  
   return (
-    <AuthProvider>
-      <PatientProvider>
-        <SelectionProvider>
-          <ComparisonProvider>
+    <PatientProvider>
+      <SelectionProvider>
+        <ComparisonProvider>
             <Suspense fallback={<div className="p-4 text-sm text-gray-500">Loading…</div>}>
               <Routes>
                 {/* Public routes */}
-                <Route path="/auth" element={<SimpleAuth />} />
+                <Route path="/auth" element={<AdminLogin />} />
                 <Route path="/auth-old" element={<AuthPage />} />
                 <Route path="/login" element={<AuthPage />} />
                 <Route path="/signup" element={<AuthPage />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/logout" element={<Logout />} />
+                <Route path="/auth-debug" element={<AuthDebug />} />
+                <Route path="/force-logout" element={<ForceLogout />} />
                 
+                {/* Emergency debug route - no auth logic */}
+                <Route path="/emergency-debug" element={
+                  <div className="min-h-screen bg-red-50 flex items-center justify-center p-4">
+                    <div className="bg-white p-8 rounded-lg shadow-lg max-w-md text-center">
+                      <h1 className="text-2xl font-bold text-red-600 mb-4">🚨 Emergency Debug</h1>
+                      <p className="text-gray-600 mb-4">This route bypasses all authentication logic</p>
+                      <div className="space-y-2">
+                        <div className="text-sm"><strong>URL:</strong> {window.location.href}</div>
+                        <div className="text-sm"><strong>Path:</strong> {window.location.pathname}</div>
+                      </div>
+                      <div className="mt-4 space-y-2">
+                        <a href="/auth" className="block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Try /auth</a>
+                        <a href="/admin/login" className="block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Try /admin/login</a>
+                        <a href="/logout" className="block px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Try /logout</a>
+                      </div>
+                    </div>
+                  </div>
+                } />
+                
+                {/* Admin routes */}
+                <Route path="/admin/login" element={<AdminLogin />} />
+                
+                {/* Simple test route */}
+                <Route path="/test-admin" element={
+                  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                    <div className="bg-white p-8 rounded-lg shadow-lg">
+                      <h1 className="text-2xl font-bold text-gray-900 mb-4">Test Route Working!</h1>
+                      <p className="text-gray-600">This confirms routing is working.</p>
+                      <a href="/admin/login" className="block mt-4 text-blue-600 hover:text-blue-800">
+                        → Try Admin Login
+                      </a>
+                    </div>
+                  </div>
+                } />
+                
+                {/* Testing route - should appear BEFORE the dashboard route */}
+                <Route path="/visitor-analytics" element={
+                  <ProtectedRoute requiredPermission="view_visitor_analytics">
+                    <Layout>
+                      <VisitorAnalyticsDashboard />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/debug-routing" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <RoutingTest />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/admin" element={
+                  <ProtectedRoute requiredPermission="admin_console_access">
+                    <AdminConsole />
+                  </ProtectedRoute>
+                } />
+
                 {/* Protected routes */}
                 <Route path="/" element={
                   <ProtectedRoute>
@@ -282,13 +355,83 @@ function AppWithRouter() {
                     </Layout>
                   </ProtectedRoute>
                 } />
+                <Route path="/real-time-support" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <RealTimeClinicalSupport />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/ehr-integration" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <EHRIntegrationDashboard />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/regulatory-compliance" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <RegulatoryComplianceSystem />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/evidence-protocols" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <EvidenceBasedProtocolsSystem />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/laboratory-integration" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <LaboratoryIntegrationSystem />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/workflow-system" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <AdvancedWorkflowSystem />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+{/* Removed duplicate route - moved to top */}
+                
+                {/* Catch-all route for debugging - NO PROTECTED ROUTE */}
+                <Route path="*" element={
+                  <div className="min-h-screen bg-yellow-50 flex items-center justify-center p-4">
+                    <div className="bg-white p-8 rounded-lg shadow-lg max-w-md text-center">
+                      <h1 className="text-2xl font-bold text-yellow-600 mb-4">🔍 Route Not Found</h1>
+                      <p className="text-gray-600 mb-4">Current path: {window.location.pathname}</p>
+                      <div className="space-y-2">
+                        <a href="/auth" className="block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Go to Auth</a>
+                        <a href="/admin/login" className="block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Admin Login</a>
+                        <a href="/force-logout" className="block px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Force Logout</a>
+                        <a href="/" className="block px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Dashboard</a>
+                      </div>
+                    </div>
+                  </div>
+                } />
               </Routes>
             </Suspense>
-            </ComparisonProvider>
-            </SelectionProvider>
-          </PatientProvider>
-        </AuthProvider>
+          </ComparisonProvider>
+        </SelectionProvider>
+      </PatientProvider>
     );
+}
+
+// Component that handles keyboard shortcuts inside Router context
+function AppWithRouter() {
+  // Initialize global keyboard shortcuts (now inside Router context)
+  useGlobalKeyboardShortcuts();
+
+  return (
+    <AuthProvider>
+      <AppWithAuth />
+    </AuthProvider>
+  );
 }
 
 function App() {

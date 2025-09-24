@@ -13,6 +13,10 @@ export interface UserProfile {
   createdAt: string;
   lastLogin: string;
   isActive: boolean;
+  // RBAC fields
+  roles: string[];
+  permissions: string[];
+  organizationId?: string;
 }
 
 export interface UserPersona {

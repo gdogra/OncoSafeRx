@@ -52,8 +52,15 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
       setTesting(true);
       const resp = await fetch(`${base}/drugs/suggestions?q=aspirin&limit=1`);
       if (!resp.ok) {
-        setStatus('error');
-        writeStored('error');
+        // Check if we're getting HTML instead of JSON (API not deployed)
+        const text = await resp.text();
+        if (text.includes('<!doctype html>')) {
+          setStatus('offline');
+          writeStored('offline');
+        } else {
+          setStatus('error');
+          writeStored('error');
+        }
       } else {
         const data = await resp.json();
         const s: Status = data?.offline ? 'offline' : 'online';
@@ -62,8 +69,8 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
       }
       setCheckedAt(new Date().toLocaleTimeString());
     } catch {
-      setStatus('error');
-      writeStored('error');
+      setStatus('offline'); // Treat as offline instead of error for better UX
+      writeStored('offline');
       setCheckedAt(new Date().toLocaleTimeString());
     } finally {
       setTesting(false);

@@ -39,8 +39,9 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
       hostname: window.location?.hostname,
       origin: window.location?.origin
     });
-    // Temporary hardcode for production deployment testing
+    // CRITICAL: Force correct API URL for production (override bad environment variable)
     if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
+      console.log('🚨 FORCING correct API URL for production');
       return 'https://oncosaferx.onrender.com/api';
     }
     if (vite?.trim()) return vite;

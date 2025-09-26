@@ -25,8 +25,9 @@ const getApiUrl = () => {
     return 'http://localhost:3000/api';
   }
   
-  // CRITICAL FIX: Use Render API server for production instead of same-origin
+  // CRITICAL FIX: Force correct API URL for production (override bad environment variable)
   if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
+    console.log('🚨 API Service: FORCING correct API URL for production');
     return 'https://oncosaferx.onrender.com/api';
   }
   

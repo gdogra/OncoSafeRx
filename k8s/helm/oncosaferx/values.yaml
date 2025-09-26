@@ -1,0 +1,38 @@
+image:
+  repository: ghcr.io/OWNER/REPO
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: app.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources: {}
+
+env:
+  NODE_ENV: production
+  SERVE_FRONTEND: "true"
+  ENABLE_CSP: "true"
+  ENABLE_HSTS: "true"
+  CORS_ORIGIN: "https://app.example.com"
+
+secrets:
+  JWT_SECRET: ""
+  SUPABASE_URL: ""
+  SUPABASE_ANON_KEY: ""
+  SUPABASE_SERVICE_ROLE_KEY: ""
+
+replicaCount: 1
+

@@ -5,6 +5,23 @@ import App from './App';
 import NoAuthApp from './NoAuthApp';
 import ErrorBoundary from './components/System/ErrorBoundary';
 import reportWebVitals from './reportWebVitals';
+// Optional Sentry init (dynamic, safe if dependency absent)
+try {
+  const dsn = import.meta.env.VITE_SENTRY_DSN as string | undefined
+  if (dsn) {
+    // dynamic import so devs not using Sentry aren't forced to install
+    import('@sentry/react').then(Sentry => {
+      Sentry.init({
+        dsn,
+        environment: (import.meta.env.VITE_SENTRY_ENV as string) || import.meta.env.MODE,
+        release: (import.meta.env.VITE_SENTRY_RELEASE as string) || undefined,
+        tracesSampleRate: Number(import.meta.env.VITE_SENTRY_TRACES_SAMPLE_RATE || 0.1)
+      })
+      // mark init path for diagnostics
+      try { localStorage.setItem('osrx_sentry', JSON.stringify({ enabled: true, at: Date.now() })) } catch {}
+    }).catch(() => {})
+  }
+} catch {}
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

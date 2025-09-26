@@ -7,6 +7,7 @@ import client from 'prom-client';
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
 import { validateEnv, getBoolean } from './config/env.js';
+import { initSentry, sentryErrorHandler } from './config/sentry.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -55,6 +56,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
+initSentry(app);
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
@@ -253,6 +255,7 @@ if (NODE_ENV !== 'development' || process.env.USE_VITE === 'false') {
 app.use('*', notFoundHandler);
 
 // Global error handler
+app.use(sentryErrorHandler());
 app.use(errorHandler);
 
 const server = app.listen(PORT, () => {

@@ -39,6 +39,10 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
       hostname: window.location?.hostname,
       origin: window.location?.origin
     });
+    // Temporary hardcode for production deployment testing
+    if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
+      return 'https://oncosaferx.onrender.com/api';
+    }
     if (vite?.trim()) return vite;
     if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') return 'http://localhost:3000/api';
     if (typeof window !== 'undefined' && window.location?.origin) return `${window.location.origin}/api`;

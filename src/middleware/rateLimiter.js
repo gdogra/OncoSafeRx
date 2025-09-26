@@ -25,5 +25,5 @@ const RL_WINDOW = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '', 10) || 15 * 6
 const RL_MAX = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '', 10) || 100;
 
 export const generalLimiter = createRateLimiter(RL_WINDOW, RL_MAX);
-export const searchLimiter = createRateLimiter(60 * 1000, 30);
-export const interactionLimiter = createRateLimiter(5 * 60 * 1000, 50);
+export const searchLimiter = createRateLimiter(60 * 1000, 120); // 120 requests per minute
+export const interactionLimiter = createRateLimiter(5 * 60 * 1000, 200); // 200 requests per 5 minutes

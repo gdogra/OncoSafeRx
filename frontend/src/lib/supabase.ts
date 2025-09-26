@@ -21,10 +21,25 @@ export const supabase = createClient(supabaseUrl!, supabaseAnonKey!, {
     persistSession: true,
     detectSessionInUrl: false,
     debug: import.meta.env.MODE !== 'production',
-    flowType: 'pkce'
+    flowType: 'pkce',
+    storageKey: 'oncosaferx-auth'
   },
   global: {
-    headers: { 'X-Client-Info': 'supabase-js-web' }
+    headers: { 
+      'X-Client-Info': 'supabase-js-web',
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    fetch: (url, options = {}) => {
+      // Add timeout and better error handling
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+      
+      return fetch(url, {
+        ...options,
+        signal: controller.signal,
+      }).finally(() => clearTimeout(timeoutId))
+    }
   },
   realtime: {
     params: { eventsPerSecond: 10 }

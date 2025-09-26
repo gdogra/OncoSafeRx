@@ -164,16 +164,45 @@ export class SupabaseAuthService {
         if (directResponse.ok) {
           const data = await directResponse.json()
           console.log('✅ Direct API login successful', { hasAccessToken: !!data.access_token })
-          // Set Supabase session so the SDK is consistent
-          const { data: setData, error: setErr } = await supabase.auth.setSession({
-            access_token: data.access_token,
-            refresh_token: data.refresh_token,
-          } as any)
-          if (setErr) throw setErr
-          if (!setData?.session?.user) throw new Error('Failed to establish session from direct login')
-          const userProfile = await this.buildUserProfile(setData.session.user)
-          try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct-api', at: Date.now() })) } catch {}
-          return userProfile
+          
+          // Parse JWT token directly instead of using setSession (which hangs)
+          console.log('🎯 Bypassing setSession, parsing JWT directly...')
+          try {
+            const token = data.access_token
+            const payload = JSON.parse(atob(token.split('.')[1]))
+            console.log('🔍 JWT payload parsed:', { sub: payload.sub, email: payload.email, exp: payload.exp })
+            
+            // Create user object from JWT payload
+            const user = {
+              id: payload.sub,
+              email: payload.email,
+              created_at: new Date(payload.iat * 1000).toISOString(),
+              user_metadata: {}
+            }
+            
+            const userProfile = await this.buildUserProfile(user)
+            console.log('✅ User profile created from JWT:', { id: userProfile.id, email: userProfile.email })
+            try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'jwt-direct', at: Date.now() })) } catch {}
+            return userProfile
+          } catch (jwtError) {
+            console.log('❌ JWT parsing failed, attempting setSession...', jwtError)
+            // Fallback to setSession with timeout
+            const setSessionPromise = supabase.auth.setSession({
+              access_token: data.access_token,
+              refresh_token: data.refresh_token,
+            } as any)
+            
+            const setTimeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('setSession timeout')), 1000)
+            )
+            
+            const { data: setData, error: setErr } = await Promise.race([setSessionPromise, setTimeoutPromise]) as any
+            if (setErr) throw setErr
+            if (!setData?.session?.user) throw new Error('Failed to establish session from direct login')
+            const userProfile = await this.buildUserProfile(setData.session.user)
+            try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct-api-fallback', at: Date.now() })) } catch {}
+            return userProfile
+          }
         } else {
           const errorText = await directResponse.text()
           console.log('❌ Direct API failed:', directResponse.status, errorText)

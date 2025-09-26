@@ -24,7 +24,8 @@
     "db:setup": "echo 'Please run the SQL scripts in database/ folder in your Supabase dashboard'",
     "db:seed": "node src/scripts/seedDatabase.js",
     "sync:rxnorm": "node src/scripts/syncRxNorm.js",
-    "sync:cpic": "node src/scripts/syncCPIC.js"
+    "sync:cpic": "node src/scripts/syncCPIC.js",
+    "migrate:users": "node src/scripts/migrateUsersToSupabase.js"
   },
   "keywords": [
     "oncology",

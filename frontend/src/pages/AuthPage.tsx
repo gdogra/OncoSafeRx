@@ -53,6 +53,9 @@ const AuthPage: React.FC = () => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const { showToast } = useToast();
   const [authModeInfo, setAuthModeInfo] = useState<string | null>(null);
+  const [useProxy, setUseProxy] = useState<boolean>(() => {
+    try { return localStorage.getItem('osrx_use_auth_proxy') === 'true' } catch { return false }
+  });
   const [showOtp, setShowOtp] = useState(false);
   const [otpCode, setOtpCode] = useState('');
 
@@ -76,6 +79,11 @@ const AuthPage: React.FC = () => {
       }
     } catch {}
   }, [state.isAuthenticated, state.error]);
+
+  // Persist proxy toggle
+  useEffect(() => {
+    try { localStorage.setItem('osrx_use_auth_proxy', useProxy ? 'true' : 'false') } catch {}
+  }, [useProxy]);
 
   // Role options for signup
   const roleOptions = [
@@ -399,6 +407,35 @@ const AuthPage: React.FC = () => {
             <form onSubmit={handleSignin} className="space-y-6">
               {authModeInfo && (
                 <div className="text-xs text-gray-500">{authModeInfo}</div>
+              )}
+              {import.meta.env.MODE !== 'production' && (
+                <div className="flex items-center justify-between text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                  <label className="inline-flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={useProxy}
+                      onChange={(e) => setUseProxy(e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    <span>Use server auth proxy on failure</span>
+                  </label>
+                  <button
+                    type="button"
+                    className="text-blue-600 hover:underline"
+                    onClick={() => {
+                      const forced = localStorage.getItem('osrx_force_production') === 'true'
+                      if (forced) {
+                        localStorage.removeItem('osrx_force_production')
+                        showToast('success', 'Force production disabled');
+                      } else {
+                        localStorage.setItem('osrx_force_production', 'true')
+                        showToast('success', 'Force production enabled');
+                      }
+                    }}
+                  >
+                    Toggle force production
+                  </button>
+                </div>
               )}
               <div>
                 <label htmlFor="signin-email" className="block text-sm font-medium text-gray-700">

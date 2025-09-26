@@ -13,8 +13,7 @@ export class SupabaseAuthService {
     const email = (data.email || '').trim().toLowerCase()
     const password = (data.password || '').trim()
 
-    console.log('🔐 CACHE BUSTER - Clean login attempt for:', email)
-    console.log('🚀 NEW CODE LOADED - Enhanced auth service with URL detection')
+    console.log('🔐 Login attempt for:', email)
 
     // Do NOT force production by default; honor URL/localStorage flags
     
@@ -50,7 +49,9 @@ export class SupabaseAuthService {
       // Simple dev credentials
       if (password === 'dev' || password === 'test' || password === 'admin') {
         console.log('✅ Dev credentials accepted')
-        return this.createDevUser(email)
+        const profile = this.createDevUser(email)
+        try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'dev', at: Date.now() })) } catch {}
+        return profile
       }
       
       console.log('❌ Invalid dev password. Use: dev, test, or admin')
@@ -68,7 +69,9 @@ export class SupabaseAuthService {
       if (error) {
         console.log('❌ Supabase error:', error.message)
         // Optional fallback: try server-side proxy if enabled
-        const useProxy = (import.meta as any).env?.VITE_SUPABASE_AUTH_VIA_PROXY === 'true';
+        const envProxy = (import.meta as any).env?.VITE_SUPABASE_AUTH_VIA_PROXY === 'true'
+        const lsProxy = (() => { try { return localStorage.getItem('osrx_use_auth_proxy') === 'true' } catch { return false } })()
+        const useProxy = envProxy || lsProxy
         if (useProxy) {
           try {
             const resp = await fetch('/api/supabase-auth/proxy/login', {
@@ -87,6 +90,7 @@ export class SupabaseAuthService {
               if (!setData?.session?.user) throw new Error('Failed to establish session');
               console.log('✅ Proxy auth successful');
               const userProfile = await this.buildUserProfile(setData.session.user);
+              try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'proxy', at: Date.now() })) } catch {}
               return userProfile;
             }
           } catch (proxyErr) {
@@ -103,6 +107,7 @@ export class SupabaseAuthService {
 
       console.log('✅ Supabase auth successful')
       const userProfile = await this.buildUserProfile(authData.user)
+      try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct', at: Date.now() })) } catch {}
       return userProfile
 
     } catch (error) {

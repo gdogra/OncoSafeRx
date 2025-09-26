@@ -78,7 +78,7 @@ export class SupabaseAuthService {
       })
       
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Authentication timeout after 8 seconds')), 8000)
+        setTimeout(() => reject(new Error('Authentication timeout after 5 seconds')), 5000)
       })
       
       console.log('🔄 Attempting Supabase authentication...')
@@ -138,41 +138,58 @@ export class SupabaseAuthService {
     } catch (error) {
       console.log('💥 Auth error:', error)
       
-      // Try direct API call as fallback
-      if (error.message?.includes('timeout')) {
-        console.log('🔄 Trying direct Supabase API call...')
-        try {
-          const response = await fetch(`https://emfrwckxctyarphjvfeu.supabase.co/auth/v1/token?grant_type=password`, {
+      // Always try direct API call as fallback for better reliability
+      console.log('🔄 Trying direct Supabase API call as fallback...')
+      try {
+        const directResponse = await Promise.race([
+          fetch(`https://emfrwckxctyarphjvfeu.supabase.co/auth/v1/token?grant_type=password`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c'
+              'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c',
+              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c'
             },
             body: JSON.stringify({
               email,
               password
             })
+          }),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Direct API timeout')), 3000)
+          )
+        ]) as Response;
+        
+        console.log('🌐 Direct API response status:', directResponse.status)
+        if (directResponse.ok) {
+          const data = await directResponse.json()
+          console.log('✅ Direct API login successful', { hasAccessToken: !!data.access_token })
+          
+          // Set session manually using Supabase client
+          const { data: setData, error: setErr } = await supabase.auth.setSession({
+            access_token: data.access_token,
+            refresh_token: data.refresh_token,
           })
           
-          console.log('🌐 Direct API response status:', response.status)
-          if (response.ok) {
-            const data = await response.json()
-            console.log('✅ Direct API login successful')
-            // Set session manually
-            const { data: setData, error: setErr } = await supabase.auth.setSession({
-              access_token: data.access_token,
-              refresh_token: data.refresh_token,
-            })
-            if (setErr) throw setErr
-            if (!setData?.session?.user) throw new Error('Failed to establish session')
-            const userProfile = await this.buildUserProfile(setData.session.user)
-            return userProfile
-          } else {
-            console.log('❌ Direct API failed:', await response.text())
+          if (setErr) {
+            console.log('❌ Session setup failed:', setErr)
+            throw setErr
           }
-        } catch (apiError) {
-          console.log('💥 Direct API error:', apiError)
+          
+          if (!setData?.session?.user) {
+            console.log('❌ No user in session data')
+            throw new Error('Failed to establish session')
+          }
+          
+          console.log('✅ Session established via direct API')
+          const userProfile = await this.buildUserProfile(setData.session.user)
+          try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct-api', at: Date.now() })) } catch {}
+          return userProfile
+        } else {
+          const errorText = await directResponse.text()
+          console.log('❌ Direct API failed:', directResponse.status, errorText)
         }
+      } catch (apiError) {
+        console.log('💥 Direct API error:', apiError)
       }
       
       throw error

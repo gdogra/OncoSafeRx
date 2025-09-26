@@ -19,7 +19,7 @@ export class SecurityManager {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: https:",
-      "connect-src 'self' https://api.oncosaferx.com https://api-staging.oncosaferx.com",
+      "connect-src 'self' https://oncosaferx.onrender.com https://api.oncosaferx.com https://api-staging.oncosaferx.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'"

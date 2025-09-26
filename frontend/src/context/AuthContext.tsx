@@ -96,11 +96,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('AuthContext: Starting login for', data.email);
       dispatch({ type: 'AUTH_START' });
       
-      // Critical UI-level timeout to prevent infinite spinning
+      // Critical UI-level timeout to prevent infinite spinning (extended for JWT parsing)
       const loginTimeout = setTimeout(() => {
-        console.log('🛑 CRITICAL: Login exceeded 8 seconds - forcing failure');
+        console.log('🛑 CRITICAL: Login exceeded 15 seconds - forcing failure');
         dispatch({ type: 'AUTH_FAILURE', payload: 'Login timeout - please try again' });
-      }, 8000);
+      }, 15000);
       
       try {
         const user = await AuthService.login(data);

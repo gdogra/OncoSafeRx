@@ -61,13 +61,23 @@ export class SupabaseAuthService {
     // Production: Real Supabase authentication
     console.log('🌐 Production mode: Real Supabase auth')
     try {
-      const { data: authData, error } = await supabase.auth.signInWithPassword({
+      // Add timeout to prevent hanging
+      const authPromise = supabase.auth.signInWithPassword({
         email,
         password
       })
+      
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Authentication timeout after 15 seconds')), 15000)
+      })
+      
+      console.log('🔄 Attempting Supabase authentication...')
+      const { data: authData, error } = await Promise.race([authPromise, timeoutPromise]) as any
 
+      console.log('🔍 Auth response:', { authData: !!authData, error: !!error, errorMessage: error?.message })
+      
       if (error) {
-        console.log('❌ Supabase error:', error.message)
+        console.log('❌ Supabase error:', error.message, error)
         // Optional fallback: try server-side proxy if enabled
         const envProxy = (import.meta as any).env?.VITE_SUPABASE_AUTH_VIA_PROXY === 'true'
         const lsProxy = (() => { try { return localStorage.getItem('osrx_use_auth_proxy') === 'true' } catch { return false } })()
@@ -101,11 +111,16 @@ export class SupabaseAuthService {
       }
 
       if (!authData.user || !authData.session) {
-        console.log('❌ No user/session returned')
+        console.log('❌ No user/session returned', { user: !!authData.user, session: !!authData.session })
         throw new Error('Authentication failed')
       }
 
-      console.log('✅ Supabase auth successful')
+      console.log('✅ Supabase auth successful', { 
+        userId: authData.user.id, 
+        email: authData.user.email,
+        confirmed: authData.user.email_confirmed_at,
+        lastSignIn: authData.user.last_sign_in_at 
+      })
       const userProfile = await this.buildUserProfile(authData.user)
       try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct', at: Date.now() })) } catch {}
       return userProfile

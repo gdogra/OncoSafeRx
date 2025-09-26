@@ -6,6 +6,13 @@ const getApiUrl = () => {
   // @ts-ignore
   const cra = typeof process !== 'undefined' ? (process as any)?.env?.REACT_APP_API_URL as string | undefined : undefined;
   
+  console.log('🔍 API Service debug:', {
+    vite,
+    cra,
+    hostname: typeof window !== 'undefined' ? window.location?.hostname : 'server',
+    allEnv: (import.meta as any)?.env
+  });
+  
   if (vite?.trim()) {
     return vite;
   }
@@ -18,9 +25,9 @@ const getApiUrl = () => {
     return 'http://localhost:3000/api';
   }
   
-  // Prefer same-origin '/api' in production to avoid CSP issues
-  if (typeof window !== 'undefined' && window.location && window.location.origin) {
-    return `${window.location.origin}/api`;
+  // CRITICAL FIX: Use Render API server for production instead of same-origin
+  if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
+    return 'https://oncosaferx.onrender.com/api';
   }
   
   return 'http://localhost:3000/api';

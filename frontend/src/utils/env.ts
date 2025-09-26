@@ -26,11 +26,11 @@ export function apiBaseUrl(): string {
     return devUrl;
   }
   
-  // Prefer same-origin '/api' in production to avoid CSP issues
-  if (typeof window !== 'undefined' && window.location && window.location.origin) {
-    const fallbackUrl = `${window.location.origin}/api`;
-    cachedApiUrl = fallbackUrl;
-    return fallbackUrl;
+  // CRITICAL FIX: Use Render API server for production instead of same-origin
+  if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
+    const productionUrl = 'https://oncosaferx.onrender.com/api';
+    cachedApiUrl = productionUrl;
+    return productionUrl;
   }
   
   const fallback = 'http://localhost:3000/api';

@@ -604,7 +604,7 @@ function DrugAutocomplete({ apiBase, value, onChange, onSelect }: {
         value={q}
         onChange={(e) => { setQ(e.target.value); onChange(e.target.value); }}
         onFocus={() => items.length && setOpen(true)}
-        onBlur={() => setTimeout(() => setOpen(false), 120)}
+        onBlur={() => setTimeout(() => setOpen(false), 200)}
         className="w-full border rounded px-2 py-1 text-sm"
         placeholder="e.g., oxycodone"
         aria-autocomplete="list"
@@ -621,7 +621,12 @@ function DrugAutocomplete({ apiBase, value, onChange, onSelect }: {
             <button
               key={it.rxcui + i}
               type="button"
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onSelect(it);
+                setQ(it.name);
+                setOpen(false);
+              }}
               onClick={() => { onSelect(it); setQ(it.name); setOpen(false); }}
               className="w-full text-left px-2 py-1 text-sm hover:bg-gray-100"
             >

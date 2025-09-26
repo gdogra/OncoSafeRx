@@ -54,8 +54,11 @@ const DrugSelector: React.FC<DrugSelectorProps> = ({ onDrugSelect }) => {
 
   const handleDrugSelect = (drug: Drug) => {
     onDrugSelect(drug);
-    setSearchResults(null);
-    setSearchQuery('');
+    // Small delay to allow click event to complete before clearing
+    setTimeout(() => {
+      setSearchResults(null);
+      setSearchQuery('');
+    }, 150);
   };
 
   // Handle shortcut selection
@@ -161,6 +164,10 @@ const DrugSelector: React.FC<DrugSelectorProps> = ({ onDrugSelect }) => {
               >
                 <div
                   className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                  onMouseDown={(e) => {
+                    e.preventDefault(); // Prevent blur events
+                    handleDrugSelect(drug);
+                  }}
                   onClick={() => handleDrugSelect(drug)}
                 >
                   <div className="flex items-center justify-between">

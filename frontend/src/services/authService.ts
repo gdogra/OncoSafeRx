@@ -164,26 +164,49 @@ export class SupabaseAuthService {
           const data = await directResponse.json()
           console.log('✅ Direct API login successful', { hasAccessToken: !!data.access_token })
           
-          // Set session manually using Supabase client
-          const { data: setData, error: setErr } = await supabase.auth.setSession({
-            access_token: data.access_token,
-            refresh_token: data.refresh_token,
-          })
-          
-          if (setErr) {
-            console.log('❌ Session setup failed:', setErr)
-            throw setErr
+          // Skip Supabase session setup entirely - parse user from JWT token
+          try {
+            console.log('🔄 Parsing user from JWT token...')
+            const tokenPayload = JSON.parse(atob(data.access_token.split('.')[1]))
+            console.log('✅ Token parsed successfully', { userId: tokenPayload.sub, email: tokenPayload.email })
+            
+            // Create user profile directly from token data
+            const userProfile = {
+              id: tokenPayload.sub,
+              email: tokenPayload.email || email,
+              firstName: tokenPayload.user_metadata?.first_name || email.split('@')[0] || 'User',
+              lastName: tokenPayload.user_metadata?.last_name || '',
+              role: tokenPayload.user_metadata?.role || 'oncologist',
+              specialty: tokenPayload.user_metadata?.specialty || '',
+              institution: tokenPayload.user_metadata?.institution || '',
+              licenseNumber: tokenPayload.user_metadata?.license_number || '',
+              yearsExperience: tokenPayload.user_metadata?.years_experience || 0,
+              preferences: this.getDefaultPreferences('oncologist'),
+              persona: this.createDefaultPersona('oncologist'),
+              createdAt: new Date().toISOString(),
+              lastLogin: new Date().toISOString(),
+              isActive: true,
+              roles: ['oncologist'],
+              permissions: ['read', 'write', 'analyze']
+            }
+            
+            console.log('✅ User profile created from token')
+            
+            // Store tokens in localStorage for later use
+            try { 
+              localStorage.setItem('sb-emfrwckxctyarphjvfeu-auth-token', JSON.stringify({
+                access_token: data.access_token,
+                refresh_token: data.refresh_token,
+                expires_at: tokenPayload.exp * 1000
+              }))
+              localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct-api-bypass', at: Date.now() }))
+            } catch {}
+            
+            return userProfile
+          } catch (tokenError) {
+            console.log('❌ Token parsing failed:', tokenError)
+            throw new Error('Failed to parse authentication token')
           }
-          
-          if (!setData?.session?.user) {
-            console.log('❌ No user in session data')
-            throw new Error('Failed to establish session')
-          }
-          
-          console.log('✅ Session established via direct API')
-          const userProfile = await this.buildUserProfile(setData.session.user)
-          try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct-api', at: Date.now() })) } catch {}
-          return userProfile
         } else {
           const errorText = await directResponse.text()
           console.log('❌ Direct API failed:', directResponse.status, errorText)

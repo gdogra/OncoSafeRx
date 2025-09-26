@@ -1,2 +1,6 @@
-/* /index.html 200
+# API proxy redirect
+/api/*  https://oncosaferx.onrender.com/api/:splat  200
+
+# SPA fallback
+/*  /index.html  200
 

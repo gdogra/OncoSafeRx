@@ -33,10 +33,10 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
   const base = useMemo(() => {
     if (apiBase) return apiBase;
     const vite = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
-    // Prefer VITE_API_URL if provided, else same-origin '/api' in production
+    // CRITICAL OVERRIDE: Force correct API URL for production (environment variable is wrong!)
     if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
-      if (vite?.trim()) return vite;
-      return `${window.location.origin}/api`;
+      console.log('🚨 ConnectivityStatus: FORCING correct Render API URL for production');
+      return 'https://oncosaferx.onrender.com/api';
     }
     if (vite?.trim()) return vite;
     if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') return 'http://localhost:3000/api';

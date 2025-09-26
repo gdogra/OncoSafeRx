@@ -6,6 +6,12 @@ const getApiUrl = () => {
   // @ts-ignore
   const cra = typeof process !== 'undefined' ? (process as any)?.env?.REACT_APP_API_URL as string | undefined : undefined;
   
+  // CRITICAL OVERRIDE: Force correct API URL for production (environment variable is wrong!)
+  if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
+    console.log('🚨 API Service: FORCING correct Render API URL for production');
+    return 'https://oncosaferx.onrender.com/api';
+  }
+  
   if (vite?.trim()) {
     return vite;
   }
@@ -16,11 +22,6 @@ const getApiUrl = () => {
   // For development, always use localhost:3000 API
   if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
     return 'http://localhost:3000/api';
-  }
-  
-  // In production, prefer same-origin '/api' (Netlify/Proxy handles upstream)
-  if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
-    return `${window.location.origin}/api`;
   }
   
   return 'http://localhost:3000/api';

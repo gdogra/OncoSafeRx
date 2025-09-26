@@ -14,10 +14,10 @@ export function apiBaseUrl(): string {
   // @ts-ignore
   const cra = typeof process !== 'undefined' ? (process as any)?.env?.REACT_APP_API_URL as string | undefined : undefined;
   
-  // CRITICAL OVERRIDE: Force correct API URL for production (environment variable is wrong!)
+  // CRITICAL OVERRIDE: Use Netlify proxy for production (bypasses CORS issues)
   if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
-    console.log('🚨 ENV Utils: FORCING correct Render API URL for production');
-    const productionUrl = 'https://oncosaferx.onrender.com/api';
+    console.log('🚨 ENV Utils: Using Netlify proxy for production API calls');
+    const productionUrl = '/api';
     cachedApiUrl = productionUrl;
     return productionUrl;
   }

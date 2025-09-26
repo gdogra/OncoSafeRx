@@ -33,10 +33,10 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
   const base = useMemo(() => {
     if (apiBase) return apiBase;
     const vite = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
-    // CRITICAL OVERRIDE: Force correct API URL for production (environment variable is wrong!)
+    // CRITICAL OVERRIDE: Use Netlify proxy for production (bypasses CORS issues)
     if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
-      console.log('🚨 ConnectivityStatus: FORCING correct Render API URL for production');
-      return 'https://oncosaferx.onrender.com/api';
+      console.log('🚨 ConnectivityStatus: Using Netlify proxy for production API calls');
+      return '/api';
     }
     if (vite?.trim()) return vite;
     if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') return 'http://localhost:3000/api';

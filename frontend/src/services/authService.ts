@@ -135,21 +135,22 @@ export class SupabaseAuthService {
     } catch (error) {
       console.log('💥 Auth error:', error)
       
-      // IMMEDIATE fallback to direct API call
+      // IMMEDIATE fallback to direct API call (using env-configured Supabase URL/key)
       console.log('🚀 IMMEDIATE fallback to direct Supabase API call...')
       try {
+        const su = ((import.meta as any)?.env?.VITE_SUPABASE_URL as string || '').trim()
+        const sk = ((import.meta as any)?.env?.VITE_SUPABASE_ANON_KEY as string || '').trim()
+        if (!su || !sk) throw new Error('Supabase env missing for direct fallback')
+
         const directResponse = await Promise.race([
-          fetch(`https://emfrwckxctyarphjvfeu.supabase.co/auth/v1/token?grant_type=password`, {
+          fetch(`${su}/auth/v1/token?grant_type=password`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c',
-              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c'
+              'apikey': sk,
+              'Authorization': `Bearer ${sk}`,
             },
-            body: JSON.stringify({
-              email,
-              password
-            })
+            body: JSON.stringify({ email, password })
           }),
           new Promise((_, reject) => 
             setTimeout(() => {
@@ -163,50 +164,16 @@ export class SupabaseAuthService {
         if (directResponse.ok) {
           const data = await directResponse.json()
           console.log('✅ Direct API login successful', { hasAccessToken: !!data.access_token })
-          
-          // Skip Supabase session setup entirely - parse user from JWT token
-          try {
-            console.log('🔄 Parsing user from JWT token...')
-            const tokenPayload = JSON.parse(atob(data.access_token.split('.')[1]))
-            console.log('✅ Token parsed successfully', { userId: tokenPayload.sub, email: tokenPayload.email })
-            
-            // Create user profile directly from token data
-            const userProfile = {
-              id: tokenPayload.sub,
-              email: tokenPayload.email || email,
-              firstName: tokenPayload.user_metadata?.first_name || email.split('@')[0] || 'User',
-              lastName: tokenPayload.user_metadata?.last_name || '',
-              role: tokenPayload.user_metadata?.role || 'oncologist',
-              specialty: tokenPayload.user_metadata?.specialty || '',
-              institution: tokenPayload.user_metadata?.institution || '',
-              licenseNumber: tokenPayload.user_metadata?.license_number || '',
-              yearsExperience: tokenPayload.user_metadata?.years_experience || 0,
-              preferences: this.getDefaultPreferences('oncologist'),
-              persona: this.createDefaultPersona('oncologist'),
-              createdAt: new Date().toISOString(),
-              lastLogin: new Date().toISOString(),
-              isActive: true,
-              roles: ['oncologist'],
-              permissions: ['read', 'write', 'analyze']
-            }
-            
-            console.log('✅ User profile created from token')
-            
-            // Store tokens in localStorage for later use
-            try { 
-              localStorage.setItem('sb-emfrwckxctyarphjvfeu-auth-token', JSON.stringify({
-                access_token: data.access_token,
-                refresh_token: data.refresh_token,
-                expires_at: tokenPayload.exp * 1000
-              }))
-              localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct-api-bypass', at: Date.now() }))
-            } catch {}
-            
-            return userProfile
-          } catch (tokenError) {
-            console.log('❌ Token parsing failed:', tokenError)
-            throw new Error('Failed to parse authentication token')
-          }
+          // Set Supabase session so the SDK is consistent
+          const { data: setData, error: setErr } = await supabase.auth.setSession({
+            access_token: data.access_token,
+            refresh_token: data.refresh_token,
+          } as any)
+          if (setErr) throw setErr
+          if (!setData?.session?.user) throw new Error('Failed to establish session from direct login')
+          const userProfile = await this.buildUserProfile(setData.session.user)
+          try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct-api', at: Date.now() })) } catch {}
+          return userProfile
         } else {
           const errorText = await directResponse.text()
           console.log('❌ Direct API failed:', directResponse.status, errorText)

@@ -43,13 +43,13 @@ const getEnvironment = (): AppConfig['environment'] => {
 
 const environment = getEnvironment();
 
+const viteApi = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
+const apiUrl = viteApi?.trim() ? viteApi.trim() : (
+  environment === 'development' ? 'http://localhost:3000/api' : `${window.location.origin}/api`
+);
+
 export const config: AppConfig = {
-  apiUrl: process.env.REACT_APP_API_URL || 
-    (environment === 'production' 
-      ? 'https://api.oncosaferx.com/v1'
-      : environment === 'staging'
-      ? 'https://api-staging.oncosaferx.com/v1'
-      : 'http://localhost:3001/api/v1'),
+  apiUrl,
   
   environment,
   version: process.env.REACT_APP_VERSION || '1.0.0',

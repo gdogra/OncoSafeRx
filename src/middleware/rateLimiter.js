@@ -24,6 +24,14 @@ export const createRateLimiter = (windowMs = 15 * 60 * 1000, max = 100) => {
 const RL_WINDOW = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '', 10) || 15 * 60 * 1000;
 const RL_MAX = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '', 10) || 100;
 
+// Search rate limiting (can be overridden with env vars)
+const SEARCH_WINDOW = parseInt(process.env.SEARCH_RATE_LIMIT_WINDOW_MS || '', 10) || 60 * 1000;
+const SEARCH_MAX = parseInt(process.env.SEARCH_RATE_LIMIT_MAX || '', 10) || 120;
+
+// Interaction rate limiting (can be overridden with env vars)  
+const INTERACTION_WINDOW = parseInt(process.env.INTERACTION_RATE_LIMIT_WINDOW_MS || '', 10) || 5 * 60 * 1000;
+const INTERACTION_MAX = parseInt(process.env.INTERACTION_RATE_LIMIT_MAX || '', 10) || 200;
+
 export const generalLimiter = createRateLimiter(RL_WINDOW, RL_MAX);
-export const searchLimiter = createRateLimiter(60 * 1000, 120); // 120 requests per minute
-export const interactionLimiter = createRateLimiter(5 * 60 * 1000, 200); // 200 requests per 5 minutes
+export const searchLimiter = createRateLimiter(SEARCH_WINDOW, SEARCH_MAX);
+export const interactionLimiter = createRateLimiter(INTERACTION_WINDOW, INTERACTION_MAX);

@@ -70,6 +70,7 @@ class VisitorTrackingService {
   private currentPageView: PageView | null = null;
   private isTrackingEnabled: boolean = true;
   private apiEndpoint: string = '/api/analytics';
+  private enableServerAnalytics: boolean = ((import.meta as any)?.env?.VITE_ENABLE_SERVER_ANALYTICS === 'true');
 
   constructor() {
     this.initializeTracking();
@@ -262,7 +263,7 @@ class VisitorTrackingService {
     this.currentPageView = pageView;
     this.currentPageStart = Date.now();
 
-    // Send to server
+    // Send to server if enabled
     this.sendToServer('pageview', pageView);
   }
 
@@ -367,6 +368,7 @@ class VisitorTrackingService {
 
   private async sendToServer(eventType: string, data: any): Promise<void> {
     if (!this.isTrackingEnabled) return;
+    if (!this.enableServerAnalytics) return; // server analytics disabled by default
 
     try {
       const payload = {

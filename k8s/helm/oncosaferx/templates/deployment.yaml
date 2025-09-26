@@ -58,5 +58,13 @@ spec:
                 secretKeyRef:
                   name: {{ include "oncosaferx.fullname" . }}
                   key: SUPABASE_SERVICE_ROLE_KEY
+            - name: SENTRY_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "oncosaferx.fullname" . }}
+                  key: SENTRY_DSN
+            - name: SENTRY_ENV
+              value: {{ .Values.env.NODE_ENV | quote }}
+            - name: SENTRY_RELEASE
+              value: {{ .Values.image.tag | quote }}
           resources: {{- toYaml .Values.resources | nindent 12 }}
-

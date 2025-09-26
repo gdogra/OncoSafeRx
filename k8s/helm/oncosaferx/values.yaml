@@ -9,15 +9,19 @@ service:
   targetPort: 3000
 
 ingress:
-  enabled: false
-  className: ""
-  annotations: {}
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
     - host: app.example.com
       paths:
         - path: /
           pathType: Prefix
-  tls: []
+  tls:
+    - hosts:
+        - app.example.com
+      secretName: app-example-com-tls
 
 resources: {}
 
@@ -33,6 +37,6 @@ secrets:
   SUPABASE_URL: ""
   SUPABASE_ANON_KEY: ""
   SUPABASE_SERVICE_ROLE_KEY: ""
+  SENTRY_DSN: ""
 
 replicaCount: 1
-

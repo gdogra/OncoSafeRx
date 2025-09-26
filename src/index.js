@@ -74,25 +74,34 @@ app.use(helmet({
 if ((process.env.ENABLE_CSP || '').toLowerCase() === 'true' || NODE_ENV === 'production') {
   try {
     const supabaseWildcard = 'https://*.supabase.co';
+    const su = process.env.SUPABASE_URL;
+    let suOrigin = null;
+    let suWs = null;
+    try {
+      if (su) {
+        const u = new URL(su);
+        suOrigin = `${u.protocol}//${u.host}`;
+        suWs = `wss://${u.host}`;
+      }
+    } catch {}
     const directives = {
       defaultSrc: ["'self'"],
       baseUri: ["'self'"],
       objectSrc: ["'none'"],
       frameAncestors: ["'self'"],
-      // Vite bundles are loaded from same origin
+      // Scripts and styles must come from our origin only
       scriptSrc: ["'self'"],
-      // Disallow inline styles (no 'unsafe-inline'); all CSS should be from static assets
       styleSrc: ["'self'"],
       imgSrc: ["'self'", 'data:', 'blob:'],
       fontSrc: ["'self'", 'data:'],
       connectSrc: [
         "'self'",
-        supabaseWildcard,
-        'wss://*.supabase.co',
+        suOrigin || supabaseWildcard,
+        suWs || 'wss://*.supabase.co',
       ],
       // Enable HSTS when behind HTTPS (set ENABLE_HSTS=true)
     };
-    app.use(helmet.contentSecurityPolicy({ directives }));
+    app.use(helmet.contentSecurityPolicy({ directives, reportOnly: getBoolean('CSP_REPORT_ONLY', false) }));
   } catch (e) {
     console.warn('CSP configuration error:', e?.message || e);
   }

@@ -1,0 +1,51 @@
+name: Database Migrations
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Which migrations to run (frontend-users|core|all)'
+        required: true
+        default: 'frontend-users'
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Run migrations
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          TARGET: ${{ github.event.inputs.target }}
+        run: |
+          if [ -z "$DB_URL" ]; then echo "SUPABASE_DB_URL secret not set"; exit 1; fi
+
+          run_sql() {
+            FILE=$1
+            echo "Applying: $FILE"
+            psql "$DB_URL" -v ON_ERROR_STOP=1 -f "$FILE"
+          }
+
+          case "$TARGET" in
+            frontend-users)
+              run_sql frontend/supabase-schema.sql
+              ;;
+            core)
+              run_sql supabase/schema.sql
+              ;;
+            all)
+              run_sql supabase/schema.sql
+              run_sql frontend/supabase-schema.sql
+              ;;
+            *)
+              echo "Unknown target: $TARGET"; exit 1;;
+          esac
+
+          echo "Migration complete for target: $TARGET"

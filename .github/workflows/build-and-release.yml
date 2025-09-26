@@ -31,6 +31,9 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
+          VITE_SENTRY_ENV: production
+          VITE_SENTRY_TRACES_SAMPLE_RATE: 0.1
         run: npm run build
 
       - name: Run tests
@@ -65,4 +68,3 @@ jobs:
   #         path: ./dist-package
   #     - name: Deploy
   #       run: echo "Add your deployment steps here (e.g., SSH, cloud CLI, etc.)"
-

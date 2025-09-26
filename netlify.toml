@@ -41,3 +41,4 @@
     Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://emfrwckxctyarphjvfeu.supabase.co https://oncosaferx.onrender.com; frame-ancestors 'none'; object-src 'none'"
 
 # Note: Supply VITE_* envs via Netlify UI or GitHub Actions build step
+# Updated to fix API connectivity - Sep 26, 2025

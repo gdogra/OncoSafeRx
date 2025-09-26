@@ -1,15 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
+// Environment variables with fallback for production debugging
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string || 'https://emfrwckxctyarphjvfeu.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c'
+
+console.log('Environment variables loaded:', {
+  supabaseUrl: supabaseUrl ? '✓ Loaded' : '✗ Missing (using fallback)',
+  supabaseKey: supabaseAnonKey ? '✓ Loaded' : '✗ Missing (using fallback)',
+  allEnvVars: Object.keys(import.meta.env).filter(k => k.startsWith('VITE_'))
+})
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  const msg = 'Supabase environment missing: VITE_SUPABASE_URL and/or VITE_SUPABASE_ANON_KEY'
-  if (import.meta.env.MODE === 'production') {
-    throw new Error(msg)
-  } else {
-    console.warn(msg, { url: supabaseUrl ? 'set' : 'missing', key: supabaseAnonKey ? 'set' : 'missing' })
-  }
+  console.error('Using fallback Supabase configuration - environment variables not found')
+  console.log('Available environment variables:', import.meta.env)
 }
 
 export const supabase = createClient(supabaseUrl!, supabaseAnonKey!, {

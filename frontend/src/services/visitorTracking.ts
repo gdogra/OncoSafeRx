@@ -70,17 +70,18 @@ class VisitorTrackingService {
   private currentPageView: PageView | null = null;
   private isTrackingEnabled: boolean = true;
   private apiEndpoint: string = '/api/analytics';
-  private enableServerAnalytics: boolean = ((import.meta as any)?.env?.VITE_ENABLE_SERVER_ANALYTICS === 'true');
+  private enableServerAnalytics: boolean = ((import.meta as any)?.env?.VITE_ENABLE_SERVER_ANALYTICS === 'true') && false; // Force disabled for production
 
   constructor() {
     this.initializeTracking();
   }
 
   private initializeTracking(): void {
-    // Check if user has opted out of tracking
+    // Check if user has opted out of tracking OR server analytics disabled
     const hasOptedOut = localStorage.getItem('analytics_opt_out') === 'true';
-    if (hasOptedOut) {
+    if (hasOptedOut || !this.enableServerAnalytics) {
       this.isTrackingEnabled = false;
+      console.debug('🚫 Analytics tracking disabled (user opt-out or server analytics disabled)');
       return;
     }
 
@@ -386,12 +387,12 @@ class VisitorTrackingService {
                            window.location.hostname === '127.0.0.1' ||
                            window.location.port === '5174';
       
-      if (isDevelopment) {
-        console.debug('Analytics stored locally (dev mode):', eventType);
+      if (isDevelopment || !this.enableServerAnalytics) {
+        console.debug('Analytics stored locally (dev mode or server analytics disabled):', eventType);
         return;
       }
 
-      // Only send to server in production
+      // Only send to server in production if server analytics enabled
       const payloadJson = JSON.stringify(payload);
       
       if (navigator.sendBeacon) {

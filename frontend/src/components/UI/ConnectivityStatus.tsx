@@ -57,14 +57,20 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
       setTesting(true);
       const resp = await fetch(`${base}/drugs/suggestions?q=aspirin&limit=1`);
       if (!resp.ok) {
-        // Check if we're getting HTML instead of JSON (API not deployed)
-        const text = await resp.text();
-        if (text.includes('<!doctype html>')) {
-          setStatus('offline');
-          writeStored('offline');
+        // Handle rate limiting as online (API is responding)
+        if (resp.status === 429) {
+          setStatus('online');
+          writeStored('online');
         } else {
-          setStatus('error');
-          writeStored('error');
+          // Check if we're getting HTML instead of JSON (API not deployed)
+          const text = await resp.text();
+          if (text.includes('<!doctype html>')) {
+            setStatus('offline');
+            writeStored('offline');
+          } else {
+            setStatus('error');
+            writeStored('error');
+          }
         }
       } else {
         const data = await resp.json();

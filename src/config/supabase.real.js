@@ -23,6 +23,25 @@ export class SupabaseService {
     this.enabled = !!supabase;
   }
 
+  // Auth admin: create Supabase Auth user (server-side only)
+  async createAuthUser({ email, password, metadata = {}, email_confirm = true }) {
+    if (!this.enabled) return null;
+    try {
+      if (!this.client?.auth?.admin) return null;
+      const { data, error } = await this.client.auth.admin.createUser({
+        email,
+        password,
+        email_confirm,
+        user_metadata: metadata
+      });
+      if (error) throw error;
+      return data?.user || null;
+    } catch (error) {
+      console.error('Error creating auth user:', error);
+      return null;
+    }
+  }
+
   // Drug operations
   async searchDrugs(searchTerm, limit = 50) {
     if (!this.enabled) return [];
@@ -315,11 +334,15 @@ export class SupabaseService {
       const { data, error } = await this.client
         .from('users')
         .insert({
+          id: userData.id, // optional; if provided, should match auth.users id
           email: userData.email,
           full_name: userData.full_name,
           role: userData.role || 'user',
           institution: userData.institution,
           specialty: userData.specialty,
+          license_number: userData.license_number,
+          is_active: userData.is_active !== undefined ? userData.is_active : true,
+          last_login: userData.last_login,
           created_at: new Date().toISOString()
         })
         .select()

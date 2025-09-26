@@ -61,13 +61,31 @@ router.post('/register',
       return res.status(400).json({ error: 'User already exists with this email' });
     }
 
-    // Hash password
+    // Hash password (for custom JWT flow)
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     try {
-      // Create user in database
+      // If Supabase is enabled, create a Supabase Auth user as source of truth
+      let authUserId = null;
+      const autoConfirm = (process.env.SUPABASE_AUTH_EMAIL_CONFIRM || 'true').toLowerCase() !== 'false';
+      if (supabaseService.enabled && supabaseService.client?.auth?.admin) {
+        try {
+          const authUser = await supabaseService.createAuthUser({
+            email,
+            password,
+            metadata: { full_name, role, institution, specialty, license_number },
+            email_confirm: autoConfirm
+          });
+          authUserId = authUser?.id || null;
+        } catch (e) {
+          console.warn('Auth user creation skipped/failed:', e?.message || e);
+        }
+      }
+
+      // Create application user profile (mirrors auth user when present)
       const userData = {
+        id: authUserId || undefined,
         email,
         password_hash: hashedPassword,
         full_name,

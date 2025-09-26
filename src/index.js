@@ -6,11 +6,18 @@ import morgan from 'morgan';
 import client from 'prom-client';
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
+import { validateEnv, getBoolean } from './config/env.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
 // Load environment variables
 dotenv.config();
+try {
+  validateEnv();
+} catch (e) {
+  console.error('Fatal configuration error:', e?.message || e);
+  process.exit(1);
+}
 
 // Middleware
 import { generalLimiter } from './middleware/rateLimiter.js';
@@ -81,13 +88,16 @@ if ((process.env.ENABLE_CSP || '').toLowerCase() === 'true' || NODE_ENV === 'pro
         supabaseWildcard,
         'wss://*.supabase.co',
       ],
-      // Uncomment if all traffic is HTTPS behind a proxy
-      // upgradeInsecureRequests: [],
+      // Enable HSTS when behind HTTPS (set ENABLE_HSTS=true)
     };
     app.use(helmet.contentSecurityPolicy({ directives }));
   } catch (e) {
     console.warn('CSP configuration error:', e?.message || e);
   }
+}
+// Strict-Transport-Security when enabled; only use behind HTTPS/terminating proxy
+if (getBoolean('ENABLE_HSTS', NODE_ENV === 'production')) {
+  app.use(helmet.hsts({ maxAge: 15552000, includeSubDomains: true, preload: false }));
 }
 app.use(cors({ origin: CORS_ORIGIN === '*' ? true : CORS_ORIGIN.split(',').map(s => s.trim()), credentials: true }));
 app.use(compression());

@@ -16,8 +16,7 @@ export class SupabaseAuthService {
     console.log('🔐 CACHE BUSTER - Clean login attempt for:', email)
     console.log('🚀 NEW CODE LOADED - Enhanced auth service with URL detection')
 
-    // IMMEDIATE FORCE PRODUCTION TEST - REMOVE AFTER TESTING
-    localStorage.setItem('osrx_force_production', 'true')
+    // Do NOT force production by default; honor URL/localStorage flags
     
     // Check for force production mode (add ?prod=true to URL or localStorage)
     const urlParams = new URLSearchParams(window.location.search)
@@ -68,6 +67,32 @@ export class SupabaseAuthService {
 
       if (error) {
         console.log('❌ Supabase error:', error.message)
+        // Optional fallback: try server-side proxy if enabled
+        const useProxy = (import.meta as any).env?.VITE_SUPABASE_AUTH_VIA_PROXY === 'true';
+        if (useProxy) {
+          try {
+            const resp = await fetch('/api/supabase-auth/proxy/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password })
+            });
+            if (resp.ok) {
+              const body = await resp.json();
+              // Set the Supabase session directly using returned tokens
+              const { data: setData, error: setErr } = await supabase.auth.setSession({
+                access_token: body.access_token,
+                refresh_token: body.refresh_token,
+              } as any);
+              if (setErr) throw setErr;
+              if (!setData?.session?.user) throw new Error('Failed to establish session');
+              console.log('✅ Proxy auth successful');
+              const userProfile = await this.buildUserProfile(setData.session.user);
+              return userProfile;
+            }
+          } catch (proxyErr) {
+            console.warn('Auth proxy fallback failed:', proxyErr);
+          }
+        }
         throw new Error(error.message)
       }
 

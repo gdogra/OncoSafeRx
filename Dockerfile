@@ -7,6 +7,11 @@ RUN apk add --no-cache curl
 
 FROM node:20-alpine AS frontend-builder
 WORKDIR /frontend
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+ENV VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+ENV VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+ENV NODE_ENV=production
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./
@@ -19,7 +24,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY src/ ./src/
-COPY --from=frontend-builder /frontend/build ./frontend/build
+# Copy Vite build (dist)
+COPY --from=frontend-builder /frontend/dist ./frontend/dist
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs

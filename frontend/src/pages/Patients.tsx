@@ -5,6 +5,7 @@ import PatientSelector from '../components/Patient/PatientSelector';
 import PatientDashboard from '../components/Patient/PatientDashboard';
 import Card from '../components/UI/Card';
 import { Users, Info } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Tooltip from '../components/UI/Tooltip';
 
 const Patients: React.FC = () => {
@@ -44,6 +45,9 @@ const Patients: React.FC = () => {
         <p className="text-lg text-gray-600 max-w-3xl mx-auto">
           Search for existing patients or create new patient profiles to access comprehensive clinical information and decision support tools.
         </p>
+        <div className="mt-3">
+          <Link to="/patients/all" className="text-sm text-blue-600 hover:underline">View all patients</Link>
+        </div>
       </div>
 
       {/* Patient Selection */}

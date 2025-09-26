@@ -258,6 +258,59 @@ CREATE TABLE IF NOT EXISTS interaction_checks (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Patients per user (server persistence for patient profiles)
+CREATE TABLE IF NOT EXISTS patients (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    data JSONB NOT NULL,
+    -- Generated MRN column for fast lookup and uniqueness per user
+    mrn TEXT GENERATED ALWAYS AS ((data->'demographics'->>'mrn')) STORED,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indexes to optimize lookups by user and recency
+CREATE INDEX IF NOT EXISTS idx_patients_user ON patients(user_id);
+CREATE INDEX IF NOT EXISTS idx_patients_updated_at ON patients(updated_at DESC);
+-- Optional GIN index for text search within patient data (e.g., demographics)
+CREATE INDEX IF NOT EXISTS idx_patients_data_gin ON patients USING gin (data jsonb_path_ops);
+-- Enforce uniqueness of MRN per user (non-null MRNs)
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_patients_user_mrn ON patients(user_id, mrn) WHERE mrn IS NOT NULL AND mrn <> '';
+
+-- Trigger to maintain updated_at
+CREATE OR REPLACE FUNCTION set_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_patients_updated_at ON patients;
+CREATE TRIGGER trg_patients_updated_at
+BEFORE UPDATE ON patients
+FOR EACH ROW EXECUTE PROCEDURE set_updated_at();
+
+-- Enable Row Level Security (Supabase)
+ALTER TABLE patients ENABLE ROW LEVEL SECURITY;
+
+-- Policies: users can only access their own patients
+DROP POLICY IF EXISTS patients_select_own ON patients;
+CREATE POLICY patients_select_own ON patients
+FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS patients_insert_own ON patients;
+CREATE POLICY patients_insert_own ON patients
+FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS patients_update_own ON patients;
+CREATE POLICY patients_update_own ON patients
+FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS patients_delete_own ON patients;
+CREATE POLICY patients_delete_own ON patients
+FOR DELETE USING (auth.uid() = user_id);
+
 -- Create indexes for interaction checks
 CREATE INDEX IF NOT EXISTS idx_interaction_checks_user ON interaction_checks(user_id);
 CREATE INDEX IF NOT EXISTS idx_interaction_checks_created_at ON interaction_checks(created_at);

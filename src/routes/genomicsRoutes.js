@@ -1,4 +1,5 @@
 import express from 'express';
+import { validate, schemas } from '../utils/validation.js';
 import { GeneDrugInteraction } from '../models/Interaction.js';
 import CPIC_GUIDELINES_DB from '../data/cpicGuidelines.js';
 import mapObservationsToPhenotypes, { mapHLAFromObservations } from '../engine/pgxPhenotype.js';
@@ -27,6 +28,7 @@ router.get('/cpic/guidelines', async (req, res) => {
     }
 
     res.json({
+      message: 'CPIC guidelines sample',
       count: guidelines.length,
       guidelines: guidelines.map(g => ({
         gene: g.gene_symbol,
@@ -80,7 +82,7 @@ router.get('/drug/:rxcui/genomics', async (req, res) => {
 });
 
 // Check genomic profile against drug list
-router.post('/profile/check', async (req, res) => {
+router.post('/profile/check', validate(schemas.genomicsProfile, 'body'), async (req, res) => {
   try {
     const { genes, drugs, observations = [] } = req.body;
     

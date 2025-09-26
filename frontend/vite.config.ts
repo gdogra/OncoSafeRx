@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 // Optimized Vite config for performance
 export default defineConfig({
   plugins: [react()],
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   define: {
     'process.env': JSON.stringify({
       REACT_APP_API_URL: process.env.REACT_APP_API_URL || '',
@@ -11,13 +12,14 @@ export default defineConfig({
     }),
   },
   server: {
-    port: 5174,
-    hmr: {
-      overlay: false, // Disable error overlay for WebSocket issues
-    },
+    port: 5176,
+    hmr: false, // Disable HMR completely to prevent auth interruption
+    // hmr: {
+    //   overlay: false, // Disable error overlay for WebSocket issues
+    // },
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
       },
@@ -26,6 +28,9 @@ export default defineConfig({
   build: {
     sourcemap: true, // Enable source maps for debugging
     minify: 'esbuild',
+    outDir: 'dist',
+    assetsDir: 'assets',
+    chunkSizeWarningLimit: 800,
   },
   test: {
     globals: true,

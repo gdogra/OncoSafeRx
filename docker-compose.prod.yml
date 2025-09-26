@@ -1,0 +1,32 @@
+version: '3.9'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      SERVE_FRONTEND: 'true'
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://your-domain.com}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      AUTH_PROXY_ENABLED: 'false'
+      METRICS_TOKEN: ${METRICS_TOKEN}
+    expose:
+      - '3000'
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    depends_on:
+      - app
+    ports:
+      - '80:80'
+      # - '443:443'  # enable when TLS configured
+    volumes:
+      - ./docs/nginx.production.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./frontend/dist:/srv/oncosaferx/frontend/dist:ro
+    restart: unless-stopped
+

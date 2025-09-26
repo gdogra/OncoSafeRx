@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Brain, Dna, Target, TrendingUp, AlertTriangle, Clock, CheckCircle, Activity, Zap, Shield, Play, Pause, RotateCcw, Settings, BarChart3, LineChart, Calculator, Sliders, TestTube, MapPin, Users, Calendar, ExternalLink, Star, Filter, FileText, Database, TrendingDown, Clipboard, Microscope, FlaskConical, Beaker, Phone, Mail, PieChart, BarChart2, Calendar as TimelineIcon, Layers, Eye, MousePointer, Maximize2 } from 'lucide-react';
 import Card from '../UI/Card';
 import LoadingSpinner from '../UI/LoadingSpinner';
+import Tooltip from '../UI/Tooltip';
 import FeatureErrorBoundary from '../ErrorBoundary/FeatureErrorBoundary';
 
 interface GenomicProfile {
@@ -208,6 +209,9 @@ const TreatmentPlanner: React.FC = () => {
   
   // Enhanced visualization states
   const [showVisualizationPanel, setShowVisualizationPanel] = useState(false);
+  const [currentStep, setCurrentStep] = useState<'setup' | 'review' | 'simulate' | 'results'>('setup');
+  const [isFirstTime, setIsFirstTime] = useState(true);
+  const [showGuidedTour, setShowGuidedTour] = useState(false);
   const [selectedVisualization, setSelectedVisualization] = useState<'timeline' | 'outcomes' | 'biomarkers' | 'risk-matrix' | 'pathway-map'>('timeline');
   const [timelineView, setTimelineView] = useState<'overview' | 'detailed'>('overview');
   const [chartInteractions, setChartInteractions] = useState<boolean>(true);
@@ -1357,6 +1361,54 @@ const TreatmentPlanner: React.FC = () => {
     return colors[level as keyof typeof colors] || colors['IV'];
   };
 
+  // Wizard steps configuration
+  const wizardSteps = [
+    { id: 'setup', title: 'Patient Setup', description: 'Review genomic profile and AI insights', icon: Target },
+    { id: 'review', title: 'Protocol Review', description: 'Select and customize treatment protocols', icon: FileText },
+    { id: 'simulate', title: 'Simulate Options', description: 'Explore treatment scenarios', icon: Calculator },
+    { id: 'results', title: 'View Results', description: 'Analyze predictions and outcomes', icon: BarChart3 }
+  ];
+
+  const getCurrentStepIndex = () => wizardSteps.findIndex(step => step.id === currentStep);
+  const isStepCompleted = (stepId: string) => {
+    const stepIndex = wizardSteps.findIndex(step => step.id === stepId);
+    const currentIndex = getCurrentStepIndex();
+    return stepIndex < currentIndex;
+  };
+
+  const canProceedToNextStep = () => {
+    switch (currentStep) {
+      case 'setup': return genomicProfile && aiInsights.length > 0;
+      case 'review': return selectedProtocol;
+      case 'simulate': return simulationState.scenarios.length > 0;
+      default: return true;
+    }
+  };
+
+  const nextStep = () => {
+    const currentIndex = getCurrentStepIndex();
+    if (currentIndex < wizardSteps.length - 1) {
+      setCurrentStep(wizardSteps[currentIndex + 1].id as any);
+    }
+  };
+
+  const previousStep = () => {
+    const currentIndex = getCurrentStepIndex();
+    if (currentIndex > 0) {
+      setCurrentStep(wizardSteps[currentIndex - 1].id as any);
+    }
+  };
+
+  const getStepTooltip = (stepId: string) => {
+    const tooltips = {
+      'setup': 'Load and analyze patient genomic data, view AI-generated treatment insights and compatibility scores.',
+      'review': 'Compare different treatment protocols, see efficacy predictions and select the best option for your patient.',
+      'simulate': 'Modify treatment parameters, explore alternative dosing schedules, and compare predicted outcomes.',
+      'results': 'View comprehensive predictions, outcome timelines, biomarker trends, and risk assessments.'
+    };
+    return tooltips[stepId as keyof typeof tooltips] || 'Treatment planning step';
+  };
+
   if (loading && !protocols.length) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -1368,29 +1420,157 @@ const TreatmentPlanner: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header with Getting Started */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <Brain className="w-8 h-8 text-purple-600" />
           <div>
             <h1 className="text-2xl font-bold text-gray-900">AI Treatment Planner</h1>
-            <p className="text-gray-600">Genomic-optimized precision oncology protocols</p>
+            <p className="text-gray-600">Step-by-step genomic-optimized treatment planning</p>
           </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Dna className="w-5 h-5 text-green-600" />
-          <span className="text-sm font-medium text-green-600">
-            Genomic Profile: {genomicProfile?.riskScore ? `${(genomicProfile.riskScore * 100).toFixed(0)}% compatibility` : 'Loading...'}
-          </span>
+        <div className="flex items-center space-x-4">
+          {isFirstTime && (
+            <button
+              onClick={() => setShowGuidedTour(true)}
+              className="flex items-center space-x-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+            >
+              <Eye className="w-4 h-4" />
+              <span className="text-sm font-medium">Take Tour</span>
+            </button>
+          )}
+          <div className="flex items-center space-x-2">
+            <Dna className="w-5 h-5 text-green-600" />
+            <Tooltip 
+              content="Genomic compatibility score indicates how well your patient's genetic profile matches with available treatments. Higher scores suggest better predicted outcomes."
+              type="clinical"
+              position="bottom-left"
+            >
+              <span className="text-sm font-medium text-green-600 cursor-help border-b border-dotted border-green-400">
+                {genomicProfile?.riskScore ? `${(genomicProfile.riskScore * 100).toFixed(0)}% compatibility` : 'Loading...'}
+              </span>
+            </Tooltip>
+          </div>
         </div>
       </div>
 
-      {/* AI Insights Panel */}
+      {/* Progress Wizard */}
       <Card>
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold text-gray-900">Treatment Planning Workflow</h2>
+            <span className="text-sm text-gray-500">
+              Step {getCurrentStepIndex() + 1} of {wizardSteps.length}
+            </span>
+          </div>
+          
+          {/* Step Progress Bar */}
+          <div className="flex items-center justify-between mb-8">
+            {wizardSteps.map((step, index) => {
+              const StepIcon = step.icon;
+              const isActive = step.id === currentStep;
+              const isCompleted = isStepCompleted(step.id);
+              
+              return (
+                <div key={step.id} className="flex items-center">
+                  <div className={`flex flex-col items-center ${index !== wizardSteps.length - 1 ? 'flex-1' : ''}`}>
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
+                      isActive 
+                        ? 'bg-purple-600 border-purple-600 text-white'
+                        : isCompleted 
+                        ? 'bg-green-600 border-green-600 text-white'
+                        : 'bg-gray-100 border-gray-300 text-gray-400'
+                    }`}>
+                      {isCompleted ? <CheckCircle className="w-5 h-5" /> : <StepIcon className="w-5 h-5" />}
+                    </div>
+                    <div className="text-center mt-2">
+                      <div className={`text-sm font-medium ${
+                        isActive ? 'text-purple-600' : isCompleted ? 'text-green-600' : 'text-gray-500'
+                      }`}>
+                        {step.title}
+                      </div>
+                      <Tooltip 
+                        content={getStepTooltip(step.id)}
+                        type="help"
+                        position="bottom"
+                      >
+                        <div className="text-xs text-gray-400 max-w-20 cursor-help">
+                          {step.description}
+                        </div>
+                      </Tooltip>
+                    </div>
+                  </div>
+                  {index !== wizardSteps.length - 1 && (
+                    <div className={`flex-1 h-px mx-4 ${
+                      isCompleted ? 'bg-green-300' : 'bg-gray-200'
+                    }`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Step Navigation */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={previousStep}
+              disabled={getCurrentStepIndex() === 0}
+              className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="text-sm">← Previous</span>
+            </button>
+            
+            <div className="text-sm text-gray-500">
+              {wizardSteps[getCurrentStepIndex()].description}
+            </div>
+            
+            <button
+              onClick={nextStep}
+              disabled={!canProceedToNextStep() || getCurrentStepIndex() === wizardSteps.length - 1}
+              className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <span className="text-sm">Next →</span>
+            </button>
+          </div>
+        </div>
+      </Card>
+
+      {/* Step Content with Progressive Disclosure */}
+      {currentStep === 'setup' && (
+        <Card>
+          <div className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Target className="w-5 h-5 text-purple-600" />
+              <h3 className="text-lg font-semibold">Step 1: Patient Setup & AI Insights</h3>
+            </div>
+            <p className="text-gray-600 mb-4">
+              Review your patient's genomic profile and get AI-powered insights to guide treatment planning.
+            </p>
+            {!genomicProfile && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center space-x-2">
+                  <Activity className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-800">Loading genomic data and generating insights...</span>
+                </div>
+                <p className="text-xs text-blue-600 mt-1">This usually takes 10-15 seconds</p>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {/* AI Insights Panel - Only show in setup step */}
+      {currentStep === 'setup' && (
+        <Card>
         <div className="p-6">
           <div className="flex items-center space-x-2 mb-4">
             <Zap className="w-5 h-5 text-yellow-500" />
             <h3 className="text-lg font-semibold">AI-Generated Insights</h3>
+            <Tooltip 
+              content="These insights are generated by analyzing your patient's genomic profile against current clinical evidence and treatment databases."
+              type="help"
+              iconOnly
+            />
           </div>
           <div className="space-y-3">
             {aiInsights.map((insight, index) => (
@@ -1416,9 +1596,26 @@ const TreatmentPlanner: React.FC = () => {
           </div>
         </div>
       </Card>
+      )}
 
-      {/* Interactive Treatment Simulator */}
-      <Card>
+      {/* Simulation Step */}
+      {currentStep === 'simulate' && (
+        <Card>
+          <div className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Calculator className="w-5 h-5 text-purple-600" />
+              <h3 className="text-lg font-semibold">Step 3: Treatment Simulation</h3>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Explore different treatment scenarios and see predicted outcomes for various modifications.
+            </p>
+          </div>
+        </Card>
+      )}
+
+      {/* Interactive Treatment Simulator - Only show in simulate step */}
+      {currentStep === 'simulate' && (
+        <Card>
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
@@ -1676,6 +1873,7 @@ const TreatmentPlanner: React.FC = () => {
           )}
         </div>
       </Card>
+      )}
 
       {/* Genomic Biomarker Analysis */}
       <Card>
@@ -2259,8 +2457,33 @@ const TreatmentPlanner: React.FC = () => {
         </div>
       </Card>
 
-      {/* Treatment Protocols */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Protocol Review Step */}
+      {currentStep === 'review' && (
+        <Card>
+          <div className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <FileText className="w-5 h-5 text-purple-600" />
+              <h3 className="text-lg font-semibold">Step 2: Protocol Review & Selection</h3>
+            </div>
+            <p className="text-gray-600 mb-4">
+              Choose the most suitable treatment protocol based on genomic compatibility and expected outcomes.
+            </p>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="text-sm font-medium text-green-800">Ready to Review Protocols</span>
+              </div>
+              <p className="text-xs text-green-600">
+                {protocols.length} protocols available • Look for high genomic compatibility scores ({'>'}80%) • Consider evidence levels I-II for best outcomes
+              </p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Treatment Protocols - Only show in review step */}
+      {currentStep === 'review' && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {protocols.map((protocol) => (
           <Card 
             key={protocol.id}
@@ -2324,10 +2547,11 @@ const TreatmentPlanner: React.FC = () => {
             </div>
           </Card>
         ))}
-      </div>
+        </div>
+      )}
 
-      {/* Detailed Protocol View */}
-      {selectedProtocol && (
+      {/* Detailed Protocol View - Only show in review step */}
+      {currentStep === 'review' && selectedProtocol && (
         <Card>
           <div className="p-6">
             <div className="flex items-center space-x-2 mb-6">
@@ -2403,8 +2627,23 @@ const TreatmentPlanner: React.FC = () => {
         </Card>
       )}
 
-      {/* Prediction Results */}
-      {/* Enhanced Visualization Panel */}
+      {/* Results Step */}
+      {currentStep === 'results' && (
+        <Card>
+          <div className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <BarChart3 className="w-5 h-5 text-purple-600" />
+              <h3 className="text-lg font-semibold">Step 4: Results & Analysis</h3>
+            </div>
+            <p className="text-gray-600 mb-6">
+              View detailed predictions, outcomes, and visualizations for your selected treatment approach.
+            </p>
+          </div>
+        </Card>
+      )}
+
+      {/* Enhanced Visualization Panel - Only show in results step */}
+      {currentStep === 'results' && (
       <Card>
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
@@ -2555,6 +2794,7 @@ const TreatmentPlanner: React.FC = () => {
           )}
         </div>
       </Card>
+      )}
 
       {predictionResults && (
         <Card>
@@ -2603,6 +2843,64 @@ const TreatmentPlanner: React.FC = () => {
             </div>
           </div>
         </Card>
+      )}
+
+      {/* Guided Tour Overlay */}
+      {showGuidedTour && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-xl max-w-md mx-4">
+            <div className="p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                    <Brain className="w-5 h-5 text-purple-600" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Welcome to AI Treatment Planner!</h3>
+                  <p className="text-sm text-gray-600">Let's get you started with genomic-optimized treatment planning</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-blue-900 mb-2">🎯 How it works:</h4>
+                  <ul className="space-y-2 text-sm text-blue-800">
+                    <li><strong>Step 1:</strong> Review genomic profile and AI insights</li>
+                    <li><strong>Step 2:</strong> Compare and select treatment protocols</li>
+                    <li><strong>Step 3:</strong> Simulate different treatment scenarios</li>
+                    <li><strong>Step 4:</strong> Analyze predictions and outcomes</li>
+                  </ul>
+                </div>
+
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-green-900 mb-2">💡 Pro Tips:</h4>
+                  <ul className="space-y-1 text-sm text-green-800">
+                    <li>• Hover over terms with dotted underlines for explanations</li>
+                    <li>• Look for help icons (?) for detailed information</li>
+                    <li>• Use the workflow progress bar to navigate steps</li>
+                    <li>• Each step builds on the previous one</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between mt-6">
+                <button
+                  onClick={() => setIsFirstTime(false)}
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Don't show again
+                </button>
+                <button
+                  onClick={() => setShowGuidedTour(false)}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  Get Started
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -7,7 +7,8 @@ import { feedbackService } from '../services/feedbackService';
 
 const FeedbackAdmin: React.FC = () => {
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
-  const [analytics, setAnalytics] = useState(() => feedbackService.getFeedbackAnalytics());
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   const exportData = () => {
     try {
@@ -29,10 +30,33 @@ const FeedbackAdmin: React.FC = () => {
   const clearData = () => {
     if (confirm('Are you sure you want to clear all feedback data? This action cannot be undone.')) {
       feedbackService.clearFeedbackData();
-      setAnalytics(feedbackService.getFeedbackAnalytics());
+      loadAnalytics();
       alert('Feedback data cleared successfully.');
     }
   };
+
+  const loadAnalytics = async () => {
+    setLoading(true);
+    try {
+      const data = await feedbackService.getFeedbackAnalytics();
+      setAnalytics(data);
+    } catch (error) {
+      console.error('Error loading analytics:', error);
+      // Fallback to empty data
+      setAnalytics({
+        totalFeedback: 0,
+        totalTickets: 0,
+        recentFeedback: [],
+        sprintPlan: { currentSprint: [], nextSprint: [], backlog: [] }
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    loadAnalytics();
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -68,19 +92,27 @@ const FeedbackAdmin: React.FC = () => {
       {/* Quick Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="text-center">
-          <div className="text-3xl font-bold text-primary-600">{analytics.totalFeedback}</div>
+          <div className="text-3xl font-bold text-primary-600">
+            {loading ? '...' : (analytics?.totalFeedback || 0)}
+          </div>
           <div className="text-sm text-gray-600">Total Feedback</div>
         </Card>
         <Card className="text-center">
-          <div className="text-3xl font-bold text-blue-600">{analytics.totalTickets}</div>
+          <div className="text-3xl font-bold text-blue-600">
+            {loading ? '...' : (analytics?.totalTickets || 0)}
+          </div>
           <div className="text-sm text-gray-600">Active Tickets</div>
         </Card>
         <Card className="text-center">
-          <div className="text-3xl font-bold text-green-600">{analytics.sprintPlan.currentSprint.length}</div>
+          <div className="text-3xl font-bold text-green-600">
+            {loading ? '...' : (analytics?.sprintPlan?.currentSprint?.length || 0)}
+          </div>
           <div className="text-sm text-gray-600">Current Sprint</div>
         </Card>
         <Card className="text-center">
-          <div className="text-3xl font-bold text-purple-600">{analytics.sprintPlan.nextSprint.length}</div>
+          <div className="text-3xl font-bold text-purple-600">
+            {loading ? '...' : (analytics?.sprintPlan?.nextSprint?.length || 0)}
+          </div>
           <div className="text-sm text-gray-600">Next Sprint</div>
         </Card>
       </div>
@@ -118,7 +150,7 @@ const FeedbackAdmin: React.FC = () => {
         <Card>
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Feedback Activity</h2>
           <div className="space-y-3">
-            {analytics.recentFeedback.slice(0, 5).map((feedback: any, index: number) => (
+            {!loading && analytics?.recentFeedback?.slice(0, 5).map((feedback: any, index: number) => (
               <div key={index} className="p-3 border border-gray-200 rounded-lg">
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-medium text-sm">{feedback.title}</span>
@@ -136,7 +168,12 @@ const FeedbackAdmin: React.FC = () => {
                 </div>
               </div>
             ))}
-            {analytics.recentFeedback.length === 0 && (
+            {loading && (
+              <div className="text-center text-gray-500 py-8">
+                <div className="animate-pulse">Loading recent feedback...</div>
+              </div>
+            )}
+            {!loading && (!analytics?.recentFeedback || analytics.recentFeedback.length === 0) && (
               <div className="text-center text-gray-500 py-8">
                 <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p>No feedback submitted yet</p>
@@ -147,7 +184,7 @@ const FeedbackAdmin: React.FC = () => {
       </div>
 
       {/* GitHub Integration */}
-      <GitHubIntegration onConfigChange={() => setAnalytics(feedbackService.getFeedbackAnalytics())} />
+      <GitHubIntegration onConfigChange={loadAnalytics} />
 
       {/* Data Management */}
       <Card>
@@ -171,10 +208,11 @@ const FeedbackAdmin: React.FC = () => {
               Export All Data
             </button>
             <button
-              onClick={() => setAnalytics(feedbackService.getFeedbackAnalytics())}
+              onClick={loadAnalytics}
               className="px-4 py-2 bg-green-100 text-green-700 rounded-md hover:bg-green-200"
+              disabled={loading}
             >
-              Refresh Analytics
+              {loading ? 'Refreshing...' : 'Refresh Analytics'}
             </button>
             <button
               onClick={clearData}

@@ -5,6 +5,7 @@ import client from 'prom-client';
 import { authenticateSupabase, optionalSupabaseAuth } from '../middleware/supabaseAuth.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import fetch from 'node-fetch';
+import { createClient } from '@supabase/supabase-js';
 
 const router = express.Router();
 
@@ -113,6 +114,137 @@ router.get('/health',
   }
 );
 
+// Dev-only: Create/Upsert demo profile row via service role (no client session required)
+router.post('/demo/profile', asyncHandler(async (req, res) => {
+  try {
+    const devAllowed = (process.env.NODE_ENV || 'development') === 'development' || (process.env.DEMO_PROFILE_ENABLED || '').toLowerCase() === 'true';
+    if (!devAllowed) {
+      return res.status(403).json({ error: 'Demo profile creation not allowed in this environment' });
+    }
+
+    const url = process.env.SUPABASE_URL;
+    const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !service) {
+      return res.status(500).json({ error: 'Supabase service not configured' });
+    }
+
+    const admin = createClient(url, service);
+    const { id, email, role = 'oncologist', first_name, last_name } = req.body || {};
+    if (!id || !email) {
+      return res.status(400).json({ error: 'Missing required fields: id, email' });
+    }
+
+    const payload = {
+      id,
+      email,
+      role,
+      first_name: first_name || email.split('@')[0],
+      last_name: last_name || 'User',
+      created_at: new Date().toISOString(),
+    };
+
+    const { error } = await admin.from('users').upsert(payload, { onConflict: 'id' });
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+    return res.json({ ok: true, user: payload });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Unexpected error' });
+  }
+}));
+
+// Dev-only: Delete demo profile row via service role
+router.delete('/demo/profile/:id', asyncHandler(async (req, res) => {
+  try {
+    const devAllowed = (process.env.NODE_ENV || 'development') === 'development' || (process.env.DEMO_PROFILE_ENABLED || '').toLowerCase() === 'true';
+    if (!devAllowed) {
+      return res.status(403).json({ error: 'Demo profile deletion not allowed in this environment' });
+    }
+
+    const url = process.env.SUPABASE_URL;
+    const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !service) {
+      return res.status(500).json({ error: 'Supabase service not configured' });
+    }
+
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: 'Missing id' });
+
+    const admin = createClient(url, service);
+    const { error } = await admin.from('users').delete().eq('id', id);
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+    return res.json({ ok: true, id });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Unexpected error' });
+  }
+}));
+
+// Dev-only: Reset demo profile row (and optionally Supabase auth metadata)
+router.post('/demo/reset', asyncHandler(async (req, res) => {
+  try {
+    const devAllowed = (process.env.NODE_ENV || 'development') === 'development' || (process.env.DEMO_PROFILE_ENABLED || '').toLowerCase() === 'true';
+    if (!devAllowed) {
+      return res.status(403).json({ error: 'Demo profile reset not allowed in this environment' });
+    }
+
+    const url = process.env.SUPABASE_URL;
+    const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !service) {
+      return res.status(500).json({ error: 'Supabase service not configured' });
+    }
+
+    const admin = createClient(url, service);
+    const {
+      id,
+      email,
+      role = 'oncologist',
+      first_name = 'Demo',
+      last_name = 'Clinician',
+      updateAuth = true,
+    } = req.body || {};
+
+    if (!id || !email) {
+      return res.status(400).json({ error: 'Missing required fields: id, email' });
+    }
+
+    // Upsert profile row
+    const payload = {
+      id,
+      email,
+      role,
+      first_name,
+      last_name,
+      created_at: new Date().toISOString(),
+    };
+
+    const { error: upErr } = await admin.from('users').upsert(payload, { onConflict: 'id' });
+    if (upErr) return res.status(500).json({ error: upErr.message });
+
+    // Optionally update Supabase auth metadata if this ID is a real auth user
+    if (updateAuth) {
+      try {
+        // Update metadata: role, first_name, last_name
+        const { error: authErr } = await admin.auth.admin.updateUserById(id, {
+          user_metadata: { role, first_name, last_name }
+        });
+        if (authErr) {
+          // Non-fatal in dev; include warning in response
+          return res.json({ ok: true, user: payload, authUpdated: false, authError: authErr.message });
+        }
+        return res.json({ ok: true, user: payload, authUpdated: true });
+      } catch (e) {
+        return res.json({ ok: true, user: payload, authUpdated: false, authError: e?.message || 'auth update failed' });
+      }
+    }
+
+    return res.json({ ok: true, user: payload, authUpdated: false });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Unexpected error' });
+  }
+}));
+
 // --- Security middlewares for proxy endpoints ---
 const AUTH_PROXY_ENABLED = (process.env.AUTH_PROXY_ENABLED || '').toLowerCase() === 'true';
 
@@ -191,6 +323,8 @@ function maskEmail(email = '') {
  */
 router.post('/proxy/login', requireProxyEnabled, checkAllowedOrigin, proxyLimiter, validateBody(loginSchema), asyncHandler(async (req, res) => {
   const { email, password } = req.body || {};
+  const origin = req.headers.origin || req.headers.referer || '';
+  console.log('[auth-proxy] login requested for', maskEmail(email), 'from origin', origin);
 
   const url = process.env.SUPABASE_URL;
   const anon = process.env.SUPABASE_ANON_KEY;

@@ -40,7 +40,7 @@ export class Drug {
 
   // Validation method
   isValid() {
-    return this.rxcui && this.name && this.genericName;
+    return Boolean(this.rxcui && this.name && this.genericName);
   }
 
   // Convert to JSON for API responses

@@ -55,9 +55,20 @@ export function calculateMME(meds = []) {
   for (const m of meds) {
     const name = String(m.name || '').toLowerCase();
     const route = (m.route || 'oral').toLowerCase();
-    const factorEntry =
-      name.includes('fentanyl') && route.includes('trans') ? MME_FACTORS.fentanyl_transdermal :
-      MME_FACTORS[name];
+    
+    // Find matching opioid by checking if the drug name contains the opioid name
+    let factorEntry = null;
+    if (name.includes('fentanyl') && route.includes('trans')) {
+      factorEntry = MME_FACTORS.fentanyl_transdermal;
+    } else {
+      // Check each opioid in MME_FACTORS to see if the drug name contains it
+      for (const [opioidName, factor] of Object.entries(MME_FACTORS)) {
+        if (name.includes(opioidName)) {
+          factorEntry = factor;
+          break;
+        }
+      }
+    }
 
     if (!factorEntry) {
       details.push({ name: m.name, route, mmePerDay: 0, included: false, note: 'Unsupported or excluded from MME (e.g., buprenorphine)' });

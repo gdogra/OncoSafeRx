@@ -46,14 +46,13 @@ npm run sync:cpic
 
 ### Frontend Serving
 
-- Production/preview: The API now serves the React app from `frontend/build` for non-API routes.
-  - Build the frontend: `cd frontend && npm run build`
-  - Start API: `npm start`
+- Production/preview: The API serves the React app from `frontend/dist` for non-API routes.
+  - Build the frontend: `npm run build` (runs `cd frontend && npm run build`)
+  - Start API: `npm run start:prod`
   - Visit: `http://localhost:3000/` to load the UI (SPA); API remains under `/api/*`.
-- Development: Run frontend dev server separately and point it to the API.
-  - Backend: `PORT=3001 npm run dev`
-  - Frontend: set `REACT_APP_API_URL=http://localhost:3001/api` then `npm start` (serves on 3000)
-  - This avoids port conflicts and enables hot reload.
+- Development: Run the integrated Vite middleware (default) or run separately.
+  - Backend (dev): `npm run dev` (serves API + Vite middleware on /)
+  - Alternative: run frontend separately (`cd frontend && npm run dev`) and API with `USE_VITE=false npm run dev`.
 
 ### Production Env (Frontend)
 
@@ -407,3 +406,63 @@ Add a Netlify status badge to this README by replacing `YOUR-SITE-ID`:
 ```
 [![Netlify Status](https://api.netlify.com/api/v1/badges/YOUR-SITE-ID/deploy-status)](https://app.netlify.com/sites/YOUR-SITE-NAME/deploys)
 ```
+## Production
+
+1) Configure environment
+
+- Server `.env` (see `.env.example`):
+  - `PORT=3000`
+  - `NODE_ENV=production`
+  - `SERVE_FRONTEND=true`
+  - `CORS_ORIGIN=https://your-domain.com,https://admin.your-domain.com`
+  - `SUPABASE_URL`, `SUPABASE_ANON_KEY` (required)
+  - `SUPABASE_SERVICE_ROLE_KEY` (optional; enables server-side profile utilities)
+  - `AUTH_PROXY_ENABLED=false` (recommended unless required)
+  - `METRICS_TOKEN` (optional; protect `/metrics`)
+
+- Frontend `frontend/.env.production` (or CI build env):
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_ANON_KEY`
+
+2) Build + Start
+
+```
+npm run build
+npm run start:prod
+```
+
+3) Security notes
+
+- Helmet is enabled with a conservative baseline. You can enable a strict Content Security Policy (CSP) from the server by setting `ENABLE_CSP=true`. The default production CSP blocks inline scripts/styles:
+  - default-src 'self'
+  - script-src 'self'
+  - style-src 'self'  (no 'unsafe-inline')
+  - img-src 'self' data: blob:
+  - font-src 'self' data:
+  - connect-src 'self' https://*.supabase.co wss://*.supabase.co
+  - object-src 'none', frame-ancestors 'self', base-uri 'self'
+  You may also set CSP via your reverse proxy/CDN (recommended for more complex apps).
+- Set `CORS_ORIGIN` to trusted origins only; avoid `*` in production.
+- Demo endpoints are disabled by default; do not set `DEMO_PROFILE_ENABLED` in production.
+- Protect Prometheus metrics via `METRICS_TOKEN` if exposed.
+4) CI/CD Deploy (optional)
+
+This repo includes two GitHub Actions:
+
+- `.github/workflows/build-and-release.yml` — Builds frontend with Node 20, runs tests, uploads artifact.
+- `.github/workflows/deploy.yml` — Builds and pushes a Docker image to GHCR and updates your Kubernetes deployment to the new tag.
+
+To use `deploy.yml`, configure repository secrets:
+
+- `VITE_SUPABASE_URL` — Your Supabase URL
+- `VITE_SUPABASE_ANON_KEY` — Your Supabase anon key
+- `KUBE_CONFIG_B64` — Base64-encoded kubeconfig for your cluster context
+
+By default, images are tagged with the commit SHA and pushed to `ghcr.io/<owner>/<repo>`. The workflow then runs:
+
+```
+kubectl set image deployment/oncosaferx-api api=ghcr.io/<owner>/<repo>:<sha> --record
+kubectl rollout status deployment/oncosaferx-api
+```
+
+Ensure `k8s/deployment-api.yaml` references the same deployment name (`oncosaferx-api`) and that your cluster has the required namespace and RBAC in place.

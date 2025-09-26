@@ -439,6 +439,62 @@ export class SupabaseService {
       return { id, ...updateData };
     }
   }
+
+  // Patients API
+  async listPatientsByUser(userId) {
+    if (!this.enabled) return [];
+    try {
+      const { data, error } = await this.client
+        .from('patients')
+        .select('id,user_id,data,created_at,updated_at')
+        .eq('user_id', userId)
+        .order('updated_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error listing patients:', error);
+      return [];
+    }
+  }
+
+  async upsertPatient(userId, patient) {
+    if (!this.enabled) return patient;
+    try {
+      const payload = {
+        id: patient.id,
+        user_id: userId,
+        data: patient,
+        updated_at: new Date().toISOString(),
+      };
+      if (!payload.id) delete payload.id;
+      const { data, error } = await this.client
+        .from('patients')
+        .upsert(payload, { onConflict: 'id' })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error upserting patient:', error);
+      return patient;
+    }
+  }
+
+  async deletePatient(userId, patientId) {
+    if (!this.enabled) return true;
+    try {
+      const { error } = await this.client
+        .from('patients')
+        .delete()
+        .eq('id', patientId)
+        .eq('user_id', userId);
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error deleting patient:', error);
+      return false;
+    }
+  }
 }
 
 // Create and export the service instance

@@ -9,7 +9,7 @@ const LogoutButton: React.FC = () => {
 
   const handleLogout = () => {
     actions.logout();
-    navigate('/admin/login');
+    navigate('/login');
   };
 
   // Always show the button for debugging - remove this condition later

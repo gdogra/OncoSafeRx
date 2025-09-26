@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Alert from '../UI/Alert';
+import { useToast } from '../UI/Toast';
 import { 
   Workflow, 
   Play, 
@@ -148,7 +149,7 @@ const AdvancedWorkflowSystem: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [deviceType, setDeviceType] = useState<'phone' | 'tablet' | 'desktop'>('desktop');
   const [selectedTemplate, setSelectedTemplate] = useState<WorkflowTemplate | null>(null);
-  const [toast, setToast] = useState<{ type: 'success'|'info'|'warning'|'error'; message: string } | null>(null);
+  const { showToast } = useToast();
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -456,9 +457,7 @@ const AdvancedWorkflowSystem: React.FC = () => {
   }, [workflowTemplates, searchTerm, selectedCategory]);
 
   const notify = (type: 'success'|'info'|'warning'|'error', message: string) => {
-    setToast({ type, message });
-    window.clearTimeout((notify as any)._t);
-    (notify as any)._t = window.setTimeout(() => setToast(null), 3000);
+    showToast(type, message);
   };
 
   const startWorkflow = (template: WorkflowTemplate) => {
@@ -954,13 +953,7 @@ const AdvancedWorkflowSystem: React.FC = () => {
         </div>
       </div>
 
-      {toast && (
-        <div className="mb-4">
-          <Alert type={toast.type}>
-            {toast.message}
-          </Alert>
-        </div>
-      )}
+      {/* Toasts rendered globally by ToastProvider */}
 
       {/* Mobile-First Quick Access (visible on smaller screens) */}
       {deviceType !== 'desktop' && (

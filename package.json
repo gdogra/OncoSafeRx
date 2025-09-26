@@ -10,6 +10,8 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
+    "build": "npm run build:frontend",
+    "start:prod": "NODE_ENV=production node src/index.js",
     "build:frontend": "cd frontend && npm ci && npm run build",
     "start:frontend": "cd frontend && npm start",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",

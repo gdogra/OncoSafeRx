@@ -41,21 +41,12 @@ class FeedbackService {
       const page = window.location.pathname;
       const url = window.location.href;
       
-      // Classify the feedback
-      const classification = FeedbackClassifier.classify(formData, page);
-
-      const feedbackItem: FeedbackItem = {
-        id: this.generateId(),
-        sessionId,
-        timestamp: new Date().toISOString(),
-        type: classification.type,
-        category: classification.category,
-        priority: classification.priority,
-        title: formData.title,
-        description: formData.description,
+      const feedbackData = {
+        ...formData,
         page,
         userAgent: navigator.userAgent,
         url,
+        sessionId,
         metadata: {
           component: formData.component,
           reproductionSteps: formData.reproductionSteps ? [formData.reproductionSteps] : undefined,
@@ -63,42 +54,126 @@ class FeedbackService {
           actualBehavior: formData.actualBehavior,
           browserInfo: this.getBrowserInfo(),
           feature: this.inferFeatureFromPage(page)
+        }
+      };
+
+      // Submit to backend API
+      const response = await fetch('/api/feedback/submit', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'user-email': this.getCurrentUserEmail() // For admin access control
         },
+        body: JSON.stringify(feedbackData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit feedback to server');
+      }
+
+      const result = await response.json();
+      console.log('✅ Feedback submitted successfully:', result.ticketNumber);
+
+      // Store locally as backup
+      const feedbackItem: FeedbackItem = {
+        id: result.id,
+        sessionId,
+        timestamp: new Date().toISOString(),
+        type: result.classification.type,
+        category: result.classification.category,
+        priority: result.classification.priority,
+        title: formData.title,
+        description: formData.description,
+        page,
+        userAgent: navigator.userAgent,
+        url,
+        metadata: feedbackData.metadata,
         status: 'new',
-        estimatedEffort: classification.estimatedEffort,
-        labels: classification.labels,
+        estimatedEffort: result.classification.estimatedEffort,
+        labels: result.classification.labels,
         votes: 0
       };
 
-      // Store feedback locally
       this.storeFeedbackLocally(feedbackItem);
-
-      // Store as ticket for sprint planning
-      this.storeTicketForSprint(feedbackItem);
-
-      // Create GitHub issue if integration is enabled
-      await this.createGitHubIssue(feedbackItem);
 
       // Send to analytics if available
       try {
         const analytics = await import('../utils/analytics');
         analytics.analytics.logEvent('feedback_submitted', {
-          type: classification.type,
-          category: classification.category,
-          priority: classification.priority,
-          page
+          type: result.classification.type,
+          category: result.classification.category,
+          priority: result.classification.priority,
+          page,
+          ticketNumber: result.ticketNumber
         });
       } catch (e) {
         console.warn('Analytics not available:', e);
       }
 
-      // In a real app, you'd send this to your backend API
-      // await this.sendToBackend(feedbackItem);
-
-      return feedbackItem.id;
+      return result.id;
     } catch (error) {
       console.error('Error submitting feedback:', error);
-      throw new Error('Failed to submit feedback. Please try again.');
+      
+      // Fallback to local storage if API fails
+      console.log('🔄 Falling back to local storage...');
+      return this.submitFeedbackLocally(formData);
+    }
+  }
+
+  // Fallback method for local submission
+  private async submitFeedbackLocally(formData: FeedbackFormData): Promise<string> {
+    const sessionId = sessionStorage.getItem('oncosaferx_session_id') || this.generateId();
+    const page = window.location.pathname;
+    const url = window.location.href;
+    
+    // Classify the feedback
+    const classification = FeedbackClassifier.classify(formData, page);
+
+    const feedbackItem: FeedbackItem = {
+      id: this.generateId(),
+      sessionId,
+      timestamp: new Date().toISOString(),
+      type: classification.type,
+      category: classification.category,
+      priority: classification.priority,
+      title: formData.title,
+      description: formData.description,
+      page,
+      userAgent: navigator.userAgent,
+      url,
+      metadata: {
+        component: formData.component,
+        reproductionSteps: formData.reproductionSteps ? [formData.reproductionSteps] : undefined,
+        expectedBehavior: formData.expectedBehavior,
+        actualBehavior: formData.actualBehavior,
+        browserInfo: this.getBrowserInfo(),
+        feature: this.inferFeatureFromPage(page),
+        fallbackMode: true
+      },
+      status: 'new',
+      estimatedEffort: classification.estimatedEffort,
+      labels: classification.labels,
+      votes: 0
+    };
+
+    this.storeFeedbackLocally(feedbackItem);
+    this.storeTicketForSprint(feedbackItem);
+    
+    return feedbackItem.id;
+  }
+
+  // Get current user email for admin access
+  private getCurrentUserEmail(): string {
+    try {
+      // Try to get from auth context
+      const authData = localStorage.getItem('osrx_dev_auth');
+      if (authData) {
+        const user = JSON.parse(authData);
+        return user.email || '';
+      }
+      return '';
+    } catch {
+      return '';
     }
   }
 
@@ -171,7 +246,22 @@ class FeedbackService {
   }
 
   // Get analytics for feedback
-  public getFeedbackAnalytics() {
+  public async getFeedbackAnalytics() {
+    try {
+      // Try to get from backend first (admin only)
+      if (this.getCurrentUserEmail() === 'gdogra@gmail.com') {
+        const response = await fetch('/api/feedback/admin/analytics?admin_email=' + encodeURIComponent(this.getCurrentUserEmail()));
+        if (response.ok) {
+          const analytics = await response.json();
+          console.log('📊 Loaded analytics from backend:', analytics);
+          return analytics;
+        }
+      }
+    } catch (error) {
+      console.log('⚠️ Backend analytics unavailable, using local data');
+    }
+
+    // Fallback to local data
     const feedback = this.getStoredFeedback();
     const tickets = this.getStoredTickets();
 
@@ -199,6 +289,91 @@ class FeedbackService {
       recentFeedback: feedback.slice(-10).reverse(),
       sprintPlan: this.getSprintPlan()
     };
+  }
+
+  // Admin: Get all feedback from backend
+  public async getAllFeedback(page = 1, limit = 50, filters: any = {}) {
+    if (this.getCurrentUserEmail() !== 'gdogra@gmail.com') {
+      throw new Error('Admin access required');
+    }
+
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        admin_email: this.getCurrentUserEmail(),
+        ...filters
+      });
+
+      const response = await fetch(`/api/feedback/admin/all?${params}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch feedback from server');
+      }
+
+      const result = await response.json();
+      console.log('📋 Loaded feedback from backend:', result);
+      return result;
+    } catch (error) {
+      console.error('Error fetching feedback:', error);
+      // Fallback to local data
+      return {
+        feedback: this.getStoredFeedback(),
+        total: this.getStoredFeedback().length,
+        page: 1,
+        limit: 50,
+        totalPages: 1
+      };
+    }
+  }
+
+  // Admin: Update feedback status
+  public async updateFeedbackStatus(id: string, status: string, assignee?: string, sprintTarget?: string) {
+    if (this.getCurrentUserEmail() !== 'gdogra@gmail.com') {
+      throw new Error('Admin access required');
+    }
+
+    try {
+      const response = await fetch(`/api/feedback/admin/${id}/status?admin_email=${encodeURIComponent(this.getCurrentUserEmail())}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, assignee, sprintTarget })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update feedback status');
+      }
+
+      const result = await response.json();
+      console.log('✅ Feedback status updated:', result);
+      return result;
+    } catch (error) {
+      console.error('Error updating feedback status:', error);
+      throw error;
+    }
+  }
+
+  // Admin: Create GitHub issue from feedback
+  public async createGitHubIssue(id: string) {
+    if (this.getCurrentUserEmail() !== 'gdogra@gmail.com') {
+      throw new Error('Admin access required');
+    }
+
+    try {
+      const response = await fetch(`/api/feedback/admin/${id}/create-issue?admin_email=${encodeURIComponent(this.getCurrentUserEmail())}`, {
+        method: 'POST'
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create GitHub issue');
+      }
+
+      const result = await response.json();
+      console.log('✅ GitHub issue created:', result.issueUrl);
+      return result;
+    } catch (error) {
+      console.error('Error creating GitHub issue:', error);
+      throw error;
+    }
   }
 
   // Infer feature from page path

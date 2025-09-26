@@ -20,14 +20,13 @@ export const schemas = {
     })
   }),
 
-  // Interaction check validation
+  // Interaction check validation (expects array of RXCUI strings)
   interactionCheck: Joi.object({
     drugs: Joi.array()
       .items(
-        Joi.object({
-          rxcui: Joi.string().pattern(/^\d+$/).required(),
-          name: Joi.string().optional()
-        }).unknown(true)
+        Joi.string()
+          .pattern(/^\d+$/)
+          .messages({ 'string.pattern.base': 'Each drug must be a valid RXCUI (numbers only)' })
       )
       .min(2)
       .max(10)

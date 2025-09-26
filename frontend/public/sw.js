@@ -1,7 +1,35 @@
-// Service Worker for OncoSafeRx PWA
-const CACHE_NAME = 'oncosaferx-v1.0.0';
-const STATIC_CACHE_NAME = 'oncosaferx-static-v1.0.0';
-const DYNAMIC_CACHE_NAME = 'oncosaferx-dynamic-v1.0.0';
+// Service Worker for OncoSafeRx PWA - DISABLED FOR DEBUGGING
+console.log('Service Worker disabled for authentication debugging');
+
+// Clear all caches and disable service worker
+self.addEventListener('install', (event) => {
+  console.log('Service Worker disabled - clearing all caches');
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => caches.delete(cacheName))
+      );
+    }).then(() => {
+      return self.skipWaiting();
+    })
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  console.log('Service Worker disabled - claiming clients');
+  event.waitUntil(self.clients.claim());
+});
+
+// Pass all requests through to network
+self.addEventListener('fetch', (event) => {
+  event.respondWith(fetch(event.request));
+});
+
+return; // Exit early to disable rest of service worker
+
+const CACHE_NAME = 'oncosaferx-v1.0.0-disabled';
+const STATIC_CACHE_NAME = 'oncosaferx-static-v1.0.0-disabled';
+const DYNAMIC_CACHE_NAME = 'oncosaferx-dynamic-v1.0.0-disabled';
 
 // Files to cache immediately
 const STATIC_ASSETS = [

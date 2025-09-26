@@ -55,9 +55,9 @@ router.post('/register',
   asyncHandler(async (req, res) => {
     const { email, password, full_name, role = 'user', institution, specialty, license_number } = req.body;
 
-    // Check if user already exists
+    // Check if user already exists (only enforce when real Supabase is enabled)
     const existingUser = await supabaseService.getUserByEmail(email);
-    if (existingUser) {
+    if (existingUser && supabaseService.enabled) {
       return res.status(400).json({ error: 'User already exists with this email' });
     }
 

@@ -101,7 +101,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         dispatch({ type: 'AUTH_SUCCESS', payload: user });
       } catch (error) {
         console.error('AuthContext: Login failed:', error);
+        console.error('AuthContext: Login error details:', {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          type: typeof error,
+          error
+        });
         dispatch({ type: 'AUTH_FAILURE', payload: error instanceof Error ? error.message : 'Login failed' });
+        throw error; // Re-throw so the component can handle it
       }
     },
 
@@ -111,7 +117,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const user = await AuthService.signup(data);
         dispatch({ type: 'AUTH_SUCCESS', payload: user });
       } catch (error) {
-        dispatch({ type: 'AUTH_FAILURE', payload: 'Signup failed' });
+        console.error('AuthContext: Signup failed:', error);
+        dispatch({ type: 'AUTH_FAILURE', payload: error instanceof Error ? error.message : 'Signup failed' });
+        throw error; // Re-throw so the component can handle it
       }
     },
 

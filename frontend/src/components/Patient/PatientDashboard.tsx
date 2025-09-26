@@ -39,11 +39,15 @@ import {
   Target,
   ArrowRight,
   Sparkles,
-  Calculator
+  Calculator,
+  Trash2
 } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { useToast } from '../UI/Toast';
 
 const PatientDashboard: React.FC = () => {
   const { state, actions } = usePatient();
+  const { showToast } = useToast();
   const { currentPatient, alerts, isLoading, error } = state;
   const [activeTab, setActiveTab] = useState<'overview' | 'medications' | 'labs' | 'genetics' | 'history' | 'outcomes' | 'export'>('overview');
 
@@ -107,6 +111,37 @@ const PatientDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Patient actions */}
+      <div className="flex items-center justify-end">
+        <button
+          onClick={async () => {
+            if (!currentPatient) return;
+            if (!confirm('Delete this patient?')) return;
+            const deleted = currentPatient;
+            actions.removePatient(currentPatient.id);
+            showToast('success', 'Patient deleted', 5000, {
+              label: 'Undo',
+              onClick: async () => {
+                actions.setCurrentPatient(deleted);
+                try {
+                  const { data: sess } = await supabase.auth.getSession();
+                  const token = sess?.session?.access_token;
+                  if (token) {
+                    await fetch('/api/patients', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                      body: JSON.stringify({ patient: deleted })
+                    });
+                  }
+                } catch {}
+              }
+            });
+          }}
+          className="inline-flex items-center px-3 py-1.5 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          <Trash2 className="w-4 h-4 mr-1" /> Delete Patient
+        </button>
+      </div>
       {/* Error Display */}
       {error && (
         <Alert type="error" title="Error">

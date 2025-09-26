@@ -6,6 +6,7 @@ import { PatientProvider } from './context/PatientContext';
 import { SelectionProvider } from './context/SelectionContext';
 import { ComparisonProvider } from './contexts/ComparisonContext';
 import ErrorBoundary from './components/ErrorBoundary';
+import { ToastProvider } from './components/UI/Toast';
 import SecurityManager from './utils/security';
 import PerformanceMonitor from './utils/performance';
 import PWAManager from './utils/pwa';
@@ -24,11 +25,13 @@ const CuratedInteractions = lazy(() => import('./pages/CuratedInteractions'));
 const Regimens = lazy(() => import('./pages/Regimens'));
 const Trials = lazy(() => import('./pages/Trials'));
 const Patients = lazy(() => import('./pages/Patients'));
+const ServerPatients = lazy(() => import('./pages/ServerPatients'));
 const Collaboration = lazy(() => import('./pages/Collaboration'));
 const AIInsights = lazy(() => import('./pages/AIInsights'));
 const DrugDatabase = lazy(() => import('./pages/DrugDatabase'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 const AIRecommendations = lazy(() => import('./pages/AIRecommendations'));
+const AITreatmentPlanner = lazy(() => import('./pages/AITreatmentPlanner'));
 const EHRIntegration = lazy(() => import('./components/EHR/EHRIntegration'));
 const Help = lazy(() => import('./pages/Help'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
@@ -69,9 +72,10 @@ function AppWithAuth() {
   useVisitorTracking();
   
   return (
-    <PatientProvider>
-      <SelectionProvider>
-        <ComparisonProvider>
+    <ToastProvider>
+      <PatientProvider>
+        <SelectionProvider>
+          <ComparisonProvider>
             <Suspense fallback={<div className="p-4 text-sm text-gray-500">Loading…</div>}>
               <Routes>
                 {/* Public routes */}
@@ -206,10 +210,24 @@ function AppWithAuth() {
                     </Layout>
                   </ProtectedRoute>
                 } />
+                <Route path="/ai-treatment-planner" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <AITreatmentPlanner />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
                 <Route path="/patients" element={
                   <ProtectedRoute>
                     <Layout>
                       <Patients />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/patients/all" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <ServerPatients />
                     </Layout>
                   </ProtectedRoute>
                 } />
@@ -419,7 +437,8 @@ function AppWithAuth() {
           </ComparisonProvider>
         </SelectionProvider>
       </PatientProvider>
-    );
+    </ToastProvider>
+  );
 }
 
 // Component that handles keyboard shortcuts inside Router context

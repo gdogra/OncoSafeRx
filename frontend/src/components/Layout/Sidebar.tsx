@@ -121,6 +121,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             requiresPermission: null
           },
           { 
+            path: '/patients/all', 
+            label: 'All Patients', 
+            icon: Users, 
+            description: 'Server-backed list of all your patients',
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            requiresPermission: null
+          },
+          { 
             path: '/regimens', 
             label: 'Treatment Plans', 
             icon: Heart, 

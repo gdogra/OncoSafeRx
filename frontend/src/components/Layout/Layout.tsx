@@ -49,18 +49,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       />
       
       <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <div id="navigation">
+        {/* Sidebar */}
         <Sidebar 
           isOpen={isMobile ? sidebarOpen : sidebarExpanded} 
           onToggle={toggleSidebar} 
         />
-      </div>
 
-      {/* Main content */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${
-        !isMobile ? (sidebarExpanded ? 'lg:ml-60' : 'lg:ml-14') : ''
-      } ${!isMobile ? 'lg:pl-4 xl:pl-6' : ''}`}>
+        {/* Main content */}
+        <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar for mobile */}
         {isMobile && (
           <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between lg:hidden">
@@ -81,23 +77,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         )}
 
         {/* Main content area */}
-        <main id="main-content" className="flex-1 overflow-y-auto" tabIndex={-1}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <main id="main-content" className="flex-1 overflow-y-auto bg-gray-50" tabIndex={-1}>
+          <div className="px-4 sm:px-6 lg:px-8 py-4">
             {/* Global connectivity widget for desktop */}
             {!isMobile && (
               <div className="flex justify-end mb-4">
                 <ConnectivityStatus />
               </div>
             )}
-          </div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
             {children}
           </div>
         </main>
 
         {/* Footer */}
         <footer className="bg-white border-t border-gray-200 mt-auto">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="px-4 sm:px-6 py-6">
             <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
               <div className="text-sm text-gray-500 text-center sm:text-left">
                 © 2024 OncoSafeRx. Built for precision oncology and pharmacogenomics.

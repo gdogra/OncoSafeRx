@@ -50,7 +50,7 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
   async function test() {
     try {
       setTesting(true);
-      const resp = await fetch(`${base}/drugs/suggestions?q=asp&limit=1`);
+      const resp = await fetch(`${base}/drugs/suggestions?q=aspirin&limit=1`);
       if (!resp.ok) {
         setStatus('error');
         writeStored('error');
@@ -100,7 +100,7 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
       {!compact && (
         <Tooltip
           content={
-            'When offline, typeahead uses a limited local list. Full search and details may rely on RxNorm. The app auto-checks every 2 minutes. Only a generic test query ("asp") is sent—no PHI.'
+            'When offline, typeahead uses a limited local list. Full search and details may rely on RxNorm. The app auto-checks every 2 minutes. Only a generic test query ("aspirin") is sent—no PHI.'
           }
           position="top"
         >

@@ -1,0 +1,68 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install server dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: npm run build
+
+      - name: Run tests
+        run: npm test --if-present
+
+      - name: Package artifact
+        run: |
+          tar -czf build-artifact.tgz \
+            frontend/dist \
+            src \
+            package.json \
+            package-lock.json \
+            ecosystem.config.js \
+            .env.example \
+            README.md
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: oncosaferx-build
+          path: build-artifact.tgz
+
+  # Example release job placeholder
+  # release:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: oncosaferx-build
+  #         path: ./dist-package
+  #     - name: Deploy
+  #       run: echo "Add your deployment steps here (e.g., SSH, cloud CLI, etc.)"
+

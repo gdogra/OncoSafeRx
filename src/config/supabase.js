@@ -2,6 +2,7 @@
 // Falls back to no-op implementation for development without Supabase setup
 
 import dotenv from 'dotenv';
+import { randomUUID } from 'crypto';
 dotenv.config();
 
 // Check if Supabase credentials are available
@@ -11,6 +12,8 @@ const hasSupabaseCredentials = process.env.SUPABASE_URL && (process.env.SUPABASE
 export class NoOpSupabaseService {
   constructor() {
     this.enabled = false;
+    // Simple in-memory stores for development without Supabase
+    this.users = new Map(); // key: id, value: user object
   }
 
   // Drug operations (no-op)
@@ -69,19 +72,45 @@ export class NoOpSupabaseService {
 
   // User management (no-op)
   createUser(userData) {
-    return Promise.resolve(userData);
+    // Persist a user in-memory for local development
+    const id = userData.id || randomUUID();
+    const now = new Date();
+    const user = {
+      id,
+      email: userData.email,
+      full_name: userData.full_name || '',
+      role: userData.role || 'user',
+      institution: userData.institution || null,
+      specialty: userData.specialty || null,
+      license_number: userData.license_number || null,
+      password_hash: userData.password_hash, // used by authRoutes login
+      is_active: userData.is_active !== undefined ? userData.is_active : true,
+      created_at: now,
+      updated_at: now,
+      last_login: null,
+      preferences: userData.preferences || {}
+    };
+    this.users.set(id, user);
+    return Promise.resolve({ ...user });
   }
 
-  getUserByEmail(_email) {
+  getUserByEmail(email) {
+    for (const user of this.users.values()) {
+      if (user.email === email) return Promise.resolve({ ...user });
+    }
     return Promise.resolve(null);
   }
 
   getAllUsers() {
-    return Promise.resolve([]);
+    return Promise.resolve(Array.from(this.users.values()).map(u => ({ ...u })));
   }
 
-  updateUser(_userId, updateData) {
-    return Promise.resolve(updateData);
+  updateUser(userId, updateData) {
+    const existing = this.users.get(userId);
+    if (!existing) return Promise.resolve({ ...updateData });
+    const updated = { ...existing, ...updateData, updated_at: new Date() };
+    this.users.set(userId, updated);
+    return Promise.resolve({ ...updated });
   }
 
   // Data sync logging (no-op)

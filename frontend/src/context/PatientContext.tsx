@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import { PatientProfile, ClinicalAlert, ClinicalSession } from '../types';
 
 interface PatientState {
@@ -14,6 +15,8 @@ type PatientAction =
   | { type: 'SET_CURRENT_PATIENT'; payload: PatientProfile | null }
   | { type: 'UPDATE_PATIENT_DATA'; payload: Partial<PatientProfile> }
   | { type: 'ADD_RECENT_PATIENT'; payload: PatientProfile }
+  | { type: 'SET_RECENT_PATIENTS'; payload: PatientProfile[] }
+  | { type: 'REMOVE_PATIENT'; payload: { id: string } }
   | { type: 'SET_ALERTS'; payload: ClinicalAlert[] }
   | { type: 'ADD_ALERT'; payload: ClinicalAlert }
   | { type: 'ACKNOWLEDGE_ALERT'; payload: { alertId: string; userId: string } }
@@ -74,6 +77,19 @@ function patientReducer(state: PatientState, action: PatientAction): PatientStat
       return {
         ...state,
         recentPatients: newRecentPatients,
+      };
+
+    case 'SET_RECENT_PATIENTS':
+      return {
+        ...state,
+        recentPatients: action.payload.slice(0, 10),
+      };
+
+    case 'REMOVE_PATIENT':
+      return {
+        ...state,
+        currentPatient: state.currentPatient?.id === action.payload.id ? null : state.currentPatient,
+        recentPatients: state.recentPatients.filter(p => p.id !== action.payload.id),
       };
 
     case 'SET_ALERTS':
@@ -150,6 +166,8 @@ const PatientContext = createContext<{
     setCurrentPatient: (patient: PatientProfile | null) => void;
     updatePatientData: (data: Partial<PatientProfile>) => void;
     addRecentPatient: (patient: PatientProfile) => void;
+    removePatient: (id: string) => Promise<void> | void;
+    syncFromServer: () => Promise<void> | void;
     addAlert: (alert: ClinicalAlert) => void;
     acknowledgeAlert: (alertId: string) => void;
     startSession: (session: ClinicalSession) => void;
@@ -172,24 +190,37 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [state, dispatch] = useReducer(patientReducer, initialState);
   const authContext = useAuthSafely();
 
-  // Load persisted data on mount
+  const currentUserId: string = authContext.state?.user?.id || 'guest';
+  const lsKey = (name: string) => `oncosaferx:${currentUserId}:${name}`;
+
+  // Load persisted data per user (and migrate old keys if found)
   useEffect(() => {
     try {
-      const savedPatient = localStorage.getItem('oncosaferx_current_patient');
-      const savedRecents = localStorage.getItem('oncosaferx_recent_patients');
-      
-      if (savedPatient) {
-        const patient = JSON.parse(savedPatient);
+      const nsCurrent = localStorage.getItem(lsKey('current_patient'));
+      const nsRecents = localStorage.getItem(lsKey('recent_patients'));
+
+      // Migration from legacy global keys (non-namespaced)
+      const legacyCurrent = localStorage.getItem('oncosaferx_current_patient');
+      const legacyRecents = localStorage.getItem('oncosaferx_recent_patients');
+
+      const toUseCurrent = nsCurrent || legacyCurrent;
+      const toUseRecents = nsRecents || legacyRecents;
+
+      // Reset state before loading (switching users)
+      dispatch({ type: 'SET_CURRENT_PATIENT', payload: null });
+
+      if (toUseCurrent) {
+        const patient = JSON.parse(toUseCurrent);
         dispatch({ type: 'SET_CURRENT_PATIENT', payload: patient });
       }
-      
-      if (savedRecents) {
-        const recents = JSON.parse(savedRecents);
+
+      if (toUseRecents) {
+        const recents = JSON.parse(toUseRecents);
         recents.forEach((patient: PatientProfile) => {
           dispatch({ type: 'ADD_RECENT_PATIENT', payload: patient });
         });
       } else {
-        // Add sample patients if none exist
+        // Add sample patients if none exist for this user
         const samplePatients: PatientProfile[] = [
           {
             id: 'patient-001',
@@ -263,7 +294,7 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
             notes: [],
             preferences: {},
             lastUpdated: '2024-01-15T10:00:00Z',
-            createdBy: 'demo-user',
+            createdBy: currentUserId,
             isActive: true,
           },
           {
@@ -328,7 +359,7 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
             notes: [],
             preferences: {},
             lastUpdated: '2024-01-14T14:00:00Z',
-            createdBy: 'demo-user',
+            createdBy: currentUserId,
             isActive: true,
           },
           {
@@ -403,7 +434,7 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
             notes: [],
             preferences: {},
             lastUpdated: '2024-01-13T11:15:00Z',
-            createdBy: 'demo-user',
+            createdBy: currentUserId,
             isActive: true,
           }
         ];
@@ -412,24 +443,63 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
           dispatch({ type: 'ADD_RECENT_PATIENT', payload: patient });
         });
       }
+
+      // Persist migrated data into namespaced keys
+      if (!nsCurrent && legacyCurrent) {
+        localStorage.setItem(lsKey('current_patient'), legacyCurrent);
+      }
+      if (!nsRecents && legacyRecents) {
+        localStorage.setItem(lsKey('recent_patients'), legacyRecents);
+      }
+
+      // Try to hydrate from server if available
+      (async () => {
+        try {
+          const { data: sess } = await supabase.auth.getSession();
+          const token = sess?.session?.access_token;
+          if (!token) return; // skip if no Supabase session
+          const resp = await fetch('/api/patients', { headers: { Authorization: `Bearer ${token}` } });
+          if (!resp.ok) return;
+          const body = await resp.json();
+          if (Array.isArray(body?.patients) && body.patients.length) {
+            const recents = body.patients.map((p: any) => p.data || p);
+            recents.forEach((patient: any) => dispatch({ type: 'ADD_RECENT_PATIENT', payload: patient }));
+          }
+        } catch {}
+      })();
     } catch (error) {
       console.warn('Failed to load patient data from localStorage:', error);
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUserId]);
 
-  // Persist current patient to localStorage
+  // Persist current patient to localStorage (per user)
   useEffect(() => {
     if (state.currentPatient) {
-      localStorage.setItem('oncosaferx_current_patient', JSON.stringify(state.currentPatient));
+      localStorage.setItem(lsKey('current_patient'), JSON.stringify(state.currentPatient));
+      (async () => {
+        try {
+          const { data: sess } = await supabase.auth.getSession();
+          const token = sess?.session?.access_token;
+          if (!token) return;
+          await fetch('/api/patients', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ patient: state.currentPatient })
+          });
+        } catch {}
+      })();
     } else {
-      localStorage.removeItem('oncosaferx_current_patient');
+      localStorage.removeItem(lsKey('current_patient'));
     }
-  }, [state.currentPatient]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.currentPatient, currentUserId]);
 
-  // Persist recent patients to localStorage
+  // Persist recent patients to localStorage (per user)
   useEffect(() => {
-    localStorage.setItem('oncosaferx_recent_patients', JSON.stringify(state.recentPatients));
-  }, [state.recentPatients]);
+    localStorage.setItem(lsKey('recent_patients'), JSON.stringify(state.recentPatients));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.recentPatients, currentUserId]);
 
   const actions = {
     setCurrentPatient: (patient: PatientProfile | null) => {
@@ -445,6 +515,34 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
     
     addRecentPatient: (patient: PatientProfile) => {
       dispatch({ type: 'ADD_RECENT_PATIENT', payload: patient });
+    },
+
+    removePatient: async (id: string) => {
+      try {
+        dispatch({ type: 'REMOVE_PATIENT', payload: { id } });
+        const { data: sess } = await supabase.auth.getSession();
+        const token = sess?.session?.access_token;
+        if (!token) return;
+        await fetch(`/api/patients/${encodeURIComponent(id)}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } catch (_) {}
+    },
+
+    syncFromServer: async () => {
+      try {
+        const { data: sess } = await supabase.auth.getSession();
+        const token = sess?.session?.access_token;
+        if (!token) return;
+        const resp = await fetch('/api/patients', { headers: { Authorization: `Bearer ${token}` } });
+        if (!resp.ok) return;
+        const body = await resp.json();
+        if (Array.isArray(body?.patients)) {
+          const recents = body.patients.map((p: any) => p.data || p);
+          dispatch({ type: 'SET_RECENT_PATIENTS', payload: recents });
+        }
+      } catch (_) {}
     },
     
     addAlert: (alert: ClinicalAlert) => {
@@ -479,6 +577,8 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
 export const usePatient = () => {
   const context = useContext(PatientContext);
   if (!context) {
+    // During development, context might be temporarily null during hot reloads
+    console.warn('usePatient called outside PatientProvider, this may be a development hot-reload issue');
     throw new Error('usePatient must be used within a PatientProvider');
   }
   return context;

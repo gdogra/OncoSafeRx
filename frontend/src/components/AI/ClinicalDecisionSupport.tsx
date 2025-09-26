@@ -79,6 +79,7 @@ const ClinicalDecisionSupport: React.FC<ClinicalDecisionSupportProps> = ({
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedPriority, setSelectedPriority] = useState<string>('all');
+  const [acceptedRecommendations, setAcceptedRecommendations] = useState<Set<string>>(new Set());
 
   // AI-powered recommendation generation
   const generateRecommendations = async () => {
@@ -426,10 +427,25 @@ const ClinicalDecisionSupport: React.FC<ClinicalDecisionSupportProps> = ({
                 </div>
               </div>
               <button
-                onClick={() => onRecommendationAccept(recommendation)}
-                className="px-4 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700"
+                onClick={() => {
+                  setAcceptedRecommendations(prev => new Set(prev).add(recommendation.id));
+                  onRecommendationAccept(recommendation);
+                }}
+                disabled={acceptedRecommendations.has(recommendation.id)}
+                className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+                  acceptedRecommendations.has(recommendation.id)
+                    ? 'bg-green-600 text-white cursor-not-allowed'
+                    : 'bg-primary-600 text-white hover:bg-primary-700'
+                }`}
               >
-                Accept
+                {acceptedRecommendations.has(recommendation.id) ? (
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Accepted</span>
+                  </div>
+                ) : (
+                  'Accept'
+                )}
               </button>
             </div>
 

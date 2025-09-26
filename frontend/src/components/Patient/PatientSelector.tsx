@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { supabase } from '../../lib/supabase';
+import { useToast } from '../UI/Toast';
 import { usePatient } from '../../context/PatientContext';
 import { PatientProfile, PatientDemographics } from '../../types';
 import Card from '../UI/Card';
@@ -12,25 +14,41 @@ import {
   FileText, 
   Clock,
   Star,
-  Info
+  Info,
+  Trash2,
+  RefreshCw
 } from 'lucide-react';
 
 const PatientSelector: React.FC = () => {
   const { state, actions } = usePatient();
+  const { showToast } = useToast();
   const { currentPatient, recentPatients } = state;
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
+  
 
-  // Mock patient search function - in real implementation, this would call an API
+  // Patient search: prefer server when authenticated; fallback to local recent patients
   const searchPatients = async (query: string): Promise<PatientProfile[]> => {
-    // For demo purposes, we'll just filter recent patients
     if (!query.trim()) return [];
-    
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess?.session?.access_token;
+      if (token) {
+        const params = new URLSearchParams({ q: query, page: '1', pageSize: '10' });
+        const resp = await fetch(`/api/patients?${params.toString()}`, { headers: { Authorization: `Bearer ${token}` } });
+        if (resp.ok) {
+          const body = await resp.json();
+          const list = Array.isArray(body?.patients) ? body.patients : [];
+          return list.map((p: any) => p.data || p);
+        }
+      }
+    } catch {}
+    const q = query.toLowerCase();
     return recentPatients.filter(patient => 
       `${patient.demographics.firstName} ${patient.demographics.lastName}`
         .toLowerCase()
-        .includes(query.toLowerCase()) ||
-      patient.demographics.mrn?.toLowerCase().includes(query.toLowerCase())
+        .includes(q) ||
+      (patient.demographics.mrn || '').toLowerCase().includes(q)
     );
   };
 
@@ -80,7 +98,7 @@ const PatientSelector: React.FC = () => {
     }, 200);
   };
 
-  const createNewPatient = (patientData: any) => {
+  const createNewPatient = async (patientData: any) => {
     // Extract demographics and other data from comprehensive form
     const demographics: PatientDemographics = {
       firstName: patientData.firstName,
@@ -91,6 +109,13 @@ const PatientSelector: React.FC = () => {
       heightCm: patientData.heightCm,
       weightKg: patientData.weightKg,
     };
+
+    // Determine creator from Supabase auth if available
+    let createdBy = 'guest';
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      createdBy = sess?.session?.user?.id || createdBy;
+    } catch {}
 
     const newPatient: PatientProfile = {
       id: `patient-${Date.now()}`,
@@ -105,11 +130,27 @@ const PatientSelector: React.FC = () => {
       notes: [],
       preferences: {},
       lastUpdated: new Date().toISOString(),
-      createdBy: 'current-user', // TODO: Get from auth context
+      createdBy,
       isActive: true,
     };
 
+    // Optimistically set current and then try to persist
     actions.setCurrentPatient(newPatient);
+
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess?.session?.access_token;
+      if (token) {
+        await fetch('/api/patients', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ patient: newPatient })
+        });
+        showToast('success', 'Patient created');
+      }
+    } catch {
+      showToast('warning', 'Saved locally (offline)');
+    }
     setShowCreateForm(false);
   };
 
@@ -199,6 +240,15 @@ const PatientSelector: React.FC = () => {
               <span>New Patient</span>
             </button>
           </Tooltip>
+          <Tooltip content="Sync patients from server" position="bottom">
+            <button
+              onClick={() => actions.syncFromServer()}
+              className="flex items-center space-x-2 px-3 py-2 bg-white border text-sm font-medium rounded-md hover:bg-gray-50"
+            >
+              <RefreshCw className="w-4 h-4" />
+              <span>Sync</span>
+            </button>
+          </Tooltip>
         </div>
 
         {/* Search Results */}
@@ -272,6 +322,36 @@ const PatientSelector: React.FC = () => {
                       {calculateAge(patient.demographics.dateOfBirth)} years • MRN: {patient.demographics.mrn}
                     </div>
                   </div>
+                  <button
+                    className="p-1 text-gray-400 hover:text-red-600"
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      if (!confirm('Delete this patient?')) return;
+                      const deleted = patient;
+                      actions.removePatient(patient.id);
+                      showToast('success', 'Patient deleted', 5000, {
+                        label: 'Undo',
+                        onClick: async () => {
+                          // Restore locally and attempt to persist server-side
+                          actions.setCurrentPatient(deleted);
+                          try {
+                            const { data: sess } = await supabase.auth.getSession();
+                            const token = sess?.session?.access_token;
+                            if (token) {
+                              await fetch('/api/patients', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                                body: JSON.stringify({ patient: deleted })
+                              });
+                            }
+                          } catch {}
+                        }
+                      });
+                    }}
+                    title="Delete patient"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             ))}
@@ -286,6 +366,7 @@ const PatientSelector: React.FC = () => {
           onCancel={() => setShowCreateForm(false)}
         />
       )}
+      {/* Toasts are rendered by ToastProvider */}
     </div>
   );
 };

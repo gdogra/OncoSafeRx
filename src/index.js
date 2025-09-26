@@ -41,6 +41,8 @@ import enhancedInteractionRoutes from './routes/enhancedInteractionRoutes.js';
 import billingRoutes from './routes/billingRoutes.js';
 import roiRoutes from './routes/roiRoutes.js';
 import painRoutes from './routes/painRoutes.js';
+import patientRoutes from './routes/patientRoutes.js';
+import feedbackRoutes from './routes/feedbackRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -52,7 +54,41 @@ const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
 
 // Middleware
 app.set('trust proxy', 1);
-app.use(helmet());
+// Harden security headers; enable a conservative baseline. For strict CSP, configure CSP_DIRECTIVES env or extend below.
+app.use(helmet({
+  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: false,
+}));
+
+// Strict Content Security Policy (CSP)
+// Enable by setting ENABLE_CSP=true (recommended in production after verification)
+if ((process.env.ENABLE_CSP || '').toLowerCase() === 'true' || NODE_ENV === 'production') {
+  try {
+    const supabaseWildcard = 'https://*.supabase.co';
+    const directives = {
+      defaultSrc: ["'self'"],
+      baseUri: ["'self'"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'self'"],
+      // Vite bundles are loaded from same origin
+      scriptSrc: ["'self'"],
+      // Disallow inline styles (no 'unsafe-inline'); all CSS should be from static assets
+      styleSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:', 'blob:'],
+      fontSrc: ["'self'", 'data:'],
+      connectSrc: [
+        "'self'",
+        supabaseWildcard,
+        'wss://*.supabase.co',
+      ],
+      // Uncomment if all traffic is HTTPS behind a proxy
+      // upgradeInsecureRequests: [],
+    };
+    app.use(helmet.contentSecurityPolicy({ directives }));
+  } catch (e) {
+    console.warn('CSP configuration error:', e?.message || e);
+  }
+}
 app.use(cors({ origin: CORS_ORIGIN === '*' ? true : CORS_ORIGIN.split(',').map(s => s.trim()), credentials: true }));
 app.use(compression());
 
@@ -120,6 +156,13 @@ app.use((req, res, next) => {
 
 app.get('/metrics', async (req, res) => {
   try {
+    const token = process.env.METRICS_TOKEN;
+    if (token) {
+      const provided = req.headers['x-metrics-token'] || req.query.token;
+      if (provided !== token) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+    }
     res.set('Content-Type', client.register.contentType);
     res.end(await client.register.metrics());
   } catch (err) {
@@ -149,6 +192,8 @@ app.use('/api/editorial', editorialRoutes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/roi', roiRoutes);
 app.use('/api/pain', painRoutes);
+app.use('/api/patients', patientRoutes);
+app.use('/api/feedback', feedbackRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/overrides', overrideRoutes);
 app.use('/', cdsHooksRoutes);
@@ -178,7 +223,8 @@ if (NODE_ENV === 'development' && process.env.USE_VITE !== 'false') {
 // Serve frontend build (SPA) for non-API routes in production
 if (NODE_ENV !== 'development' || process.env.USE_VITE === 'false') {
   try {
-    const clientBuildPath = join(__dirname, '../frontend/build');
+    // Vite outputs to 'dist' by default
+    const clientBuildPath = join(__dirname, '../frontend/dist');
     if (process.env.SERVE_FRONTEND !== 'false') {
       app.use(express.static(clientBuildPath));
       // Route all non-API requests to React index.html

@@ -16,6 +16,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import Card from '../components/UI/Card';
+import { useToast } from '../components/UI/Toast';
 import Tooltip from '../components/UI/Tooltip';
 
 const AuthPage: React.FC = () => {
@@ -50,6 +51,10 @@ const AuthPage: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [resetMessage, setResetMessage] = useState<string>('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const { showToast } = useToast();
+  const [authModeInfo, setAuthModeInfo] = useState<string | null>(null);
+  const [showOtp, setShowOtp] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -58,6 +63,19 @@ const AuthPage: React.FC = () => {
       navigate(from, { replace: true });
     }
   }, [state.isAuthenticated, navigate, location]);
+
+  // Read auth path meta for diagnostics
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('osrx_auth_path');
+      if (raw) {
+        const meta = JSON.parse(raw);
+        if (meta?.path && meta?.at) {
+          setAuthModeInfo(`Auth mode: ${meta.path} @ ${new Date(meta.at).toLocaleTimeString()}`);
+        }
+      }
+    } catch {}
+  }, [state.isAuthenticated, state.error]);
 
   // Role options for signup
   const roleOptions = [
@@ -157,13 +175,48 @@ const AuthPage: React.FC = () => {
 
   // Form handlers
   const handleSignin = async (e: React.FormEvent) => {
+    console.log('🎯 Form submitted:', { email: loginData.email, hasPassword: !!loginData.password });
     e.preventDefault();
-    if (!validateSignin()) return;
+    e.stopPropagation();
     
+    // Prevent any potential page reloads
+    if (e.target) {
+      (e.target as HTMLFormElement).style.pointerEvents = 'none';
+    }
+    
+    const isValid = validateSignin();
+    console.log('✅ Form validation result:', isValid);
+    if (!isValid) {
+      console.log('❌ Validation failed, errors:', errors);
+      if (e.target) {
+        (e.target as HTMLFormElement).style.pointerEvents = 'auto';
+      }
+      return;
+    }
+    
+    console.log('🚀 Starting login process...');
     try {
-      await actions.login(loginData);
+      console.log('🔄 About to call actions.login...');
+      // Add explicit promise handling to prevent unhandled rejections
+      const loginPromise = actions.login(loginData);
+      console.log('🔄 Login promise created, waiting for result...');
+      const result = await loginPromise;
+      console.log('✅ Login completed successfully:', result);
     } catch (error) {
-      setErrors({ submit: 'Invalid email or password. Please try again.' });
+      console.error('❌ Login failed in handleSignin:', error);
+      console.error('❌ Login error full details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack',
+        type: typeof error,
+        error
+      });
+      const errorMessage = error instanceof Error ? error.message : 'Invalid email or password. Please try again.';
+      setErrors({ submit: errorMessage });
+    } finally {
+      // Re-enable form
+      if (e.target) {
+        (e.target as HTMLFormElement).style.pointerEvents = 'auto';
+      }
     }
   };
 
@@ -184,6 +237,51 @@ const AuthPage: React.FC = () => {
     }
   };
 
+  const handleMagicLink = async () => {
+    const email = loginData.email.trim();
+    if (!email) {
+      setErrors(prev => ({ ...prev, email: 'Enter your email above, then click Magic link' }));
+      return;
+    }
+    try {
+      const redirectTo = `${window.location.origin}/`;
+      const { SupabaseAuthService } = await import('../services/authService');
+      await SupabaseAuthService.requestMagicLink(email, redirectTo);
+      showToast('success', 'Magic link sent. Check your email.');
+    } catch (e: any) {
+      setErrors(prev => ({ ...prev, submit: e?.message || 'Failed to send magic link' }));
+      showToast('error', e?.message || 'Failed to send magic link');
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setErrors(prev => ({ ...prev, submit: '' }));
+    try {
+      const { SupabaseAuthService } = await import('../services/authService');
+      const profile = await SupabaseAuthService.verifyEmailOtp(loginData.email, otpCode);
+      showToast('success', `Welcome back, ${profile.firstName || profile.email}`);
+    } catch (e: any) {
+      setErrors(prev => ({ ...prev, submit: e?.message || 'Failed to verify code' }));
+      showToast('error', e?.message || 'Failed to verify code');
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    const email = loginData.email.trim();
+    if (!email) {
+      setErrors(prev => ({ ...prev, email: 'Enter your email above, then click Resend confirmation' }));
+      return;
+    }
+    try {
+      const redirectTo = `${window.location.origin}/`;
+      const { SupabaseAuthService } = await import('../services/authService');
+      await SupabaseAuthService.resendConfirmation(email, redirectTo);
+      showToast('success', 'Confirmation email sent');
+    } catch (e: any) {
+      showToast('error', e?.message || 'Failed to resend confirmation');
+    }
+  };
+
   const handleSignupNext = () => {
     if (validateSignupStep1()) {
       setCurrentStep(2);
@@ -197,7 +295,9 @@ const AuthPage: React.FC = () => {
     try {
       await actions.signup(signupData);
     } catch (error) {
-      setErrors({ submit: 'Signup failed. Please try again.' });
+      console.error('❌ Signup failed:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Signup failed. Please try again.';
+      setErrors({ submit: errorMessage });
     }
   };
 
@@ -297,6 +397,9 @@ const AuthPage: React.FC = () => {
           {/* Sign In Form */}
           {mode === 'signin' && (
             <form onSubmit={handleSignin} className="space-y-6">
+              {authModeInfo && (
+                <div className="text-xs text-gray-500">{authModeInfo}</div>
+              )}
               <div>
                 <label htmlFor="signin-email" className="block text-sm font-medium text-gray-700">
                   Email Address
@@ -374,10 +477,12 @@ const AuthPage: React.FC = () => {
                   </label>
                 </div>
 
-                <div className="text-sm">
-                  <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
-                    Forgot password?
-                  </a>
+                <div className="flex items-center gap-3 text-sm">
+                  <button type="button" onClick={handleResendConfirmation} className="font-medium text-primary-600 hover:text-primary-500">
+                    Resend confirmation
+                  </button>
+                  <button type="button" onClick={handleMagicLink} className="font-medium text-blue-600 hover:text-blue-500">Magic link</button>
+                  <button type="button" onClick={() => setShowOtp(!showOtp)} className="font-medium text-violet-600 hover:text-violet-500">{showOtp ? 'Hide code' : 'Have a code?'}</button>
                 </div>
               </div>
 
@@ -385,6 +490,21 @@ const AuthPage: React.FC = () => {
                 <div className="flex items-center space-x-2 p-3 bg-red-50 border border-red-200 rounded-md">
                   <AlertCircle className="w-4 h-4 text-red-600" />
                   <p className="text-sm text-red-600">{errors.submit || state.error}</p>
+                </div>
+              )}
+
+              {showOtp && (
+                <div className="space-y-2 p-3 border border-violet-200 rounded-md bg-violet-50">
+                  <label htmlFor="otp-code" className="block text-sm font-medium text-gray-700">Enter verification code</label>
+                  <input
+                    id="otp-code"
+                    type="text"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    placeholder="6-digit code"
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                  />
+                  <button type="button" onClick={handleVerifyOtp} className="px-3 py-2 bg-violet-600 text-white rounded text-sm hover:bg-violet-700">Verify code</button>
                 </div>
               )}
 
@@ -738,7 +858,17 @@ const AuthPage: React.FC = () => {
       </div>
 
       {/* Footer */}
-      <div className="mt-8 text-center">
+      <div className="mt-8 text-center space-y-4">
+        {/* Admin Console Link */}
+        <div>
+          <a 
+            href="/admin/login" 
+            className="text-sm text-gray-600 hover:text-primary-600 underline"
+          >
+            Admin Console
+          </a>
+        </div>
+        
         <p className="text-xs text-gray-500">
           By using OncoSafeRx, you agree to our terms and privacy policy.
           <br />

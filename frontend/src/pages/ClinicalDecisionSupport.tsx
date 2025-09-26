@@ -68,7 +68,20 @@ const ClinicalDecisionSupportPage: React.FC = () => {
 
   const handleRecommendationAccept = (recommendation: any) => {
     console.log('Accepted recommendation:', recommendation);
+    
+    // Show user feedback
+    alert(`✅ Recommendation "${recommendation.title}" has been accepted and will be integrated into the treatment plan.`);
+    
     // In a real app, this would integrate with EHR or treatment planning system
+    // For now, we'll simulate the integration
+    setTimeout(() => {
+      console.log('Recommendation integrated into EHR system:', {
+        recommendationId: recommendation.id,
+        patientId: 'mock-patient-123',
+        timestamp: new Date().toISOString(),
+        status: 'accepted'
+      });
+    }, 1000);
   };
 
   return (

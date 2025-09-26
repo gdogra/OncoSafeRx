@@ -95,11 +95,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login: async (data: LoginData) => {
       console.log('AuthContext: Starting login for', data.email);
       dispatch({ type: 'AUTH_START' });
+      
+      // Critical UI-level timeout to prevent infinite spinning
+      const loginTimeout = setTimeout(() => {
+        console.log('🛑 CRITICAL: Login exceeded 8 seconds - forcing failure');
+        dispatch({ type: 'AUTH_FAILURE', payload: 'Login timeout - please try again' });
+      }, 8000);
+      
       try {
         const user = await AuthService.login(data);
+        clearTimeout(loginTimeout);
         console.log('AuthContext: Login successful, user:', user);
         dispatch({ type: 'AUTH_SUCCESS', payload: user });
       } catch (error) {
+        clearTimeout(loginTimeout);
         console.error('AuthContext: Login failed:', error);
         console.error('AuthContext: Login error details:', {
           message: error instanceof Error ? error.message : 'Unknown error',

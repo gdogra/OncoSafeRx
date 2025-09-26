@@ -61,24 +61,21 @@ export class SupabaseAuthService {
     // Production: Real Supabase authentication
     console.log('🌐 Production mode: Real Supabase auth')
     
-    // First, test Supabase connectivity
-    try {
-      console.log('🔍 Testing Supabase connectivity...')
-      const { data: { session } } = await supabase.auth.getSession()
-      console.log('✅ Supabase connection successful', { hasSession: !!session })
-    } catch (connError) {
-      console.warn('⚠️ Supabase connectivity issue:', connError)
-    }
+    // Skip connectivity test and go straight to authentication with aggressive timeout
+    console.log('🔄 Starting aggressive authentication with 3-second timeout...')
     
     try {
-      // Add shorter timeout for faster feedback
+      // Very aggressive timeout - 3 seconds max
       const authPromise = supabase.auth.signInWithPassword({
         email,
         password
       })
       
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Authentication timeout after 5 seconds')), 5000)
+        setTimeout(() => {
+          console.log('⏰ TIMEOUT: Supabase auth exceeded 3 seconds')
+          reject(new Error('Authentication timeout after 3 seconds'))
+        }, 3000)
       })
       
       console.log('🔄 Attempting Supabase authentication...')
@@ -138,8 +135,8 @@ export class SupabaseAuthService {
     } catch (error) {
       console.log('💥 Auth error:', error)
       
-      // Always try direct API call as fallback for better reliability
-      console.log('🔄 Trying direct Supabase API call as fallback...')
+      // IMMEDIATE fallback to direct API call
+      console.log('🚀 IMMEDIATE fallback to direct Supabase API call...')
       try {
         const directResponse = await Promise.race([
           fetch(`https://emfrwckxctyarphjvfeu.supabase.co/auth/v1/token?grant_type=password`, {
@@ -155,7 +152,10 @@ export class SupabaseAuthService {
             })
           }),
           new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Direct API timeout')), 3000)
+            setTimeout(() => {
+              console.log('⏰ TIMEOUT: Direct API exceeded 2 seconds')
+              reject(new Error('Direct API timeout after 2 seconds'))
+            }, 2000)
           )
         ]) as Response;
         

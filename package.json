@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
-    "build": "npm run build:frontend",
+    "build": "echo 'API server ready - no build step required'",
     "start:prod": "NODE_ENV=production node src/index.js",
     "build:frontend": "cd frontend && npm ci && npm run build",
     "start:frontend": "cd frontend && npm start",

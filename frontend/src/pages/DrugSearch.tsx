@@ -552,6 +552,10 @@ const DrugSearchInner: React.FC = () => {
                     {basicSuggestions.map((s, i) => (
                       <button
                         key={`${s.rxcui || s.name}-${i}`}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setSearchQuery(s.name);
+                        }}
                         onClick={() => setSearchQuery(s.name)}
                         className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200"
                         title={s.rxcui ? `RXCUI ${s.rxcui}` : s.name}

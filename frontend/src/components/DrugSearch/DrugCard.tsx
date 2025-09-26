@@ -109,7 +109,9 @@ const DrugCard: React.FC<DrugCardProps> = ({ drug, onClick, showDetails = false,
       } ${className}`}
       padding="md"
     >
-      <div className="flex items-start justify-between" onClick={onClick ? handleClick : undefined}>
+      <div className="flex items-start justify-between" 
+           onMouseDown={onClick ? (e) => { e.preventDefault(); handleClick(); } : undefined}
+           onClick={onClick ? handleClick : undefined}>
         <div className="flex items-start space-x-3 flex-1">
           <div className="flex-shrink-0">
             <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
@@ -278,8 +280,12 @@ const DrugCard: React.FC<DrugCardProps> = ({ drug, onClick, showDetails = false,
         {onClick && (
           <button
             type="button"
+            onMouseDown={(e) => { 
+              e.preventDefault(); 
+              try { analytics.logSelection(drug.rxcui, drug.name, 'card_action_details'); } catch {} 
+              handleClick(); 
+            }}
             onClick={handleClick}
-            onMouseDown={() => { try { analytics.logSelection(drug.rxcui, drug.name, 'card_action_details'); } catch {} }}
             className="inline-flex items-center px-3 py-1.5 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
           >
             <Share2 className="w-3 h-3 mr-1" /> View Details

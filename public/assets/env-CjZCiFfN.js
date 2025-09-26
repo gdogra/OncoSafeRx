@@ -1,0 +1,2 @@
+var a={REACT_APP_API_URL:""};let o=null;function r(){if(o)return o;const i="https://api.oncosaferx.com/api",t=typeof process<"u"?a?.REACT_APP_API_URL:void 0;if(i?.trim())return o=i,i;if(t?.trim())return o=t,t;if(typeof window<"u"&&window.location?.hostname==="localhost"){const n="http://localhost:3000/api";return o=n,n}if(typeof window<"u"&&window.location&&window.location.origin){const n=`${window.location.origin}/api`;return o=n,n}const e="http://localhost:3000/api";return o=e,e}export{r as a};
+//# sourceMappingURL=env-CjZCiFfN.js.map

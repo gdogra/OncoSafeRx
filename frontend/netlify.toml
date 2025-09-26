@@ -1,7 +1,16 @@
 [build]
   base = "frontend"
   publish = "dist"
-  command = "npm ci && npm run build"
+  command = "npm ci --legacy-peer-deps && npm run build"
+
+[build.environment]
+  NODE_VERSION = "20.19.1"
+  NPM_FLAGS = "--legacy-peer-deps"
+  NODE_OPTIONS = "--max-old-space-size=4096"
+  # Optimize build performance
+  GENERATE_SOURCEMAP = "false"
+  CI = "false"
+  BUILD_TIMEOUT = "15"
 
 # Proxy API requests to your backend API domain
 [[redirects]]

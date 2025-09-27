@@ -20,9 +20,14 @@ router.get('/suggestions',
     const limit = Math.max(1, Math.min(20, Number(req.query.limit) || 8));
     if (q.length < 2) return res.json({ suggestions: [] });
 
-    // Try RxNorm first
-    const results = await rxnormService.searchDrugs(q);
-    let suggestions = (results || [])
+    // Try RxNorm first (gracefully handle connectivity errors)
+    let rxResults = [];
+    try {
+      rxResults = await rxnormService.searchDrugs(q);
+    } catch (e) {
+      console.warn('RxNorm suggestions failed:', e?.message || e);
+    }
+    let suggestions = (rxResults || [])
       .map(d => ({
         id: d.rxcui || d.name,
         name: d.name || d.synonym || '',
@@ -83,7 +88,12 @@ router.get('/search',
       console.warn('Local search failed:', error.message);
     }
     
-    const rxnormResults = await rxnormService.searchDrugs(q);
+    let rxnormResults = [];
+    try {
+      rxnormResults = await rxnormService.searchDrugs(q);
+    } catch (e) {
+      console.warn('RxNorm search failed:', e?.message || e);
+    }
     
     // Combine and deduplicate results
     const combinedResults = [...localResults, ...rxnormResults];

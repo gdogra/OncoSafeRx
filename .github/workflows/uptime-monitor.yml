@@ -1,0 +1,84 @@
+name: Uptime Monitor
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # every 15 minutes
+  workflow_dispatch: {}
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Check endpoints
+        id: check
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+          API_HEALTH_URL: ${{ secrets.API_HEALTH_URL }}
+          API_SUGGEST_URL: ${{ secrets.API_SUGGEST_URL }}
+        run: |
+          SITE_URL=${SITE_URL:-"https://oncosaferx.com"}
+          API_HEALTH_URL=${API_HEALTH_URL:-"https://oncosaferx.onrender.com/health"}
+          API_SUGGEST_URL=${API_SUGGEST_URL:-"https://oncosaferx.onrender.com/api/drugs/suggestions?q=asp&limit=1"}
+
+          echo "Checking SITE_URL=$SITE_URL"
+          SITE_STATUS=$(curl -fsS -o /dev/null -w "%{http_code}" "$SITE_URL" || echo 000)
+          echo "SITE_STATUS=$SITE_STATUS"
+
+          echo "Checking API_HEALTH_URL=$API_HEALTH_URL"
+          API_HEALTH_BODY=$(curl -fsS "$API_HEALTH_URL" || true)
+          API_HEALTH_CODE=$([ -n "$API_HEALTH_BODY" ] && echo 200 || echo 000)
+          API_HEALTH_OK=$(echo "$API_HEALTH_BODY" | jq -r '.status // .Status // empty' 2>/dev/null | tr '[:upper:]' '[:lower:]')
+          echo "API_HEALTH_CODE=$API_HEALTH_CODE, API_HEALTH_OK=$API_HEALTH_OK, BODY=$API_HEALTH_BODY"
+
+          echo "Checking API_SUGGEST_URL=$API_SUGGEST_URL"
+          API_SUGGEST_CODE=$(curl -fsS -o /dev/null -w "%{http_code}" "$API_SUGGEST_URL" || echo 000)
+          echo "API_SUGGEST_CODE=$API_SUGGEST_CODE"
+
+          FAIL=0
+          [ "$SITE_STATUS" != "200" ] && echo "Site check failed" && FAIL=1
+          if [ "$API_HEALTH_CODE" != "200" ] && [ "$API_HEALTH_OK" != "healthy" ]; then
+            echo "API health check failed"; FAIL=1; fi
+          if [ "$API_SUGGEST_CODE" != "200" ]; then echo "API suggestions check failed"; FAIL=1; fi
+
+          echo "fail=$FAIL" >> $GITHUB_OUTPUT
+          echo "site_status=$SITE_STATUS" >> $GITHUB_OUTPUT
+          echo "api_health_ok=$API_HEALTH_OK" >> $GITHUB_OUTPUT
+          echo "api_suggest_code=$API_SUGGEST_CODE" >> $GITHUB_OUTPUT
+
+          if [ "$FAIL" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Notify Slack (failure)
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then echo "No SLACK_WEBHOOK_URL set — skipping"; exit 0; fi
+          text="❌ Uptime check FAILED\nSite: ${{ steps.check.outputs.site_status }}\nAPI health: ${{ steps.check.outputs.api_health_ok }}\nAPI suggest: ${{ steps.check.outputs.api_suggest_code }}\nRun: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          payload=$(jq -n --arg text "$text" '{text: $text}')
+          curl -fsS -X POST -H 'Content-type: application/json' --data "$payload" "$SLACK_WEBHOOK_URL"
+
+      - name: Email notify (failure)
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.EMAIL_HOST }}
+          server_port: ${{ secrets.EMAIL_PORT }}
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: ❌ Uptime check FAILED: ${{ github.repository }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.EMAIL_FROM }}
+          content_type: text/plain
+          body: |
+            Uptime check failed.
+            Site HTTP: ${{ steps.check.outputs.site_status }}
+            API health: ${{ steps.check.outputs.api_health_ok }}
+            API suggest HTTP: ${{ steps.check.outputs.api_suggest_code }}
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

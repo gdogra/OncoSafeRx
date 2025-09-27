@@ -32,6 +32,8 @@ import {
   Minus
 } from 'lucide-react';
 import Card from '../UI/Card';
+import EnhancedDrugResults from './EnhancedDrugResults';
+import { togglePin } from '../../utils/pins';
 import AutocompleteSearch from './AutocompleteSearch';
 import FilterAutocomplete, {
   THERAPEUTIC_CLASS_OPTIONS,
@@ -107,6 +109,10 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
   const [serverSuggestions, setServerSuggestions] = useState<Array<{ name: string; rxcui?: string | null }>>([]);
   const [serverSuggestionsOffline, setServerSuggestionsOffline] = useState<boolean>(false);
   const [serverSuggestionsLoading, setServerSuggestionsLoading] = useState<boolean>(false);
+  const [searchLoading, setSearchLoading] = useState<boolean>(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [pinnedOnly, setPinnedOnly] = useState<boolean>(false);
 
   const filterOptions = {
     drugType: [
@@ -244,7 +250,24 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
         setServerSuggestionsOffline(!!data.offline);
         onOfflineChange?.(!!data.offline);
       } catch {
-        if (!abort) { setServerSuggestions([]); setServerSuggestionsOffline(false); }
+        if (!abort) {
+          // Graceful offline fallback with a small local list
+          const LOCAL: Array<{ name: string; rxcui?: string | null }> = [
+            { name: 'aspirin' },
+            { name: 'ibuprofen' },
+            { name: 'acetaminophen' },
+            { name: 'clopidogrel' },
+            { name: 'warfarin' },
+            { name: 'omeprazole' },
+            { name: 'simvastatin' },
+            { name: 'levodopa' },
+          ];
+          const q = filters.query.toLowerCase();
+          const fallback = LOCAL.filter(d => d.name.includes(q)).slice(0, 8);
+          setServerSuggestions(fallback);
+          setServerSuggestionsOffline(true);
+          onOfflineChange?.(true);
+        }
       } finally {
         if (!abort) setServerSuggestionsLoading(false);
       }
@@ -271,6 +294,25 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
         [category]: newValues
       };
     });
+  };
+
+  const runSearch = async () => {
+    const q = (filters.query || '').trim();
+    if (q.length < 2) return;
+    setSearchLoading(true);
+    setSearchError(null);
+    setSearchResults([]);
+    try {
+      const resp = await fetch(`/api/drugs/search?q=${encodeURIComponent(q)}`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      const results = Array.isArray(data?.results) ? data.results : [];
+      setSearchResults(results);
+    } catch (e: any) {
+      setSearchError(e?.message || 'Search failed');
+    } finally {
+      setSearchLoading(false);
+    }
   };
 
   const clearAllFilters = () => {
@@ -691,7 +733,11 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
       {/* Search Actions */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <button className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:from-violet-700 hover:to-indigo-700 flex items-center space-x-2">
+          <button
+            onClick={runSearch}
+            disabled={searchLoading || !filters.query || filters.query.trim().length < 2}
+            className="bg-gradient-to-r from-violet-600 to-indigo-600 disabled:opacity-50 text-white px-6 py-3 rounded-lg hover:from-violet-700 hover:to-indigo-700 flex items-center space-x-2"
+          >
             <Search className="h-4 w-4" />
             <span>Search Drugs</span>
           </button>
@@ -707,6 +753,105 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
         <div className="text-sm text-gray-500">
           Powered by OncoSafeRx Neural Engine
         </div>
+      </div>
+
+      {/* Inline Results Panel */}
+      <div className="mt-4">
+        {/* Inline results toolbar */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={pinnedOnly}
+                onChange={(e) => setPinnedOnly(e.target.checked)}
+                className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
+              />
+              Pinned only
+            </label>
+          </div>
+          <div>
+            <button
+              type="button"
+              onClick={() => { if (window.location.pathname !== '/interactions') window.location.href = '/interactions'; }}
+              className="text-sm px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              Go to Interactions
+            </button>
+          </div>
+        </div>
+        {searchLoading && (
+          <div className="text-sm text-gray-600">Searching…</div>
+        )}
+        {searchError && (
+          <div className="text-sm text-red-600">{searchError}</div>
+        )}
+        {!searchLoading && !searchError && searchResults.length > 0 && (
+          <EnhancedDrugResults
+            drugs={searchResults
+              .map((d: any) => ({
+              id: d.rxcui || d.id || d.name,
+              name: d.name,
+              genericName: d.generic_name || d.genericName || d.name,
+              therapeuticClass: d.insights?.therapeuticClass || d.therapeutic_class || 'Unknown',
+              mechanismOfAction: d.insights?.mechanism || d.mechanism || 'Unknown',
+              indication: d.insights?.indications || (d.indication ? [d.indication] : []),
+              fdaApproved: true,
+              safetyScore: 0,
+              efficacyScore: 0,
+              evidenceLevel: 'moderate',
+              hasInteractions: false,
+              hasGenomicFactors: false,
+              requiresMonitoring: false,
+              costTier: 'moderate',
+              routeOfAdministration: [],
+              dosageForm: [],
+              keyBenefits: [],
+              keyRisks: [],
+              commonSideEffects: [],
+              monitoringRequirements: [],
+              contraindications: [],
+              patientSuitability: [],
+              relatedDrugs: [],
+              clinicalTrials: 0,
+              publications: 0,
+              isOncologyDrug: !!d.insights?.isOncologyDrug,
+              isOrphanDrug: !!d.insights?.isOrphanDrug,
+            }))
+            .filter((drug: any) => {
+              if (!pinnedOnly) return true;
+              try {
+                const pins = JSON.parse(localStorage.getItem('oncosaferx_pins') || '{}');
+                return !!pins[String(drug.id)];
+              } catch { return false; }
+            })}
+            loading={false}
+            error={undefined}
+            onDrugSelect={(drug) => {
+              // Set the query to selected drug and pin as needed
+              setFilters(prev => ({ ...prev, query: drug.name }));
+            }}
+            onPin={(drug) => {
+              if (drug?.id && drug?.name) {
+                togglePin(String(drug.id), String(drug.name));
+              }
+            }}
+            onAddToInteractions={(drug) => {
+              try {
+                const key = 'osrx_interaction_basket';
+                const list = JSON.parse(localStorage.getItem(key) || '[]');
+                if (!list.find((d: any) => d.id === drug.id)) {
+                  list.push({ id: drug.id, name: drug.name });
+                  localStorage.setItem(key, JSON.stringify(list.slice(-10)));
+                }
+                // Optional: navigate to interactions page
+                if (window.location.pathname !== '/interactions') {
+                  window.location.href = '/interactions';
+                }
+              } catch {}
+            }}
+          />
+        )}
       </div>
     </div>
   );

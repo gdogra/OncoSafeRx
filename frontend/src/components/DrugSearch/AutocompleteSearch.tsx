@@ -1326,6 +1326,7 @@ const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
               {filteredOptions.map((option, index) => (
                 <li key={option.id}>
                   <button
+                    onMouseDown={(e) => { e.preventDefault(); /* ensure click before blur */ }}
                     onClick={() => handleOptionSelect(option)}
                     className={`w-full flex items-center space-x-3 px-4 py-3 text-left hover:bg-gray-50 ${
                       index === highlightedIndex ? 'bg-violet-50 border-l-4 border-violet-500' : ''

@@ -270,6 +270,7 @@ const FilterAutocomplete: React.FC<FilterAutocompleteProps> = ({
               filteredOptions.map(option => (
                 <button
                   key={option.value}
+                  onMouseDown={(e) => { e.preventDefault(); /* avoid input blur swallowing click */ }}
                   onClick={() => handleOptionToggle(option.value)}
                   className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-gray-50 focus:bg-gray-50"
                   disabled={maxSelection && selectedValues.length >= maxSelection && !selectedValues.includes(option.value)}

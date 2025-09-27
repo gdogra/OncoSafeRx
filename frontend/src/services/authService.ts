@@ -61,11 +61,12 @@ export class SupabaseAuthService {
     // Production: Real Supabase authentication
     console.log('🌐 Production mode: Real Supabase auth')
     
-    // Skip connectivity test and go straight to authentication with aggressive timeout
-    console.log('🔄 Starting aggressive authentication with 3-second timeout...')
+    // Skip connectivity test and go straight to authentication with bounded timeout
+    const authTimeoutMs = (import.meta as any)?.env?.VITE_AUTH_TIMEOUT_MS ? Number((import.meta as any).env.VITE_AUTH_TIMEOUT_MS) : 8000
+    console.log(`🔄 Starting authentication with ${Math.round(authTimeoutMs/1000)}-second timeout...`)
     
     try {
-      // Very aggressive timeout - 3 seconds max
+      // Sign-in with bounded timeout
       const authPromise = supabase.auth.signInWithPassword({
         email,
         password
@@ -73,9 +74,9 @@ export class SupabaseAuthService {
       
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => {
-          console.log('⏰ TIMEOUT: Supabase auth exceeded 3 seconds')
-          reject(new Error('Authentication timeout after 3 seconds'))
-        }, 3000)
+          console.log(`⏰ TIMEOUT: Supabase auth exceeded ${Math.round(authTimeoutMs/1000)} seconds`)
+          reject(new Error(`Authentication timeout after ${Math.round(authTimeoutMs/1000)} seconds`))
+        }, authTimeoutMs)
       })
       
       console.log('🔄 Attempting Supabase authentication...')

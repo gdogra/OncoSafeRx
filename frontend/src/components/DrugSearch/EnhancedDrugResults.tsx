@@ -28,6 +28,7 @@ import {
   Grid,
   List,
   Bookmark,
+  Plus,
   Share2,
   Download
 } from 'lucide-react';
@@ -79,6 +80,8 @@ interface EnhancedDrugResultsProps {
   viewMode?: 'grid' | 'list' | 'detailed';
   sortBy?: string;
   filterBy?: any;
+  onPin?: (drug: EnhancedDrug) => void;
+  onAddToInteractions?: (drug: EnhancedDrug) => void;
 }
 
 const EnhancedDrugResults: React.FC<EnhancedDrugResultsProps> = ({
@@ -89,7 +92,9 @@ const EnhancedDrugResults: React.FC<EnhancedDrugResultsProps> = ({
   onCompare,
   viewMode = 'grid',
   sortBy = 'relevance',
-  filterBy = {}
+  filterBy = {},
+  onPin,
+  onAddToInteractions
 }) => {
   const [selectedDrugs, setSelectedDrugs] = useState<string[]>([]);
   const [currentViewMode, setCurrentViewMode] = useState(viewMode);
@@ -178,6 +183,29 @@ const EnhancedDrugResults: React.FC<EnhancedDrugResultsProps> = ({
     return variants[tier as keyof typeof variants] || variants.moderate;
   };
 
+  // Local storage fallbacks for pin/add when no callbacks provided
+  const defaultPin = (drug: EnhancedDrug) => {
+    try {
+      const key = 'osrx_pinned_drugs';
+      const list = JSON.parse(localStorage.getItem(key) || '[]');
+      if (!list.find((d: any) => d.id === drug.id)) {
+        list.unshift({ id: drug.id, name: drug.name });
+        localStorage.setItem(key, JSON.stringify(list.slice(0, 20)));
+      }
+    } catch {}
+  };
+
+  const defaultAddToInteractions = (drug: EnhancedDrug) => {
+    try {
+      const key = 'osrx_interaction_basket';
+      const list = JSON.parse(localStorage.getItem(key) || '[]');
+      if (!list.find((d: any) => d.id === drug.id)) {
+        list.push({ id: drug.id, name: drug.name });
+        localStorage.setItem(key, JSON.stringify(list.slice(-10)));
+      }
+    } catch {}
+  };
+
   const renderDrugCard = (drug: EnhancedDrug, isExpanded: boolean = false) => (
     <Card key={drug.id} className={`transition-all duration-200 hover:shadow-lg ${
       selectedDrugs.includes(drug.id) ? 'ring-2 ring-violet-500' : ''
@@ -240,6 +268,22 @@ const EnhancedDrugResults: React.FC<EnhancedDrugResultsProps> = ({
               <DollarSign className="h-3 w-3 mr-1" />
               {drug.costTier}
             </Badge>
+            <div className="flex items-center gap-2">
+              <button
+                title="Pin"
+                onClick={() => (onPin ? onPin(drug) : defaultPin(drug))}
+                className="text-gray-500 hover:text-violet-700"
+              >
+                <Bookmark className="h-4 w-4" />
+              </button>
+              <button
+                title="Add to interactions"
+                onClick={() => (onAddToInteractions ? onAddToInteractions(drug) : defaultAddToInteractions(drug))}
+                className="text-gray-500 hover:text-violet-700"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       </CardHeader>

@@ -1,0 +1,129 @@
+name: Deploy API to Render
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'Dockerfile'
+
+jobs:
+  trigger-render-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy hook
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK" ]; then
+            echo "RENDER_DEPLOY_HOOK secret not set. Add it in GitHub repo settings." >&2
+            exit 1
+          fi
+          echo "Triggering Render deploy..."
+          curl -fsS -X POST "$RENDER_DEPLOY_HOOK" -o /dev/null
+          echo "Deploy hook sent. Check Render dashboard for status."
+
+      - name: Install jq (for JSON parsing)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Poll Render deploy status (optional)
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$RENDER_API_KEY" ]; then
+            echo "RENDER_API_KEY not set — skipping status poll."; exit 0; fi
+
+          SERVICE_ID="$RENDER_SERVICE_ID"
+          if [ -z "$SERVICE_ID" ] && [ -n "$RENDER_DEPLOY_HOOK" ]; then
+            # Try to extract service id from hook URL (/deploy/<serviceId>?key=...)
+            SERVICE_ID=$(echo "$RENDER_DEPLOY_HOOK" | sed -n 's#.*/deploy/\([^?]*\).*#\1#p')
+          fi
+          if [ -z "$SERVICE_ID" ]; then
+            echo "Render service id not available — set RENDER_SERVICE_ID secret to enable polling."; exit 0; fi
+
+          AUTH="Authorization: Bearer $RENDER_API_KEY"
+          BASE="https://api.render.com/v1"
+          echo "Polling deploy status for service: $SERVICE_ID"
+
+          # Wait up to ~10 minutes
+          for i in $(seq 1 60); do
+            RESP=$(curl -fsS -H "$AUTH" "$BASE/services/$SERVICE_ID/deploys?limit=1") || true
+            STATUS=$(echo "$RESP" | jq -r '.[0].status // empty')
+            ID=$(echo "$RESP" | jq -r '.[0].id // empty')
+            if [ -n "$STATUS" ]; then
+              echo "Attempt $i: status=$STATUS id=$ID"
+              case "$STATUS" in
+                succeeded)
+                  echo "Render deploy succeeded."; exit 0;;
+                failed|canceled)
+                  echo "Render deploy failed with status: $STATUS" >&2; exit 1;;
+                *)
+                  sleep 10;;
+              esac
+            else
+              echo "Attempt $i: could not fetch status (empty response)."; sleep 10
+            fi
+          done
+          echo "Timed out waiting for Render deploy to finish." >&2
+          exit 1
+
+      - name: Notify Slack (success)
+        if: success()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then echo "No SLACK_WEBHOOK_URL set — skipping"; exit 0; fi
+          payload=$(jq -n --arg text "✅ Render deploy succeeded for $GITHUB_REPOSITORY@${GITHUB_SHA::7}" '{text: $text}')
+          curl -fsS -X POST -H 'Content-type: application/json' --data "$payload" "$SLACK_WEBHOOK_URL"
+
+      - name: Notify Slack (failure)
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then echo "No SLACK_WEBHOOK_URL set — skipping"; exit 0; fi
+          payload=$(jq -n --arg text "❌ Render deploy FAILED for $GITHUB_REPOSITORY@${GITHUB_SHA::7}" '{text: $text}')
+          curl -fsS -X POST -H 'Content-type: application/json' --data "$payload" "$SLACK_WEBHOOK_URL"
+
+      - name: Email notify (success)
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.EMAIL_HOST }}
+          server_port: ${{ secrets.EMAIL_PORT }}
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: ✅ Render deploy succeeded: ${{ github.repository }}@${{ github.sha }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.EMAIL_FROM }}
+          content_type: text/plain
+          body: |
+            Render deployment succeeded.
+            Repo: ${{ github.repository }}
+            Commit: ${{ github.sha }}
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Email notify (failure)
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.EMAIL_HOST }}
+          server_port: ${{ secrets.EMAIL_PORT }}
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: ❌ Render deploy FAILED: ${{ github.repository }}@${{ github.sha }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.EMAIL_FROM }}
+          content_type: text/plain
+          body: |
+            Render deployment failed.
+            Repo: ${{ github.repository }}
+            Commit: ${{ github.sha }}
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

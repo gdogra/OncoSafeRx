@@ -80,6 +80,20 @@ const DrugSearchAndInteractionsInner: React.FC = () => {
     if (selection.selectedDrugs.length > 0) {
       setSelectedDrugs(selection.selectedDrugs);
     }
+    // Merge in any drugs stored in the local interaction basket
+    try {
+      const raw = localStorage.getItem('osrx_interaction_basket') || '[]';
+      const basket = JSON.parse(raw) as Array<{ id: string; name: string }>;
+      if (Array.isArray(basket) && basket.length) {
+        const toAdd: Drug[] = basket.map(d => ({ rxcui: d.id, name: d.name, synonym: d.name, tty: 'SBD' }));
+        // Avoid duplicates
+        setSelectedDrugs(prev => {
+          const exists = new Set(prev.map(x => x.rxcui));
+          const merged = [...prev, ...toAdd.filter(d => !exists.has(d.rxcui))];
+          return merged;
+        });
+      }
+    } catch {}
   }, [selection.selectedDrugs]);
 
   // Auto-check interactions when drugs change

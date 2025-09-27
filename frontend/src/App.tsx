@@ -17,7 +17,7 @@ import { useGlobalKeyboardShortcuts } from './hooks/useGlobalKeyboardShortcuts';
 import { useVisitorTracking } from './hooks/useVisitorTracking';
 import setupErrorSuppression from './utils/errorSuppression';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
-const DrugSearch = lazy(() => import('./pages/DrugSearch'));
+const DrugSearch = lazy(() => import('./pages/DrugSearchSimple'));
 const InteractionChecker = lazy(() => import('./components/Interactions/InteractionChecker'));
 const GenomicsAnalysis = lazy(() => import('./components/Genomics/GenomicsAnalysis'));
 const Protocols = lazy(() => import('./pages/Protocols'));

@@ -120,6 +120,9 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
   const [details, setDetails] = useState<any | null>(null);
   const [detailsLoading, setDetailsLoading] = useState<boolean>(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
+  const [interactionSummary, setInteractionSummary] = useState<{ total: number; major: number; moderate: number; minor: number } | null>(null);
+  const [interactionLoading, setInteractionLoading] = useState<boolean>(false);
+  const [interactionError, setInteractionError] = useState<string | null>(null);
 
   const filterOptions = {
     drugType: [
@@ -364,26 +367,35 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
     loadDetails();
   }, [selectedRxcui]);
 
-  // Load variants on selectedRxcui change
+  // Load interaction summary for selected RXCUI
   useEffect(() => {
-    const loader = async () => {
-      if (!selectedRxcui) { setVariants([]); setVariantError(null); return; }
-      setVariantLoading(true);
-      setVariantError(null);
+    const load = async () => {
+      if (!selectedRxcui) { setInteractionSummary(null); setInteractionError(null); return; }
+      setInteractionLoading(true);
+      setInteractionError(null);
       try {
-        const resp = await fetch(`/api/drugs/${encodeURIComponent(selectedRxcui)}/variants`);
+        const resp = await fetch(`/api/drugs/${encodeURIComponent(selectedRxcui)}/interactions`);
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const data = await resp.json();
-        setVariants(Array.isArray(data?.variants) ? data.variants : []);
+        const stored = data?.interactions?.stored || [];
+        const external = data?.interactions?.external || [];
+        const all = [...stored, ...external];
+        const sev = (s: any) => String(s || '').toLowerCase();
+        const major = all.filter((i: any) => sev(i.severity).includes('major') || sev(i.severity).includes('high')).length;
+        const moderate = all.filter((i: any) => sev(i.severity).includes('moderate')).length;
+        const minor = all.filter((i: any) => sev(i.severity).includes('minor') || sev(i.severity).includes('low')).length;
+        setInteractionSummary({ total: all.length, major, moderate, minor });
       } catch (e: any) {
-        setVariantError(e?.message || 'Failed to load variations');
-        setVariants([]);
+        setInteractionError(e?.message || 'Failed to load interaction summary');
+        setInteractionSummary(null);
       } finally {
-        setVariantLoading(false);
+        setInteractionLoading(false);
       }
     };
-    loader();
+    load();
   }, [selectedRxcui]);
+
+  // duplicate variants loader removed
 
   const clearAllFilters = () => {
     setFilters({

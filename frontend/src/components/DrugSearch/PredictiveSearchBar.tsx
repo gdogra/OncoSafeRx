@@ -112,7 +112,7 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
           setTimeout(() => setAnnounceText(''), 1000);
         } else {
           // Fallback to basic search API (aligns to server format { results: [...] })
-          const fallbackResponse = await fetch(`https://oncosaferx.onrender.com/api/drugs/search?q=${encodeURIComponent(query)}`);
+          const fallbackResponse = await fetch(`/api/drugs/search?q=${encodeURIComponent(query)}`);
           if (fallbackResponse.ok) {
             const fallbackData = await fallbackResponse.json();
             const src = fallbackData.results || fallbackData.drugs || [];

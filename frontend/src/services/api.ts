@@ -6,10 +6,10 @@ const getApiUrl = () => {
   // @ts-ignore
   const cra = typeof process !== 'undefined' ? (process as any)?.env?.REACT_APP_API_URL as string | undefined : undefined;
   
-  // CRITICAL OVERRIDE: Force direct Render URL due to Netlify proxy 502 timeouts
+  // Use Netlify proxy for production (avoids CORS issues)
   if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
-    console.log('🚨 API Service: FORCING direct Render URL due to Netlify proxy issues');
-    return 'https://oncosaferx.onrender.com/api';
+    console.log('🚨 API Service: Using Netlify proxy for production API calls');
+    return '/api';
   }
   
   if (vite?.trim()) {

@@ -43,6 +43,14 @@ const SimpleDrugSearchNew: React.FC<Props> = ({
       
       console.log('📡 Response status:', response.status);
       
+      if (response.status === 429) {
+        // Rate limited - use fallback data
+        console.log('⚠️ Rate limited, using fallback search');
+        const fallbackResults = getFallbackSearchResults(searchQuery);
+        setResults(fallbackResults);
+        return;
+      }
+      
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
@@ -57,18 +65,64 @@ const SimpleDrugSearchNew: React.FC<Props> = ({
       });
     } catch (err) {
       console.error('❌ Search error:', err);
-      setError(err instanceof Error ? err.message : 'Search failed');
-      setResults(null);
+      
+      // Try fallback search on any error
+      console.log('🔄 Trying fallback search due to error');
+      const fallbackResults = getFallbackSearchResults(searchQuery);
+      if (fallbackResults.results.length > 0) {
+        setResults(fallbackResults);
+        setError('Using offline drug database (API temporarily unavailable)');
+      } else {
+        setError(err instanceof Error ? err.message : 'Search failed');
+        setResults(null);
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // Debounced search
+  // Fallback search with common drugs
+  const getFallbackSearchResults = (query: string): DrugSearchResult => {
+    const fallbackDrugs: Drug[] = [
+      { rxcui: '161', name: 'Aspirin', tty: 'IN' },
+      { rxcui: '5640', name: 'Ibuprofen', tty: 'IN' },
+      { rxcui: '153165', name: 'Acetaminophen', tty: 'IN' },
+      { rxcui: '11289', name: 'Warfarin', tty: 'IN' },
+      { rxcui: '32968', name: 'Clopidogrel', tty: 'IN' },
+      { rxcui: '1551099', name: 'Pembrolizumab', tty: 'IN' },
+      { rxcui: '1367500', name: 'Nivolumab', tty: 'IN' },
+      { rxcui: '5143', name: 'Fluorouracil', tty: 'IN' },
+      { rxcui: '2670', name: 'Cisplatin', tty: 'IN' },
+      { rxcui: '3639', name: 'Doxorubicin', tty: 'IN' },
+      { rxcui: '42355', name: 'Paclitaxel', tty: 'IN' },
+      { rxcui: '38218', name: 'Carboplatin', tty: 'IN' },
+      { rxcui: '10324', name: 'Tamoxifen', tty: 'IN' },
+      { rxcui: '282464', name: 'Imatinib', tty: 'IN' },
+      { rxcui: '6809', name: 'Metformin', tty: 'IN' },
+      { rxcui: '83367', name: 'Atorvastatin', tty: 'IN' },
+      { rxcui: '17767', name: 'Amlodipine', tty: 'IN' },
+      { rxcui: '7646', name: 'Omeprazole', tty: 'IN' },
+      { rxcui: '5487', name: 'Hydrochlorothiazide', tty: 'IN' },
+      { rxcui: '153008', name: 'Ibuprofen 200 MG Oral Tablet [Advil]', tty: 'SBD', generic_name: 'Ibuprofen' }
+    ];
+
+    const searchTerm = query.toLowerCase();
+    const matches = fallbackDrugs.filter(drug => 
+      drug.name.toLowerCase().includes(searchTerm)
+    );
+
+    return {
+      query,
+      count: matches.length,
+      results: matches.slice(0, maxResults)
+    };
+  };
+
+  // Debounced search with longer delay to prevent rate limiting
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       searchDrugs(query);
-    }, 500);
+    }, 1000); // Increased from 500ms to 1000ms
 
     return () => clearTimeout(timeoutId);
   }, [query]);

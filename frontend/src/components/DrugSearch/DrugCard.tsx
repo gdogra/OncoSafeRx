@@ -245,7 +245,8 @@ const DrugCard: React.FC<DrugCardProps> = ({ drug, onClick, showDetails = false,
           onClick={() => {
             selection.addDrug(drug);
             try { analytics.logSelection(drug.rxcui, drug.name, 'card_action_interactions'); } catch {}
-            navigate('/interactions');
+            // Use setTimeout to ensure state updates complete before navigation
+            setTimeout(() => navigate('/interactions'), 100);
           }}
           className="inline-flex items-center px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
         >
@@ -256,7 +257,8 @@ const DrugCard: React.FC<DrugCardProps> = ({ drug, onClick, showDetails = false,
           onClick={() => {
             selection.addDrug(drug);
             try { analytics.logSelection(drug.rxcui, drug.name, 'card_action_genomics'); } catch {}
-            navigate('/genomics');
+            // Use setTimeout to ensure state updates complete before navigation
+            setTimeout(() => navigate('/genomics'), 100);
           }}
           className="inline-flex items-center px-3 py-1.5 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
         >
@@ -268,8 +270,11 @@ const DrugCard: React.FC<DrugCardProps> = ({ drug, onClick, showDetails = false,
             selection.addDrug(drug);
             const m = inferBiomarkerForDrug(drug.name);
             try { analytics.logSelection(drug.rxcui, drug.name, 'card_action_trials'); } catch {}
-            if (m) navigate(`/trials?biomarker=${encodeURIComponent(m)}`);
-            else navigate('/trials');
+            // Use setTimeout to ensure state updates complete before navigation
+            setTimeout(() => {
+              if (m) navigate(`/trials?biomarker=${encodeURIComponent(m)}`);
+              else navigate('/trials');
+            }, 100);
           }}
           className="inline-flex items-center px-3 py-1.5 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200"
         >

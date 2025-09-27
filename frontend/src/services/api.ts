@@ -60,6 +60,21 @@ export const drugService = {
       const response = await api.get(`/drugs/search?q=${encodeURIComponent(query)}`);
       return response.data;
     } catch (error: any) {
+      // Handle 502 Bad Gateway errors from Netlify proxy
+      if (error.response?.status === 502) {
+        console.warn(`502 Bad Gateway for search query: ${query}, trying direct API...`);
+        try {
+          const directResponse = await fetch(`https://oncosaferx.onrender.com/api/drugs/search?q=${encodeURIComponent(query)}`);
+          if (directResponse.ok) {
+            const data = await directResponse.json();
+            console.log(`✅ Direct API success for search: ${query}`);
+            return data;
+          }
+        } catch (directError) {
+          console.warn(`Direct API also failed for search: ${query}`, directError);
+        }
+        return { results: [], message: 'Drug search service is temporarily experiencing connectivity issues' };
+      }
       if (error.response?.status === 404) {
         console.warn(`Drug search API not available for query: ${query}`);
         return { results: [], message: 'Drug search service is currently unavailable' };

@@ -38,7 +38,7 @@ const SimpleDrugSearchNew: React.FC<Props> = ({
     try {
       console.log('🔍 Searching for:', searchQuery);
       const response = await fetch(
-        `https://oncosaferx.onrender.com/api/drugs/search?q=${encodeURIComponent(searchQuery.trim())}`
+        `/api/drugs/search?q=${encodeURIComponent(searchQuery.trim())}`
       );
       
       console.log('📡 Response status:', response.status);
@@ -48,6 +48,16 @@ const SimpleDrugSearchNew: React.FC<Props> = ({
         console.log('⚠️ Rate limited, using fallback search');
         const fallbackResults = getFallbackSearchResults(searchQuery);
         setResults(fallbackResults);
+        setError('API rate limited - using offline database');
+        return;
+      }
+      
+      if (response.status === 502 || response.status === 503 || response.status === 504) {
+        // Server issues - use fallback data
+        console.log('⚠️ Server issues, using fallback search');
+        const fallbackResults = getFallbackSearchResults(searchQuery);
+        setResults(fallbackResults);
+        setError('Server temporarily unavailable - using offline database');
         return;
       }
       
@@ -178,15 +188,42 @@ const SimpleDrugSearchNew: React.FC<Props> = ({
 
       {/* Error Display */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className={`border rounded-lg p-4 ${
+          error.includes('offline') || error.includes('unavailable') || error.includes('rate limited')
+            ? 'bg-amber-50 border-amber-200'
+            : 'bg-red-50 border-red-200'
+        }`}>
           <div className="flex items-center space-x-2">
-            <AlertCircle className="h-5 w-5 text-red-500" />
-            <span className="text-red-700 font-medium">Search Error</span>
+            <AlertCircle className={`h-5 w-5 ${
+              error.includes('offline') || error.includes('unavailable') || error.includes('rate limited')
+                ? 'text-amber-500'
+                : 'text-red-500'
+            }`} />
+            <span className={`font-medium ${
+              error.includes('offline') || error.includes('unavailable') || error.includes('rate limited')
+                ? 'text-amber-700'
+                : 'text-red-700'
+            }`}>
+              {error.includes('offline') || error.includes('unavailable') || error.includes('rate limited')
+                ? 'Using Offline Database'
+                : 'Search Error'
+              }
+            </span>
           </div>
-          <p className="text-red-600 mt-2">{error}</p>
+          <p className={`mt-2 ${
+            error.includes('offline') || error.includes('unavailable') || error.includes('rate limited')
+              ? 'text-amber-600'
+              : 'text-red-600'
+          }`}>
+            {error}
+          </p>
           <button
             onClick={() => searchDrugs(query)}
-            className="mt-3 bg-red-100 text-red-700 px-3 py-1 rounded text-sm hover:bg-red-200"
+            className={`mt-3 px-3 py-1 rounded text-sm ${
+              error.includes('offline') || error.includes('unavailable') || error.includes('rate limited')
+                ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                : 'bg-red-100 text-red-700 hover:bg-red-200'
+            }`}
           >
             Retry Search
           </button>

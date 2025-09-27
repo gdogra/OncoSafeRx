@@ -85,8 +85,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
   }
 }
 
-// Use Supabase authentication service
-const AuthService = SupabaseAuthService;
+// AuthService is imported as alias from SupabaseAuthService
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);

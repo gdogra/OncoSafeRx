@@ -11,7 +11,6 @@ import AutocompleteSearch from '../components/DrugSearch/AutocompleteSearch';
 import FeatureErrorBoundary from '../components/ErrorBoundary/FeatureErrorBoundary';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
-import { useToast } from '../components/UI/Toast';
 // Using existing UI components instead of shadcn
 import { 
   Search, History, Star, Database, Filter, X, Brain, Zap, Target, 
@@ -88,7 +87,6 @@ const DrugSearchInner: React.FC = () => {
   const [recentInteractions, setRecentInteractions] = useState<any[]>([]);
   const [rxnormOfflineToast, setRxnormOfflineToast] = useState<boolean>(false);
   const [rxnormToastDismissed, setRxnormToastDismissed] = useState<boolean>(false);
-  const { showToast } = useToast();
   const [connStatus, setConnStatus] = useState<'unknown'|'online'|'offline'|'error'>('unknown');
   const [connTesting, setConnTesting] = useState<boolean>(false);
   const [connCheckedAt, setConnCheckedAt] = useState<string | null>(null);
@@ -370,7 +368,21 @@ const DrugSearchInner: React.FC = () => {
   return (
     <div className="space-y-8">
       {/* RxNorm Offline Toast (one-time) */}
-      {rxnormOfflineToast && !rxnormToastDismissed && (() => { showToast('warning', 'RxNorm offline: using limited suggestions'); setRxnormOfflineToast(false); return null; })()}
+      {rxnormOfflineToast && !rxnormToastDismissed && (
+        <div className="p-3 border border-amber-200 bg-amber-50 text-amber-800 rounded flex items-start justify-between">
+          <div>
+            <div className="font-medium">Using offline suggestions</div>
+            <div className="text-sm">RxNorm appears unreachable. Typeahead uses a limited offline list; full results may be reduced.</div>
+          </div>
+          <button
+            className="text-amber-800 hover:text-amber-900 text-sm ml-4"
+            onClick={() => { setRxnormOfflineToast(false); setRxnormToastDismissed(true); localStorage.setItem('rxnorm_offline_toast_dismissed','1'); }}
+            aria-label="Dismiss offline notice"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       {/* Enhanced Header with AI Insights */}
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-to-r from-violet-600/10 via-blue-600/10 to-indigo-600/10 rounded-2xl" />
@@ -552,10 +564,6 @@ const DrugSearchInner: React.FC = () => {
                     {basicSuggestions.map((s, i) => (
                       <button
                         key={`${s.rxcui || s.name}-${i}`}
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          setSearchQuery(s.name);
-                        }}
                         onClick={() => setSearchQuery(s.name)}
                         className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200"
                         title={s.rxcui ? `RXCUI ${s.rxcui}` : s.name}

@@ -44,9 +44,22 @@ const getEnvironment = (): AppConfig['environment'] => {
 const environment = getEnvironment();
 
 const viteApi = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
-const apiUrl = viteApi?.trim() ? viteApi.trim() : (
-  environment === 'development' ? 'http://localhost:3000/api' : `${window.location.origin}/api`
-);
+
+// CRITICAL OVERRIDE: Force correct API URL for production (environment variable is wrong!)
+const getApiUrl = () => {
+  if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
+    console.log('🚨 Config: FORCING Netlify proxy for production API calls');
+    return '/api'; // Uses Netlify proxy to reach oncosaferx.onrender.com
+  }
+  
+  if (viteApi?.trim()) {
+    return viteApi.trim();
+  }
+  
+  return environment === 'development' ? 'http://localhost:3000/api' : '/api';
+};
+
+const apiUrl = getApiUrl();
 
 export const config: AppConfig = {
   apiUrl,

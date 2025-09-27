@@ -6,12 +6,6 @@ const getApiUrl = () => {
   // @ts-ignore
   const cra = typeof process !== 'undefined' ? (process as any)?.env?.REACT_APP_API_URL as string | undefined : undefined;
   
-  // Use Netlify proxy for production (avoids CORS issues)
-  if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
-    console.log('🚨 API Service: Using Netlify proxy for production API calls');
-    return '/api';
-  }
-  
   if (vite?.trim()) {
     return vite;
   }
@@ -22,6 +16,11 @@ const getApiUrl = () => {
   // For development, always use localhost:3000 API
   if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
     return 'http://localhost:3000/api';
+  }
+  
+  // Prefer same-origin '/api' in production to avoid CSP issues
+  if (typeof window !== 'undefined' && window.location && window.location.origin) {
+    return `${window.location.origin}/api`;
   }
   
   return 'http://localhost:3000/api';

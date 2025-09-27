@@ -33,11 +33,6 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
   const base = useMemo(() => {
     if (apiBase) return apiBase;
     const vite = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
-    // Use Netlify proxy for production (avoids CORS issues)
-    if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
-      console.log('🚨 ConnectivityStatus: Using Netlify proxy for production API calls');
-      return '/api';
-    }
     if (vite?.trim()) return vite;
     if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') return 'http://localhost:3000/api';
     if (typeof window !== 'undefined' && window.location?.origin) return `${window.location.origin}/api`;
@@ -55,23 +50,10 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
   async function test() {
     try {
       setTesting(true);
-      const resp = await fetch(`${base}/drugs/suggestions?q=aspirin&limit=1`);
+      const resp = await fetch(`${base}/drugs/suggestions?q=asp&limit=1`);
       if (!resp.ok) {
-        // Handle rate limiting as online (API is responding)
-        if (resp.status === 429) {
-          setStatus('online');
-          writeStored('online');
-        } else {
-          // Check if we're getting HTML instead of JSON (API not deployed)
-          const text = await resp.text();
-          if (text.includes('<!doctype html>')) {
-            setStatus('offline');
-            writeStored('offline');
-          } else {
-            setStatus('error');
-            writeStored('error');
-          }
-        }
+        setStatus('error');
+        writeStored('error');
       } else {
         const data = await resp.json();
         const s: Status = data?.offline ? 'offline' : 'online';
@@ -80,8 +62,8 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
       }
       setCheckedAt(new Date().toLocaleTimeString());
     } catch {
-      setStatus('offline'); // Treat as offline instead of error for better UX
-      writeStored('offline');
+      setStatus('error');
+      writeStored('error');
       setCheckedAt(new Date().toLocaleTimeString());
     } finally {
       setTesting(false);
@@ -118,7 +100,7 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
       {!compact && (
         <Tooltip
           content={
-            'When offline, typeahead uses a limited local list. Full search and details may rely on RxNorm. The app auto-checks every 2 minutes. Only a generic test query ("aspirin") is sent—no PHI.'
+            'When offline, typeahead uses a limited local list. Full search and details may rely on RxNorm. The app auto-checks every 2 minutes. Only a generic test query ("asp") is sent—no PHI.'
           }
           position="top"
         >

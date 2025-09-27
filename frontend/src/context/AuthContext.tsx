@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { UserProfile, AuthState, SignupData, LoginData, UserPersona } from '../types/user';
 import { getRoleConfig } from '../utils/roleConfig';
-import { SupabaseAuthService } from '../services/authService';
+import { SupabaseAuthService as AuthService } from '../services/authService';
 
 interface AuthActions {
   login: (data: LoginData) => Promise<void>;

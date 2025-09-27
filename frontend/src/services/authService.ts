@@ -409,7 +409,30 @@ export class SupabaseAuthService {
     const { data: user } = await supabase.auth.getUser()
     if (!user.user) throw new Error('No authenticated user')
     
-    return this.buildUserProfile(user.user)
+    try {
+      // Update user metadata in Supabase auth
+      const { data, error } = await supabase.auth.updateUser({
+        data: {
+          first_name: updates.firstName,
+          last_name: updates.lastName,
+          role: updates.role,
+          specialty: updates.specialty,
+          institution: updates.institution,
+          license_number: updates.licenseNumber,
+          years_experience: updates.yearsExperience,
+          preferences: updates.preferences,
+          persona: updates.persona
+        }
+      })
+      
+      if (error) throw new Error(error.message)
+      
+      console.log('✅ Profile updated successfully')
+      return this.buildUserProfile(data.user!)
+    } catch (error) {
+      console.error('Failed to update user profile:', error)
+      throw error
+    }
   }
 
   /**

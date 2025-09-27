@@ -88,6 +88,21 @@ export const drugService = {
       const response = await api.get(`/drugs/${rxcui}`);
       return response.data;
     } catch (error: any) {
+      // Handle 502 Bad Gateway errors from Netlify proxy
+      if (error.response?.status === 502) {
+        console.warn(`502 Bad Gateway for drug details: ${rxcui}, trying direct API...`);
+        try {
+          const directResponse = await fetch(`https://oncosaferx.onrender.com/api/drugs/${rxcui}`);
+          if (directResponse.ok) {
+            const data = await directResponse.json();
+            console.log(`✅ Direct API success for drug details: ${rxcui}`);
+            return data;
+          }
+        } catch (directError) {
+          console.warn(`Direct API also failed for drug details: ${rxcui}`, directError);
+        }
+        return { error: 'Drug details service is temporarily experiencing connectivity issues' };
+      }
       if (error.response?.status === 404) {
         console.warn(`Drug details API not available for rxcui: ${rxcui}`);
         return { error: 'Drug details service is currently unavailable' };
@@ -198,6 +213,24 @@ export const interactionService = {
       const response = await api.post('/interactions/check', { drugs });
       return response.data;
     } catch (error: any) {
+      // Handle 502 Bad Gateway errors from Netlify proxy
+      if (error.response?.status === 502) {
+        console.warn(`502 Bad Gateway for interaction check, trying direct API...`);
+        try {
+          const directResponse = await fetch(`https://oncosaferx.onrender.com/api/interactions/check`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ drugs })
+          });
+          if (directResponse.ok) {
+            const data = await directResponse.json();
+            console.log(`✅ Direct API success for interaction check`);
+            return data;
+          }
+        } catch (directError) {
+          console.warn(`Direct API also failed for interaction check`, directError);
+        }
+      }
       console.log('API Error:', error.response?.status, error.message);
       if (error.response?.status === 404 || error.response?.status === 400) {
         console.log('Using mock interactions for development');
@@ -261,6 +294,21 @@ export const interactionService = {
       const response = await api.get(`/interactions/drug/${rxcui}`);
       return response.data;
     } catch (error: any) {
+      // Handle 502 Bad Gateway errors from Netlify proxy
+      if (error.response?.status === 502) {
+        console.warn(`502 Bad Gateway for drug interactions: ${rxcui}, trying direct API...`);
+        try {
+          const directResponse = await fetch(`https://oncosaferx.onrender.com/api/interactions/drug/${rxcui}`);
+          if (directResponse.ok) {
+            const data = await directResponse.json();
+            console.log(`✅ Direct API success for drug interactions: ${rxcui}`);
+            return data;
+          }
+        } catch (directError) {
+          console.warn(`Direct API also failed for drug interactions: ${rxcui}`, directError);
+        }
+        return { interactions: [], message: 'Drug interactions service is temporarily experiencing connectivity issues' };
+      }
       if (error.response?.status === 404) {
         console.warn(`Drug interactions API not available for rxcui: ${rxcui}`);
         return { interactions: [], message: 'Drug interactions service is currently unavailable' };

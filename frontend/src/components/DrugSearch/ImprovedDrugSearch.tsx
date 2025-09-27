@@ -34,7 +34,7 @@ import {
 import Card from '../UI/Card';
 import EnhancedDrugResults from './EnhancedDrugResults';
 import { togglePin } from '../../utils/pins';
-import AutocompleteSearch from './AutocompleteSearch';
+import SolidDrugSearch from './SolidDrugSearch';
 import FilterAutocomplete, {
   THERAPEUTIC_CLASS_OPTIONS,
   MECHANISM_OPTIONS,
@@ -471,63 +471,22 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
           
           {/* Main Search Input with Autocomplete */}
           <div className="mb-4">
-            <AutocompleteSearch
+            <SolidDrugSearch
               placeholder="Search by drug name, indication, mechanism, biomarker, or ask a question..."
-              onSelect={(option) => {
-                handleFilterChange('query', option.value);
-                if (option.id && /^\d+$/.test(String(option.id))) {
-                  setSelectedRxcui(String(option.id));
-                }
-                // Auto-set relevant filters based on selection type
-                if (option.type === 'indication') {
-                  handleMultiSelectFilter('indication', option.value);
-                } else if (option.type === 'mechanism') {
-                  handleMultiSelectFilter('mechanismOfAction', option.value);
-                } else if (option.type === 'biomarker') {
-                  handleMultiSelectFilter('biomarker', option.value);
+              value={filters.query}
+              onChange={(v) => handleFilterChange('query', v)}
+              onSelect={(opt) => {
+                handleFilterChange('query', opt.name);
+                if (opt.rxcui && /^\d+$/.test(String(opt.rxcui))) {
+                  setSelectedRxcui(String(opt.rxcui));
                 }
               }}
-              onInputChange={(value) => handleFilterChange('query', value)}
-              value={filters.query}
-              loading={isLoading}
               maxResults={12}
-              showCategories={true}
-              className="w-full"
               onOfflineChange={onOfflineChange}
             />
           </div>
 
-          {/* Server suggestions panel */}
-          {filters.query.trim().length >= 2 && (
-            <div className="bg-white border border-gray-200 rounded-lg shadow-sm mb-4">
-              <div className="px-3 py-2 border-b flex items-center justify-between">
-                <div className="text-sm font-medium text-gray-700">Top matches</div>
-                {serverSuggestionsOffline && (
-                  <div className="text-[11px] text-gray-500">Using offline suggestions</div>
-                )}
-              </div>
-              <div className="p-2">
-                {serverSuggestionsLoading ? (
-                  <div className="text-xs text-gray-500 px-2 py-1">Analyzing…</div>
-                ) : serverSuggestions.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {serverSuggestions.map((s, i) => (
-                      <button
-                        key={`${s.rxcui || s.name}-${i}`}
-                        onClick={() => { handleFilterChange('query', s.name); if (s.rxcui) setSelectedRxcui(String(s.rxcui)); }}
-                        className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200"
-                        title={s.rxcui ? `RXCUI ${s.rxcui}` : s.name}
-                      >
-                        {s.name}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-xs text-gray-500 px-2 py-1">No matches</div>
-                )}
-              </div>
-            </div>
-          )}
+          {/* Server suggestions panel removed: SolidDrugSearch handles suggestions */}
 
           {/* AI Search Suggestions */}
           {searchSuggestions.length > 0 && (

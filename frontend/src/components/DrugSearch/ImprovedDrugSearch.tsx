@@ -495,6 +495,13 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
               }}
               maxResults={12}
               onOfflineChange={onOfflineChange}
+              onAutoResolve={(opt) => {
+                // Auto-populate choices when user input exactly matches a drug
+                handleFilterChange('query', opt.name);
+                if (opt.rxcui && /^\d+$/.test(String(opt.rxcui))) {
+                  setSelectedRxcui(String(opt.rxcui));
+                }
+              }}
             />
           </div>
 

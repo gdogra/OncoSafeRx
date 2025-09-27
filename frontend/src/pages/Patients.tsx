@@ -15,19 +15,22 @@ const Patients: React.FC = () => {
 
   const handleCheckInteractions = () => {
     if (currentPatient) {
-      navigate('/interactions?patient=' + currentPatient.id);
+      // Use setTimeout to ensure state updates complete before navigation
+      setTimeout(() => navigate('/interactions?patient=' + currentPatient.id), 100);
     }
   };
 
   const handleGenomicAnalysis = () => {
     if (currentPatient) {
-      navigate('/genomics?patient=' + currentPatient.id);
+      // Use setTimeout to ensure state updates complete before navigation
+      setTimeout(() => navigate('/genomics?patient=' + currentPatient.id), 100);
     }
   };
 
   const handlePlanRegimen = () => {
     if (currentPatient) {
-      navigate('/regimens?patient=' + currentPatient.id);
+      // Use setTimeout to ensure state updates complete before navigation
+      setTimeout(() => navigate('/regimens?patient=' + currentPatient.id), 100);
     }
   };
 

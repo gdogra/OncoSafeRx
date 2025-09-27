@@ -51,6 +51,7 @@ import roiRoutes from './routes/roiRoutes.js';
 import painRoutes from './routes/painRoutes.js';
 import patientRoutes from './routes/patientRoutes.js';
 import feedbackRoutes from './routes/feedbackRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -215,6 +216,7 @@ app.use('/api/roi', roiRoutes);
 app.use('/api/pain', painRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/ai', aiRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/overrides', overrideRoutes);
 app.use('/', cdsHooksRoutes);

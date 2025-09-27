@@ -14,6 +14,7 @@ interface Props {
   onSelect: (opt: { rxcui?: string | null; name: string }) => void;
   maxResults?: number;
   onOfflineChange?: (offline: boolean) => void;
+  onAutoResolve?: (opt: { rxcui?: string | null; name: string }) => void;
 }
 
 const LOCAL: Option[] = [
@@ -27,7 +28,7 @@ const LOCAL: Option[] = [
   { name: 'levodopa', type: 'drug' },
 ];
 
-export default function SolidDrugSearch({ placeholder, value, onChange, onSelect, maxResults = 12, onOfflineChange }: Props) {
+export default function SolidDrugSearch({ placeholder, value, onChange, onSelect, maxResults = 12, onOfflineChange, onAutoResolve }: Props) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [offline, setOffline] = useState(false);
@@ -35,6 +36,7 @@ export default function SolidDrugSearch({ placeholder, value, onChange, onSelect
   const [highlight, setHighlight] = useState<number>(-1);
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const lastAutoFor = useRef<string>('');
 
   // Outside click to close
   useEffect(() => {
@@ -62,6 +64,23 @@ export default function SolidDrugSearch({ placeholder, value, onChange, onSelect
         setOptions(opts);
         setOffline(!!data.offline);
         onOfflineChange?.(!!data.offline);
+
+        // Auto-resolve exact match: if user typed an exact drug name and we have a matching option
+        const val = q.toLowerCase();
+        const exact = opts.find(o => o.name.toLowerCase() === val);
+        if (exact && lastAutoFor.current !== val) {
+          lastAutoFor.current = val;
+          onAutoResolve?.({ rxcui: exact.rxcui || null, name: exact.name });
+        }
+
+        // Auto-resolve single strong suggestion: one result and it starts with the query
+        if (!exact && opts.length === 1) {
+          const only = opts[0];
+          if (only.name.toLowerCase().startsWith(val) && lastAutoFor.current !== val) {
+            lastAutoFor.current = val;
+            onAutoResolve?.({ rxcui: only.rxcui || null, name: only.name });
+          }
+        }
       } catch {
         if (!abort) {
           const lc = q.toLowerCase();
@@ -69,6 +88,12 @@ export default function SolidDrugSearch({ placeholder, value, onChange, onSelect
           setOptions(fallback);
           setOffline(true);
           onOfflineChange?.(true);
+
+          const exact = fallback.find(o => o.name.toLowerCase() === lc);
+          if (exact && lastAutoFor.current !== lc) {
+            lastAutoFor.current = lc;
+            onAutoResolve?.({ rxcui: exact.rxcui || null, name: exact.name });
+          }
         }
       } finally {
         if (!abort) setLoading(false);
@@ -138,4 +163,3 @@ export default function SolidDrugSearch({ placeholder, value, onChange, onSelect
     </div>
   );
 }
-

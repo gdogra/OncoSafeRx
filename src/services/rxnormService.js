@@ -140,6 +140,28 @@ export class RxNormService {
     }
   }
 
+  // Get product variations (SCD/SBD packs) for a given RXCUI
+  async getDrugVariants(rxcui) {
+    try {
+      const resp = await axios.get(
+        `${RXNORM_BASE_URL}/rxcui/${rxcui}/related.json?tty=SCD+SBD+GPCK+BPCK`,
+        { timeout: 10000 }
+      );
+      const related = resp.data?.relatedGroup?.conceptGroup || [];
+      const variants = related
+        .map(group => (group.conceptProperties || []).map(cp => ({
+          rxcui: cp.rxcui,
+          name: cp.name,
+          tty: group.tty || cp.tty || 'UNK'
+        })))
+        .flat();
+      return variants;
+    } catch (e) {
+      console.warn('RxNorm getDrugVariants error:', e?.message || e);
+      return [];
+    }
+  }
+
   // Get drug interactions from RxNorm
   async getDrugInteractions(rxcui) {
     const cacheKey = `rxnorm_interactions_${rxcui}`;

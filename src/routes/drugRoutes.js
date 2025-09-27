@@ -182,6 +182,20 @@ router.get('/:rxcui',
   })
 );
 
+// Get drug variants (SCD/SBD/pack)
+router.get('/:rxcui/variants',
+  validate(schemas.rxcui, 'params'),
+  asyncHandler(async (req, res) => {
+    const { rxcui } = req.params;
+    try {
+      const variants = await rxnormService.getDrugVariants(rxcui);
+      res.json({ rxcui, count: variants.length, variants });
+    } catch (e) {
+      res.status(500).json({ error: 'Failed to fetch drug variants' });
+    }
+  })
+);
+
 // Get drug interactions
 router.get('/:rxcui/interactions', 
   validate(schemas.rxcui, 'params'),

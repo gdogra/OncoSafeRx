@@ -127,6 +127,27 @@ const DrugDatabase: React.FC = () => {
 
   useEffect(() => {
     loadCategoryStats();
+    // Pick up selected drug passed from AI-Enhanced view
+    try {
+      const raw = localStorage.getItem('osrx_selected_drug');
+      if (raw) {
+        const d = JSON.parse(raw);
+        const mapped: Drug = {
+          rxcui: String(d.rxcui || d.id || ''),
+          name: d.name,
+          generic_name: d.generic_name || d.genericName || d.name,
+          brand_names: d.brand_names || d.brandNames || [],
+          dosage_forms: d.dosage_forms || d.dosageForms || [],
+          strengths: d.strengths || [],
+          therapeutic_class: d.therapeutic_class || d.therapeuticClass || undefined,
+          indication: Array.isArray(d.indication) ? d.indication.join(', ') : d.indication
+        };
+        setSelectedDrug(mapped);
+        // Clear after consuming
+        localStorage.removeItem('osrx_selected_drug');
+        setViewMode('list');
+      }
+    } catch {}
   }, []);
 
   const loadCategoryStats = () => {

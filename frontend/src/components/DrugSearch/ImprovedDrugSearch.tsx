@@ -113,6 +113,13 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
   const [searchError, setSearchError] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [pinnedOnly, setPinnedOnly] = useState<boolean>(false);
+  const [selectedRxcui, setSelectedRxcui] = useState<string | null>(null);
+  const [variants, setVariants] = useState<Array<{ rxcui: string; name: string; tty: string }>>([]);
+  const [variantError, setVariantError] = useState<string | null>(null);
+  const [variantLoading, setVariantLoading] = useState<boolean>(false);
+  const [details, setDetails] = useState<any | null>(null);
+  const [detailsLoading, setDetailsLoading] = useState<boolean>(false);
+  const [detailsError, setDetailsError] = useState<string | null>(null);
 
   const filterOptions = {
     drugType: [
@@ -315,6 +322,69 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
     }
   };
 
+  // Load variants on selected RXCUI change
+  useEffect(() => {
+    const loadVariants = async () => {
+      if (!selectedRxcui) { setVariants([]); setVariantError(null); return; }
+      setVariantLoading(true);
+      setVariantError(null);
+      try {
+        const resp = await fetch(`/api/drugs/${encodeURIComponent(selectedRxcui)}/variants`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        setVariants(Array.isArray(data?.variants) ? data.variants : []);
+      } catch (e: any) {
+        setVariantError(e?.message || 'Failed to load variations');
+        setVariants([]);
+      } finally {
+        setVariantLoading(false);
+      }
+    };
+    loadVariants();
+  }, [selectedRxcui]);
+
+  // Load details for selected RXCUI
+  useEffect(() => {
+    const loadDetails = async () => {
+      if (!selectedRxcui) { setDetails(null); setDetailsError(null); return; }
+      setDetailsLoading(true);
+      setDetailsError(null);
+      try {
+        const resp = await fetch(`/api/drugs/${encodeURIComponent(selectedRxcui)}`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        setDetails(data);
+      } catch (e: any) {
+        setDetailsError(e?.message || 'Failed to load details');
+        setDetails(null);
+      } finally {
+        setDetailsLoading(false);
+      }
+    };
+    loadDetails();
+  }, [selectedRxcui]);
+
+  // Load variants on selectedRxcui change
+  useEffect(() => {
+    const loader = async () => {
+      if (!selectedRxcui) { setVariants([]); setVariantError(null); return; }
+      setVariantLoading(true);
+      setVariantError(null);
+      try {
+        const resp = await fetch(`/api/drugs/${encodeURIComponent(selectedRxcui)}/variants`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        setVariants(Array.isArray(data?.variants) ? data.variants : []);
+      } catch (e: any) {
+        setVariantError(e?.message || 'Failed to load variations');
+        setVariants([]);
+      } finally {
+        setVariantLoading(false);
+      }
+    };
+    loader();
+  }, [selectedRxcui]);
+
   const clearAllFilters = () => {
     setFilters({
       query: '',
@@ -405,6 +475,9 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
               placeholder="Search by drug name, indication, mechanism, biomarker, or ask a question..."
               onSelect={(option) => {
                 handleFilterChange('query', option.value);
+                if (option.id && /^\d+$/.test(String(option.id))) {
+                  setSelectedRxcui(String(option.id));
+                }
                 // Auto-set relevant filters based on selection type
                 if (option.type === 'indication') {
                   handleMultiSelectFilter('indication', option.value);
@@ -441,7 +514,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                     {serverSuggestions.map((s, i) => (
                       <button
                         key={`${s.rxcui || s.name}-${i}`}
-                        onClick={() => handleFilterChange('query', s.name)}
+                        onClick={() => { handleFilterChange('query', s.name); if (s.rxcui) setSelectedRxcui(String(s.rxcui)); }}
                         className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200"
                         title={s.rxcui ? `RXCUI ${s.rxcui}` : s.name}
                       >
@@ -757,6 +830,105 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
 
       {/* Inline Results Panel */}
       <div className="mt-4">
+        {/* Variations panel */}
+        {selectedRxcui && (
+          <div className="mb-3 p-3 bg-white border border-gray-200 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm font-medium text-gray-700">Variations for RXCUI {selectedRxcui}</div>
+              {variantLoading && <div className="text-xs text-gray-500">Loading…</div>}
+            </div>
+            {variantError && (
+              <div className="text-xs text-red-600">{variantError}</div>
+            )}
+            {!variantError && variants.length === 0 && !variantLoading && (
+              <div className="text-xs text-gray-500">No variations found</div>
+            )}
+            {variants.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {variants.slice(0, 30).map(v => (
+                  <button
+                    key={v.rxcui}
+                    onClick={() => setSelectedRxcui(v.rxcui)}
+                    className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800 hover:bg-gray-200"
+                    title={v.tty}
+                  >
+                    {v.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Selected variant details */}
+        {selectedRxcui && (
+          <div className="mb-3 p-3 bg-white border border-gray-200 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-sm font-medium text-gray-700">Details</div>
+              {detailsLoading && <div className="text-xs text-gray-500">Loading…</div>}
+            </div>
+            {detailsError && <div className="text-xs text-red-600">{detailsError}</div>}
+            {!detailsError && !detailsLoading && details && (
+              <div className="text-sm text-gray-800 space-y-1">
+                <div><span className="text-gray-500">Name:</span> {details.name}</div>
+                {details.generic_name && (
+                  <div><span className="text-gray-500">Generic:</span> {details.generic_name}</div>
+                )}
+                {Array.isArray(details.brand_names) && details.brand_names.length > 0 && (
+                  <div><span className="text-gray-500">Brands:</span> {details.brand_names.join(', ')}</div>
+                )}
+                {Array.isArray(details.dosage_forms) && details.dosage_forms.length > 0 && (
+                  <div><span className="text-gray-500">Dosage forms:</span> {details.dosage_forms.join(', ')}</div>
+                )}
+                {Array.isArray(details.strengths) && details.strengths.length > 0 && (
+                  <div><span className="text-gray-500">Strengths:</span> {details.strengths.join(', ')}</div>
+                )}
+                <div className="pt-2">
+                  <div className="text-xs text-gray-500">Interaction summary</div>
+                  {interactionLoading && <div className="text-xs text-gray-500">Checking…</div>}
+                  {interactionError && <div className="text-xs text-red-600">{interactionError}</div>}
+                  {!interactionLoading && !interactionError && interactionSummary && (
+                    <div className="flex gap-3 text-xs text-gray-700">
+                      <span>Total: {interactionSummary.total}</span>
+                      <span>Major: {interactionSummary.major}</span>
+                      <span>Moderate: {interactionSummary.moderate}</span>
+                      <span>Minor: {interactionSummary.minor}</span>
+                    </div>
+                  )}
+                  <div className="mt-2 flex items-center gap-2">
+                    <button
+                      type="button"
+                      className="text-xs px-3 py-1 border border-gray-300 rounded hover:bg-gray-50"
+                      onClick={() => {
+                        try {
+                          const key = 'osrx_interaction_basket';
+                          const list = JSON.parse(localStorage.getItem(key) || '[]');
+                          if (!list.find((d: any) => d.id === selectedRxcui)) {
+                            list.push({ id: selectedRxcui, name: details.name });
+                            localStorage.setItem(key, JSON.stringify(list.slice(-10)));
+                          }
+                          if (window.location.pathname !== '/interactions') window.location.href = '/interactions';
+                        } catch {}
+                      }}
+                    >
+                      Check interactions for this drug
+                    </button>
+                    <button
+                      type="button"
+                      className="text-xs px-3 py-1 border border-gray-300 rounded hover:bg-gray-50"
+                      onClick={() => {
+                        try { localStorage.setItem('osrx_selected_drug', JSON.stringify(details)); } catch {}
+                        window.location.href = '/database';
+                      }}
+                    >
+                      View full profile
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
         {/* Inline results toolbar */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
@@ -828,8 +1000,11 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
             loading={false}
             error={undefined}
             onDrugSelect={(drug) => {
-              // Set the query to selected drug and pin as needed
+              // Set the query and load details for the selected RXCUI if available
               setFilters(prev => ({ ...prev, query: drug.name }));
+              if (drug?.id && /^\d+$/.test(String(drug.id))) {
+                setSelectedRxcui(String(drug.id));
+              }
             }}
             onPin={(drug) => {
               if (drug?.id && drug?.name) {

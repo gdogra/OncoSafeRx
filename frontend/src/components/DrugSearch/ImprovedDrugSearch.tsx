@@ -236,7 +236,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
     setServerSuggestionsLoading(true);
     const t = setTimeout(async () => {
       try {
-        const resp = await fetch(`/api/drugs/suggestions?q=${encodeURIComponent(filters.query)}&limit=8`);
+        const resp = await fetch(`https://oncosaferx.onrender.com/api/drugs/suggestions?q=${encodeURIComponent(filters.query)}&limit=8`);
         if (!resp.ok) throw new Error('suggestions failed');
         const data = await resp.json();
         if (abort) return;

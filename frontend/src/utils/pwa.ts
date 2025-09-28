@@ -131,7 +131,10 @@ export class PWAManager {
       return;
     }
 
-    if (Notification.permission === 'default') {
+    // Check if user has previously dismissed the notification banner
+    const hasUserDismissedNotifications = localStorage.getItem('osrx_notification_banner_dismissed') === 'true';
+    
+    if (Notification.permission === 'default' && !hasUserDismissedNotifications) {
       // Don't request permission immediately - wait for user interaction
       this.showNotificationPermissionBanner();
     }
@@ -206,6 +209,8 @@ export class PWAManager {
     const permission = await Notification.requestPermission();
     
     if (permission === 'granted') {
+      // Clear dismissal preference since user granted permission
+      localStorage.removeItem('osrx_notification_banner_dismissed');
       this.hideNotificationPermissionBanner();
       this.setupPushSubscription();
     }
@@ -400,6 +405,9 @@ export class PWAManager {
   }
 
   private static hideNotificationPermissionBanner(): void {
+    // Store user's dismissal preference
+    localStorage.setItem('osrx_notification_banner_dismissed', 'true');
+    
     const banner = document.getElementById('notification-banner');
     if (banner) {
       banner.remove();

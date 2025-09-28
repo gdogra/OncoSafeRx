@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Search,
   Brain,
@@ -83,6 +84,7 @@ interface SmartRecommendation {
 }
 
 const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => void }> = ({ onOfflineChange }) => {
+  const navigate = useNavigate();
   const [filters, setFilters] = useState<DrugSearchFilters>({
     query: '',
     drugType: [],
@@ -881,12 +883,26 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                         try {
                           const key = 'osrx_interaction_basket';
                           const list = JSON.parse(localStorage.getItem(key) || '[]');
+                          console.log('🔍 Adding drug to basket:', { selectedRxcui, drugName: details.name, currentBasket: list });
+                          
                           if (!list.find((d: any) => d.id === selectedRxcui)) {
                             list.push({ id: selectedRxcui, name: details.name });
                             localStorage.setItem(key, JSON.stringify(list.slice(-10)));
+                            console.log('🔍 Drug added to basket:', { newBasket: list, stored: localStorage.getItem(key) });
+                          } else {
+                            console.log('🔍 Drug already in basket, not adding');
                           }
-                          if (window.location.pathname !== '/interactions') window.location.href = '/interactions';
-                        } catch {}
+                          
+                          // Ensure localStorage write completes before navigation
+                          setTimeout(() => {
+                            console.log('🔍 Navigating to interactions page...');
+                            if (window.location.pathname !== '/interactions') {
+                              navigate('/interactions');
+                            }
+                          }, 150);
+                        } catch (err) {
+                          console.error('🔍 Error adding drug to basket:', err);
+                        }
                       }}
                     >
                       Check interactions for this drug
@@ -896,7 +912,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                       className="text-xs px-3 py-1 border border-gray-300 rounded hover:bg-gray-50"
                       onClick={() => {
                         try { localStorage.setItem('osrx_selected_drug', JSON.stringify(details)); } catch {}
-                        window.location.href = '/database';
+                        setTimeout(() => navigate('/database'), 100);
                       }}
                     >
                       View full profile
@@ -923,7 +939,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
           <div>
             <button
               type="button"
-              onClick={() => { if (window.location.pathname !== '/interactions') window.location.href = '/interactions'; }}
+              onClick={() => { if (window.location.pathname !== '/interactions') setTimeout(() => navigate('/interactions'), 100); }}
               className="text-sm px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
             >
               Go to Interactions
@@ -993,15 +1009,26 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
               try {
                 const key = 'osrx_interaction_basket';
                 const list = JSON.parse(localStorage.getItem(key) || '[]');
+                console.log('🔍 EnhancedDrugResults - Adding drug to basket:', { drugId: drug.id, drugName: drug.name, currentBasket: list });
+                
                 if (!list.find((d: any) => d.id === drug.id)) {
                   list.push({ id: drug.id, name: drug.name });
                   localStorage.setItem(key, JSON.stringify(list.slice(-10)));
+                  console.log('🔍 EnhancedDrugResults - Drug added to basket:', { newBasket: list, stored: localStorage.getItem(key) });
+                } else {
+                  console.log('🔍 EnhancedDrugResults - Drug already in basket, not adding');
                 }
-                // Optional: navigate to interactions page
-                if (window.location.pathname !== '/interactions') {
-                  window.location.href = '/interactions';
-                }
-              } catch {}
+                
+                // Navigate to interactions page with proper timing
+                setTimeout(() => {
+                  console.log('🔍 EnhancedDrugResults - Navigating to interactions page...');
+                  if (window.location.pathname !== '/interactions') {
+                    navigate('/interactions');
+                  }
+                }, 150);
+              } catch (err) {
+                console.error('🔍 EnhancedDrugResults - Error adding drug to basket:', err);
+              }
             }}
           />
         )}

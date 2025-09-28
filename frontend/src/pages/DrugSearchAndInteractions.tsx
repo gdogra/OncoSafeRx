@@ -77,23 +77,53 @@ const DrugSearchAndInteractionsInner: React.FC = () => {
 
   // Initialize with selected drugs from context
   useEffect(() => {
+    console.log('🔍 DrugSearchAndInteractions - Component mounted/updated');
+    console.log('🔍 DrugSearchAndInteractions - Selection context:', { 
+      selectedDrugs: selection.selectedDrugs, 
+      length: selection.selectedDrugs.length 
+    });
+    
     if (selection.selectedDrugs.length > 0) {
+      console.log('🔍 DrugSearchAndInteractions - Setting from selection context');
       setSelectedDrugs(selection.selectedDrugs);
     }
+    
     // Merge in any drugs stored in the local interaction basket
     try {
       const raw = localStorage.getItem('osrx_interaction_basket') || '[]';
       const basket = JSON.parse(raw) as Array<{ id: string; name: string }>;
-      if (Array.isArray(basket) && basket.length) {
+      console.log('🔍 DrugSearchAndInteractions - Loading from basket:', { 
+        raw, 
+        basket, 
+        hasBasket: basket.length > 0,
+        basketLength: basket.length 
+      });
+      
+      if (Array.isArray(basket) && basket.length > 0) {
         const toAdd: Drug[] = basket.map(d => ({ rxcui: d.id, name: d.name, synonym: d.name, tty: 'SBD' }));
+        console.log('🔍 DrugSearchAndInteractions - Adding drugs from basket:', toAdd);
+        
         // Avoid duplicates
         setSelectedDrugs(prev => {
           const exists = new Set(prev.map(x => x.rxcui));
           const merged = [...prev, ...toAdd.filter(d => !exists.has(d.rxcui))];
+          console.log('🔍 DrugSearchAndInteractions - Final merged drugs:', merged);
+          console.log('🔍 DrugSearchAndInteractions - Previous drugs:', prev);
+          console.log('🔍 DrugSearchAndInteractions - Merged result:', merged);
           return merged;
         });
+        
+        // Clear the basket after processing to prevent stale data
+        setTimeout(() => {
+          localStorage.removeItem('osrx_interaction_basket');
+          console.log('🔍 DrugSearchAndInteractions - Cleared interaction basket');
+        }, 1000);
+      } else {
+        console.log('🔍 DrugSearchAndInteractions - No drugs in basket to add');
       }
-    } catch {}
+    } catch (err) {
+      console.error('🔍 DrugSearchAndInteractions - Error loading basket:', err);
+    }
   }, [selection.selectedDrugs]);
 
   // Auto-check interactions when drugs change

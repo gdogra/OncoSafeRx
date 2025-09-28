@@ -362,7 +362,7 @@ const CuratedInteractions: React.FC = () => {
                               onClick={() => {
                                 if (a?.name) selection.addDrug({ name: a.name, rxcui: a.rxcui || '' } as any);
                                 if (b?.name) selection.addDrug({ name: b.name, rxcui: b.rxcui || '' } as any);
-                                window.location.href = '/interactions';
+                                setTimeout(() => navigate('/interactions'), 100);
                               }}
                             >Open checker</button>
                             <button

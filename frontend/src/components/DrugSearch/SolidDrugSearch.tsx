@@ -104,16 +104,35 @@ export default function SolidDrugSearch({ placeholder, value, onChange, onSelect
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (!open) return;
-    if (e.key === 'ArrowDown') { e.preventDefault(); setHighlight(h => Math.min(h + 1, options.length - 1)); }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); setHighlight(h => Math.max(h - 1, 0)); }
-    else if (e.key === 'Enter') { e.preventDefault(); if (highlight >= 0 && options[highlight]) commit(options[highlight]); }
-    else if (e.key === 'Escape') { setOpen(false); }
+    if (e.key === 'ArrowDown') { 
+      e.preventDefault(); 
+      setHighlight(h => Math.min(h + 1, options.length - 1)); 
+    }
+    else if (e.key === 'ArrowUp') { 
+      e.preventDefault(); 
+      setHighlight(h => Math.max(h - 1, 0)); 
+    }
+    else if (e.key === 'Enter') { 
+      e.preventDefault(); 
+      if (highlight >= 0 && options[highlight]) {
+        commit(options[highlight]);
+      } else if (options.length === 1) {
+        // Auto-select if only one option
+        commit(options[0]);
+      }
+    }
+    else if (e.key === 'Escape') { 
+      setOpen(false); 
+      setHighlight(-1);
+    }
   };
 
   const commit = (opt: Option) => {
+    onChange(opt.name); // Update the input value to show selection
     onSelect({ rxcui: opt.rxcui || null, name: opt.name });
     setOpen(false);
     setHighlight(-1);
+    inputRef.current?.blur(); // Remove focus to indicate selection is complete
   };
 
   const displayOptions = useMemo(() => options.slice(0, maxResults), [options, maxResults]);
@@ -146,14 +165,28 @@ export default function SolidDrugSearch({ placeholder, value, onChange, onSelect
               <button
                 type="button"
                 onMouseDown={(e) => e.preventDefault()}
+                onMouseEnter={() => setHighlight(idx)}
                 onClick={() => commit(opt)}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 ${idx===highlight ? 'bg-violet-50 border-l-4 border-violet-500' : ''}`}
+                className={`w-full flex items-center justify-between px-4 py-3 text-left transition-all duration-150 ${
+                  idx === highlight 
+                    ? 'bg-violet-50 border-l-4 border-violet-500 shadow-sm' 
+                    : 'hover:bg-gray-50 border-l-4 border-transparent'
+                }`}
                 role="option"
                 aria-selected={idx===highlight}
               >
-                <span className="font-medium text-gray-900 truncate">{opt.name}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="font-medium text-gray-900 block truncate">{opt.name}</span>
+                  {opt.type && (
+                    <span className="text-xs text-gray-500 capitalize">{opt.type}</span>
+                  )}
+                </div>
                 {opt.rxcui && (
-                  <span className="ml-auto text-xs text-gray-400">RXCUI {opt.rxcui}</span>
+                  <div className="flex-shrink-0 ml-3">
+                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                      {opt.rxcui}
+                    </span>
+                  </div>
                 )}
               </button>
             </li>

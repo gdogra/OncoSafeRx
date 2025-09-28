@@ -47,10 +47,11 @@ export class SupabaseService {
     if (!this.enabled) return [];
     
     try {
+      // Use text search for both regular fields and array fields
       const { data, error } = await this.client
         .from('drugs')
         .select('*')
-        .or(`name.ilike.%${searchTerm}%,generic_name.ilike.%${searchTerm}%,brand_names.ilike.%${searchTerm}%`)
+        .or(`name.ilike.%${searchTerm}%,generic_name.ilike.%${searchTerm}%`)
         .limit(limit);
       
       if (error) throw error;

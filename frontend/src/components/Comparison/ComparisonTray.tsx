@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useComparison } from '../../contexts/ComparisonContext';
 import { X, GitCompare, ChevronUp, ChevronDown, Trash2, RotateCcw, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Tooltip from '../UI/Tooltip';
 
 const ComparisonTray: React.FC = () => {
+  const navigate = useNavigate();
   const { state, removeDrug, clearAll, toggleTray, closeTray, reorderItems } = useComparison();
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
@@ -34,7 +36,7 @@ const ComparisonTray: React.FC = () => {
   const handleCompare = () => {
     // Navigate to comparison page with drug IDs
     const drugIds = state.items.map(item => item.drug.rxcui).join(',');
-    window.open(`/compare?drugs=${drugIds}`, '_blank');
+    setTimeout(() => navigate(`/compare?drugs=${drugIds}`), 100);
   };
 
   return (

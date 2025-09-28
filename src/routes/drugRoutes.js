@@ -40,31 +40,94 @@ router.get('/suggestions',
     let offline = false;
     if (!suggestions.length) {
       const OFFLINE = [
-        { name: 'aspirin' },
-        { name: 'acetylsalicylic acid' },
-        { name: 'acetaminophen' },
-        { name: 'ibuprofen' },
-        { name: 'naproxen' },
-        { name: 'morphine' },
-        { name: 'oxycodone' },
-        { name: 'hydrocodone' },
-        { name: 'hydromorphone' },
-        { name: 'codeine' },
-        { name: 'tramadol' },
-        { name: 'fentanyl' },
-        { name: 'methadone' },
-        { name: 'gabapentin' },
-        { name: 'pregabalin' },
-        { name: 'omeprazole' },
-        { name: 'pantoprazole' },
-        { name: 'clopidogrel' },
-        { name: 'warfarin' }
+        // Aspirin and related drugs
+        { name: 'aspirin', rxcui: '1191' },
+        { name: 'aspirin 81 mg', rxcui: '243670' },
+        { name: 'aspirin 325 mg', rxcui: '211154' },
+        { name: 'aspirin buffered', rxcui: '1299896' },
+        { name: 'aspirin enteric coated', rxcui: '1299897' },
+        { name: 'aspirin/dipyridamole', rxcui: '214154' },
+        { name: 'aspirin/oxycodone', rxcui: '1049502' },
+        { name: 'acetylsalicylic acid', rxcui: '1191' },
+        
+        // Analgesics
+        { name: 'acetaminophen', rxcui: '161' },
+        { name: 'acetaminophen 325 mg', rxcui: '313782' },
+        { name: 'acetaminophen 500 mg', rxcui: '313782' },
+        { name: 'acetaminophen/codeine', rxcui: '993781' },
+        { name: 'acetaminophen/hydrocodone', rxcui: '857005' },
+        { name: 'acetaminophen/oxycodone', rxcui: '1049502' },
+        { name: 'acetaminophen/tramadol', rxcui: '836654' },
+        
+        // NSAIDs
+        { name: 'ibuprofen', rxcui: '5640' },
+        { name: 'ibuprofen 200 mg', rxcui: '310965' },
+        { name: 'ibuprofen 400 mg', rxcui: '310965' },
+        { name: 'ibuprofen 600 mg', rxcui: '310965' },
+        { name: 'ibuprofen 800 mg', rxcui: '310965' },
+        { name: 'naproxen', rxcui: '7258' },
+        { name: 'naproxen sodium', rxcui: '7258' },
+        { name: 'naproxen 220 mg', rxcui: '849574' },
+        { name: 'naproxen 500 mg', rxcui: '849574' },
+        { name: 'diclofenac', rxcui: '3355' },
+        { name: 'celecoxib', rxcui: '140587' },
+        { name: 'meloxicam', rxcui: '6960' },
+        
+        // Opioids
+        { name: 'morphine', rxcui: '7052' },
+        { name: 'morphine sulfate', rxcui: '7052' },
+        { name: 'morphine immediate release', rxcui: '861467' },
+        { name: 'morphine extended release', rxcui: '861467' },
+        { name: 'oxycodone', rxcui: '7804' },
+        { name: 'oxycodone 5 mg', rxcui: '1049502' },
+        { name: 'oxycodone 10 mg', rxcui: '1049502' },
+        { name: 'oxycodone immediate release', rxcui: '1049502' },
+        { name: 'oxycodone extended release', rxcui: '1049502' },
+        { name: 'hydrocodone', rxcui: '5489' },
+        { name: 'hydrocodone/acetaminophen', rxcui: '857005' },
+        { name: 'hydromorphone', rxcui: '3423' },
+        { name: 'codeine', rxcui: '2670' },
+        { name: 'tramadol', rxcui: '10689' },
+        { name: 'tramadol 50 mg', rxcui: '836654' },
+        { name: 'tramadol extended release', rxcui: '836654' },
+        { name: 'fentanyl', rxcui: '4337' },
+        { name: 'fentanyl patch', rxcui: '197696' },
+        { name: 'methadone', rxcui: '6813' },
+        
+        // Anticonvulsants
+        { name: 'gabapentin', rxcui: '25480' },
+        { name: 'gabapentin 100 mg', rxcui: '352385' },
+        { name: 'gabapentin 300 mg', rxcui: '352385' },
+        { name: 'gabapentin 600 mg', rxcui: '352385' },
+        { name: 'pregabalin', rxcui: '187832' },
+        { name: 'pregabalin 25 mg', rxcui: '597823' },
+        { name: 'pregabalin 50 mg', rxcui: '597823' },
+        { name: 'pregabalin 75 mg', rxcui: '597823' },
+        
+        // PPIs
+        { name: 'omeprazole', rxcui: '7646' },
+        { name: 'omeprazole 20 mg', rxcui: '40790' },
+        { name: 'omeprazole 40 mg', rxcui: '40790' },
+        { name: 'pantoprazole', rxcui: '40790' },
+        { name: 'pantoprazole 20 mg', rxcui: '40790' },
+        { name: 'pantoprazole 40 mg', rxcui: '40790' },
+        { name: 'esomeprazole', rxcui: '298459' },
+        { name: 'lansoprazole', rxcui: '17128' },
+        
+        // Anticoagulants
+        { name: 'clopidogrel', rxcui: '32968' },
+        { name: 'clopidogrel 75 mg', rxcui: '309362' },
+        { name: 'warfarin', rxcui: '11289' },
+        { name: 'warfarin sodium', rxcui: '11289' },
+        { name: 'rivaroxaban', rxcui: '1114195' },
+        { name: 'apixaban', rxcui: '1364430' },
+        { name: 'dabigatran', rxcui: '1037042' }
       ];
       const lc = q.toLowerCase();
       suggestions = OFFLINE
-        .filter(d => d.name.includes(lc))
+        .filter(d => d.name.toLowerCase().includes(lc))
         .slice(0, limit)
-        .map(d => ({ id: d.name, name: d.name, category: 'drug', rxcui: null }));
+        .map(d => ({ id: d.rxcui || d.name, name: d.name, category: 'drug', rxcui: d.rxcui || null }));
       offline = true;
     }
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { usePatient } from '../../context/PatientContext';
 import { PatientProfile } from '../../types';
 import Card from '../UI/Card';
@@ -49,6 +50,7 @@ const PatientDashboard: React.FC = () => {
   const { state, actions } = usePatient();
   const { showToast } = useToast();
   const { currentPatient, alerts, isLoading, error } = state;
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'medications' | 'labs' | 'genetics' | 'history' | 'outcomes' | 'export'>('overview');
 
   if (isLoading) {
@@ -482,7 +484,7 @@ const PatientDashboard: React.FC = () => {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* AI Decision Engine */}
                   <div className="group bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
-                       onClick={() => window.location.href = '/ai-decision-engine'}>
+                       onClick={() => setTimeout(() => navigate('/ai-decision-engine'), 100)}>
                     <div className="flex items-center space-x-3 mb-3">
                       <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                         <Brain className="w-5 h-5 text-blue-600" />
@@ -501,7 +503,7 @@ const PatientDashboard: React.FC = () => {
 
                   {/* Safety Alert System */}
                   <div className="group bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
-                       onClick={() => window.location.href = '/safety-alerts'}>
+                       onClick={() => setTimeout(() => navigate('/safety-alerts'), 100)}>
                     <div className="flex items-center space-x-3 mb-3">
                       <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                         <Shield className="w-5 h-5 text-green-600" />
@@ -520,7 +522,7 @@ const PatientDashboard: React.FC = () => {
 
                   {/* ML Analytics */}
                   <div className="group bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
-                       onClick={() => window.location.href = '/ml-analytics'}>
+                       onClick={() => setTimeout(() => navigate('/ml-analytics'), 100)}>
                     <div className="flex items-center space-x-3 mb-3">
                       <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
                         <TrendingUp className="w-5 h-5 text-orange-600" />
@@ -539,7 +541,7 @@ const PatientDashboard: React.FC = () => {
 
                   {/* Predictive Outcomes */}
                   <div className="group bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
-                       onClick={() => window.location.href = '/predictive-outcomes'}>
+                       onClick={() => setTimeout(() => navigate('/predictive-outcomes'), 100)}>
                     <div className="flex items-center space-x-3 mb-3">
                       <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                         <Target className="w-5 h-5 text-purple-600" />
@@ -558,7 +560,7 @@ const PatientDashboard: React.FC = () => {
 
                   {/* Clinical Communication */}
                   <div className="group bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
-                       onClick={() => window.location.href = '/clinical-communication'}>
+                       onClick={() => setTimeout(() => navigate('/clinical-communication'), 100)}>
                     <div className="flex items-center space-x-3 mb-3">
                       <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
                         <MessageSquare className="w-5 h-5 text-teal-600" />
@@ -577,7 +579,7 @@ const PatientDashboard: React.FC = () => {
 
                   {/* IoT Monitoring */}
                   <div className="group bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
-                       onClick={() => window.location.href = '/iot-monitoring'}>
+                       onClick={() => setTimeout(() => navigate('/iot-monitoring'), 100)}>
                     <div className="flex items-center space-x-3 mb-3">
                       <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
                         <Smartphone className="w-5 h-5 text-indigo-600" />
@@ -596,7 +598,7 @@ const PatientDashboard: React.FC = () => {
                   
                   {/* Opioid Risk Report */}
                   <div className="group bg-gradient-to-br from-red-50 to-pink-50 border border-red-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer"
-                       onClick={() => window.location.href = '/opioid-risk-report'}>
+                       onClick={() => setTimeout(() => navigate('/opioid-risk-report'), 100)}>
                     <div className="flex items-center space-x-3 mb-3">
                       <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
                         <Calculator className="w-5 h-5 text-red-600" />

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Drug, DrugSearchResult } from '../types';
 import { drugService } from '../services/api';
 import SimpleDrugSearch from '../components/DrugSearch/SimpleDrugSearch';
@@ -74,6 +75,7 @@ const DrugSearchInner: React.FC = () => {
   const { searches: searchHistory, addSearch } = useRecentSearches(10, 'drug_search_history');
   
   // Component state
+  const navigate = useNavigate();
   const [searchResults, setSearchResults] = useState<DrugSearchResult | null>(null);
   const [selectedDrug, setSelectedDrug] = useState<Drug | null>(null);
   const [loading, setLoading] = useState(false);
@@ -326,7 +328,7 @@ const DrugSearchInner: React.FC = () => {
             <h3 className="font-medium text-gray-900 mb-1">View Interactions</h3>
             <p className="text-sm text-gray-600 mb-3">Check drug-drug interactions</p>
             <button 
-              onClick={() => window.open(`/interactions?drug=${selectedDrug.rxcui}`, '_blank')}
+              onClick={() => setTimeout(() => navigate(`/interactions?drug=${selectedDrug.rxcui}`), 100)}
               className="text-sm text-primary-600 hover:text-primary-700 font-medium"
             >
               Check Interactions →
@@ -340,7 +342,7 @@ const DrugSearchInner: React.FC = () => {
             <h3 className="font-medium text-gray-900 mb-1">Genomic Analysis</h3>
             <p className="text-sm text-gray-600 mb-3">View pharmacogenomic factors</p>
             <button 
-              onClick={() => window.open(`/genomics?drug=${selectedDrug.rxcui}`, '_blank')}
+              onClick={() => setTimeout(() => navigate(`/genomics?drug=${selectedDrug.rxcui}`), 100)}
               className="text-sm text-purple-600 hover:text-purple-700 font-medium"
             >
               Analyze Genomics →
@@ -354,7 +356,7 @@ const DrugSearchInner: React.FC = () => {
             <h3 className="font-medium text-gray-900 mb-1">Clinical Trials</h3>
             <p className="text-sm text-gray-600 mb-3">Find relevant studies</p>
             <button 
-              onClick={() => window.open(`/protocols?drug=${selectedDrug.name}`, '_blank')}
+              onClick={() => setTimeout(() => navigate(`/protocols?drug=${selectedDrug.name}`), 100)}
               className="text-sm text-green-600 hover:text-green-700 font-medium"
             >
               View Trials →

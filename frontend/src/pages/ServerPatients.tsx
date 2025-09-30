@@ -36,7 +36,7 @@ const ServerPatients: React.FC = () => {
         query
       });
       
-      const resp = await fetch(`/api/patients?${params.toString()}`, { 
+      let resp = await fetch(`/api/patients?${params.toString()}`, { 
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         signal: AbortSignal.timeout(5000) // 5 second timeout
       });
@@ -44,8 +44,22 @@ const ServerPatients: React.FC = () => {
       console.log('📡 Patients API response:', {
         status: resp.status,
         ok: resp.ok,
-        statusText: resp.statusText
+        statusText: resp.statusText,
+        hasToken: !!token
       });
+      
+      // If auth failed, try without token (for backend that might not require auth)
+      if (!resp.ok && resp.status === 401 && token) {
+        console.log('🔄 Auth failed, retrying without token...');
+        resp = await fetch(`/api/patients?${params.toString()}`, { 
+          signal: AbortSignal.timeout(5000)
+        });
+        console.log('📡 Retry response:', {
+          status: resp.status,
+          ok: resp.ok,
+          statusText: resp.statusText
+        });
+      }
       
       if (resp.ok) {
         const body = await resp.json();

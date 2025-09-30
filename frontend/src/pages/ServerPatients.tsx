@@ -220,7 +220,17 @@ const ServerPatients: React.FC = () => {
     }
   };
 
-  useEffect(() => { fetchPatients(); /* eslint-disable-next-line */ }, [page]);
+  useEffect(() => { 
+    console.log('📅 useEffect triggered, calling fetchPatients');
+    fetchPatients(); 
+    /* eslint-disable-next-line */ 
+  }, [page]);
+
+  // Also fetch on initial mount
+  useEffect(() => {
+    console.log('🚀 Initial mount, calling fetchPatients');
+    fetchPatients();
+  }, []);
 
   const selectAndClose = (p: any) => {
     const data = p.data || p;

@@ -1,6 +1,6 @@
 import express from 'express';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import { requireAuth } from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 import { requirePermission, auditRBACAction } from '../middleware/rbacMiddleware.js';
 import advancedWorkflowService from '../services/advancedWorkflowService.js';
 
@@ -8,7 +8,7 @@ const router = express.Router();
 
 // Get workflow templates
 router.get('/templates',
-  requireAuth,
+  authenticateToken,
   requirePermission('clinical.workflow_view'),
   asyncHandler(async (req, res) => {
     const { tenantId } = req;
@@ -34,7 +34,7 @@ router.get('/templates',
 
 // Create new workflow template
 router.post('/templates',
-  requireAuth,
+  authenticateToken,
   requirePermission('clinical.workflow_create'),
   auditRBACAction('create_workflow_template'),
   asyncHandler(async (req, res) => {
@@ -59,7 +59,7 @@ router.post('/templates',
 
 // Get specific workflow template
 router.get('/templates/:templateId',
-  requireAuth,
+  authenticateToken,
   requirePermission('clinical.workflow_view'),
   asyncHandler(async (req, res) => {
     const { templateId } = req.params;
@@ -85,7 +85,7 @@ router.get('/templates/:templateId',
 
 // Start new workflow instance
 router.post('/instances',
-  requireAuth,
+  authenticateToken,
   requirePermission('clinical.workflow_execute'),
   auditRBACAction('start_workflow'),
   asyncHandler(async (req, res) => {
@@ -131,7 +131,7 @@ router.post('/instances',
 
 // Get active workflow instances
 router.get('/instances',
-  requireAuth,
+  authenticateToken,
   requirePermission('clinical.workflow_view'),
   asyncHandler(async (req, res) => {
     const { tenantId } = req;
@@ -164,7 +164,7 @@ router.get('/instances',
 
 // Get specific workflow instance
 router.get('/instances/:instanceId',
-  requireAuth,
+  authenticateToken,
   requirePermission('clinical.workflow_view'),
   asyncHandler(async (req, res) => {
     const { instanceId } = req.params;
@@ -212,7 +212,7 @@ router.get('/instances/:instanceId',
 
 // Complete workflow step
 router.post('/instances/:instanceId/steps/:stepIndex/complete',
-  requireAuth,
+  authenticateToken,
   requirePermission('clinical.workflow_execute'),
   auditRBACAction('complete_workflow_step'),
   asyncHandler(async (req, res) => {
@@ -262,7 +262,7 @@ router.post('/instances/:instanceId/steps/:stepIndex/complete',
 
 // Add note to workflow instance
 router.post('/instances/:instanceId/notes',
-  requireAuth,
+  authenticateToken,
   requirePermission('clinical.workflow_execute'),
   auditRBACAction('add_workflow_note'),
   asyncHandler(async (req, res) => {
@@ -304,7 +304,7 @@ router.post('/instances/:instanceId/notes',
 
 // Pause workflow instance
 router.post('/instances/:instanceId/pause',
-  requireAuth,
+  authenticateToken,
   requirePermission('clinical.workflow_execute'),
   auditRBACAction('pause_workflow'),
   asyncHandler(async (req, res) => {
@@ -348,7 +348,7 @@ router.post('/instances/:instanceId/pause',
 
 // Resume workflow instance
 router.post('/instances/:instanceId/resume',
-  requireAuth,
+  authenticateToken,
   requirePermission('clinical.workflow_execute'),
   auditRBACAction('resume_workflow'),
   asyncHandler(async (req, res) => {
@@ -390,7 +390,7 @@ router.post('/instances/:instanceId/resume',
 
 // Get workflow analytics
 router.get('/analytics',
-  requireAuth,
+  authenticateToken,
   requirePermission('analytics.view'),
   asyncHandler(async (req, res) => {
     const { tenantId } = req;
@@ -410,7 +410,7 @@ router.get('/analytics',
 
 // Optimize template for mobile
 router.post('/templates/:templateId/mobile-optimize',
-  requireAuth,
+  authenticateToken,
   requirePermission('clinical.workflow_create'),
   auditRBACAction('optimize_workflow_mobile'),
   asyncHandler(async (req, res) => {
@@ -434,7 +434,7 @@ router.post('/templates/:templateId/mobile-optimize',
 
 // Get workflow performance metrics
 router.get('/performance',
-  requireAuth,
+  authenticateToken,
   requirePermission('analytics.view'),
   asyncHandler(async (req, res) => {
     const { tenantId } = req;
@@ -461,7 +461,7 @@ router.get('/performance',
 
 // Bulk workflow operations
 router.post('/bulk-operations',
-  requireAuth,
+  authenticateToken,
   requirePermission('clinical.workflow_execute'),
   auditRBACAction('bulk_workflow_operations'),
   asyncHandler(async (req, res) => {

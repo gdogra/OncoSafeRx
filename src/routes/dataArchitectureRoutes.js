@@ -1,6 +1,6 @@
 import express from 'express';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import { requireAuth } from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 import { requirePermission, auditRBACAction } from '../middleware/rbacMiddleware.js';
 import scalableDataService from '../services/scalableDataService.js';
 import enterpriseMultiTenantService from '../services/enterpriseMultiTenantService.js';
@@ -9,7 +9,7 @@ const router = express.Router();
 
 // Get data architecture health metrics
 router.get('/health',
-  requireAuth,
+  authenticateToken,
   requirePermission('admin.system_config'),
   auditRBACAction('view_data_health'),
   asyncHandler(async (req, res) => {
@@ -29,7 +29,7 @@ router.get('/health',
 
 // Get data partitioning strategy for tenant
 router.get('/partitioning/strategy',
-  requireAuth,
+  authenticateToken,
   requirePermission('admin.system_config'),
   asyncHandler(async (req, res) => {
     const { tenantId } = req;
@@ -59,7 +59,7 @@ router.get('/partitioning/strategy',
 
 // Execute bulk data operation
 router.post('/bulk/insert',
-  requireAuth,
+  authenticateToken,
   requirePermission('admin.system_config'),
   auditRBACAction('bulk_data_insert'),
   asyncHandler(async (req, res) => {
@@ -105,7 +105,7 @@ router.post('/bulk/insert',
 
 // Cache management operations
 router.post('/cache/invalidate',
-  requireAuth,
+  authenticateToken,
   requirePermission('admin.system_config'),
   auditRBACAction('cache_invalidate'),
   asyncHandler(async (req, res) => {
@@ -132,7 +132,7 @@ router.post('/cache/invalidate',
 
 // Get cache statistics
 router.get('/cache/stats',
-  requireAuth,
+  authenticateToken,
   requirePermission('analytics.view'),
   asyncHandler(async (req, res) => {
     const { tenantId } = req;
@@ -151,7 +151,7 @@ router.get('/cache/stats',
 
 // Query optimization analysis
 router.post('/optimize/query',
-  requireAuth,
+  authenticateToken,
   requirePermission('admin.system_config'),
   asyncHandler(async (req, res) => {
     const { tenantId } = req;
@@ -179,7 +179,7 @@ router.post('/optimize/query',
 
 // Data migration operations
 router.post('/migrate/tenant-data',
-  requireAuth,
+  authenticateToken,
   requirePermission('admin.tenant_management'),
   auditRBACAction('tenant_data_migration'),
   asyncHandler(async (req, res) => {
@@ -212,7 +212,7 @@ router.post('/migrate/tenant-data',
 
 // Storage optimization
 router.post('/optimize/storage',
-  requireAuth,
+  authenticateToken,
   requirePermission('admin.system_config'),
   auditRBACAction('storage_optimization'),
   asyncHandler(async (req, res) => {
@@ -254,7 +254,7 @@ router.post('/optimize/storage',
 
 // Data export for analytics
 router.post('/export/analytics',
-  requireAuth,
+  authenticateToken,
   requirePermission('analytics.export'),
   auditRBACAction('analytics_data_export'),
   asyncHandler(async (req, res) => {
@@ -292,7 +292,7 @@ router.post('/export/analytics',
 
 // Get export job status
 router.get('/export/:jobId/status',
-  requireAuth,
+  authenticateToken,
   requirePermission('analytics.export'),
   asyncHandler(async (req, res) => {
     const { tenantId } = req;

@@ -28,20 +28,38 @@ const ServerPatients: React.FC = () => {
       const token = sess?.session?.access_token;
       const p = opts?.resetPage ? 1 : page;
       const params = new URLSearchParams({ q: query, page: String(p), pageSize: String(PAGE_SIZE) });
+      
+      console.log('🔍 Fetching patients:', {
+        url: `/api/patients?${params.toString()}`,
+        hasToken: !!token,
+        page: p,
+        query
+      });
+      
       const resp = await fetch(`/api/patients?${params.toString()}`, { 
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         signal: AbortSignal.timeout(5000) // 5 second timeout
       });
       
+      console.log('📡 Patients API response:', {
+        status: resp.status,
+        ok: resp.ok,
+        statusText: resp.statusText
+      });
+      
       if (resp.ok) {
         const body = await resp.json();
+        console.log('✅ Patients API success:', {
+          patientsCount: body.patients?.length || 0,
+          total: body.total || 0
+        });
         setPatients(body.patients || []);
         setTotal(body.total || 0);
         setUsingDemoData(false);
         if (opts?.resetPage) setPage(1);
       } else {
         // Backend API unavailable, use fallback demo data
-        console.warn('Patients API unavailable, using demo data');
+        console.warn('⚠️ Patients API unavailable, using demo data. Status:', resp.status);
         setUsingDemoData(true);
         const demoPatients = [
           {
@@ -119,10 +137,44 @@ const ServerPatients: React.FC = () => {
         if (opts?.resetPage) setPage(1);
       }
     } catch (error) {
-      console.error('Error fetching patients:', error);
-      // Use demo data as fallback
-      setPatients([]);
-      setTotal(0);
+      console.error('❌ Error fetching patients:', error);
+      console.log('🔄 Falling back to demo data due to error');
+      // Use demo data as fallback when API call fails
+      setUsingDemoData(true);
+      const demoPatients = [
+        {
+          id: 'demo-1',
+          data: {
+            demographics: {
+              firstName: 'Sarah',
+              lastName: 'Johnson',
+              mrn: 'MRN001234',
+              dateOfBirth: '1961-03-15',
+              sex: 'female',
+              age: 62
+            }
+          },
+          name: 'Sarah Johnson',
+          mrn: 'MRN001234'
+        },
+        {
+          id: 'demo-2', 
+          data: {
+            demographics: {
+              firstName: 'Michael',
+              lastName: 'Chen',
+              mrn: 'MRN001235',
+              dateOfBirth: '1955-07-22',
+              sex: 'male',
+              age: 68
+            }
+          },
+          name: 'Michael Chen',
+          mrn: 'MRN001235'
+        }
+      ];
+      setPatients(demoPatients);
+      setTotal(demoPatients.length);
     } finally {
       setLoading(false);
     }

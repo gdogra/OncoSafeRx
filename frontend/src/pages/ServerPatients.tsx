@@ -8,6 +8,7 @@ import { useToast } from '../components/UI/Toast';
 const PAGE_SIZE = 10;
 
 const ServerPatients: React.FC = () => {
+  console.log('🚀 ServerPatients component loaded');
   const { actions } = usePatient();
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);

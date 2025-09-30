@@ -70,7 +70,7 @@ class VisitorTrackingService {
   private currentPageView: PageView | null = null;
   private isTrackingEnabled: boolean = true;
   private apiEndpoint: string = '/api/analytics';
-  private enableServerAnalytics: boolean = ((import.meta as any)?.env?.VITE_ENABLE_SERVER_ANALYTICS === 'true') && false; // Force disabled for production
+  private enableServerAnalytics: boolean = true; // Enable analytics for production
 
   constructor() {
     this.initializeTracking();

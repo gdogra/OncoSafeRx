@@ -598,7 +598,7 @@ const EHRIntegrationDashboard: React.FC = () => {
             <p className="text-sm text-gray-600 mb-3">
               Full support for FHIR R4 resources including Patient, Medication, Observation, and more.
             </p>
-            <a href="#" className="text-blue-600 hover:text-blue-700 text-sm flex items-center space-x-1">
+            <a href="https://hl7.org/fhir/R4/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 text-sm flex items-center space-x-1">
               <ExternalLink className="w-4 h-4" />
               <span>View FHIR Documentation</span>
             </a>
@@ -609,7 +609,7 @@ const EHRIntegrationDashboard: React.FC = () => {
             <p className="text-sm text-gray-600 mb-3">
               Launch OncoSafeRx directly from your EHR with patient context using SMART on FHIR.
             </p>
-            <a href="#" className="text-blue-600 hover:text-blue-700 text-sm flex items-center space-x-1">
+            <a href="https://docs.smarthealthit.org/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 text-sm flex items-center space-x-1">
               <ExternalLink className="w-4 h-4" />
               <span>SMART Launch Guide</span>
             </a>
@@ -620,7 +620,7 @@ const EHRIntegrationDashboard: React.FC = () => {
             <p className="text-sm text-gray-600 mb-3">
               Real-time clinical decision support integration with medication ordering workflows.
             </p>
-            <a href="#" className="text-blue-600 hover:text-blue-700 text-sm flex items-center space-x-1">
+            <a href="https://cds-hooks.hl7.org/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 text-sm flex items-center space-x-1">
               <ExternalLink className="w-4 h-4" />
               <span>CDS Hooks Setup</span>
             </a>

@@ -757,6 +757,13 @@ class AdvancedWorkflowService {
    */
   async loadWorkflowTemplates() {
     try {
+      // Check if data service is initialized before using it
+      if (!scalableDataService.initialized) {
+        console.log('Data service not yet initialized, using default templates');
+        await this.initializeDefaultTemplates();
+        return;
+      }
+
       const templates = await scalableDataService.executeQuery(`
         SELECT * FROM workflow_templates WHERE deleted_at IS NULL
       `, [], {

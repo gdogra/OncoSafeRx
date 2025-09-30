@@ -23,10 +23,15 @@ const ServerPatients: React.FC = () => {
   const { showToast } = useToast();
 
   const fetchPatients = async (opts?: { resetPage?: boolean }) => {
+    console.log('🎯 fetchPatients called with opts:', opts);
     setLoading(true);
+    console.log('⚡ setLoading(true) completed');
     try {
+      console.log('💫 About to call supabase.auth.getSession()');
       const { data: sess } = await supabase.auth.getSession();
+      console.log('💫 supabase.auth.getSession() completed:', { hasSession: !!sess?.session });
       const token = sess?.session?.access_token;
+      console.log('💫 token extracted:', { hasToken: !!token });
       const p = opts?.resetPage ? 1 : page;
       const params = new URLSearchParams({ q: query, page: String(p), pageSize: String(PAGE_SIZE) });
       
@@ -221,16 +226,10 @@ const ServerPatients: React.FC = () => {
   };
 
   useEffect(() => { 
-    console.log('📅 useEffect triggered, calling fetchPatients');
+    console.log('📅 useEffect triggered (page:', page, '), calling fetchPatients');
     fetchPatients(); 
     /* eslint-disable-next-line */ 
   }, [page]);
-
-  // Also fetch on initial mount
-  useEffect(() => {
-    console.log('🚀 Initial mount, calling fetchPatients');
-    fetchPatients();
-  }, []);
 
   const selectAndClose = (p: any) => {
     const data = p.data || p;

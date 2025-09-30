@@ -28,8 +28,21 @@ const ServerPatients: React.FC = () => {
     console.log('⚡ setLoading(true) completed');
     try {
       console.log('💫 About to call supabase.auth.getSession()');
-      const { data: sess } = await supabase.auth.getSession();
-      console.log('💫 supabase.auth.getSession() completed:', { hasSession: !!sess?.session });
+      const sessionPromise = supabase.auth.getSession();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Session timeout')), 3000)
+      );
+      
+      let sess;
+      try {
+        const { data } = await Promise.race([sessionPromise, timeoutPromise]);
+        sess = data;
+        console.log('💫 supabase.auth.getSession() completed:', { hasSession: !!sess?.session });
+      } catch (error) {
+        console.warn('💫 supabase.auth.getSession() timed out or failed:', error.message);
+        sess = null;
+      }
+      
       const token = sess?.session?.access_token;
       console.log('💫 token extracted:', { hasToken: !!token });
       const p = opts?.resetPage ? 1 : page;

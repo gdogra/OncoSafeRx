@@ -259,6 +259,13 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
+  const isFormValid = () => {
+    return formData.firstName?.trim() && 
+           formData.lastName?.trim() && 
+           formData.dateOfBirth && 
+           formData.sex;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -289,8 +296,11 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
                   value={formData.firstName}
                   onChange={(e) => updateFormData('firstName', e.target.value)}
                   required
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                    errors.firstName ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 />
+                {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -301,8 +311,11 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
                   value={formData.lastName}
                   onChange={(e) => updateFormData('lastName', e.target.value)}
                   required
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                    errors.lastName ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 />
+                {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
               </div>
             </div>
 
@@ -316,8 +329,11 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
                   value={formData.dateOfBirth}
                   onChange={(e) => updateFormData('dateOfBirth', e.target.value)}
                   required
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                    errors.dateOfBirth ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 />
+                {errors.dateOfBirth && <p className="text-red-500 text-xs mt-1">{errors.dateOfBirth}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -327,12 +343,15 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
                   value={formData.sex}
                   onChange={(e) => updateFormData('sex', e.target.value)}
                   required
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                    errors.sex ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 >
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="other">Other/Unknown</option>
                 </select>
+                {errors.sex && <p className="text-red-500 text-xs mt-1">{errors.sex}</p>}
               </div>
             </div>
 
@@ -1070,7 +1089,13 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="flex items-center space-x-2 px-6 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
+                  disabled={!isFormValid()}
+                  className={`flex items-center space-x-2 px-6 py-2 rounded-md transition-colors ${
+                    isFormValid()
+                      ? 'bg-primary-600 text-white hover:bg-primary-700'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                  title={!isFormValid() ? 'Please fill in all required fields (First Name, Last Name, Date of Birth, Sex)' : ''}
                 >
                   <Save className="w-4 h-4" />
                   <span>Create Patient</span>

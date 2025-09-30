@@ -170,12 +170,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check for current session
     const checkCurrentUser = async () => {
       try {
+        console.log('🔍 AuthContext: Checking for existing user session...');
         const user = await AuthService.getCurrentUser();
         if (mounted && user) {
+          console.log('✅ AuthContext: Restored user session on page load:', { id: user.id, email: user.email });
           dispatch({ type: 'AUTH_SUCCESS', payload: user });
+        } else {
+          console.log('🚫 AuthContext: No existing user session found');
         }
       } catch (error) {
-        console.error('Error checking current user:', error);
+        console.error('❌ AuthContext: Error checking current user:', error);
       }
     };
 

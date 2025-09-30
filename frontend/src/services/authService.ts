@@ -50,7 +50,10 @@ export class SupabaseAuthService {
       if (password === 'dev' || password === 'test' || password === 'admin') {
         console.log('✅ Dev credentials accepted')
         const profile = this.createDevUser(email)
-        try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'dev', at: Date.now() })) } catch {}
+        try { 
+          localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'dev', at: Date.now() }))
+          localStorage.setItem('osrx_dev_user', JSON.stringify(profile))
+        } catch {}
         return profile
       }
       
@@ -262,10 +265,58 @@ export class SupabaseAuthService {
    */
   static async getCurrentUser(): Promise<UserProfile | null> {
     try {
+      // First try Supabase session
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.user) return null
+      if (session?.user) {
+        console.log('🔄 Restored user from Supabase session')
+        return this.buildUserProfile(session.user)
+      }
 
-      return this.buildUserProfile(session.user)
+      // Check for stored auth path to determine how user was authenticated
+      const authPath = (() => {
+        try {
+          const stored = localStorage.getItem('osrx_auth_path')
+          return stored ? JSON.parse(stored) : null
+        } catch {
+          return null
+        }
+      })()
+
+      if (!authPath) {
+        console.log('🚫 No authentication path found')
+        return null
+      }
+
+      console.log('🔍 Found auth path:', authPath)
+
+      // Handle dev users for localhost
+      if (authPath.path === 'dev' && window.location.hostname === 'localhost') {
+        console.log('🔄 Restoring dev user session')
+        // For dev mode, we need to recreate the user from stored email or default
+        const storedDevUser = (() => {
+          try {
+            const stored = localStorage.getItem('osrx_dev_user')
+            return stored ? JSON.parse(stored) : null
+          } catch {
+            return null
+          }
+        })()
+        
+        if (storedDevUser) {
+          return storedDevUser
+        } else {
+          // Create default dev user if no stored user found
+          const defaultEmail = 'dev@oncosaferx.com'
+          return this.createDevUser(defaultEmail)
+        }
+      }
+
+      // For production JWT-based authentication, we need to check if the session is still valid
+      // Since we don't store the JWT token directly, we'll need to rely on Supabase's session management
+      // If the session is gone but we have an auth path, the user needs to re-authenticate
+      console.log('🚫 No valid session found for auth path:', authPath.path)
+      return null
+
     } catch (error) {
       console.log('Error getting current user:', error)
       return null
@@ -277,7 +328,10 @@ export class SupabaseAuthService {
    */
   static async logout(): Promise<void> {
     await supabase.auth.signOut()
+    // Clean up all stored auth data
     localStorage.removeItem('osrx_dev_auth')
+    localStorage.removeItem('osrx_dev_user')
+    localStorage.removeItem('osrx_auth_path')
   }
 
   /**

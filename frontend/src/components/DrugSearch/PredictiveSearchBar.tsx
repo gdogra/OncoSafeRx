@@ -99,7 +99,7 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
         // If 502 Bad Gateway, try direct API
         if (response.status === 502) {
           console.warn(`502 Bad Gateway for suggestions: ${query}, trying direct API...`);
-          response = await fetch(`https://oncosaferx.onrender.com/api/drugs/suggestions?q=${encodeURIComponent(query)}&limit=${maxSuggestions}`);
+          response = await fetch(`https://oncosaferx-backend.onrender.com/api/drugs/suggestions?q=${encodeURIComponent(query)}&limit=${maxSuggestions}`);
           if (response.ok) {
             console.log(`✅ Direct API success for suggestions: ${query}`);
           }
@@ -126,7 +126,7 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
           // If 502 Bad Gateway, try direct API
           if (fallbackResponse.status === 502) {
             console.warn(`502 Bad Gateway for search fallback: ${query}, trying direct API...`);
-            fallbackResponse = await fetch(`https://oncosaferx.onrender.com/api/drugs/search?q=${encodeURIComponent(query)}`);
+            fallbackResponse = await fetch(`https://oncosaferx-backend.onrender.com/api/drugs/search?q=${encodeURIComponent(query)}`);
             if (fallbackResponse.ok) {
               console.log(`✅ Direct API success for search fallback: ${query}`);
             }

@@ -12,8 +12,7 @@ const LogoutButton: React.FC = () => {
     navigate('/login');
   };
 
-  // Always show the button for debugging - remove this condition later
-  console.log('LogoutButton render - isAuthenticated:', state.isAuthenticated, 'user:', state.user?.email);
+  // Show logout button when authenticated
 
   return (
     <button

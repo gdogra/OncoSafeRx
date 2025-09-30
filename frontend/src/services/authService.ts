@@ -62,7 +62,7 @@ export class SupabaseAuthService {
     console.log('🌐 Production mode: Real Supabase auth')
     
     // Skip connectivity test and go straight to authentication with bounded timeout
-    const authTimeoutMs = (import.meta as any)?.env?.VITE_AUTH_TIMEOUT_MS ? Number((import.meta as any).env.VITE_AUTH_TIMEOUT_MS) : 8000
+    const authTimeoutMs = (import.meta as any)?.env?.VITE_AUTH_TIMEOUT_MS ? Number((import.meta as any).env.VITE_AUTH_TIMEOUT_MS) : 12000
     console.log(`🔄 Starting authentication with ${Math.round(authTimeoutMs/1000)}-second timeout...`)
     
     try {

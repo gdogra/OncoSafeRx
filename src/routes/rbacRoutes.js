@@ -1,6 +1,6 @@
 import express from 'express';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import { requireAuth } from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 import enterpriseRBACService from '../services/enterpriseRBACService.js';
 import enterpriseMultiTenantService from '../services/enterpriseMultiTenantService.js';
 
@@ -26,7 +26,7 @@ const validateTenant = asyncHandler(async (req, res, next) => {
 
 // Get user roles and permissions
 router.get('/tenants/:tenantId/users/:userId/roles',
-  requireAuth,
+  authenticateToken,
   validateTenant,
   asyncHandler(async (req, res) => {
     const { userId } = req.params;
@@ -66,7 +66,7 @@ router.get('/tenants/:tenantId/users/:userId/roles',
 
 // Assign role to user
 router.post('/tenants/:tenantId/users/:userId/roles',
-  requireAuth,
+  authenticateToken,
   validateTenant,
   asyncHandler(async (req, res) => {
     const { userId } = req.params;
@@ -101,7 +101,7 @@ router.post('/tenants/:tenantId/users/:userId/roles',
 
 // Revoke role from user
 router.delete('/tenants/:tenantId/users/:userId/roles/:roleName',
-  requireAuth,
+  authenticateToken,
   validateTenant,
   asyncHandler(async (req, res) => {
     const { userId, roleName } = req.params;
@@ -125,7 +125,7 @@ router.delete('/tenants/:tenantId/users/:userId/roles/:roleName',
 
 // Check user permission
 router.get('/tenants/:tenantId/users/:userId/permissions/:permission',
-  requireAuth,
+  authenticateToken,
   validateTenant,
   asyncHandler(async (req, res) => {
     const { userId, permission } = req.params;
@@ -160,7 +160,7 @@ router.get('/tenants/:tenantId/users/:userId/permissions/:permission',
 
 // Get available roles for tenant
 router.get('/tenants/:tenantId/roles',
-  requireAuth,
+  authenticateToken,
   validateTenant,
   asyncHandler(async (req, res) => {
     const { tenantId } = req;
@@ -197,7 +197,7 @@ router.get('/tenants/:tenantId/roles',
 
 // Create custom role
 router.post('/tenants/:tenantId/roles',
-  requireAuth,
+  authenticateToken,
   validateTenant,
   asyncHandler(async (req, res) => {
     const { tenantId } = req;
@@ -243,7 +243,7 @@ router.post('/tenants/:tenantId/roles',
 
 // Get role analytics
 router.get('/tenants/:tenantId/analytics/roles',
-  requireAuth,
+  authenticateToken,
   validateTenant,
   asyncHandler(async (req, res) => {
     const { tenantId } = req;
@@ -271,7 +271,7 @@ router.get('/tenants/:tenantId/analytics/roles',
 
 // Create authenticated session
 router.post('/sessions',
-  requireAuth,
+  authenticateToken,
   asyncHandler(async (req, res) => {
     const { tenantId } = req.body;
     const userId = req.user.id;
@@ -306,7 +306,7 @@ router.post('/sessions',
 
 // Validate session
 router.get('/sessions/:sessionId',
-  requireAuth,
+  authenticateToken,
   asyncHandler(async (req, res) => {
     const { sessionId } = req.params;
     const { permission } = req.query;
@@ -336,7 +336,7 @@ router.get('/sessions/:sessionId',
 
 // Get all permissions
 router.get('/permissions',
-  requireAuth,
+  authenticateToken,
   asyncHandler(async (req, res) => {
     const permissions = Array.from(enterpriseRBACService.permissions.values())
       .map(permission => ({
@@ -363,7 +363,7 @@ router.get('/permissions',
 
 // Bulk role operations
 router.post('/tenants/:tenantId/bulk-operations',
-  requireAuth,
+  authenticateToken,
   validateTenant,
   asyncHandler(async (req, res) => {
     const { tenantId } = req;

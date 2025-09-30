@@ -186,7 +186,19 @@ export class SupabaseAuthService {
             
             const userProfile = await this.buildUserProfile(user)
             console.log('✅ User profile created from JWT:', { id: userProfile.id, email: userProfile.email })
-            try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'jwt-direct', at: Date.now() })) } catch {}
+            
+            // Store tokens and user for session persistence
+            try { 
+              localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'jwt-direct', at: Date.now() }))
+              localStorage.setItem('osrx_auth_tokens', JSON.stringify({
+                access_token: data.access_token,
+                refresh_token: data.refresh_token,
+                expires_at: payload.exp * 1000, // Convert to milliseconds
+                stored_at: Date.now()
+              }))
+              localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile))
+            } catch {}
+            
             return userProfile
           } catch (jwtError) {
             console.log('❌ JWT parsing failed, attempting setSession...', jwtError)
@@ -204,7 +216,11 @@ export class SupabaseAuthService {
             if (setErr) throw setErr
             if (!setData?.session?.user) throw new Error('Failed to establish session from direct login')
             const userProfile = await this.buildUserProfile(setData.session.user)
-            try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct-api-fallback', at: Date.now() })) } catch {}
+            try { 
+              localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct-api-fallback', at: Date.now() }))
+              // For setSession success, also store user profile for session persistence
+              localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile))
+            } catch {}
             return userProfile
           }
         } else {
@@ -311,9 +327,52 @@ export class SupabaseAuthService {
         }
       }
 
-      // For production JWT-based authentication, we need to check if the session is still valid
-      // Since we don't store the JWT token directly, we'll need to rely on Supabase's session management
-      // If the session is gone but we have an auth path, the user needs to re-authenticate
+      // For production JWT-based authentication, check for stored tokens
+      if (['jwt-direct', 'direct-api-fallback'].includes(authPath.path)) {
+        console.log('🔄 Checking stored JWT tokens for session restoration')
+        
+        const storedTokens = (() => {
+          try {
+            const stored = localStorage.getItem('osrx_auth_tokens')
+            return stored ? JSON.parse(stored) : null
+          } catch {
+            return null
+          }
+        })()
+        
+        const storedUser = (() => {
+          try {
+            const stored = localStorage.getItem('osrx_user_profile')
+            return stored ? JSON.parse(stored) : null
+          } catch {
+            return null
+          }
+        })()
+        
+        if (storedTokens && storedUser) {
+          // Check if token is still valid (with 5 minute buffer)
+          const now = Date.now()
+          const expiresAt = storedTokens.expires_at
+          const isExpired = now >= (expiresAt - 5 * 60 * 1000) // 5 minute buffer
+          
+          console.log('🔍 Token validation:', {
+            hasTokens: !!storedTokens.access_token,
+            hasUser: !!storedUser.id,
+            expiresAt: new Date(expiresAt).toISOString(),
+            isExpired,
+            timeLeft: Math.round((expiresAt - now) / 1000 / 60) + ' minutes'
+          })
+          
+          if (!isExpired) {
+            console.log('✅ Restored user from stored JWT tokens')
+            return storedUser
+          } else {
+            console.log('⏰ Stored tokens expired, clearing auth data')
+            this.clearStoredAuth()
+          }
+        }
+      }
+      
       console.log('🚫 No valid session found for auth path:', authPath.path)
       return null
 
@@ -328,10 +387,19 @@ export class SupabaseAuthService {
    */
   static async logout(): Promise<void> {
     await supabase.auth.signOut()
+    this.clearStoredAuth()
+  }
+
+  /**
+   * Clear all stored authentication data
+   */
+  private static clearStoredAuth(): void {
     // Clean up all stored auth data
     localStorage.removeItem('osrx_dev_auth')
     localStorage.removeItem('osrx_dev_user')
     localStorage.removeItem('osrx_auth_path')
+    localStorage.removeItem('osrx_auth_tokens')
+    localStorage.removeItem('osrx_user_profile')
   }
 
   /**

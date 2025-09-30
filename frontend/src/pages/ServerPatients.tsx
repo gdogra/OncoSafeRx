@@ -85,11 +85,13 @@ const ServerPatients: React.FC = () => {
         const body = await resp.json();
         console.log('✅ Patients API success:', {
           patientsCount: body.patients?.length || 0,
-          total: body.total || 0
+          total: body.total || 0,
+          offline: body.offline,
+          samplePatient: body.patients?.[0]
         });
         setPatients(body.patients || []);
         setTotal(body.total || 0);
-        setUsingDemoData(false);
+        setUsingDemoData(body.offline || false);
         if (opts?.resetPage) setPage(1);
       } else {
         // Backend API unavailable, use fallback demo data

@@ -519,7 +519,6 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                               <p className="text-xs text-blue-600 font-medium">{subgroup.recommendation}</p>
                             </div>
                           ))}
-                          </div>
                         </div>
                       </div>
                     )}

@@ -426,12 +426,6 @@ export class GenomicAnalysisService {
       }];
     }
   }
-        patient.ecogPerformanceStatus || 1
-      );
-      
-      return matchesAge && matchesCancer && matchesECOG;
-    });
-  }
 
   private static generateMatchReasons(patient: Patient, variants: GenomicVariant[], trial: any): string[] {
     const reasons: string[] = [];

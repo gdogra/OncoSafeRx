@@ -107,88 +107,28 @@ const ServerPatients: React.FC = () => {
         setUsingDemoData(body.offline || false);
         if (opts?.resetPage) setPage(1);
       } else {
-        // Backend API unavailable, use fallback demo data
-        console.warn('⚠️ Patients API unavailable, using demo data. Status:', resp.status);
-        console.warn('⚠️ Response details:', {
+        // API call failed
+        console.error('❌ Patients API failed:', {
           status: resp.status,
           statusText: resp.statusText,
           headers: Object.fromEntries(resp.headers.entries()),
           url: resp.url
         });
-        setUsingDemoData(true);
-        const demoPatients = [
-          {
-            id: 'demo-1',
-            data: {
-              demographics: {
-                firstName: 'Sarah',
-                lastName: 'Johnson',
-                mrn: 'MRN001234',
-                dateOfBirth: '1961-03-15',
-                sex: 'female',
-                age: 62
-              },
-              diagnosis: {
-                primary: 'Invasive ductal carcinoma, breast',
-                stage: 'IIIA'
-              }
-            },
-            name: 'Sarah Johnson',
-            mrn: 'MRN001234'
-          },
-          {
-            id: 'demo-2',
-            data: {
-              demographics: {
-                firstName: 'Michael',
-                lastName: 'Chen',
-                mrn: 'MRN001235',
-                dateOfBirth: '1955-07-22',
-                sex: 'male',
-                age: 68
-              },
-              diagnosis: {
-                primary: 'Non-small cell lung cancer',
-                stage: 'II'
-              }
-            },
-            name: 'Michael Chen',
-            mrn: 'MRN001235'
-          },
-          {
-            id: 'demo-3',
-            data: {
-              demographics: {
-                firstName: 'Maria',
-                lastName: 'Rodriguez',
-                mrn: 'MRN001236',
-                dateOfBirth: '1970-11-08',
-                sex: 'female',
-                age: 53
-              },
-              diagnosis: {
-                primary: 'Colorectal adenocarcinoma',
-                stage: 'III'
-              }
-            },
-            name: 'Maria Rodriguez',
-            mrn: 'MRN001236'
-          }
-        ];
         
-        // Filter demo patients based on search query
-        let filtered = demoPatients;
-        if (query.trim()) {
-          const q = query.toLowerCase();
-          filtered = demoPatients.filter(p => 
-            p.name.toLowerCase().includes(q) || 
-            p.mrn.toLowerCase().includes(q) ||
-            p.data.diagnosis.primary.toLowerCase().includes(q)
-          );
+        const body = await resp.text();
+        console.error('❌ Error response body:', body);
+        
+        // Clear patients list and show appropriate error
+        setPatients([]);
+        setTotal(0);
+        setUsingDemoData(false);
+        
+        if (resp.status === 401) {
+          console.error('❌ Authentication failed - user may need to log in again');
+        } else if (resp.status === 503) {
+          console.error('❌ Database service unavailable');
         }
         
-        setPatients(filtered);
-        setTotal(filtered.length);
         if (opts?.resetPage) setPage(1);
       }
     } catch (error) {
@@ -198,43 +138,11 @@ const ServerPatients: React.FC = () => {
         message: error?.message,
         stack: error?.stack
       });
-      console.log('🔄 Falling back to demo data due to error');
-      // Use demo data as fallback when API call fails
-      setUsingDemoData(true);
-      const demoPatients = [
-        {
-          id: 'demo-1',
-          data: {
-            demographics: {
-              firstName: 'Sarah',
-              lastName: 'Johnson',
-              mrn: 'MRN001234',
-              dateOfBirth: '1961-03-15',
-              sex: 'female',
-              age: 62
-            }
-          },
-          name: 'Sarah Johnson',
-          mrn: 'MRN001234'
-        },
-        {
-          id: 'demo-2', 
-          data: {
-            demographics: {
-              firstName: 'Michael',
-              lastName: 'Chen',
-              mrn: 'MRN001235',
-              dateOfBirth: '1955-07-22',
-              sex: 'male',
-              age: 68
-            }
-          },
-          name: 'Michael Chen',
-          mrn: 'MRN001235'
-        }
-      ];
-      setPatients(demoPatients);
-      setTotal(demoPatients.length);
+      
+      // Clear data on error
+      setPatients([]);
+      setTotal(0);
+      setUsingDemoData(false);
     } finally {
       setLoading(false);
     }
@@ -319,13 +227,13 @@ const ServerPatients: React.FC = () => {
           <h1 className="text-xl font-semibold text-gray-900">All Patients</h1>
         </div>
         
-        {usingDemoData && (
-          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <p className="text-sm text-yellow-800">
-              <strong>Demo Mode:</strong> Backend API unavailable. Showing sample patient data for demonstration.
+        {patients.length === 0 && !loading && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>No Patients Found:</strong> You haven't created any patients yet.
             </p>
-            <p className="text-xs text-yellow-600 mt-1">
-              Patient selection and basic operations are functional, but data will not persist.
+            <p className="text-xs text-blue-600 mt-1">
+              Use the "Create Patient" button in the patient selector to add your first patient.
             </p>
           </div>
         )}

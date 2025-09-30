@@ -8,52 +8,12 @@ const router = express.Router();
 
 router.get('/', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user || !supabaseService.enabled) {
-      // Generate user-specific mock patients for development/demo
-      const userId = req.user?.id || 'anonymous';
-      const userHash = userId.slice(-3); // Use last 3 chars for variation
-      
-      const patientTemplates = [
-        { firstName: 'Sarah', lastName: 'Johnson', condition: 'Breast Cancer', stage: 'Stage II', meds: ['Tamoxifen', 'Metformin'] },
-        { firstName: 'Michael', lastName: 'Chen', condition: 'Lung Cancer', stage: 'Stage IIIA', meds: ['Carboplatin', 'Pemetrexed'] },
-        { firstName: 'Emily', lastName: 'Rodriguez', condition: 'Colorectal Cancer', stage: 'Stage I', meds: ['5-Fluorouracil', 'Leucovorin'] },
-        { firstName: 'Robert', lastName: 'Thompson', condition: 'Prostate Cancer', stage: 'Stage II', meds: ['Bicalutamide', 'Leuprolide'] },
-        { firstName: 'Lisa', lastName: 'Anderson', condition: 'Leukemia', stage: 'Acute', meds: ['Daunorubicin', 'Cytarabine'] }
-      ];
-
-      const mockPatients = patientTemplates.map((template, index) => ({
-        id: `${userId}-patient-${index + 1}`,
-        demographics: {
-          firstName: template.firstName,
-          lastName: template.lastName,
-          mrn: `MRN-${userHash}-${String(index + 1).padStart(3, '0')}`,
-          age: 25 + (index * 10) + parseInt(userHash, 16) % 10,
-          gender: index % 2 === 0 ? 'female' : 'male',
-          dateOfBirth: `19${70 + index * 5}-${String(index + 1).padStart(2, '0')}-15`
-        },
-        conditions: [{ name: template.condition, stage: template.stage }],
-        medications: template.meds,
-        userId: userId // Track which user owns this patient
-      }));
-
-      const q = String(req.query.q || '').toLowerCase().trim();
-      const page = Math.max(1, parseInt(String(req.query.page || '1'), 10) || 1);
-      const pageSize = Math.min(50, Math.max(1, parseInt(String(req.query.pageSize || '10'), 10) || 10));
-
-      let patients = mockPatients;
-      if (q) {
-        patients = mockPatients.filter(p => {
-          const name = `${p.demographics.firstName} ${p.demographics.lastName}`.toLowerCase();
-          const mrn = p.demographics.mrn.toLowerCase();
-          return name.includes(q) || mrn.includes(q);
-        });
-      }
-
-      const total = patients.length;
-      const start = (page - 1) * pageSize;
-      const items = patients.slice(start, start + pageSize);
-      
-      return res.status(200).json({ patients: items, total, page, pageSize, offline: true });
+    if (!req.user) {
+      return res.status(401).json({ error: 'Authentication required', patients: [], total: 0 });
+    }
+    
+    if (!supabaseService.enabled) {
+      return res.status(503).json({ error: 'Database service unavailable', patients: [], total: 0 });
     }
     const q = String(req.query.q || '').toLowerCase().trim();
     const page = Math.max(1, parseInt(String(req.query.page || '1'), 10) || 1);
@@ -82,8 +42,12 @@ router.get('/', optionalSupabaseAuth, async (req, res) => {
 
 router.post('/', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user || !supabaseService.enabled) {
-      return res.status(200).json({ ok: true, offline: true });
+    if (!req.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    if (!supabaseService.enabled) {
+      return res.status(503).json({ error: 'Database service unavailable' });
     }
     const patient = req.body?.patient;
     if (!patient) return res.status(400).json({ error: 'Missing patient' });
@@ -122,44 +86,12 @@ router.post('/', optionalSupabaseAuth, async (req, res) => {
 
 router.get('/:id', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user || !supabaseService.enabled) {
-      // Return user-specific mock patient data for development
-      const userId = req.user?.id || 'anonymous';
-      const patientId = req.params.id;
-      
-      // Check if this is a mock patient belonging to this user
-      if (patientId.startsWith(userId)) {
-        const patientIndex = parseInt(patientId.split('-').pop()) - 1;
-        const templates = [
-          { firstName: 'Sarah', lastName: 'Johnson', condition: 'Breast Cancer', stage: 'Stage II', meds: ['Tamoxifen', 'Metformin'] },
-          { firstName: 'Michael', lastName: 'Chen', condition: 'Lung Cancer', stage: 'Stage IIIA', meds: ['Carboplatin', 'Pemetrexed'] },
-          { firstName: 'Emily', lastName: 'Rodriguez', condition: 'Colorectal Cancer', stage: 'Stage I', meds: ['5-Fluorouracil', 'Leucovorin'] },
-          { firstName: 'Robert', lastName: 'Thompson', condition: 'Prostate Cancer', stage: 'Stage II', meds: ['Bicalutamide', 'Leuprolide'] },
-          { firstName: 'Lisa', lastName: 'Anderson', condition: 'Leukemia', stage: 'Acute', meds: ['Daunorubicin', 'Cytarabine'] }
-        ];
-        
-        if (patientIndex >= 0 && patientIndex < templates.length) {
-          const template = templates[patientIndex];
-          const userHash = userId.slice(-3);
-          const mockPatient = {
-            id: patientId,
-            demographics: {
-              firstName: template.firstName,
-              lastName: template.lastName,
-              mrn: `MRN-${userHash}-${String(patientIndex + 1).padStart(3, '0')}`,
-              age: 25 + (patientIndex * 10) + parseInt(userHash, 16) % 10,
-              gender: patientIndex % 2 === 0 ? 'female' : 'male',
-              dateOfBirth: `19${70 + patientIndex * 5}-${String(patientIndex + 1).padStart(2, '0')}-15`
-            },
-            conditions: [{ name: template.condition, stage: template.stage }],
-            medications: template.meds,
-            userId: userId
-          };
-          return res.status(200).json({ patient: mockPatient, offline: true });
-        }
-      }
-      
-      return res.status(404).json({ error: 'Patient not found', offline: true });
+    if (!req.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    if (!supabaseService.enabled) {
+      return res.status(503).json({ error: 'Database service unavailable' });
     }
     const id = req.params.id;
     const { data, error } = await supabaseService.client
@@ -177,8 +109,12 @@ router.get('/:id', optionalSupabaseAuth, async (req, res) => {
 
 router.delete('/:id', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user || !supabaseService.enabled) {
-      return res.status(200).json({ ok: true, offline: true });
+    if (!req.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    if (!supabaseService.enabled) {
+      return res.status(503).json({ error: 'Database service unavailable' });
     }
     const id = req.params.id;
     const ok = await supabaseService.deletePatient(req.user.id, id);

@@ -352,8 +352,14 @@ const InteractionCheckerInner: React.FC = () => {
             </p>
             <div className="text-sm text-gray-600 mt-1">
               {currentPatient.age} years old • {currentPatient.gender}
-              {currentPatient.conditions && currentPatient.conditions.length > 0 && (
-                <> • Conditions: {currentPatient.conditions.slice(0, 2).join(', ')}{currentPatient.conditions.length > 2 && '...'}</>
+              {currentPatient.conditions && (
+                <> • Conditions: {
+                  Array.isArray(currentPatient.conditions) 
+                    ? currentPatient.conditions.slice(0, 2).map(c => typeof c === 'object' ? c.name || c.primary || 'Unknown' : c).join(', ') + (currentPatient.conditions.length > 2 ? '...' : '')
+                    : typeof currentPatient.conditions === 'object' 
+                      ? (currentPatient.conditions.name || currentPatient.conditions.primary || 'Condition specified')
+                      : currentPatient.conditions
+                }</>
               )}
             </div>
           </div>

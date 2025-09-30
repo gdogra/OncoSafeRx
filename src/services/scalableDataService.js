@@ -68,36 +68,64 @@ class ScalableDataService {
         ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
       }));
 
-      // Redis for caching and session management
-      this.connections.cache = new Redis({
-        host: process.env.REDIS_HOST || 'localhost',
-        port: process.env.REDIS_PORT || 6379,
-        password: process.env.REDIS_PASSWORD,
-        db: 0,
-        retryDelayOnFailover: 100,
-        maxRetriesPerRequest: 3,
-        lazyConnect: true
-      });
-
-      // MongoDB for document storage (analytics, logs)
-      if (process.env.MONGODB_URI) {
-        this.connections.documentStore = new MongoClient(process.env.MONGODB_URI, {
-          maxPoolSize: 20,
-          serverSelectionTimeoutMS: 5000,
-          socketTimeoutMS: 45000
-        });
-        await this.connections.documentStore.connect();
+      // Redis for caching and session management (optional)
+      if (process.env.REDIS_HOST || process.env.NODE_ENV === 'development') {
+        try {
+          this.connections.cache = new Redis({
+            host: process.env.REDIS_HOST || 'localhost',
+            port: process.env.REDIS_PORT || 6379,
+            password: process.env.REDIS_PASSWORD,
+            db: 0,
+            retryDelayOnFailover: 100,
+            maxRetriesPerRequest: 3,
+            lazyConnect: true
+          });
+        } catch (error) {
+          console.warn('Redis connection failed, continuing without cache:', error.message);
+          this.connections.cache = null;
+        }
+      } else {
+        console.log('Redis not configured, continuing without cache');
+        this.connections.cache = null;
       }
 
-      // S3 for object storage (large reports, exports)
+      // MongoDB for document storage (analytics, logs) - optional
+      if (process.env.MONGODB_URI) {
+        try {
+          this.connections.documentStore = new MongoClient(process.env.MONGODB_URI, {
+            maxPoolSize: 20,
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000
+          });
+          await this.connections.documentStore.connect();
+          console.log('MongoDB connected successfully');
+        } catch (error) {
+          console.warn('MongoDB connection failed, continuing without document store:', error.message);
+          this.connections.documentStore = null;
+        }
+      } else {
+        console.log('MongoDB not configured, continuing without document store');
+        this.connections.documentStore = null;
+      }
+
+      // S3 for object storage (large reports, exports) - optional
       if (process.env.AWS_ACCESS_KEY_ID) {
-        this.connections.objectStore = new S3Client({
-          region: process.env.AWS_REGION || 'us-east-1',
-          credentials: {
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-          }
-        });
+        try {
+          this.connections.objectStore = new S3Client({
+            region: process.env.AWS_REGION || 'us-east-1',
+            credentials: {
+              accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+              secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+            }
+          });
+          console.log('AWS S3 client initialized successfully');
+        } catch (error) {
+          console.warn('AWS S3 initialization failed, continuing without object store:', error.message);
+          this.connections.objectStore = null;
+        }
+      } else {
+        console.log('AWS credentials not configured, continuing without object store');
+        this.connections.objectStore = null;
       }
 
       // Initialize specialized connection pools

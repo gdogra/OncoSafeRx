@@ -18,12 +18,8 @@ const getApiUrl = () => {
     return 'http://localhost:3000/api';
   }
   
-  // Prefer same-origin '/api' in production to avoid CSP issues
-  if (typeof window !== 'undefined' && window.location && window.location.origin) {
-    return `${window.location.origin}/api`;
-  }
-  
-  return 'http://localhost:3000/api';
+  // In production, always use relative /api path to leverage Netlify proxy
+  return '/api';
 };
 
 const API_BASE_URL = getApiUrl();

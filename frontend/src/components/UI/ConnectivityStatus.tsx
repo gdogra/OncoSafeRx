@@ -34,8 +34,9 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
     if (apiBase) return apiBase;
     const vite = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
     if (vite?.trim()) return vite;
+    // For localhost development
     if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') return 'http://localhost:3000/api';
-    if (typeof window !== 'undefined' && window.location?.origin) return `${window.location.origin}/api`;
+    // In production, always use relative /api path to leverage Netlify proxy
     return '/api';
   }, [apiBase]);
 

@@ -78,7 +78,7 @@ const DrugDatabase: React.FC = () => {
         '282464',  // Imatinib
         '40048',   // Doxorubicin
         '41126',   // Carboplatin
-        '70618'    // Paclitaxel
+        '583214'   // Paclitaxel (corrected RxCUI)
       ];
 
       const drugsPromises = featuredRxcuis.map(async (rxcui) => {

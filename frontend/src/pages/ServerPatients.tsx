@@ -28,7 +28,10 @@ const ServerPatients: React.FC = () => {
       const token = sess?.session?.access_token;
       const p = opts?.resetPage ? 1 : page;
       const params = new URLSearchParams({ q: query, page: String(p), pageSize: String(PAGE_SIZE) });
-      const resp = await fetch(`/api/patients?${params.toString()}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      const resp = await fetch(`/api/patients?${params.toString()}`, { 
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        signal: AbortSignal.timeout(5000) // 5 second timeout
+      });
       
       if (resp.ok) {
         const body = await resp.json();

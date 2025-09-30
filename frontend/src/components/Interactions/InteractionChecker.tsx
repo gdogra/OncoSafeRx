@@ -11,12 +11,15 @@ import AdvancedInteractionChecker from './AdvancedInteractionChecker';
 import FeatureErrorBoundary from '../ErrorBoundary/FeatureErrorBoundary';
 import { AlertTriangle, X, Info } from 'lucide-react';
 import { useSelection } from '../../context/SelectionContext';
+import { usePatient } from '../../context/PatientContext';
 
 const InteractionCheckerInner: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [selectedDrugs, setSelectedDrugs] = useState<Drug[]>([]);
   const selection = useSelection();
+  const { state } = usePatient();
+  const { currentPatient } = state;
   const [results, setResults] = useState<InteractionCheckResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -342,6 +345,19 @@ const InteractionCheckerInner: React.FC = () => {
           <AlertTriangle className="w-8 h-8 text-warning-600" />
           <h1 className="text-3xl font-bold text-gray-900">Advanced Drug Interaction Analysis</h1>
         </div>
+        {currentPatient && (
+          <div className="mb-4">
+            <p className="text-xl font-semibold text-primary-600">
+              Advanced interaction analysis for {currentPatient.firstName} {currentPatient.lastName}
+            </p>
+            <div className="text-sm text-gray-600 mt-1">
+              {currentPatient.age} years old • {currentPatient.gender}
+              {currentPatient.conditions && currentPatient.conditions.length > 0 && (
+                <> • Conditions: {currentPatient.conditions.slice(0, 2).join(', ')}{currentPatient.conditions.length > 2 && '...'}</>
+              )}
+            </div>
+          </div>
+        )}
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
           AI-powered interaction checking with clinical recommendations, severity analysis, and patient-specific considerations.
         </p>
@@ -497,7 +513,7 @@ const InteractionCheckerInner: React.FC = () => {
                   <Info className="w-4 h-4 text-gray-400" />
                 </Tooltip>
               </div>
-              <p className="text-xs text-gray-500 mt-1">Mock data for demonstration purposes</p>
+              <p className="text-xs text-gray-500 mt-1">AI-powered therapeutic alternatives based on safety and efficacy</p>
             </div>
             <div className="flex items-center space-x-3 text-sm">
               <Tooltip content="Show only alternatives likely to be covered by insurance formularies">
@@ -540,72 +556,64 @@ const InteractionCheckerInner: React.FC = () => {
                 setAltLoading(true); setAltError(null);
                 
                 try {
-                  // Create realistic mock alternatives based on drug names
-                  const mockAlternatives = selectedDrugs.flatMap((drug, index) => {
-                    const alternatives = [];
-                    const drugName = drug.name.toLowerCase();
-                    
-                    // Define common drug alternatives
-                    const drugAlternatives: Record<string, string[]> = {
-                      'aspirin': ['ibuprofen', 'naproxen', 'celecoxib'],
-                      'ibuprofen': ['aspirin', 'naproxen', 'diclofenac'],
-                      'warfarin': ['rivaroxaban', 'apixaban', 'dabigatran'],
-                      'metformin': ['glipizide', 'glyburide', 'sitagliptin'],
-                      'atorvastatin': ['simvastatin', 'rosuvastatin', 'pravastatin'],
-                      'omeprazole': ['pantoprazole', 'esomeprazole', 'lansoprazole']
-                    };
-                    
-                    // Find alternatives for this drug
-                    let alts: string[] = [];
-                    for (const [key, values] of Object.entries(drugAlternatives)) {
-                      if (drugName.includes(key)) {
-                        alts = values;
-                        break;
-                      }
-                    }
-                    
-                    // If no specific alternatives, create generic ones
-                    if (alts.length === 0) {
-                      alts = [`${drug.name} extended-release`, `${drug.name} alternative formulation`];
-                    }
-                    
-                    // Create alternative suggestions
-                    alts.slice(0, 2).forEach((altName, altIndex) => {
-                      alternatives.push({
-                        forDrug: drug,
-                        withDrug: selectedDrugs.find(d => d.rxcui !== drug.rxcui) || null,
-                        alternative: {
-                          rxcui: `alt-${drug.rxcui}-${altIndex}`,
-                          name: altName,
-                          tty: drug.tty
-                        },
-                        rationale: altIndex === 0 
-                          ? 'Fewer drug interactions and similar efficacy'
-                          : 'Alternative mechanism of action with lower interaction risk',
-                        score: 90 - (index * 5) - (altIndex * 10),
-                        best: index === 0 && altIndex === 0,
-                        formulary: (index + altIndex) % 2 === 0 ? 'likely-covered' : 'check-coverage',
-                        costHint: altIndex === 0 ? 'Generic available - lower cost' : 'Similar cost to current therapy',
-                        pgx: drugName.includes('warfarin') || drugName.includes('metformin') ? [
-                          { gene: drugName.includes('warfarin') ? 'CYP2C9' : 'OCT1', 
-                            phenotype: 'Normal metabolizer' }
-                        ] : [],
-                        citations: [
-                          { label: 'Clinical Practice Guidelines', url: '#' },
-                          'Peer-reviewed comparative effectiveness study'
-                        ]
-                      });
-                    });
-                    
-                    return alternatives;
-                  }).slice(0, 6); // Limit to 6 suggestions total
+                  // Use real drug alternatives API
+                  const response = await fetch('/api/drug-alternatives/find-alternatives', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      drugs: selectedDrugs.map(drug => ({ name: drug.name, rxcui: drug.rxcui })),
+                      patientProfile: currentPatient ? {
+                        age: currentPatient.age,
+                        gender: currentPatient.gender?.toLowerCase(),
+                        allergies: currentPatient.allergies || [],
+                        renalFunction: currentPatient.renalFunction || 'normal',
+                        hepaticFunction: currentPatient.hepaticFunction || 'normal'
+                      } : {}
+                    })
+                  });
 
-                  setAltAllResults(mockAlternatives);
-                  setAltResults(applyAltFilters(mockAlternatives, onlyCovered, onlyBest));
+                  if (!response.ok) {
+                    throw new Error('Failed to fetch alternatives');
+                  }
+
+                  const data = await response.json();
+                  
+                  // Transform API response to match component format
+                  const transformedAlternatives = data.data.alternatives.map((alt: any) => ({
+                    forDrug: alt.forDrug,
+                    withDrug: null,
+                    alternative: {
+                      rxcui: `alt-${Date.now()}-${Math.random()}`,
+                      name: alt.alternative?.name || 'Alternative therapy',
+                      tty: alt.alternative?.drugClass || 'Unknown'
+                    },
+                    rationale: alt.rationale,
+                    score: alt.safetyScore + alt.efficacyScore,
+                    best: alt.safetyScore >= 90 && alt.efficacyScore >= 90,
+                    formulary: alt.formularyStatus,
+                    costHint: alt.costImpact === 'lower' ? 'Generic available - lower cost' : 
+                             alt.costImpact === 'similar' ? 'Similar cost to current therapy' : 'Cost impact unknown',
+                    pgx: [], // Add PGx data if available
+                    citations: [
+                      { label: 'Clinical Evidence', url: '#' },
+                      'Therapeutic guidelines and safety data'
+                    ],
+                    safetyScore: alt.safetyScore,
+                    efficacyScore: alt.efficacyScore,
+                    evidenceLevel: alt.evidenceLevel,
+                    contraindications: alt.contraindications,
+                    clinicalNotes: alt.clinicalNotes,
+                    monitoringRequirements: alt.monitoringRequirements
+                  }));
+
+                  setAltAllResults(transformedAlternatives);
+                  setAltResults(applyAltFilters(transformedAlternatives, onlyCovered, onlyBest));
                   
                 } catch (e) {
                   console.error('Alternatives error:', e);
-                  setAltError('Failed to load alternatives. This feature is currently in development.');
+                  setAltError('Failed to load therapeutic alternatives. Please try again later.');
                 } finally { 
                   setAltLoading(false); 
                 }

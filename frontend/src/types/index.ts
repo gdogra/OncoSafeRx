@@ -4,17 +4,33 @@ export interface Drug {
   rxcui: string;
   name: string;
   generic_name?: string;
+  genericName?: string;
   synonym?: string;
   tty?: string;
   brand_names?: string[];
+  brandNames?: string[];
   active_ingredients?: string[];
   dosage_forms?: string[];
   strengths?: string[];
   therapeutic_class?: string;
   indication?: string;
+  category?: string;
+  mechanism?: string;
+  indications?: string[];
   contraindications?: string[];
   warnings?: string[];
   adverse_reactions?: string[];
+  sideEffects?: string[];
+  interactions?: any[];
+  dosing?: {
+    standard?: string;
+    renal?: string;
+    hepatic?: string;
+  };
+  monitoring?: string[];
+  fdaApproved?: boolean;
+  oncologyDrug?: boolean;
+  clinicalData?: any; // Store full enhanced clinical data from API
 }
 
 export interface DrugSearchResult {

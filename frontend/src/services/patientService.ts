@@ -294,6 +294,59 @@ export class PatientService {
     return age;
   }
 
+  // Fetch patients from API
+  public async fetchPatients(): Promise<Patient[]> {
+    try {
+      const API_BASE = import.meta.env.VITE_API_URL || '/api';
+      const response = await fetch(`${API_BASE}/patients`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch patients: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return (data.patients || []).map(this.transformApiPatient);
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+      this.generateSamplePatients();
+      return this.patients;
+    }
+  }
+
+  // Transform API patient data to internal format
+  private transformApiPatient(apiPatient: any): Patient {
+    return {
+      id: apiPatient.id,
+      mrn: apiPatient.demographics?.mrn || `MRN${Math.random().toString().slice(2, 8)}`,
+      firstName: apiPatient.demographics?.firstName || 'Unknown',
+      lastName: apiPatient.demographics?.lastName || 'Patient',
+      dateOfBirth: apiPatient.demographics?.dateOfBirth || '1980-01-01',
+      gender: apiPatient.demographics?.sex || apiPatient.demographics?.gender || 'unknown',
+      height: apiPatient.demographics?.heightCm || 170,
+      weight: apiPatient.demographics?.weightKg || 70,
+      diagnosis: apiPatient.conditions?.[0]?.name || 'Unknown diagnosis',
+      stage: apiPatient.conditions?.[0]?.stage || 'Unknown',
+      ecogPerformanceStatus: apiPatient.vitals?.[0]?.performanceStatus || 1,
+      renalFunction: {
+        creatinine: apiPatient.labValues?.find((lab: any) => lab.labType === 'creatinine')?.value || 1.0
+      },
+      hepaticFunction: {
+        alt: apiPatient.labValues?.find((lab: any) => lab.labType === 'alt')?.value || 25,
+        ast: apiPatient.labValues?.find((lab: any) => lab.labType === 'ast')?.value || 25,
+        bilirubin: apiPatient.labValues?.find((lab: any) => lab.labType === 'bilirubin')?.value || 1.0
+      },
+      allergies: (apiPatient.allergies || []).map((allergy: any) => allergy.allergen),
+      currentMedications: (apiPatient.medications || [])
+        .filter((med: any) => med.isActive)
+        .map((med: any) => med.drugName || med.drug),
+      genomicProfile: {
+        variants: apiPatient.genetics || [],
+        testDate: apiPatient.genetics?.[0]?.testDate || new Date().toISOString(),
+        testingLab: 'Unknown Lab'
+      }
+    };
+  }
+
   // Generate sample patients for demo
   public generateSamplePatients(): void {
     const samplePatients: Patient[] = [

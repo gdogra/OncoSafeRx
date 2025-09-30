@@ -162,11 +162,61 @@ export const useAdvancedSearch = () => {
     setState(prev => ({ ...prev, isLoading: true }));
 
     try {
-      // Simulate API call - replace with actual drug database search
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Mock search results based on query and filters
-      const mockResults: Drug[] = generateMockSearchResults(state.query, state.filters);
+      const API_BASE = import.meta.env.VITE_API_URL || '/api';
+      let results: Drug[] = [];
+
+      if (state.query.trim()) {
+        // Use enhanced drug search API
+        const response = await fetch(`${API_BASE}/drugs/enhanced/search?q=${encodeURIComponent(state.query)}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          results = data.results.map((drugData: any) => ({
+            id: drugData.drug.rxcui,
+            rxcui: drugData.drug.rxcui,
+            name: drugData.drug.name,
+            genericName: drugData.drug.generic_name || drugData.drug.name,
+            brandNames: drugData.drug.brand_names || [],
+            category: drugData.drug.category || drugData.therapeuticClass || 'Unknown',
+            mechanism: drugData.drug.mechanism || drugData.mechanismOfAction || '',
+            indications: drugData.drug.indications || [],
+            contraindications: drugData.drug.contraindications || [],
+            sideEffects: drugData.drug.sideEffects || drugData.drug.adverse_reactions || [],
+            interactions: drugData.interactions || [],
+            dosing: drugData.drug.dosing || {},
+            monitoring: drugData.drug.monitoring || [],
+            fdaApproved: drugData.drug.fdaApproved !== false,
+            oncologyDrug: drugData.drug.oncologyDrug === true,
+            clinicalData: drugData
+          }));
+        } else {
+          // Fallback to basic drug search if enhanced search fails
+          const basicResponse = await fetch(`${API_BASE}/drugs/search?q=${encodeURIComponent(state.query)}`);
+          if (basicResponse.ok) {
+            const basicData = await basicResponse.json();
+            results = basicData.results.map((drug: any) => ({
+              id: drug.rxcui,
+              rxcui: drug.rxcui,
+              name: drug.name,
+              genericName: drug.generic_name || drug.name,
+              brandNames: drug.brand_names || [],
+              category: drug.therapeutic_class || 'Unknown',
+              mechanism: '',
+              indications: [],
+              contraindications: [],
+              sideEffects: [],
+              interactions: [],
+              dosing: {},
+              monitoring: [],
+              fdaApproved: true,
+              oncologyDrug: false
+            }));
+          }
+        }
+      }
+
+      // Apply client-side filters to API results
+      results = applyFiltersToResults(results, state.filters);
       
       // Add to search history
       const searchHistoryItem: SearchHistory = {
@@ -174,7 +224,7 @@ export const useAdvancedSearch = () => {
         query: state.query,
         filters: { ...state.filters },
         timestamp: new Date(),
-        resultCount: mockResults.length
+        resultCount: results.length
       };
 
       // Add to recent searches if not empty
@@ -186,7 +236,7 @@ export const useAdvancedSearch = () => {
 
         setState(prev => ({
           ...prev,
-          results: mockResults,
+          results,
           isLoading: false,
           history: [searchHistoryItem, ...prev.history].slice(0, 50), // Keep last 50 searches
           recentSearches: updatedRecentSearches
@@ -194,7 +244,7 @@ export const useAdvancedSearch = () => {
       } else {
         setState(prev => ({
           ...prev,
-          results: mockResults,
+          results,
           isLoading: false
         }));
       }
@@ -301,82 +351,25 @@ export const useAdvancedSearch = () => {
   };
 };
 
-// Helper function to generate mock search results
-const generateMockSearchResults = (query: string, filters: SearchFilter): Drug[] => {
-  // This would be replaced with actual API calls to drug databases
-  const mockDrugs: Drug[] = [
-    {
-      id: '1',
-      name: 'Carboplatin',
-      genericName: 'carboplatin',
-      brandNames: ['Paraplatin'],
-      category: 'Alkylating Agent',
-      mechanism: 'DNA crosslinking agent',
-      indications: ['Ovarian cancer', 'Lung cancer', 'Bladder cancer'],
-      contraindications: ['Severe bone marrow depression', 'Significant bleeding'],
-      sideEffects: ['Myelosuppression', 'Nephrotoxicity', 'Neurotoxicity'],
-      interactions: [],
-      dosing: {
-        standard: 'AUC 5-6 mg/mL*min IV every 3-4 weeks',
-        renal: 'Adjust based on creatinine clearance',
-        hepatic: 'No adjustment needed for mild-moderate impairment'
-      },
-      monitoring: ['CBC', 'Renal function', 'Hearing tests'],
-      fdaApproved: true,
-      oncologyDrug: true
-    },
-    {
-      id: '2',
-      name: 'Pembrolizumab',
-      genericName: 'pembrolizumab',
-      brandNames: ['Keytruda'],
-      category: 'Immunotherapy',
-      mechanism: 'PD-1 checkpoint inhibitor',
-      indications: ['Melanoma', 'NSCLC', 'Head and neck cancer', 'Hodgkin lymphoma'],
-      contraindications: ['Active autoimmune disease'],
-      sideEffects: ['Immune-related adverse events', 'Fatigue', 'Rash'],
-      interactions: [],
-      dosing: {
-        standard: '200 mg IV every 3 weeks or 400 mg IV every 6 weeks',
-        renal: 'No adjustment needed',
-        hepatic: 'No adjustment needed for mild impairment'
-      },
-      monitoring: ['Liver function', 'Thyroid function', 'Pulmonary function'],
-      fdaApproved: true,
-      oncologyDrug: true
-    }
-  ];
-
-  // Filter based on query and filters
-  let filteredDrugs = mockDrugs;
-
-  if (query) {
-    const searchTerm = query.toLowerCase();
-    filteredDrugs = filteredDrugs.filter(drug =>
-      drug.name.toLowerCase().includes(searchTerm) ||
-      drug.genericName.toLowerCase().includes(searchTerm) ||
-      drug.brandNames.some(brand => brand.toLowerCase().includes(searchTerm)) ||
-      drug.category.toLowerCase().includes(searchTerm) ||
-      drug.mechanism.toLowerCase().includes(searchTerm) ||
-      drug.indications.some(indication => indication.toLowerCase().includes(searchTerm))
-    );
-  }
+// Helper function to apply filters to search results
+const applyFiltersToResults = (drugs: Drug[], filters: SearchFilter): Drug[] => {
+  let filteredDrugs = [...drugs];
 
   if (filters.category) {
     filteredDrugs = filteredDrugs.filter(drug =>
-      drug.category.toLowerCase().includes(filters.category.toLowerCase())
+      drug.category?.toLowerCase().includes(filters.category.toLowerCase())
     );
   }
 
   if (filters.mechanism) {
     filteredDrugs = filteredDrugs.filter(drug =>
-      drug.mechanism.toLowerCase().includes(filters.mechanism.toLowerCase())
+      drug.mechanism?.toLowerCase().includes(filters.mechanism!.toLowerCase())
     );
   }
 
   if (filters.indication) {
     filteredDrugs = filteredDrugs.filter(drug =>
-      drug.indications.some(indication =>
+      drug.indications?.some(indication =>
         indication.toLowerCase().includes(filters.indication!.toLowerCase())
       )
     );
@@ -388,6 +381,14 @@ const generateMockSearchResults = (query: string, filters: SearchFilter): Drug[]
 
   if (filters.fdaApproved !== undefined) {
     filteredDrugs = filteredDrugs.filter(drug => drug.fdaApproved === filters.fdaApproved);
+  }
+
+  // Additional filter logic for route of administration, orphan drugs, etc.
+  if (filters.routeOfAdministration) {
+    filteredDrugs = filteredDrugs.filter(drug =>
+      drug.dosing?.standard?.toLowerCase().includes(filters.routeOfAdministration!.toLowerCase()) ||
+      drug.name?.toLowerCase().includes(filters.routeOfAdministration!.toLowerCase())
+    );
   }
 
   return filteredDrugs;

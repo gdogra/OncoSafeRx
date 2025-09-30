@@ -258,51 +258,211 @@ export class GenomicAnalysisService {
     patient: Patient, 
     variants: GenomicVariant[]
   ): Promise<ClinicalTrial[]> {
-    // Simulate clinical trial matching
-    const mockTrials: ClinicalTrial[] = [
-      {
-        nctId: 'NCT04526899',
-        title: 'Study of Targeted Therapy in Advanced Solid Tumors',
-        phase: 'II',
-        status: 'recruiting',
+    try {
+      const API_BASE = import.meta.env.VITE_API_URL || '/api';
+      
+      // Extract biomarkers from variants
+      const biomarkers = variants.map(v => `${v.gene} ${v.mutation}`);
+      
+      // Search trials by cancer type and biomarkers
+      const searchParams = new URLSearchParams();
+      if (patient.diagnosis) searchParams.append('condition', patient.diagnosis);
+      biomarkers.forEach(biomarker => searchParams.append('biomarker', biomarker));
+      searchParams.append('status', 'recruiting');
+
+      const response = await fetch(`${API_BASE}/trials/search?${searchParams}`);
+      
+      if (!response.ok) {
+        console.warn('Failed to fetch clinical trials, using fallback data');
+        return this.getFallbackTrials(patient, variants);
+      }
+
+      const data = await response.json();
+      
+      // Transform API data to match ClinicalTrial interface
+      const apiTrials: ClinicalTrial[] = data.trials.map((trial: any) => ({
+        nctId: trial.nct_id,
+        title: trial.title,
+        phase: trial.phase,
+        status: trial.status,
         eligibilityCriteria: {
-          cancerTypes: ['Non-small cell lung cancer', 'Colorectal cancer'],
-          biomarkers: ['KRAS G12C', 'EGFR exon 19 deletion'],
-          priorTreatments: ['Platinum-based chemotherapy'],
-          ecogStatus: [0, 1],
-          ageRange: { min: 18, max: 75 }
+          cancerTypes: [trial.condition],
+          biomarkers: trial.biomarkers || [],
+          priorTreatments: trial.eligibility_criteria?.prior_therapies || [],
+          ecogStatus: trial.eligibility_criteria?.ecog_status || [0, 1],
+          ageRange: trial.eligibility_criteria?.age_range || { min: 18, max: null }
         },
-        primaryEndpoint: 'Objective response rate',
-        secondaryEndpoints: ['Progression-free survival', 'Overall survival'],
-        estimatedEnrollment: 120,
-        locations: [
-          {
-            facility: 'Memorial Sloan Kettering Cancer Center',
-            city: 'New York',
-            state: 'NY',
+        primaryEndpoint: trial.primary_endpoint,
+        secondaryEndpoints: trial.secondary_endpoints || [],
+        estimatedEnrollment: trial.estimated_enrollment,
+        locations: (trial.locations || []).map((loc: any) => ({
+          name: loc.name,
+          city: loc.city,
+          state: loc.state,
+          country: 'United States',
+          distance: null
+        })),
+        contact: {
+          name: 'Clinical Trials Office',
+          phone: trial.contact?.phone || '',
+          email: trial.contact?.email || ''
+        },
+        matchReasons: this.generateMatchReasons(patient, variants, trial)
+      }));
+
+      // Filter and return matching trials
+      return this.filterTrialsByPatientCriteria(apiTrials, patient);
+    } catch (error) {
+      console.error('Error fetching clinical trials:', error);
+      return await this.getFallbackTrials(patient, variants);
+    }
+  }
+
+  private static async getFallbackTrials(patient: Patient, variants: GenomicVariant[]): Promise<ClinicalTrial[]> {
+    try {
+      // Use real clinical trials API
+      const genomicData = {
+        mutations: variants.map(v => ({ gene: v.gene, variant: v.variant })),
+        biomarkers: variants.filter(v => v.clinicalSignificance === 'pathogenic').map(v => ({ 
+          gene: v.gene, 
+          name: `${v.gene} ${v.variant}` 
+        })),
+        tumorType: patient.diagnosis
+      };
+
+      const patientProfile = {
+        condition: patient.diagnosis,
+        age: this.calculateAge(patient.dateOfBirth),
+        gender: patient.gender
+      };
+
+      const response = await fetch('/api/clinical-trials/search-by-genomics', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          genomicData,
+          patientProfile
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch clinical trials');
+      }
+
+      const data = await response.json();
+      
+      // Transform API response to match expected format
+      return data.data.studies.map((trial: any) => ({
+        nctId: trial.nctId,
+        title: trial.title,
+        phase: trial.phase,
+        status: trial.status,
+        eligibilityCriteria: {
+          cancerTypes: [trial.condition],
+          biomarkers: variants.map(v => `${v.gene} ${v.variant}`),
+          priorTreatments: [],
+          ecogStatus: [0, 1, 2],
+          ageRange: { 
+            min: parseInt(trial.ageRange?.split('-')?.[0]) || 18, 
+            max: parseInt(trial.ageRange?.split('-')?.[1]) || 85 
+          }
+        },
+        primaryEndpoint: 'Clinical response',
+        secondaryEndpoints: ['Progression-free survival', 'Overall survival', 'Safety'],
+        estimatedEnrollment: trial.estimatedEnrollment || 100,
+        locations: trial.locations.map((loc: string) => {
+          const [facility, location] = loc.split(', ');
+          const [city, state] = (location || '').split(' ');
+          return {
+            facility: facility || 'Clinical Research Center',
+            city: city || 'Multiple',
+            state: state || '',
             country: 'USA',
             status: 'recruiting',
-            contactInfo: 'clinicaltrials@mskcc.org'
-          }
+            contactInfo: 'clinicaltrials@institution.org'
+          };
+        }),
+        interventions: [{
+          type: 'drug',
+          name: trial.intervention || 'Targeted therapy',
+          description: 'Precision medicine approach based on genomic profile',
+          armLabel: 'Treatment Arm'
+        }],
+        matchScore: trial.eligibilityScore,
+        matchReasons: [
+          ...(trial.eligibilityScore >= 90 ? ['High genomic match'] : []),
+          ...(trial.eligibilityScore >= 70 ? ['Cancer type match'] : []),
+          'Meets basic eligibility criteria'
         ],
-        interventions: [
-          {
-            type: 'drug',
-            name: 'AMG 510',
-            description: 'KRAS G12C inhibitor',
-            armLabel: 'Treatment Arm A'
-          }
-        ],
-        matchScore: 85,
-        matchReasons: ['KRAS G12C mutation detected', 'Cancer type match']
-      }
-    ];
+        url: trial.url
+      }));
+
+    } catch (error) {
+      console.error('Error fetching real clinical trials:', error);
+      
+      // Fallback to minimal mock data only if API fails
+      return [{
+        nctId: 'NCT00000000',
+        title: 'Clinical trials data temporarily unavailable',
+        phase: 'N/A',
+        status: 'unavailable',
+        eligibilityCriteria: {
+          cancerTypes: [patient.diagnosis],
+          biomarkers: [],
+          priorTreatments: [],
+          ecogStatus: [0, 1, 2],
+          ageRange: { min: 18, max: 85 }
+        },
+        primaryEndpoint: 'Please check ClinicalTrials.gov directly',
+        secondaryEndpoints: [],
+        estimatedEnrollment: 0,
+        locations: [],
+        interventions: [],
+        matchScore: 0,
+        matchReasons: ['Data service temporarily unavailable'],
+        url: 'https://clinicaltrials.gov'
+      }];
+    }
+  }
+        patient.ecogPerformanceStatus || 1
+      );
+      
+      return matchesAge && matchesCancer && matchesECOG;
+    });
+  }
+
+  private static generateMatchReasons(patient: Patient, variants: GenomicVariant[], trial: any): string[] {
+    const reasons: string[] = [];
     
-    // Filter trials based on patient criteria
-    return mockTrials.filter(trial => {
+    // Check biomarker matches
+    const patientBiomarkers = variants.map(v => `${v.gene} ${v.mutation}`);
+    const trialBiomarkers = trial.biomarkers || [];
+    
+    patientBiomarkers.forEach(biomarker => {
+      if (trialBiomarkers.some((tb: string) => tb.includes(biomarker) || biomarker.includes(tb))) {
+        reasons.push(`${biomarker} mutation detected`);
+      }
+    });
+    
+    // Check cancer type match
+    if (patient.diagnosis && trial.condition) {
+      const patientDiagnosis = patient.diagnosis.toLowerCase();
+      const trialCondition = trial.condition.toLowerCase();
+      if (patientDiagnosis.includes(trialCondition) || trialCondition.includes(patientDiagnosis)) {
+        reasons.push('Cancer type match');
+      }
+    }
+    
+    return reasons.length > 0 ? reasons : ['General eligibility criteria met'];
+  }
+
+  private static filterTrialsByPatientCriteria(trials: ClinicalTrial[], patient: Patient): ClinicalTrial[] {
+    return trials.filter(trial => {
       const age = this.calculateAge(patient.dateOfBirth);
       const matchesAge = age >= trial.eligibilityCriteria.ageRange.min && 
-                        age <= trial.eligibilityCriteria.ageRange.max;
+                        (trial.eligibilityCriteria.ageRange.max === null || age <= trial.eligibilityCriteria.ageRange.max);
       const matchesCancer = trial.eligibilityCriteria.cancerTypes.some(type =>
         patient.diagnosis.toLowerCase().includes(type.toLowerCase())
       );

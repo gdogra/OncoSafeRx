@@ -18,7 +18,8 @@ import {
   Shield,
   Info,
   CheckCircle,
-  XCircle
+  XCircle,
+  BarChart3
 } from 'lucide-react';
 
 interface EnhancedDrugInfoProps {
@@ -443,6 +444,254 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {activeTab === 'clinical' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium text-gray-900">Clinical Data & Evidence</h3>
+              <div className="text-sm text-gray-500">
+                Comprehensive clinical information and evidence-based insights
+              </div>
+            </div>
+
+            {/* Display clinical data from the enhanced API */}
+            {(drug.clinicalInsights || drug.realWorldEvidence || drug.riskProfile || drug.monitoringRequirements || drug.clinicalDecisionSupport || drug.costEffectiveness) && (
+              <div className="space-y-6">
+                {/* Clinical Insights */}
+                {drug.clinicalInsights && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                    <h4 className="font-semibold text-blue-900 mb-4 flex items-center">
+                      <Activity className="w-5 h-5 mr-2" />
+                      Clinical Insights
+                    </h4>
+                    
+                    {drug.clinicalInsights.mechanismOfAction && (
+                      <div className="mb-4">
+                        <p className="text-sm font-medium text-blue-800 mb-2">Mechanism of Action:</p>
+                        <div className="bg-white p-3 rounded border">
+                          <p className="text-sm text-gray-700">{drug.clinicalInsights.mechanismOfAction}</p>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {drug.clinicalInsights.clinicalEfficacy && (
+                      <div className="mb-4">
+                        <p className="text-sm font-medium text-blue-800 mb-2">Clinical Efficacy:</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {drug.clinicalInsights.clinicalEfficacy.responseRate && (
+                            <div className="bg-white p-3 rounded border">
+                              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Response Rate</p>
+                              <p className="text-lg font-semibold text-gray-900">{drug.clinicalInsights.clinicalEfficacy.responseRate}</p>
+                            </div>
+                          )}
+                          {drug.clinicalInsights.clinicalEfficacy.medianPFS && (
+                            <div className="bg-white p-3 rounded border">
+                              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Median PFS</p>
+                              <p className="text-lg font-semibold text-gray-900">{drug.clinicalInsights.clinicalEfficacy.medianPFS}</p>
+                            </div>
+                          )}
+                          {drug.clinicalInsights.clinicalEfficacy.medianOS && (
+                            <div className="bg-white p-3 rounded border">
+                              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Median OS</p>
+                              <p className="text-lg font-semibold text-gray-900">{drug.clinicalInsights.clinicalEfficacy.medianOS}</p>
+                            </div>
+                          )}
+                          {drug.clinicalInsights.clinicalEfficacy.evidenceLevel && (
+                            <div className="bg-white p-3 rounded border">
+                              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Evidence Level</p>
+                              <p className="text-lg font-semibold text-gray-900">{drug.clinicalInsights.clinicalEfficacy.evidenceLevel}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {drug.clinicalInsights.patientSubgroups && (
+                      <div>
+                        <p className="text-sm font-medium text-blue-800 mb-2">Patient Subgroups:</p>
+                        <div className="space-y-2">
+                          {drug.clinicalInsights.patientSubgroups.map((subgroup: any, index: number) => (
+                            <div key={index} className="bg-white p-3 rounded border">
+                              <p className="text-sm font-medium text-gray-900">{subgroup.criteria}</p>
+                              <p className="text-xs text-gray-600">{subgroup.efficacy}</p>
+                              <p className="text-xs text-blue-600 font-medium">{subgroup.recommendation}</p>
+                            </div>
+                          ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {drug.clinicalData.realWorldInsights.patientReported && (
+                      <div>
+                        <p className="text-sm font-medium text-blue-800 mb-2">Patient-Reported Outcomes:</p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="bg-white p-3 rounded border">
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Satisfaction Score</p>
+                            <p className="text-lg font-semibold text-gray-900">{drug.clinicalData.realWorldInsights.patientReported.satisfactionScore}</p>
+                          </div>
+                          <div className="bg-white p-3 rounded border">
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Adherence Rate</p>
+                            <p className="text-lg font-semibold text-gray-900">{drug.clinicalData.realWorldInsights.patientReported.adherenceRate}</p>
+                          </div>
+                          <div className="bg-white p-3 rounded border">
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">QoL Score</p>
+                            <p className="text-lg font-semibold text-gray-900">{drug.clinicalData.realWorldInsights.patientReported.qualityOfLifeScore}</p>
+                          </div>
+                        </div>
+                        {drug.clinicalData.realWorldInsights.patientReported.commonConcerns && (
+                          <div className="mt-3 bg-white p-3 rounded border">
+                            <p className="text-sm font-medium text-gray-700 mb-2">Common Patient Concerns:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {drug.clinicalData.realWorldInsights.patientReported.commonConcerns.map((concern: string, index: number) => (
+                                <span key={index} className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">{concern}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Clinical Decision Support */}
+                {drug.clinicalData.clinicalDecisionSupport && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                    <h4 className="font-semibold text-green-900 mb-4 flex items-center">
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      Clinical Decision Support
+                    </h4>
+
+                    {drug.clinicalData.clinicalDecisionSupport.doseGuidance && (
+                      <div className="mb-4">
+                        <p className="text-sm font-medium text-green-800 mb-2">Dosing Guidance:</p>
+                        <div className="bg-white p-3 rounded border">
+                          <p className="font-medium">Recommended Dose: {drug.clinicalData.clinicalDecisionSupport.doseGuidance.recommendedDose}</p>
+                          {drug.clinicalData.clinicalDecisionSupport.doseGuidance.specialPopulations && (
+                            <div className="mt-2">
+                              <p className="text-sm font-medium text-gray-600">Special Populations:</p>
+                              <ul className="list-disc list-inside text-sm text-gray-600">
+                                {drug.clinicalData.clinicalDecisionSupport.doseGuidance.specialPopulations.map((pop: string, index: number) => (
+                                  <li key={index}>{pop}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {drug.clinicalData.clinicalDecisionSupport.monitoringPlan && (
+                      <div className="mb-4">
+                        <p className="text-sm font-medium text-green-800 mb-2">Monitoring Plan:</p>
+                        <div className="space-y-2">
+                          {drug.clinicalData.clinicalDecisionSupport.monitoringPlan.baseline && (
+                            <div className="bg-white p-3 rounded border">
+                              <p className="font-medium text-gray-900">Baseline Monitoring:</p>
+                              <ul className="list-disc list-inside text-sm text-gray-600">
+                                {drug.clinicalData.clinicalDecisionSupport.monitoringPlan.baseline.map((item: string, index: number) => (
+                                  <li key={index}>{item}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          {drug.clinicalData.clinicalDecisionSupport.monitoringPlan.ongoing && (
+                            <div className="bg-white p-3 rounded border">
+                              <p className="font-medium text-gray-900">Ongoing Monitoring:</p>
+                              <ul className="list-disc list-inside text-sm text-gray-600">
+                                {drug.clinicalData.clinicalDecisionSupport.monitoringPlan.ongoing.map((item: string, index: number) => (
+                                  <li key={index}>{item}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {drug.clinicalData.clinicalDecisionSupport.contraindications && (
+                      <div>
+                        <p className="text-sm font-medium text-green-800 mb-2">Contraindications:</p>
+                        <div className="bg-white p-3 rounded border">
+                          <ul className="list-disc list-inside text-sm text-gray-600">
+                            {drug.clinicalData.clinicalDecisionSupport.contraindications.map((item: string, index: number) => (
+                              <li key={index}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Real World Evidence */}
+                {drug.clinicalData.realWorldEvidence && (
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+                    <h4 className="font-semibold text-purple-900 mb-4 flex items-center">
+                      <BarChart3 className="w-5 h-5 mr-2" />
+                      Real-World Evidence
+                    </h4>
+
+                    {drug.clinicalData.realWorldEvidence.costEffectiveness && (
+                      <div className="mb-4">
+                        <p className="text-sm font-medium text-purple-800 mb-2">Cost Effectiveness:</p>
+                        <div className="bg-white p-3 rounded border">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Annual Cost</p>
+                              <p className="text-lg font-semibold text-gray-900">
+                                ${drug.clinicalData.realWorldEvidence.costEffectiveness.annualCost?.toLocaleString() || 'N/A'}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Cost per QALY</p>
+                              <p className="text-lg font-semibold text-gray-900">
+                                ${drug.clinicalData.realWorldEvidence.costEffectiveness.costPerQALY?.toLocaleString() || 'N/A'}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Tier Status</p>
+                              <p className="text-lg font-semibold text-gray-900">
+                                {drug.clinicalData.realWorldEvidence.costEffectiveness.tierStatus || 'N/A'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {drug.clinicalData.realWorldEvidence.outcomes && (
+                      <div>
+                        <p className="text-sm font-medium text-purple-800 mb-2">Real-World Outcomes:</p>
+                        <div className="space-y-2">
+                          {Object.entries(drug.clinicalData.realWorldEvidence.outcomes).map(([key, value]: [string, any]) => (
+                            <div key={key} className="bg-white p-3 rounded border">
+                              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                {key.replace(/([A-Z])/g, ' $1').trim()}
+                              </p>
+                              <p className="text-sm text-gray-700">{value}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Fallback message if no clinical data available */}
+            {!(drug.clinicalInsights || drug.realWorldEvidence || drug.riskProfile || drug.monitoringRequirements || drug.clinicalDecisionSupport || drug.costEffectiveness) && (
+              <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Clinical Data Available</h3>
+                <p className="text-gray-600">
+                  Enhanced clinical data is not available for this medication. Please refer to the Overview tab for basic information.
+                </p>
+              </div>
+            )}
           </div>
         )}
 

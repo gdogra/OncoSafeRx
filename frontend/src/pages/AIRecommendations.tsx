@@ -41,7 +41,8 @@ interface SystemStatus {
 }
 
 const AIRecommendations: React.FC = () => {
-  const { currentPatient } = usePatient();
+  const { state } = usePatient();
+  const { currentPatient } = state;
   const [activeTab, setActiveTab] = useState<'recommendations' | 'interoperability' | 'system'>('recommendations');
   const [systemStatus] = useState<SystemStatus>({
     ai: {
@@ -216,29 +217,68 @@ const AIRecommendations: React.FC = () => {
           <div className="space-y-6">
             {/* Patient Context */}
             {currentPatient ? (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex items-center space-x-3">
-                  <Users className="w-5 h-5 text-blue-600" />
-                  <div>
-                    <h3 className="font-medium text-blue-900">
-                      Generating recommendations for: {currentPatient.demographics.firstName} {currentPatient.demographics.lastName}
-                    </h3>
-                    <p className="text-sm text-blue-700">
-                      {currentPatient.demographics.age} year old {currentPatient.demographics.gender}, 
-                      {currentPatient.conditions.length > 0 && ` diagnosed with ${currentPatient.conditions[0].name}`}
-                    </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start space-x-3">
+                    <Users className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="font-medium text-blue-900 mb-1">
+                        AI Recommendations for: {currentPatient.demographics.firstName} {currentPatient.demographics.lastName}
+                      </h3>
+                      <div className="text-sm text-blue-700 space-y-1">
+                        <p>
+                          {currentPatient.demographics.dateOfBirth ? 
+                            new Date().getFullYear() - new Date(currentPatient.demographics.dateOfBirth).getFullYear() : 
+                            'Unknown age'
+                          } year old {currentPatient.demographics.sex}
+                          {currentPatient.demographics.mrn && ` • MRN: ${currentPatient.demographics.mrn}`}
+                        </p>
+                        {currentPatient.conditions && currentPatient.conditions.length > 0 && (
+                          <p>
+                            Primary condition: {currentPatient.conditions[0].name}
+                            {currentPatient.conditions.length > 1 && ` (+${currentPatient.conditions.length - 1} more)`}
+                          </p>
+                        )}
+                        {currentPatient.medications && currentPatient.medications.length > 0 && (
+                          <p>Current medications: {currentPatient.medications.length} active</p>
+                        )}
+                        {currentPatient.allergies && currentPatient.allergies.length > 0 && (
+                          <p className="text-orange-700 font-medium">⚠️ {currentPatient.allergies.length} known allergies</p>
+                        )}
+                      </div>
+                    </div>
                   </div>
+                  <a
+                    href="/patients"
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center"
+                  >
+                    Change Patient
+                  </a>
                 </div>
               </div>
             ) : (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <div className="flex items-center space-x-3">
-                  <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                  <div>
-                    <h3 className="font-medium text-yellow-900">No Patient Selected</h3>
-                    <p className="text-sm text-yellow-700">
-                      Select a patient from the Patient Dashboard to generate personalized AI recommendations.
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                <div className="flex items-start space-x-3">
+                  <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h3 className="font-medium text-yellow-900 mb-2">No Patient Selected</h3>
+                    <p className="text-sm text-yellow-700 mb-4">
+                      To generate personalized AI recommendations, you need to select a patient first. 
+                      The AI system analyzes patient-specific data including demographics, conditions, medications, 
+                      allergies, and lab values to provide tailored clinical decision support.
                     </p>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <a
+                        href="/patients"
+                        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        <Users className="w-4 h-4 mr-2" />
+                        Go to Patient Management
+                      </a>
+                      <div className="text-xs text-yellow-600 pt-2 sm:pt-3">
+                        Select a patient from the Patient Management page, then return here for AI recommendations
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

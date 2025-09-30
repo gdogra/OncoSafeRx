@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 
 type Protocol = {
+  id?: string;
   name: string;
   cancerType: string;
   stage: string;
@@ -36,6 +37,24 @@ type Protocol = {
   responseRate: string;
   source: string;
   indication: string;
+  efficacyData?: {
+    overallSurvival?: string;
+    progressionFreeSurvival?: string;
+    responseRate?: string;
+    diseaseControlRate?: string;
+    diseaseFreeeSurvival?: string;
+    pathologicalCompleteResponse?: string;
+    recurrenceReduction?: string;
+    completeResponse?: string;
+    overallResponse?: string;
+  };
+  toxicityProfile?: {
+    grade3_4?: string;
+    commonAEs?: string[];
+    seriousAEs?: string[];
+  };
+  contraindications?: string[];
+  monitoring?: string[];
 };
 
 type Regimen = {
@@ -47,6 +66,7 @@ type Regimen = {
   pretreatment?: string[];
   monitoring?: string[];
   notes?: string[];
+  adjustments?: { criterion: string; action: string }[];
 };
 
 const ProtocolsAndRegimens: React.FC = () => {
@@ -106,94 +126,84 @@ const ProtocolsAndRegimens: React.FC = () => {
     }
   }, [successMessage]);
 
-  // Mock data for protocols
-  const protocols: Protocol[] = [
-    {
-      name: 'FOLFOX',
-      cancerType: 'Colorectal Cancer',
-      stage: 'Advanced',
-      drugs: ['Fluorouracil', 'Oxaliplatin', 'Leucovorin'],
-      duration: '12 weeks',
-      responseRate: '45%',
-      source: 'NCCN',
-      indication: 'First-line treatment for metastatic colorectal cancer'
-    },
-    {
-      name: 'FOLFIRI',
-      cancerType: 'Colorectal Cancer', 
-      stage: 'Advanced',
-      drugs: ['Fluorouracil', 'Irinotecan', 'Leucovorin'],
-      duration: '12 weeks',
-      responseRate: '35%',
-      source: 'NCCN',
-      indication: 'Second-line treatment for metastatic colorectal cancer'
-    },
-    {
-      name: 'AC-T',
-      cancerType: 'Breast Cancer',
-      stage: 'Early Stage',
-      drugs: ['Adriamycin', 'Cyclophosphamide', 'Taxol'],
-      duration: '16 weeks',
-      responseRate: '70%',
-      source: 'NCCN',
-      indication: 'Adjuvant treatment for early-stage breast cancer'
-    },
-    {
-      name: 'TCH',
-      cancerType: 'Breast Cancer',
-      stage: 'HER2+',
-      drugs: ['Docetaxel', 'Carboplatin', 'Trastuzumab'],
-      duration: '18 weeks',
-      responseRate: '85%',
-      source: 'NCCN',
-      indication: 'Neoadjuvant treatment for HER2-positive breast cancer'
-    },
-    {
-      name: 'CHOP',
-      cancerType: 'Lymphoma',
-      stage: 'All stages',
-      drugs: ['Cyclophosphamide', 'Doxorubicin', 'Vincristine', 'Prednisone'],
-      duration: '18 weeks',
-      responseRate: '60%',
-      source: 'NCCN',
-      indication: 'Standard treatment for diffuse large B-cell lymphoma'
-    }
-  ];
+  // Protocols state
+  const [protocols, setProtocols] = useState<Protocol[]>([]);
+  const [protocolsLoading, setProtocolsLoading] = useState(true);
+  const [protocolsError, setProtocolsError] = useState<string | null>(null);
 
-  // Mock data for regimens
+  // Load protocols from API
   useEffect(() => {
-    const mockRegimens: Regimen[] = [
-      {
-        id: 'folfox6',
-        name: 'FOLFOX6',
-        indication: 'Colorectal Cancer',
-        cycleLengthDays: 14,
-        components: [
-          { name: 'Oxaliplatin', dose: '85 mg/m²' },
-          { name: 'Leucovorin', dose: '400 mg/m²' },
-          { name: 'Fluorouracil', dose: '400 mg/m² bolus + 2400 mg/m² over 46h' }
-        ],
-        pretreatment: ['CBC with differential', 'Comprehensive metabolic panel', 'Liver function tests'],
-        monitoring: ['CBC weekly', 'Neuropathy assessment', 'Performance status'],
-        notes: ['Hold for ANC < 1500', 'Reduce dose for grade 2+ neuropathy']
-      },
-      {
-        id: 'ac',
-        name: 'AC (Adriamycin/Cyclophosphamide)',
-        indication: 'Breast Cancer',
-        cycleLengthDays: 21,
-        components: [
-          { name: 'Doxorubicin', dose: '60 mg/m²' },
-          { name: 'Cyclophosphamide', dose: '600 mg/m²' }
-        ],
-        pretreatment: ['ECHO or MUGA', 'CBC with differential', 'Comprehensive metabolic panel'],
-        monitoring: ['CBC day 10-14', 'LVEF every 3 cycles', 'Cumulative doxorubicin dose'],
-        notes: ['Maximum lifetime doxorubicin dose 450-550 mg/m²', 'Hold for LVEF drop > 10%']
+    const loadProtocols = async () => {
+      try {
+        setProtocolsLoading(true);
+        setProtocolsError(null);
+        
+        const API_BASE = import.meta.env.VITE_API_URL || '/api';
+        const response = await fetch(`${API_BASE}/protocols`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to load protocols: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        setProtocols(data.protocols || []);
+      } catch (err) {
+        console.error('Failed to load protocols:', err);
+        setProtocolsError('Failed to load protocols. Please try again.');
+        setProtocols([]);
+      } finally {
+        setProtocolsLoading(false);
       }
-    ];
+    };
     
-    setList(mockRegimens);
-    setLoading(false);
+    loadProtocols();
+  }, []);
+
+  // Load regimens from API
+  useEffect(() => {
+    const loadRegimens = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const API_BASE = import.meta.env.VITE_API_URL || '/api';
+        const response = await fetch(`${API_BASE}/regimens`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to load regimens: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Load detailed data for each regimen
+        const detailedRegimens = await Promise.all(
+          data.regimens.map(async (regimen: { id: string }) => {
+            try {
+              const detailResponse = await fetch(`${API_BASE}/regimens/${regimen.id}`);
+              if (detailResponse.ok) {
+                return await detailResponse.json();
+              }
+              return regimen; // Fallback to basic data if detail fetch fails
+            } catch (err) {
+              console.warn(`Failed to load details for regimen ${regimen.id}:`, err);
+              return regimen;
+            }
+          })
+        );
+        
+        setList(detailedRegimens);
+      } catch (err) {
+        console.error('Failed to load regimens:', err);
+        setError('Failed to load regimens. Please try again.');
+        
+        // Fallback to empty list
+        setList([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadRegimens();
   }, []);
 
   const handleProtocolClick = (protocol: Protocol) => {
@@ -348,9 +358,33 @@ const ProtocolsAndRegimens: React.FC = () => {
             </div>
           </Card>
 
-          {/* Protocols Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredProtocols.map((protocol, index) => (
+          {/* Protocols Content */}
+          {protocolsLoading ? (
+            <Card>
+              <div className="p-8 text-center">
+                <LoadingSpinner />
+                <p className="text-gray-600 mt-4">Loading protocols...</p>
+              </div>
+            </Card>
+          ) : protocolsError ? (
+            <Card>
+              <div className="p-8 text-center">
+                <AlertTriangle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Protocols</h3>
+                <p className="text-gray-600 mb-4">{protocolsError}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Retry
+                </button>
+              </div>
+            </Card>
+          ) : (
+            <>
+              {/* Protocols Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProtocols.map((protocol, index) => (
               <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="p-6" onClick={() => handleProtocolClick(protocol)}>
                   <div className="flex items-start justify-between mb-4">
@@ -397,19 +431,21 @@ const ProtocolsAndRegimens: React.FC = () => {
                   </div>
                 </div>
               </Card>
-            ))}
-          </div>
-
-          {filteredProtocols.length === 0 && (
-            <Card>
-              <div className="p-8 text-center">
-                <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No Protocols Found</h3>
-                <p className="text-gray-600">
-                  Try adjusting your filters to find relevant treatment protocols.
-                </p>
+                ))}
               </div>
-            </Card>
+
+              {filteredProtocols.length === 0 && (
+                <Card>
+                  <div className="p-8 text-center">
+                    <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Protocols Found</h3>
+                    <p className="text-gray-600">
+                      Try adjusting your filters to find relevant treatment protocols.
+                    </p>
+                  </div>
+                </Card>
+              )}
+            </>
           )}
         </div>
       )}
@@ -584,6 +620,24 @@ const ProtocolsAndRegimens: React.FC = () => {
                               </li>
                             ))}
                           </ul>
+                        </div>
+                      )}
+
+                      {selected.adjustments && (
+                        <div>
+                          <h4 className="font-medium text-gray-900 mb-3">Dose Adjustments</h4>
+                          <div className="space-y-2">
+                            {selected.adjustments.map((adjustment, index) => (
+                              <div key={index} className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                <p className="text-sm font-medium text-gray-900 mb-1">
+                                  {adjustment.criterion}
+                                </p>
+                                <p className="text-sm text-gray-700">
+                                  <strong>Action:</strong> {adjustment.action}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>

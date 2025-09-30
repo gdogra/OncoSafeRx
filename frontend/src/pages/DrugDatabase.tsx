@@ -3,6 +3,7 @@ import { Drug } from '../types';
 import SearchWithFavorites from '../components/Search/SearchWithFavorites';
 import EnhancedDrugInfo from '../components/DrugInfo/EnhancedDrugInfo';
 import DrugComparisonTool from '../components/DrugInfo/DrugComparisonTool';
+import { apiBaseUrl } from '../utils/env';
 import { 
   Database, 
   Filter, 
@@ -36,97 +37,14 @@ const DrugDatabase: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [categoryStats, setCategoryStats] = useState<DrugCategoryStats[]>([]);
   const [comparisonDrugs, setComparisonDrugs] = useState<Drug[]>([]);
+  const [drugDatabase, setDrugDatabase] = useState<Drug[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock drug database
-  const [drugDatabase] = useState<Drug[]>([
-    {
-      id: '1',
-      rxcui: '1001',
-      name: 'Carboplatin',
-      genericName: 'carboplatin',
-      brandNames: ['Paraplatin'],
-      category: 'Alkylating Agent',
-      mechanism: 'DNA crosslinking agent that forms intrastrand and interstrand DNA crosslinks',
-      indications: ['Ovarian cancer', 'Lung cancer', 'Bladder cancer', 'Head and neck cancer'],
-      contraindications: ['Severe bone marrow depression', 'Significant bleeding', 'Severe renal impairment'],
-      sideEffects: ['Myelosuppression', 'Nephrotoxicity', 'Neurotoxicity', 'Ototoxicity', 'Nausea', 'Vomiting'],
-      interactions: [],
-      dosing: {
-        standard: 'AUC 5-6 mg/mL*min IV every 3-4 weeks',
-        renal: 'Adjust based on creatinine clearance using Calvert formula',
-        hepatic: 'No adjustment needed for mild-moderate impairment'
-      },
-      monitoring: ['CBC with differential', 'Comprehensive metabolic panel', 'Renal function', 'Hearing tests'],
-      fdaApproved: true,
-      oncologyDrug: true
-    },
-    {
-      id: '2',
-      rxcui: '1002',
-      name: 'Pembrolizumab',
-      genericName: 'pembrolizumab',
-      brandNames: ['Keytruda'],
-      category: 'Immunotherapy',
-      mechanism: 'Monoclonal antibody that blocks PD-1 receptor on T-cells, enhancing immune response',
-      indications: ['Melanoma', 'NSCLC', 'Head and neck cancer', 'Hodgkin lymphoma', 'Urothelial carcinoma'],
-      contraindications: ['Active autoimmune disease requiring systemic therapy'],
-      sideEffects: ['Immune-related adverse events', 'Fatigue', 'Rash', 'Pruritus', 'Diarrhea', 'Decreased appetite'],
-      interactions: [],
-      dosing: {
-        standard: '200 mg IV every 3 weeks or 400 mg IV every 6 weeks',
-        renal: 'No adjustment needed',
-        hepatic: 'No adjustment needed for mild impairment'
-      },
-      monitoring: ['Liver function tests', 'Thyroid function', 'Pulmonary function', 'Skin examination'],
-      fdaApproved: true,
-      oncologyDrug: true
-    },
-    {
-      id: '3',
-      rxcui: '1003',
-      name: 'Imatinib',
-      genericName: 'imatinib',
-      brandNames: ['Gleevec', 'Glivec'],
-      category: 'Targeted Therapy',
-      mechanism: 'Tyrosine kinase inhibitor targeting BCR-ABL, KIT, and PDGFR',
-      indications: ['Chronic myeloid leukemia', 'Acute lymphoblastic leukemia', 'GIST'],
-      contraindications: ['Hypersensitivity to imatinib or excipients'],
-      sideEffects: ['Edema', 'Nausea', 'Muscle cramps', 'Rash', 'Diarrhea', 'Fatigue'],
-      interactions: [],
-      dosing: {
-        standard: '400-800 mg daily orally with food',
-        renal: 'Reduce dose for severe impairment',
-        hepatic: 'Reduce dose for moderate to severe impairment'
-      },
-      monitoring: ['CBC', 'Liver function', 'Weight monitoring', 'Echocardiogram'],
-      fdaApproved: true,
-      oncologyDrug: true
-    },
-    {
-      id: '4',
-      rxcui: '1004',
-      name: 'Doxorubicin',
-      genericName: 'doxorubicin',
-      brandNames: ['Adriamycin'],
-      category: 'Anthracycline',
-      mechanism: 'DNA intercalation and topoisomerase II inhibition causing DNA strand breaks',
-      indications: ['Breast cancer', 'Lymphoma', 'Sarcoma', 'Acute leukemia'],
-      contraindications: ['Severe cardiac dysfunction', 'Recent myocardial infarction', 'Severe hepatic impairment'],
-      sideEffects: ['Cardiotoxicity', 'Myelosuppression', 'Mucositis', 'Alopecia', 'Nausea', 'Vomiting'],
-      interactions: [],
-      dosing: {
-        standard: '60-75 mg/m² IV every 3 weeks',
-        renal: 'No adjustment needed',
-        hepatic: 'Reduce dose based on bilirubin level'
-      },
-      monitoring: ['Echocardiogram', 'CBC', 'Liver function', 'Mucositis assessment'],
-      fdaApproved: true,
-      oncologyDrug: true
-    }
-  ]);
+  const API_BASE = apiBaseUrl();
 
   useEffect(() => {
     loadCategoryStats();
+    loadFeaturedDrugs();
     // Pick up selected drug passed from AI-Enhanced view
     try {
       const raw = localStorage.getItem('osrx_selected_drug');
@@ -150,6 +68,61 @@ const DrugDatabase: React.FC = () => {
     } catch {}
   }, []);
 
+  const loadFeaturedDrugs = async () => {
+    try {
+      setLoading(true);
+      // Load featured drugs with comprehensive clinical data
+      const featuredRxcuis = [
+        '1049502', // Oxycodone ER
+        '861467',  // Pembrolizumab
+        '282464',  // Imatinib
+        '40048',   // Doxorubicin
+        '41126',   // Carboplatin
+        '70618'    // Paclitaxel
+      ];
+
+      const drugsPromises = featuredRxcuis.map(async (rxcui) => {
+        try {
+          const response = await fetch(`${API_BASE}/drugs/enhanced/${rxcui}`);
+          if (!response.ok) throw new Error('Failed to fetch');
+          const data = await response.json();
+          return {
+            rxcui: data.drug.rxcui,
+            name: data.drug.name,
+            genericName: data.drug.genericName || data.drug.name,
+            brandNames: data.drug.brandNames || [],
+            category: data.drug.clinicalInsights?.mechanismOfAction ? 'Clinical Therapy' : 'Medication',
+            mechanism: data.drug.clinicalInsights?.mechanismOfAction || 'Therapeutic agent',
+            indications: data.drug.clinicalInsights?.patientSubgroups?.map((s: any) => s.criteria) || [],
+            contraindications: data.clinicalDecisionSupport?.contraindications || [],
+            sideEffects: data.drug.riskProfile?.specificRisks?.map((r: any) => r.type) || [],
+            interactions: [],
+            dosing: {
+              standard: data.clinicalDecisionSupport?.doseGuidance?.recommendedDose || 'Consult prescribing information',
+              renal: 'Adjust based on renal function',
+              hepatic: 'Adjust based on hepatic function'
+            },
+            monitoring: data.clinicalDecisionSupport?.monitoringPlan?.baseline || [],
+            fdaApproved: true,
+            oncologyDrug: true,
+            clinicalData: data // Store full clinical data
+          };
+        } catch (error) {
+          console.warn(`Failed to load drug ${rxcui}:`, error);
+          return null;
+        }
+      });
+
+      const drugs = (await Promise.all(drugsPromises)).filter(Boolean) as Drug[];
+      setDrugDatabase(drugs);
+    } catch (error) {
+      console.error('Failed to load featured drugs:', error);
+      setError('Failed to load clinical data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const loadCategoryStats = () => {
     const stats: DrugCategoryStats[] = [
       { category: 'Immunotherapy', count: 45, trending: true, newAdditions: 8 },
@@ -162,13 +135,67 @@ const DrugDatabase: React.FC = () => {
     setCategoryStats(stats);
   };
 
-  const handleSearch = (query: string, filters?: SearchFilter) => {
+  const handleSearch = async (query: string, filters?: SearchFilter) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
     setLoading(true);
+    setError(null);
     
-    // Simulate search delay
-    setTimeout(() => {
-      let results = drugDatabase;
+    try {
+      const response = await fetch(`${API_BASE}/drugs/enhanced/search?q=${encodeURIComponent(query)}`);
+      if (!response.ok) throw new Error('Search failed');
       
+      const data = await response.json();
+      
+      // Transform API results to match our Drug interface
+      const transformedResults = data.results.map((drug: any) => ({
+        rxcui: drug.rxcui,
+        name: drug.name,
+        genericName: drug.genericName || drug.name,
+        brandNames: drug.brandNames || [],
+        category: drug.clinicalRelevance?.therapeuticClass || 'Medication',
+        mechanism: drug.clinicalRelevance?.mechanismOfAction || 'Therapeutic agent',
+        indications: drug.clinicalRelevance?.primaryIndications || [],
+        contraindications: drug.safetyAlerts?.map((alert: any) => alert.description) || [],
+        sideEffects: drug.safetyAlerts?.map((alert: any) => alert.type) || [],
+        interactions: [],
+        dosing: {
+          standard: 'Consult prescribing information',
+          renal: 'Adjust based on renal function',
+          hepatic: 'Adjust based on hepatic function'
+        },
+        monitoring: [],
+        fdaApproved: true,
+        oncologyDrug: drug.clinicalRelevance?.isOncologyDrug || false,
+        clinicalData: drug // Store full clinical data
+      }));
+
+      // Apply filters if provided
+      let filteredResults = transformedResults;
+      if (filters) {
+        if (filters.category) {
+          filteredResults = filteredResults.filter((drug: any) => 
+            drug.category.toLowerCase().includes(filters.category!.toLowerCase())
+          );
+        }
+        if (filters.isOncology) {
+          filteredResults = filteredResults.filter((drug: any) => drug.oncologyDrug === true);
+        }
+        if (filters.fdaApproved) {
+          filteredResults = filteredResults.filter((drug: any) => drug.fdaApproved === true);
+        }
+      }
+      
+      setSearchResults(filteredResults);
+    } catch (error) {
+      console.error('Search failed:', error);
+      setError('Search failed. Please try again.');
+      
+      // Fallback to local search if API fails
+      let results = drugDatabase;
       if (query) {
         const searchTerm = query.toLowerCase();
         results = results.filter(drug =>
@@ -176,27 +203,13 @@ const DrugDatabase: React.FC = () => {
           drug.genericName.toLowerCase().includes(searchTerm) ||
           drug.category.toLowerCase().includes(searchTerm) ||
           drug.mechanism.toLowerCase().includes(searchTerm) ||
-          drug.indications?.some(indication => indication.toLowerCase().includes(searchTerm))
+          drug.indications?.some((indication: string) => indication.toLowerCase().includes(searchTerm))
         );
       }
-      
-      if (filters) {
-        if (filters.category) {
-          results = results.filter(drug => 
-            drug.category.toLowerCase().includes(filters.category!.toLowerCase())
-          );
-        }
-        if (filters.isOncology) {
-          results = results.filter(drug => drug.oncologyDrug === true);
-        }
-        if (filters.fdaApproved) {
-          results = results.filter(drug => drug.fdaApproved === true);
-        }
-      }
-      
       setSearchResults(results);
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   const handleDrugSelect = (drug: Drug) => {
@@ -374,6 +387,15 @@ const DrugDatabase: React.FC = () => {
         <p className="text-lg text-gray-600 max-w-3xl mx-auto">
           Comprehensive drug information with advanced search, detailed profiles, and comparison tools.
         </p>
+        
+        {error && (
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="w-5 h-5 text-red-500" />
+              <span className="text-red-700 font-medium">{error}</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Category Statistics */}

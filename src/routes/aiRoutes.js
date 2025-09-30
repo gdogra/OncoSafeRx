@@ -1,6 +1,7 @@
 import express from 'express';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import { optionalAuth } from '../middleware/auth.js';
+import aiRecommendationService from '../services/aiRecommendationService.js';
 
 const router = express.Router();
 
@@ -11,19 +12,18 @@ router.post('/recommendations',
     const { patient_context, drugs = [], clinical_context = {} } = req.body;
     
     try {
-      // Simulate AI processing delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const recommendations = generateMockRecommendations(patient_context, drugs, clinical_context);
+      const recommendations = await aiRecommendationService.generateClinicalRecommendations(
+        patient_context, 
+        { ...clinical_context, drugs }
+      );
       
       res.json({
         success: true,
-        recommendations,
+        recommendations: recommendations.recommendations,
         metadata: {
+          ...recommendations.metadata,
           generated_at: new Date().toISOString(),
-          confidence_threshold: 0.7,
-          model_version: 'v2024.1',
-          processing_time_ms: 1500
+          confidence_threshold: 0.7
         }
       });
     } catch (error) {

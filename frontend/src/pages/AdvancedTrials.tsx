@@ -4,6 +4,8 @@ import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
 import { useSelection } from '../context/SelectionContext';
+import { usePatient } from '../context/PatientContext';
+import { clinicalTrialsService } from '../services/clinicalTrialsService';
 import {
   Search,
   MapPin,
@@ -121,6 +123,8 @@ interface PatientProfile {
 const AdvancedTrials: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const selection = useSelection();
+  const { state } = usePatient();
+  const { currentPatient } = state;
   
   // State management
   const [trials, setTrials] = useState<Trial[]>([]);
@@ -449,34 +453,56 @@ const AdvancedTrials: React.FC = () => {
     }
   ];
 
-  // Initialize with mock data
+  // Load real clinical trials data
   useEffect(() => {
-    setLoading(true);
-    // Simulate API call delay
-    setTimeout(() => {
-      setTrials(mockTrials);
-      setFilteredTrials(mockTrials);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    loadTrialsData();
+  }, [currentPatient]);
 
-  // Refresh function
-  const refreshTrials = async () => {
+  const loadTrialsData = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      let trialsData: Trial[] = [];
       
-      // In a real implementation, this would fetch from an API
-      setTrials(mockTrials);
-      setFilteredTrials(mockTrials);
+      if (currentPatient) {
+        // Search with patient context
+        const patientTrials = await clinicalTrialsService.searchTrialsForPatient({
+          conditions: currentPatient.conditions || [],
+          medications: currentPatient.medications || [],
+          age: currentPatient.age,
+          gender: currentPatient.gender?.toLowerCase(),
+          genomicData: currentPatient.genomicData
+        });
+        trialsData = patientTrials;
+      } else {
+        // General search for common oncology conditions
+        const generalSearch = await clinicalTrialsService.searchTrials({
+          condition: 'cancer',
+          recruitmentStatus: 'RECRUITING',
+          pageSize: 20
+        });
+        trialsData = generalSearch.studies.map(trial => 
+          clinicalTrialsService.transformTrialData(trial)
+        );
+      }
+      
+      setTrials(trialsData);
+      setFilteredTrials(trialsData);
     } catch (err) {
-      setError('Failed to fetch clinical trials. Please try again.');
+      console.error('Error loading trials:', err);
+      setError('Failed to load clinical trials. Please try again.');
+      // Fallback to empty state instead of mock data
+      setTrials([]);
+      setFilteredTrials([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Refresh function
+  const refreshTrials = async () => {
+    await loadTrialsData();
   };
 
   // AI-powered matching algorithm

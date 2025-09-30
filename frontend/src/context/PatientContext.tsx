@@ -220,7 +220,76 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
           dispatch({ type: 'ADD_RECENT_PATIENT', payload: patient });
         });
       } else {
-        // Add sample patients if none exist for this user
+        // Try to fetch from patient API
+        (async () => {
+          try {
+            const API_BASE = import.meta.env.VITE_API_URL || '/api';
+            const response = await fetch(`${API_BASE}/patients`);
+          
+          if (response.ok) {
+            const apiPatientsData = await response.json();
+            if (apiPatientsData?.patients?.length > 0) {
+              apiPatientsData.patients.forEach((patient: any) => {
+                const patientProfile: PatientProfile = {
+                  id: patient.id,
+                  demographics: {
+                    firstName: patient.demographics.firstName,
+                    lastName: patient.demographics.lastName,
+                    dateOfBirth: patient.demographics.dateOfBirth || patient.demographics.age ? 
+                      new Date(Date.now() - (patient.demographics.age * 365.25 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0] : 
+                      '1980-01-01',
+                    sex: patient.demographics.sex || patient.demographics.gender || 'other',
+                    mrn: patient.demographics.mrn,
+                    heightCm: patient.demographics.height,
+                    weightKg: patient.demographics.weight,
+                  },
+                  allergies: (patient.allergies || []).map((allergy: any) => ({
+                    id: allergy.id || `allergy-${Math.random()}`,
+                    allergen: allergy.allergen || allergy.name,
+                    allergenType: allergy.type || 'drug',
+                    reaction: allergy.reaction || 'Unknown reaction',
+                    severity: allergy.severity || 'moderate',
+                    dateReported: allergy.dateReported || new Date().toISOString(),
+                    verified: allergy.verified || false,
+                  })),
+                  medications: (patient.medications || []).map((med: any) => ({
+                    id: med.id || `med-${Math.random()}`,
+                    drugName: med.drug || med.drugName || med.name,
+                    dosage: med.dosage || med.dose || 'Unknown',
+                    frequency: med.frequency || 'Unknown',
+                    route: med.route || 'Oral',
+                    startDate: med.startDate || new Date().toISOString().split('T')[0],
+                    isActive: med.isActive !== false,
+                    prescribedBy: med.prescribedBy || med.prescriber || 'Dr. Unknown',
+                  })),
+                  conditions: (patient.conditions || []).map((condition: any) => ({
+                    id: condition.id || `condition-${Math.random()}`,
+                    name: condition.condition || condition.name,
+                    status: condition.status || 'active',
+                    dateOfOnset: condition.dateOfOnset || condition.diagnosisDate || new Date().toISOString().split('T')[0],
+                    notes: condition.notes || '',
+                  })),
+                  labValues: patient.labValues || [],
+                  genetics: patient.genetics || [],
+                  vitals: patient.vitals || [],
+                  treatmentHistory: patient.treatmentHistory || [],
+                  notes: patient.notes || [],
+                  preferences: patient.preferences || { primaryLanguage: 'English' },
+                  lastUpdated: patient.lastUpdated || new Date().toISOString(),
+                  createdBy: patient.createdBy || 'system',
+                  isActive: patient.isActive !== false,
+                };
+                dispatch({ type: 'ADD_RECENT_PATIENT', payload: patientProfile });
+              });
+              return; // Exit early if API data was successful
+            }
+          }
+          } catch (error) {
+            console.warn('Failed to fetch patients from API, using sample data:', error);
+          }
+        })();
+
+        // Add sample patients if API fails or returns no data
         const samplePatients: PatientProfile[] = [
           {
             id: 'patient-001',

@@ -417,6 +417,156 @@ export class CollaborationService {
   }
 
   // Sample data generation
+  // Fetch teams from API
+  public async fetchTeams(specialty?: string): Promise<Team[]> {
+    try {
+      const API_BASE = import.meta.env.VITE_API_URL || '/api';
+      const params = new URLSearchParams();
+      if (specialty) params.append('specialty', specialty);
+      
+      const response = await fetch(`${API_BASE}/collaboration/teams?${params}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      
+      const data = await response.json();
+      return data.teams.map(this.transformApiTeam);
+    } catch (error) {
+      console.warn('Failed to fetch teams from API, using sample data:', error);
+      this.generateSampleData();
+      return this.getTeams();
+    }
+  }
+
+  // Fetch tumor boards from API
+  public async fetchTumorBoards(teamId?: string): Promise<TumorBoard[]> {
+    try {
+      const API_BASE = import.meta.env.VITE_API_URL || '/api';
+      const params = new URLSearchParams();
+      if (teamId) params.append('teamId', teamId);
+      
+      const response = await fetch(`${API_BASE}/collaboration/tumor-boards?${params}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      
+      const data = await response.json();
+      return data.tumorBoards.map(this.transformApiTumorBoard);
+    } catch (error) {
+      console.warn('Failed to fetch tumor boards from API, using sample data:', error);
+      this.generateSampleData();
+      return this.getTumorBoards();
+    }
+  }
+
+  // Fetch clinical pathways from API
+  public async fetchClinicalPathways(cancerType?: string): Promise<ClinicalPathway[]> {
+    try {
+      const API_BASE = import.meta.env.VITE_API_URL || '/api';
+      const params = new URLSearchParams();
+      if (cancerType) params.append('cancerType', cancerType);
+      
+      const response = await fetch(`${API_BASE}/collaboration/pathways?${params}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      
+      const data = await response.json();
+      return data.pathways.map(this.transformApiPathway);
+    } catch (error) {
+      console.warn('Failed to fetch pathways from API, using sample data:', error);
+      this.generateSampleData();
+      return this.getClinicalPathways();
+    }
+  }
+
+  // Transform API data to frontend models
+  private transformApiTeam(apiTeam: any): Team {
+    return {
+      id: apiTeam.id,
+      name: apiTeam.name,
+      description: apiTeam.description,
+      specialty: apiTeam.specialty.toLowerCase(),
+      members: apiTeam.members.map((member: any) => ({
+        id: member.id,
+        name: member.name,
+        role: member.role.toLowerCase().replace(' ', '_'),
+        title: member.role,
+        email: member.email,
+        phone: member.phone,
+        specialty: member.specialization,
+        credentials: [],
+        availability: { status: 'available', lastSeen: new Date().toISOString() },
+        isLead: member.isLead || false
+      })),
+      settings: {
+        allowGuestAccess: false,
+        requireApproval: true,
+        autoArchive: true
+      },
+      createdBy: 'system',
+      createdAt: apiTeam.createdDate || new Date().toISOString(),
+      lastActivity: new Date().toISOString(),
+      isActive: apiTeam.isActive !== false
+    };
+  }
+
+  private transformApiTumorBoard(apiBoard: any): TumorBoard {
+    return {
+      id: apiBoard.id,
+      name: apiBoard.name,
+      description: apiBoard.description,
+      teamId: apiBoard.teamId,
+      schedule: {
+        frequency: 'weekly',
+        dayOfWeek: apiBoard.schedule.dayOfWeek.toLowerCase(),
+        time: apiBoard.schedule.time,
+        duration: apiBoard.schedule.duration,
+        timezone: 'America/New_York'
+      },
+      meetingLink: apiBoard.schedule.virtualLink || '',
+      cases: apiBoard.cases.map((case_: any) => ({
+        id: case_.id,
+        patientId: case_.patientId,
+        title: case_.title,
+        presenter: case_.presenter,
+        status: case_.status,
+        scheduledDate: case_.dateScheduled,
+        summary: case_.summary,
+        attachments: [],
+        discussion: {
+          points: case_.questions || [],
+          decisions: [],
+          followUpActions: []
+        }
+      })),
+      nextMeeting: apiBoard.nextMeeting,
+      isActive: apiBoard.isActive !== false
+    };
+  }
+
+  private transformApiPathway(apiPathway: any): ClinicalPathway {
+    return {
+      id: apiPathway.id,
+      name: apiPathway.name,
+      description: apiPathway.description,
+      cancerType: apiPathway.cancerType,
+      stage: apiPathway.stage,
+      version: apiPathway.version,
+      steps: apiPathway.steps.map((step: any) => ({
+        id: step.id,
+        order: step.order,
+        title: step.title,
+        description: step.description,
+        estimatedDuration: step.timeframe,
+        requirements: step.requirements || [],
+        responsibleRole: step.responsible,
+        isRequired: true,
+        branchingLogic: []
+      })),
+      outcomes: {
+        primaryEndpoints: apiPathway.outcomes?.primaryEndpoints || [],
+        qualityMetrics: apiPathway.outcomes?.qualityMetrics || []
+      },
+      lastUpdated: apiPathway.lastUpdated,
+      isActive: apiPathway.isActive !== false
+    };
+  }
+
   public generateSampleData(): void {
     const existingTeams = this.getTeams();
     if (existingTeams.length > 0) return;

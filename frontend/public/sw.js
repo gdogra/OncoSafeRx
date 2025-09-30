@@ -1,37 +1,12 @@
-// Service Worker for OncoSafeRx PWA - DISABLED FOR DEBUGGING
-console.log('Service Worker disabled for authentication debugging');
+// Service Worker for OncoSafeRx PWA - Advanced Workflow & Mobile Support
+console.log('OncoSafeRx Advanced Workflow Service Worker initializing...');
 
-// Clear all caches and disable service worker
-self.addEventListener('install', (event) => {
-  console.log('Service Worker disabled - clearing all caches');
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => caches.delete(cacheName))
-      );
-    }).then(() => {
-      return self.skipWaiting();
-    })
-  );
-});
+const CACHE_NAME = 'oncosaferx-v2.0.0';
+const STATIC_CACHE_NAME = 'oncosaferx-static-v2.0.0';
+const DYNAMIC_CACHE_NAME = 'oncosaferx-dynamic-v2.0.0';
+const WORKFLOW_CACHE_NAME = 'oncosaferx-workflow-v2.0.0';
 
-self.addEventListener('activate', (event) => {
-  console.log('Service Worker disabled - claiming clients');
-  event.waitUntil(self.clients.claim());
-});
-
-// Pass all requests through to network
-self.addEventListener('fetch', (event) => {
-  event.respondWith(fetch(event.request));
-});
-
-return; // Exit early to disable rest of service worker
-
-const CACHE_NAME = 'oncosaferx-v1.0.0-disabled';
-const STATIC_CACHE_NAME = 'oncosaferx-static-v1.0.0-disabled';
-const DYNAMIC_CACHE_NAME = 'oncosaferx-dynamic-v1.0.0-disabled';
-
-// Files to cache immediately
+// Files to cache immediately for mobile/offline support
 const STATIC_ASSETS = [
   '/',
   '/static/js/bundle.js',
@@ -39,62 +14,89 @@ const STATIC_ASSETS = [
   '/manifest.json',
   '/favicon.ico',
   '/logo192.png',
-  '/logo512.png'
+  '/logo512.png',
+  '/offline.html',
+  '/workflow-mobile.html'
 ];
 
-// API endpoints to cache
+// API endpoints to cache for offline workflow support
 const API_CACHE_PATTERNS = [
   /\/api\/drugs\//,
   /\/api\/interactions\//,
-  /\/api\/patient\//
+  /\/api\/patients\//,
+  /\/api\/advanced-workflow\/templates/,
+  /\/api\/advanced-workflow\/instances/,
+  /\/api\/rbac\/permissions/
 ];
 
 // Files that should always be fetched from network
 const NETWORK_FIRST_PATTERNS = [
   /\/api\/auth\//,
   /\/api\/real-time\//,
-  /\/api\/notifications\//
+  /\/api\/notifications\//,
+  /\/api\/advanced-workflow\/instances\/.*\/complete/,
+  /\/api\/advanced-workflow\/instances\/.*\/notes/
 ];
 
-// Install event - cache static assets
+// Workflow-specific caching
+const WORKFLOW_CACHE_PATTERNS = [
+  /\/api\/advanced-workflow\/templates/,
+  /\/api\/advanced-workflow\/analytics/,
+  /\/api\/advanced-workflow\/performance/
+];
+
+// Install event - cache static assets and workflow data
 self.addEventListener('install', (event) => {
-  console.log('Service Worker installing...');
+  console.log('Advanced Workflow Service Worker installing...');
   
   event.waitUntil(
-    caches.open(STATIC_CACHE_NAME)
-      .then((cache) => {
-        console.log('Caching static assets...');
+    Promise.all([
+      caches.open(STATIC_CACHE_NAME).then((cache) => {
+        console.log('Caching static assets for mobile workflow...');
         return cache.addAll(STATIC_ASSETS);
+      }),
+      caches.open(WORKFLOW_CACHE_NAME).then((cache) => {
+        console.log('Initializing workflow cache...');
+        // Pre-cache essential workflow templates
+        return cache.add('/api/advanced-workflow/templates?category=all&mobileOptimized=true');
       })
-      .then(() => {
-        return self.skipWaiting();
-      })
+    ]).then(() => {
+      console.log('Service Worker installation complete');
+      return self.skipWaiting();
+    })
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches and initialize workflow sync
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker activating...');
+  console.log('Advanced Workflow Service Worker activating...');
   
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== STATIC_CACHE_NAME && 
-              cacheName !== DYNAMIC_CACHE_NAME &&
-              cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
+    Promise.all([
+      // Clean up old caches
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== STATIC_CACHE_NAME && 
+                cacheName !== DYNAMIC_CACHE_NAME &&
+                cacheName !== WORKFLOW_CACHE_NAME &&
+                cacheName !== CACHE_NAME) {
+              console.log('Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      // Initialize workflow sync database
+      initializeWorkflowSyncDB()
+    ]).then(() => {
+      console.log('Service Worker activation complete');
       return self.clients.claim();
     })
   );
 });
 
-// Fetch event - implement caching strategies
+// Fetch event - implement advanced caching strategies for workflows
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   
@@ -108,16 +110,20 @@ self.addEventListener('fetch', (event) => {
     return; // Invalid URL
   }
 
-  // Skip non-GET requests
-  if (request.method !== 'GET') {
-    return;
-  }
-
   // Handle different types of requests with appropriate strategies
   if (isStaticAsset(request)) {
     event.respondWith(cacheFirst(request));
   } else if (isApiRequest(request)) {
-    if (isNetworkFirstPattern(request)) {
+    if (isWorkflowApiRequest(request)) {
+      // Special handling for workflow APIs
+      if (isNetworkFirstPattern(request)) {
+        event.respondWith(networkFirstWithOfflineQueue(request));
+      } else if (isWorkflowCacheableRequest(request)) {
+        event.respondWith(workflowStaleWhileRevalidate(request));
+      } else {
+        event.respondWith(networkOnlyWithOfflineQueue(request));
+      }
+    } else if (isNetworkFirstPattern(request)) {
       event.respondWith(networkFirst(request));
     } else if (isCacheableApiRequest(request)) {
       event.respondWith(staleWhileRevalidate(request));
@@ -129,9 +135,9 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-// Background sync for offline actions
+// Background sync for offline workflow actions
 self.addEventListener('sync', (event) => {
-  console.log('Background sync event:', event.tag);
+  console.log('Advanced workflow background sync:', event.tag);
   
   if (event.tag === 'background-sync-interactions') {
     event.waitUntil(syncInteractionChecks());
@@ -139,6 +145,12 @@ self.addEventListener('sync', (event) => {
     event.waitUntil(syncFavorites());
   } else if (event.tag === 'background-sync-analytics') {
     event.waitUntil(syncAnalytics());
+  } else if (event.tag === 'background-sync-workflow-steps') {
+    event.waitUntil(syncWorkflowSteps());
+  } else if (event.tag === 'background-sync-workflow-notes') {
+    event.waitUntil(syncWorkflowNotes());
+  } else if (event.tag === 'background-sync-workflow-instances') {
+    event.waitUntil(syncWorkflowInstances());
   }
 });
 

@@ -64,7 +64,7 @@ export const drugService = {
       if (error.response?.status === 502) {
         console.warn(`502 Bad Gateway for search query: ${query}, trying direct API...`);
         try {
-          const directResponse = await fetch(`https://oncosaferx.onrender.com/api/drugs/search?q=${encodeURIComponent(query)}`);
+          const directResponse = await fetch(`https://oncosaferx-backend.onrender.com/api/drugs/search?q=${encodeURIComponent(query)}`);
           if (directResponse.ok) {
             const data = await directResponse.json();
             console.log(`✅ Direct API success for search: ${query}`);
@@ -92,7 +92,7 @@ export const drugService = {
       if (error.response?.status === 502) {
         console.warn(`502 Bad Gateway for drug details: ${rxcui}, trying direct API...`);
         try {
-          const directResponse = await fetch(`https://oncosaferx.onrender.com/api/drugs/${rxcui}`);
+          const directResponse = await fetch(`https://oncosaferx-backend.onrender.com/api/drugs/${rxcui}`);
           if (directResponse.ok) {
             const data = await directResponse.json();
             console.log(`✅ Direct API success for drug details: ${rxcui}`);
@@ -217,7 +217,7 @@ export const interactionService = {
       if (error.response?.status === 502) {
         console.warn(`502 Bad Gateway for interaction check, trying direct API...`);
         try {
-          const directResponse = await fetch(`https://oncosaferx.onrender.com/api/interactions/check`, {
+          const directResponse = await fetch(`https://oncosaferx-backend.onrender.com/api/interactions/check`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ drugs })
@@ -298,7 +298,7 @@ export const interactionService = {
       if (error.response?.status === 502) {
         console.warn(`502 Bad Gateway for drug interactions: ${rxcui}, trying direct API...`);
         try {
-          const directResponse = await fetch(`https://oncosaferx.onrender.com/api/interactions/drug/${rxcui}`);
+          const directResponse = await fetch(`https://oncosaferx-backend.onrender.com/api/interactions/drug/${rxcui}`);
           if (directResponse.ok) {
             const data = await directResponse.json();
             console.log(`✅ Direct API success for drug interactions: ${rxcui}`);

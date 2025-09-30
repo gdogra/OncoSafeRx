@@ -1,8 +1,11 @@
 import React from 'react';
 import ClinicalDecisionSupport from '../components/AI/ClinicalDecisionSupport';
+import { usePatient } from '../context/PatientContext';
 
 const ClinicalDecisionSupportPage: React.FC = () => {
-  // Mock patient profile for demonstration
+  const { currentPatient } = usePatient();
+  
+  // Mock patient profile for demonstration when no patient is selected
   const mockPatientProfile = {
     demographics: {
       age: 62,
@@ -84,17 +87,41 @@ const ClinicalDecisionSupportPage: React.FC = () => {
     }, 1000);
   };
 
+  // Use selected patient data if available, otherwise fall back to mock data
+  const patientProfile = currentPatient || mockPatientProfile;
+  const patientName = currentPatient?.name || 'Demo Patient (Sarah Johnson)';
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">AI Clinical Decision Support</h1>
+        {currentPatient && (
+          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-lg font-semibold text-blue-900">
+              Current Patient: <span className="text-blue-700">{patientName}</span>
+            </p>
+            {currentPatient.mrn && (
+              <p className="text-sm text-blue-600">MRN: {currentPatient.mrn}</p>
+            )}
+          </div>
+        )}
+        {!currentPatient && (
+          <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              No patient selected - showing demo recommendations for: <span className="font-semibold">{patientName}</span>
+            </p>
+            <p className="text-xs text-yellow-600 mt-1">
+              Select a patient from the Patients page to see personalized recommendations
+            </p>
+          </div>
+        )}
         <p className="text-lg text-gray-600 max-w-3xl mx-auto">
           Intelligent treatment recommendations based on patient profile, genomics, biomarkers, and evidence-based medicine to optimize clinical outcomes.
         </p>
       </div>
       
       <ClinicalDecisionSupport
-        patientProfile={mockPatientProfile}
+        patientProfile={patientProfile}
         currentMedications={currentMedications}
         proposedTreatment={proposedTreatment}
         onRecommendationAccept={handleRecommendationAccept}

@@ -17,6 +17,7 @@ const ServerPatients: React.FC = () => {
   const [editing, setEditing] = useState<any | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [usingDemoData, setUsingDemoData] = useState(false);
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total]);
   const { showToast } = useToast();
 
@@ -28,12 +29,97 @@ const ServerPatients: React.FC = () => {
       const p = opts?.resetPage ? 1 : page;
       const params = new URLSearchParams({ q: query, page: String(p), pageSize: String(PAGE_SIZE) });
       const resp = await fetch(`/api/patients?${params.toString()}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
-      const body = await resp.json();
+      
       if (resp.ok) {
+        const body = await resp.json();
         setPatients(body.patients || []);
         setTotal(body.total || 0);
+        setUsingDemoData(false);
+        if (opts?.resetPage) setPage(1);
+      } else {
+        // Backend API unavailable, use fallback demo data
+        console.warn('Patients API unavailable, using demo data');
+        setUsingDemoData(true);
+        const demoPatients = [
+          {
+            id: 'demo-1',
+            data: {
+              demographics: {
+                firstName: 'Sarah',
+                lastName: 'Johnson',
+                mrn: 'MRN001234',
+                dateOfBirth: '1961-03-15',
+                sex: 'female',
+                age: 62
+              },
+              diagnosis: {
+                primary: 'Invasive ductal carcinoma, breast',
+                stage: 'IIIA'
+              }
+            },
+            name: 'Sarah Johnson',
+            mrn: 'MRN001234'
+          },
+          {
+            id: 'demo-2',
+            data: {
+              demographics: {
+                firstName: 'Michael',
+                lastName: 'Chen',
+                mrn: 'MRN001235',
+                dateOfBirth: '1955-07-22',
+                sex: 'male',
+                age: 68
+              },
+              diagnosis: {
+                primary: 'Non-small cell lung cancer',
+                stage: 'II'
+              }
+            },
+            name: 'Michael Chen',
+            mrn: 'MRN001235'
+          },
+          {
+            id: 'demo-3',
+            data: {
+              demographics: {
+                firstName: 'Maria',
+                lastName: 'Rodriguez',
+                mrn: 'MRN001236',
+                dateOfBirth: '1970-11-08',
+                sex: 'female',
+                age: 53
+              },
+              diagnosis: {
+                primary: 'Colorectal adenocarcinoma',
+                stage: 'III'
+              }
+            },
+            name: 'Maria Rodriguez',
+            mrn: 'MRN001236'
+          }
+        ];
+        
+        // Filter demo patients based on search query
+        let filtered = demoPatients;
+        if (query.trim()) {
+          const q = query.toLowerCase();
+          filtered = demoPatients.filter(p => 
+            p.name.toLowerCase().includes(q) || 
+            p.mrn.toLowerCase().includes(q) ||
+            p.data.diagnosis.primary.toLowerCase().includes(q)
+          );
+        }
+        
+        setPatients(filtered);
+        setTotal(filtered.length);
         if (opts?.resetPage) setPage(1);
       }
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+      // Use demo data as fallback
+      setPatients([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -113,6 +199,17 @@ const ServerPatients: React.FC = () => {
           <Search className="w-5 h-5 text-gray-400" />
           <h1 className="text-xl font-semibold text-gray-900">All Patients</h1>
         </div>
+        
+        {usingDemoData && (
+          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              <strong>Demo Mode:</strong> Backend API unavailable. Showing sample patient data for demonstration.
+            </p>
+            <p className="text-xs text-yellow-600 mt-1">
+              Patient selection and basic operations are functional, but data will not persist.
+            </p>
+          </div>
+        )}
         <div className="flex items-center gap-2 mb-4">
           <input
             value={query}

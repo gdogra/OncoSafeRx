@@ -33,8 +33,22 @@ const ServerPatients: React.FC = () => {
         url: `/api/patients?${params.toString()}`,
         hasToken: !!token,
         page: p,
-        query
+        query,
+        environment: process.env.NODE_ENV,
+        baseURL: window.location.origin
       });
+      
+      // Test if API proxy is working at all
+      try {
+        const testResp = await fetch('/api/health', { signal: AbortSignal.timeout(3000) });
+        console.log('🏥 API health check:', {
+          status: testResp.status,
+          ok: testResp.ok,
+          url: testResp.url
+        });
+      } catch (healthError) {
+        console.warn('⚠️ API health check failed:', healthError?.message);
+      }
       
       let resp = await fetch(`/api/patients?${params.toString()}`, { 
         headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -74,6 +88,12 @@ const ServerPatients: React.FC = () => {
       } else {
         // Backend API unavailable, use fallback demo data
         console.warn('⚠️ Patients API unavailable, using demo data. Status:', resp.status);
+        console.warn('⚠️ Response details:', {
+          status: resp.status,
+          statusText: resp.statusText,
+          headers: Object.fromEntries(resp.headers.entries()),
+          url: resp.url
+        });
         setUsingDemoData(true);
         const demoPatients = [
           {
@@ -152,6 +172,11 @@ const ServerPatients: React.FC = () => {
       }
     } catch (error) {
       console.error('❌ Error fetching patients:', error);
+      console.error('❌ Error details:', {
+        name: error?.name,
+        message: error?.message,
+        stack: error?.stack
+      });
       console.log('🔄 Falling back to demo data due to error');
       // Use demo data as fallback when API call fails
       setUsingDemoData(true);

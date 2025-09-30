@@ -348,10 +348,13 @@ const InteractionCheckerInner: React.FC = () => {
         {currentPatient && (
           <div className="mb-4">
             <p className="text-xl font-semibold text-primary-600">
-              Advanced interaction analysis for {currentPatient.firstName} {currentPatient.lastName}
+              Advanced interaction analysis for {currentPatient.demographics?.firstName} {currentPatient.demographics?.lastName}
             </p>
             <div className="text-sm text-gray-600 mt-1">
-              {currentPatient.age} years old • {currentPatient.gender}
+              {currentPatient.demographics?.dateOfBirth 
+                ? Math.floor((new Date().getTime() - new Date(currentPatient.demographics.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+                : currentPatient.age || 'Unknown age'
+              } years old • {currentPatient.demographics?.sex || currentPatient.gender || 'Unknown gender'}
               {currentPatient.conditions && (
                 <> • Conditions: {
                   Array.isArray(currentPatient.conditions) 

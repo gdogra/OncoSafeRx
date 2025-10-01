@@ -137,6 +137,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     },
 
     updateProfile: async (updates: Partial<UserProfile>) => {
+      console.log('🔧 AuthContext.updateProfile called with:', updates);
+      console.log('🔍 Current state.user:', state.user ? 'exists' : 'null');
+      
       // Create a default user if none exists (for unauthenticated users in production)
       if (!state.user) {
         console.log('🔄 No authenticated user, creating default user for profile update');
@@ -144,22 +147,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Generate a unique user ID for this browser session
           const userId = localStorage.getItem('osrx_session_user_id') || `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
           localStorage.setItem('osrx_session_user_id', userId);
+          console.log('🆔 Using userId:', userId);
           
+          console.log('📞 Calling AuthService.updateProfile...');
           const defaultUser = await AuthService.updateProfile(userId, updates);
+          console.log('✅ AuthService.updateProfile returned:', defaultUser);
           dispatch({ type: 'AUTH_SUCCESS', payload: defaultUser });
+          console.log('✅ Profile update completed successfully (no user case)');
           return;
         } catch (error) {
-          console.error('Failed to create default user profile:', error);
+          console.error('❌ Failed to create default user profile:', error);
           dispatch({ type: 'SET_ERROR', payload: 'Failed to update profile' });
           return;
         }
       }
       
+      console.log('👤 Authenticated user exists, updating profile for user:', state.user.id);
       try {
+        console.log('📞 Calling AuthService.updateProfile for existing user...');
         const updatedUser = await AuthService.updateProfile(state.user.id, updates);
+        console.log('✅ AuthService.updateProfile returned for existing user:', updatedUser);
         dispatch({ type: 'UPDATE_PROFILE', payload: updates });
+        console.log('✅ Profile update completed successfully (existing user case)');
       } catch (error) {
-        console.error('Failed to update profile:', error);
+        console.error('❌ Failed to update profile for existing user:', error);
         dispatch({ type: 'SET_ERROR', payload: 'Failed to update profile' });
       }
     },

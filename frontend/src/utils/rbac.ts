@@ -140,6 +140,15 @@ export const PERMISSIONS: Record<string, Permission> = {
     description: 'Access regulatory compliance and audit reports',
     resource: 'compliance',
     action: 'read'
+  },
+
+  // Feedback admin permissions
+  MANAGE_FEEDBACK: {
+    id: 'manage_feedback',
+    name: 'Manage Feedback',
+    description: 'Access feedback admin, triage, and integrations',
+    resource: 'feedback',
+    action: 'write'
   }
 };
 
@@ -167,7 +176,8 @@ export const ROLES: Record<string, Role> = {
       'view_audit_logs',
       'manage_system_settings',
       'generate_reports',
-      'view_compliance_reports'
+      'view_compliance_reports',
+      'manage_feedback'
     ],
     hierarchy: 90,
     isSystemRole: true

@@ -14,98 +14,102 @@ if (supabaseUrl && supabaseServiceKey) {
   supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 }
 
+// Helper: resolve user from a Supabase token. Throws on failure.
+async function resolveUserFromToken(token) {
+  // Dev token path
+  if (token.startsWith('dev-token-')) {
+    return {
+      id: 'dev-user-local',
+      email: 'dev@oncosaferx.com',
+      role: 'oncologist',
+      isDev: true
+    };
+  }
+  // Preferred: service-key introspection
+  if (supabaseAdmin) {
+    const { data, error } = await supabaseAdmin.auth.getUser(token);
+    if (error || !data?.user) {
+      const err = new Error('Invalid token');
+      err.status = 401;
+      throw err;
+    }
+    return {
+      id: data.user.id,
+      email: data.user.email,
+      role: data.user.user_metadata?.role || 'user',
+      supabaseUser: data.user
+    };
+  }
+  // Legacy: HS256 verification (only if secret provided)
+  if (supabaseJwtSecret) {
+    try {
+      const decoded = jwt.verify(token, supabaseJwtSecret);
+      if (supabaseAdmin && decoded?.sub) {
+        const { data, error } = await supabaseAdmin.auth.admin.getUserById(decoded.sub);
+        if (error || !data?.user) {
+          const err = new Error('Invalid token');
+          err.status = 401;
+          throw err;
+        }
+        return {
+          id: data.user.id,
+          email: data.user.email,
+          role: data.user.user_metadata?.role || 'user',
+          supabaseUser: data.user
+        };
+      }
+    } catch (e) {
+      console.warn('HS256 verification failed; prefer service role introspection.');
+      const err = new Error('Invalid token');
+      err.status = 401;
+      throw err;
+    }
+  }
+  const err = new Error('Authentication service not configured');
+  err.status = 500;
+  throw err;
+}
+
 /**
- * Middleware to authenticate Supabase JWT tokens
+ * Middleware to authenticate Supabase JWT tokens (strict)
  */
 export const authenticateSupabase = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ error: 'No token provided' });
     }
-
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-
-    // Handle dev tokens for local development
-    if (token.startsWith('dev-token-')) {
-      console.log('🔧 Dev token detected, creating mock user for local development');
-      req.user = {
-        id: 'dev-user-local',
-        email: 'dev@oncosaferx.com',
-        role: 'oncologist',
-        isDev: true
-      };
-      return next();
-    }
-
-    // Prefer server-side introspection via Supabase (works with new signing keys)
-    if (supabaseAdmin) {
-      const { data, error } = await supabaseAdmin.auth.getUser(token);
-      
-      if (error || !data?.user) {
-        return res.status(401).json({ error: 'Invalid token' });
-      }
-
-      // Attach user info to request
-      req.user = {
-        id: data.user.id,
-        email: data.user.email,
-        role: data.user.user_metadata?.role || 'user',
-        supabaseUser: data.user
-      };
-      
-      return next();
-    }
-
-    // Legacy path: try verifying HS256 tokens with SUPABASE_JWT_SECRET then fetch user by id
-    if (supabaseJwtSecret) {
-      try {
-        const decoded = jwt.verify(token, supabaseJwtSecret);
-        if (supabaseAdmin && decoded?.sub) {
-          const { data, error } = await supabaseAdmin.auth.admin.getUserById(decoded.sub);
-          if (error || !data?.user) {
-            return res.status(401).json({ error: 'Invalid token' });
-          }
-          req.user = {
-            id: data.user.id,
-            email: data.user.email,
-            role: data.user.user_metadata?.role || 'user',
-            supabaseUser: data.user
-          };
-          return next();
-        }
-      } catch (e) {
-        // With new JWT signing keys, HS256 verification will fail; advise configuring service role.
-        console.warn('HS256 JWT verification failed; ensure SUPABASE_SERVICE_ROLE_KEY is set for token introspection.');
-      }
-    }
-
-    // If no Supabase configuration available
-    return res.status(500).json({ error: 'Authentication service not configured' });
-
+    const token = authHeader.substring(7);
+    const user = await resolveUserFromToken(token);
+    req.user = user;
+    return next();
   } catch (error) {
-    console.error('Authentication error:', error);
-    return res.status(401).json({ error: 'Authentication failed' });
+    const code = error?.status || 401;
+    const msg = code === 500 ? 'Authentication service not configured' : (error?.message || 'Authentication failed');
+    return res.status(code).json({ error: msg });
   }
 };
 
 /**
  * Optional Supabase authentication - doesn't fail if no token
  */
-export const optionalSupabaseAuth = async (req, res, next) => {
+export const optionalSupabaseAuth = async (req, _res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return next(); // Continue without auth
+      return next();
     }
-
-    // Use the same logic as authenticateSupabase but don't fail
-    await authenticateSupabase(req, res, next);
-  } catch (error) {
-    // Continue without authentication if token is invalid
-    next();
+    const token = authHeader.substring(7);
+    try {
+      const user = await resolveUserFromToken(token);
+      req.user = user;
+    } catch (e) {
+      // Non-blocking: log and continue without user context
+      console.warn('Optional auth: token ignored:', e?.message || e);
+    }
+    return next();
+  } catch {
+    return next();
   }
 };
 

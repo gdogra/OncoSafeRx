@@ -72,6 +72,17 @@ npm run sync:cpic
 curl http://localhost:3000/health
 ```
 
+### User Feedback → Tasks
+
+- In‑app feedback widget is built in; submissions go to `/api/feedback/submit` and are auto‑classified.
+- Optional server-side GitHub integration creates issues from feedback.
+- Configure on API server via env vars:
+  - `GITHUB_OWNER`, `GITHUB_REPO`, `GITHUB_TOKEN`, optional `GITHUB_API_URL`
+  - `FEEDBACK_AUTO_CREATE_ISSUES=true` to auto‑create on submit
+  - Supabase persistence: run `supabase-add-feedback.sql` and set `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+
+See docs/FEEDBACK.md for full details.
+
 ## API Endpoints
 
 ### Drug Information

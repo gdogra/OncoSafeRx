@@ -295,7 +295,7 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 <Route path="/admin/feedback" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist']}>
+                  <ProtectedRoute requiredPermission="manage_feedback">
                     <Layout>
                       <FeedbackAdmin />
                     </Layout>

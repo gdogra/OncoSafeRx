@@ -144,6 +144,20 @@ export class NoOpSupabaseService {
     // Simulate successful deletion
     return Promise.resolve(true);
   }
+
+  // Feedback (no-op / dev fallback)
+  async insertFeedback(_feedback) {
+    return null;
+  }
+  async listFeedback(_filters) {
+    return null;
+  }
+  async listAllFeedback() {
+    return null;
+  }
+  async updateFeedbackStatus(_id, _update) {
+    return null;
+  }
 }
 
 // Function to create the appropriate service

@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
 import { validateEnv, getBoolean } from './config/env.js';
 import { initSentry, sentryErrorHandler } from './config/sentry.js';
+import supabaseService from './config/supabase.js';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -171,7 +172,15 @@ app.get('/api/health', (req, res) => {
     status: 'healthy', 
     timestamp: new Date().toISOString(),
     version: '1.0.0',
-    api: 'oncosaferx'
+    api: 'oncosaferx',
+    supabase: {
+      enabled: !!supabaseService?.enabled
+    },
+    warnings: (() => {
+      const list = [];
+      if (!supabaseService?.enabled) list.push('supabase_not_configured');
+      return list;
+    })()
   });
 });
 

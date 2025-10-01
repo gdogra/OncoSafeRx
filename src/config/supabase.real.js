@@ -23,6 +23,109 @@ export class SupabaseService {
     this.enabled = !!supabase;
   }
 
+  // =============================
+  // Feedback persistence (MVP)
+  // =============================
+  async insertFeedback(feedback) {
+    if (!this.enabled) return null;
+    try {
+      const payload = {
+        id: feedback.id,
+        type: feedback.type,
+        category: feedback.category,
+        priority: feedback.priority,
+        title: feedback.title,
+        description: feedback.description,
+        page: feedback.page || null,
+        url: feedback.url || null,
+        user_agent: feedback.userAgent || null,
+        session_id: feedback.sessionId || null,
+        timestamp: feedback.timestamp,
+        status: feedback.status || 'new',
+        labels: feedback.labels || [],
+        estimated_effort: feedback.estimatedEffort || null,
+        metadata: feedback.metadata || {},
+        votes: feedback.votes || 0,
+        assignee: feedback.assignee || null,
+        sprint_target: feedback.sprintTarget || null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      const { data, error } = await this.client
+        .from('feedback')
+        .insert(payload)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error inserting feedback:', error);
+      throw error;
+    }
+  }
+
+  async listFeedback({ page = 1, limit = 50, status, priority, type } = {}) {
+    if (!this.enabled) return null;
+    try {
+      let query = this.client.from('feedback').select('*', { count: 'exact' });
+      if (status) query = query.eq('status', status);
+      if (priority) query = query.eq('priority', priority);
+      if (type) query = query.eq('type', type);
+      query = query.order('timestamp', { ascending: false });
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
+      const { data, error, count } = await query.range(from, to);
+      if (error) throw error;
+      return {
+        feedback: data || [],
+        total: count || 0,
+        page,
+        limit,
+        totalPages: Math.ceil((count || 0) / limit)
+      };
+    } catch (error) {
+      console.error('Error listing feedback:', error);
+      return null;
+    }
+  }
+
+  async listAllFeedback() {
+    if (!this.enabled) return null;
+    try {
+      const { data, error } = await this.client
+        .from('feedback')
+        .select('*')
+        .order('timestamp', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error listing all feedback:', error);
+      return null;
+    }
+  }
+
+  async updateFeedbackStatus(id, { status, assignee, sprintTarget }) {
+    if (!this.enabled) return null;
+    try {
+      const { data, error } = await this.client
+        .from('feedback')
+        .update({
+          status,
+          assignee: assignee || null,
+          sprint_target: sprintTarget || null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error updating feedback status:', error);
+      return null;
+    }
+  }
+
   // Auth admin: create Supabase Auth user (server-side only)
   async createAuthUser({ email, password, metadata = {}, email_confirm = true }) {
     if (!this.enabled) return null;

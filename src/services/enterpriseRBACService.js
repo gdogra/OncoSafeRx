@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
+import supabaseService from '../config/supabase.js';
 
 class EnterpriseRBACService {
   constructor() {
@@ -99,7 +100,8 @@ class EnterpriseRBACService {
         'admin.system_config': 'Configure system settings',
         'admin.audit_logs': 'Access audit logs',
         'admin.tenant_management': 'Manage tenant settings',
-        'admin.billing': 'Access billing information'
+        'admin.billing': 'Access billing information',
+        'admin.feedback': 'Manage user feedback and issue creation'
       },
       RESEARCH_DATA: {
         'research.clinical_trials': 'Access clinical trials data',
@@ -116,6 +118,13 @@ class EnterpriseRBACService {
     };
 
     this.initializeRolesAndPermissions();
+    this.lastSeed = {
+      tenantId: null,
+      idsAssigned: [],
+      emailsResolved: [],
+      emailsUnresolved: []
+    };
+    this.seedFromEnv();
   }
 
   /**
@@ -146,6 +155,7 @@ class EnterpriseRBACService {
         'admin.system_config',
         'admin.audit_logs',
         'admin.tenant_management',
+        'admin.feedback',
         ...this.getPermissionsByCategory('QUALITY_ASSURANCE')
       ],
       
@@ -223,6 +233,84 @@ class EnterpriseRBACService {
         effectivePermissions: this.calculateEffectivePermissions(roleName, rolePermissions)
       });
     });
+  }
+
+  /**
+   * Seed default roles for local/dev via env vars
+   * RBAC_SEED_TENANT_ID=default
+   * RBAC_SEED_TENANT_ADMIN_USER_IDS="uuid1,uuid2"
+   */
+  seedFromEnv() {
+    try {
+      const tenantId = process.env.RBAC_SEED_TENANT_ID || 'default';
+      const ids = (process.env.RBAC_SEED_TENANT_ADMIN_USER_IDS || '')
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+      const emails = (process.env.RBAC_SEED_TENANT_ADMIN_EMAILS || '')
+        .split(',')
+        .map(s => s.trim().toLowerCase())
+        .filter(Boolean);
+
+      this.lastSeed = {
+        tenantId,
+        idsAssigned: [],
+        emailsResolved: [],
+        emailsUnresolved: []
+      };
+
+      const assignId = (userId) => {
+        const userKey = `${userId}_${tenantId}`;
+        if (!this.userRoles.has(userKey)) this.userRoles.set(userKey, []);
+        this.userRoles.get(userKey).push({
+          userId,
+          tenantId,
+          roleName: 'TENANT_ADMIN',
+          assignedBy: 'system-seed',
+          assignedAt: new Date().toISOString(),
+          expiresAt: null,
+          conditions: {},
+          metadata: { assignmentReason: 'env-seed' }
+        });
+        this.clearUserCache(userId, tenantId);
+        this.lastSeed.idsAssigned.push(userId);
+      };
+
+      // Assign by IDs immediately
+      ids.forEach(assignId);
+
+      // Assign by emails (best-effort, requires Supabase or user directory)
+      if (emails.length > 0) {
+        (async () => {
+          let resolved = 0;
+          for (const email of emails) {
+            try {
+              const user = await supabaseService.getUserByEmail(email);
+              if (user?.id) { assignId(user.id); resolved++; this.lastSeed.emailsResolved.push(email); }
+              else { this.lastSeed.emailsUnresolved.push(email); }
+            } catch { this.lastSeed.emailsUnresolved.push(email); }
+          }
+          if (resolved > 0) {
+            console.log(`🔐 RBAC seeded TENANT_ADMIN for ${resolved} user(s) by email in tenant '${tenantId}'`);
+          }
+        })();
+      }
+
+      if (ids.length > 0 || emails.length > 0) {
+        console.log(`🔐 RBAC seeding requested (tenant='${tenantId}', ids=${ids.length}, emails=${emails.length})`);
+      }
+    } catch (e) {
+      console.warn('RBAC seeding failed:', e?.message || e);
+    }
+  }
+
+  getSeedStatus() {
+    return {
+      tenantId: this.lastSeed?.tenantId || null,
+      idsAssigned: this.lastSeed?.idsAssigned || [],
+      emailsResolved: this.lastSeed?.emailsResolved || [],
+      emailsUnresolved: this.lastSeed?.emailsUnresolved || []
+    };
   }
 
   /**

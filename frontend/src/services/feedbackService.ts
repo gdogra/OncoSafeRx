@@ -248,9 +248,12 @@ class FeedbackService {
   // Get analytics for feedback
   public async getFeedbackAnalytics() {
     try {
-      // Try to get from backend first (admin only)
-      if (this.getCurrentUserEmail() === 'gdogra@gmail.com') {
-        const response = await fetch('/api/feedback/admin/analytics?admin_email=' + encodeURIComponent(this.getCurrentUserEmail()));
+      // Try backend analytics if authenticated
+      const token = this.getAccessToken();
+      if (token) {
+        const response = await fetch('/api/feedback/admin/analytics', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         if (response.ok) {
           const analytics = await response.json();
           console.log('📊 Loaded analytics from backend:', analytics);
@@ -293,19 +296,16 @@ class FeedbackService {
 
   // Admin: Get all feedback from backend
   public async getAllFeedback(page = 1, limit = 50, filters: any = {}) {
-    if (this.getCurrentUserEmail() !== 'gdogra@gmail.com') {
-      throw new Error('Admin access required');
-    }
-
     try {
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
-        admin_email: this.getCurrentUserEmail(),
         ...filters
       });
 
-      const response = await fetch(`/api/feedback/admin/all?${params}`);
+      const token = this.getAccessToken();
+      const headers: any = token ? { Authorization: `Bearer ${token}` } : {};
+      const response = await fetch(`/api/feedback/admin/all?${params}`, { headers });
       if (!response.ok) {
         throw new Error('Failed to fetch feedback from server');
       }
@@ -328,14 +328,11 @@ class FeedbackService {
 
   // Admin: Update feedback status
   public async updateFeedbackStatus(id: string, status: string, assignee?: string, sprintTarget?: string) {
-    if (this.getCurrentUserEmail() !== 'gdogra@gmail.com') {
-      throw new Error('Admin access required');
-    }
-
     try {
-      const response = await fetch(`/api/feedback/admin/${id}/status?admin_email=${encodeURIComponent(this.getCurrentUserEmail())}`, {
+      const token = this.getAccessToken();
+      const response = await fetch(`/api/feedback/admin/${id}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify({ status, assignee, sprintTarget })
       });
 
@@ -354,13 +351,11 @@ class FeedbackService {
 
   // Admin: Create GitHub issue from feedback
   public async createGitHubIssue(id: string) {
-    if (this.getCurrentUserEmail() !== 'gdogra@gmail.com') {
-      throw new Error('Admin access required');
-    }
-
     try {
-      const response = await fetch(`/api/feedback/admin/${id}/create-issue?admin_email=${encodeURIComponent(this.getCurrentUserEmail())}`, {
-        method: 'POST'
+      const token = this.getAccessToken();
+      const response = await fetch(`/api/feedback/admin/${id}/create-issue`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
 
       if (!response.ok) {
@@ -373,6 +368,18 @@ class FeedbackService {
     } catch (error) {
       console.error('Error creating GitHub issue:', error);
       throw error;
+    }
+  }
+
+  // Helper: get access token from storage
+  private getAccessToken(): string | null {
+    try {
+      const raw = localStorage.getItem('osrx_auth_tokens');
+      if (!raw) return null;
+      const tokens = JSON.parse(raw);
+      return tokens?.access_token || null;
+    } catch {
+      return null;
     }
   }
 

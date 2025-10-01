@@ -4,7 +4,9 @@ import MobileLayout from '../Mobile/MobileLayout';
 import FeedbackButton from '../Feedback/FeedbackButton';
 import ComparisonTray from '../Comparison/ComparisonTray';
 import SkipLinks from '../UI/SkipLinks';
+ConnectivityStatus
 import ConnectivityStatus from '../UI/ConnectivityStatus';
+import HealthBanner from '../System/HealthBanner';
 import LogoutButton from '../Admin/LogoutButton';
 import { useIsMobile } from '../../hooks/useResponsive';
 
@@ -85,6 +87,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <ConnectivityStatus />
               </div>
             )}
+            {/* System health banner (auto-hides when healthy) */}
+            <HealthBanner className="mb-4" />
             {children}
           </div>
         </main>

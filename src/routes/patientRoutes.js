@@ -61,7 +61,12 @@ router.post('/', optionalSupabaseAuth, async (req, res) => {
     }
     
     if (!supabaseService.enabled) {
-      return res.status(503).json({ error: 'Database service unavailable' });
+      // Graceful fallback: return a mock success so UI remains responsive in prod without DB
+      const patient = req.body?.patient;
+      if (!patient) return res.status(400).json({ error: 'Missing patient' });
+      const mock = { ...patient, id: `mock-${Date.now()}` };
+      console.warn('Supabase disabled; returning mock patient success');
+      return res.json({ ok: true, patient: mock, offline: true, note: 'Supabase disabled; not persisted' });
     }
     const patient = req.body?.patient;
     if (!patient) return res.status(400).json({ error: 'Missing patient' });

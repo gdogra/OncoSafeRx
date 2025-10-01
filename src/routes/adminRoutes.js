@@ -2,6 +2,7 @@ import express from 'express';
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import supabaseService from '../config/supabase.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
+import enterpriseRBACService from '../services/enterpriseRBACService.js';
 
 const router = express.Router();
 
@@ -238,6 +239,24 @@ router.post('/sync/:type', asyncHandler(async (req, res) => {
 }));
 
 // System configuration
+
+// RBAC seed status preview
+router.get('/rbac/seed-status', asyncHandler(async (req, res) => {
+  try {
+    const status = enterpriseRBACService.getSeedStatus();
+    res.json({
+      tenantId: status.tenantId,
+      idsAssigned: status.idsAssigned,
+      emailsResolved: status.emailsResolved,
+      emailsUnresolved: status.emailsUnresolved,
+      totalAssigned: status.idsAssigned.length,
+      totalResolved: status.emailsResolved.length,
+      totalUnresolved: status.emailsUnresolved.length
+    });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to get RBAC seed status' });
+  }
+}));
 router.get('/config', asyncHandler(async (req, res) => {
   try {
     const config = {

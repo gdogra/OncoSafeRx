@@ -165,6 +165,16 @@ app.get('/health', (req, res) => {
   });
 });
 
+// API Health check endpoint (for frontend)
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    version: '1.0.0',
+    api: 'oncosaferx'
+  });
+});
+
 // Prometheus metrics
 client.collectDefaultMetrics();
 const httpRequestDuration = new client.Histogram({

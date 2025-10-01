@@ -50,10 +50,23 @@ export class SupabaseAuthService {
       if (password === 'dev' || password === 'test' || password === 'admin') {
         console.log('✅ Dev credentials accepted')
         const profile = this.createDevUser(email)
+        
+        // Create mock JWT tokens for dev mode API calls
+        const mockTokens = {
+          access_token: `dev-token-${Date.now()}`,
+          refresh_token: `dev-refresh-${Date.now()}`,
+          expires_at: Date.now() + (24 * 60 * 60 * 1000), // 24 hours from now
+          stored_at: Date.now()
+        }
+        
         try { 
           localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'dev', at: Date.now() }))
           localStorage.setItem('osrx_dev_user', JSON.stringify(profile))
-        } catch {}
+          localStorage.setItem('osrx_auth_tokens', JSON.stringify(mockTokens))
+          console.log('💾 Stored dev tokens for API calls:', { hasAccessToken: !!mockTokens.access_token, expiresIn: '24h' })
+        } catch (storageError) {
+          console.error('❌ Failed to store dev tokens:', storageError)
+        }
         return profile
       }
       
@@ -317,6 +330,35 @@ export class SupabaseAuthService {
             return null
           }
         })()
+        
+        // Check if we have valid dev tokens, create new ones if expired/missing
+        const storedTokens = (() => {
+          try {
+            const stored = localStorage.getItem('osrx_auth_tokens')
+            return stored ? JSON.parse(stored) : null
+          } catch {
+            return null
+          }
+        })()
+        
+        // Create/refresh dev tokens if needed
+        if (!storedTokens || !storedTokens.access_token || storedTokens.expires_at <= Date.now()) {
+          console.log('🔄 Creating fresh dev tokens for session restoration')
+          const mockTokens = {
+            access_token: `dev-token-${Date.now()}`,
+            refresh_token: `dev-refresh-${Date.now()}`,
+            expires_at: Date.now() + (24 * 60 * 60 * 1000), // 24 hours from now
+            stored_at: Date.now()
+          }
+          try {
+            localStorage.setItem('osrx_auth_tokens', JSON.stringify(mockTokens))
+            console.log('💾 Refreshed dev tokens for API calls')
+          } catch (storageError) {
+            console.error('❌ Failed to refresh dev tokens:', storageError)
+          }
+        } else {
+          console.log('✅ Valid dev tokens found, reusing for API calls')
+        }
         
         if (storedDevUser) {
           return storedDevUser

@@ -27,6 +27,18 @@ export const authenticateSupabase = async (req, res, next) => {
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
+    // Handle dev tokens for local development
+    if (token.startsWith('dev-token-')) {
+      console.log('🔧 Dev token detected, creating mock user for local development');
+      req.user = {
+        id: 'dev-user-local',
+        email: 'dev@oncosaferx.com',
+        role: 'oncologist',
+        isDev: true
+      };
+      return next();
+    }
+
     // Prefer server-side introspection via Supabase (works with new signing keys)
     if (supabaseAdmin) {
       const { data, error } = await supabaseAdmin.auth.getUser(token);

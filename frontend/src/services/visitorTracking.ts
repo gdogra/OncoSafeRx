@@ -68,16 +68,21 @@ class VisitorTrackingService {
   private sessionStartTime: number = 0;
   private currentPageStart: number = 0;
   private currentPageView: PageView | null = null;
-  private isTrackingEnabled: boolean = true;
+  private isTrackingEnabled: boolean = false; // Disable all tracking by default
   private apiEndpoint: string = '/api/analytics';
-  private enableServerAnalytics: boolean = false; // Disable analytics to eliminate 404 errors
+  private enableServerAnalytics: boolean = false; // Completely disable analytics to eliminate 404 errors
 
   constructor() {
     this.initializeTracking();
   }
 
   private initializeTracking(): void {
-    // Check if user has opted out of tracking OR server analytics disabled
+    // Analytics completely disabled - never initialize
+    console.debug('🚫 Analytics tracking completely disabled');
+    this.isTrackingEnabled = false;
+    return;
+    
+    // Legacy code (unreachable) - kept for reference
     const hasOptedOut = localStorage.getItem('analytics_opt_out') === 'true';
     if (hasOptedOut || !this.enableServerAnalytics) {
       this.isTrackingEnabled = false;
@@ -368,8 +373,9 @@ class VisitorTrackingService {
   }
 
   private async sendToServer(eventType: string, data: any): Promise<void> {
+    // ALWAYS return early - server analytics completely disabled
+    if (!this.enableServerAnalytics) return;
     if (!this.isTrackingEnabled) return;
-    if (!this.enableServerAnalytics) return; // server analytics disabled by default
 
     try {
       const payload = {

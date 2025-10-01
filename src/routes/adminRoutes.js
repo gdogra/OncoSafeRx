@@ -257,6 +257,53 @@ router.get('/rbac/seed-status', asyncHandler(async (req, res) => {
     res.status(500).json({ error: 'Failed to get RBAC seed status' });
   }
 }));
+
+// Deployment status (Netlify + Render)
+router.get('/deploy/status', asyncHandler(async (req, res) => {
+  const result = { netlify: null, render: null, warnings: [] };
+  // Netlify
+  try {
+    const NETLIFY_TOKEN = process.env.NETLIFY_AUTH_TOKEN;
+    const NETLIFY_SITE_ID = process.env.NETLIFY_SITE_ID;
+    if (NETLIFY_TOKEN && NETLIFY_SITE_ID) {
+      const resp = await fetch(`https://api.netlify.com/api/v1/sites/${NETLIFY_SITE_ID}/deploys?per_page=1`, {
+        headers: { Authorization: `Bearer ${NETLIFY_TOKEN}` }
+      });
+      if (resp.ok) {
+        const arr = await resp.json();
+        result.netlify = Array.isArray(arr) && arr.length ? arr[0] : null;
+      } else {
+        result.warnings.push(`netlify_http_${resp.status}`);
+      }
+    } else {
+      result.warnings.push('netlify_not_configured');
+    }
+  } catch (e) {
+    result.warnings.push('netlify_fetch_error');
+  }
+  // Render
+  try {
+    const RENDER_KEY = process.env.RENDER_API_KEY;
+    const RENDER_SERVICE_ID = process.env.RENDER_SERVICE_ID;
+    if (RENDER_KEY && RENDER_SERVICE_ID) {
+      const resp = await fetch(`https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys?limit=1`, {
+        headers: { Authorization: `Bearer ${RENDER_KEY}` }
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        // Render returns an array or object depending on endpoint; accommodate both
+        result.render = Array.isArray(data) ? (data[0] || null) : (data?.deploys?.[0] || data || null);
+      } else {
+        result.warnings.push(`render_http_${resp.status}`);
+      }
+    } else {
+      result.warnings.push('render_not_configured');
+    }
+  } catch (e) {
+    result.warnings.push('render_fetch_error');
+  }
+  res.json(result);
+}));
 router.get('/config', asyncHandler(async (req, res) => {
   try {
     const config = {

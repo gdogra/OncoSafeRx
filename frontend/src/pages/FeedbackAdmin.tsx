@@ -5,6 +5,7 @@ import FeedbackDashboard from '../components/Feedback/FeedbackDashboard';
 import GitHubIntegration from '../components/Feedback/GitHubIntegration';
 import FeedbackList from '../components/Feedback/FeedbackList';
 import HealthBanner from '../components/System/HealthBanner';
+import DeployStatusPanel from '../components/Admin/DeployStatusPanel';
 import { useToast } from '../components/UI/Toast';
 import { feedbackService } from '../services/feedbackService';
 
@@ -293,6 +294,9 @@ const FeedbackAdmin: React.FC = () => {
 
       {/* GitHub Integration */}
       <GitHubIntegration onConfigChange={loadAnalytics} />
+
+      {/* Deploy Status */}
+      <DeployStatusPanel />
 
       {/* RBAC Seed Status */}
       <Card>

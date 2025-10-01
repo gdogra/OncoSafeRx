@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 
@@ -25,6 +26,7 @@ function decodeJwt(token: string | null): any | null {
 
 const AuthDiagnostics: React.FC = () => {
   const { state: authState } = useAuth();
+  const navigate = useNavigate();
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [claims, setClaims] = useState<any | null>(null);
   const [serverVerify, setServerVerify] = useState<VerifyResult | null>(null);
@@ -257,6 +259,21 @@ const AuthDiagnostics: React.FC = () => {
     <div className="max-w-5xl mx-auto p-6">
       <h1 className="text-2xl font-semibold text-gray-900 mb-4">Auth Diagnostics</h1>
       <p className="text-sm text-gray-600 mb-6">View current session, verify with backend, and confirm profile row. Dev auth is supported.</p>
+      {/* Quick Actions */}
+      <div className="mb-6 flex items-center gap-3">
+        <button
+          onClick={() => navigate(`/auth?next=${encodeURIComponent('/auth-diagnostics')}`)}
+          className="px-3 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Sign in via Supabase
+        </button>
+        <button
+          onClick={() => refresh()}
+          className="px-3 py-2 text-sm bg-gray-100 rounded hover:bg-gray-200"
+        >
+          Refresh Session
+        </button>
+      </div>
 
       <div className="space-y-6">
         <div className="bg-white border border-gray-200 rounded p-4">
@@ -365,6 +382,32 @@ const AuthDiagnostics: React.FC = () => {
                 <div className="mt-2 text-xs text-gray-500">Tip: No Supabase session detected. The server demo endpoint will be used to insert a profile row (dev-only).</div>
               )}
             </div>
+          )}
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded p-4">
+          <h2 className="text-lg font-medium text-gray-900 mb-2">Server Config Check</h2>
+          {configError && <div className="text-sm text-red-700">{configError}</div>}
+          {configCheck ? (
+            <div className="text-sm text-gray-700 grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div>
+                <div className="font-medium">Supabase</div>
+                <div>Enabled: {String(configCheck.supabase?.enabled)}</div>
+                <div>URL present: {String(configCheck.supabase?.urlPresent)}</div>
+                <div>Service role present: {String(configCheck.supabase?.serviceRolePresent)}</div>
+                <div>JWT secret present: {String(configCheck.supabase?.jwtSecretPresent)}</div>
+              </div>
+              <div>
+                <div className="font-medium">Deploy Integrations</div>
+                <div>Netlify configured: {String(configCheck.netlify?.configured)}</div>
+                <div>Render configured: {String(configCheck.render?.configured)}</div>
+              </div>
+              {configCheck.warnings?.length > 0 && (
+                <div className="md:col-span-2 text-xs text-yellow-700">Warnings: {configCheck.warnings.join(', ')}</div>
+              )}
+            </div>
+          ) : (
+            <div className="text-sm text-gray-500">Loading…</div>
           )}
         </div>
       </div>

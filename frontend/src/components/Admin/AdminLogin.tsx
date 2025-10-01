@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Shield, Lock, User, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES, PERMISSIONS, useRBAC } from '../../utils/rbac';
@@ -18,6 +18,9 @@ const AdminLogin: React.FC = () => {
   const { actions, state } = useAuth();
   const navigate = useNavigate();
   const rbac = useRBAC(state.user);
+  const location = useLocation();
+  const search = new URLSearchParams(location.search);
+  const nextPath = search.get('next') || '/admin';
 
   // Check if user is already logged in and has admin access
   React.useEffect(() => {
@@ -26,14 +29,14 @@ const AdminLogin: React.FC = () => {
       const canAccess = rbac.canAccessAdminConsole();
       console.log('AdminLogin useEffect - Can access admin console:', canAccess);
       if (canAccess) {
-        console.log('AdminLogin useEffect - Navigating to /admin');
-        navigate('/admin');
+        console.log('AdminLogin useEffect - Navigating to', nextPath);
+        navigate(nextPath);
       } else {
         console.log('AdminLogin useEffect - User lacks admin privileges');
         setError('Current user does not have administrator privileges. Please login with an admin account.');
       }
     }
-  }, [state.isAuthenticated, state.user, rbac, navigate]);
+  }, [state.isAuthenticated, state.user, rbac, navigate, nextPath]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

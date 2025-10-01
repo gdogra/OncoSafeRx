@@ -184,6 +184,31 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Config check (server-side environment visibility; masked/summarized)
+app.get('/api/config/check', (req, res) => {
+  try {
+    const cfg = {
+      supabase: {
+        enabled: !!(process.env.SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY)),
+        urlPresent: !!process.env.SUPABASE_URL,
+        serviceRolePresent: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+        jwtSecretPresent: !!process.env.SUPABASE_JWT_SECRET,
+      },
+      netlify: {
+        configured: !!(process.env.NETLIFY_AUTH_TOKEN && process.env.NETLIFY_SITE_ID)
+      },
+      render: {
+        configured: !!(process.env.RENDER_API_KEY && process.env.RENDER_SERVICE_ID)
+      },
+      warnings: []
+    };
+    if (!cfg.supabase.enabled) cfg.warnings.push('supabase_not_configured');
+    return res.json(cfg);
+  } catch (e) {
+    return res.status(500).json({ error: 'Failed to read config' });
+  }
+});
+
 // Prometheus metrics
 client.collectDefaultMetrics();
 const httpRequestDuration = new client.Histogram({

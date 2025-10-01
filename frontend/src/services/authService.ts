@@ -647,8 +647,15 @@ export class SupabaseAuthService {
           }
         })()
         
-        // Create updated profile
-        const currentProfile = storedProfile || this.createDevUser('user@oncosaferx.com')
+        // Create updated profile, preserving original user ID
+        const currentProfile = storedProfile || {
+          id: userId,
+          email: 'user@oncosaferx.com',
+          firstName: 'User',
+          lastName: 'Name',
+          role: 'oncologist',
+          ...updates
+        }
         const updatedProfile = { ...currentProfile, ...updates }
         
         // Store updated profile

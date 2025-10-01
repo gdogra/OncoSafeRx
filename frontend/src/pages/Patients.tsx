@@ -10,8 +10,16 @@ import Tooltip from '../components/UI/Tooltip';
 
 const Patients: React.FC = () => {
   const navigate = useNavigate();
-  const { state } = usePatient();
+  const { state, dispatch } = usePatient();
   const { currentPatient } = state;
+
+  const dismissOfflineBanner = () => {
+    try {
+      const key = 'oncosaferx:offline_banner_dismissed';
+      sessionStorage.setItem(key, '1');
+    } catch {}
+    dispatch({ type: 'DISMISS_OFFLINE_BANNER' } as any);
+  };
 
   const handleCheckInteractions = () => {
     if (currentPatient) {
@@ -37,15 +45,16 @@ const Patients: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Offline persistence banner */}
-      {state.lastSaveOffline && (
+      {state.lastSaveOffline && state.showOfflineBanner && (
         <div className="rounded-md border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800">
           <div className="flex items-start justify-between">
             <div>
               <div className="font-medium">Saved locally — not persisted</div>
               <div>{state.offlineNote || 'The server is not configured for persistence. Data was saved locally only.'}</div>
             </div>
-            <div className="text-xs">
+            <div className="text-xs flex items-center gap-3">
               <Link to="/auth-diagnostics" className="text-blue-700 hover:underline">Auth Diagnostics</Link>
+              <button onClick={dismissOfflineBanner} className="px-2 py-1 border rounded bg-white text-yellow-800 hover:bg-yellow-100">Dismiss</button>
             </div>
           </div>
         </div>

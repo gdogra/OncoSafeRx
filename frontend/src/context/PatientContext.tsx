@@ -11,6 +11,7 @@ interface PatientState {
   error: string | null;
   lastSaveOffline?: boolean;
   offlineNote?: string | null;
+  showOfflineBanner?: boolean;
 }
 
 type PatientAction =
@@ -28,6 +29,7 @@ type PatientAction =
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'CLEAR_ERROR' };
   | { type: 'SET_OFFLINE_SAVE'; payload: { offline: boolean; note?: string | null } };
+  | { type: 'DISMISS_OFFLINE_BANNER' };
 
 const initialState: PatientState = {
   currentPatient: null,
@@ -38,6 +40,7 @@ const initialState: PatientState = {
   error: null,
   lastSaveOffline: false,
   offlineNote: null,
+  showOfflineBanner: false,
 };
 
 function patientReducer(state: PatientState, action: PatientAction): PatientState {
@@ -164,6 +167,14 @@ function patientReducer(state: PatientState, action: PatientAction): PatientStat
         ...state,
         lastSaveOffline: action.payload.offline,
         offlineNote: action.payload.note ?? null,
+        // When we get a new offline signal, re-show the banner. Hide when offline=false
+        showOfflineBanner: action.payload.offline ? true : false,
+      };
+
+    case 'DISMISS_OFFLINE_BANNER':
+      return {
+        ...state,
+        showOfflineBanner: false,
       };
 
     default:
@@ -220,6 +231,12 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       // Reset state before loading (switching users)
       dispatch({ type: 'SET_CURRENT_PATIENT', payload: null });
+      // Reset offline banner dismissed flag per session; we re-respect sessionStorage dismissal below
+      const keyDismiss = 'oncosaferx:offline_banner_dismissed';
+      const dismissed = (() => { try { return sessionStorage.getItem(keyDismiss) === '1'; } catch { return false; } })();
+      if (dismissed) {
+        dispatch({ type: 'SET_OFFLINE_SAVE', payload: { offline: false } });
+      }
 
       if (toUseCurrent) {
         const patient = JSON.parse(toUseCurrent);

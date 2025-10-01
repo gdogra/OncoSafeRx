@@ -610,9 +610,12 @@ export class SupabaseAuthService {
 
     // Production mode: Try Supabase auth first, fallback to localStorage
     try {
+      console.log('🔍 Attempting to get current user from Supabase...')
       const { data: user } = await supabase.auth.getUser()
+      console.log('🔍 Supabase getUser result:', user?.user ? 'user found' : 'no user')
       if (!user.user) throw new Error('No authenticated user')
       
+      console.log('🔍 Attempting to update user metadata in Supabase...')
       // Update user metadata in Supabase auth
       const { data, error } = await supabase.auth.updateUser({
         data: {
@@ -628,11 +631,13 @@ export class SupabaseAuthService {
         }
       })
       
+      console.log('🔍 Supabase updateUser result:', { data: !!data, error: !!error })
       if (error) throw new Error(error.message)
       
       console.log('✅ Profile updated successfully via Supabase')
       return this.buildUserProfile(data.user!)
     } catch (error) {
+      console.log('🚨 Supabase auth update failed, falling back to localStorage:', error?.message || error)
       console.error('Failed to update user profile via Supabase:', error)
       
       // Fallback: Store profile updates in localStorage for unauthenticated users

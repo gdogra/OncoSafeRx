@@ -92,14 +92,18 @@ const PatientDashboard: React.FC = () => {
     alert.patientId === currentPatient.id && !alert.isAcknowledged
   );
 
-  const getRecentLabs = () => currentPatient.labValues
+  const getRecentLabs = () => (currentPatient.labValues || [])
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
     .slice(0, 5);
 
-  const getActiveMedications = () => currentPatient.medications.filter(med => med.isActive);
+  const getActiveMedications = () => (currentPatient.medications || []).filter(med => med.isActive);
 
-  const getRecentVitals = () => currentPatient.vitals
-    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+  const getRecentVitals = () => {
+    const vitals = currentPatient.vitals || [];
+    return vitals.length > 0 
+      ? vitals.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0]
+      : null;
+  };
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Eye },

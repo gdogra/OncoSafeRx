@@ -27,8 +27,8 @@ type PatientAction =
   | { type: 'END_SESSION'; payload: string }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'CLEAR_ERROR' };
-  | { type: 'SET_OFFLINE_SAVE'; payload: { offline: boolean; note?: string | null } };
+  | { type: 'CLEAR_ERROR' }
+  | { type: 'SET_OFFLINE_SAVE'; payload: { offline: boolean; note?: string | null } }
   | { type: 'DISMISS_OFFLINE_BANNER' };
 
 const initialState: PatientState = {

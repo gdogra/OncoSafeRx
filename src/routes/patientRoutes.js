@@ -11,7 +11,7 @@ router.get('/', optionalSupabaseAuth, async (req, res) => {
     // Create a default user if none is authenticated (for production without login)
     if (!req.user) {
       req.user = {
-        id: 'default-user-production',
+        id: '00000000-0000-0000-0000-000000000001',
         email: 'user@oncosaferx.com',
         role: 'oncologist',
         isDefault: true
@@ -52,7 +52,7 @@ router.post('/', optionalSupabaseAuth, async (req, res) => {
     // Create a default user if none is authenticated (for production without login)
     if (!req.user) {
       req.user = {
-        id: 'default-user-production',
+        id: '00000000-0000-0000-0000-000000000001',
         email: 'user@oncosaferx.com',
         role: 'oncologist',
         isDefault: true
@@ -105,7 +105,7 @@ router.get('/:id', optionalSupabaseAuth, async (req, res) => {
     // Create a default user if none is authenticated (for production without login)
     if (!req.user) {
       req.user = {
-        id: 'default-user-production',
+        id: '00000000-0000-0000-0000-000000000001',
         email: 'user@oncosaferx.com',
         role: 'oncologist',
         isDefault: true
@@ -135,7 +135,7 @@ router.delete('/:id', optionalSupabaseAuth, async (req, res) => {
     // Create a default user if none is authenticated (for production without login)
     if (!req.user) {
       req.user = {
-        id: 'default-user-production',
+        id: '00000000-0000-0000-0000-000000000001',
         email: 'user@oncosaferx.com',
         role: 'oncologist',
         isDefault: true

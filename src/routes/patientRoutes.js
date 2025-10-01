@@ -91,7 +91,9 @@ router.post('/', optionalSupabaseAuth, async (req, res) => {
         }
       } catch (_) {}
     }
+    console.log('🔄 Attempting to save patient for user:', req.user.id);
     const saved = await supabaseService.upsertPatient(req.user.id, patient);
+    console.log('✅ Patient saved successfully:', { id: saved.id, userId: saved.user_id });
     return res.json({ ok: true, patient: saved, offline: false });
   } catch (e) {
     return res.status(500).json({ error: e?.message || 'Failed to save patient' });

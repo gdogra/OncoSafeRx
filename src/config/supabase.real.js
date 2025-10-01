@@ -484,6 +484,7 @@ export class SupabaseService {
   async upsertPatient(userId, patient) {
     if (!this.enabled) return patient;
     try {
+      console.log('📝 Attempting to upsert patient:', { userId, patientId: patient.id, hasData: !!patient });
       const payload = {
         id: patient.id,
         user_id: userId,
@@ -491,16 +492,30 @@ export class SupabaseService {
         updated_at: new Date().toISOString(),
       };
       if (!payload.id) delete payload.id;
+      
+      console.log('📤 Supabase upsert payload:', { 
+        hasId: !!payload.id, 
+        userId: payload.user_id, 
+        dataKeys: Object.keys(payload.data || {})
+      });
+      
       const { data, error } = await this.client
         .from('patients')
         .upsert(payload, { onConflict: 'id' })
         .select()
         .single();
-      if (error) throw error;
+        
+      if (error) {
+        console.error('❌ Supabase upsert error:', error);
+        throw error;
+      }
+      
+      console.log('✅ Patient upserted successfully:', { id: data.id, userId: data.user_id });
       return data;
     } catch (error) {
-      console.error('Error upserting patient:', error);
-      return patient;
+      console.error('💥 Error upserting patient:', error);
+      // Re-throw the error instead of swallowing it
+      throw error;
     }
   }
 

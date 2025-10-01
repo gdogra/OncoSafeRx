@@ -1,16 +1,8 @@
--- Add default user for production without authentication
+-- Check existing users and get their IDs
 -- Run this in your Supabase SQL Editor
 
--- Ultra-minimal insert with a proper UUID
-INSERT INTO users (id, email, role)
-VALUES (
-  '00000000-0000-0000-0000-000000000001',
-  'user@oncosaferx.com',
-  'oncologist'
-)
-ON CONFLICT (id) DO NOTHING;
-
--- Verify the user was created
-SELECT id, email, role 
+-- Show existing users
+SELECT id, email, first_name, last_name, role, created_at 
 FROM users 
-WHERE id = '00000000-0000-0000-0000-000000000001';
+WHERE email IN ('tenniscommunity2@gmail.com', 'gdogra@gmail.com')
+ORDER BY created_at;

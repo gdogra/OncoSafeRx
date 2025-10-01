@@ -485,6 +485,7 @@ export class SupabaseService {
     if (!this.enabled) return patient;
     try {
       console.log('📝 Attempting to upsert patient:', { userId, patientId: patient.id, hasData: !!patient });
+      
       const payload = {
         id: patient.id,
         user_id: userId,

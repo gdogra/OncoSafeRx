@@ -9,6 +9,8 @@ interface PatientState {
   activeSessions: ClinicalSession[];
   isLoading: boolean;
   error: string | null;
+  lastSaveOffline?: boolean;
+  offlineNote?: string | null;
 }
 
 type PatientAction =
@@ -25,6 +27,7 @@ type PatientAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'CLEAR_ERROR' };
+  | { type: 'SET_OFFLINE_SAVE'; payload: { offline: boolean; note?: string | null } };
 
 const initialState: PatientState = {
   currentPatient: null,
@@ -33,6 +36,8 @@ const initialState: PatientState = {
   activeSessions: [],
   isLoading: false,
   error: null,
+  lastSaveOffline: false,
+  offlineNote: null,
 };
 
 function patientReducer(state: PatientState, action: PatientAction): PatientState {
@@ -152,6 +157,13 @@ function patientReducer(state: PatientState, action: PatientAction): PatientStat
       return {
         ...state,
         error: null,
+      };
+
+    case 'SET_OFFLINE_SAVE':
+      return {
+        ...state,
+        lastSaveOffline: action.payload.offline,
+        offlineNote: action.payload.note ?? null,
       };
 
     default:
@@ -551,11 +563,21 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
           const { data: sess } = await supabase.auth.getSession();
           const token = sess?.session?.access_token;
           if (!token) return;
-          await fetch('/api/patients', {
+          const resp = await fetch('/api/patients', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({ patient: state.currentPatient })
           });
+          try {
+            const body = await resp.json();
+            if (body && typeof body.offline !== 'undefined') {
+              dispatch({ type: 'SET_OFFLINE_SAVE', payload: { offline: !!body.offline, note: body.note || null } });
+            } else {
+              dispatch({ type: 'SET_OFFLINE_SAVE', payload: { offline: false } });
+            }
+          } catch {
+            dispatch({ type: 'SET_OFFLINE_SAVE', payload: { offline: false } });
+          }
         } catch {}
       })();
     } else {

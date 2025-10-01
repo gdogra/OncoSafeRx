@@ -36,6 +36,20 @@ const Patients: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Offline persistence banner */}
+      {state.lastSaveOffline && (
+        <div className="rounded-md border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800">
+          <div className="flex items-start justify-between">
+            <div>
+              <div className="font-medium">Saved locally — not persisted</div>
+              <div>{state.offlineNote || 'The server is not configured for persistence. Data was saved locally only.'}</div>
+            </div>
+            <div className="text-xs">
+              <Link to="/auth-diagnostics" className="text-blue-700 hover:underline">Auth Diagnostics</Link>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">

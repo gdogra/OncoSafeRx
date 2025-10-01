@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Activity, Search, AlertTriangle, Dna, FileText, HelpCircle, Users, Stethoscope, LogIn, LogOut, User as UserIcon, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -13,6 +13,7 @@ const Header: React.FC = () => {
   const [accountOpen, setAccountOpen] = useState<boolean>(false);
   const signInProdOnly = (import.meta as any)?.env?.VITE_SIGNIN_PROD_ONLY === 'true';
   const canShowSignIn = !signInProdOnly || (import.meta as any)?.env?.MODE === 'production';
+  const accountRef = useRef<HTMLDivElement | null>(null);
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -37,6 +38,19 @@ const Header: React.FC = () => {
       mounted = false;
     };
   }, []);
+
+  // Close account menu on outside click
+  useEffect(() => {
+    function handleOutside(e: MouseEvent) {
+      if (!accountOpen) return;
+      const el = accountRef.current;
+      if (el && e.target instanceof Node && !el.contains(e.target)) {
+        setAccountOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, [accountOpen]);
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: Activity },
@@ -95,7 +109,7 @@ const Header: React.FC = () => {
           </nav>
 
           {/* Account / Auth controls */}
-          <div className="hidden md:flex items-center gap-3 relative">
+          <div className="hidden md:flex items-center gap-3 relative" ref={accountRef}>
             {state.isAuthenticated && state.user ? (
               <div className="flex items-center gap-2 text-sm text-gray-700">
                 <button
@@ -104,12 +118,24 @@ const Header: React.FC = () => {
                   aria-haspopup="menu"
                   aria-expanded={accountOpen}
                 >
-                  <UserIcon className="w-4 h-4" />
+                  {/* Avatar */}
+                  <div className="w-6 h-6 rounded-full bg-primary-600 text-white flex items-center justify-center text-[11px]">
+                    {(state.user.email || '?').charAt(0).toUpperCase()}
+                  </div>
                   <span className="truncate max-w-[160px]" title={state.user.email}>{state.user.email}</span>
                   <ChevronDown className={`w-4 h-4 transition-transform ${accountOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {accountOpen && (
                   <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                    <div className="px-3 py-2 text-xs text-gray-700 border-b flex items-center justify-between">
+                      <span className="inline-flex items-center gap-2">
+                        <UserIcon className="w-3.5 h-3.5 text-gray-500" />
+                        <span className="truncate max-w-[140px]" title={state.user.email}>{state.user.email}</span>
+                      </span>
+                      <span className="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-700">
+                        {String(state.user.role || 'user')}
+                      </span>
+                    </div>
                     <div className="px-3 py-2 text-xs text-gray-500 border-b">
                       {hasSupabaseSession ? (
                         <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Supabase session</span>

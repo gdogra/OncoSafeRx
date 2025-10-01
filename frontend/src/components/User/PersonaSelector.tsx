@@ -255,7 +255,19 @@ const PersonaSelector: React.FC = () => {
   };
 
   const availablePersonas = getPersonasForRole(user.role);
-  const currentPersona = user.persona;
+  const currentPersona = user.persona || availablePersonas[0] || {
+    id: 'default',
+    name: 'Default Oncologist',
+    description: 'Standard oncology practice',
+    experienceLevel: 'intermediate' as const,
+    specialties: ['Medical Oncology'],
+    preferences: {
+      riskTolerance: 'moderate' as const,
+      alertLevel: 'standard' as const,
+      autoCalculations: true,
+      showAdvancedOptions: true
+    }
+  };
 
   const handlePersonaSwitch = (persona: UserPersona) => {
     actions.switchPersona(persona);
@@ -317,29 +329,29 @@ const PersonaSelector: React.FC = () => {
             <div className="flex-1">
               <div className="flex items-center space-x-3 mb-2">
                 <Tooltip
-                  content={`Experience Level: ${currentPersona.experienceLevel} - affects UI complexity and available features`}
+                  content={`Experience Level: ${currentPersona?.experienceLevel || 'intermediate'} - affects UI complexity and available features`}
                   type="clinical"
                 >
-                  <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getExperienceColor(currentPersona.experienceLevel)} cursor-help`}>
-                    {getExperienceIcon(currentPersona.experienceLevel)}
-                    <span className="capitalize">{currentPersona.experienceLevel}</span>
+                  <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getExperienceColor(currentPersona?.experienceLevel || 'intermediate')} cursor-help`}>
+                    {getExperienceIcon(currentPersona?.experienceLevel || 'intermediate')}
+                    <span className="capitalize">{currentPersona?.experienceLevel || 'intermediate'}</span>
                   </div>
                 </Tooltip>
                 <Tooltip
-                  content={`Risk Tolerance: ${currentPersona.preferences.riskTolerance} - influences alert sensitivity and decision support`}
+                  content={`Risk Tolerance: ${currentPersona?.preferences?.riskTolerance || 'moderate'} - influences alert sensitivity and decision support`}
                   type="warning"
                 >
-                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${getRiskToleranceColor(currentPersona.preferences.riskTolerance)} cursor-help`}>
-                    {currentPersona.preferences.riskTolerance} risk
+                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${getRiskToleranceColor(currentPersona?.preferences?.riskTolerance || 'moderate')} cursor-help`}>
+                    {currentPersona?.preferences?.riskTolerance || 'moderate'} risk
                   </div>
                 </Tooltip>
               </div>
               
-              <h4 className="font-semibold text-gray-900 mb-1">{currentPersona.name}</h4>
-              <p className="text-sm text-gray-600 mb-3">{currentPersona.description}</p>
+              <h4 className="font-semibold text-gray-900 mb-1">{currentPersona?.name || 'Default User'}</h4>
+              <p className="text-sm text-gray-600 mb-3">{currentPersona?.description || 'Standard practice profile'}</p>
               
               <div className="flex flex-wrap gap-2">
-                {currentPersona.specialties.map((specialty, index) => (
+                {(currentPersona.specialties || []).map((specialty, index) => (
                   <span key={index} className="px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-md">
                     {specialty}
                   </span>
@@ -366,7 +378,7 @@ const PersonaSelector: React.FC = () => {
                 key={persona.id}
                 onClick={() => handlePersonaSwitch(persona)}
                 className={`p-4 border rounded-lg cursor-pointer transition-all ${
-                  persona.id === currentPersona.id
+                  persona.id === currentPersona?.id
                     ? 'border-primary-300 bg-primary-50'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 }`}
@@ -399,7 +411,7 @@ const PersonaSelector: React.FC = () => {
                   </div>
                   
                   <div className="ml-4">
-                    {persona.id === currentPersona.id ? (
+                    {persona.id === currentPersona?.id ? (
                       <CheckCircle className="w-6 h-6 text-green-600" />
                     ) : (
                       <div className="w-6 h-6 border-2 border-gray-300 rounded-full"></div>

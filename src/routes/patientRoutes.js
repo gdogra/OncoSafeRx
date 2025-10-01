@@ -8,8 +8,15 @@ const router = express.Router();
 
 router.get('/', optionalSupabaseAuth, async (req, res) => {
   try {
+    // Create a default user if none is authenticated (for production without login)
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required', patients: [], total: 0 });
+      req.user = {
+        id: 'default-user-production',
+        email: 'user@oncosaferx.com',
+        role: 'oncologist',
+        isDefault: true
+      };
+      console.log('🔄 Using default user for unauthenticated request');
     }
     
     if (!supabaseService.enabled) {
@@ -42,8 +49,15 @@ router.get('/', optionalSupabaseAuth, async (req, res) => {
 
 router.post('/', optionalSupabaseAuth, async (req, res) => {
   try {
+    // Create a default user if none is authenticated (for production without login)
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
+      req.user = {
+        id: 'default-user-production',
+        email: 'user@oncosaferx.com',
+        role: 'oncologist',
+        isDefault: true
+      };
+      console.log('🔄 Using default user for patient creation');
     }
     
     if (!supabaseService.enabled) {
@@ -86,8 +100,15 @@ router.post('/', optionalSupabaseAuth, async (req, res) => {
 
 router.get('/:id', optionalSupabaseAuth, async (req, res) => {
   try {
+    // Create a default user if none is authenticated (for production without login)
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
+      req.user = {
+        id: 'default-user-production',
+        email: 'user@oncosaferx.com',
+        role: 'oncologist',
+        isDefault: true
+      };
+      console.log('🔄 Using default user for patient retrieval');
     }
     
     if (!supabaseService.enabled) {
@@ -109,8 +130,15 @@ router.get('/:id', optionalSupabaseAuth, async (req, res) => {
 
 router.delete('/:id', optionalSupabaseAuth, async (req, res) => {
   try {
+    // Create a default user if none is authenticated (for production without login)
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
+      req.user = {
+        id: 'default-user-production',
+        email: 'user@oncosaferx.com',
+        role: 'oncologist',
+        isDefault: true
+      };
+      console.log('🔄 Using default user for patient deletion');
     }
     
     if (!supabaseService.enabled) {

@@ -48,11 +48,17 @@ const UserProfile: React.FC = () => {
   }
 
   const handleSaveProfile = async () => {
+    console.log('🔄 Profile save button clicked!');
+    console.log('🔍 Current editedUser:', editedUser);
+    console.log('🔍 Actions available:', !!actions);
+    console.log('🔍 updateProfile function:', typeof actions?.updateProfile);
     try {
+      console.log('🚀 Calling actions.updateProfile...');
       await actions.updateProfile(editedUser);
+      console.log('✅ Profile update successful');
       setIsEditing(false);
     } catch (error) {
-      console.error('Failed to update profile:', error);
+      console.error('❌ Failed to update profile:', error);
     }
   };
 

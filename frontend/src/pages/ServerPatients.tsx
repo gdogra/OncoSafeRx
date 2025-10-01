@@ -198,7 +198,9 @@ const ServerPatients: React.FC = () => {
     try {
       const { data: sess } = await supabase.auth.getSession();
       const token = sess?.session?.access_token;
-      if (!token) { setSaveError('Not authenticated'); setSaving(false); return; }
+      if (!token) { 
+        console.log('⚠️ No Supabase token, proceeding without authentication (backend will use default user)');
+      }
       const base = editing.original?.data || editing.original;
       const updated = {
         ...(base || {}),
@@ -213,9 +215,13 @@ const ServerPatients: React.FC = () => {
         },
         lastUpdated: new Date().toISOString(),
       };
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
       const resp = await fetch('/api/patients', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers,
         body: JSON.stringify({ patient: updated })
       });
       if (!resp.ok) {

@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, Search, AlertTriangle, Dna, FileText, HelpCircle, Users, Stethoscope } from 'lucide-react';
+import { Activity, Search, AlertTriangle, Dna, FileText, HelpCircle, Users, Stethoscope, LogIn, LogOut, User as UserIcon } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { supabase } from '../../lib/supabase';
 import { interactionService } from '../../services/api';
 
 const Header: React.FC = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { state, actions } = useAuth();
+  const [hasSupabaseSession, setHasSupabaseSession] = useState<boolean>(false);
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -15,6 +19,10 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     let mounted = true;
+    // Check Supabase session presence
+    supabase.auth.getSession().then(({ data }) => {
+      if (mounted) setHasSupabaseSession(!!data?.session);
+    }).catch(() => {});
     interactionService
       .getKnownInteractions({ limit: 1 })
       .then((data) => {
@@ -83,6 +91,42 @@ const Header: React.FC = () => {
             ))}
           </nav>
 
+          {/* Account / Auth controls */}
+          <div className="hidden md:flex items-center gap-3">
+            {state.isAuthenticated && state.user ? (
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <UserIcon className="w-4 h-4" />
+                <span className="truncate max-w-[160px]" title={state.user.email}>{state.user.email}</span>
+                {hasSupabaseSession ? (
+                  <span className="ml-2 inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Supabase</span>
+                ) : (
+                  <Link
+                    to={`/auth?next=${encodeURIComponent(location.pathname)}`}
+                    className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                    title="Sign in via Supabase"
+                  >
+                    <LogIn className="w-3.5 h-3.5" /> Sign in
+                  </Link>
+                )}
+                <button
+                  onClick={() => actions.logout()}
+                  className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200"
+                  title="Log out"
+                >
+                  <LogOut className="w-3.5 h-3.5" /> Logout
+                </button>
+              </div>
+            ) : (
+              <Link
+                to={`/auth?next=${encodeURIComponent(location.pathname)}`}
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                title="Sign in via Supabase"
+              >
+                <LogIn className="w-4 h-4" /> Sign In
+              </Link>
+            )}
+          </div>
+
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button
@@ -118,6 +162,18 @@ const Header: React.FC = () => {
                 <span>{label}</span>
               </Link>
             ))}
+            <div className="mt-2 border-t pt-2">
+              {state.isAuthenticated && state.user ? (
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-700 truncate max-w-[60%]" title={state.user.email}>{state.user.email}</div>
+                  <button onClick={() => { actions.logout(); setMobileMenuOpen(false); }} className="px-3 py-1.5 text-sm bg-gray-100 rounded">Logout</button>
+                </div>
+              ) : (
+                <Link to={`/auth?next=${encodeURIComponent(location.pathname)}`} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 text-sm bg-blue-600 text-white rounded">
+                  Sign In
+                </Link>
+              )}
+            </div>
           </div>
         </div>
       )}

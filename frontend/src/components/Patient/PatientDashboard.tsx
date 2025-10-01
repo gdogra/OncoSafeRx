@@ -267,7 +267,7 @@ const PatientDashboard: React.FC = () => {
               <span>Allergies</span>
             </div>
             <div className="text-lg font-semibold text-gray-900 mt-1">
-              {currentPatient.allergies.length}
+              {(currentPatient.allergies || []).length}
             </div>
           </div>
 
@@ -398,9 +398,9 @@ const PatientDashboard: React.FC = () => {
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
-                {currentPatient.allergies.length > 0 ? (
+                {(currentPatient.allergies || []).length > 0 ? (
                   <div className="space-y-2">
-                    {currentPatient.allergies.map((allergy, index) => (
+                    {(currentPatient.allergies || []).map((allergy, index) => (
                       <div
                         key={allergy.id || `allergy-${index}`}
                         className={`p-3 rounded-lg border-l-4 ${

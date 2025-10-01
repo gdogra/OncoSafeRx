@@ -121,6 +121,29 @@ export class NoOpSupabaseService {
   updateSyncStatus(id, updateData) {
     return Promise.resolve({ id, ...updateData });
   }
+
+  // Patient management (no-op) - needed for patient routes
+  listPatientsByUser(userId) {
+    // Return empty array - no patients stored in no-op mode
+    return Promise.resolve([]);
+  }
+
+  upsertPatient(userId, patientData) {
+    // Simulate successful save with generated ID
+    const id = patientData.id || randomUUID();
+    return Promise.resolve({ 
+      id, 
+      user_id: userId,
+      data: patientData,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    });
+  }
+
+  deletePatient(userId, patientId) {
+    // Simulate successful deletion
+    return Promise.resolve(true);
+  }
 }
 
 // Function to create the appropriate service

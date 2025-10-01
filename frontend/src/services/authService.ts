@@ -571,10 +571,35 @@ export class SupabaseAuthService {
    * Update user profile
    */
   static async updateProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile> {
-    const { data: user } = await supabase.auth.getUser()
-    if (!user.user) throw new Error('No authenticated user')
+    // Check if this is a dev user (in localhost or dev mode)
+    const isDev = window.location.hostname === 'localhost' || userId.includes('dev-');
     
+    if (isDev) {
+      console.log('🔧 Dev mode: Updating profile locally')
+      // For dev mode, update the stored dev user and return it
+      try {
+        const storedDevUser = localStorage.getItem('osrx_dev_user');
+        if (storedDevUser) {
+          const devUser = JSON.parse(storedDevUser);
+          const updatedUser = { ...devUser, ...updates };
+          localStorage.setItem('osrx_dev_user', JSON.stringify(updatedUser));
+          console.log('✅ Dev profile updated in localStorage')
+          return updatedUser;
+        }
+      } catch (error) {
+        console.error('Failed to update dev user profile:', error);
+      }
+      // If no stored dev user, create a basic updated profile
+      const updatedProfile = this.createDevUser('dev@oncosaferx.com');
+      Object.assign(updatedProfile, updates);
+      return updatedProfile;
+    }
+
+    // Production mode: Use Supabase auth
     try {
+      const { data: user } = await supabase.auth.getUser()
+      if (!user.user) throw new Error('No authenticated user')
+      
       // Update user metadata in Supabase auth
       const { data, error } = await supabase.auth.updateUser({
         data: {

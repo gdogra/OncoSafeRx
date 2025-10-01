@@ -27,24 +27,42 @@ const ServerPatients: React.FC = () => {
     setLoading(true);
     console.log('⚡ setLoading(true) completed');
     try {
-      console.log('💫 About to call supabase.auth.getSession()');
-      const sessionPromise = supabase.auth.getSession();
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Session timeout')), 3000)
-      );
+      console.log('💫 Getting authentication token...');
       
-      let sess;
+      // Try multiple ways to get the token since getSession() times out
+      let token = null;
+      
+      // Method 1: Try stored JWT tokens (from localStorage)
       try {
-        const { data } = await Promise.race([sessionPromise, timeoutPromise]);
-        sess = data;
-        console.log('💫 supabase.auth.getSession() completed:', { hasSession: !!sess?.session });
-      } catch (error) {
-        console.warn('💫 supabase.auth.getSession() timed out or failed:', error.message);
-        sess = null;
+        const storedTokens = localStorage.getItem('osrx_auth_tokens');
+        if (storedTokens) {
+          const parsed = JSON.parse(storedTokens);
+          if (parsed.access_token && parsed.expires_at > Date.now()) {
+            token = parsed.access_token;
+            console.log('💫 Using stored JWT token');
+          }
+        }
+      } catch (e) {
+        console.warn('💫 Failed to get stored token:', e);
       }
       
-      const token = sess?.session?.access_token;
-      console.log('💫 token extracted:', { hasToken: !!token });
+      // Method 2: Try getSession with short timeout (only if no stored token)
+      if (!token) {
+        try {
+          const sessionPromise = supabase.auth.getSession();
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Session timeout')), 1000)
+          );
+          
+          const { data } = await Promise.race([sessionPromise, timeoutPromise]);
+          token = data?.session?.access_token;
+          console.log('💫 Got token from getSession()');
+        } catch (error) {
+          console.warn('💫 getSession() failed:', error.message);
+        }
+      }
+      
+      console.log('💫 Final token status:', { hasToken: !!token });
       const p = opts?.resetPage ? 1 : page;
       const params = new URLSearchParams({ q: query, page: String(p), pageSize: String(PAGE_SIZE) });
       
@@ -81,17 +99,9 @@ const ServerPatients: React.FC = () => {
         hasToken: !!token
       });
       
-      // If auth failed, try without token (for backend that might not require auth)
-      if (!resp.ok && resp.status === 401 && token) {
-        console.log('🔄 Auth failed, retrying without token...');
-        resp = await fetch(`/api/patients?${params.toString()}`, { 
-          signal: AbortSignal.timeout(5000)
-        });
-        console.log('📡 Retry response:', {
-          status: resp.status,
-          ok: resp.ok,
-          statusText: resp.statusText
-        });
+      // If auth failed, this is expected behavior now - no retries
+      if (!resp.ok && resp.status === 401) {
+        console.log('🔄 Authentication required - this is expected in production');
       }
       
       if (resp.ok) {

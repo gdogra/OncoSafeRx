@@ -141,12 +141,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!state.user) {
         console.log('🔄 No authenticated user, creating default user for profile update');
         try {
-          // Create a default user with the updates
-          const defaultUser = await AuthService.updateProfile('default-user-production', updates);
+          // Generate a unique user ID for this browser session
+          const userId = localStorage.getItem('osrx_session_user_id') || `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          localStorage.setItem('osrx_session_user_id', userId);
+          
+          const defaultUser = await AuthService.updateProfile(userId, updates);
           dispatch({ type: 'AUTH_SUCCESS', payload: defaultUser });
           return;
         } catch (error) {
-          dispatch({ type: 'AUTH_FAILURE', payload: 'Failed to create default user profile' });
+          console.error('Failed to create default user profile:', error);
+          dispatch({ type: 'SET_ERROR', payload: 'Failed to update profile' });
           return;
         }
       }
@@ -155,7 +159,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const updatedUser = await AuthService.updateProfile(state.user.id, updates);
         dispatch({ type: 'UPDATE_PROFILE', payload: updates });
       } catch (error) {
-        dispatch({ type: 'AUTH_FAILURE', payload: 'Failed to update profile' });
+        console.error('Failed to update profile:', error);
+        dispatch({ type: 'SET_ERROR', payload: 'Failed to update profile' });
       }
     },
 

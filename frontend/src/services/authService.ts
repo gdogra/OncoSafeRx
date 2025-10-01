@@ -306,7 +306,8 @@ export class SupabaseAuthService {
         try {
           const stored = localStorage.getItem('osrx_auth_path')
           return stored ? JSON.parse(stored) : null
-        } catch {
+        } catch (e) {
+          console.warn('Failed to read auth path from localStorage:', e)
           return null
         }
       })()
@@ -642,7 +643,8 @@ export class SupabaseAuthService {
           try {
             const stored = localStorage.getItem('osrx_user_profile')
             return stored ? JSON.parse(stored) : null
-          } catch {
+          } catch (e) {
+            console.warn('Failed to read from localStorage:', e)
             return null
           }
         })()
@@ -654,18 +656,55 @@ export class SupabaseAuthService {
           firstName: 'User',
           lastName: 'Name',
           role: 'oncologist',
+          specialty: 'Medical Oncology',
+          institution: 'Hospital',
+          licenseNumber: '',
+          yearsExperience: 0,
+          preferences: this.getDefaultPreferences('oncologist'),
+          persona: this.createDefaultPersona('oncologist'),
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+          isActive: true,
+          roles: ['oncologist'],
+          permissions: ['read', 'write', 'analyze'],
           ...updates
         }
         const updatedProfile = { ...currentProfile, ...updates }
         
-        // Store updated profile
-        localStorage.setItem('osrx_user_profile', JSON.stringify(updatedProfile))
-        console.log('✅ Profile updated successfully in localStorage')
+        // Store updated profile with error handling
+        try {
+          localStorage.setItem('osrx_user_profile', JSON.stringify(updatedProfile))
+          console.log('✅ Profile updated successfully in localStorage')
+        } catch (storageError) {
+          console.error('localStorage write failed:', storageError)
+          // If localStorage fails, at least return the updated profile without persisting
+          console.log('⚠️ Returning profile without persistence due to localStorage error')
+        }
         
         return updatedProfile
       } catch (fallbackError) {
-        console.error('Failed to update profile in localStorage:', fallbackError)
-        throw error
+        console.error('Failed to update profile in localStorage fallback:', fallbackError)
+        // Create a minimal profile to prevent complete failure
+        const minimalProfile = {
+          id: userId,
+          email: updates.email || 'user@oncosaferx.com',
+          firstName: updates.firstName || 'User',
+          lastName: updates.lastName || 'Name',
+          role: updates.role || 'oncologist',
+          specialty: updates.specialty || 'Medical Oncology',
+          institution: updates.institution || '',
+          licenseNumber: updates.licenseNumber || '',
+          yearsExperience: updates.yearsExperience || 0,
+          preferences: updates.preferences || this.getDefaultPreferences('oncologist'),
+          persona: updates.persona || this.createDefaultPersona('oncologist'),
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+          isActive: true,
+          roles: ['oncologist'],
+          permissions: ['read', 'write', 'analyze']
+        }
+        console.log('🚨 Using minimal profile due to storage errors')
+        return minimalProfile
       }
     }
   }

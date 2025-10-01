@@ -99,71 +99,83 @@ const PatientSelector: React.FC = () => {
   };
 
   const createNewPatient = async (patientData: any) => {
-    // Extract demographics and other data from comprehensive form
-    const demographics: PatientDemographics = {
-      firstName: patientData.firstName,
-      lastName: patientData.lastName,
-      dateOfBirth: patientData.dateOfBirth,
-      sex: patientData.sex,
-      mrn: patientData.mrn,
-      heightCm: patientData.heightCm,
-      weightKg: patientData.weightKg,
-    };
-
-    // Determine creator from Supabase auth if available
-    let createdBy = 'guest';
     try {
-      const { data: sess } = await supabase.auth.getSession();
-      createdBy = sess?.session?.user?.id || createdBy;
-    } catch {}
+      // Extract demographics and other data from comprehensive form
+      const demographics: PatientDemographics = {
+        firstName: patientData.firstName || 'Unknown',
+        lastName: patientData.lastName || 'Patient',
+        dateOfBirth: patientData.dateOfBirth || '1980-01-01',
+        sex: patientData.sex || 'unknown',
+        mrn: patientData.mrn || `MRN${Date.now()}`,
+        heightCm: patientData.heightCm || 170,
+        weightKg: patientData.weightKg || 70,
+      };
 
-    const newPatient: PatientProfile = {
-      id: `patient-${Date.now()}`,
-      demographics,
-      allergies: patientData.allergies || [],
-      medications: [],
-      conditions: patientData.medicalConditions || [],
-      labValues: patientData.labValues ? [patientData.labValues] : [],
-      genetics: [],
-      vitals: patientData.vitals ? [patientData.vitals] : [],
-      treatmentHistory: [],
-      notes: [],
-      preferences: {},
-      lastUpdated: new Date().toISOString(),
-      createdBy,
-      isActive: true,
-    };
+      // Determine creator from Supabase auth if available
+      let createdBy = 'guest';
+      try {
+        const { data: sess } = await supabase.auth.getSession();
+        createdBy = sess?.session?.user?.id || createdBy;
+      } catch (authError) {
+        console.warn('Auth session check failed:', authError);
+      }
 
-    // Optimistically set current and then try to persist
-    actions.setCurrentPatient(newPatient);
+      const newPatient: PatientProfile = {
+        id: `patient-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        demographics,
+        allergies: patientData.allergies || [],
+        medications: [],
+        conditions: patientData.medicalConditions || [],
+        labValues: patientData.labValues ? [patientData.labValues] : [],
+        genetics: [],
+        vitals: patientData.vitals ? [patientData.vitals] : [],
+        treatmentHistory: [],
+        notes: [],
+        preferences: {},
+        lastUpdated: new Date().toISOString(),
+        createdBy,
+        isActive: true,
+      };
 
-    try {
-      const { data: sess } = await supabase.auth.getSession();
-      const token = sess?.session?.access_token;
-      
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
+      // Optimistically set current patient
+      actions.setCurrentPatient(newPatient);
+
+      try {
+        const { data: sess } = await supabase.auth.getSession();
+        const token = sess?.session?.access_token;
+        
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
+        
+        const response = await fetch('/api/patients', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ patient: newPatient })
+        });
+        
+        if (response.ok) {
+          showToast('success', 'Patient created successfully');
+        } else {
+          const errorText = await response.text().catch(() => 'Unknown error');
+          console.warn('Server patient creation failed:', response.status, errorText);
+          showToast('warning', 'Patient saved locally (server unavailable)');
+        }
+      } catch (networkError) {
+        console.error('Network error creating patient:', networkError);
+        showToast('warning', 'Patient saved locally (network error)');
       }
       
-      const response = await fetch('/api/patients', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ patient: newPatient })
-      });
-      
-      if (response.ok) {
-        showToast('success', 'Patient created successfully');
-      } else {
-        showToast('warning', 'Patient saved locally');
-      }
+      // Always close the modal regardless of API success/failure
+      setShowCreateForm(false);
     } catch (error) {
-      console.error('Error creating patient:', error);
-      showToast('warning', 'Patient saved locally (offline)');
+      console.error('Failed to create patient:', error);
+      showToast('error', 'Failed to create patient');
+      
+      // Don't close the modal if patient creation completely failed
+      // This allows the user to retry or fix any issues
     }
-    
-    // Always close the modal regardless of API success/failure
-    setShowCreateForm(false);
   };
 
   const calculateAge = (dateOfBirth: string): number => {

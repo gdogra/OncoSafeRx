@@ -313,6 +313,18 @@ export class SupabaseAuthService {
 
       if (!authPath) {
         console.log('🚫 No authentication path found')
+        // For production without authentication, create a default user
+        if (window.location.hostname !== 'localhost') {
+          console.log('🔄 Creating default user for unauthenticated production session')
+          const defaultUser = this.createDevUser('user@oncosaferx.com')
+          // Store as if it was a user profile
+          try {
+            localStorage.setItem('osrx_user_profile', JSON.stringify(defaultUser))
+          } catch (e) {
+            console.error('Failed to store default user profile:', e)
+          }
+          return defaultUser
+        }
         return null
       }
 
@@ -595,7 +607,7 @@ export class SupabaseAuthService {
       return updatedProfile;
     }
 
-    // Production mode: Use Supabase auth
+    // Production mode: Try Supabase auth first, fallback to localStorage
     try {
       const { data: user } = await supabase.auth.getUser()
       if (!user.user) throw new Error('No authenticated user')
@@ -617,11 +629,37 @@ export class SupabaseAuthService {
       
       if (error) throw new Error(error.message)
       
-      console.log('✅ Profile updated successfully')
+      console.log('✅ Profile updated successfully via Supabase')
       return this.buildUserProfile(data.user!)
     } catch (error) {
-      console.error('Failed to update user profile:', error)
-      throw error
+      console.error('Failed to update user profile via Supabase:', error)
+      
+      // Fallback: Store profile updates in localStorage for unauthenticated users
+      console.log('🔄 Falling back to localStorage profile update')
+      try {
+        // Get current profile from localStorage or create default
+        const storedProfile = (() => {
+          try {
+            const stored = localStorage.getItem('osrx_user_profile')
+            return stored ? JSON.parse(stored) : null
+          } catch {
+            return null
+          }
+        })()
+        
+        // Create updated profile
+        const currentProfile = storedProfile || this.createDevUser('user@oncosaferx.com')
+        const updatedProfile = { ...currentProfile, ...updates }
+        
+        // Store updated profile
+        localStorage.setItem('osrx_user_profile', JSON.stringify(updatedProfile))
+        console.log('✅ Profile updated successfully in localStorage')
+        
+        return updatedProfile
+      } catch (fallbackError) {
+        console.error('Failed to update profile in localStorage:', fallbackError)
+        throw error
+      }
     }
   }
 

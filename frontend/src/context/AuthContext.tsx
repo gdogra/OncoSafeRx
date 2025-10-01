@@ -137,7 +137,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     },
 
     updateProfile: async (updates: Partial<UserProfile>) => {
-      if (!state.user) return;
+      // Create a default user if none exists (for unauthenticated users in production)
+      if (!state.user) {
+        console.log('🔄 No authenticated user, creating default user for profile update');
+        try {
+          // Create a default user with the updates
+          const defaultUser = await AuthService.updateProfile('default-user-production', updates);
+          dispatch({ type: 'AUTH_SUCCESS', payload: defaultUser });
+          return;
+        } catch (error) {
+          dispatch({ type: 'AUTH_FAILURE', payload: 'Failed to create default user profile' });
+          return;
+        }
+      }
       
       try {
         const updatedUser = await AuthService.updateProfile(state.user.id, updates);

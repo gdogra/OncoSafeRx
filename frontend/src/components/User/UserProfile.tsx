@@ -63,10 +63,14 @@ const UserProfile: React.FC = () => {
   };
 
   const handleSavePreferences = async () => {
+    console.log('🎨 Preferences save button clicked!');
+    console.log('🔍 Current editedPreferences:', editedPreferences);
     try {
+      console.log('🚀 Calling actions.updateProfile with preferences...');
       await actions.updateProfile({ preferences: editedPreferences });
+      console.log('✅ Preferences update successful');
     } catch (error) {
-      console.error('Failed to update preferences:', error);
+      console.error('❌ Failed to update preferences:', error);
     }
   };
 

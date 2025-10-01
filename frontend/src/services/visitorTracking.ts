@@ -70,7 +70,7 @@ class VisitorTrackingService {
   private currentPageView: PageView | null = null;
   private isTrackingEnabled: boolean = true;
   private apiEndpoint: string = '/api/analytics';
-  private enableServerAnalytics: boolean = true; // Enable analytics for production
+  private enableServerAnalytics: boolean = false; // Disable analytics to eliminate 404 errors
 
   constructor() {
     this.initializeTracking();

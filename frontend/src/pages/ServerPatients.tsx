@@ -35,11 +35,15 @@ const ServerPatients: React.FC = () => {
       // Method 1: Try stored JWT tokens (from localStorage)
       try {
         const storedTokens = localStorage.getItem('osrx_auth_tokens');
+        console.log('💫 Stored tokens raw:', storedTokens ? 'Found' : 'Not found');
         if (storedTokens) {
           const parsed = JSON.parse(storedTokens);
+          console.log('💫 Parsed token info:', { hasAccessToken: !!parsed.access_token, expiresAt: parsed.expires_at, now: Date.now() });
           if (parsed.access_token && parsed.expires_at > Date.now()) {
             token = parsed.access_token;
             console.log('💫 Using stored JWT token');
+          } else {
+            console.log('💫 Stored token expired or invalid');
           }
         }
       } catch (e) {

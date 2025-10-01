@@ -140,17 +140,29 @@ const PatientSelector: React.FC = () => {
     try {
       const { data: sess } = await supabase.auth.getSession();
       const token = sess?.session?.access_token;
+      
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) {
-        await fetch('/api/patients', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ patient: newPatient })
-        });
-        showToast('success', 'Patient created');
+        headers.Authorization = `Bearer ${token}`;
       }
-    } catch {
-      showToast('warning', 'Saved locally (offline)');
+      
+      const response = await fetch('/api/patients', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ patient: newPatient })
+      });
+      
+      if (response.ok) {
+        showToast('success', 'Patient created successfully');
+      } else {
+        showToast('warning', 'Patient saved locally');
+      }
+    } catch (error) {
+      console.error('Error creating patient:', error);
+      showToast('warning', 'Patient saved locally (offline)');
     }
+    
+    // Always close the modal regardless of API success/failure
     setShowCreateForm(false);
   };
 

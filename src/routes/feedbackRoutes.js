@@ -130,7 +130,7 @@ const classifyFeedback = (feedback) => {
 };
 
 // Submit feedback
-router.post('/submit', (req, res) => {
+router.post('/submit', async (req, res) => {
   try {
     const feedback = req.body;
     

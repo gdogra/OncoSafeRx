@@ -171,7 +171,7 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'healthy', 
     timestamp: new Date().toISOString(),
-    version: '1.0.0',
+    version: '1.0.1',
     api: 'oncosaferx',
     supabase: {
       enabled: !!supabaseService?.enabled
@@ -185,14 +185,26 @@ app.get('/api/health', (req, res) => {
 });
 
 // Config check (server-side environment visibility; masked/summarized)
-app.get('/api/config/check', (req, res) => {
+app.get('/api/config/check', async (req, res) => {
   try {
+    const fs = await import('fs');
+    const clientBuildPath = join(__dirname, '../frontend/dist');
+    const indexPath = join(clientBuildPath, 'index.html');
+    
     const cfg = {
       supabase: {
         enabled: !!(process.env.SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY)),
         urlPresent: !!process.env.SUPABASE_URL,
         serviceRolePresent: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
         jwtSecretPresent: !!process.env.SUPABASE_JWT_SECRET,
+      },
+      frontend: {
+        serveFrontend: process.env.SERVE_FRONTEND,
+        nodeEnv: NODE_ENV,
+        buildPathExists: fs.existsSync(clientBuildPath),
+        indexExists: fs.existsSync(indexPath),
+        buildPath: clientBuildPath,
+        indexPath: indexPath
       },
       netlify: {
         configured: !!(process.env.NETLIFY_AUTH_TOKEN && process.env.NETLIFY_SITE_ID)
@@ -203,9 +215,10 @@ app.get('/api/config/check', (req, res) => {
       warnings: []
     };
     if (!cfg.supabase.enabled) cfg.warnings.push('supabase_not_configured');
+    if (!cfg.frontend.buildPathExists) cfg.warnings.push('frontend_build_missing');
     return res.json(cfg);
   } catch (e) {
-    return res.status(500).json({ error: 'Failed to read config' });
+    return res.status(500).json({ error: 'Failed to read config', details: e.message });
   }
 });
 

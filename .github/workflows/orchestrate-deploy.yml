@@ -144,6 +144,27 @@ jobs:
             exit 1
           fi
 
+      - name: Assert frontend runtime config
+        id: cfg
+        env:
+          RENDER_SERVICE_URL: ${{ secrets.RENDER_SERVICE_URL }}
+        run: |
+          if [ -z "$RENDER_SERVICE_URL" ]; then
+            echo "RENDER_SERVICE_URL not set; cannot assert frontend config" >&2
+            exit 1
+          fi
+          set -euo pipefail
+          BASE=${RENDER_SERVICE_URL%/}
+          CFG=$(curl -fsS "$BASE/api/frontend/config")
+          echo "$CFG" | jq .
+          URL=$(echo "$CFG" | jq -r '.supabaseUrl // empty')
+          KEY=$(echo "$CFG" | jq -r '.supabaseAnonKey // empty')
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "Missing frontend runtime config: supabaseUrl or supabaseAnonKey is empty" >&2
+            exit 1
+          fi
+          echo "url=$URL" >> $GITHUB_OUTPUT
+
       - name: Create release tag
         uses: actions/create-release@v1
         env:
@@ -163,7 +184,7 @@ jobs:
         run: |
           HOOK="${SLACK_WEBHOOK:-}"
           if [ -z "$HOOK" ] && [ -n "${SLACK_WEBHOOK_URL:-}" ]; then HOOK="$SLACK_WEBHOOK_URL"; fi
-          MSG="✅ Orchestrated deploy succeeded. Netlify: state=${{ steps.netlify.outputs.state }} build=${{ steps.netlify.outputs.build_id }} | Render: status=${{ steps.render.outputs.status }} deploy=${{ steps.render.outputs.deploy_id }} | Health: ok=${{ steps.health.outputs.health_ok }} url=${{ steps.health.outputs.url }} | Repo: $GITHUB_REPOSITORY@${GITHUB_SHA::7}"
+          MSG="✅ Orchestrated deploy succeeded. Netlify: state=${{ steps.netlify.outputs.state }} build=${{ steps.netlify.outputs.build_id }} | Render: status=${{ steps.render.outputs.status }} deploy=${{ steps.render.outputs.deploy_id }} | Health: ok=${{ steps.health.outputs.health_ok }} url=${{ steps.health.outputs.url }} | Frontend cfg OK (supabase) | Repo: $GITHUB_REPOSITORY@${GITHUB_SHA::7}"
           if [ -n "$HOOK" ]; then
             payload=$(jq -n --arg text "$MSG" '{text: $text}')
             curl -fsS -X POST -H 'Content-type: application/json' --data "$payload" "$HOOK" || true

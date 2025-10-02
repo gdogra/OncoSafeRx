@@ -44,14 +44,59 @@ export class SimpleAuthService {
     }
   }
   
-  static async login(email: string, password: string): Promise<UserProfile> {
-    console.log('🔍 SIMPLE login called:', email);
+  static async signup(data: any): Promise<UserProfile> {
+    console.log('🔍 SIMPLE signup called:', data.email);
+    
+    // For signup, create user profile with provided data
+    const userId = `user-${Date.now()}`;
+    const userProfile: UserProfile = {
+      id: userId,
+      email: data.email,
+      firstName: data.firstName || 'Doctor',
+      lastName: data.lastName || 'User',
+      role: data.role || 'oncologist',
+      specialty: data.specialty || 'Medical Oncology',
+      institution: data.institution || 'Hospital',
+      licenseNumber: data.licenseNumber || '',
+      yearsExperience: data.yearsExperience || 5,
+      preferences: {
+        theme: 'light',
+        notifications: { email: true, push: true, criticalAlerts: true, weeklyReports: false },
+        dashboard: { defaultView: 'overview', compactMode: false },
+        clinical: { riskTolerance: 'moderate', alertSensitivity: 'high', workflowStyle: 'thorough', decisionSupport: 'guided' }
+      },
+      persona: {
+        name: data.persona?.name || 'Medical Oncologist',
+        description: data.persona?.description || 'Clinical oncology specialist',
+        capabilities: data.persona?.capabilities || ['drug-interactions', 'protocols', 'research']
+      },
+      createdAt: new Date().toISOString(),
+      lastLogin: new Date().toISOString(),
+      isActive: true,
+      roles: ['oncologist'],
+      permissions: ['read', 'write', 'analyze']
+    };
+    
+    // Save to localStorage
+    try {
+      localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile));
+      localStorage.setItem('osrx_session_user_id', userId);
+      console.log('✅ SIMPLE: Signup successful, profile saved');
+    } catch (e) {
+      console.warn('⚠️ SIMPLE: Failed to save signup profile');
+    }
+    
+    return userProfile;
+  }
+
+  static async login(data: any): Promise<UserProfile> {
+    console.log('🔍 SIMPLE login called:', data.email);
     
     // Create a simple user profile for any login
     const userId = `user-${Date.now()}`;
     const userProfile: UserProfile = {
       id: userId,
-      email: email,
+      email: data.email,
       firstName: 'Doctor',
       lastName: 'User',
       role: 'oncologist',

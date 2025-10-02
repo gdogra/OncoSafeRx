@@ -314,7 +314,9 @@ if (NODE_ENV === 'development' && process.env.USE_VITE !== 'false') {
     app.use(vite.middlewares);
     console.log('Vite dev middleware enabled on / (frontend)');
   } catch (e) {
-    console.warn('Vite middleware failed, continuing without it:', e?.message || e);
+    if (NODE_ENV === 'development') {
+      console.warn('Vite middleware failed, continuing without it:', e?.message || e);
+    }
   }
 }
 
@@ -323,17 +325,36 @@ if (NODE_ENV !== 'development' || process.env.USE_VITE === 'false') {
   try {
     // Vite outputs to 'dist' by default
     const clientBuildPath = join(__dirname, '../frontend/dist');
+    console.log(`Frontend serving config: NODE_ENV=${NODE_ENV}, SERVE_FRONTEND=${process.env.SERVE_FRONTEND}, buildPath=${clientBuildPath}`);
+    
     if (process.env.SERVE_FRONTEND !== 'false') {
-      app.use(express.static(clientBuildPath));
-      // Route all non-API requests to React index.html
-      app.get(/^\/(?!api).*/, (req, res, next) => {
-        res.sendFile(join(clientBuildPath, 'index.html'), (err) => {
-          if (err) next();
+      const fs = await import('fs');
+      const buildExists = fs.existsSync(clientBuildPath);
+      const indexExists = fs.existsSync(join(clientBuildPath, 'index.html'));
+      console.log(`Frontend build exists: ${buildExists}, index.html exists: ${indexExists}`);
+      
+      if (buildExists) {
+        app.use(express.static(clientBuildPath));
+        console.log(`Serving static files from: ${clientBuildPath}`);
+        
+        // Route all non-API requests to React index.html
+        app.get(/^\/(?!api).*/, (req, res, next) => {
+          res.sendFile(join(clientBuildPath, 'index.html'), (err) => {
+            if (err) {
+              console.log(`Error serving index.html for ${req.path}:`, err.message);
+              next();
+            }
+          });
         });
-      });
+        console.log('Frontend SPA routing configured');
+      } else {
+        console.log('Frontend build directory not found, skipping static file serving');
+      }
+    } else {
+      console.log('Frontend serving disabled via SERVE_FRONTEND=false');
     }
   } catch (e) {
-    // ignore if build folder not present
+    console.log('Error setting up frontend serving:', e.message);
   }
 }
 

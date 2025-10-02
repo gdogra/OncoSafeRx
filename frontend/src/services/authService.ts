@@ -626,8 +626,11 @@ export class SupabaseAuthService {
       
       if (!storedTokens?.access_token) {
         console.warn('⚠️ No auth tokens found, falling back to localStorage update')
+        console.warn('🔍 Debug - tokens stored:', !!storedTokens, 'access_token present:', !!storedTokens?.access_token)
         return this.updateProfileLocalStorage(userId, updates)
       }
+      
+      console.log('✅ Auth tokens found, attempting API call to update profile')
       
       // Make API call to update profile
       const response = await fetch('/api/supabase-auth/profile', {

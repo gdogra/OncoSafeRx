@@ -137,6 +137,27 @@ jobs:
             exit 1
           fi
 
+      - name: Assert frontend runtime config (post-deploy)
+        if: success()
+        id: cfg
+        env:
+          RENDER_SERVICE_URL: ${{ secrets.RENDER_SERVICE_URL }}
+        run: |
+          if [ -z "$RENDER_SERVICE_URL" ]; then
+            echo "Skipping frontend config assertion (RENDER_SERVICE_URL not set)"
+            exit 0
+          fi
+          set -euo pipefail
+          BASE=${RENDER_SERVICE_URL%/}
+          CFG=$(curl -fsS "$BASE/api/frontend/config")
+          echo "$CFG" | jq .
+          URL=$(echo "$CFG" | jq -r '.supabaseUrl // empty')
+          KEY=$(echo "$CFG" | jq -r '.supabaseAnonKey // empty')
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "Missing frontend runtime config: supabaseUrl or supabaseAnonKey is empty" >&2
+            exit 1
+          fi
+
       - name: Notify Slack/Teams (success)
         if: success()
         env:

@@ -584,6 +584,8 @@ export class SupabaseAuthService {
    * Update user profile
    */
   static async updateProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile> {
+    console.log('🔄 Updating profile for user:', userId, 'with updates:', updates);
+    
     // Check if this is a dev user (in localhost or dev mode)
     const isDev = window.location.hostname === 'localhost' || userId.includes('dev-');
     
@@ -608,11 +610,66 @@ export class SupabaseAuthService {
       return updatedProfile;
     }
 
-    // Production mode: Skip hanging Supabase calls, use localStorage directly
-    console.log('🔄 Production mode: Using localStorage fallback (skip hanging Supabase calls)')
+    // Production mode: Call the backend API to update profile in Supabase
+    console.log('🌐 Production mode: Updating profile via Supabase API')
     
-    // Fallback: Store profile updates in localStorage 
-    console.log('🔄 Using localStorage profile update')
+    try {
+      // Get stored auth tokens for API call
+      const storedTokens = (() => {
+        try {
+          const stored = localStorage.getItem('osrx_auth_tokens')
+          return stored ? JSON.parse(stored) : null
+        } catch {
+          return null
+        }
+      })()
+      
+      if (!storedTokens?.access_token) {
+        console.warn('⚠️ No auth tokens found, falling back to localStorage update')
+        return this.updateProfileLocalStorage(userId, updates)
+      }
+      
+      // Make API call to update profile
+      const response = await fetch('/api/supabase-auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${storedTokens.access_token}`
+        },
+        body: JSON.stringify(updates)
+      })
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('❌ Profile update API failed:', response.status, errorText)
+        console.log('🔄 Falling back to localStorage update')
+        return this.updateProfileLocalStorage(userId, updates)
+      }
+      
+      const result = await response.json()
+      console.log('✅ Profile updated successfully via API:', result)
+      
+      // Update localStorage with the response to keep frontend in sync
+      try {
+        localStorage.setItem('osrx_user_profile', JSON.stringify(result.user))
+      } catch (storageError) {
+        console.warn('⚠️ Failed to sync profile to localStorage:', storageError)
+      }
+      
+      return result.user
+      
+    } catch (error) {
+      console.error('❌ API profile update failed:', error)
+      console.log('🔄 Falling back to localStorage update')
+      return this.updateProfileLocalStorage(userId, updates)
+    }
+  }
+
+  /**
+   * Fallback method to update profile in localStorage only
+   */
+  private static updateProfileLocalStorage(userId: string, updates: Partial<UserProfile>): UserProfile {
+    console.log('🔄 Using localStorage fallback for profile update')
     try {
         // Get current profile from localStorage or create default
         const storedProfile = (() => {
@@ -650,7 +707,7 @@ export class SupabaseAuthService {
         // Store updated profile with error handling
         try {
           localStorage.setItem('osrx_user_profile', JSON.stringify(updatedProfile))
-          console.log('✅ Profile updated successfully in localStorage')
+          console.log('✅ Profile updated successfully in localStorage (fallback)')
         } catch (storageError) {
           console.error('localStorage write failed:', storageError)
           // If localStorage fails, at least return the updated profile without persisting
@@ -682,30 +739,7 @@ export class SupabaseAuthService {
         console.log('🚨 Using minimal profile due to storage errors')
         return minimalProfile
       }
-    } catch (error) {
-      console.error('❌ localStorage profile update failed:', error)
-      // Return minimal profile as absolute fallback
-      const minimalProfile = {
-        id: userId,
-        email: 'user@oncosaferx.com',
-        firstName: updates.firstName || 'User',
-        lastName: updates.lastName || 'Name',
-        role: updates.role || 'oncologist',
-        specialty: updates.specialty || 'Medical Oncology',
-        institution: updates.institution || '',
-        licenseNumber: updates.licenseNumber || '',
-        yearsExperience: updates.yearsExperience || 0,
-        preferences: updates.preferences || this.getDefaultPreferences('oncologist'),
-        persona: updates.persona || this.createDefaultPersona('oncologist'),
-        createdAt: new Date().toISOString(),
-        lastLogin: new Date().toISOString(),
-        isActive: true,
-        roles: ['oncologist'],
-        permissions: ['read', 'write', 'analyze']
-      }
-      console.log('🚨 Using minimal profile due to complete failure')
-      return minimalProfile
-    }
+  }
 }
 
 // Export default instance for convenience

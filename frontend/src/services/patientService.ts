@@ -3,28 +3,113 @@ import { Patient, TreatmentCourse, GenomicProfile, Toxicity } from '../types/cli
 export class PatientService {
   private readonly STORAGE_KEY = 'oncosaferx_patients';
   private readonly TREATMENT_HISTORY_KEY = 'oncosaferx_treatment_history';
+  private readonly API_BASE_URL = '/api/patients';
 
-  // Get all patients
-  public getPatients(): Patient[] {
+  // Helper method to get auth token
+  private getAuthToken(): string {
+    try {
+      const tokens = localStorage.getItem('osrx_auth_tokens');
+      if (tokens) {
+        const parsed = JSON.parse(tokens);
+        return parsed.access_token || '';
+      }
+      return '';
+    } catch {
+      return '';
+    }
+  }
+
+  // Get all patients from database (with localStorage fallback)
+  public async getPatients(): Promise<Patient[]> {
+    try {
+      const response = await fetch(this.API_BASE_URL, {
+        headers: {
+          'Authorization': `Bearer ${this.getAuthToken()}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return data.patients || [];
+      } else {
+        console.warn('API failed, falling back to localStorage');
+        return this.getPatientsFromLocalStorage();
+      }
+    } catch (error) {
+      console.error('Error retrieving patients from API:', error);
+      return this.getPatientsFromLocalStorage();
+    }
+  }
+
+  // Fallback to localStorage
+  private getPatientsFromLocalStorage(): Patient[] {
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
-      console.error('Error retrieving patients:', error);
+      console.error('Error retrieving patients from localStorage:', error);
       return [];
     }
   }
 
-  // Get patient by ID
-  public getPatient(id: string): Patient | null {
-    const patients = this.getPatients();
-    return patients.find(p => p.id === id) || null;
+  // Get patient by ID from database (with localStorage fallback)
+  public async getPatient(id: string): Promise<Patient | null> {
+    try {
+      const response = await fetch(`${this.API_BASE_URL}/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${this.getAuthToken()}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return data.patient?.data || null;
+      } else {
+        console.warn('API failed, falling back to localStorage');
+        const patients = this.getPatientsFromLocalStorage();
+        return patients.find(p => p.id === id) || null;
+      }
+    } catch (error) {
+      console.error('Error retrieving patient from API:', error);
+      const patients = this.getPatientsFromLocalStorage();
+      return patients.find(p => p.id === id) || null;
+    }
   }
 
-  // Save patient
-  public savePatient(patient: Patient): void {
+  // Save patient to database (with localStorage fallback)
+  public async savePatient(patient: Patient): Promise<Patient> {
     try {
-      const patients = this.getPatients();
+      const response = await fetch(this.API_BASE_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.getAuthToken()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ patient })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Patient saved to database');
+        return data.patient?.data || patient;
+      } else {
+        console.warn('API failed, falling back to localStorage');
+        this.savePatientToLocalStorage(patient);
+        return patient;
+      }
+    } catch (error) {
+      console.error('Error saving patient to API:', error);
+      this.savePatientToLocalStorage(patient);
+      return patient;
+    }
+  }
+
+  // Fallback to localStorage
+  private savePatientToLocalStorage(patient: Patient): void {
+    try {
+      const patients = this.getPatientsFromLocalStorage();
       const existingIndex = patients.findIndex(p => p.id === patient.id);
       
       if (existingIndex !== -1) {
@@ -35,26 +120,72 @@ export class PatientService {
       
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(patients));
     } catch (error) {
-      console.error('Error saving patient:', error);
+      console.error('Error saving patient to localStorage:', error);
       throw new Error('Failed to save patient');
     }
   }
 
-  // Delete patient
-  public deletePatient(id: string): void {
+  // Delete patient from database (with localStorage fallback)
+  public async deletePatient(id: string): Promise<void> {
     try {
-      const patients = this.getPatients();
+      const response = await fetch(`${this.API_BASE_URL}/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${this.getAuthToken()}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        console.log('✅ Patient deleted from database');
+      } else {
+        console.warn('API failed, falling back to localStorage');
+        this.deletePatientFromLocalStorage(id);
+      }
+    } catch (error) {
+      console.error('Error deleting patient from API:', error);
+      this.deletePatientFromLocalStorage(id);
+    }
+  }
+
+  // Fallback to localStorage
+  private deletePatientFromLocalStorage(id: string): void {
+    try {
+      const patients = this.getPatientsFromLocalStorage();
       const filtered = patients.filter(p => p.id !== id);
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filtered));
     } catch (error) {
-      console.error('Error deleting patient:', error);
+      console.error('Error deleting patient from localStorage:', error);
       throw new Error('Failed to delete patient');
     }
   }
 
-  // Search patients
-  public searchPatients(query: string): Patient[] {
-    const patients = this.getPatients();
+  // Search patients from database (with localStorage fallback)
+  public async searchPatients(query: string): Promise<Patient[]> {
+    try {
+      const response = await fetch(`${this.API_BASE_URL}?q=${encodeURIComponent(query)}`, {
+        headers: {
+          'Authorization': `Bearer ${this.getAuthToken()}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return data.patients || [];
+      } else {
+        console.warn('API failed, falling back to localStorage');
+        return this.searchPatientsInLocalStorage(query);
+      }
+    } catch (error) {
+      console.error('Error searching patients from API:', error);
+      return this.searchPatientsInLocalStorage(query);
+    }
+  }
+
+  // Fallback to localStorage
+  private searchPatientsInLocalStorage(query: string): Patient[] {
+    const patients = this.getPatientsFromLocalStorage();
     const lowerQuery = query.toLowerCase();
     
     return patients.filter(patient => 
@@ -66,18 +197,18 @@ export class PatientService {
   }
 
   // Add treatment course
-  public addTreatmentCourse(patientId: string, course: TreatmentCourse): void {
-    const patient = this.getPatient(patientId);
+  public async addTreatmentCourse(patientId: string, course: TreatmentCourse): Promise<void> {
+    const patient = await this.getPatient(patientId);
     if (!patient) throw new Error('Patient not found');
     
     patient.treatmentHistory = patient.treatmentHistory || [];
     patient.treatmentHistory.push(course);
-    this.savePatient(patient);
+    await this.savePatient(patient);
   }
 
   // Update treatment course
-  public updateTreatmentCourse(patientId: string, courseId: string, updates: Partial<TreatmentCourse>): void {
-    const patient = this.getPatient(patientId);
+  public async updateTreatmentCourse(patientId: string, courseId: string, updates: Partial<TreatmentCourse>): Promise<void> {
+    const patient = await this.getPatient(patientId);
     if (!patient) throw new Error('Patient not found');
     
     const courseIndex = patient.treatmentHistory.findIndex(c => c.id === courseId);
@@ -88,12 +219,12 @@ export class PatientService {
       ...updates
     };
     
-    this.savePatient(patient);
+    await this.savePatient(patient);
   }
 
   // Add toxicity event
-  public addToxicity(patientId: string, courseId: string, toxicity: Toxicity): void {
-    const patient = this.getPatient(patientId);
+  public async addToxicity(patientId: string, courseId: string, toxicity: Toxicity): Promise<void> {
+    const patient = await this.getPatient(patientId);
     if (!patient) throw new Error('Patient not found');
     
     const course = patient.treatmentHistory.find(c => c.id === courseId);
@@ -101,12 +232,12 @@ export class PatientService {
     
     course.toxicities = course.toxicities || [];
     course.toxicities.push(toxicity);
-    this.savePatient(patient);
+    await this.savePatient(patient);
   }
 
   // Update lab values
-  public updateLabValues(patientId: string, labValues: Patient['labValues'][0]): void {
-    const patient = this.getPatient(patientId);
+  public async updateLabValues(patientId: string, labValues: Patient['labValues'][0]): Promise<void> {
+    const patient = await this.getPatient(patientId);
     if (!patient) throw new Error('Patient not found');
     
     patient.labValues = patient.labValues || [];
@@ -117,37 +248,37 @@ export class PatientService {
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 50);
     
-    this.savePatient(patient);
+    await this.savePatient(patient);
   }
 
   // Update genomic profile
-  public updateGenomicProfile(patientId: string, genomicProfile: GenomicProfile): void {
-    const patient = this.getPatient(patientId);
+  public async updateGenomicProfile(patientId: string, genomicProfile: GenomicProfile): Promise<void> {
+    const patient = await this.getPatient(patientId);
     if (!patient) throw new Error('Patient not found');
     
     patient.genomicProfile = genomicProfile;
-    this.savePatient(patient);
+    await this.savePatient(patient);
   }
 
   // Add biomarker
-  public addBiomarker(patientId: string, biomarker: Patient['biomarkers'][0]): void {
-    const patient = this.getPatient(patientId);
+  public async addBiomarker(patientId: string, biomarker: Patient['biomarkers'][0]): Promise<void> {
+    const patient = await this.getPatient(patientId);
     if (!patient) throw new Error('Patient not found');
     
     patient.biomarkers = patient.biomarkers || [];
     patient.biomarkers.push(biomarker);
-    this.savePatient(patient);
+    await this.savePatient(patient);
   }
 
   // Get treatment timeline
-  public getTreatmentTimeline(patientId: string): Array<{
+  public async getTreatmentTimeline(patientId: string): Promise<Array<{
     date: string;
     type: 'treatment' | 'lab' | 'toxicity' | 'response';
     title: string;
     description: string;
     severity?: 'low' | 'medium' | 'high';
-  }> {
-    const patient = this.getPatient(patientId);
+  }>> {
+    const patient = await this.getPatient(patientId);
     if (!patient) return [];
     
     const timeline: Array<{
@@ -229,15 +360,15 @@ export class PatientService {
   }
 
   // Get patient statistics
-  public getPatientStats(): {
+  public async getPatientStats(): Promise<{
     totalPatients: number;
     activePatients: number;
     patientsOnTreatment: number;
     completedTreatments: number;
     averageAge: number;
     commonDiagnoses: Array<{ diagnosis: string; count: number }>;
-  } {
-    const patients = this.getPatients();
+  }> {
+    const patients = await this.getPatients();
     
     const totalPatients = patients.length;
     const activePatients = patients.filter(p => 
@@ -294,24 +425,6 @@ export class PatientService {
     return age;
   }
 
-  // Fetch patients from API
-  public async fetchPatients(): Promise<Patient[]> {
-    try {
-      const API_BASE = import.meta.env.VITE_API_URL || '/api';
-      const response = await fetch(`${API_BASE}/patients`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch patients: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      return (data.patients || []).map(this.transformApiPatient);
-    } catch (error) {
-      console.error('Error fetching patients:', error);
-      this.generateSamplePatients();
-      return this.patients;
-    }
-  }
 
   // Transform API patient data to internal format
   private transformApiPatient(apiPatient: any): Patient {

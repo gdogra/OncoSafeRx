@@ -320,43 +320,47 @@ if (NODE_ENV === 'development' && process.env.USE_VITE !== 'false') {
   }
 }
 
-// Serve frontend build (SPA) for non-API routes in production
-if (NODE_ENV !== 'development' || process.env.USE_VITE === 'false' || process.env.SERVE_FRONTEND === 'true') {
-  try {
-    // Vite outputs to 'dist' by default
-    const clientBuildPath = join(__dirname, '../frontend/dist');
-    console.log(`Frontend serving config: NODE_ENV=${NODE_ENV}, SERVE_FRONTEND=${process.env.SERVE_FRONTEND}, buildPath=${clientBuildPath}`);
+// Serve frontend build (SPA) for non-API routes
+try {
+  const clientBuildPath = join(__dirname, '../frontend/dist');
+  console.log(`Frontend serving config: NODE_ENV=${NODE_ENV}, SERVE_FRONTEND=${process.env.SERVE_FRONTEND}, buildPath=${clientBuildPath}`);
+  
+  const fs = await import('fs');
+  const buildExists = fs.existsSync(clientBuildPath);
+  const indexExists = fs.existsSync(join(clientBuildPath, 'index.html'));
+  console.log(`Frontend build exists: ${buildExists}, index.html exists: ${indexExists}`);
+  
+  if (buildExists && indexExists) {
+    app.use(express.static(clientBuildPath));
+    console.log(`✅ Serving static files from: ${clientBuildPath}`);
     
-    if (process.env.SERVE_FRONTEND !== 'false') {
-      const fs = await import('fs');
-      const buildExists = fs.existsSync(clientBuildPath);
-      const indexExists = fs.existsSync(join(clientBuildPath, 'index.html'));
-      console.log(`Frontend build exists: ${buildExists}, index.html exists: ${indexExists}`);
-      
-      if (buildExists) {
-        app.use(express.static(clientBuildPath));
-        console.log(`Serving static files from: ${clientBuildPath}`);
-        
-        // Route all non-API requests to React index.html
-        app.get(/^\/(?!api).*/, (req, res, next) => {
-          res.sendFile(join(clientBuildPath, 'index.html'), (err) => {
-            if (err) {
-              console.log(`Error serving index.html for ${req.path}:`, err.message);
-              next();
-            }
-          });
-        });
-        console.log('Frontend SPA routing configured');
-      } else {
-        console.log('Frontend build directory not found, skipping static file serving');
-      }
-    } else {
-      console.log('Frontend serving disabled via SERVE_FRONTEND=false');
-    }
-  } catch (e) {
-    console.log('Error setting up frontend serving:', e.message);
+    // Route all non-API requests to React index.html
+    app.get(/^\/(?!api|test-frontend|health|metrics).*/, (req, res, next) => {
+      console.log(`Serving SPA for: ${req.path}`);
+      res.sendFile(join(clientBuildPath, 'index.html'), (err) => {
+        if (err) {
+          console.log(`❌ Error serving index.html for ${req.path}:`, err.message);
+          next();
+        }
+      });
+    });
+    console.log('✅ Frontend SPA routing configured');
+  } else {
+    console.log('❌ Frontend build directory or index.html not found');
   }
+} catch (e) {
+  console.log('❌ Error setting up frontend serving:', e.message);
 }
+
+// Test frontend route
+app.get('/test-frontend', (req, res) => {
+  res.json({ 
+    message: 'Frontend serving test',
+    NODE_ENV,
+    SERVE_FRONTEND: process.env.SERVE_FRONTEND,
+    buildPath: join(__dirname, '../frontend/dist')
+  });
+});
 
 // 404 handler
 app.use('*', notFoundHandler);

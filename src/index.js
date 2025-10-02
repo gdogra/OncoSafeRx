@@ -184,6 +184,20 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Public frontend config (anon/public values only)
+app.get('/api/frontend/config', (req, res) => {
+  try {
+    const cfg = {
+      supabaseUrl: process.env.SUPABASE_URL || null,
+      supabaseAnonKey: process.env.SUPABASE_ANON_KEY || null,
+      apiBaseUrl: process.env.API_BASE_URL || '/api',
+    };
+    return res.json(cfg);
+  } catch (e) {
+    return res.status(500).json({ error: 'Failed to read frontend config' });
+  }
+});
+
 // Config check (server-side environment visibility; masked/summarized)
 app.get('/api/config/check', async (req, res) => {
   try {

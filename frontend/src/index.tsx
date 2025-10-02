@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
 import NoAuthApp from './NoAuthApp';
 import ErrorBoundary from './components/System/ErrorBoundary';
 import reportWebVitals from './reportWebVitals';
@@ -23,16 +22,33 @@ try {
   }
 } catch {}
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
-root.render(
-  <React.StrictMode>
-    <ErrorBoundary>
-      <App />
-    </ErrorBoundary>
-  </React.StrictMode>
-);
+async function bootstrap() {
+  try {
+    const hasEnv = !!(import.meta as any)?.env?.VITE_SUPABASE_URL && !!(import.meta as any)?.env?.VITE_SUPABASE_ANON_KEY
+    if (!hasEnv) {
+      const resp = await fetch('/api/frontend/config')
+      if (resp.ok) {
+        const cfg = await resp.json()
+        if (cfg?.supabaseUrl && cfg?.supabaseAnonKey) {
+          ;(window as any).__OSRX_SUPABASE_URL__ = String(cfg.supabaseUrl)
+          ;(window as any).__OSRX_SUPABASE_KEY__ = String(cfg.supabaseAnonKey)
+        }
+      }
+    }
+  } catch {}
+
+  const App = (await import('./App')).default
+  const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
+  root.render(
+    <React.StrictMode>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </React.StrictMode>
+  )
+}
+
+bootstrap()
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

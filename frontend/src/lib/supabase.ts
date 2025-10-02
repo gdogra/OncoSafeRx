@@ -1,13 +1,34 @@
 import { createClient } from '@supabase/supabase-js'
 
-const rawUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined) || ''
-const rawKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) || ''
-const supabaseUrl = (rawUrl.trim() || 'https://placeholder.supabase.co')
-const supabaseAnonKey = (rawKey.trim() || 'placeholder-key')
+// Multi-source configuration with safe runtime overrides
+const envUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined) || ''
+const envKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) || ''
+
+function getLs(key: string): string {
+  try { return localStorage.getItem(key) || '' } catch { return '' }
+}
+
+const win = (globalThis as any) || {}
+const winUrl = (win.__OSRX_SUPABASE_URL__ as string | undefined) || ''
+const winKey = (win.__OSRX_SUPABASE_KEY__ as string | undefined) || ''
+
+const runtimeUrl = (getLs('osrx_supabase_url') || winUrl || '').trim()
+const runtimeKey = (getLs('osrx_supabase_key') || winKey || '').trim()
+
+const rawUrl = (envUrl || runtimeUrl || '').trim()
+const rawKey = (envKey || runtimeKey || '').trim()
+
+const supabaseUrl = (rawUrl || 'https://placeholder.supabase.co')
+const supabaseAnonKey = (rawKey || 'placeholder-key')
 
 console.log('Environment variables loaded:', {
   supabaseUrl: supabaseUrl ? '✓ Loaded' : '✗ Missing',
   supabaseKey: supabaseAnonKey ? '✓ Loaded' : '✗ Missing',
+  sources: {
+    env: { url: !!envUrl, key: !!envKey },
+    runtime: { url: !!runtimeUrl, key: !!runtimeKey },
+    window: { url: !!winUrl, key: !!winKey }
+  },
   allEnvVars: Object.keys(import.meta.env).filter(k => k.startsWith('VITE_'))
 })
 

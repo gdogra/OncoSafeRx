@@ -35,3 +35,8 @@ const INTERACTION_MAX = parseInt(process.env.INTERACTION_RATE_LIMIT_MAX || '', 1
 export const generalLimiter = createRateLimiter(RL_WINDOW, RL_MAX);
 export const searchLimiter = createRateLimiter(SEARCH_WINDOW, SEARCH_MAX);
 export const interactionLimiter = createRateLimiter(INTERACTION_WINDOW, INTERACTION_MAX);
+
+// Probe/Scanner deny-list limiter (very strict)
+const PROBE_WINDOW = parseInt(process.env.PROBE_RATE_LIMIT_WINDOW_MS || '', 10) || 10 * 60 * 1000; // 10 minutes
+const PROBE_MAX = parseInt(process.env.PROBE_RATE_LIMIT_MAX || '', 10) || 20; // 20 requests per window
+export const probeLimiter = createRateLimiter(PROBE_WINDOW, PROBE_MAX);

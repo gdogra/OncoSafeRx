@@ -22,7 +22,7 @@ try {
 }
 
 // Middleware
-import { generalLimiter } from './middleware/rateLimiter.js';
+import { generalLimiter, probeLimiter } from './middleware/rateLimiter.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 // Routes
@@ -330,7 +330,8 @@ const denyList = [
 app.use((req, res, next) => {
   try {
     if (denyList.some((rx) => rx.test(req.path))) {
-      return res.status(404).send('Not Found');
+      // Apply strict rate limit then respond 403 (forbidden)
+      return probeLimiter(req, res, () => res.status(403).send('Forbidden'));
     }
   } catch {}
   return next();

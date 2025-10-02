@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { UserProfile, AuthState, SignupData, LoginData, UserPersona } from '../types/user';
 import { getRoleConfig } from '../utils/roleConfig';
-import { SimpleAuthService } from '../services/authService-simple';
+import { SupabaseAuthService } from '../services/authService';
 
 interface AuthActions {
   login: (data: LoginData) => Promise<void>;
@@ -102,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }, 15000);
       
       try {
-        const user = await SimpleAuthService.login(data);
+        const user = await SupabaseAuthService.login(data);
         clearTimeout(loginTimeout);
         console.log('AuthContext: Login successful, user:', user);
         dispatch({ type: 'AUTH_SUCCESS', payload: user });
@@ -122,7 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signup: async (data: SignupData) => {
       dispatch({ type: 'AUTH_START' });
       try {
-        const user = await SimpleAuthService.signup(data);
+        const user = await SupabaseAuthService.signup(data);
         dispatch({ type: 'AUTH_SUCCESS', payload: user });
       } catch (error) {
         console.error('AuthContext: Signup failed:', error);
@@ -132,7 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     },
 
     logout: () => {
-      SimpleAuthService.logout();
+      SupabaseAuthService.logout();
       dispatch({ type: 'AUTH_LOGOUT' });
     },
 
@@ -147,7 +147,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         
         // Update profile using simple service
-        const updatedUser = await SimpleAuthService.updateProfile(userId, updates);
+        const updatedUser = await SupabaseAuthService.updateProfile(userId, updates);
         
         // Update state
         if (state.user) {
@@ -167,7 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!state.user) return;
       
       try {
-        await SimpleAuthService.updateProfile(state.user.id, { persona });
+        await SupabaseAuthService.updateProfile(state.user.id, { persona });
         dispatch({ type: 'SWITCH_PERSONA', payload: persona });
       } catch (error) {
         dispatch({ type: 'AUTH_FAILURE', payload: 'Failed to update persona' });
@@ -187,7 +187,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const checkCurrentUser = async () => {
       try {
         console.log('🔍 AuthContext: Checking for existing user session...');
-        const user = await SimpleAuthService.getCurrentUser();
+        const user = await SupabaseAuthService.getCurrentUser();
         if (mounted && user) {
           console.log('✅ AuthContext: Restored user session on page load:', { id: user.id, email: user.email });
           dispatch({ type: 'AUTH_SUCCESS', payload: user });
@@ -202,7 +202,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkCurrentUser();
 
     // Set up auth state listener
-    const { data: { subscription } } = SimpleAuthService.onAuthStateChange((user) => {
+    const { data: { subscription } } = SupabaseAuthService.onAuthStateChange((user) => {
       if (mounted) {
         if (user) {
           dispatch({ type: 'AUTH_SUCCESS', payload: user });

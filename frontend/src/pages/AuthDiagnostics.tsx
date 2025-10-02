@@ -42,6 +42,8 @@ const AuthDiagnostics: React.FC = () => {
   const [resetMsg, setResetMsg] = useState<string | null>(null);
   const [syncLoading, setSyncLoading] = useState(false);
   const [syncMsg, setSyncMsg] = useState<string | null>(null);
+  const [configCheck, setConfigCheck] = useState<any | null>(null);
+  const [configError, setConfigError] = useState<string | null>(null);
 
   const withTimeout = async <T,>(p: Promise<T>, ms: number): Promise<T> => {
     return await Promise.race<T>([
@@ -92,6 +94,17 @@ const AuthDiagnostics: React.FC = () => {
         }
       } else {
         setProfileRow(null);
+      }
+
+      // Server config check
+      try {
+        const configRes = await fetch('/api/config/check');
+        const configData = await configRes.json();
+        setConfigCheck(configData);
+        setConfigError(null);
+      } catch (e: any) {
+        setConfigError(e?.message || 'Failed to fetch server config');
+        setConfigCheck(null);
       }
     } finally {
       setLoading(false);

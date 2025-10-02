@@ -12,8 +12,11 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY src/ ./src/
-# Copy pre-built frontend with embedded environment variables (built locally)
-COPY frontend/dist ./frontend/dist
+# Build frontend within container
+COPY frontend/ ./frontend/
+WORKDIR /app/frontend
+RUN npm ci && npm run build
+WORKDIR /app
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs

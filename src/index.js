@@ -331,11 +331,22 @@ try {
   console.log(`Frontend build exists: ${buildExists}, index.html exists: ${indexExists}`);
   
   if (buildExists && indexExists) {
-    app.use(express.static(clientBuildPath));
+    // Serve static files with proper MIME types
+    app.use(express.static(clientBuildPath, {
+      setHeaders: (res, path) => {
+        if (path.endsWith('.js')) {
+          res.setHeader('Content-Type', 'application/javascript');
+        } else if (path.endsWith('.css')) {
+          res.setHeader('Content-Type', 'text/css');
+        } else if (path.endsWith('.map')) {
+          res.setHeader('Content-Type', 'application/json');
+        }
+      }
+    }));
     console.log(`✅ Serving static files from: ${clientBuildPath}`);
     
-    // Route all non-API requests to React index.html
-    app.get(/^\/(?!api|test-frontend|health|metrics).*/, (req, res, next) => {
+    // Route all non-API, non-asset requests to React index.html
+    app.get(/^\/(?!api|test-frontend|health|metrics|assets|favicon\.ico).*/, (req, res, next) => {
       console.log(`Serving SPA for: ${req.path}`);
       res.sendFile(join(clientBuildPath, 'index.html'), (err) => {
         if (err) {

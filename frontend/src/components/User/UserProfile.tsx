@@ -22,6 +22,7 @@ import Card from '../UI/Card';
 import Tooltip from '../UI/Tooltip';
 import PersonaSelector from './PersonaSelector';
 
+// Build timestamp: 2025-10-01-20:50 - URGENT FIX DEPLOYED
 const UserProfile: React.FC = () => {
   const { state, actions } = useAuth();
   const { user } = state;

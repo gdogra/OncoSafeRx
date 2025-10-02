@@ -79,6 +79,125 @@ router.get('/profile',
 );
 
 /**
+ * Update user profile (using Supabase auth)
+ */
+router.put('/profile',
+  authenticateSupabase,
+  asyncHandler(async (req, res) => {
+    try {
+      const user = req.user;
+      const updates = req.body;
+      
+      console.log('🔄 Profile update request for user:', user.id);
+      console.log('🔄 Updates:', updates);
+      
+      // Create Supabase admin client for user metadata updates
+      const url = process.env.SUPABASE_URL;
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      
+      if (!url || !serviceKey) {
+        return res.status(500).json({ error: 'Supabase service not configured' });
+      }
+      
+      const admin = createClient(url, serviceKey);
+      
+      // Prepare user metadata updates
+      const metadataUpdates = {};
+      if (updates.firstName !== undefined) metadataUpdates.first_name = updates.firstName;
+      if (updates.lastName !== undefined) metadataUpdates.last_name = updates.lastName;
+      if (updates.specialty !== undefined) metadataUpdates.specialty = updates.specialty;
+      if (updates.institution !== undefined) metadataUpdates.institution = updates.institution;
+      if (updates.licenseNumber !== undefined) metadataUpdates.license_number = updates.licenseNumber;
+      if (updates.yearsExperience !== undefined) metadataUpdates.years_experience = updates.yearsExperience;
+      if (updates.preferences !== undefined) metadataUpdates.preferences = updates.preferences;
+      if (updates.persona !== undefined) metadataUpdates.persona = updates.persona;
+      if (updates.role !== undefined) metadataUpdates.role = updates.role;
+      
+      // Update Supabase auth user metadata
+      const { error: authError } = await admin.auth.admin.updateUserById(user.id, {
+        user_metadata: {
+          ...user.supabaseUser.user_metadata,
+          ...metadataUpdates
+        }
+      });
+      
+      if (authError) {
+        console.error('❌ Failed to update auth metadata:', authError);
+        return res.status(500).json({ error: 'Failed to update profile: ' + authError.message });
+      }
+      
+      // Also update or create user profile in users table
+      const profileData = {
+        id: user.id,
+        email: user.email,
+        role: updates.role || user.role,
+        first_name: updates.firstName || user.supabaseUser.user_metadata?.first_name || '',
+        last_name: updates.lastName || user.supabaseUser.user_metadata?.last_name || '',
+        specialty: updates.specialty || user.supabaseUser.user_metadata?.specialty || '',
+        institution: updates.institution || user.supabaseUser.user_metadata?.institution || '',
+        license_number: updates.licenseNumber || user.supabaseUser.user_metadata?.license_number || '',
+        years_experience: updates.yearsExperience || user.supabaseUser.user_metadata?.years_experience || 0,
+        preferences: updates.preferences || user.supabaseUser.user_metadata?.preferences || {},
+        persona: updates.persona || user.supabaseUser.user_metadata?.persona || {},
+        updated_at: new Date().toISOString()
+      };
+      
+      const { error: profileError } = await admin.from('users').upsert(profileData, { onConflict: 'id' });
+      
+      if (profileError) {
+        console.error('❌ Failed to update profile table:', profileError);
+        // Don't fail the request if the table update fails, as auth metadata was updated
+        console.warn('⚠️ Profile table update failed, but auth metadata was updated successfully');
+      }
+      
+      console.log('✅ Profile updated successfully for user:', user.id);
+      
+      // Return updated profile
+      const updatedProfile = {
+        id: user.id,
+        email: user.email,
+        firstName: updates.firstName ?? user.supabaseUser.user_metadata?.first_name ?? '',
+        lastName: updates.lastName ?? user.supabaseUser.user_metadata?.last_name ?? '',
+        role: updates.role ?? user.role,
+        specialty: updates.specialty ?? user.supabaseUser.user_metadata?.specialty ?? '',
+        institution: updates.institution ?? user.supabaseUser.user_metadata?.institution ?? '',
+        licenseNumber: updates.licenseNumber ?? user.supabaseUser.user_metadata?.license_number ?? '',
+        yearsExperience: updates.yearsExperience ?? user.supabaseUser.user_metadata?.years_experience ?? 0,
+        preferences: updates.preferences ?? user.supabaseUser.user_metadata?.preferences ?? {
+          theme: 'light',
+          language: 'en',
+          notifications: { email: true, push: true, criticalAlerts: true, weeklyReports: true },
+          dashboard: { defaultView: 'overview', refreshInterval: 5000, compactMode: false },
+          clinical: { showGenomicsByDefault: true, autoCalculateDosing: true, requireInteractionAck: true, showPatientPhotos: false }
+        },
+        persona: updates.persona ?? user.supabaseUser.user_metadata?.persona ?? {
+          id: `persona-${Date.now()}`,
+          name: getDefaultPersonaName(user.role),
+          description: getDefaultPersonaDescription(user.role),
+          role: user.role,
+          experienceLevel: 'intermediate',
+          specialties: getDefaultSpecialties(user.role),
+          preferences: { riskTolerance: 'moderate', alertSensitivity: 'medium', workflowStyle: 'thorough', decisionSupport: 'consultative' },
+          customSettings: {}
+        },
+        createdAt: user.supabaseUser.created_at,
+        lastLogin: new Date().toISOString(),
+        isActive: true
+      };
+      
+      res.json({
+        success: true,
+        user: updatedProfile
+      });
+      
+    } catch (error) {
+      console.error('❌ Profile update error:', error);
+      res.status(500).json({ error: 'Failed to update profile: ' + error.message });
+    }
+  })
+);
+
+/**
  * Verify authentication status
  */
 router.get('/verify',

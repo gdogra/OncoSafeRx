@@ -117,6 +117,7 @@ jobs:
           done
 
       - name: Health check (Render)
+        id: health
         env:
           RENDER_SERVICE_URL: ${{ secrets.RENDER_SERVICE_URL }}
         run: |
@@ -130,8 +131,18 @@ jobs:
             if curl -fsS "$BASE/health" >/dev/null; then break; fi
             sleep 5
           done
+          echo "url=$BASE" >> $GITHUB_OUTPUT
           curl -fsS "$BASE/health" | jq .
-          curl -fsS "$BASE/api/health" | jq .
+          API=$(curl -fsS "$BASE/api/health")
+          echo "$API" | jq .
+          OK=$(echo "$API" | jq -r '.status // "unknown"')
+          if [ "$OK" = "healthy" ]; then
+            echo "health_ok=true" >> $GITHUB_OUTPUT
+          else
+            echo "health_ok=false" >> $GITHUB_OUTPUT
+            echo "Render health not healthy: $OK" >&2
+            exit 1
+          fi
 
       - name: Create release tag
         uses: actions/create-release@v1
@@ -143,3 +154,40 @@ jobs:
           draft: false
           prerelease: false
 
+      - name: Notify Slack/Teams (success)
+        if: success()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+        run: |
+          HOOK="${SLACK_WEBHOOK:-}"
+          if [ -z "$HOOK" ] && [ -n "${SLACK_WEBHOOK_URL:-}" ]; then HOOK="$SLACK_WEBHOOK_URL"; fi
+          MSG="✅ Orchestrated deploy succeeded. Netlify: state=${{ steps.netlify.outputs.state }} build=${{ steps.netlify.outputs.build_id }} | Render: status=${{ steps.render.outputs.status }} deploy=${{ steps.render.outputs.deploy_id }} | Health: ok=${{ steps.health.outputs.health_ok }} url=${{ steps.health.outputs.url }} | Repo: $GITHUB_REPOSITORY@${GITHUB_SHA::7}"
+          if [ -n "$HOOK" ]; then
+            payload=$(jq -n --arg text "$MSG" '{text: $text}')
+            curl -fsS -X POST -H 'Content-type: application/json' --data "$payload" "$HOOK" || true
+          fi
+          if [ -n "${TEAMS_WEBHOOK:-}" ]; then
+            payload=$(jq -n --arg text "$MSG" '{text: $text}')
+            curl -fsS -X POST -H 'Content-Type: application/json' -d "$payload" "$TEAMS_WEBHOOK" || true
+          fi
+
+      - name: Notify Slack/Teams (failure)
+        if: failure()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+        run: |
+          HOOK="${SLACK_WEBHOOK:-}"
+          if [ -z "$HOOK" ] && [ -n "${SLACK_WEBHOOK_URL:-}" ]; then HOOK="$SLACK_WEBHOOK_URL"; fi
+          MSG="❌ Orchestrated deploy FAILED. Netlify: state=${{ steps.netlify.outputs.state }} build=${{ steps.netlify.outputs.build_id }} | Render: status=${{ steps.render.outputs.status }} deploy=${{ steps.render.outputs.deploy_id }} | Health (if ran): ok=${{ steps.health.outputs.health_ok }} url=${{ steps.health.outputs.url }} | Repo: $GITHUB_REPOSITORY@${GITHUB_SHA::7}"
+          if [ -n "$HOOK" ]; then
+            payload=$(jq -n --arg text "$MSG" '{text: $text}')
+            curl -fsS -X POST -H 'Content-type: application/json' --data "$payload" "$HOOK" || true
+          fi
+          if [ -n "${TEAMS_WEBHOOK:-}" ]; then
+            payload=$(jq -n --arg text "$MSG" '{text: $text}')
+            curl -fsS -X POST -H 'Content-Type: application/json' -d "$payload" "$TEAMS_WEBHOOK" || true
+          fi

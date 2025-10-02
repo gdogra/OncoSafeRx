@@ -179,4 +179,4 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
   - Health check at `RENDER_SERVICE_URL` (`/health` and `/api/health`).
   - Creates a GitHub Release with tag `deploy-<run_id>-<sha>` on success.
 - Required secrets: `NETLIFY_BUILD_HOOK`, `NETLIFY_API_TOKEN`, `NETLIFY_SITE_ID`, `RENDER_DEPLOY_HOOK`, `RENDER_API_KEY`, `RENDER_SERVICE_ID`, `RENDER_SERVICE_URL`.
-- Optional: `PREDEPLOY_SMOKE_URL`. Use existing Slack/Teams secrets for notifications via individual workflows if desired.
+- Optional: `PREDEPLOY_SMOKE_URL`. Notifications: set `SLACK_WEBHOOK` or `SLACK_WEBHOOK_URL`, and/or `TEAMS_WEBHOOK` for success/failure messages.

@@ -321,7 +321,7 @@ if (NODE_ENV === 'development' && process.env.USE_VITE !== 'false') {
 }
 
 // Serve frontend build (SPA) for non-API routes in production
-if (NODE_ENV !== 'development' || process.env.USE_VITE === 'false') {
+if (NODE_ENV !== 'development' || process.env.USE_VITE === 'false' || process.env.SERVE_FRONTEND === 'true') {
   try {
     // Vite outputs to 'dist' by default
     const clientBuildPath = join(__dirname, '../frontend/dist');

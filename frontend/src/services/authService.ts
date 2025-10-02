@@ -721,3 +721,6 @@ export class SupabaseAuthService {
     if (error) throw new Error(error.message)
   }
 }
+
+// Export default instance for convenience
+export const AuthService = new SupabaseAuthService();

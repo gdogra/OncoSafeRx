@@ -5,6 +5,90 @@ import { UserProfile } from '../types/user';
  */
 export class SimpleAuthService {
   
+  // Missing methods that AuthContext needs
+  static async getCurrentUser(): Promise<UserProfile | null> {
+    console.log('🔍 SIMPLE getCurrentUser called');
+    try {
+      const stored = localStorage.getItem('osrx_user_profile');
+      if (stored) {
+        const profile = JSON.parse(stored);
+        console.log('✅ SIMPLE: Found user in localStorage');
+        return profile;
+      }
+    } catch (e) {
+      console.warn('⚠️ SIMPLE: Failed to get current user');
+    }
+    return null;
+  }
+  
+  static onAuthStateChange(callback: (user: UserProfile | null) => void) {
+    console.log('🔍 SIMPLE onAuthStateChange called');
+    // Return a simple subscription object
+    return {
+      data: {
+        subscription: {
+          unsubscribe: () => console.log('🔍 SIMPLE: Auth state subscription unsubscribed')
+        }
+      }
+    };
+  }
+  
+  static logout() {
+    console.log('🔍 SIMPLE logout called');
+    try {
+      localStorage.removeItem('osrx_user_profile');
+      localStorage.removeItem('osrx_session_user_id');
+      console.log('✅ SIMPLE: Logged out, cleared localStorage');
+    } catch (e) {
+      console.warn('⚠️ SIMPLE: Logout cleanup failed');
+    }
+  }
+  
+  static async login(email: string, password: string): Promise<UserProfile> {
+    console.log('🔍 SIMPLE login called:', email);
+    
+    // Create a simple user profile for any login
+    const userId = `user-${Date.now()}`;
+    const userProfile: UserProfile = {
+      id: userId,
+      email: email,
+      firstName: 'Doctor',
+      lastName: 'User',
+      role: 'oncologist',
+      specialty: 'Medical Oncology',
+      institution: 'Hospital',
+      licenseNumber: '',
+      yearsExperience: 5,
+      preferences: {
+        theme: 'light',
+        notifications: { email: true, push: true, criticalAlerts: true, weeklyReports: false },
+        dashboard: { defaultView: 'overview', compactMode: false },
+        clinical: { riskTolerance: 'moderate', alertSensitivity: 'high', workflowStyle: 'thorough', decisionSupport: 'guided' }
+      },
+      persona: {
+        name: 'Medical Oncologist',
+        description: 'Clinical oncology specialist',
+        capabilities: ['drug-interactions', 'protocols', 'research']
+      },
+      createdAt: new Date().toISOString(),
+      lastLogin: new Date().toISOString(),
+      isActive: true,
+      roles: ['oncologist'],
+      permissions: ['read', 'write', 'analyze']
+    };
+    
+    // Save to localStorage
+    try {
+      localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile));
+      localStorage.setItem('osrx_session_user_id', userId);
+      console.log('✅ SIMPLE: Login successful, profile saved');
+    } catch (e) {
+      console.warn('⚠️ SIMPLE: Failed to save login profile');
+    }
+    
+    return userProfile;
+  }
+  
   static async updateProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile> {
     console.log('🔄 SIMPLE updateProfile called:', { userId, updates });
     

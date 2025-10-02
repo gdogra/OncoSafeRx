@@ -224,6 +224,9 @@ export class SimpleAuthService {
     console.log('🔄 SIMPLE createPatient called:', patientData);
     
     try {
+      // Get current user ID for proper key namespacing
+      const userId = localStorage.getItem('osrx_session_user_id') || 'guest';
+      
       // Create basic patient object
       const patient = {
         id: `patient-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -238,12 +241,13 @@ export class SimpleAuthService {
         ...patientData
       };
       
-      // Save to localStorage
+      // Save to localStorage using PatientContext key format
       try {
-        const existingPatients = JSON.parse(localStorage.getItem('osrx_patients') || '[]');
+        const storageKey = `oncosaferx:${userId}:patients`;
+        const existingPatients = JSON.parse(localStorage.getItem(storageKey) || '[]');
         existingPatients.push(patient);
-        localStorage.setItem('osrx_patients', JSON.stringify(existingPatients));
-        console.log('✅ SIMPLE: Patient saved to localStorage');
+        localStorage.setItem(storageKey, JSON.stringify(existingPatients));
+        console.log('✅ SIMPLE: Patient saved to localStorage with key:', storageKey);
       } catch (e) {
         console.warn('⚠️ SIMPLE: Patient localStorage save failed');
       }

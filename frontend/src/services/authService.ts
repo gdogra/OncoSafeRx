@@ -608,41 +608,12 @@ export class SupabaseAuthService {
       return updatedProfile;
     }
 
-    // Production mode: Try Supabase auth first, fallback to localStorage
+    // Production mode: Skip hanging Supabase calls, use localStorage directly
+    console.log('🔄 Production mode: Using localStorage fallback (skip hanging Supabase calls)')
+    
+    // Fallback: Store profile updates in localStorage 
+    console.log('🔄 Using localStorage profile update')
     try {
-      console.log('🔍 Attempting to get current user from Supabase...')
-      const { data: user } = await supabase.auth.getUser()
-      console.log('🔍 Supabase getUser result:', user?.user ? 'user found' : 'no user')
-      if (!user.user) throw new Error('No authenticated user')
-      
-      console.log('🔍 Attempting to update user metadata in Supabase...')
-      // Update user metadata in Supabase auth
-      const { data, error } = await supabase.auth.updateUser({
-        data: {
-          first_name: updates.firstName,
-          last_name: updates.lastName,
-          role: updates.role,
-          specialty: updates.specialty,
-          institution: updates.institution,
-          license_number: updates.licenseNumber,
-          years_experience: updates.yearsExperience,
-          preferences: updates.preferences,
-          persona: updates.persona
-        }
-      })
-      
-      console.log('🔍 Supabase updateUser result:', { data: !!data, error: !!error })
-      if (error) throw new Error(error.message)
-      
-      console.log('✅ Profile updated successfully via Supabase')
-      return this.buildUserProfile(data.user!)
-    } catch (error) {
-      console.log('🚨 Supabase auth update failed, falling back to localStorage:', error?.message || error)
-      console.error('Failed to update user profile via Supabase:', error)
-      
-      // Fallback: Store profile updates in localStorage for unauthenticated users
-      console.log('🔄 Falling back to localStorage profile update')
-      try {
         // Get current profile from localStorage or create default
         const storedProfile = (() => {
           try {

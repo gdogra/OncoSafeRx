@@ -707,19 +707,6 @@ export class SupabaseAuthService {
       return minimalProfile
     }
   }
-
-  /**
-   * Request magic link
-   */
-  static async requestMagicLink(email: string, redirectTo?: string): Promise<void> {
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: redirectTo || `${window.location.origin}/`
-      }
-    })
-    if (error) throw new Error(error.message)
-  }
 }
 
 // Export default instance for convenience

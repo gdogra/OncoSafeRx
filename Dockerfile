@@ -13,7 +13,7 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 COPY src/ ./src/
 # Copy pre-built frontend with embedded environment variables (built locally)
-COPY frontend/frontend/dist ./frontend/dist
+COPY frontend/dist ./frontend/dist
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs

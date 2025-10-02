@@ -373,6 +373,34 @@ app.get('/test-frontend', (req, res) => {
   });
 });
 
+// Debug endpoint to check what env vars were built into the frontend
+app.get('/debug-frontend-env', (req, res) => {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const frontendDistPath = join(__dirname, '../frontend/dist');
+    
+    // Try to read the main JS file to see if env vars are embedded
+    const indexPath = join(frontendDistPath, 'index.html');
+    const indexExists = fs.existsSync(indexPath);
+    
+    // List all files in the dist directory
+    let distFiles = [];
+    if (fs.existsSync(frontendDistPath)) {
+      distFiles = fs.readdirSync(frontendDistPath);
+    }
+    
+    res.json({
+      frontendDistPath,
+      indexExists,
+      distFiles,
+      message: 'Check if frontend build contains environment variables'
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // 404 handler
 app.use('*', notFoundHandler);
 

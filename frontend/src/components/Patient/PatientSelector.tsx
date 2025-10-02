@@ -156,7 +156,15 @@ const PatientSelector: React.FC = () => {
         });
         
         if (response.ok) {
-          showToast('success', 'Patient created successfully');
+          const result = await response.json();
+          console.log('✅ Patient created successfully in database:', result);
+          showToast('success', 'Patient created and saved to database');
+          
+          // Update the patient with the server response if available
+          if (result.patient) {
+            const serverPatient = result.patient.data || result.patient;
+            actions.setCurrentPatient(serverPatient);
+          }
         } else {
           const errorText = await response.text().catch(() => 'Unknown error');
           console.warn('Server patient creation failed:', response.status, errorText);

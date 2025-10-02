@@ -314,6 +314,28 @@ app.use('/', smartRoutes);
 // Serve static files from public directory
 app.use(express.static(join(__dirname, '../public')));
 
+// Deny-list common scanner/probe paths (reduce noise, avoid SPA fallback)
+const denyList = [
+  /^\/wp-admin(\/|$)/i,
+  /^\/wp-login\.php$/i,
+  /^\/xmlrpc\.php$/i,
+  /^\/wordpress(\/|$)/i,
+  /^\/wp-content(\/|$)/i,
+  /^\/wp-includes(\/|$)/i,
+  /^\/\.env$/i,
+  /^\/\.git(\/|$)/i,
+  /^\/server-status$/i,
+  /^\/phpinfo\.php$/i,
+];
+app.use((req, res, next) => {
+  try {
+    if (denyList.some((rx) => rx.test(req.path))) {
+      return res.status(404).send('Not Found');
+    }
+  } catch {}
+  return next();
+});
+
 // In development, mount Vite dev server middleware so you don't need
 // a separate terminal/process for the frontend. Requests for the SPA
 // are served by Vite; API routes remain handled above.

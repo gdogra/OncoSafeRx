@@ -706,7 +706,6 @@ export class SupabaseAuthService {
       console.log('🚨 Using minimal profile due to complete failure')
       return minimalProfile
     }
-  }
 }
 
 // Export default instance for convenience

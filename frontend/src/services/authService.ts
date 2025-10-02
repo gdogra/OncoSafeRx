@@ -682,6 +682,29 @@ export class SupabaseAuthService {
         console.log('🚨 Using minimal profile due to storage errors')
         return minimalProfile
       }
+    } catch (error) {
+      console.error('❌ localStorage profile update failed:', error)
+      // Return minimal profile as absolute fallback
+      const minimalProfile = {
+        id: userId,
+        email: 'user@oncosaferx.com',
+        firstName: updates.firstName || 'User',
+        lastName: updates.lastName || 'Name',
+        role: updates.role || 'oncologist',
+        specialty: updates.specialty || 'Medical Oncology',
+        institution: updates.institution || '',
+        licenseNumber: updates.licenseNumber || '',
+        yearsExperience: updates.yearsExperience || 0,
+        preferences: updates.preferences || this.getDefaultPreferences('oncologist'),
+        persona: updates.persona || this.createDefaultPersona('oncologist'),
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString(),
+        isActive: true,
+        roles: ['oncologist'],
+        permissions: ['read', 'write', 'analyze']
+      }
+      console.log('🚨 Using minimal profile due to complete failure')
+      return minimalProfile
     }
   }
 

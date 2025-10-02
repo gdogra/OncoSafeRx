@@ -5,6 +5,20 @@ import { UserProfile } from '../types/user';
  */
 export class SimpleAuthService {
   
+  // Helper method to get auth token
+  private static getAuthToken(): string {
+    try {
+      const tokens = localStorage.getItem('osrx_auth_tokens');
+      if (tokens) {
+        const parsed = JSON.parse(tokens);
+        return parsed.access_token || '';
+      }
+      return '';
+    } catch {
+      return '';
+    }
+  }
+  
   // Missing methods that AuthContext needs
   static async getCurrentUser(): Promise<UserProfile | null> {
     console.log('🔍 SIMPLE getCurrentUser called');
@@ -176,7 +190,32 @@ export class SimpleAuthService {
         permissions: ['read', 'write', 'analyze']
       };
       
-      // Save to localStorage
+      // Save to database first, then localStorage as fallback
+      try {
+        const authToken = this.getAuthToken();
+        if (authToken) {
+          const response = await fetch('/api/supabase-auth/profile', {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${authToken}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updates)
+          });
+          
+          if (response.ok) {
+            console.log('✅ SIMPLE: Profile saved to database');
+          } else {
+            console.warn('⚠️ SIMPLE: Database save failed, using localStorage fallback');
+          }
+        } else {
+          console.warn('⚠️ SIMPLE: No auth token, using localStorage fallback');
+        }
+      } catch (error) {
+        console.warn('⚠️ SIMPLE: Database save error, using localStorage fallback:', error);
+      }
+      
+      // Save to localStorage as backup
       try {
         localStorage.setItem('osrx_user_profile', JSON.stringify(profile));
         console.log('✅ SIMPLE: Profile saved to localStorage');

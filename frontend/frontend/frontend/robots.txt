@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# Allow search engines to index public pages
+Allow: /login
+Allow: /about
+Allow: /features
+Allow: /pricing
+
+# Block private/sensitive areas
+Disallow: /admin
+Disallow: /api/
+Disallow: /auth/
+Disallow: /dashboard
+Disallow: /patients
+Disallow: /analytics
+
+# Sitemap location
+Sitemap: https://oncosaferx.com/sitemap.xml
+
+# Crawl delay (optional - helps prevent overwhelming server)
+Crawl-delay: 1

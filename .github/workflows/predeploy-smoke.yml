@@ -1,0 +1,49 @@
+name: Predeploy Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Base URL to test (e.g., https://app.example.com)"
+        required: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare
+        run: |
+          echo "Testing URL: ${{ inputs.base_url }}"
+      - name: Install tools
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y jq
+      - name: Check /health
+        run: |
+          curl -fsS "${{ inputs.base_url }}/health" | jq .
+      - name: Check /api/health
+        run: |
+          set -e
+          RESP=$(curl -fsS "${{ inputs.base_url }}/api/health")
+          echo "$RESP" | jq .
+          STATUS=$(echo "$RESP" | jq -r .status)
+          if [ "$STATUS" != "healthy" ]; then echo "API health not healthy" >&2; exit 1; fi
+      - name: Check index and assets
+        run: |
+          set -e
+          HTML=$(curl -fsS "${{ inputs.base_url }}/")
+          # script asset
+          ASSET=$(echo "$HTML" | grep -Eo '/assets/[^"]+\.js' | head -n 1)
+          if [ -z "$ASSET" ]; then echo "No JS asset found in index" >&2; exit 1; fi
+          echo "Testing JS asset: $ASSET"
+          curl -fsS "${{ inputs.base_url }}$ASSET" >/dev/null
+          # css asset (optional)
+          CSS=$(echo "$HTML" | grep -Eo '/assets/[^"]+\.css' | head -n 1 || true)
+          if [ -n "$CSS" ]; then
+            echo "Testing CSS asset: $CSS"
+            curl -fsS "${{ inputs.base_url }}$CSS" >/dev/null
+          fi
+      - name: Summarize
+        run: |
+          echo "✅ Predeploy smoke passed for ${{ inputs.base_url }}"
+

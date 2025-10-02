@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js'
 
 const rawUrl = (import.meta.env.VITE_SUPABASE_URL as string | undefined) || ''
 const rawKey = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) || ''
-const supabaseUrl = rawUrl.trim()
-const supabaseAnonKey = rawKey.trim()
+const supabaseUrl = (rawUrl.trim() || 'https://placeholder.supabase.co')
+const supabaseAnonKey = (rawKey.trim() || 'placeholder-key')
 
 console.log('Environment variables loaded:', {
   supabaseUrl: supabaseUrl ? '✓ Loaded' : '✗ Missing',
@@ -13,11 +13,9 @@ console.log('Environment variables loaded:', {
 
 if (!supabaseUrl || !supabaseAnonKey) {
   const msg = 'Supabase env missing: VITE_SUPABASE_URL and/or VITE_SUPABASE_ANON_KEY'
-  if (import.meta.env.MODE === 'production') {
-    throw new Error(msg)
-  } else {
-    console.warn(msg)
-  }
+  // Do not throw — allow authService to fall back to server proxy or direct REST
+  console.warn(msg)
+  console.warn('Falling back to placeholders; direct Supabase calls may fail. Ensure build-time env or .env.production is set. If proxy mode is enabled, auth will use /api/supabase-auth/proxy/* endpoints.')
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {

@@ -6,6 +6,7 @@ import { PatientProvider } from './context/PatientContext';
 import { SelectionProvider } from './context/SelectionContext';
 import { ComparisonProvider } from './contexts/ComparisonContext';
 import ErrorBoundary from './components/ErrorBoundary';
+import EnvDiagnosticsBanner from './components/System/EnvDiagnosticsBanner';
 import { ToastProvider } from './components/UI/Toast';
 import SecurityManager from './utils/security';
 import PerformanceMonitor from './utils/performance';
@@ -472,6 +473,7 @@ function App() {
 
   return (
     <ErrorBoundary>
+      <EnvDiagnosticsBanner />
       <Router>
         <AppWithRouter />
       </Router>

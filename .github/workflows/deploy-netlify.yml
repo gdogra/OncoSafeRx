@@ -1,46 +1,88 @@
-name: Deploy to Netlify
+name: Deploy Frontend to Netlify
 
 on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "Reason for deploy (optional)"
+        required: false
 
 jobs:
-  build-and-deploy:
+  trigger-netlify-build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Use Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Build (Vite)
+      - name: Trigger Netlify build hook
         env:
-          # Frontend build-time envs provided via repo secrets
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_SUPABASE_AUTH_VIA_PROXY: 'true'
-          VITE_SKIP_SUPABASE_PREFLIGHT: 'true'
-          VITE_ALLOW_DEMO_LOGIN: 'false'
-          VITE_APP_VERSION: ${{ github.sha }}
-        run: npm run build
-
-      - name: Deploy to Netlify (prod)
-        uses: netlify/actions/cli@master
-        with:
-          args: deploy --dir=dist --prod
+          NETLIFY_BUILD_HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }}
+        run: |
+          if [ -z "$NETLIFY_BUILD_HOOK" ]; then
+            echo "NETLIFY_BUILD_HOOK secret not set. Add it in GitHub repo settings." >&2
+            exit 1
+          fi
+          payload=$(jq -n --arg m "${{ inputs.message }}" '{trigger_branch:"main", trigger_title: $m}')
+          curl -fsS -X POST -H 'Content-Type: application/json' -d "$payload" "$NETLIFY_BUILD_HOOK"
+          echo "Netlify build hook triggered. Check Netlify dashboard for status."
+      - name: Install jq (for JSON parsing)
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y jq
+      - name: Poll Netlify build status (optional)
+        id: poll
         env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_API_TOKEN: ${{ secrets.NETLIFY_API_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NETLIFY_API_TOKEN:-}" ] || [ -z "${NETLIFY_SITE_ID:-}" ]; then
+            echo "Netlify API polling skipped (secrets not set)"
+            echo "state=skipped" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          BASE="https://api.netlify.com/api/v1"
+          AUTH="Authorization: Bearer $NETLIFY_API_TOKEN"
+          echo "Polling latest build for site: $NETLIFY_SITE_ID"
+          ATTEMPTS=120
+          SLEEP=5
+          state="enqueued"
+          build_id=""
+          deploy_id=""
+          for i in $(seq 1 $ATTEMPTS); do
+            RESP=$(curl -fsS -H "$AUTH" "$BASE/sites/$NETLIFY_SITE_ID/builds?per_page=1") || true
+            if [ -n "$RESP" ]; then
+              state=$(echo "$RESP" | jq -r '.[0].state // "unknown"')
+              build_id=$(echo "$RESP" | jq -r '.[0].id // ""')
+              deploy_id=$(echo "$RESP" | jq -r '.[0].deploy_id // ""')
+              echo "Attempt $i: state=$state build_id=$build_id deploy_id=$deploy_id"
+              case "$state" in
+                ready)
+                  break;;
+                error|failed)
+                  break;;
+              esac
+            fi
+            sleep $SLEEP
+          done
+          echo "state=$state" >> $GITHUB_OUTPUT
+          echo "build_id=$build_id" >> $GITHUB_OUTPUT
+          echo "deploy_id=$deploy_id" >> $GITHUB_OUTPUT
+          if [ "$state" = "error" ] || [ "$state" = "failed" ]; then
+            exit 1
+          fi
+      - name: Notify Slack/Teams
+        if: always()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+        run: |
+          set -euo pipefail
+          STATE="${{ steps.poll.outputs.state }}"
+          BUILD_ID="${{ steps.poll.outputs.build_id }}"
+          DEPLOY_ID="${{ steps.poll.outputs.deploy_id }}"
+          MSG="Netlify build: state=$STATE build_id=$BUILD_ID deploy_id=$DEPLOY_ID repo=$GITHUB_REPOSITORY sha=${GITHUB_SHA::7}"
+          if [ -n "${SLACK_WEBHOOK:-}" ]; then
+            payload=$(jq -n --arg text "$MSG" '{text: $text}')
+            curl -fsS -X POST -H 'Content-Type: application/json' -d "$payload" "$SLACK_WEBHOOK" || true
+          fi
+          if [ -n "${TEAMS_WEBHOOK:-}" ]; then
+            payload=$(jq -n --arg text "$MSG" '{text: $text}')
+            curl -fsS -X POST -H 'Content-Type: application/json' -d "$payload" "$TEAMS_WEBHOOK" || true
+          fi

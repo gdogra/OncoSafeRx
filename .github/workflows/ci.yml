@@ -32,6 +32,11 @@ jobs:
           echo "VITE_SENTRY_DSN=" >> .env.production
           echo "VITE_SENTRY_ENV=ci" >> .env.production
           npm run build --if-present
+      - name: Smoke check frontend assets and env embedding
+        env:
+          SMOKE_DIST_DIR: frontend/dist
+          SMOKE_EXPECTED_SUPABASE_URL: https://placeholder.supabase.co
+        run: npm run ci:smoke-frontend
       - name: Audit dependencies (high severity)
         run: npm audit --audit-level=high || true
 
@@ -55,6 +60,28 @@ jobs:
             VITE_SUPABASE_ANON_KEY=placeholder-key
             VITE_SENTRY_DSN=
             VITE_SENTRY_ENV=ci
+          load: true
+      - name: Run container smoke tests
+        run: |
+          set -euo pipefail
+          docker run -d --rm --name osrx-ci -p 3000:3000 -e NODE_ENV=production oncosaferx/api:ci
+          # wait for health
+          for i in {1..30}; do
+            if curl -fsS http://localhost:3000/health >/dev/null; then break; fi;
+            sleep 1;
+          done
+          echo "API health:"
+          curl -fsS http://localhost:3000/health | tee /dev/stderr | jq . >/dev/null 2>&1 || true
+          # fetch index and extract first asset
+          HTML=$(curl -fsS http://localhost:3000/)
+          ASSET=$(echo "$HTML" | grep -Eo '/assets/[^"]+\.js' | head -n 1)
+          if [ -z "$ASSET" ]; then echo "No asset script found in index" >&2; exit 1; fi
+          echo "Testing asset: $ASSET"
+          curl -fsS "http://localhost:3000$ASSET" >/dev/null
+          # API health endpoint
+          curl -fsS http://localhost:3000/api/health >/dev/null
+          docker logs osrx-ci --since 1m || true
+          docker stop osrx-ci
 
   docker-publish:
     if: startsWith(github.ref, 'refs/tags/v')

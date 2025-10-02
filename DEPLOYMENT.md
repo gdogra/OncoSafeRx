@@ -72,6 +72,26 @@ PARTNER_PGX_ENABLED=false
    - Health Check Path: `/health`
    - Expected Response: `{"status":"healthy","timestamp":"...","version":"1.0.0"}`
 
+### GitHub Action: Deploy API to Render
+
+- Workflow: `Deploy API to Render` (runs on push to main affecting API files, or manually)
+- Required secret:
+  - `RENDER_DEPLOY_HOOK`: From Render service → Deploy hooks
+- Optional secrets (enable status polling + notifications):
+  - `RENDER_API_KEY`: Render API token (User → API Keys)
+  - `RENDER_SERVICE_ID`: Service ID (visible in Render dashboard or inferred from hook URL)
+  - `SLACK_WEBHOOK_URL`: Incoming webhook URL
+  - `TEAMS_WEBHOOK`: Incoming webhook URL
+  - `RENDER_SERVICE_URL`: Public base URL of your Render service (e.g., https://oncosaferx-backend.onrender.com) for post-deploy health probing
+  - `RENDER_ROLLBACK_ON_FAILURE`: Set to `true` to attempt automatic rollback to the most recent successful deploy when a deploy/health check fails
+- Behavior:
+  - Triggers Render deploy via hook.
+  - Polls last deploy status if API key and service id provided.
+  - Probes `/health` and `/api/health` on the deployed service when `RENDER_SERVICE_URL` is set.
+  - Health probe is enforced: if the service never becomes healthy within ~5 minutes, the workflow fails.
+- On failure, optionally attempts rollback to the most recent successful deploy (API support required). Posts Slack/Teams message with rollback result.
+  - After rollback, polls rollback deploy status and runs a health probe; sends a final Slack/Teams message with the results.
+
 ## Frontend Deployment on Netlify
 
 ### Required Environment Variables
@@ -120,3 +140,31 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 2. Redeploy the backend service
 3. Test backend health endpoint: `curl https://oncosaferx-backend.onrender.com/health`
 4. Verify frontend can connect to backend APIs
+
+## CI/Predeploy Smoke Checks
+
+- Run frontend asset integrity in CI automatically:
+  - Step: builds `frontend` and runs `npm run ci:smoke-frontend` to ensure hashed assets exist and Supabase URL is embedded in the bundle.
+
+- Validate built Docker image serves assets correctly (CI):
+  - CI starts the image, hits `/health`, fetches `/`, extracts `/assets/*.js`, and verifies 200 responses.
+
+- Manual predeploy smoke against a URL:
+  - Workflow: `Predeploy Smoke` (workflow_dispatch)
+  - Input: `base_url` (e.g., `https://oncosaferx.netlify.app` or your ingress URL)
+  - Checks: `/health`, `/api/health`, and that `/assets/*.js` referenced by `/` is reachable.
+
+## Netlify Deploy via GitHub Actions
+
+- Workflow: `Deploy Frontend to Netlify` (workflow_dispatch)
+- Required secret:
+  - `NETLIFY_BUILD_HOOK`: Netlify Site settings → Build & deploy → Build hooks → Copy URL
+- Optional secrets (enable status polling + notifications):
+  - `NETLIFY_API_TOKEN`: Personal Access Token (Netlify User settings → Applications → New Access Token)
+  - `NETLIFY_SITE_ID`: Site ID (Netlify Site settings → Site information)
+  - `SLACK_WEBHOOK`: Incoming webhook URL
+  - `TEAMS_WEBHOOK`: Incoming webhook URL
+- Behavior:
+  - Triggers Netlify build via build hook.
+  - If API token and site id are present, polls latest build until `ready` or `error`.
+  - Sends Slack/Teams notification with final state and IDs when finished.

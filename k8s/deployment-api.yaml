@@ -29,7 +29,7 @@ spec:
             - name: SERVE_FRONTEND
               value: "true"
             - name: CORS_ORIGIN
-              value: "https://yourdomain.com"
+              value: "https://oncosaferx.com"
             - name: RATE_LIMIT_WINDOW_MS
               value: "900000"
             - name: RATE_LIMIT_MAX_REQUESTS

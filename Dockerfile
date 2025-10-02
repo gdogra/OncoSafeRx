@@ -30,6 +30,13 @@ ENV VITE_ALLOW_DEMO_LOGIN=false
 RUN npm ci --include=dev --no-audit --fund=false && npm run build
 WORKDIR /app
 
+# Set backend production environment variables
+ENV JWT_SECRET=OncoSafeRx2024-ProdJWT-SecureKey-9f8e7d6c5b4a3210fedcba0987654321
+ENV SUPABASE_URL=https://emfrwckxctyarphjvfeu.supabase.co
+ENV SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1ODA2MzY2NywiZXhwIjoyMDczNjM5NjY3fQ.friwElbgi1p0xKV3S7LjDrEuzSFTJZkWp5ot4Xt0Qx0
+ENV SERVE_FRONTEND=true
+ENV PORT=3000
+
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S oncosaferx -u 1001

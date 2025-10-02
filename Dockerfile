@@ -25,6 +25,13 @@ RUN echo "=== Build Environment Debug ===" && \
 COPY frontend/package*.json ./
 RUN npm ci --include=dev
 COPY frontend/ ./
+# Create production env file with build args
+RUN echo "VITE_SUPABASE_URL=${VITE_SUPABASE_URL}" > .env.production && \
+    echo "VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}" >> .env.production && \
+    echo "VITE_SENTRY_DSN=${VITE_SENTRY_DSN}" >> .env.production && \
+    echo "VITE_SENTRY_ENV=production" >> .env.production && \
+    echo "VITE_SENTRY_TRACES_SAMPLE_RATE=0.1" >> .env.production && \
+    cat .env.production
 RUN npm run build
 
 FROM base AS runtime

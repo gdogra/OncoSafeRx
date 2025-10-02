@@ -316,21 +316,30 @@ app.use(express.static(join(__dirname, '../public')));
 
 // Deny-list common scanner/probe paths (reduce noise, avoid SPA fallback)
 const denyList = [
-  /^\/wp-admin(\/|$)/i,
-  /^\/wp-login\.php$/i,
-  /^\/xmlrpc\.php$/i,
-  /^\/wordpress(\/|$)/i,
-  /^\/wp-content(\/|$)/i,
-  /^\/wp-includes(\/|$)/i,
-  /^\/\.env$/i,
-  /^\/\.git(\/|$)/i,
-  /^\/server-status$/i,
-  /^\/phpinfo\.php$/i,
+  { rx: /^\/wp-admin(\/|$)/i, name: 'wp-admin' },
+  { rx: /^\/wp-login\.php$/i, name: 'wp-login' },
+  { rx: /^\/xmlrpc\.php$/i, name: 'xmlrpc' },
+  { rx: /^\/wordpress(\/|$)/i, name: 'wordpress' },
+  { rx: /^\/wp-content(\/|$)/i, name: 'wp-content' },
+  { rx: /^\/wp-includes(\/|$)/i, name: 'wp-includes' },
+  { rx: /^\/\.env$/i, name: 'dot-env' },
+  { rx: /^\/\.git(\/|$)/i, name: 'dot-git' },
+  { rx: /^\/server-status$/i, name: 'server-status' },
+  { rx: /^\/phpinfo\.php$/i, name: 'phpinfo' },
 ];
+// Prometheus counter for denied probe requests
+const probeCounter = new client.Counter({
+  name: 'probe_requests_total',
+  help: 'Count of denied probe/scanner requests',
+  labelNames: ['path']
+});
+
 app.use((req, res, next) => {
   try {
-    if (denyList.some((rx) => rx.test(req.path))) {
-      // Apply strict rate limit then respond 403 (forbidden)
+    const hit = denyList.find((e) => e.rx.test(req.path));
+    if (hit) {
+      // Record metric and apply strict rate limit then respond 403 (forbidden)
+      try { probeCounter.inc({ path: hit.name }); } catch {}
       return probeLimiter(req, res, () => res.status(403).send('Forbidden'));
     }
   } catch {}

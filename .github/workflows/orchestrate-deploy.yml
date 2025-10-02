@@ -1,0 +1,145 @@
+name: Orchestrate Netlify + Render Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "Deploy reason/message (optional)"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup tools
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y jq curl
+
+      # Netlify deploy
+      - name: Trigger Netlify build hook
+        env:
+          NETLIFY_BUILD_HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }}
+        run: |
+          if [ -z "$NETLIFY_BUILD_HOOK" ]; then
+            echo "NETLIFY_BUILD_HOOK secret not set. Add it in GitHub repo settings." >&2
+            exit 1
+          fi
+          payload=$(jq -n --arg m "${{ inputs.message }}" '{trigger_branch:"main", trigger_title: $m}')
+          curl -fsS -X POST -H 'Content-Type: application/json' -d "$payload" "$NETLIFY_BUILD_HOOK"
+          echo "Netlify build hook triggered."
+
+      - name: Poll Netlify build status
+        id: netlify
+        env:
+          NETLIFY_API_TOKEN: ${{ secrets.NETLIFY_API_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          if [ -z "$NETLIFY_API_TOKEN" ] || [ -z "$NETLIFY_SITE_ID" ]; then
+            echo "Netlify API polling requires NETLIFY_API_TOKEN and NETLIFY_SITE_ID" >&2
+            exit 1
+          fi
+          BASE="https://api.netlify.com/api/v1"
+          AUTH="Authorization: Bearer $NETLIFY_API_TOKEN"
+          echo "Polling latest build for site: $NETLIFY_SITE_ID"
+          for i in $(seq 1 120); do
+            RESP=$(curl -fsS -H "$AUTH" "$BASE/sites/$NETLIFY_SITE_ID/builds?per_page=1") || true
+            STATE=$(echo "$RESP" | jq -r '.[0].state // "unknown"')
+            ID=$(echo "$RESP" | jq -r '.[0].id // ""')
+            echo "Attempt $i: state=$STATE id=$ID"
+            case "$STATE" in
+              ready) break;;
+              error|failed) echo "Netlify build failed: $STATE" >&2; exit 1;;
+              *) sleep 5;;
+            esac
+          done
+          echo "state=$STATE" >> $GITHUB_OUTPUT
+          echo "build_id=$ID" >> $GITHUB_OUTPUT
+
+      # Optional predeploy smoke (frontend)
+      - name: Predeploy smoke (frontend)
+        env:
+          PREDEPLOY_SMOKE_URL: ${{ secrets.PREDEPLOY_SMOKE_URL }}
+        run: |
+          if [ -z "$PREDEPLOY_SMOKE_URL" ]; then
+            echo "Skipping frontend smoke (no PREDEPLOY_SMOKE_URL)"
+            exit 0
+          fi
+          set -euo pipefail
+          BASE=${PREDEPLOY_SMOKE_URL%/}
+          curl -fsS "$BASE/health" | jq . >/dev/null
+          RESP=$(curl -fsS "$BASE/api/health"); echo "$RESP" | jq . >/dev/null
+          [ "$(echo "$RESP" | jq -r .status)" = "healthy" ]
+          HTML=$(curl -fsS "$BASE/")
+          ASSET=$(echo "$HTML" | grep -Eo '/assets/[^" ]+\.js' | head -n 1)
+          [ -n "$ASSET" ]
+          curl -fsS "$BASE$ASSET" >/dev/null
+
+      # Render deploy
+      - name: Trigger Render deploy hook
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK" ]; then
+            echo "RENDER_DEPLOY_HOOK secret not set." >&2
+            exit 1
+          fi
+          curl -fsS -X POST "$RENDER_DEPLOY_HOOK" -o /dev/null
+          echo "Render deploy hook triggered."
+
+      - name: Poll Render deploy status
+        id: render
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          if [ -z "$RENDER_API_KEY" ] || [ -z "$RENDER_SERVICE_ID" ]; then
+            echo "Render polling requires RENDER_API_KEY and RENDER_SERVICE_ID" >&2
+            exit 1
+          fi
+          AUTH="Authorization: Bearer $RENDER_API_KEY"
+          BASE="https://api.render.com/v1"
+          for i in $(seq 1 60); do
+            RESP=$(curl -fsS -H "$AUTH" "$BASE/services/$RENDER_SERVICE_ID/deploys?limit=1") || true
+            STATUS=$(echo "$RESP" | jq -r '.[0].status // empty')
+            ID=$(echo "$RESP" | jq -r '.[0].id // empty')
+            echo "Attempt $i: status=$STATUS id=$ID"
+            case "$STATUS" in
+              succeeded) echo "status=$STATUS" >> $GITHUB_OUTPUT; echo "deploy_id=$ID" >> $GITHUB_OUTPUT; break;;
+              failed|canceled) echo "Render deploy failed: $STATUS" >&2; exit 1;;
+              *) sleep 10;;
+            esac
+          done
+
+      - name: Health check (Render)
+        env:
+          RENDER_SERVICE_URL: ${{ secrets.RENDER_SERVICE_URL }}
+        run: |
+          if [ -z "$RENDER_SERVICE_URL" ]; then
+            echo "RENDER_SERVICE_URL not set; skipping health check" >&2
+            exit 1
+          fi
+          set -euo pipefail
+          BASE=${RENDER_SERVICE_URL%/}
+          for i in $(seq 1 60); do
+            if curl -fsS "$BASE/health" >/dev/null; then break; fi
+            sleep 5
+          done
+          curl -fsS "$BASE/health" | jq .
+          curl -fsS "$BASE/api/health" | jq .
+
+      - name: Create release tag
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: deploy-${{ github.run_id }}-${{ github.sha }}
+          release_name: Deploy ${{ github.sha }}
+          draft: false
+          prerelease: false
+

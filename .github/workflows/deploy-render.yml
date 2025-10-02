@@ -14,6 +14,31 @@ jobs:
   trigger-render-deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Predeploy smoke (optional)
+        id: pre_smoke
+        env:
+          PREDEPLOY_SMOKE_URL: ${{ secrets.PREDEPLOY_SMOKE_URL }}
+        run: |
+          if [ -z "$PREDEPLOY_SMOKE_URL" ]; then
+            echo "Predeploy smoke skipped (PREDEPLOY_SMOKE_URL not set)"
+            exit 0
+          fi
+          set -euo pipefail
+          sudo apt-get update -y && sudo apt-get install -y jq
+          BASE=${PREDEPLOY_SMOKE_URL%/}
+          echo "Running predeploy smoke for: $BASE"
+          curl -fsS "$BASE/health" | jq . >/dev/null
+          RESP=$(curl -fsS "$BASE/api/health")
+          echo "$RESP" | jq . >/dev/null
+          STATUS=$(echo "$RESP" | jq -r .status)
+          [ "$STATUS" = "healthy" ] || { echo "API health not healthy" >&2; exit 1; }
+          HTML=$(curl -fsS "$BASE/")
+          ASSET=$(echo "$HTML" | grep -Eo '/assets/[^" ]+\.js' | head -n 1)
+          [ -n "$ASSET" ] || { echo "No JS asset found in index" >&2; exit 1; }
+          curl -fsS "$BASE$ASSET" >/dev/null
+          CSS=$(echo "$HTML" | grep -Eo '/assets/[^" ]+\.css' | head -n 1 || true)
+          if [ -n "$CSS" ]; then curl -fsS "$BASE$CSS" >/dev/null; fi
+          echo "Predeploy smoke passed for $BASE"
       - name: Trigger Render deploy hook
         env:
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}

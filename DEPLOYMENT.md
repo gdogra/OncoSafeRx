@@ -168,3 +168,15 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
   - Triggers Netlify build via build hook.
   - If API token and site id are present, polls latest build until `ready` or `error`.
   - Sends Slack/Teams notification with final state and IDs when finished.
+
+## Orchestrated Deploy (Netlify + Render + Tag)
+
+- Workflow: `Orchestrate Netlify + Render Deploy` (workflow_dispatch)
+- Sequence:
+  - Triggers Netlify build via build hook; polls status to `ready`.
+  - Optional predeploy smoke against `PREDEPLOY_SMOKE_URL`.
+  - Triggers Render deploy via hook; polls to `succeeded`.
+  - Health check at `RENDER_SERVICE_URL` (`/health` and `/api/health`).
+  - Creates a GitHub Release with tag `deploy-<run_id>-<sha>` on success.
+- Required secrets: `NETLIFY_BUILD_HOOK`, `NETLIFY_API_TOKEN`, `NETLIFY_SITE_ID`, `RENDER_DEPLOY_HOOK`, `RENDER_API_KEY`, `RENDER_SERVICE_ID`, `RENDER_SERVICE_URL`.
+- Optional: `PREDEPLOY_SMOKE_URL`. Use existing Slack/Teams secrets for notifications via individual workflows if desired.

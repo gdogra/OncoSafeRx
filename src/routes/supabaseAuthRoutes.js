@@ -161,7 +161,7 @@ router.put('/profile',
         years_experience: updates.yearsExperience || user.supabaseUser.user_metadata?.years_experience || 0,
         preferences: updates.preferences || user.supabaseUser.user_metadata?.preferences || {},
         persona: updates.persona || user.supabaseUser.user_metadata?.persona || {},
-        updated_at: new Date().toISOString()
+        // Do not set updated_at explicitly to avoid schema mismatch on instances where column is absent
       };
       
       const { error: profileError } = await admin.from('users').upsert(profileData, { onConflict: 'id' });

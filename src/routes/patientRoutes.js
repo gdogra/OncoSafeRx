@@ -172,4 +172,99 @@ router.delete('/:id', optionalSupabaseAuth, async (req, res) => {
   }
 });
 
+// Diagnostic: list patients with profiles (joined result)
+router.get('/with-profiles', optionalSupabaseAuth, async (req, res) => {
+  try {
+    if (!req.user) {
+      req.user = {
+        id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a',
+        email: 'gdogra@gmail.com',
+        role: 'oncologist',
+        isDefault: true
+      };
+      console.log('🔄 Using default user (Gautam) for patients+profiles');
+    }
+
+    if (!supabaseService.enabled) {
+      return res.status(503).json({ error: 'Database service unavailable', items: [], total: 0 });
+    }
+
+    // Fetch patients for the user
+    const { data: patients, error: pErr } = await supabaseService.client
+      .from('patients')
+      .select('id,user_id,data,created_at,updated_at')
+      .eq('user_id', req.user.id)
+      .order('updated_at', { ascending: false });
+
+    if (pErr) return res.status(500).json({ error: pErr.message });
+    const ids = (patients || []).map((r) => r.id);
+
+    // Fetch profiles
+    let profilesById = new Map();
+    if (ids.length) {
+      const { data: profiles, error: prErr } = await supabaseService.client
+        .from('patient_profiles')
+        .select('*')
+        .in('patient_id', ids.map(String));
+      if (!prErr && Array.isArray(profiles)) {
+        profiles.forEach((row) => profilesById.set(String(row.patient_id), row));
+      } else if (prErr) {
+        console.warn('patients/with-profiles: profiles query failed:', prErr.message);
+      }
+    }
+
+    const items = (patients || []).map((r) => ({
+      id: r.id,
+      patient: r.data || r,
+      profile: profilesById.get(String(r.id)) || null,
+    }));
+
+    return res.json({ items, total: items.length });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Failed to fetch patients with profiles' });
+  }
+});
+
+// Diagnostic: single patient with profile
+router.get('/:id/with-profile', optionalSupabaseAuth, async (req, res) => {
+  try {
+    if (!req.user) {
+      req.user = {
+        id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a',
+        email: 'gdogra@gmail.com',
+        role: 'oncologist',
+        isDefault: true
+      };
+      console.log('🔄 Using default user (Gautam) for patient+profile');
+    }
+
+    if (!supabaseService.enabled) {
+      return res.status(503).json({ error: 'Database service unavailable' });
+    }
+    const id = req.params.id;
+
+    const { data: patient, error: pErr } = await supabaseService.client
+      .from('patients')
+      .select('id,user_id,data,created_at,updated_at')
+      .eq('user_id', req.user.id)
+      .eq('id', id)
+      .single();
+    if (pErr) return res.status(404).json({ error: 'Not found' });
+
+    const { data: profile, error: prErr } = await supabaseService.client
+      .from('patient_profiles')
+      .select('*')
+      .eq('patient_id', String(id))
+      .single();
+
+    if (prErr && prErr.code !== 'PGRST116') {
+      console.warn('patient with-profile: profile query failed:', prErr.message);
+    }
+
+    return res.json({ id, patient: patient?.data || patient, profile: profile || null });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Failed to fetch patient with profile' });
+  }
+});
+
 export default router;

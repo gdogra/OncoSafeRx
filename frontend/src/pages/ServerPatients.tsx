@@ -2,8 +2,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Card from '../components/UI/Card';
 import { usePatient } from '../context/PatientContext';
 import { supabase } from '../lib/supabase';
-import { Search, ChevronLeft, ChevronRight, RefreshCw, Edit, X } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, RefreshCw, Edit, X, Plus } from 'lucide-react';
 import { useToast } from '../components/UI/Toast';
+import ComprehensivePatientForm from '../components/Patient/ComprehensivePatientForm';
 
 const PAGE_SIZE = 10;
 
@@ -20,6 +21,7 @@ const ServerPatients: React.FC = () => {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [usingDemoData, setUsingDemoData] = useState(false);
   const [usingDefaultUser, setUsingDefaultUser] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total]);
   const { showToast } = useToast();
 
@@ -164,6 +166,81 @@ const ServerPatients: React.FC = () => {
     }
   };
 
+  const createNewPatient = async (patientData: any) => {
+    try {
+      // Build minimal patient profile compatible with backend schema
+      const demographics = {
+        firstName: patientData.firstName || 'Unknown',
+        lastName: patientData.lastName || 'Patient',
+        dateOfBirth: patientData.dateOfBirth || '1980-01-01',
+        sex: patientData.sex || 'unknown',
+        mrn: patientData.mrn || `MRN${Date.now()}`,
+        heightCm: patientData.heightCm || 170,
+        weightKg: patientData.weightKg || 70,
+      };
+
+      let createdBy = 'guest';
+      try {
+        const { data: sess } = await supabase.auth.getSession();
+        createdBy = sess?.session?.user?.id || createdBy;
+      } catch {}
+
+      const newPatient = {
+        id: `patient-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        demographics,
+        allergies: patientData.allergies || [],
+        medications: [],
+        conditions: patientData.medicalConditions || [],
+        labValues: patientData.labValues ? [patientData.labValues] : [],
+        genetics: [],
+        vitals: patientData.vitals ? [patientData.vitals] : [],
+        treatmentHistory: [],
+        notes: [],
+        preferences: {},
+        lastUpdated: new Date().toISOString(),
+        createdBy,
+        isActive: true,
+      };
+
+      // Optimistically set as current
+      actions.setCurrentPatient(newPatient);
+
+      // Prepare headers with optional auth
+      let token: string | null = null;
+      try {
+        const { data: sess } = await supabase.auth.getSession();
+        token = sess?.session?.access_token || null;
+      } catch {}
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      // Persist to server
+      try {
+        const resp = await fetch('/api/patients', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ patient: newPatient })
+        });
+        if (resp.ok) {
+          const result = await resp.json().catch(() => ({}));
+          const serverPatient = result?.patient ? (result.patient.data || result.patient) : null;
+          if (serverPatient) actions.setCurrentPatient(serverPatient);
+          showToast('success', 'Patient created');
+          await fetchPatients({ resetPage: true });
+        } else {
+          const t = await resp.text().catch(() => 'Unknown error');
+          showToast('error', `Create failed: ${resp.status} ${t}`);
+          try { await actions.syncFromServer(); } catch {}
+        }
+      } catch (e) {
+        showToast('warning', 'Saved locally (network error)');
+      }
+      setShowCreateForm(false);
+    } catch (e) {
+      showToast('error', 'Failed to create patient');
+    }
+  };
+
   useEffect(() => { 
     console.log('📅 useEffect triggered (page:', page, '), calling fetchPatients');
     fetchPatients(); 
@@ -286,6 +363,9 @@ const ServerPatients: React.FC = () => {
           <button onClick={() => fetchPatients()} className="px-3 py-2 bg-white border rounded text-sm flex items-center gap-1">
             <RefreshCw className="w-4 h-4" /> Refresh
           </button>
+          <button onClick={() => setShowCreateForm(true)} className="px-3 py-2 bg-green-600 text-white rounded text-sm flex items-center gap-1">
+            <Plus className="w-4 h-4" /> Create Patient
+          </button>
         </div>
 
         <div className="overflow-x-auto">
@@ -384,6 +464,13 @@ const ServerPatients: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {showCreateForm && (
+        <ComprehensivePatientForm
+          onSubmit={createNewPatient}
+          onCancel={() => setShowCreateForm(false)}
+        />
       )}
     </div>
   );

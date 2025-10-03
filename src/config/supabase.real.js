@@ -615,12 +615,48 @@ export class SupabaseService {
       }
       
       console.log('✅ Patient upserted successfully:', { id: data.id, userId: data.user_id });
+      // Best-effort: keep patient_profiles in sync
+      try {
+        const profile = this._buildPatientProfileRecord(patient, data.id);
+        await this.client
+          .from('patient_profiles')
+          .upsert(profile, { onConflict: 'patient_id' });
+      } catch (e) {
+        console.warn('⚠️ Failed to upsert patient_profiles (non-fatal):', e?.message || e);
+      }
       return data;
     } catch (error) {
       console.error('💥 Error upserting patient:', error);
       // Re-throw the error instead of swallowing it
       throw error;
     }
+  }
+
+  _buildPatientProfileRecord(patient, savedId) {
+    const pid = patient?.id || savedId;
+    const genetics = Array.isArray(patient?.genetics) ? patient.genetics : [];
+    const meds = Array.isArray(patient?.medications) ? patient.medications : [];
+    const allergies = Array.isArray(patient?.allergies) ? patient.allergies : [];
+    const conditions = Array.isArray(patient?.conditions) ? patient.conditions : [];
+
+    const current_medications = meds.map((m) => {
+      try { return m?.drug?.rxcui || m?.drug?.name || ''; } catch { return ''; }
+    }).filter(Boolean);
+    const allergy_list = allergies.map((a) => {
+      try { return a?.allergen || a; } catch { return ''; }
+    }).filter(Boolean);
+    const comorbidities = conditions.map((c) => {
+      try { return c?.icd10Code || c?.condition || ''; } catch { return ''; }
+    }).filter(Boolean);
+
+    return {
+      patient_id: String(pid),
+      genetic_profile: genetics,
+      current_medications,
+      allergies: allergy_list,
+      comorbidities,
+      updated_at: new Date().toISOString(),
+    };
   }
 
   async deletePatient(userId, patientId) {

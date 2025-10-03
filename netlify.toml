@@ -31,6 +31,17 @@
   [headers.values]
     Cache-Control = "public, max-age=2592000, immutable"
 
+# Ensure HTML is always fresh so chunk hashes stay in sync
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
 # Basic security headers
 [[headers]]
   for = "/*"

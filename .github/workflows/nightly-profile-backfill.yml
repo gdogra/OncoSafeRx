@@ -1,0 +1,45 @@
+name: Nightly Patient Profiles Backfill
+
+on:
+  schedule:
+    - cron: '0 4 * * *' # 04:00 UTC daily
+  workflow_dispatch: {}
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install server dependencies
+        run: npm ci --omit=dev
+      - name: Run backfill script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PATIENT_SYNC_PAGE_SIZE: 500
+          PATIENT_SYNC_CHUNK: 100
+        run: node src/scripts/syncPatientProfiles.js
+      - name: Notify Slack/Teams (optional)
+        if: always()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TEAMS_WEBHOOK: ${{ secrets.TEAMS_WEBHOOK }}
+        run: |
+          set -euo pipefail
+          HOOK="${SLACK_WEBHOOK:-}"
+          if [ -z "$HOOK" ] && [ -n "${SLACK_WEBHOOK_URL:-}" ]; then HOOK="$SLACK_WEBHOOK_URL"; fi
+          MSG="Nightly patient_profiles backfill finished for $GITHUB_REPOSITORY@${GITHUB_SHA::7}. See run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          if [ -n "$HOOK" ]; then
+            payload=$(jq -n --arg text "$MSG" '{text: $text}')
+            curl -fsS -X POST -H 'Content-type: application/json' --data "$payload" "$HOOK" || true
+          fi
+          if [ -n "${TEAMS_WEBHOOK:-}" ]; then
+            payload=$(jq -n --arg text "$MSG" '{text: $text}')
+            curl -fsS -X POST -H 'Content-Type: application/json' -d "$payload" "$TEAMS_WEBHOOK" || true
+          fi
+

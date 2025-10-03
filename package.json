@@ -26,6 +26,7 @@
     "sync:rxnorm": "node src/scripts/syncRxNorm.js",
     "sync:cpic": "node src/scripts/syncCPIC.js",
     "migrate:users": "node src/scripts/migrateUsersToSupabase.js",
+    "sync:patient-profiles": "node src/scripts/syncPatientProfiles.js",
     "ci:smoke-frontend": "node scripts/smoke-ci.js",
     "ci:smoke-image": "bash -c 'echo use in CI to run container smoke'"
   },

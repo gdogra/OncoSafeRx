@@ -21,6 +21,19 @@ This directory contains the database schema and migration scripts for the OncoSa
 2. Copy and paste the contents of `schema.sql`
 3. Run the script to create all tables and functions
 
+### 2b. Ensure users profile table columns (if using server-side profiles)
+
+If your API saves user profile details to `public.users`, run the helper migration to align columns:
+
+- File: `database/migrations/2025-10-03_users_profile_columns.sql`
+- What it does:
+  - Creates `public.users` if missing
+  - Adds the columns used by the API: `first_name, last_name, role, specialty, institution, license_number, years_experience, preferences (jsonb), persona (jsonb), created_at, updated_at`
+  - Adds an `updated_at` trigger to auto-maintain timestamps
+- How to run:
+  - Supabase → SQL Editor → paste contents of the file → Run
+  - Or apply via Supabase CLI
+
 ### 3. Set up Authentication
 
 1. In Supabase dashboard, go to Authentication > Settings

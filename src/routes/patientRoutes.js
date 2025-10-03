@@ -267,4 +267,67 @@ router.get('/:id/with-profile', optionalSupabaseAuth, async (req, res) => {
   }
 });
 
+// Admin/diagnostic: force rebuild patient_profiles row from patients data
+router.post('/:id/sync-profile', optionalSupabaseAuth, async (req, res) => {
+  try {
+    if (!req.user) {
+      req.user = {
+        id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a',
+        email: 'gdogra@gmail.com',
+        role: 'oncologist',
+        isDefault: true
+      };
+      console.log('🔄 Using default user (Gautam) for patient profile sync');
+    }
+
+    if (!supabaseService.enabled) {
+      return res.status(503).json({ error: 'Database service unavailable' });
+    }
+
+    const id = req.params.id;
+    const { data: patient, error: pErr } = await supabaseService.client
+      .from('patients')
+      .select('id,user_id,data,created_at,updated_at')
+      .eq('user_id', req.user.id)
+      .eq('id', id)
+      .single();
+    if (pErr || !patient) return res.status(404).json({ error: 'Patient not found' });
+
+    const p = patient.data || {};
+    const genetics = Array.isArray(p.genetics) ? p.genetics : [];
+    const meds = Array.isArray(p.medications) ? p.medications : [];
+    const allergies = Array.isArray(p.allergies) ? p.allergies : [];
+    const conditions = Array.isArray(p.conditions) ? p.conditions : [];
+
+    const current_medications = meds.map((m) => {
+      try { return m?.drug?.rxcui || m?.drug?.name || ''; } catch { return ''; }
+    }).filter(Boolean);
+    const allergy_list = allergies.map((a) => {
+      try { return a?.allergen || a; } catch { return ''; }
+    }).filter(Boolean);
+    const comorbidities = conditions.map((c) => {
+      try { return c?.icd10Code || c?.condition || ''; } catch { return ''; }
+    }).filter(Boolean);
+
+    const payload = {
+      patient_id: String(id),
+      genetic_profile: genetics,
+      current_medications,
+      allergies: allergy_list,
+      comorbidities,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data: up, error: uErr } = await supabaseService.client
+      .from('patient_profiles')
+      .upsert(payload, { onConflict: 'patient_id' })
+      .select()
+      .single();
+    if (uErr) return res.status(500).json({ error: uErr.message });
+    return res.json({ ok: true, profile: up || payload });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Failed to sync patient profile' });
+  }
+});
+
 export default router;

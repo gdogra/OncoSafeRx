@@ -78,7 +78,7 @@ export class SupabaseAuthService {
     console.log('🌐 Production mode: Real Supabase auth')
     
     // Skip connectivity test and go straight to authentication with bounded timeout
-    const authTimeoutMs = (import.meta as any)?.env?.VITE_AUTH_TIMEOUT_MS ? Number((import.meta as any).env.VITE_AUTH_TIMEOUT_MS) : 12000
+    const authTimeoutMs = (import.meta as any)?.env?.VITE_AUTH_TIMEOUT_MS ? Number((import.meta as any).env.VITE_AUTH_TIMEOUT_MS) : 30000
     console.log(`🔄 Starting authentication with ${Math.round(authTimeoutMs/1000)}-second timeout...`)
     
     try {
@@ -171,9 +171,9 @@ export class SupabaseAuthService {
           }),
           new Promise((_, reject) => 
             setTimeout(() => {
-              console.log('⏰ TIMEOUT: Direct API exceeded 2 seconds')
-              reject(new Error('Direct API timeout after 2 seconds'))
-            }, 2000)
+              console.log('⏰ TIMEOUT: Direct API exceeded 10 seconds')
+              reject(new Error('Direct API timeout after 10 seconds'))
+            }, 10000)
           )
         ]) as Response;
         

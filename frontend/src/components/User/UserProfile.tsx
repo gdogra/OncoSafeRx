@@ -58,8 +58,22 @@ const UserProfile: React.FC = () => {
       await actions.updateProfile(editedUser);
       console.log('✅ Profile update successful');
       setIsEditing(false);
+      // Show success message
+      if ((window as any).showToast) {
+        (window as any).showToast('success', 'Profile updated successfully');
+      } else {
+        alert('Profile updated successfully!');
+      }
     } catch (error) {
       console.error('❌ Failed to update profile:', error);
+      // Show error message but don't block the UI
+      if ((window as any).showToast) {
+        (window as any).showToast('warning', 'Profile saved locally (server error)');
+      } else {
+        alert('Profile saved locally due to server issues');
+      }
+      // Still exit editing mode since the profile was updated locally
+      setIsEditing(false);
     }
   };
 
@@ -70,8 +84,20 @@ const UserProfile: React.FC = () => {
       console.log('🚀 Calling actions.updateProfile with preferences...');
       await actions.updateProfile({ preferences: editedPreferences });
       console.log('✅ Preferences update successful');
+      // Show success message
+      if ((window as any).showToast) {
+        (window as any).showToast('success', 'Preferences updated successfully');
+      } else {
+        alert('Preferences updated successfully!');
+      }
     } catch (error) {
       console.error('❌ Failed to update preferences:', error);
+      // Show error message but don't block the UI
+      if ((window as any).showToast) {
+        (window as any).showToast('warning', 'Preferences saved locally (server error)');
+      } else {
+        alert('Preferences saved locally due to server issues');
+      }
     }
   };
 

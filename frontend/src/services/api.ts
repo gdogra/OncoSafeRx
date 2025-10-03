@@ -58,17 +58,7 @@ export const drugService = {
     } catch (error: any) {
       // Handle 502 Bad Gateway errors from Netlify proxy
       if (error.response?.status === 502) {
-        console.warn(`502 Bad Gateway for search query: ${query}, trying direct API...`);
-        try {
-          const directResponse = await fetch(`https://oncosaferx-backend.onrender.com/api/drugs/search?q=${encodeURIComponent(query)}`);
-          if (directResponse.ok) {
-            const data = await directResponse.json();
-            console.log(`✅ Direct API success for search: ${query}`);
-            return data;
-          }
-        } catch (directError) {
-          console.warn(`Direct API also failed for search: ${query}`, directError);
-        }
+        console.warn(`502 Bad Gateway for search query: ${query}, API temporarily unavailable`);
         return { results: [], message: 'Drug search service is temporarily experiencing connectivity issues' };
       }
       if (error.response?.status === 404) {
@@ -86,17 +76,7 @@ export const drugService = {
     } catch (error: any) {
       // Handle 502 Bad Gateway errors from Netlify proxy
       if (error.response?.status === 502) {
-        console.warn(`502 Bad Gateway for drug details: ${rxcui}, trying direct API...`);
-        try {
-          const directResponse = await fetch(`https://oncosaferx-backend.onrender.com/api/drugs/${rxcui}`);
-          if (directResponse.ok) {
-            const data = await directResponse.json();
-            console.log(`✅ Direct API success for drug details: ${rxcui}`);
-            return data;
-          }
-        } catch (directError) {
-          console.warn(`Direct API also failed for drug details: ${rxcui}`, directError);
-        }
+        console.warn(`502 Bad Gateway for drug details: ${rxcui}, API temporarily unavailable`);
         return { error: 'Drug details service is temporarily experiencing connectivity issues' };
       }
       if (error.response?.status === 404) {
@@ -211,21 +191,7 @@ export const interactionService = {
     } catch (error: any) {
       // Handle 502 Bad Gateway errors from Netlify proxy
       if (error.response?.status === 502) {
-        console.warn(`502 Bad Gateway for interaction check, trying direct API...`);
-        try {
-          const directResponse = await fetch(`https://oncosaferx-backend.onrender.com/api/interactions/check`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ drugs })
-          });
-          if (directResponse.ok) {
-            const data = await directResponse.json();
-            console.log(`✅ Direct API success for interaction check`);
-            return data;
-          }
-        } catch (directError) {
-          console.warn(`Direct API also failed for interaction check`, directError);
-        }
+        console.warn(`502 Bad Gateway for interaction check, API temporarily unavailable`);
       }
       console.log('API Error:', error.response?.status, error.message);
       if (error.response?.status === 404 || error.response?.status === 400) {
@@ -292,17 +258,7 @@ export const interactionService = {
     } catch (error: any) {
       // Handle 502 Bad Gateway errors from Netlify proxy
       if (error.response?.status === 502) {
-        console.warn(`502 Bad Gateway for drug interactions: ${rxcui}, trying direct API...`);
-        try {
-          const directResponse = await fetch(`https://oncosaferx-backend.onrender.com/api/interactions/drug/${rxcui}`);
-          if (directResponse.ok) {
-            const data = await directResponse.json();
-            console.log(`✅ Direct API success for drug interactions: ${rxcui}`);
-            return data;
-          }
-        } catch (directError) {
-          console.warn(`Direct API also failed for drug interactions: ${rxcui}`, directError);
-        }
+        console.warn(`502 Bad Gateway for drug interactions: ${rxcui}, API temporarily unavailable`);
         return { interactions: [], message: 'Drug interactions service is temporarily experiencing connectivity issues' };
       }
       if (error.response?.status === 404) {

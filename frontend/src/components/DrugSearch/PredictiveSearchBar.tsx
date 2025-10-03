@@ -96,13 +96,9 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
         // Try Netlify proxy first
         let response = await fetch(`/api/drugs/suggestions?q=${encodeURIComponent(query)}&limit=${maxSuggestions}`);
         
-        // If 502 Bad Gateway, try direct API
+        // If 502 Bad Gateway, API is temporarily unavailable
         if (response.status === 502) {
-          console.warn(`502 Bad Gateway for suggestions: ${query}, trying direct API...`);
-          response = await fetch(`https://oncosaferx-backend.onrender.com/api/drugs/suggestions?q=${encodeURIComponent(query)}&limit=${maxSuggestions}`);
-          if (response.ok) {
-            console.log(`✅ Direct API success for suggestions: ${query}`);
-          }
+          console.warn(`502 Bad Gateway for suggestions: ${query}, API temporarily unavailable`);
         }
         
         if (response.ok) {
@@ -123,13 +119,9 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
           // Fallback to basic search API (aligns to server format { results: [...] })
           let fallbackResponse = await fetch(`/api/drugs/search?q=${encodeURIComponent(query)}`);
           
-          // If 502 Bad Gateway, try direct API
+          // If 502 Bad Gateway, API is temporarily unavailable
           if (fallbackResponse.status === 502) {
-            console.warn(`502 Bad Gateway for search fallback: ${query}, trying direct API...`);
-            fallbackResponse = await fetch(`https://oncosaferx-backend.onrender.com/api/drugs/search?q=${encodeURIComponent(query)}`);
-            if (fallbackResponse.ok) {
-              console.log(`✅ Direct API success for search fallback: ${query}`);
-            }
+            console.warn(`502 Bad Gateway for search fallback: ${query}, API temporarily unavailable`);
           }
           
           if (fallbackResponse.ok) {

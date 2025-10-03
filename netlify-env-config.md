@@ -4,8 +4,9 @@ Add these environment variables to your Netlify site settings:
 
 ## API Configuration
 ```
-VITE_API_URL=https://oncosaferx.onrender.com/api
-REACT_APP_API_URL=https://oncosaferx.onrender.com/api
+# Use Netlify proxy in production to avoid CORS and pin to custom API domain
+VITE_API_URL=/api
+REACT_APP_API_URL=/api
 ```
 
 ## Supabase Configuration  

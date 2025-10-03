@@ -97,8 +97,8 @@ PARTNER_PGX_ENABLED=false
 ### Required Environment Variables
 
 ```bash
-# API Configuration (already configured)
-VITE_API_URL=https://oncosaferx-backend.onrender.com/api
+# API Configuration (prefer Netlify proxy)
+VITE_API_URL=/api
 
 # Supabase Configuration (already configured)
 VITE_SUPABASE_URL=https://emfrwckxctyarphjvfeu.supabase.co
@@ -119,8 +119,8 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 
 ### Frontend API Errors
 - Verify backend is running and responding to health checks
-- Check Netlify proxy configuration in `netlify.toml`
-- Verify CORS_ORIGIN matches Netlify deployment URL
+- Check Netlify proxy configuration in `netlify.toml` points to `https://api.oncosaferx.com`
+- Verify CORS/allowed origins on the API include your site domains if you bypass the proxy
 
 ### Authentication Issues
 - Verify Supabase environment variables are correctly set

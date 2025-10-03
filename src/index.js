@@ -382,10 +382,17 @@ try {
       setHeaders: (res, path) => {
         if (path.endsWith('.js')) {
           res.setHeader('Content-Type', 'application/javascript');
+          // Cache hashed assets aggressively
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
         } else if (path.endsWith('.css')) {
           res.setHeader('Content-Type', 'text/css');
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
         } else if (path.endsWith('.map')) {
           res.setHeader('Content-Type', 'application/json');
+          // Maps (if present) can be cached but are optional
+          res.setHeader('Cache-Control', 'public, max-age=604800');
+        } else if (path.endsWith('.ico') || path.endsWith('.png') || path.endsWith('.svg') || path.endsWith('.jpg') || path.endsWith('.jpeg') || path.endsWith('.webp')) {
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
         }
       }
     }));
@@ -394,6 +401,10 @@ try {
     // Route all non-API, non-asset requests to React index.html
     app.get(/^\/(?!api|test-frontend|health|metrics|assets|favicon\.ico).*/, (req, res, next) => {
       console.log(`Serving SPA for: ${req.path}`);
+      // Prevent stale HTML caching so hashed asset references stay fresh
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
       res.sendFile(join(clientBuildPath, 'index.html'), (err) => {
         if (err) {
           console.log(`❌ Error serving index.html for ${req.path}:`, err.message);

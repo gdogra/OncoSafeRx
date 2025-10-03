@@ -41,7 +41,14 @@ router.get('/', optionalSupabaseAuth, async (req, res) => {
     const total = patients.length;
     const start = (page - 1) * pageSize;
     const items = patients.slice(start, start + pageSize);
-    return res.json({ patients: items, total, page, pageSize, offline: false });
+    return res.json({ 
+      patients: items, 
+      total, 
+      page, 
+      pageSize, 
+      offline: false,
+      defaultUser: !!req.user?.isDefault
+    });
   } catch (e) {
     return res.status(500).json({ error: e?.message || 'Failed to list patients' });
   }

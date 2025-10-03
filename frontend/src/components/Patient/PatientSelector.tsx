@@ -177,12 +177,14 @@ const PatientSelector: React.FC = () => {
           if (result.patient) {
             const serverPatient = result.patient.data || result.patient;
             actions.setCurrentPatient(serverPatient);
+            try { await actions.syncFromServer(); } catch {}
           }
         } else {
           const errorText = await response.text().catch(() => 'Unknown error');
           console.error('❌ Server patient creation failed:', response.status, errorText);
           console.error('❌ Response body:', errorText);
           showToast('error', `Patient creation failed: ${response.status} ${errorText}`);
+          try { await actions.syncFromServer(); } catch {}
         }
       } catch (networkError) {
         console.error('Network error creating patient:', networkError);

@@ -19,6 +19,7 @@ const ServerPatients: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [usingDemoData, setUsingDemoData] = useState(false);
+  const [usingDefaultUser, setUsingDefaultUser] = useState(false);
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total]);
   const { showToast } = useToast();
 
@@ -119,6 +120,7 @@ const ServerPatients: React.FC = () => {
         setPatients(body.patients || []);
         setTotal(body.total || 0);
         setUsingDemoData(body.offline || false);
+        setUsingDefaultUser(!!body.defaultUser);
         if (opts?.resetPage) setPage(1);
       } else {
         // API call failed
@@ -247,13 +249,28 @@ const ServerPatients: React.FC = () => {
           <h1 className="text-xl font-semibold text-gray-900">All Patients</h1>
         </div>
         
-        {patients.length === 0 && !loading && (
+        {(patients.length === 0 && !loading) && (
           <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
               <strong>No Patients Found:</strong> You haven't created any patients yet.
             </p>
             <p className="text-xs text-blue-600 mt-1">
               Use the "Create Patient" button in the patient selector to add your first patient.
+            </p>
+          </div>
+        )}
+        {(usingDefaultUser || usingDemoData) && (
+          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-900">
+              {usingDefaultUser ? (
+                <>
+                  Viewing patients for the default user (unauthenticated). Sign in to see your own patients.
+                </>
+              ) : (
+                <>
+                  Using demo/offline data. Connect to the server to sync your patients.
+                </>
+              )}
             </p>
           </div>
         )}

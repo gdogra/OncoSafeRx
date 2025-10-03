@@ -2,6 +2,9 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 // Optimized Vite config for performance
+const isProd = process.env.NODE_ENV === 'production';
+const enableSourcemap = process.env.VITE_SOURCEMAPS === 'true' || (!isProd && true);
+
 export default defineConfig({
   plugins: [react()],
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
@@ -26,7 +29,8 @@ export default defineConfig({
     },
   },
   build: {
-    sourcemap: true, // Enable source maps for debugging
+    // Disable sourcemaps by default in production to avoid .map 404 noise
+    sourcemap: enableSourcemap,
     minify: 'esbuild',
     outDir: 'dist',
     assetsDir: 'assets',

@@ -579,10 +579,11 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         try {
           const { data: sess } = await supabase.auth.getSession();
           const token = sess?.session?.access_token;
-          if (!token) return;
+          const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+          if (token) headers.Authorization = `Bearer ${token}`;
           const resp = await fetch('/api/patients', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            headers,
             body: JSON.stringify({ patient: state.currentPatient })
           });
           try {
@@ -642,8 +643,9 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
       try {
         const { data: sess } = await supabase.auth.getSession();
         const token = sess?.session?.access_token;
-        if (!token) return;
-        const resp = await fetch('/api/patients', { headers: { Authorization: `Bearer ${token}` } });
+        const headers: Record<string, string> = {};
+        if (token) headers.Authorization = `Bearer ${token}`;
+        const resp = await fetch('/api/patients', { headers });
         if (!resp.ok) return;
         const body = await resp.json();
         if (Array.isArray(body?.patients)) {

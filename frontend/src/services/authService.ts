@@ -624,21 +624,18 @@ export class SupabaseAuthService {
         }
       })()
       
-      if (!storedTokens?.access_token) {
-        console.warn('⚠️ No auth tokens found, falling back to localStorage update')
-        console.warn('🔍 Debug - tokens stored:', !!storedTokens, 'access_token present:', !!storedTokens?.access_token)
-        return this.updateProfileLocalStorage(userId, updates)
+      // Attempt API update with token if present; otherwise try without (server will fallback to default user)
+      let response: Response | null = null
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (storedTokens?.access_token) {
+        console.log('✅ Auth tokens found, attempting API call to update profile')
+        headers['Authorization'] = `Bearer ${storedTokens.access_token}`
+      } else {
+        console.warn('⚠️ No auth tokens found, attempting server update without Authorization')
       }
-      
-      console.log('✅ Auth tokens found, attempting API call to update profile')
-      
-      // Make API call to update profile
-      const response = await fetch('/api/supabase-auth/profile', {
+      response = await fetch('/api/supabase-auth/profile', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${storedTokens.access_token}`
-        },
+        headers,
         body: JSON.stringify(updates)
       })
       

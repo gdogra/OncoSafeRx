@@ -81,8 +81,9 @@ app.use(helmet({
 }));
 
 // Strict Content Security Policy (CSP)
-// Enable by setting ENABLE_CSP=true (recommended in production after verification)
-if ((process.env.ENABLE_CSP || '').toLowerCase() === 'true' || NODE_ENV === 'production') {
+// Enable by setting ENABLE_CSP=true (recommended after verifying headers at the edge)
+// Do NOT auto-enable for all production traffic to avoid conflicts with Netlify headers during migration.
+if ((process.env.ENABLE_CSP || '').toLowerCase() === 'true') {
   try {
     const supabaseWildcard = 'https://*.supabase.co';
     const su = process.env.SUPABASE_URL;
@@ -102,7 +103,8 @@ if ((process.env.ENABLE_CSP || '').toLowerCase() === 'true' || NODE_ENV === 'pro
       frameAncestors: ["'self'"],
       // Scripts and styles must come from our origin only
       scriptSrc: ["'self'"],
-      styleSrc: ["'self'"],
+      // Allow style attributes/inlines for React libraries that inject styles
+      styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", 'data:', 'blob:'],
       fontSrc: ["'self'", 'data:'],
       connectSrc: [

@@ -141,19 +141,32 @@ const PatientSelector: React.FC = () => {
       actions.setCurrentPatient(newPatient);
 
       try {
-        const { data: sess } = await supabase.auth.getSession();
-        const token = sess?.session?.access_token;
+        // Try to get auth token, but don't let it block the API call
+        let token = null;
+        try {
+          const { data: sess } = await supabase.auth.getSession();
+          token = sess?.session?.access_token;
+          console.log('🔐 Auth token:', token ? 'Found' : 'Not found');
+        } catch (authError) {
+          console.warn('⚠️ Auth failed, proceeding without token:', authError);
+        }
         
         const headers: Record<string, string> = { 'Content-Type': 'application/json' };
         if (token) {
           headers.Authorization = `Bearer ${token}`;
         }
         
+        console.log('📡 Making API call to /api/patients with headers:', headers);
+        console.log('📋 Patient data:', JSON.stringify({ patient: newPatient }));
+        
         const response = await fetch('/api/patients', {
           method: 'POST',
           headers,
           body: JSON.stringify({ patient: newPatient })
         });
+        
+        console.log('📨 API Response status:', response.status);
+        console.log('📨 API Response headers:', Object.fromEntries(response.headers.entries()));
         
         if (response.ok) {
           const result = await response.json();
@@ -167,8 +180,9 @@ const PatientSelector: React.FC = () => {
           }
         } else {
           const errorText = await response.text().catch(() => 'Unknown error');
-          console.warn('Server patient creation failed:', response.status, errorText);
-          showToast('warning', 'Patient saved locally (server unavailable)');
+          console.error('❌ Server patient creation failed:', response.status, errorText);
+          console.error('❌ Response body:', errorText);
+          showToast('error', `Patient creation failed: ${response.status} ${errorText}`);
         }
       } catch (networkError) {
         console.error('Network error creating patient:', networkError);

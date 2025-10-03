@@ -22,14 +22,18 @@ const supabaseUrl = (rawUrl || 'https://placeholder.supabase.co')
 const supabaseAnonKey = (rawKey || 'placeholder-key')
 
 console.log('Environment variables loaded:', {
-  supabaseUrl: supabaseUrl ? '✓ Loaded' : '✗ Missing',
-  supabaseKey: supabaseAnonKey ? '✓ Loaded' : '✗ Missing',
+  supabaseUrl: supabaseUrl === 'https://placeholder.supabase.co' ? '✗ Missing' : '✓ Loaded',
+  supabaseKey: supabaseAnonKey === 'placeholder-key' ? '✗ Missing' : '✓ Loaded',
+  actualUrl: supabaseUrl,
+  actualKey: supabaseAnonKey.substring(0, 20) + '...',
   sources: {
     env: { url: !!envUrl, key: !!envKey },
     runtime: { url: !!runtimeUrl, key: !!runtimeKey },
     window: { url: !!winUrl, key: !!winKey }
   },
-  allEnvVars: Object.keys(import.meta.env).filter(k => k.startsWith('VITE_'))
+  allEnvVars: Object.keys(import.meta.env).filter(k => k.startsWith('VITE_')),
+  rawEnvUrl: envUrl,
+  rawEnvKey: envKey ? envKey.substring(0, 20) + '...' : 'not found'
 })
 
 if (!supabaseUrl || !supabaseAnonKey) {

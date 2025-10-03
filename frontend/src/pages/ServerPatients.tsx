@@ -25,6 +25,22 @@ const ServerPatients: React.FC = () => {
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total]);
   const { showToast } = useToast();
 
+  // Keyboard shortcut: press "c" to open Create Patient (when not typing)
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const tag = (target?.tagName || '').toLowerCase();
+      const isTyping = tag === 'input' || tag === 'textarea' || target?.isContentEditable;
+      if (isTyping) return;
+      if (e.key === 'c' || e.key === 'C') {
+        e.preventDefault();
+        setShowCreateForm(true);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   const fetchPatients = async (opts?: { resetPage?: boolean }) => {
     console.log('🎯 fetchPatients called with opts:', opts);
     setLoading(true);
@@ -331,9 +347,12 @@ const ServerPatients: React.FC = () => {
             <p className="text-sm text-blue-800">
               <strong>No Patients Found:</strong> You haven't created any patients yet.
             </p>
-            <p className="text-xs text-blue-600 mt-1">
-              Use the "Create Patient" button in the patient selector to add your first patient.
-            </p>
+            <div className="mt-2 flex items-center gap-2">
+              <button onClick={() => setShowCreateForm(true)} className="px-3 py-1.5 bg-green-600 text-white rounded text-xs flex items-center gap-1">
+                <Plus className="w-3.5 h-3.5" /> Create Patient
+              </button>
+              <span className="text-xs text-blue-700">Tip: press <kbd className="px-1 py-0.5 border rounded bg-white">C</kbd> to create</span>
+            </div>
           </div>
         )}
         {(usingDefaultUser || usingDemoData) && (

@@ -18,6 +18,7 @@ import FeedbackButton from './components/Feedback/FeedbackButton';
 import { useGlobalKeyboardShortcuts } from './hooks/useGlobalKeyboardShortcuts';
 import { useVisitorTracking } from './hooks/useVisitorTracking';
 import setupErrorSuppression from './utils/errorSuppression';
+import { checkForUpdates } from './utils/versionCheck';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const DrugSearch = lazy(() => import('./pages/DrugSearch'));
 const InteractionChecker = lazy(() => import('./components/Interactions/InteractionChecker'));
@@ -465,6 +466,10 @@ function AppWithRouter() {
 
 function App() {
   useEffect(() => {
+    // Check for app updates first
+    const needsReload = checkForUpdates();
+    if (needsReload) return; // Exit early if reloading
+    
     // Initialize production-ready features
     SecurityManager.initialize();
     PerformanceMonitor.initialize();

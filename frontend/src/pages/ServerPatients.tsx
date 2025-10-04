@@ -183,6 +183,9 @@ const ServerPatients: React.FC = () => {
   };
 
   const createNewPatient = async (patientData: any) => {
+    console.log('🏥 === PATIENT CREATION DEBUG START ===');
+    console.log('🏥 Input patientData:', patientData);
+    
     try {
       // Build minimal patient profile compatible with backend schema
       const demographics = {
@@ -194,12 +197,16 @@ const ServerPatients: React.FC = () => {
         heightCm: patientData.heightCm || 170,
         weightKg: patientData.weightKg || 70,
       };
+      console.log('🏥 Built demographics:', demographics);
 
       let createdBy = 'guest';
       try {
         const { data: sess } = await supabase.auth.getSession();
         createdBy = sess?.session?.user?.id || createdBy;
-      } catch {}
+        console.log('🏥 CreatedBy from session:', createdBy);
+      } catch (sessionError) {
+        console.log('🏥 Session error:', sessionError);
+      }
 
       const newPatient = {
         id: `patient-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -217,42 +224,86 @@ const ServerPatients: React.FC = () => {
         createdBy,
         isActive: true,
       };
+      console.log('🏥 Prepared newPatient object:', newPatient);
 
       // Optimistically set as current
+      console.log('🏥 Setting patient optimistically...');
       actions.setCurrentPatient(newPatient);
+      console.log('🏥 ✅ Patient set in context');
 
       // Prepare headers with optional auth
       let token: string | null = null;
       try {
         const { data: sess } = await supabase.auth.getSession();
         token = sess?.session?.access_token || null;
-      } catch {}
+        console.log('🏥 Auth token status:', token ? 'Present' : 'Missing');
+      } catch (tokenError) {
+        console.log('🏥 Token error:', tokenError);
+      }
+      
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers.Authorization = `Bearer ${token}`;
+      console.log('🏥 Request headers:', headers);
 
       // Persist to server
+      console.log('🏥 Making API call to /api/patients...');
       try {
+        const requestBody = JSON.stringify({ patient: newPatient });
+        console.log('🏥 Request body:', requestBody);
+        
         const resp = await fetch('/api/patients', {
           method: 'POST',
           headers,
-          body: JSON.stringify({ patient: newPatient })
+          body: requestBody
         });
+        
+        console.log('🏥 API Response status:', resp.status);
+        console.log('🏥 API Response ok:', resp.ok);
+        console.log('🏥 API Response headers:', Object.fromEntries(resp.headers.entries()));
+        
         if (resp.ok) {
-          const result = await resp.json().catch(() => ({}));
+          const result = await resp.json().catch((jsonError) => {
+            console.log('🏥 JSON parse error:', jsonError);
+            return {};
+          });
+          console.log('🏥 API Response body:', result);
+          
           const serverPatient = result?.patient ? (result.patient.data || result.patient) : null;
-          if (serverPatient) actions.setCurrentPatient(serverPatient);
-          showToast('success', 'Patient created');
+          console.log('🏥 Extracted serverPatient:', serverPatient);
+          
+          if (serverPatient) {
+            console.log('🏥 Updating context with server patient...');
+            actions.setCurrentPatient(serverPatient);
+          }
+          
+          console.log('🏥 ✅ Showing success toast...');
+          showToast('success', 'Patient created successfully');
+          
+          console.log('🏥 Refreshing patient list...');
           await fetchPatients({ resetPage: true });
+          console.log('🏥 ✅ Patient list refreshed');
         } else {
-          const t = await resp.text().catch(() => 'Unknown error');
-          showToast('error', `Create failed: ${resp.status} ${t}`);
-          try { await actions.syncFromServer(); } catch {}
+          const errorText = await resp.text().catch(() => 'Unknown error');
+          console.log('🏥 ❌ API Error response:', errorText);
+          showToast('error', `Create failed: ${resp.status} ${errorText}`);
+          try { 
+            console.log('🏥 Attempting sync from server...');
+            await actions.syncFromServer(); 
+          } catch (syncError) {
+            console.log('🏥 Sync error:', syncError);
+          }
         }
-      } catch (e) {
+      } catch (networkError) {
+        console.log('🏥 ❌ Network error:', networkError);
         showToast('warning', 'Saved locally (network error)');
       }
+      
+      console.log('🏥 Closing create form...');
       setShowCreateForm(false);
-    } catch (e) {
+      console.log('🏥 === PATIENT CREATION DEBUG END ===');
+      
+    } catch (globalError) {
+      console.log('🏥 ❌ Global error in createNewPatient:', globalError);
       showToast('error', 'Failed to create patient');
     }
   };

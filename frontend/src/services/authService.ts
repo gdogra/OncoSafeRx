@@ -584,7 +584,9 @@ export class SupabaseAuthService {
    * Update user profile
    */
   static async updateProfile(userId: string, updates: Partial<UserProfile>): Promise<UserProfile> {
-    console.log('🔄 Updating profile for user:', userId, 'with updates:', updates);
+    console.log('🔧 === AUTH SERVICE UPDATE PROFILE DEBUG START ===');
+    console.log('🔧 Updating profile for user:', userId, 'with updates:', updates);
+    console.log('🔧 Current hostname:', window.location.hostname);
     
     // Check if this is a dev user (in localhost or dev mode)
     const isDev = window.location.hostname === 'localhost' || userId.includes('dev-');
@@ -633,21 +635,26 @@ export class SupabaseAuthService {
       } else {
         console.warn('⚠️ No auth tokens found, attempting server update without Authorization')
       }
+      console.log('🔧 Making fetch request to /api/supabase-auth/profile...');
       response = await fetch('/api/supabase-auth/profile', {
         method: 'PUT',
         headers,
         body: JSON.stringify(updates)
       })
       
+      console.log('🔧 API Response status:', response.status);
+      console.log('🔧 API Response ok:', response.ok);
+      console.log('🔧 API Response headers:', Object.fromEntries(response.headers.entries()));
+      
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('❌ Profile update API failed:', response.status, errorText)
-        console.log('🔄 Falling back to localStorage update')
+        console.error('🔧 ❌ Profile update API failed:', response.status, errorText)
+        console.log('🔧 🔄 Falling back to localStorage update')
         return this.updateProfileLocalStorage(userId, updates)
       }
       
       const result = await response.json()
-      console.log('✅ Profile updated successfully via API:', result)
+      console.log('🔧 ✅ Profile updated successfully via API:', result)
       
       // Update localStorage with the response to keep frontend in sync
       try {
@@ -656,12 +663,17 @@ export class SupabaseAuthService {
         console.warn('⚠️ Failed to sync profile to localStorage:', storageError)
       }
       
+      console.log('🔧 ✅ Returning updated user from API:', result.user);
+      console.log('🔧 === AUTH SERVICE UPDATE PROFILE DEBUG END (SUCCESS) ===');
       return result.user
       
     } catch (error) {
-      console.error('❌ API profile update failed:', error)
-      console.log('🔄 Falling back to localStorage update')
-      return this.updateProfileLocalStorage(userId, updates)
+      console.error('🔧 ❌ API profile update failed:', error)
+      console.log('🔧 🔄 Falling back to localStorage update')
+      const fallbackResult = this.updateProfileLocalStorage(userId, updates);
+      console.log('🔧 ✅ Returning fallback result:', fallbackResult);
+      console.log('🔧 === AUTH SERVICE UPDATE PROFILE DEBUG END (FALLBACK) ===');
+      return fallbackResult;
     }
   }
 

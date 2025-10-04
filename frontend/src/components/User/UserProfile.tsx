@@ -49,31 +49,54 @@ const UserProfile: React.FC = () => {
   }
 
   const handleSaveProfile = async () => {
-    console.log('🔄 Profile save button clicked!');
-    console.log('🔍 Current editedUser:', editedUser);
-    console.log('🔍 Actions available:', !!actions);
-    console.log('🔍 updateProfile function:', typeof actions?.updateProfile);
+    console.log('👤 === PROFILE SAVE DEBUG START ===');
+    console.log('👤 Profile save button clicked!');
+    console.log('👤 Current user from state:', user);
+    console.log('👤 Current editedUser:', editedUser);
+    console.log('👤 Actions available:', !!actions);
+    console.log('👤 updateProfile function type:', typeof actions?.updateProfile);
+    
     try {
-      console.log('🚀 Calling actions.updateProfile...');
-      await actions.updateProfile(editedUser);
-      console.log('✅ Profile update successful');
+      console.log('👤 Calling actions.updateProfile with editedUser...');
+      console.log('👤 editedUser details:', JSON.stringify(editedUser, null, 2));
+      
+      const updateResult = await actions.updateProfile(editedUser);
+      console.log('👤 ✅ Profile update successful, result:', updateResult);
+      
       setIsEditing(false);
+      console.log('👤 ✅ Editing mode disabled');
+      
       // Show success message
       if ((window as any).showToast) {
         (window as any).showToast('success', 'Profile updated successfully');
+        console.log('👤 ✅ Success toast shown');
       } else {
         alert('Profile updated successfully!');
+        console.log('👤 ✅ Success alert shown');
       }
+      
+      console.log('👤 === PROFILE SAVE DEBUG END (SUCCESS) ===');
+      
     } catch (error) {
-      console.error('❌ Failed to update profile:', error);
+      console.log('👤 ❌ Profile update error caught:', error);
+      console.log('👤 Error name:', error?.name);
+      console.log('👤 Error message:', error?.message);
+      console.log('👤 Error stack:', error?.stack);
+      
       // Show error message but don't block the UI
       if ((window as any).showToast) {
         (window as any).showToast('warning', 'Profile saved locally (server error)');
+        console.log('👤 ⚠️ Warning toast shown');
       } else {
         alert('Profile saved locally due to server issues');
+        console.log('👤 ⚠️ Warning alert shown');
       }
+      
       // Still exit editing mode since the profile was updated locally
       setIsEditing(false);
+      console.log('👤 ⚠️ Editing mode disabled after error');
+      
+      console.log('👤 === PROFILE SAVE DEBUG END (ERROR) ===');
     }
   };
 

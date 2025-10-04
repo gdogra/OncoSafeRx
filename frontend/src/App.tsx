@@ -1,4 +1,5 @@
 import React, { useEffect, Suspense, lazy } from 'react';
+// Deployment test - timestamp: 2025-10-04-01:50 UTC
 import { appVersion } from './utils/env';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';

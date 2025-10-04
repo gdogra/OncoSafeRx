@@ -36,7 +36,7 @@
     <link rel="canonical" href="https://oncosaferx.com/" />
     
     <!-- Force cache bust with timestamp -->
-    <meta name="build-timestamp" content="2024-10-04-18:15:00" />
+    <meta name="build-timestamp" content="2024-10-04-18:25:00" />
     
     <!-- Schema.org markup for healthcare organization -->
     <script type="application/ld+json">
@@ -75,41 +75,9 @@
   <body>
     <div id="root"></div>
     
-    <!-- Nuclear cache busting - force complete page reload -->
+    <!-- Simple cache check -->
     <script>
-      (function() {
-        console.log('🚨 NUCLEAR CACHE BUST: Checking for old cached JS...');
-        
-        // Check if we're still seeing old CSP violations (indicating old JS)
-        let oldJsDetected = false;
-        
-        // Listen for CSP violations
-        document.addEventListener('securitypolicyviolation', function(e) {
-          if (e.blockedURI && e.blockedURI.includes('oncosaferx-backend.onrender.com')) {
-            console.log('🚨 DETECTED OLD JAVASCRIPT! URL:', e.blockedURI);
-            oldJsDetected = true;
-          }
-        });
-        
-        // Force redirect if we haven't done it yet
-        const hasRedirected = sessionStorage.getItem('cache_bust_redirect_done');
-        if (!hasRedirected) {
-          console.log('🔄 First visit - forcing cache-busting redirect...');
-          sessionStorage.setItem('cache_bust_redirect_done', 'true');
-          window.location.href = window.location.href + '?cb=' + Date.now();
-          return;
-        }
-        
-        // If we're still here and see old JS, do a hard reload
-        setTimeout(function() {
-          if (oldJsDetected) {
-            console.log('🔄 Old JS still detected, forcing hard reload...');
-            window.location.reload(true);
-          }
-        }, 2000);
-        
-        console.log('✅ Cache busting complete, loading new JS...');
-      })();
+      console.log('🚀 Site loading...');
     </script>
     
     <script type="module" src="/src/index.tsx"></script>

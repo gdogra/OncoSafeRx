@@ -231,19 +231,40 @@ const ServerPatients: React.FC = () => {
       actions.setCurrentPatient(newPatient);
       console.log('🏥 ✅ Patient set in context');
 
-      // Prepare headers with optional auth
+      // Prepare headers with optional auth - try multiple token sources
       let token: string | null = null;
+      
+      // Try Supabase session first
       try {
         const { data: sess } = await supabase.auth.getSession();
         token = sess?.session?.access_token || null;
-        console.log('🏥 Auth token status:', token ? 'Present' : 'Missing');
+        console.log('🏥 Supabase session token:', token ? 'Present' : 'Missing');
       } catch (tokenError) {
-        console.log('🏥 Token error:', tokenError);
+        console.log('🏥 Supabase session error:', tokenError);
+      }
+      
+      // Fallback to localStorage tokens (for JWT-direct auth path)
+      if (!token) {
+        try {
+          const storedTokens = localStorage.getItem('osrx_auth_tokens');
+          if (storedTokens) {
+            const parsed = JSON.parse(storedTokens);
+            token = parsed.access_token || null;
+            console.log('🏥 LocalStorage token:', token ? 'Present' : 'Missing');
+          }
+        } catch (storageError) {
+          console.log('🏥 LocalStorage token error:', storageError);
+        }
       }
       
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (token) headers.Authorization = `Bearer ${token}`;
-      console.log('🏥 Request headers:', headers);
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+        console.log('🏥 Added Authorization header with token');
+      } else {
+        console.log('🏥 ⚠️ No token available - proceeding without auth');
+      }
+      console.log('🏥 Request headers:', Object.keys(headers));
 
       // Persist to server
       console.log('🏥 Making API call to /api/patients...');

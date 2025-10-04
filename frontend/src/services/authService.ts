@@ -485,9 +485,17 @@ export class SupabaseAuthService {
    * Build user profile from Supabase user
    */
   private static async buildUserProfile(user: any, fallbackData?: SignupData): Promise<UserProfile> {
+    console.log('🔧 buildUserProfile called with user:', {
+      id: user.id,
+      email: user.email,
+      user_metadata: user.user_metadata,
+      identity_data: user.identities?.[0]?.identity_data
+    });
+    
     const role = user.user_metadata?.role || fallbackData?.role || 'oncologist'
     
-    return {
+    // Always prioritize user_metadata over identity_data (user_metadata is what gets updated)
+    const profile = {
       id: user.id,
       email: user.email || fallbackData?.email || '',
       firstName: user.user_metadata?.first_name || fallbackData?.firstName || '',
@@ -497,14 +505,24 @@ export class SupabaseAuthService {
       institution: user.user_metadata?.institution || fallbackData?.institution || '',
       licenseNumber: user.user_metadata?.license_number || fallbackData?.licenseNumber || '',
       yearsExperience: user.user_metadata?.years_experience || fallbackData?.yearsExperience || 0,
-      preferences: this.getDefaultPreferences(role),
-      persona: this.createDefaultPersona(role),
+      preferences: user.user_metadata?.preferences || this.getDefaultPreferences(role),
+      persona: user.user_metadata?.persona || this.createDefaultPersona(role),
       createdAt: user.created_at || new Date().toISOString(),
       lastLogin: new Date().toISOString(),
       isActive: true,
       roles: [role],
       permissions: this.getRolePermissions(role)
-    }
+    };
+    
+    console.log('🔧 buildUserProfile result:', {
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      specialty: profile.specialty,
+      licenseNumber: profile.licenseNumber,
+      yearsExperience: profile.yearsExperience
+    });
+    
+    return profile;
   }
 
   /**
@@ -661,6 +679,22 @@ export class SupabaseAuthService {
         localStorage.setItem('osrx_user_profile', JSON.stringify(result.user))
       } catch (storageError) {
         console.warn('⚠️ Failed to sync profile to localStorage:', storageError)
+      }
+      
+      // CRITICAL: Refresh the user session to get latest user_metadata
+      console.log('🔧 🔄 Refreshing user session to get latest data...');
+      try {
+        const { data: refreshedSession } = await supabase.auth.getSession();
+        if (refreshedSession?.session?.user) {
+          console.log('🔧 ✅ Got refreshed user session');
+          const refreshedProfile = await this.buildUserProfile(refreshedSession.session.user);
+          localStorage.setItem('osrx_user_profile', JSON.stringify(refreshedProfile));
+          console.log('🔧 ✅ Returning refreshed user profile:', refreshedProfile);
+          console.log('🔧 === AUTH SERVICE UPDATE PROFILE DEBUG END (SUCCESS) ===');
+          return refreshedProfile;
+        }
+      } catch (refreshError) {
+        console.warn('🔧 ⚠️ Failed to refresh session, using API result:', refreshError);
       }
       
       console.log('🔧 ✅ Returning updated user from API:', result.user);

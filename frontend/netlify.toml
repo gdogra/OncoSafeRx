@@ -1,0 +1,36 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Supabase Configuration  
+  VITE_SUPABASE_URL = "https://emfrwckxctyarphjvfeu.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c"
+  
+  # API Configuration
+  VITE_API_URL = "https://api.oncosaferx.com"
+  REACT_APP_API_URL = "https://api.oncosaferx.com"
+  
+  # App Configuration
+  VITE_APP_VERSION = "1.0.0"
+  REACT_APP_VERSION = "1.0.0"
+  REACT_APP_ENVIRONMENT = "production"
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://api.oncosaferx.com/:splat"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer-when-downgrade"
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, immutable"

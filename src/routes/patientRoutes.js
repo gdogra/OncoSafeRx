@@ -1,22 +1,29 @@
 import express from 'express';
 import supabaseService from '../config/supabase.js';
-import { optionalSupabaseAuth } from '../middleware/supabaseAuth.js';
+import { optionalSupabaseAuth, authenticateSupabase } from '../middleware/supabaseAuth.js';
+
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 const router = express.Router();
 
 // All endpoints are no-ops if Supabase is not configured or user unauthenticated
 
-router.get('/', optionalSupabaseAuth, async (req, res) => {
+// Use strict auth in production, optional in development for easier testing
+router.get('/', isDevelopment ? optionalSupabaseAuth : authenticateSupabase, async (req, res) => {
   try {
-    // Create a default user if none is authenticated (for production without login)
+    // In development, provide fallback user; in production, require authentication
     if (!req.user) {
-      req.user = {
-        id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', // Gautam's existing user ID
-        email: 'gdogra@gmail.com',
-        role: 'oncologist',
-        isDefault: true
-      };
-      console.log('🔄 Using default user (Gautam) for unauthenticated request');
+      if (isDevelopment) {
+        req.user = {
+          id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a',
+          email: 'gdogra@gmail.com',
+          role: 'oncologist',
+          isDefault: true
+        };
+        console.log('🔄 Using default user (Gautam) for unauthenticated request in development');
+      } else {
+        return res.status(401).json({ error: 'Authentication required for patient list' });
+      }
     }
     
     if (!supabaseService.enabled) {
@@ -27,7 +34,7 @@ router.get('/', optionalSupabaseAuth, async (req, res) => {
     const pageSize = Math.min(50, Math.max(1, parseInt(String(req.query.pageSize || '10'), 10) || 10));
 
     const list = await supabaseService.listPatientsByUser(req.user.id);
-    let patients = (list || []).map(r => ({ id: r.id, ...r.data }));
+    let patients = (list || []).map(r => ({ id: r.id, user_id: r.user_id, ...r.data }));
     if (q) {
       patients = patients.filter(p => {
         try {
@@ -54,17 +61,21 @@ router.get('/', optionalSupabaseAuth, async (req, res) => {
   }
 });
 
-router.post('/', optionalSupabaseAuth, async (req, res) => {
+router.post('/', isDevelopment ? optionalSupabaseAuth : authenticateSupabase, async (req, res) => {
   try {
-    // Create a default user if none is authenticated (for production without login)
+    // In development, provide fallback user; in production, require authentication  
     if (!req.user) {
-      req.user = {
-        id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', // Gautam's existing user ID
-        email: 'gdogra@gmail.com',
-        role: 'oncologist',
-        isDefault: true
-      };
-      console.log('🔄 Using default user (Gautam) for patient creation');
+      if (isDevelopment) {
+        req.user = {
+          id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a',
+          email: 'gdogra@gmail.com',
+          role: 'oncologist',
+          isDefault: true
+        };
+        console.log('🔄 Using default user (Gautam) for patient creation in development');
+      } else {
+        return res.status(401).json({ error: 'Authentication required for patient creation' });
+      }
     }
     
     if (!supabaseService.enabled) {

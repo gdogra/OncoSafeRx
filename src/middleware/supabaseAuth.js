@@ -19,7 +19,7 @@ async function resolveUserFromToken(token) {
   // Dev token path
   if (token.startsWith('dev-token-')) {
     return {
-      id: 'dev-user-local',
+      id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', // Use the same UUID as the default user
       email: 'dev@oncosaferx.com',
       role: 'oncologist',
       isDev: true

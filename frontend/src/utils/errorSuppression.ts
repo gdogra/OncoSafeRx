@@ -62,7 +62,7 @@ export function setupErrorSuppression() {
   });
 
   // Suppress console errors from extensions (for development)
-  if (process.env.NODE_ENV === 'development') {
+  if ((import.meta as any)?.env?.DEV || (import.meta as any)?.env?.MODE === 'development') {
     const originalConsoleError = console.error;
     console.error = (...args) => {
       const message = args.join(' ');

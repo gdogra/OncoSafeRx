@@ -220,7 +220,7 @@ export class EHRIntegrationService {
       name: 'Epic Systems',
       version: '2023',
       fhirVersion: 'R4',
-      apiEndpoint: process.env.VITE_EPIC_FHIR_ENDPOINT || 'https://fhir.epic.com/interconnect-fhir-oauth',
+      apiEndpoint: (import.meta as any)?.env?.VITE_EPIC_FHIR_ENDPOINT || 'https://fhir.epic.com/interconnect-fhir-oauth',
       authType: 'oauth2',
       capabilities: [
         { feature: 'patient_read', supported: true },
@@ -241,7 +241,7 @@ export class EHRIntegrationService {
       name: 'Cerner Corporation',
       version: '2023',
       fhirVersion: 'R4',
-      apiEndpoint: process.env.VITE_CERNER_FHIR_ENDPOINT || 'https://fhir-open.cerner.com',
+      apiEndpoint: (import.meta as any)?.env?.VITE_CERNER_FHIR_ENDPOINT || 'https://fhir-open.cerner.com',
       authType: 'oauth2',
       capabilities: [
         { feature: 'patient_read', supported: true },
@@ -262,7 +262,7 @@ export class EHRIntegrationService {
       name: 'Allscripts Healthcare Solutions',
       version: '2023',
       fhirVersion: 'R4',
-      apiEndpoint: process.env.VITE_ALLSCRIPTS_FHIR_ENDPOINT,
+      apiEndpoint: (import.meta as any)?.env?.VITE_ALLSCRIPTS_FHIR_ENDPOINT,
       authType: 'oauth2',
       capabilities: [
         { feature: 'patient_read', supported: true },
@@ -283,7 +283,7 @@ export class EHRIntegrationService {
       name: 'athenahealth',
       version: '2023',
       fhirVersion: 'R4',
-      apiEndpoint: process.env.VITE_ATHENA_FHIR_ENDPOINT,
+      apiEndpoint: (import.meta as any)?.env?.VITE_ATHENA_FHIR_ENDPOINT,
       authType: 'oauth2',
       capabilities: [
         { feature: 'patient_read', supported: true },
@@ -304,7 +304,7 @@ export class EHRIntegrationService {
       name: 'NextGen Healthcare',
       version: '2023',
       fhirVersion: 'R4',
-      apiEndpoint: process.env.VITE_NEXTGEN_FHIR_ENDPOINT,
+      apiEndpoint: (import.meta as any)?.env?.VITE_NEXTGEN_FHIR_ENDPOINT,
       authType: 'oauth2',
       capabilities: [
         { feature: 'patient_read', supported: true },

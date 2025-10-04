@@ -116,7 +116,7 @@ const RealTimeClinicalSupport: React.FC = () => {
     const newRecommendations: ClinicalRecommendation[] = [];
 
     // 1. Critical Drug Interaction Analysis
-    const opioidMeds = currentPatient.medications.filter(med =>
+    const opioidMeds = (currentPatient.medications || []).filter(med =>
       med.name && ['oxycodone', 'morphine', 'fentanyl', 'hydrocodone', 'codeine'].some(opioid =>
         med.name.toLowerCase().includes(opioid)
       )

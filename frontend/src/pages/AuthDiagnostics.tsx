@@ -44,6 +44,8 @@ const AuthDiagnostics: React.FC = () => {
   const [syncMsg, setSyncMsg] = useState<string | null>(null);
   const [configCheck, setConfigCheck] = useState<any | null>(null);
   const [configError, setConfigError] = useState<string | null>(null);
+  const [sessionLoading, setSessionLoading] = useState(false);
+  const [sessionMsg, setSessionMsg] = useState<string | null>(null);
 
   const withTimeout = async <T,>(p: Promise<T>, ms: number): Promise<T> => {
     return await Promise.race<T>([
@@ -130,6 +132,38 @@ const AuthDiagnostics: React.FC = () => {
   const now = new Date();
   const secondsLeft = exp ? Math.max(0, Math.floor((exp.getTime() - now.getTime()) / 1000)) : null;
 
+  const createDemoSession = async () => {
+    setSessionLoading(true);
+    setSessionMsg(null);
+    try {
+      const resp = await fetch('/api/supabase-auth/demo/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const body = await resp.json();
+      if (!resp.ok) {
+        setSessionMsg(body?.error || 'Failed to create session');
+        return;
+      }
+      
+      // Store the session in localStorage to simulate Supabase session
+      localStorage.setItem('sb-emfrwckxctyarphjvfeu-auth-token', JSON.stringify({
+        access_token: body.session.access_token,
+        refresh_token: 'dev-refresh-token',
+        expires_in: 3600,
+        token_type: 'bearer',
+        user: body.session.user
+      }));
+      
+      setSessionMsg('Demo session created! You can now create patients with proper user association.');
+      await refresh();
+    } catch (e: any) {
+      setSessionMsg(e?.message || 'Session creation failed');
+    } finally {
+      setSessionLoading(false);
+    }
+  };
+
   const createDemoProfile = async () => {
     setCreateMsg(null);
     setCreateLoading(true);
@@ -152,7 +186,7 @@ const AuthDiagnostics: React.FC = () => {
         setCreateMsg('Demo profile created/updated successfully.');
         await refresh();
       } else {
-        const id = `dev-${Date.now()}`; // synthetic id for dev-only profile row
+        const id = crypto.randomUUID(); // proper UUID for demo profile
         const resp = await fetch('/api/supabase-auth/demo/profile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -389,7 +423,10 @@ const AuthDiagnostics: React.FC = () => {
                 <button onClick={createDemoProfile} disabled={createLoading} className="px-3 py-1.5 text-sm bg-green-600 text-white rounded disabled:opacity-50">
                   {createLoading ? 'Creating…' : 'Create Demo Profile Row'}
                 </button>
-                {(syncMsg || resetMsg || createMsg) && <div className="text-xs text-gray-600">{syncMsg || resetMsg || createMsg}</div>}
+                <button onClick={createDemoSession} disabled={sessionLoading} className="px-3 py-1.5 text-sm bg-purple-600 text-white rounded disabled:opacity-50">
+                  {sessionLoading ? 'Creating…' : 'Create Auth Session'}
+                </button>
+                {(syncMsg || resetMsg || createMsg || sessionMsg) && <div className="text-xs text-gray-600">{syncMsg || resetMsg || createMsg || sessionMsg}</div>}
               </div>
               {!sessionToken && (
                 <div className="mt-2 text-xs text-gray-500">Tip: No Supabase session detected. The server demo endpoint will be used to insert a profile row (dev-only).</div>

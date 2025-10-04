@@ -74,7 +74,15 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
   const loadEnhancedDrugData = async () => {
     setLoading(true);
     try {
-      // Simulate API calls for enhanced drug information
+      // Fetch real enhanced drug data from API
+      const response = await fetch(`/api/drugs/enhanced/${drug.rxcui}`);
+      if (response.ok) {
+        const enhancedData = await response.json();
+        // Merge enhanced data into the drug object
+        Object.assign(drug, enhancedData);
+      }
+      
+      // Load additional UI data
       await Promise.all([
         loadDrugDetails(),
         loadClinicalTrials(),

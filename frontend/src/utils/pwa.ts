@@ -235,7 +235,7 @@ export class PWAManager {
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: this.urlBase64ToUint8Array(
-          process.env.REACT_APP_VAPID_PUBLIC_KEY || ''
+          (import.meta as any)?.env?.VITE_VAPID_PUBLIC_KEY || (import.meta as any)?.env?.REACT_APP_VAPID_PUBLIC_KEY || ''
         )
       });
 

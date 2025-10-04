@@ -616,4 +616,35 @@ function getDefaultSpecialties(role) {
   return specialties[role] || ['healthcare'];
 }
 
+// Development session creator - creates a valid dev token for the existing user
+router.post('/demo/session', async (req, res) => {
+  try {
+    const userId = 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a';
+    const devToken = `dev-token-${Date.now()}`;
+    
+    // Return a development session that the frontend can use
+    res.json({
+      session: {
+        access_token: devToken,
+        user: {
+          id: userId,
+          email: 'gdogra@gmail.com',
+          user_metadata: {
+            role: 'oncologist',
+            first_name: 'Gautam',
+            last_name: 'Dogra'
+          }
+        }
+      },
+      user: {
+        id: userId,
+        email: 'gdogra@gmail.com',
+        role: 'oncologist'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

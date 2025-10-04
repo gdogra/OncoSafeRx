@@ -23,6 +23,12 @@ export class SupabaseService {
     this.enabled = !!supabase;
   }
 
+  // Helper method to validate UUID format
+  isValidUUID(str) {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(str);
+  }
+
   // =============================
   // Feedback persistence (MVP)
   // =============================
@@ -589,10 +595,17 @@ export class SupabaseService {
     try {
       console.log('📝 Attempting to upsert patient:', { userId, patientId: patient.id, hasData: !!patient });
       
+      // Ensure patient ID is a valid UUID
+      let patientId = patient.id;
+      if (patientId && !this.isValidUUID(patientId)) {
+        patientId = crypto.randomUUID();
+        console.log('🔄 Generated new UUID for invalid patient ID:', { old: patient.id, new: patientId });
+      }
+      
       const payload = {
-        id: patient.id,
+        id: patientId,
         user_id: userId,
-        data: patient,
+        data: { ...patient, id: patientId },
         updated_at: new Date().toISOString(),
       };
       if (!payload.id) delete payload.id;

@@ -3,7 +3,7 @@ import CryptoJS from 'crypto-js';
 
 // Security utilities for production
 export class SecurityManager {
-  private static readonly ENCRYPTION_KEY = process.env.REACT_APP_ENCRYPTION_KEY || 'oncosaferx-default-key';
+  private static readonly ENCRYPTION_KEY = (import.meta as any)?.env?.VITE_ENCRYPTION_KEY || (import.meta as any)?.env?.REACT_APP_ENCRYPTION_KEY || 'oncosaferx-default-key';
   private static readonly SESSION_KEY = 'oncosaferx_session';
   private static readonly MAX_SESSION_DURATION = config.limits.sessionTimeout * 60 * 1000; // Convert to milliseconds
 
@@ -266,7 +266,7 @@ export class SecurityManager {
 
   private static setupSecurityMonitoring(): void {
     // Skip security monitoring in development
-    if (process.env.NODE_ENV === 'development') {
+    if ((import.meta as any)?.env?.DEV || (import.meta as any)?.env?.MODE === 'development') {
       return;
     }
 

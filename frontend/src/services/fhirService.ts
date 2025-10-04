@@ -173,14 +173,14 @@ class FHIRService {
   private headers: Record<string, string>;
 
   private constructor() {
-    this.baseUrl = process.env.REACT_APP_FHIR_BASE_URL || 'https://hapi.fhir.org/baseR4';
+    this.baseUrl = (import.meta as any)?.env?.VITE_FHIR_BASE_URL || (import.meta as any)?.env?.REACT_APP_FHIR_BASE_URL || 'https://hapi.fhir.org/baseR4';
     this.headers = {
       'Content-Type': 'application/fhir+json',
       'Accept': 'application/fhir+json',
     };
 
     // Add authentication if available
-    const authToken = process.env.REACT_APP_FHIR_AUTH_TOKEN;
+    const authToken = (import.meta as any)?.env?.VITE_FHIR_AUTH_TOKEN || (import.meta as any)?.env?.REACT_APP_FHIR_AUTH_TOKEN;
     if (authToken) {
       this.headers['Authorization'] = `Bearer ${authToken}`;
     }

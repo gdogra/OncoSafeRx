@@ -65,7 +65,7 @@ export const config: AppConfig = {
   apiUrl,
   
   environment,
-  version: process.env.REACT_APP_VERSION || '1.0.0',
+  version: (import.meta as any)?.env?.VITE_APP_VERSION || (import.meta as any)?.env?.REACT_APP_VERSION || '1.0.0',
   
   features: {
     analytics: environment !== 'development',

@@ -23,6 +23,7 @@ export default function EnvDiagnosticsBanner() {
   const proxy = (((import.meta as any)?.env?.VITE_SUPABASE_AUTH_VIA_PROXY as string) || '').toLowerCase() === 'true'
   const apiBase = ((import.meta as any)?.env?.VITE_API_URL as string || '/api').replace(/\/$/, '')
 
+
   const reason = useMemo(() => {
     const issues: string[] = []
     if (!su) issues.push('Supabase URL missing')

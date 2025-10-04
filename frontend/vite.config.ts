@@ -8,12 +8,7 @@ const enableSourcemap = process.env.VITE_SOURCEMAPS === 'true' || (!isProd && tr
 export default defineConfig({
   plugins: [react()],
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-  define: {
-    'process.env': JSON.stringify({
-      REACT_APP_API_URL: process.env.REACT_APP_API_URL || '',
-      REACT_APP_VERSION: process.env.REACT_APP_VERSION || '',
-    }),
-  },
+  envPrefix: ['VITE_', 'REACT_APP_'],
   server: {
     port: 5176,
     hmr: false, // Disable HMR completely to prevent auth interruption

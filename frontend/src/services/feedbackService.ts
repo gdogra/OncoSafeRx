@@ -417,7 +417,7 @@ class FeedbackService {
   }
 
   // Create GitHub issue if integration is enabled
-  private async createGitHubIssue(feedback: FeedbackItem): Promise<void> {
+  private async createGitHubIssueFromFeedback(feedback: FeedbackItem): Promise<void> {
     try {
       if (githubService.isEnabled()) {
         const issue = await githubService.createIssueFromFeedback(feedback);

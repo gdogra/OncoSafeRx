@@ -1,0 +1,3 @@
+2024-10-04-20:00:00 - Force Netlify to rebuild all assets
+This file forces Netlify to detect changes and rebuild completely.
+Old JavaScript cache issue needs complete rebuild.

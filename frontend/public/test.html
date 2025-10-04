@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Deployment Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 50px; 
+            background: #f0f0f0; 
+        }
+        .test-box { 
+            background: #4CAF50; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            text-align: center; 
+        }
+    </style>
+</head>
+<body>
+    <div class="test-box">
+        <h1>🚀 Deployment Test - SUCCESS!</h1>
+        <p>Timestamp: 2025-10-04 01:55 UTC</p>
+        <p>If you can see this, deployments are working.</p>
+        <button onclick="testJS()">Test JavaScript</button>
+        <div id="js-result"></div>
+    </div>
+
+    <script>
+        console.log('✅ Test script loaded successfully');
+        
+        function testJS() {
+            document.getElementById('js-result').innerHTML = 
+                '<p style="color: yellow; margin-top: 10px;">✅ JavaScript is working!</p>';
+        }
+        
+        // Auto-test on load
+        setTimeout(() => {
+            document.body.style.border = '5px solid #FF5722';
+            console.log('✅ Auto-test completed');
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -35,6 +35,9 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="https://oncosaferx.com/" />
     
+    <!-- Force cache bust with timestamp -->
+    <meta name="build-timestamp" content="2024-10-04-14:42:00" />
+    
     <!-- Schema.org markup for healthcare organization -->
     <script type="application/ld+json">
     {
@@ -71,6 +74,24 @@
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- Immediate cache check before React loads -->
+    <script>
+      (function() {
+        const buildTimestamp = document.querySelector('meta[name="build-timestamp"]')?.content;
+        const storedTimestamp = localStorage.getItem('last_build_timestamp');
+        
+        if (buildTimestamp && storedTimestamp && buildTimestamp !== storedTimestamp) {
+          console.log('🔄 New build detected (' + buildTimestamp + '), forcing hard reload...');
+          localStorage.setItem('last_build_timestamp', buildTimestamp);
+          window.location.reload(true);
+          return;
+        } else if (buildTimestamp && !storedTimestamp) {
+          localStorage.setItem('last_build_timestamp', buildTimestamp);
+        }
+      })();
+    </script>
+    
     <script type="module" src="/src/index.tsx"></script>
   </body>
   </html>

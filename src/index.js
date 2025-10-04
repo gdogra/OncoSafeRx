@@ -68,9 +68,13 @@ const __dirname = dirname(__filename);
 
 const app = express();
 initSentry(app);
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT) || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
+
+console.log(`🚀 Starting server with PORT=${PORT} (from env: ${process.env.PORT})`);
+console.log(`🌍 Environment: ${NODE_ENV}`);
+console.log(`🔗 CORS Origin: ${CORS_ORIGIN}`);
 
 // Middleware
 app.set('trust proxy', 1);
@@ -467,9 +471,10 @@ app.use('*', notFoundHandler);
 app.use(sentryErrorHandler());
 app.use(errorHandler);
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`OncoSafeRx API server running on port ${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
+  console.log(`Environment: NODE_ENV=${NODE_ENV}, CORS_ORIGIN=${CORS_ORIGIN}`);
 });
 
 // Graceful shutdown

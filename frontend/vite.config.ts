@@ -35,14 +35,6 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     chunkSizeWarningLimit: 800,
-    rollupOptions: {
-      output: {
-        // Force new file names to bust cache
-        entryFileNames: `assets/[name].${Date.now()}.js`,
-        chunkFileNames: `assets/[name].${Date.now()}.js`,
-        assetFileNames: `assets/[name].${Date.now()}.[ext]`
-      }
-    }
   },
   test: {
     globals: true,

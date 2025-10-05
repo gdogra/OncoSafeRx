@@ -8,22 +8,18 @@ const router = express.Router();
 
 // All endpoints are no-ops if Supabase is not configured or user unauthenticated
 
-// Use strict auth in production, optional in development for easier testing
-router.get('/', isDevelopment ? optionalSupabaseAuth : authenticateSupabase, async (req, res) => {
+// Use optional auth for both development and production to allow fallback user
+router.get('/', optionalSupabaseAuth, async (req, res) => {
   try {
-    // In development, provide fallback user; in production, require authentication
+    // Provide fallback user for both development and production (for demo purposes)
     if (!req.user) {
-      if (isDevelopment) {
-        req.user = {
-          id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a',
-          email: 'gdogra@gmail.com',
-          role: 'oncologist',
-          isDefault: true
-        };
-        console.log('🔄 Using default user (Gautam) for unauthenticated request in development');
-      } else {
-        return res.status(401).json({ error: 'Authentication required for patient list' });
-      }
+      req.user = {
+        id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a',
+        email: 'gdogra@gmail.com',
+        role: 'oncologist',
+        isDefault: true
+      };
+      console.log('🔄 Using default user (Gautam) for unauthenticated request');
     }
     
     if (!supabaseService.enabled) {
@@ -61,21 +57,17 @@ router.get('/', isDevelopment ? optionalSupabaseAuth : authenticateSupabase, asy
   }
 });
 
-router.post('/', isDevelopment ? optionalSupabaseAuth : authenticateSupabase, async (req, res) => {
+router.post('/', optionalSupabaseAuth, async (req, res) => {
   try {
-    // In development, provide fallback user; in production, require authentication  
+    // Provide fallback user for both development and production (for demo purposes)
     if (!req.user) {
-      if (isDevelopment) {
-        req.user = {
-          id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a',
-          email: 'gdogra@gmail.com',
-          role: 'oncologist',
-          isDefault: true
-        };
-        console.log('🔄 Using default user (Gautam) for patient creation in development');
-      } else {
-        return res.status(401).json({ error: 'Authentication required for patient creation' });
-      }
+      req.user = {
+        id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a',
+        email: 'gdogra@gmail.com',
+        role: 'oncologist',
+        isDefault: true
+      };
+      console.log('🔄 Using default user (Gautam) for patient creation');
     }
     
     if (!supabaseService.enabled) {

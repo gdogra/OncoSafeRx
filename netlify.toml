@@ -56,9 +56,12 @@
     Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://emfrwckxctyarphjvfeu.supabase.co https://api.oncosaferx.com https://oncosaferx-backend.onrender.com; frame-ancestors 'none'; object-src 'none'"
 
 [context.production.environment]
-  # Point this at your API base URL (override in Netlify UI if needed)
+  # Force API proxy usage for production
   VITE_API_URL = "/api"
+  REACT_APP_API_URL = "/api"
   VITE_ENABLE_SERVER_ANALYTICS = "false"
+  # Force rebuild timestamp
+  BUILD_ID = "force-rebuild-20251005-024500"
 
 [context.deploy-preview.environment]
   VITE_API_URL = "https://your-preview-api.example.com/api"

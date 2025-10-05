@@ -12,10 +12,10 @@
   CI = "false"
   BUILD_TIMEOUT = "15"
 
-# Proxy API requests to your backend API domain (use custom API subdomain)
+# Proxy API requests to Render backend
 [[redirects]]
   from = "/api/*"
-  to = "https://api.oncosaferx.com/api/:splat"
+  to = "https://oncosaferx-backend.onrender.com/api/:splat"
   status = 200
   force = true
 
@@ -51,7 +51,7 @@
     Referrer-Policy = "no-referrer-when-downgrade"
     Permissions-Policy = "geolocation=*, microphone=(), camera=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://emfrwckxctyarphjvfeu.supabase.co https://api.oncosaferx.com; frame-ancestors 'none'; object-src 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://emfrwckxctyarphjvfeu.supabase.co https://api.oncosaferx.com https://oncosaferx-backend.onrender.com; frame-ancestors 'none'; object-src 'none'"
 
 [context.production.environment]
   # Point this at your API base URL (override in Netlify UI if needed)

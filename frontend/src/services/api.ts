@@ -2,6 +2,21 @@ import axios from 'axios';
 
 // Static API URL calculation to prevent repeated calls
 const getApiUrl = () => {
+  // For development, always use localhost:3000 API
+  if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
+    return 'http://localhost:3000/api';
+  }
+  
+  // In production, ALWAYS use relative /api path to leverage Netlify proxy
+  // This overrides any environment variables to ensure proxy usage
+  if (typeof window !== 'undefined' && 
+      (window.location?.hostname === 'oncosaferx.com' || 
+       window.location?.hostname === 'www.oncosaferx.com' ||
+       window.location?.hostname.includes('netlify.app'))) {
+    return '/api';
+  }
+  
+  // Fallback to environment variables for other cases
   const vite = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
   // @ts-ignore
   const cra = typeof process !== 'undefined' ? (process as any)?.env?.REACT_APP_API_URL as string | undefined : undefined;
@@ -13,12 +28,7 @@ const getApiUrl = () => {
     return cra;
   }
   
-  // For development, always use localhost:3000 API
-  if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
-    return 'http://localhost:3000/api';
-  }
-  
-  // In production, always use relative /api path to leverage Netlify proxy
+  // Final fallback
   return '/api';
 };
 

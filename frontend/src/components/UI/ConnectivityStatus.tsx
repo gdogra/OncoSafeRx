@@ -32,11 +32,25 @@ function writeStored(status: Status) {
 export default function ConnectivityStatus({ apiBase, align = 'right', compact = false, pollMs = 120000 }: Props) {
   const base = useMemo(() => {
     if (apiBase) return apiBase;
+    
+    // For localhost development
+    if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
+      return 'http://localhost:3000/api';
+    }
+    
+    // In production domains, ALWAYS use relative /api path to leverage Netlify proxy
+    if (typeof window !== 'undefined' && 
+        (window.location?.hostname === 'oncosaferx.com' || 
+         window.location?.hostname === 'www.oncosaferx.com' ||
+         window.location?.hostname.includes('netlify.app'))) {
+      return '/api';
+    }
+    
+    // Fallback to environment variables for other cases
     const vite = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
     if (vite?.trim()) return vite;
-    // For localhost development
-    if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') return 'http://localhost:3000/api';
-    // In production, always use relative /api path to leverage Netlify proxy
+    
+    // Final fallback
     return '/api';
   }, [apiBase]);
 

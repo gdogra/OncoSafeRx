@@ -14,13 +14,7 @@
   # Force cache bust for production fix - 2025-10-05T00:47:00Z
   BUILD_TIMESTAMP = "2025-10-05T00:47:00Z"
 
-# Proxy API requests to Render backend with increased timeout
-[[redirects]]
-  from = "/api/*"
-  to = "https://oncosaferx-backend.onrender.com/api/:splat"
-  status = 200
-  force = true
-  timeout = 30
+# API proxy handled by Edge Functions (see netlify/edge-functions/api-proxy.ts)
 
 # SPA fallback so client-side routes work
 [[redirects]]
@@ -61,8 +55,8 @@
   VITE_API_URL = "/api"
   REACT_APP_API_URL = "/api"
   VITE_ENABLE_SERVER_ANALYTICS = "false"
-  # Force correct API URL during build
-  BUILD_ID = "fix-api-url-20251005-042000"
+  # Switch to Edge Functions for API proxy
+  BUILD_ID = "edge-functions-20251005-043000"
 
 [context.deploy-preview.environment]
   VITE_API_URL = "https://your-preview-api.example.com/api"

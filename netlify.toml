@@ -14,12 +14,13 @@
   # Force cache bust for production fix - 2025-10-05T00:47:00Z
   BUILD_TIMESTAMP = "2025-10-05T00:47:00Z"
 
-# Proxy API requests to Render backend
+# Proxy API requests to Render backend with increased timeout
 [[redirects]]
   from = "/api/*"
   to = "https://oncosaferx-backend.onrender.com/api/:splat"
   status = 200
   force = true
+  timeout = 30
 
 # SPA fallback so client-side routes work
 [[redirects]]

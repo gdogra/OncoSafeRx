@@ -1,6 +1,19 @@
 import type { Context } from "https://edge.netlify.com/";
 
 export default async (request: Request, context: Context) => {
+  // Handle preflight OPTIONS requests
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Max-Age': '86400',
+      }
+    });
+  }
+
   // Extract the path after /api/
   const url = new URL(request.url);
   const apiPath = url.pathname.replace('/api/', '');
@@ -10,14 +23,24 @@ export default async (request: Request, context: Context) => {
   const backendUrl = `https://oncosaferx-backend.onrender.com/api/${apiPath}${search}`;
   
   try {
+    // Get body for non-GET requests
+    let body = undefined;
+    if (request.method !== 'GET' && request.method !== 'HEAD') {
+      try {
+        body = await request.text();
+      } catch (e) {
+        console.error('Error reading request body:', e);
+      }
+    }
+
     const response = await fetch(backendUrl, {
       method: request.method,
       headers: {
-        ...Object.fromEntries(request.headers.entries()),
-        // Ensure proper origin for CORS
-        'Origin': 'https://oncosaferx.com'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'Netlify-Edge-Function/1.0',
       },
-      body: request.method !== 'GET' && request.method !== 'HEAD' ? await request.arrayBuffer() : undefined,
+      body: body,
     });
 
     // Clone response and add CORS headers

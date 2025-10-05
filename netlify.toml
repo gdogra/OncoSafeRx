@@ -1,7 +1,7 @@
 [build]
   base = "frontend"
   publish = "frontend/dist"
-  command = "rm -rf node_modules/.cache && npm ci --legacy-peer-deps && npm run build"
+  command = "rm -rf node_modules/.cache && rm -rf dist && npm ci --legacy-peer-deps && npm run build"
 
 [build.environment]
   NODE_VERSION = "20.19.1"
@@ -60,8 +60,8 @@
   VITE_API_URL = "/api"
   REACT_APP_API_URL = "/api"
   VITE_ENABLE_SERVER_ANALYTICS = "false"
-  # Force rebuild timestamp
-  BUILD_ID = "force-rebuild-20251005-024500"
+  # Emergency rebuild - fix truncated JS assets
+  BUILD_ID = "emergency-rebuild-20251005-025000"
 
 [context.deploy-preview.environment]
   VITE_API_URL = "https://your-preview-api.example.com/api"

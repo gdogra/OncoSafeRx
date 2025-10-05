@@ -25,34 +25,59 @@ const EnhancedPatients: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'list' | 'details' | 'timeline'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'details' | 'timeline' | 'create'>('list');
   const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
-    loadPatients();
-    loadStats();
-    // Generate sample data if none exists
-    patientService.generateSamplePatients();
+    const initializeData = async () => {
+      await loadPatients();
+      await loadStats();
+      // Generate sample data if none exists
+      patientService.generateSamplePatients();
+    };
+    initializeData();
   }, []);
 
-  const loadPatients = () => {
-    const allPatients = patientService.getPatients();
+  const loadPatients = async () => {
+    const allPatients = await patientService.getPatients();
     setPatients(allPatients);
   };
 
-  const loadStats = () => {
-    const patientStats = patientService.getPatientStats();
+  const loadStats = async () => {
+    const patientStats = await patientService.getPatientStats();
     setStats(patientStats);
   };
 
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string) => {
     setSearchQuery(query);
     if (query.trim()) {
-      const results = patientService.searchPatients(query);
+      const results = await patientService.searchPatients(query);
       setPatients(results);
     } else {
-      loadPatients();
+      await loadPatients();
     }
+  };
+
+  const handleCreatePatient = () => {
+    setViewMode('create');
+    setSelectedPatient(null);
+  };
+
+  const handleSavePatient = async (patientData: any) => {
+    try {
+      await patientService.savePatient(patientData);
+      await loadPatients();
+      await loadStats();
+      setViewMode('list');
+    } catch (error) {
+      console.error('Error saving patient:', error);
+      alert('Failed to save patient. Please try again.');
+    }
+  };
+
+  const handleCancelCreate = () => {
+    setViewMode('list');
+    setSelectedPatient(null);
   };
 
   const getPatientAge = (dateOfBirth: string): number => {
@@ -158,7 +183,15 @@ const EnhancedPatients: React.FC = () => {
 
   const PatientDetails: React.FC<{ patient: Patient }> = ({ patient }) => {
     const age = getPatientAge(patient.dateOfBirth);
-    const timeline = patientService.getTreatmentTimeline(patient.id);
+    const [timeline, setTimeline] = useState<any[]>([]);
+    
+    useEffect(() => {
+      const loadTimeline = async () => {
+        const timelineData = await patientService.getTreatmentTimeline(patient.id);
+        setTimeline(timelineData);
+      };
+      loadTimeline();
+    }, [patient.id]);
     
     return (
       <div className="space-y-6">
@@ -453,6 +486,158 @@ const EnhancedPatients: React.FC = () => {
     return <PatientTimeline patient={selectedPatient} />;
   }
 
+  if (viewMode === 'create') {
+    const CreatePatientForm: React.FC = () => {
+      const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        mrn: '',
+        dateOfBirth: '',
+        gender: 'male',
+        height: '',
+        weight: '',
+        diagnosis: ''
+      });
+
+      const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const patientData = {
+          id: `patient_${Date.now()}`,
+          ...formData,
+          height: parseFloat(formData.height) || 170,
+          weight: parseFloat(formData.weight) || 70,
+          renalFunction: { creatinine: 1.0 },
+          hepaticFunction: { bilirubin: 0.8, alt: 25, ast: 25, albumin: 4.0 },
+          labValues: [],
+          allergies: [],
+          contraindications: [],
+          currentMedications: [],
+          treatmentHistory: [],
+          biomarkers: []
+        };
+        handleSavePatient(patientData);
+      };
+
+      return (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">Create New Patient</h2>
+            <button 
+              onClick={handleCancelCreate}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          <Card>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    First Name*
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.firstName}
+                    onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Last Name*
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    MRN*
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.mrn}
+                    onChange={(e) => setFormData({...formData, mrn: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Date of Birth*
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={formData.dateOfBirth}
+                    onChange={(e) => setFormData({...formData, dateOfBirth: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Gender
+                  </label>
+                  <select
+                    value={formData.gender}
+                    onChange={(e) => setFormData({...formData, gender: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Diagnosis
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.diagnosis}
+                    onChange={(e) => setFormData({...formData, diagnosis: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Primary diagnosis"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                <button
+                  type="button"
+                  onClick={handleCancelCreate}
+                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Create Patient
+                </button>
+              </div>
+            </form>
+          </Card>
+        </div>
+      );
+    };
+
+    return <CreatePatientForm />;
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -467,7 +652,10 @@ const EnhancedPatients: React.FC = () => {
           </div>
         </div>
         
-        <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+        <button 
+          onClick={handleCreatePatient}
+          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
           <Plus className="w-4 h-4" />
           <span>Add Patient</span>
         </button>
@@ -544,7 +732,10 @@ const EnhancedPatients: React.FC = () => {
             <p className="text-gray-600 mb-4">
               {searchQuery ? 'Try adjusting your search criteria' : 'Get started by adding your first patient'}
             </p>
-            <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mx-auto">
+            <button 
+              onClick={handleCreatePatient}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mx-auto"
+            >
               <Plus className="w-4 h-4" />
               <span>Add Patient</span>
             </button>

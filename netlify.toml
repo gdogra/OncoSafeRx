@@ -11,6 +11,8 @@
   GENERATE_SOURCEMAP = "false"
   CI = "false"
   BUILD_TIMEOUT = "15"
+  # Force cache bust for production fix - 2025-10-05T00:47:00Z
+  BUILD_TIMESTAMP = "2025-10-05T00:47:00Z"
 
 # Proxy API requests to Render backend
 [[redirects]]

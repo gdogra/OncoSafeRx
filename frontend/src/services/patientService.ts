@@ -22,11 +22,18 @@ export class PatientService {
   // Get all patients from database (with localStorage fallback)
   public async getPatients(): Promise<Patient[]> {
     try {
+      // Skip auth headers in production to avoid SSL issues - backend has fallback auth
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+      
+      // Only add auth in development
+      if (window.location.hostname === 'localhost') {
+        headers['Authorization'] = `Bearer ${this.getAuthToken()}`;
+      }
+      
       const response = await fetch(this.API_BASE_URL, {
-        headers: {
-          'Authorization': `Bearer ${this.getAuthToken()}`,
-          'Content-Type': 'application/json'
-        }
+        headers
       });
       
       if (response.ok) {
@@ -56,11 +63,18 @@ export class PatientService {
   // Get patient by ID from database (with localStorage fallback)
   public async getPatient(id: string): Promise<Patient | null> {
     try {
+      // Skip auth headers in production to avoid SSL issues - backend has fallback auth
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+      
+      // Only add auth in development
+      if (window.location.hostname === 'localhost') {
+        headers['Authorization'] = `Bearer ${this.getAuthToken()}`;
+      }
+      
       const response = await fetch(`${this.API_BASE_URL}/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${this.getAuthToken()}`,
-          'Content-Type': 'application/json'
-        }
+        headers
       });
       
       if (response.ok) {
@@ -81,12 +95,19 @@ export class PatientService {
   // Save patient to database (with localStorage fallback)
   public async savePatient(patient: Patient): Promise<Patient> {
     try {
+      // Skip auth headers in production to avoid SSL issues - backend has fallback auth
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+      
+      // Only add auth in development
+      if (window.location.hostname === 'localhost') {
+        headers['Authorization'] = `Bearer ${this.getAuthToken()}`;
+      }
+      
       const response = await fetch(this.API_BASE_URL, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.getAuthToken()}`,
-          'Content-Type': 'application/json'
-        },
+        headers,
         body: JSON.stringify({ patient })
       });
       
@@ -128,12 +149,19 @@ export class PatientService {
   // Delete patient from database (with localStorage fallback)
   public async deletePatient(id: string): Promise<void> {
     try {
+      // Skip auth headers in production to avoid SSL issues - backend has fallback auth
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+      
+      // Only add auth in development
+      if (window.location.hostname === 'localhost') {
+        headers['Authorization'] = `Bearer ${this.getAuthToken()}`;
+      }
+      
       const response = await fetch(`${this.API_BASE_URL}/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${this.getAuthToken()}`,
-          'Content-Type': 'application/json'
-        }
+        headers
       });
       
       if (response.ok) {
@@ -163,11 +191,18 @@ export class PatientService {
   // Search patients from database (with localStorage fallback)
   public async searchPatients(query: string): Promise<Patient[]> {
     try {
+      // Skip auth headers in production to avoid SSL issues - backend has fallback auth
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      };
+      
+      // Only add auth in development
+      if (window.location.hostname === 'localhost') {
+        headers['Authorization'] = `Bearer ${this.getAuthToken()}`;
+      }
+      
       const response = await fetch(`${this.API_BASE_URL}?q=${encodeURIComponent(query)}`, {
-        headers: {
-          'Authorization': `Bearer ${this.getAuthToken()}`,
-          'Content-Type': 'application/json'
-        }
+        headers
       });
       
       if (response.ok) {

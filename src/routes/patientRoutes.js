@@ -81,6 +81,34 @@ router.get('/', optionalSupabaseAuth, async (req, res) => {
   }
 });
 
+// Ensure a corresponding public.users row exists for the authenticated user (FK target)
+async function ensureUserRow(client, user) {
+  if (!client || !user?.id) return false;
+  try {
+    const { data: u, error: uErr } = await client
+      .from('users')
+      .select('id')
+      .eq('id', user.id)
+      .maybeSingle();
+    if (!u && !uErr) {
+      const payload = {
+        id: user.id,
+        email: user.email || null,
+        first_name: (user.supabaseUser?.user_metadata?.first_name) || null,
+        last_name: (user.supabaseUser?.user_metadata?.last_name) || null,
+        role: (user.supabaseUser?.user_metadata?.role) || 'oncologist',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      await client.from('users').insert(payload).select('id').maybeSingle();
+      return true;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 router.post('/', optionalSupabaseAuth, async (req, res) => {
   try {
     const forceOffline = String(req.query.offline || '') === '1';
@@ -130,6 +158,9 @@ router.post('/', optionalSupabaseAuth, async (req, res) => {
         }
       } catch (_) {}
     }
+    // Ensure FK target exists (public.users row) when using service role
+    try { await ensureUserRow(supabaseService.client, req.user); } catch {}
+
     console.log('🔄 Attempting to save patient for user:', req.user.id);
     try {
       const saved = await supabaseService.upsertPatient(req.user.id, patient);

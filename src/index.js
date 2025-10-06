@@ -62,6 +62,7 @@ import auditRoutes from './routes/auditRoutes.js';
 import rbacRoutes from './routes/rbacRoutes.js';
 import dataArchitectureRoutes from './routes/dataArchitectureRoutes.js';
 import advancedWorkflowRoutes from './routes/advancedWorkflowRoutes.js';
+import diagnosticsRoutes from './routes/diagnosticsRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -301,6 +302,7 @@ app.use('/api/audit', auditRoutes);
 app.use('/api/rbac', rbacRoutes);
 app.use('/api/data-architecture', dataArchitectureRoutes);
 app.use('/api/advanced-workflow', advancedWorkflowRoutes);
+app.use('/api/diagnostics', diagnosticsRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/export/epa', epaRoutes);
 app.use('/api/prescribe', prescribeRoutes);

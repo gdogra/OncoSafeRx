@@ -509,6 +509,7 @@ const EnhancedPatients: React.FC = () => {
   }
 
   if (viewMode === 'create') {
+    const DRAFT_KEY = 'osrx_draft_patient_enh';
     const CreatePatientForm: React.FC = () => {
       const [formData, setFormData] = useState({
         firstName: '',
@@ -520,6 +521,22 @@ const EnhancedPatients: React.FC = () => {
         weight: '',
         diagnosis: ''
       });
+
+      // Load draft on mount
+      useEffect(() => {
+        try {
+          const raw = localStorage.getItem(DRAFT_KEY);
+          if (raw) {
+            const draft = JSON.parse(raw);
+            if (draft && typeof draft === 'object') setFormData((prev) => ({ ...prev, ...draft }));
+          }
+        } catch {}
+      }, []);
+
+      // Persist draft on changes
+      useEffect(() => {
+        try { localStorage.setItem(DRAFT_KEY, JSON.stringify(formData)); } catch {}
+      }, [formData]);
 
       const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -537,6 +554,7 @@ const EnhancedPatients: React.FC = () => {
           treatmentHistory: [],
           biomarkers: []
         };
+        try { localStorage.removeItem(DRAFT_KEY); } catch {}
         handleSavePatient(patientData);
       };
 
@@ -545,7 +563,7 @@ const EnhancedPatients: React.FC = () => {
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-900">Create New Patient</h2>
             <button 
-              onClick={handleCancelCreate}
+              onClick={() => { try { localStorage.removeItem(DRAFT_KEY); } catch {}; handleCancelCreate(); }}
               className="text-gray-500 hover:text-gray-700"
             >
               <X className="w-6 h-6" />
@@ -639,7 +657,7 @@ const EnhancedPatients: React.FC = () => {
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
-                  onClick={handleCancelCreate}
+                  onClick={() => { try { localStorage.removeItem(DRAFT_KEY); } catch {}; handleCancelCreate(); }}
                   className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
                 >
                   Cancel

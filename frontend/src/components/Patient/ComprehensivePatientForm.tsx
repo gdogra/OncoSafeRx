@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   User, 
   Calendar, 
@@ -125,6 +125,8 @@ interface ComprehensivePatientData extends PatientDemographics {
   treatmentCenter?: string;
 }
 
+const DRAFT_KEY = 'osrx_draft_patient_server';
+
 const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
   onSubmit,
   onCancel
@@ -139,6 +141,24 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
     medicalHistory: [],
     familyHistory: []
   });
+
+  // Load draft on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        const draft = JSON.parse(raw);
+        if (draft && typeof draft === 'object') {
+          setFormData(prev => ({ ...prev, ...draft }));
+        }
+      }
+    } catch {}
+  }, []);
+
+  // Persist draft on changes
+  useEffect(() => {
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(formData)); } catch {}
+  }, [formData]);
   
   const [newAllergy, setNewAllergy] = useState({ allergen: '', reaction: '', severity: 'mild' as const });
   const [newMedicalCondition, setNewMedicalCondition] = useState({ condition: '', yearDiagnosed: '', status: 'active' as const });
@@ -270,6 +290,7 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
     e.preventDefault();
     
     if (validateRequiredFields()) {
+      try { localStorage.removeItem(DRAFT_KEY); } catch {}
       onSubmit(formData);
     } else {
       // Switch to first section with errors
@@ -279,6 +300,11 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
         setActiveSection('contact');
       }
     }
+  };
+
+  const handleCancelInternal = () => {
+    try { localStorage.removeItem(DRAFT_KEY); } catch {}
+    onCancel();
   };
 
   const renderSection = () => {
@@ -1015,7 +1041,7 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-gray-900">Create New Patient</h2>
             <button
-              onClick={onCancel}
+              onClick={handleCancelInternal}
               className="text-gray-400 hover:text-gray-600"
             >
               <X className="w-6 h-6" />
@@ -1055,7 +1081,7 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
             <div className="flex justify-between">
               <button
                 type="button"
-                onClick={onCancel}
+                onClick={handleCancelInternal}
                 className="px-6 py-2 border border-gray-300 text-gray-700 bg-white rounded-md hover:bg-gray-50"
               >
                 Cancel

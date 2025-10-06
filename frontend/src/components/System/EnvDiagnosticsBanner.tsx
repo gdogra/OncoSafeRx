@@ -69,6 +69,7 @@ export default function EnvDiagnosticsBanner() {
           )}
         </span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+          <a href="/env-check" style={{ fontSize: 12, color: '#1D4ED8', textDecoration: 'underline' }}>Env check</a>
           <a href="/auth-diagnostics" style={{ fontSize: 12, color: '#1D4ED8', textDecoration: 'underline' }}>Auth diagnostics</a>
           <button onClick={hide} style={{ fontSize: 12, padding: '4px 8px', background: '#F59E0B', color: 'white', border: 0, borderRadius: 4, cursor: 'pointer' }}>Dismiss</button>
         </div>

@@ -42,6 +42,7 @@ const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const FeedbackAdmin = lazy(() => import('./pages/FeedbackAdmin'));
 const PatientProfilesDiagnostics = lazy(() => import('./pages/PatientProfilesDiagnostics'));
 const AuthDiagnostics = lazy(() => import('./pages/AuthDiagnostics'));
+const EnvCheck = lazy(() => import('./pages/EnvCheck'));
 const ClinicalDecisionSupport = lazy(() => import('./pages/ClinicalDecisionSupport'));
 const Research = lazy(() => import('./pages/Research'));
 const AuthPage = lazy(() => import('./pages/AuthPage'));
@@ -92,6 +93,7 @@ function AppWithAuth() {
                 <Route path="/logout" element={<Logout />} />
                 <Route path="/auth-debug" element={<AuthDebug />} />
                 <Route path="/force-logout" element={<ForceLogout />} />
+                <Route path="/env-check" element={<EnvCheck />} />
                 
                 {/* Emergency debug route - no auth logic */}
                 <Route path="/emergency-debug" element={

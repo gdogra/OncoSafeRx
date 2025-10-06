@@ -110,10 +110,29 @@ const ServerPatients: React.FC = () => {
         console.warn('⚠️ API health check failed:', healthError?.message);
       }
       
-      let resp = await fetch(`/api/patients?${params.toString()}`, { 
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        signal: AbortSignal.timeout(5000) // 5 second timeout
-      });
+      let resp: Response | null = null;
+      try {
+        resp = await fetch(`/api/patients?${params.toString()}`, { 
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          signal: AbortSignal.timeout(5000)
+        });
+      } catch (e: any) {
+        const isTimeout = e?.name === 'TimeoutError' || /timeout/i.test(String(e?.message || ''));
+        console.warn('⏱️ Primary patients fetch failed, timeout?', isTimeout, e?.message);
+        if (isTimeout) {
+          try {
+            // Force offline path on the API to avoid DB waits in dev
+            const offlineUrl = `/api/patients?${params.toString()}&offline=1`;
+            resp = await fetch(offlineUrl, { signal: AbortSignal.timeout(2000) });
+            console.log('🔁 Offline fallback response status:', resp.status);
+          } catch (fallbackErr) {
+            console.warn('⚠️ Offline fallback failed:', (fallbackErr as any)?.message);
+            throw e; // rethrow original timeout
+          }
+        } else {
+          throw e;
+        }
+      }
       
       console.log('📡 Patients API response:', {
         status: resp.status,
@@ -127,7 +146,7 @@ const ServerPatients: React.FC = () => {
         console.log('🔄 Authentication required - this is expected in production');
       }
       
-      if (resp.ok) {
+      if (resp && resp.ok) {
         const body = await resp.json();
         console.log('✅ Patients API success:', {
           patientsCount: body.patients?.length || 0,
@@ -142,14 +161,14 @@ const ServerPatients: React.FC = () => {
         if (opts?.resetPage) setPage(1);
       } else {
         // API call failed
-        console.error('❌ Patients API failed:', {
+        console.error('❌ Patients API failed:', resp ? {
           status: resp.status,
           statusText: resp.statusText,
           headers: Object.fromEntries(resp.headers.entries()),
           url: resp.url
-        });
+        } : { error: 'no response' });
         
-        const body = await resp.text();
+        const body = resp ? await resp.text() : 'no response';
         console.error('❌ Error response body:', body);
         
         // Clear patients list and show appropriate error

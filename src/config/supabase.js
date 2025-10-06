@@ -14,6 +14,7 @@ export class NoOpSupabaseService {
     this.enabled = false;
     // Simple in-memory stores for development without Supabase
     this.users = new Map(); // key: id, value: user object
+    this.patients = new Map(); // key: userId, value: Map(patientId -> record)
   }
 
   // Drug operations (no-op)
@@ -124,25 +125,47 @@ export class NoOpSupabaseService {
 
   // Patient management (no-op) - needed for patient routes
   listPatientsByUser(userId) {
-    // Return empty array - no patients stored in no-op mode
-    return Promise.resolve([]);
+    try {
+      const byUser = this.patients.get(String(userId));
+      if (!byUser) return Promise.resolve([]);
+      const arr = Array.from(byUser.values());
+      // Sort by updated_at desc
+      arr.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+      return Promise.resolve(arr);
+    } catch {
+      return Promise.resolve([]);
+    }
   }
 
   upsertPatient(userId, patientData) {
-    // Simulate successful save with generated ID
-    const id = patientData.id || randomUUID();
-    return Promise.resolve({ 
-      id, 
-      user_id: userId,
-      data: patientData,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    });
+    // Persist in-memory for dev
+    const uid = String(userId);
+    const now = new Date().toISOString();
+    let id = patientData.id || randomUUID();
+    let byUser = this.patients.get(uid);
+    if (!byUser) { byUser = new Map(); this.patients.set(uid, byUser); }
+    const existing = byUser.get(String(id));
+    const record = {
+      id: String(id),
+      user_id: uid,
+      data: { ...patientData, id: String(id) },
+      created_at: existing?.created_at || now,
+      updated_at: now,
+    };
+    byUser.set(String(id), record);
+    return Promise.resolve({ ...record });
   }
 
   deletePatient(userId, patientId) {
-    // Simulate successful deletion
-    return Promise.resolve(true);
+    try {
+      const uid = String(userId);
+      const byUser = this.patients.get(uid);
+      if (!byUser) return Promise.resolve(false);
+      const ok = byUser.delete(String(patientId));
+      return Promise.resolve(ok);
+    } catch {
+      return Promise.resolve(false);
+    }
   }
 
   // Feedback (no-op / dev fallback)

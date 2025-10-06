@@ -6,9 +6,10 @@ export default async (request: Request, context: Context) => {
     return new Response(null, {
       status: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*',
+        // Echo back the Origin for credentialed requests
+        'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
         'Access-Control-Max-Age': '86400',
       }
     });
@@ -33,13 +34,23 @@ export default async (request: Request, context: Context) => {
       }
     }
 
+    // Forward important headers including Origin and Authorization
+    const incoming = request.headers;
+    const forwardedHeaders: Record<string, string> = {
+      'Accept': incoming.get('accept') || 'application/json',
+      'Content-Type': incoming.get('content-type') || 'application/json',
+      'User-Agent': incoming.get('user-agent') || 'Netlify-Edge-Function/1.0',
+      'Origin': incoming.get('origin') || '',
+      'Authorization': incoming.get('authorization') || '',
+      'Cookie': incoming.get('cookie') || '',
+      'X-Forwarded-For': incoming.get('x-forwarded-for') || '',
+      'X-Forwarded-Host': url.host,
+      'X-Forwarded-Proto': url.protocol.replace(':',''),
+    };
+
     const response = await fetch(backendUrl, {
       method: request.method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'User-Agent': 'Netlify-Edge-Function/1.0',
-      },
+      headers: forwardedHeaders,
       body: body,
     });
 
@@ -49,9 +60,10 @@ export default async (request: Request, context: Context) => {
       statusText: response.statusText,
       headers: {
         ...Object.fromEntries(response.headers.entries()),
-        'Access-Control-Allow-Origin': url.origin,
+        // Echo back request Origin when available for proper CORS
+        'Access-Control-Allow-Origin': incoming.get('origin') || url.origin,
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
         'Access-Control-Allow-Credentials': 'true'
       }
     });
@@ -66,9 +78,9 @@ export default async (request: Request, context: Context) => {
       status: 502,
       headers: { 
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': url.origin,
+        'Access-Control-Allow-Origin': request.headers.get('origin') || url.origin,
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With'
       }
     });
   }

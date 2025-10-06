@@ -20,6 +20,7 @@ export default defineConfig({
     // },
     proxy: {
       '/api': {
+        // Match backend default PORT in src/index.js (3000)
         target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,

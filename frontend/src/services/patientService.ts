@@ -22,15 +22,10 @@ export class PatientService {
   // Get all patients from database (with localStorage fallback)
   public async getPatients(): Promise<Patient[]> {
     try {
-      // Skip auth headers in production to avoid SSL issues - backend has fallback auth
+      // Use minimal headers - backend has optional auth with fallback user
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
       };
-      
-      // Only add auth in development
-      if (window.location.hostname === 'localhost') {
-        headers['Authorization'] = `Bearer ${this.getAuthToken()}`;
-      }
       
       const response = await fetch(this.API_BASE_URL, {
         headers
@@ -39,7 +34,7 @@ export class PatientService {
       if (response.ok) {
         const data = await response.json();
         console.log(`✅ Loaded ${data.patients?.length || 0} patients from database`);
-        return data.patients || [];
+        return (data.patients || []).map((patient: any) => this.transformApiPatient(patient));
       } else {
         console.error(`❌ API call failed with status ${response.status}: ${response.statusText}`);
         console.error('🔄 Loading patients from localStorage instead');
@@ -66,15 +61,10 @@ export class PatientService {
   // Get patient by ID from database (with localStorage fallback)
   public async getPatient(id: string): Promise<Patient | null> {
     try {
-      // Skip auth headers in production to avoid SSL issues - backend has fallback auth
+      // Use minimal headers - backend has optional auth with fallback user
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
       };
-      
-      // Only add auth in development
-      if (window.location.hostname === 'localhost') {
-        headers['Authorization'] = `Bearer ${this.getAuthToken()}`;
-      }
       
       const response = await fetch(`${this.API_BASE_URL}/${id}`, {
         headers
@@ -82,7 +72,8 @@ export class PatientService {
       
       if (response.ok) {
         const data = await response.json();
-        return data.patient?.data || null;
+        const patientData = data.patient?.data || data.patient;
+        return patientData ? this.transformApiPatient(patientData) : null;
       } else {
         console.warn('API failed, falling back to localStorage');
         const patients = this.getPatientsFromLocalStorage();
@@ -98,26 +89,69 @@ export class PatientService {
   // Save patient to database (with localStorage fallback)
   public async savePatient(patient: Patient): Promise<Patient> {
     try {
-      // Skip auth headers in production to avoid SSL issues - backend has fallback auth
+      // Use minimal headers - backend has optional auth with fallback user
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
       };
       
-      // Only add auth in development
-      if (window.location.hostname === 'localhost') {
-        headers['Authorization'] = `Bearer ${this.getAuthToken()}`;
-      }
+      // Transform flat Patient structure to nested backend format
+      const backendPatient = {
+        id: patient.id,
+        demographics: {
+          firstName: patient.firstName,
+          lastName: patient.lastName,
+          dateOfBirth: patient.dateOfBirth,
+          sex: patient.gender,
+          mrn: patient.mrn,
+          heightCm: patient.height,
+          weightKg: patient.weight
+        },
+        allergies: patient.allergies || [],
+        medications: patient.currentMedications || [],
+        conditions: patient.contraindications?.map(c => ({ condition: c })) || [],
+        labValues: patient.labValues || [],
+        genetics: patient.genomicProfile?.variants || [],
+        vitals: [],
+        treatmentHistory: patient.treatmentHistory || [],
+        notes: [],
+        preferences: {},
+        lastUpdated: new Date().toISOString(),
+        isActive: true
+      };
+      
+      console.log('🔄 Transforming patient data:', { 
+        original: patient, 
+        transformed: backendPatient 
+      });
       
       const response = await fetch(this.API_BASE_URL, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ patient })
+        body: JSON.stringify({ patient: backendPatient })
       });
       
       if (response.ok) {
         const data = await response.json();
         console.log('✅ Patient saved to database successfully');
-        return data.patient?.data || patient;
+        
+        // Transform backend response back to frontend Patient format
+        const savedPatient = data.patient;
+        if (savedPatient?.data || savedPatient?.demographics) {
+          const demographics = savedPatient.data?.demographics || savedPatient.demographics;
+          return {
+            ...patient,
+            id: savedPatient.id || patient.id,
+            firstName: demographics?.firstName || patient.firstName,
+            lastName: demographics?.lastName || patient.lastName,
+            dateOfBirth: demographics?.dateOfBirth || patient.dateOfBirth,
+            gender: demographics?.sex || patient.gender,
+            mrn: demographics?.mrn || patient.mrn,
+            height: demographics?.heightCm || patient.height,
+            weight: demographics?.weightKg || patient.weight
+          };
+        }
+        
+        return patient;
       } else {
         console.error(`❌ API call failed with status ${response.status}: ${response.statusText}`);
         console.error('🔄 Falling back to localStorage - data will NOT persist across sessions');
@@ -154,15 +188,10 @@ export class PatientService {
   // Delete patient from database (with localStorage fallback)
   public async deletePatient(id: string): Promise<void> {
     try {
-      // Skip auth headers in production to avoid SSL issues - backend has fallback auth
+      // Use minimal headers - backend has optional auth with fallback user
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
       };
-      
-      // Only add auth in development
-      if (window.location.hostname === 'localhost') {
-        headers['Authorization'] = `Bearer ${this.getAuthToken()}`;
-      }
       
       const response = await fetch(`${this.API_BASE_URL}/${id}`, {
         method: 'DELETE',
@@ -196,15 +225,10 @@ export class PatientService {
   // Search patients from database (with localStorage fallback)
   public async searchPatients(query: string): Promise<Patient[]> {
     try {
-      // Skip auth headers in production to avoid SSL issues - backend has fallback auth
+      // Use minimal headers - backend has optional auth with fallback user
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
       };
-      
-      // Only add auth in development
-      if (window.location.hostname === 'localhost') {
-        headers['Authorization'] = `Bearer ${this.getAuthToken()}`;
-      }
       
       const response = await fetch(`${this.API_BASE_URL}?q=${encodeURIComponent(query)}`, {
         headers
@@ -212,7 +236,7 @@ export class PatientService {
       
       if (response.ok) {
         const data = await response.json();
-        return data.patients || [];
+        return (data.patients || []).map((patient: any) => this.transformApiPatient(patient));
       } else {
         console.warn('API failed, falling back to localStorage');
         return this.searchPatientsInLocalStorage(query);
@@ -330,7 +354,7 @@ export class PatientService {
     }> = [];
     
     // Add treatment events
-    patient.treatmentHistory.forEach(course => {
+    patient.treatmentHistory?.forEach(course => {
       timeline.push({
         date: course.startDate,
         type: 'treatment',
@@ -412,15 +436,15 @@ export class PatientService {
     
     const totalPatients = patients.length;
     const activePatients = patients.filter(p => 
-      p.treatmentHistory.some(course => !course.endDate)
+      p.treatmentHistory?.some(course => !course.endDate)
     ).length;
     
     const patientsOnTreatment = patients.filter(p =>
-      p.treatmentHistory.some(course => !course.endDate)
+      p.treatmentHistory?.some(course => !course.endDate)
     ).length;
     
     const completedTreatments = patients.reduce((sum, p) =>
-      sum + p.treatmentHistory.filter(course => course.endDate).length, 0
+      sum + (p.treatmentHistory?.filter(course => course.endDate).length || 0), 0
     );
     
     const ages = patients
@@ -492,6 +516,9 @@ export class PatientService {
       currentMedications: (apiPatient.medications || [])
         .filter((med: any) => med.isActive)
         .map((med: any) => med.drugName || med.drug),
+      treatmentHistory: apiPatient.treatmentHistory || [],
+      labValues: apiPatient.labValues || [],
+      biomarkers: apiPatient.biomarkers || [],
       genomicProfile: {
         variants: apiPatient.genetics || [],
         testDate: apiPatient.genetics?.[0]?.testDate || new Date().toISOString(),

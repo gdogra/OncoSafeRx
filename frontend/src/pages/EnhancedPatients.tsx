@@ -15,7 +15,8 @@ import {
   BarChart3,
   Clock,
   Heart,
-  Beaker
+  Beaker,
+  X
 } from 'lucide-react';
 import Card from '../components/UI/Card';
 import { Patient } from '../types/clinical';
@@ -32,8 +33,6 @@ const EnhancedPatients: React.FC = () => {
     const initializeData = async () => {
       await loadPatients();
       await loadStats();
-      // Generate sample data if none exists
-      patientService.generateSamplePatients();
     };
     initializeData();
   }, []);
@@ -94,13 +93,13 @@ const EnhancedPatients: React.FC = () => {
   };
 
   const getPatientStatus = (patient: Patient): { status: string; color: string } => {
-    const hasActiveTreatment = patient.treatmentHistory.some(course => !course.endDate);
+    const hasActiveTreatment = patient.treatmentHistory?.some(course => !course.endDate);
     
     if (hasActiveTreatment) {
       return { status: 'On Treatment', color: 'bg-green-100 text-green-800' };
     }
     
-    const hasRecentTreatment = patient.treatmentHistory.some(course => {
+    const hasRecentTreatment = patient.treatmentHistory?.some(course => {
       const endDate = new Date(course.endDate || '');
       const monthsAgo = (Date.now() - endDate.getTime()) / (1000 * 60 * 60 * 24 * 30);
       return monthsAgo < 3;
@@ -258,12 +257,12 @@ const EnhancedPatients: React.FC = () => {
                 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Creatinine</span>
-                  <span className="font-medium">{patient.renalFunction.creatinine} mg/dL</span>
+                  <span className="font-medium">{patient.renalFunction?.creatinine || 'N/A'} mg/dL</span>
                 </div>
                 
                 <div className="flex justify-between">
                   <span className="text-gray-600">Bilirubin</span>
-                  <span className="font-medium">{patient.hepaticFunction.bilirubin} mg/dL</span>
+                  <span className="font-medium">{patient.hepaticFunction?.bilirubin || 'N/A'} mg/dL</span>
                 </div>
               </div>
             </Card>
@@ -276,7 +275,7 @@ const EnhancedPatients: React.FC = () => {
               </h3>
               
               <div className="space-y-3">
-                {patient.currentMedications.map((med, index) => (
+                {patient.currentMedications?.map((med, index) => (
                   <div key={index} className="p-3 bg-gray-50 rounded-lg">
                     <div className="font-medium">{med.name}</div>
                     <div className="text-sm text-gray-600">{med.dose} • {med.frequency}</div>
@@ -284,14 +283,14 @@ const EnhancedPatients: React.FC = () => {
                   </div>
                 ))}
                 
-                {patient.currentMedications.length === 0 && (
+                {(!patient.currentMedications || patient.currentMedications.length === 0) && (
                   <div className="text-gray-500 text-center py-4">No current medications</div>
                 )}
               </div>
             </Card>
 
             {/* Biomarkers */}
-            {patient.biomarkers.length > 0 && (
+            {patient.biomarkers && patient.biomarkers.length > 0 && (
               <Card>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <Dna className="w-5 h-5 mr-2" />
@@ -299,7 +298,7 @@ const EnhancedPatients: React.FC = () => {
                 </h3>
                 
                 <div className="space-y-3">
-                  {patient.biomarkers.map((biomarker, index) => (
+                  {patient.biomarkers?.map((biomarker, index) => (
                     <div key={index} className="flex justify-between items-center">
                       <span className="text-gray-600">{biomarker.name}</span>
                       <div className="text-right">
@@ -323,7 +322,7 @@ const EnhancedPatients: React.FC = () => {
               </h3>
               
               <div className="space-y-4">
-                {patient.treatmentHistory.map((course, index) => (
+                {patient.treatmentHistory?.map((course, index) => (
                   <div key={index} className="p-4 border border-gray-200 rounded-lg">
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-medium text-gray-900">{course.regimenName}</h4>
@@ -345,10 +344,10 @@ const EnhancedPatients: React.FC = () => {
                       </div>
                       <div>Cycles: {course.cycles}</div>
                       
-                      {course.toxicities.length > 0 && (
+                      {course.toxicities?.length > 0 && (
                         <div className="mt-2">
                           <div className="text-xs font-medium text-gray-700 mb-1">Toxicities:</div>
-                          {course.toxicities.map((tox, toxIndex) => (
+                          {course.toxicities?.map((tox, toxIndex) => (
                             <div key={toxIndex} className="text-xs">
                               • {tox.name} (Grade {tox.grade}) - {tox.attribution}
                             </div>
@@ -359,14 +358,14 @@ const EnhancedPatients: React.FC = () => {
                   </div>
                 ))}
                 
-                {patient.treatmentHistory.length === 0 && (
+                {(!patient.treatmentHistory || patient.treatmentHistory.length === 0) && (
                   <div className="text-gray-500 text-center py-8">No treatment history</div>
                 )}
               </div>
             </Card>
 
             {/* Lab Values Trend */}
-            {patient.labValues.length > 0 && (
+            {patient.labValues && patient.labValues.length > 0 && (
               <Card>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <Beaker className="w-5 h-5 mr-2" />
@@ -385,7 +384,7 @@ const EnhancedPatients: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {patient.labValues.slice(0, 5).map((lab, index) => (
+                      {patient.labValues?.slice(0, 5).map((lab, index) => (
                         <tr key={index} className="border-b border-gray-100">
                           <td className="py-2 text-sm">{new Date(lab.date).toLocaleDateString()}</td>
                           <td className={`py-2 text-sm ${lab.hemoglobin < 10 ? 'text-red-600 font-medium' : ''}`}>

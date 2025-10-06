@@ -8,9 +8,19 @@ const router = express.Router();
 
 // All endpoints are no-ops if Supabase is not configured or user unauthenticated
 
+// Simple timeout helper to avoid client-side timeouts when upstream is slow
+function withTimeout(promise, ms) {
+  let t;
+  return Promise.race([
+    promise.finally(() => clearTimeout(t)),
+    new Promise((_, reject) => { t = setTimeout(() => reject(new Error('timeout')), ms); })
+  ]);
+}
+
 // Use optional auth for both development and production to allow fallback user
 router.get('/', optionalSupabaseAuth, async (req, res) => {
   try {
+    const forceOffline = String(req.query.offline || '') === '1';
     // Provide fallback user for both development and production (for demo purposes)
     if (!req.user) {
       req.user = {
@@ -22,14 +32,28 @@ router.get('/', optionalSupabaseAuth, async (req, res) => {
       console.log('🔄 Using default user (Gautam) for unauthenticated request');
     }
     
-    if (!supabaseService.enabled) {
-      return res.status(503).json({ error: 'Database service unavailable', patients: [], total: 0 });
+    // If Supabase is disabled or offline forced (dev), serve from in-memory store
+    if (forceOffline || !supabaseService.enabled) {
+      const list = await supabaseService.listPatientsByUser(req.user.id);
+      let patients = (list || []).map(r => ({ id: r.id, user_id: r.user_id, ...r.data }));
+      const total = patients.length;
+      const start = (page - 1) * pageSize;
+      const items = patients.slice(start, start + pageSize);
+      return res.json({ patients: items, total, page, pageSize, offline: true, defaultUser: !!req.user?.isDefault });
     }
     const q = String(req.query.q || '').toLowerCase().trim();
     const page = Math.max(1, parseInt(String(req.query.page || '1'), 10) || 1);
-    const pageSize = Math.min(50, Math.max(1, parseInt(String(req.query.pageSize || '10'), 10) || 10));
+    // If no pageSize is explicitly provided, return all patients (unpaginated)
+    const pageSize = req.query.pageSize ? Math.min(50, Math.max(1, parseInt(String(req.query.pageSize), 10) || 10)) : null;
 
-    const list = await supabaseService.listPatientsByUser(req.user.id);
+    // Bound Supabase call so UI doesn't hang in dev when upstream is slow
+    let list = null;
+    try {
+      list = await withTimeout(supabaseService.listPatientsByUser(req.user.id), 3500);
+    } catch (e) {
+      console.warn('patients: list timeout or error, returning offline fallback:', e?.message || e);
+      return res.json({ patients: [], total: 0, page, pageSize, offline: true, defaultUser: !!req.user?.isDefault });
+    }
     let patients = (list || []).map(r => ({ id: r.id, user_id: r.user_id, ...r.data }));
     if (q) {
       patients = patients.filter(p => {
@@ -42,13 +66,13 @@ router.get('/', optionalSupabaseAuth, async (req, res) => {
       });
     }
     const total = patients.length;
-    const start = (page - 1) * pageSize;
-    const items = patients.slice(start, start + pageSize);
+    // If pageSize is null, return all patients (unpaginated)
+    const items = pageSize ? patients.slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize) : patients;
     return res.json({ 
       patients: items, 
       total, 
-      page, 
-      pageSize, 
+      page: pageSize ? page : 1, 
+      pageSize: pageSize || total, 
       offline: false,
       defaultUser: !!req.user?.isDefault
     });
@@ -59,6 +83,7 @@ router.get('/', optionalSupabaseAuth, async (req, res) => {
 
 router.post('/', optionalSupabaseAuth, async (req, res) => {
   try {
+    const forceOffline = String(req.query.offline || '') === '1';
     // Provide fallback user for both development and production (for demo purposes)
     if (!req.user) {
       req.user = {
@@ -70,13 +95,12 @@ router.post('/', optionalSupabaseAuth, async (req, res) => {
       console.log('🔄 Using default user (Gautam) for patient creation');
     }
     
-    if (!supabaseService.enabled) {
-      // Graceful fallback: return a mock success so UI remains responsive in prod without DB
+    if (forceOffline || !supabaseService.enabled) {
       const patient = req.body?.patient;
       if (!patient) return res.status(400).json({ error: 'Missing patient' });
-      const mock = { ...patient, id: `mock-${Date.now()}` };
-      console.warn('Supabase disabled; returning mock patient success');
-      return res.json({ ok: true, patient: mock, offline: true, note: 'Supabase disabled; not persisted' });
+      // Use no-op service in-memory persistence for dev
+      const saved = await supabaseService.upsertPatient(req.user.id, patient);
+      return res.json({ ok: true, patient: saved, offline: true, note: 'Saved in-memory (dev mode)' });
     }
     const patient = req.body?.patient;
     if (!patient) return res.status(400).json({ error: 'Missing patient' });
@@ -195,7 +219,11 @@ router.get('/:id', optionalSupabaseAuth, async (req, res) => {
     }
     
     if (!supabaseService.enabled) {
-      return res.status(503).json({ error: 'Database service unavailable' });
+      const id = req.params.id;
+      const list = await supabaseService.listPatientsByUser(req.user.id);
+      const hit = (list || []).find(r => String(r.id) === String(id));
+      if (!hit) return res.status(404).json({ error: 'Not found' });
+      return res.json({ patient: hit, offline: true });
     }
     const id = req.params.id;
     const { data, error } = await supabaseService.client
@@ -225,7 +253,9 @@ router.delete('/:id', optionalSupabaseAuth, async (req, res) => {
     }
     
     if (!supabaseService.enabled) {
-      return res.status(503).json({ error: 'Database service unavailable' });
+      const id = req.params.id;
+      const ok = await supabaseService.deletePatient(req.user.id, id);
+      return res.json({ ok, offline: true });
     }
     const id = req.params.id;
     const ok = await supabaseService.deletePatient(req.user.id, id);

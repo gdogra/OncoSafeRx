@@ -741,6 +741,18 @@ const EnhancedPatients: React.FC = () => {
           </div>
         </Card>
       )}
+
+      {/* Mobile FAB for quick create */}
+      {viewMode !== 'create' && (
+        <button
+          onClick={handleCreatePatient}
+          className="fixed bottom-4 right-4 md:hidden inline-flex items-center justify-center rounded-full shadow-lg bg-blue-600 text-white w-12 h-12"
+          aria-label="Add Patient"
+          title="Add Patient"
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      )}
     </div>
   );
 };

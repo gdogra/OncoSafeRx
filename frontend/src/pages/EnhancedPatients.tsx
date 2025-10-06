@@ -45,6 +45,20 @@ const EnhancedPatients: React.FC = () => {
     initializeData();
   }, []);
 
+  // Restore last selected patient after loading list
+  useEffect(() => {
+    try {
+      if (!patients || !patients.length) return;
+      const lastId = localStorage.getItem('osrx_last_patient_id_enh');
+      if (!lastId) return;
+      const hit = patients.find(p => String(p.id) === String(lastId));
+      if (hit) {
+        setSelectedPatient(hit);
+        setViewMode('details');
+      }
+    } catch {}
+  }, [patients]);
+
   const loadPatients = async () => {
     const allPatients = await patientService.getPatients();
     setPatients(allPatients);
@@ -131,6 +145,7 @@ const EnhancedPatients: React.FC = () => {
         onClick={() => {
           setSelectedPatient(patient);
           setViewMode('details');
+          try { localStorage.setItem('osrx_last_patient_id_enh', String(patient.id)); } catch {}
         }}
       >
         <div className="flex items-start justify-between">

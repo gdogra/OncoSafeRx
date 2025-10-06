@@ -46,7 +46,12 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
       return '/api';
     }
     
-    // Fallback to environment variables for other cases
+    // FORCE relative /api for any non-localhost to prevent CORS issues
+    if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
+      return '/api';
+    }
+    
+    // Fallback to environment variables ONLY for localhost development
     const vite = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
     if (vite?.trim()) return vite;
     

@@ -639,6 +639,40 @@ const EnhancedPatients: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* One-time coach banner (production) */}
+      {(() => {
+        const [show, setShow] = ((): [boolean, (v: boolean) => void] => {
+          const [s, setS] = useState<boolean>(() => {
+            try {
+              if ((import.meta as any)?.env?.MODE !== 'production') return false;
+              return localStorage.getItem('osrx_tip_create_patient_seen') !== 'true';
+            } catch { return false; }
+          });
+          return [s, setS];
+        })();
+        const dismiss = () => { setShow(false); try { localStorage.setItem('osrx_tip_create_patient_seen','true'); } catch {} };
+        const highlight = () => {
+          try {
+            const el = document.getElementById('create-patient-btn-enh');
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              el.classList.add('ring-4','ring-blue-400');
+              setTimeout(() => el.classList.remove('ring-4','ring-blue-400'), 1600);
+            }
+          } catch {}
+        };
+        return show ? (
+          <div className="p-3 rounded-md border bg-blue-50 border-blue-200 flex items-center justify-between">
+            <div className="text-sm text-blue-900">
+              Tip: Use the "Add Patient" button to create a patient profile.
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={highlight} className="px-2 py-1 text-xs bg-white border border-blue-300 text-blue-700 rounded">Show me</button>
+              <button onClick={dismiss} className="px-2 py-1 text-xs bg-blue-600 text-white rounded">Got it</button>
+            </div>
+          </div>
+        ) : null;
+      })()}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
@@ -652,6 +686,7 @@ const EnhancedPatients: React.FC = () => {
         </div>
         
         <button 
+          id="create-patient-btn-enh"
           onClick={handleCreatePatient}
           className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
         >

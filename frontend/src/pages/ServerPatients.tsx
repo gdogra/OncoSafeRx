@@ -6,6 +6,7 @@ import { Search, ChevronLeft, ChevronRight, RefreshCw, Edit, X, Plus } from 'luc
 import { useToast } from '../components/UI/Toast';
 import ComprehensivePatientForm from '../components/Patient/ComprehensivePatientForm';
 // Always allow creating patients on this page (production UX request)
+import Coachmark from '../components/UI/Coachmark';
 
 const PAGE_SIZE = 10;
 
@@ -23,6 +24,13 @@ const ServerPatients: React.FC = () => {
   const [usingDemoData, setUsingDemoData] = useState(false);
   const [usingDefaultUser, setUsingDefaultUser] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showCoachBanner, setShowCoachBanner] = useState<boolean>(() => {
+    try {
+      if ((import.meta as any)?.env?.MODE !== 'production') return false;
+      return localStorage.getItem('osrx_tip_create_patient_seen') !== 'true';
+    } catch { return false; }
+  });
+  const [showCoach, setShowCoach] = useState(false);
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total]);
   const { showToast } = useToast();
   const canCreatePatients = true;
@@ -430,40 +438,17 @@ const ServerPatients: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* One-time coach banner (production) */}
-      {(() => {
-        const [show, setShow] = ((): [boolean, (v: boolean) => void] => {
-          // tiny inline state shim to avoid extra top-level hooks
-          const [s, setS] = useState<boolean>(() => {
-            try {
-              if ((import.meta as any)?.env?.MODE !== 'production') return false;
-              return localStorage.getItem('osrx_tip_create_patient_seen') !== 'true';
-            } catch { return false; }
-          });
-          return [s, setS];
-        })();
-        const dismiss = () => { setShow(false); try { localStorage.setItem('osrx_tip_create_patient_seen','true'); } catch {} };
-        const highlight = () => {
-          try {
-            const el = document.getElementById('create-patient-btn-all');
-            if (el) {
-              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              el.classList.add('ring-4','ring-green-400');
-              setTimeout(() => el.classList.remove('ring-4','ring-green-400'), 1600);
-            }
-          } catch {}
-        };
-        return show ? (
-          <div className="p-3 rounded-md border bg-green-50 border-green-200 flex items-center justify-between">
-            <div className="text-sm text-green-900">
-              Tip: Use the "Create Patient" button to add your first record.
-            </div>
-            <div className="flex items-center gap-2">
-              <button onClick={highlight} className="px-2 py-1 text-xs bg-white border border-green-300 text-green-700 rounded">Show me</button>
-              <button onClick={dismiss} className="px-2 py-1 text-xs bg-green-600 text-white rounded">Got it</button>
-            </div>
+      {showCoachBanner && (
+        <div className="p-3 rounded-md border bg-green-50 border-green-200 flex items-center justify-between">
+          <div className="text-sm text-green-900">
+            Tip: Use the "Create Patient" button to add your first record.
           </div>
-        ) : null;
-      })()}
+          <div className="flex items-center gap-2">
+            <button onClick={() => { setShowCoach(true); }} className="px-2 py-1 text-xs bg-white border border-green-300 text-green-700 rounded">Guide me</button>
+            <button onClick={() => { setShowCoachBanner(false); try { localStorage.setItem('osrx_tip_create_patient_seen','true'); } catch {} }} className="px-2 py-1 text-xs bg-green-600 text-white rounded">Got it</button>
+          </div>
+        </div>
+      )}
       {/* Page header with always-visible Create button */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -648,6 +633,18 @@ const ServerPatients: React.FC = () => {
         >
           <Plus className="w-6 h-6" />
         </button>
+      )}
+
+      {showCoach && (
+        <Coachmark
+          anchorId="create-patient-btn-all"
+          title="Create a Patient"
+          description="Click here to add your first patient. You can use the C key as a shortcut."
+          ctaLabel="Got it"
+          onCta={() => { setShowCoach(false); setShowCoachBanner(false); try { localStorage.setItem('osrx_tip_create_patient_seen','true'); } catch {} }}
+          onClose={() => setShowCoach(false)}
+          tone="green"
+        />
       )}
     </div>
   );

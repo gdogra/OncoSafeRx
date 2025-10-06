@@ -8,6 +8,7 @@ import { SelectionProvider } from './context/SelectionContext';
 import { ComparisonProvider } from './contexts/ComparisonContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import EnvDiagnosticsBanner from './components/System/EnvDiagnosticsBanner';
+import SessionRestorer from './components/System/SessionRestorer';
 import { ToastProvider } from './components/UI/Toast';
 import SecurityManager from './utils/security';
 import PerformanceMonitor from './utils/performance';
@@ -492,6 +493,7 @@ function App() {
     <ErrorBoundary>
       <EnvDiagnosticsBanner />
       <Router>
+        <SessionRestorer />
         <AppWithRouter />
       </Router>
     </ErrorBoundary>

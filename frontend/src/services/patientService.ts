@@ -38,13 +38,16 @@ export class PatientService {
       
       if (response.ok) {
         const data = await response.json();
+        console.log(`✅ Loaded ${data.patients?.length || 0} patients from database`);
         return data.patients || [];
       } else {
-        console.warn('API failed, falling back to localStorage');
+        console.error(`❌ API call failed with status ${response.status}: ${response.statusText}`);
+        console.error('🔄 Loading patients from localStorage instead');
         return this.getPatientsFromLocalStorage();
       }
     } catch (error) {
-      console.error('Error retrieving patients from API:', error);
+      console.error('❌ Network error loading patients from API:', error);
+      console.error('🔄 Loading patients from localStorage instead');
       return this.getPatientsFromLocalStorage();
     }
   }
@@ -113,15 +116,17 @@ export class PatientService {
       
       if (response.ok) {
         const data = await response.json();
-        console.log('✅ Patient saved to database');
+        console.log('✅ Patient saved to database successfully');
         return data.patient?.data || patient;
       } else {
-        console.warn('API failed, falling back to localStorage');
+        console.error(`❌ API call failed with status ${response.status}: ${response.statusText}`);
+        console.error('🔄 Falling back to localStorage - data will NOT persist across sessions');
         this.savePatientToLocalStorage(patient);
         return patient;
       }
     } catch (error) {
-      console.error('Error saving patient to API:', error);
+      console.error('❌ Network error saving patient to API:', error);
+      console.error('🔄 Falling back to localStorage - data will NOT persist across sessions');
       this.savePatientToLocalStorage(patient);
       return patient;
     }

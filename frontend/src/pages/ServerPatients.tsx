@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { Search, ChevronLeft, ChevronRight, RefreshCw, Edit, X, Plus } from 'lucide-react';
 import { useToast } from '../components/UI/Toast';
 import ComprehensivePatientForm from '../components/Patient/ComprehensivePatientForm';
+// Always allow creating patients on this page (production UX request)
 
 const PAGE_SIZE = 10;
 
@@ -24,6 +25,7 @@ const ServerPatients: React.FC = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total]);
   const { showToast } = useToast();
+  const canCreatePatients = true;
 
   // Keyboard shortcut: press "c" to open Create Patient (when not typing)
   useEffect(() => {
@@ -427,6 +429,21 @@ const ServerPatients: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Page header with always-visible Create button */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Search className="w-5 h-5 text-gray-400" />
+          <h1 className="text-xl font-semibold text-gray-900">All Patients</h1>
+        </div>
+        {canCreatePatients && (
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="px-3 py-2 bg-green-600 text-white rounded text-sm flex items-center gap-1"
+          >
+            <Plus className="w-4 h-4" /> Create Patient
+          </button>
+        )}
+      </div>
       <Card>
         <div className="flex items-center space-x-2 mb-4">
           <Search className="w-5 h-5 text-gray-400" />
@@ -473,9 +490,11 @@ const ServerPatients: React.FC = () => {
           <button onClick={() => fetchPatients()} className="px-3 py-2 bg-white border rounded text-sm flex items-center gap-1">
             <RefreshCw className="w-4 h-4" /> Refresh
           </button>
-          <button onClick={() => setShowCreateForm(true)} className="px-3 py-2 bg-green-600 text-white rounded text-sm flex items-center gap-1">
-            <Plus className="w-4 h-4" /> Create Patient
-          </button>
+          {canCreatePatients && (
+            <button onClick={() => setShowCreateForm(true)} className="px-3 py-2 bg-green-600 text-white rounded text-sm flex items-center gap-1">
+              <Plus className="w-4 h-4" /> Create Patient
+            </button>
+          )}
         </div>
 
         <div className="overflow-x-auto">
@@ -581,6 +600,18 @@ const ServerPatients: React.FC = () => {
           onSubmit={createNewPatient}
           onCancel={() => setShowCreateForm(false)}
         />
+      )}
+
+      {/* Mobile FAB for quick create */}
+      {canCreatePatients && !showCreateForm && (
+        <button
+          onClick={() => setShowCreateForm(true)}
+          className="fixed bottom-4 right-4 md:hidden inline-flex items-center justify-center rounded-full shadow-lg bg-green-600 text-white w-12 h-12"
+          aria-label="Create Patient"
+          title="Create Patient"
+        >
+          <Plus className="w-6 h-6" />
+        </button>
       )}
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useEffect, Suspense, lazy } from 'react';
 // Deployment test - timestamp: 2025-10-04-01:50 UTC
 import { appVersion } from './utils/env';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { PatientProvider } from './context/PatientContext';
 import { SelectionProvider } from './context/SelectionContext';
 import { ComparisonProvider } from './contexts/ComparisonContext';
@@ -75,7 +75,22 @@ const AdminLogin = lazy(() => import('./components/Admin/AdminLogin'));
 
 // Component that handles initialization inside AuthProvider
 function AppWithAuth() {
-  // Initialize visitor tracking (now inside AuthProvider)
+  // Get auth state to check if initialization is complete
+  const { state } = useAuth();
+  
+  // Wait for AuthProvider to finish initialization
+  if (state.isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-sm text-gray-600">Initializing...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Initialize visitor tracking (now inside AuthProvider, after initialization)
   useVisitorTracking();
   
   return (

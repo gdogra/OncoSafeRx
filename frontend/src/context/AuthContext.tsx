@@ -27,12 +27,13 @@ type AuthAction =
   | { type: 'AUTH_LOGOUT' }
   | { type: 'UPDATE_PROFILE'; payload: Partial<UserProfile> }
   | { type: 'SWITCH_PERSONA'; payload: UserPersona }
-  | { type: 'SET_ERROR'; payload: string | null };
+  | { type: 'SET_ERROR'; payload: string | null }
+  | { type: 'AUTH_INITIALIZED' };
 
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true, // Start as loading until initialization is complete
   error: null,
 };
 
@@ -80,6 +81,8 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
       };
     case 'SET_ERROR':
       return { ...state, error: action.payload };
+    case 'AUTH_INITIALIZED':
+      return { ...state, isLoading: false };
     default:
       return state;
   }
@@ -196,6 +199,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } catch (error) {
         console.error('❌ AuthContext: Error checking current user:', error);
+      } finally {
+        // Always mark as initialized, even if there's no user
+        if (mounted) {
+          dispatch({ type: 'AUTH_INITIALIZED' });
+        }
       }
     };
 

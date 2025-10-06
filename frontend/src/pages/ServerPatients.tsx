@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Card from '../components/UI/Card';
 import { usePatient } from '../context/PatientContext';
 import { supabase } from '../lib/supabase';
@@ -34,6 +34,7 @@ const ServerPatients: React.FC = () => {
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total]);
   const { showToast } = useToast();
   const canCreatePatients = true;
+  const restoredPatientRef = useRef(false);
 
   // Keyboard shortcut: press "c" to open Create Patient (when not typing)
   useEffect(() => {
@@ -168,6 +169,20 @@ const ServerPatients: React.FC = () => {
         setTotal(body.total || 0);
         setUsingDemoData(body.offline || false);
         setUsingDefaultUser(!!body.defaultUser);
+        // Attempt to restore last-selected patient once per load
+        try {
+          if (!restoredPatientRef.current && Array.isArray(body.patients) && body.patients.length) {
+            const lastId = localStorage.getItem('osrx_last_patient_id');
+            if (lastId) {
+              const hit = body.patients.find((x: any) => String(x.id) === String(lastId));
+              if (hit) {
+                actions.setCurrentPatient(hit.data || hit);
+                restoredPatientRef.current = true;
+                console.log('🔁 Restored last-selected patient from storage:', lastId);
+              }
+            }
+          }
+        } catch {}
         if (opts?.resetPage) setPage(1);
       } else {
         // API call failed
@@ -324,6 +339,7 @@ const ServerPatients: React.FC = () => {
           if (serverPatient) {
             console.log('🏥 Updating context with server patient...');
             actions.setCurrentPatient(serverPatient);
+            try { localStorage.setItem('osrx_last_patient_id', String(serverPatient.id || '')); } catch {}
           }
           
           console.log('🏥 ✅ Showing success toast...');
@@ -367,6 +383,7 @@ const ServerPatients: React.FC = () => {
   const selectAndClose = (p: any) => {
     const data = p.data || p;
     actions.setCurrentPatient({ ...data, id: p.id || data.id });
+    try { localStorage.setItem('osrx_last_patient_id', String(p.id || data.id)); } catch {}
   };
 
   const openEdit = (p: any) => {

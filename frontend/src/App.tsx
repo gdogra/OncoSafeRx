@@ -478,6 +478,8 @@ function AppWithRouter() {
 
   return (
     <AuthProvider>
+      {/* SessionRestorer must be inside AuthProvider to access useAuth */}
+      <SessionRestorer />
       <AppWithAuth />
     </AuthProvider>
   );
@@ -508,7 +510,6 @@ function App() {
     <ErrorBoundary>
       <EnvDiagnosticsBanner />
       <Router>
-        <SessionRestorer />
         <AppWithRouter />
       </Router>
     </ErrorBoundary>

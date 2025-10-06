@@ -20,8 +20,11 @@ export default async (request: Request, context: Context) => {
   const apiPath = url.pathname.replace('/api/', '');
   const search = url.search;
   
-  // Forward to Render backend
-  const backendUrl = `https://oncosaferx-backend.onrender.com/api/${apiPath}${search}`;
+  // Forward to Render backend (use env BACKEND_URL if provided)
+  const backendBase = (context as any)?.env?.BACKEND_URL
+    || (globalThis as any)?.BACKEND_URL
+    || 'https://oncosaferx-backend.onrender.com';
+  const backendUrl = `${backendBase.replace(/\/$/, '')}/api/${apiPath}${search}`;
   
   try {
     // Get body for non-GET requests

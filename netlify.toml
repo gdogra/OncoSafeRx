@@ -11,8 +11,8 @@
   GENERATE_SOURCEMAP = "false"
   CI = "false"
   BUILD_TIMEOUT = "15"
-  # Force cache bust for production fix - 2025-10-05T00:47:00Z
-  BUILD_TIMESTAMP = "2025-10-05T00:47:00Z"
+  # Force cache bust for production fix - 2025-10-06T18:00:00Z
+  BUILD_TIMESTAMP = "2025-10-06T18:00:00Z"
 
 # API proxy handled by Edge Functions (see netlify/edge-functions/api-proxy.ts)
 

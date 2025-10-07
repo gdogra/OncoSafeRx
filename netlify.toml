@@ -1,7 +1,7 @@
 [build]
-  base = "."
-  publish = "public"
-  command = "echo 'EMERGENCY STATIC DEPLOY 2025-10-07 09:00' && echo 'Deploying static files directly from public/' && ls -la public/ && echo 'BUILD COMPLETE'"
+  base = "frontend"
+  publish = "frontend/dist"
+  command = "rm -rf node_modules/.cache && rm -rf dist && rm -f .env && echo 'VITE_API_URL=/api' > .env && echo 'VITE_SUPABASE_URL=https://emfrwckxctyarphjvfeu.supabase.co' >> .env && echo 'VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c' >> .env && npm ci --legacy-peer-deps && npm run build && echo 'Static files in dist:' && ls -la dist/*.html"
 
 [build.environment]
   NODE_VERSION = "20.19.1"
@@ -11,8 +11,8 @@
   GENERATE_SOURCEMAP = "false"
   CI = "false"
   BUILD_TIMEOUT = "15"
-  # Force cache bust for production fix - 2025-10-07T08:40:00Z  
-  BUILD_TIMESTAMP = "2025-10-07T08:40:00Z"
+  # Force cache bust for production fix - 2025-10-07T09:15:00Z  
+  BUILD_TIMESTAMP = "2025-10-07T09:15:00Z"
   # Backend base URL for Edge proxy
   BACKEND_URL = "https://oncosaferx.onrender.com"
 
@@ -24,7 +24,6 @@
   force = true
 
 # SPA fallback so client-side routes work  
-# Note: Static .html files in public/ should be served directly without redirect
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -55,8 +54,7 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "no-referrer-when-downgrade"
     Permissions-Policy = "geolocation=*, microphone=(), camera=()"
-    # TEMP: disable HSTS during TLS troubleshooting. Re-enable after cert is green.
-    # Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://emfrwckxctyarphjvfeu.supabase.co wss://emfrwckxctyarphjvfeu.supabase.co https://oncosaferx.onrender.com https://oncosaferx-backend.onrender.com; worker-src 'self' blob:; frame-ancestors 'none'; object-src 'none'"
 
 [context.production.environment]
@@ -68,7 +66,7 @@
   VITE_SUPABASE_URL = "https://emfrwckxctyarphjvfeu.supabase.co"
   VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c"
   # Switch to Edge Functions for API proxy
-  BUILD_ID = "complete-supabase-fix-20251006-184500"
+  BUILD_ID = "restore-working-config-20251007-0915"
 
 [context.deploy-preview.environment]
   VITE_API_URL = "https://your-preview-api.example.com/api"

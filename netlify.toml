@@ -1,7 +1,7 @@
 [build]
   base = "frontend"
   publish = "frontend/dist"
-  command = "rm -rf node_modules/.cache && rm -rf dist && rm -f .env && echo 'VITE_API_URL=/api' > .env && echo 'VITE_SUPABASE_URL=https://emfrwckxctyarphjvfeu.supabase.co' >> .env && echo 'VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c' >> .env && npm ci --legacy-peer-deps && npm run build"
+  command = "rm -rf node_modules/.cache && rm -rf dist && rm -f .env && echo 'VITE_API_URL=/api' > .env && echo 'VITE_SUPABASE_URL=https://emfrwckxctyarphjvfeu.supabase.co' >> .env && echo 'VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c' >> .env && npm ci --legacy-peer-deps && npm run build && echo 'Static files in dist:' && ls -la dist/*.html"
 
 [build.environment]
   NODE_VERSION = "20.19.1"
@@ -11,8 +11,8 @@
   GENERATE_SOURCEMAP = "false"
   CI = "false"
   BUILD_TIMEOUT = "15"
-  # Force cache bust for production fix - 2025-10-07T02:55:00Z
-  BUILD_TIMESTAMP = "2025-10-07T02:55:00Z"
+  # Force cache bust for production fix - 2025-10-07T02:58:00Z
+  BUILD_TIMESTAMP = "2025-10-07T02:58:00Z"
   # Backend base URL for Edge proxy
   BACKEND_URL = "https://oncosaferx.onrender.com"
 
@@ -23,7 +23,8 @@
   status = 200
   force = true
 
-# SPA fallback so client-side routes work
+# SPA fallback so client-side routes work  
+# Note: Static .html files in public/ should be served directly without redirect
 [[redirects]]
   from = "/*"
   to = "/index.html"

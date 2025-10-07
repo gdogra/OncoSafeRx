@@ -1,12 +1,10 @@
 import type { Context } from "https://edge.netlify.com/";
 
 export default async (request: Request, context: Context) => {
-  // Handle preflight OPTIONS requests
   if (request.method === 'OPTIONS') {
     return new Response(null, {
       status: 200,
       headers: {
-        // Echo back the Origin for credentialed requests
         'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
@@ -15,29 +13,21 @@ export default async (request: Request, context: Context) => {
     });
   }
 
-  // Extract the path after /api/
   const url = new URL(request.url);
   const apiPath = url.pathname.replace('/api/', '');
   const search = url.search;
-  
-  // Forward to Render backend (use env BACKEND_URL if provided)
+
   const backendBase = (context as any)?.env?.BACKEND_URL
     || (globalThis as any)?.BACKEND_URL
     || 'https://oncosaferx.onrender.com';
   const backendUrl = `${backendBase.replace(/\/$/, '')}/api/${apiPath}${search}`;
-  
+
   try {
-    // Get body for non-GET requests
-    let body = undefined;
-    if (request.method !== 'GET' && request.method !== 'HEAD') {
-      try {
-        body = await request.text();
-      } catch (e) {
-        console.error('Error reading request body:', e);
-      }
+    let body: string | undefined = undefined;
+    if (!['GET','HEAD'].includes(request.method)) {
+      try { body = await request.text(); } catch {}
     }
 
-    // Forward important headers including Origin and Authorization
     const incoming = request.headers;
     const forwardedHeaders: Record<string, string> = {
       'Accept': incoming.get('accept') || 'application/json',
@@ -46,49 +36,39 @@ export default async (request: Request, context: Context) => {
       'Origin': incoming.get('origin') || '',
       'Authorization': incoming.get('authorization') || '',
       'Cookie': incoming.get('cookie') || '',
-      'X-Forwarded-For': incoming.get('x-forwarded-for') || '',
       'X-Forwarded-Host': url.host,
       'X-Forwarded-Proto': url.protocol.replace(':',''),
     };
 
-    const response = await fetch(backendUrl, {
+    const resp = await fetch(backendUrl, {
       method: request.method,
       headers: forwardedHeaders,
-      body: body,
+      body,
     });
 
-    // Clone response and add CORS headers
-    const modifiedResponse = new Response(response.body, {
-      status: response.status,
-      statusText: response.statusText,
+    return new Response(resp.body, {
+      status: resp.status,
+      statusText: resp.statusText,
       headers: {
-        ...Object.fromEntries(response.headers.entries()),
-        // Echo back request Origin when available for proper CORS
+        ...Object.fromEntries(resp.headers.entries()),
         'Access-Control-Allow-Origin': incoming.get('origin') || url.origin,
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
-        'Access-Control-Allow-Credentials': 'true'
+        'Access-Control-Allow-Credentials': 'true',
       }
     });
-
-    return modifiedResponse;
-  } catch (error) {
-    console.error('Edge function proxy error:', error);
-    return new Response(JSON.stringify({ 
-      error: 'Proxy error', 
-      message: error instanceof Error ? error.message : 'Unknown error' 
-    }), {
+  } catch (error: any) {
+    return new Response(JSON.stringify({ error: 'Proxy error', message: error?.message || 'Unknown' }), {
       status: 502,
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': request.headers.get('origin') || url.origin,
+        'Access-Control-Allow-Origin': url.origin,
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
       }
     });
   }
 };
 
-export const config = {
-  path: "/api/*"
-};
+export const config = { path: "/api/*" };
+

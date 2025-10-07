@@ -14,7 +14,7 @@
   # Force cache bust for production fix - 2025-10-06T23:50:00Z
   BUILD_TIMESTAMP = "2025-10-06T23:50:00Z"
   # Backend base URL for Edge proxy
-  BACKEND_URL = "https://oncosaferx-07yv.onrender.com"
+  BACKEND_URL = "https://oncosaferx.onrender.com"
 
 # API proxy via redirects (simpler approach)
 [[redirects]]
@@ -56,7 +56,7 @@
     Permissions-Policy = "geolocation=*, microphone=(), camera=()"
     # TEMP: disable HSTS during TLS troubleshooting. Re-enable after cert is green.
     # Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://emfrwckxctyarphjvfeu.supabase.co wss://emfrwckxctyarphjvfeu.supabase.co https://api.oncosaferx.com https://oncosaferx-backend.onrender.com https://oncosaferx-07yv.onrender.com; frame-ancestors 'none'; object-src 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://emfrwckxctyarphjvfeu.supabase.co wss://emfrwckxctyarphjvfeu.supabase.co https://oncosaferx.onrender.com; frame-ancestors 'none'; object-src 'none'"
 
 [context.production.environment]
   # Force API proxy usage for production

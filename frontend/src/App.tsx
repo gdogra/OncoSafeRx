@@ -78,8 +78,9 @@ function AppWithAuth() {
   // Get auth state to check if initialization is complete
   const { state } = useAuth();
   
+  // EMERGENCY: Bypass loading check to force rendering in production
   // Wait for AuthProvider to finish initialization
-  if (state.isLoading) {
+  if (false && state.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">

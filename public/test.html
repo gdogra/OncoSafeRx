@@ -2,14 +2,47 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline';">
-    <title>Test React Loading</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://emfrwckxctyarphjvfeu.supabase.co wss://emfrwckxctyarphjvfeu.supabase.co https://oncosaferx.onrender.com https://oncosaferx-backend.onrender.com; worker-src 'self' blob:; frame-ancestors 'none'; object-src 'none'">
+    <title>OncoSafeRx Diagnostic Test</title>
 </head>
 <body>
-    <div id="root">Loading...</div>
+    <h1>OncoSafeRx Production Diagnostic</h1>
+    <div id="js-status">JavaScript loading...</div>
+    <div id="module-status">Module test...</div>
+    <div id="react-status">React test...</div>
+    <div id="bundle-status">Bundle test...</div>
+    
     <script>
-        document.getElementById('root').innerHTML = 'JavaScript is working!';
-        console.log('Test page loaded successfully');
+        try {
+            // Test 1: Basic JavaScript
+            document.getElementById('js-status').innerHTML = '✅ JavaScript working';
+            document.getElementById('js-status').style.color = 'green';
+            
+            // Test 2: Try to load the actual bundle
+            const script = document.createElement('script');
+            script.src = '/assets/index-Bhw970Mt.js';
+            script.onload = function() {
+                document.getElementById('bundle-status').innerHTML = '✅ Bundle loaded successfully';
+                document.getElementById('bundle-status').style.color = 'green';
+            };
+            script.onerror = function() {
+                document.getElementById('bundle-status').innerHTML = '❌ Bundle failed to load';
+                document.getElementById('bundle-status').style.color = 'red';
+            };
+            document.head.appendChild(script);
+            
+            // Test 3: Module support
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                document.getElementById('module-status').innerHTML = '✅ Modern APIs available';
+                document.getElementById('module-status').style.color = 'green';
+            } else {
+                document.getElementById('module-status').innerHTML = '❌ Modern APIs missing';
+                document.getElementById('module-status').style.color = 'red';
+            }
+            
+        } catch (error) {
+            document.body.innerHTML += '<div style="color: red;">Error: ' + error.message + '</div>';
+        }
     </script>
 </body>
 </html>

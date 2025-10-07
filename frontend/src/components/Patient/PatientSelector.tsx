@@ -121,7 +121,7 @@ const PatientSelector: React.FC = () => {
       }
 
       const newPatient: PatientProfile = {
-        id: `patient-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: crypto.randomUUID(),
         demographics,
         allergies: patientData.allergies || [],
         medications: [],

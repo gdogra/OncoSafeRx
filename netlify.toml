@@ -1,7 +1,7 @@
 [build]
   base = "frontend"
   publish = "frontend/dist"
-  command = "rm -rf node_modules/.cache && rm -rf dist && rm -f .env && echo 'VITE_API_URL=/api' > .env && npm ci --legacy-peer-deps && npm run build"
+  command = "rm -rf node_modules/.cache && rm -rf dist && rm -f .env && echo 'VITE_API_URL=/api' > .env && echo 'VITE_SUPABASE_URL=https://emfrwckxctyarphjvfeu.supabase.co' >> .env && echo 'VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c' >> .env && npm ci --legacy-peer-deps && npm run build"
 
 [build.environment]
   NODE_VERSION = "20.19.1"
@@ -15,9 +15,6 @@
   BUILD_TIMESTAMP = "2025-10-06T23:50:00Z"
   # Backend base URL for Edge proxy
   BACKEND_URL = "https://oncosaferx-07yv.onrender.com"
-
-[edge_functions]
-  directory = "frontend/netlify/edge-functions"
 
 # API proxy handled by Edge Functions (see netlify/edge-functions/api-proxy.ts)
 [[edge_functions]]

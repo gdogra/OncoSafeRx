@@ -89,6 +89,9 @@ export class PatientService {
   // Save patient to database (with localStorage fallback)
   public async savePatient(patient: Patient): Promise<Patient> {
     try {
+      console.log('🚀 savePatient called with:', { id: patient.id, name: `${patient.firstName} ${patient.lastName}` });
+      console.log('🌐 API_BASE_URL:', this.API_BASE_URL);
+      
       // Use minimal headers - backend has optional auth with fallback user
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
@@ -124,11 +127,16 @@ export class PatientService {
         transformed: backendPatient 
       });
       
+      console.log('📤 Making POST request to:', this.API_BASE_URL);
+      console.log('📤 Request payload:', { patient: backendPatient });
+      
       const response = await fetch(this.API_BASE_URL, {
         method: 'POST',
         headers,
         body: JSON.stringify({ patient: backendPatient })
       });
+      
+      console.log('📨 Response status:', response.status, response.statusText);
       
       if (response.ok) {
         const data = await response.json();
@@ -153,7 +161,9 @@ export class PatientService {
         
         return patient;
       } else {
+        const errorText = await response.text();
         console.error(`❌ API call failed with status ${response.status}: ${response.statusText}`);
+        console.error('❌ Error response body:', errorText);
         console.error('🔄 Falling back to localStorage - data will NOT persist across sessions');
         this.savePatientToLocalStorage(patient);
         return patient;

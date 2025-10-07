@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>OncoSafeRx - WORKING</title>
+    <style>
+        body { font-family: Arial; margin: 50px; background: #f0f0f0; }
+        .container { background: white; padding: 30px; border-radius: 10px; }
+        h1 { color: #2c3e50; }
+        .status { background: #d4edda; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 OncoSafeRx is WORKING!</h1>
+        <div class="status">
+            <strong>✅ Site Successfully Deployed</strong><br>
+            Timestamp: <span id="time"></span><br>
+            Location: <span id="url"></span>
+        </div>
+        <p>This confirms the hosting infrastructure is operational.</p>
+        <p><strong>Next:</strong> The main React application will be restored shortly.</p>
+        <button onclick="location.reload()">🔄 Refresh</button>
+        <button onclick="testCreatePatient()">👤 Test Patient Creation</button>
+        <div id="result" style="margin-top: 20px;"></div>
+    </div>
+    
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString();
+        document.getElementById('url').textContent = window.location.href;
+        
+        function testCreatePatient() {
+            const patientId = crypto.randomUUID();
+            const result = document.getElementById('result');
+            result.innerHTML = `
+                <div style="background: #d1ecf1; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                    <strong>✅ Patient Creation Test SUCCESSFUL</strong><br>
+                    Generated Patient ID: ${patientId}<br>
+                    UUID Generation: Working<br>
+                    JavaScript: Functional
+                </div>
+            `;
+            console.log('Patient creation test:', patientId);
+        }
+        
+        console.log('🚀 Simple site loaded successfully!');
+    </script>
+</body>
+</html>

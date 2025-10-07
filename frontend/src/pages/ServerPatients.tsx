@@ -34,6 +34,18 @@ const ServerPatients: React.FC = () => {
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total]);
   const { showToast } = useToast();
   const canCreatePatients = true;
+  
+  // Debug logging for production
+  useEffect(() => {
+    console.log('🔍 ServerPatients DEBUG:', {
+      canCreatePatients,
+      showCreateForm,
+      patientsCount: patients.length,
+      loading,
+      usingDemoData,
+      usingDefaultUser
+    });
+  }, [canCreatePatients, showCreateForm, patients.length, loading, usingDemoData, usingDefaultUser]);
   const restoredPatientRef = useRef(false);
 
   // Keyboard shortcut: press "c" to open Create Patient (when not typing)
@@ -454,6 +466,13 @@ const ServerPatients: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Debug info for production troubleshooting */}
+      {(import.meta as any)?.env?.MODE === 'production' && (
+        <div className="p-2 bg-yellow-100 border border-yellow-300 rounded text-xs">
+          <strong>DEBUG:</strong> canCreatePatients={String(canCreatePatients)}, patients={patients.length}, loading={String(loading)}
+        </div>
+      )}
+      
       {/* One-time coach banner (production) */}
       {showCoachBanner && (
         <div className="p-3 rounded-md border bg-green-50 border-green-200 flex items-center justify-between">
@@ -472,15 +491,14 @@ const ServerPatients: React.FC = () => {
           <Search className="w-5 h-5 text-gray-400" />
           <h1 className="text-xl font-semibold text-gray-900">All Patients</h1>
         </div>
-        {canCreatePatients && (
-          <button
-            id="create-patient-btn-all"
-            onClick={() => setShowCreateForm(true)}
-            className="px-3 py-2 bg-green-600 text-white rounded text-sm flex items-center gap-1"
-          >
-            <Plus className="w-4 h-4" /> Create Patient
-          </button>
-        )}
+        {/* Always show create button in production */}
+        <button
+          id="create-patient-btn-all"
+          onClick={() => setShowCreateForm(true)}
+          className="px-3 py-2 bg-green-600 text-white rounded text-sm flex items-center gap-1"
+        >
+          <Plus className="w-4 h-4" /> Create Patient
+        </button>
       </div>
       <Card>
         <div className="flex items-center space-x-2 mb-4">
@@ -528,11 +546,9 @@ const ServerPatients: React.FC = () => {
           <button onClick={() => fetchPatients()} className="px-3 py-2 bg-white border rounded text-sm flex items-center gap-1">
             <RefreshCw className="w-4 h-4" /> Refresh
           </button>
-          {canCreatePatients && (
-            <button onClick={() => setShowCreateForm(true)} className="px-3 py-2 bg-green-600 text-white rounded text-sm flex items-center gap-1">
-              <Plus className="w-4 h-4" /> Create Patient
-            </button>
-          )}
+          <button onClick={() => setShowCreateForm(true)} className="px-3 py-2 bg-green-600 text-white rounded text-sm flex items-center gap-1">
+            <Plus className="w-4 h-4" /> Create Patient
+          </button>
         </div>
 
         <div className="overflow-x-auto">

@@ -186,6 +186,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     let mounted = true;
 
+    // Failsafe timeout to prevent infinite loading
+    const failsafeTimeout = setTimeout(() => {
+      if (mounted) {
+        console.warn('🚨 AuthContext: Failsafe timeout triggered - forcing initialization complete');
+        dispatch({ type: 'AUTH_INITIALIZED' });
+      }
+    }, 3000); // 3 second timeout
+
     // Check for current session
     const checkCurrentUser = async () => {
       try {
@@ -202,6 +210,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } finally {
         // Always mark as initialized, even if there's no user
         if (mounted) {
+          clearTimeout(failsafeTimeout);
           dispatch({ type: 'AUTH_INITIALIZED' });
         }
       }
@@ -222,6 +231,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => {
       mounted = false;
+      clearTimeout(failsafeTimeout);
       subscription?.unsubscribe();
     };
   }, []);

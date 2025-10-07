@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>OncoSafeRx - Mobile Workflows</title>
+    <meta name="theme-color" content="#1e40af">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" href="/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header .subtitle {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .quick-action {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .quick-action:active {
+            transform: scale(0.95);
+            background: #f1f5f9;
+        }
+
+        .quick-action .icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .quick-action .label {
+            font-weight: 600;
+            color: #334155;
+            font-size: 0.9em;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title .icon {
+            margin-right: 10px;
+            font-size: 1.1em;
+        }
+
+        .workflow-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #3b82f6;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .workflow-card:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .workflow-card .header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            background: none;
+            color: inherit;
+            padding: 0;
+            position: static;
+            box-shadow: none;
+        }
+
+        .workflow-card .title {
+            font-weight: 600;
+            color: #1e293b;
+            flex: 1;
+        }
+
+        .workflow-card .status {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        .workflow-card .status.completed {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .workflow-card .status.paused {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .workflow-card .description {
+            color: #64748b;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .workflow-card .progress {
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #3b82f6;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        .workflow-card .meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8em;
+            color: #64748b;
+            margin-top: 10px;
+        }
+
+        .emergency-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #dc2626;
+            color: white;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+
+        .emergency-button:active {
+            transform: scale(0.9);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .offline-indicator {
+            background: #fecaca;
+            color: #dc2626;
+            padding: 10px;
+            text-align: center;
+            font-size: 0.9em;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .offline-indicator.show {
+            display: block;
+        }
+
+        .sync-indicator {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: #059669;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            transform: translateX(100px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sync-indicator.show {
+            transform: translateX(0);
+        }
+
+        .touch-feedback {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.3);
+            pointer-events: none;
+            transform: scale(0);
+            animation: touchRipple 0.6s ease-out;
+        }
+
+        @keyframes touchRipple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        .fab-menu {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            z-index: 999;
+        }
+
+        .fab-action {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            margin-bottom: 10px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: scale(0);
+            transition: transform 0.2s ease;
+        }
+
+        .fab-menu.open .fab-action {
+            transform: scale(1);
+        }
+
+        .fab-action:nth-child(1) { transition-delay: 0.1s; }
+        .fab-action:nth-child(2) { transition-delay: 0.2s; }
+        .fab-action:nth-child(3) { transition-delay: 0.3s; }
+
+        @media (max-width: 375px) {
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🩺 OncoSafeRx Mobile</h1>
+        <div class="subtitle">Touch-optimized clinical workflows</div>
+    </div>
+
+    <div class="offline-indicator" id="offlineIndicator">
+        📴 Working offline - Your changes will sync when connected
+    </div>
+
+    <div class="sync-indicator" id="syncIndicator">
+        ✅ Synced
+    </div>
+
+    <div class="container">
+        <div class="quick-actions">
+            <button class="quick-action" onclick="handleQuickAction('start-workflow')">
+                <div class="icon">▶️</div>
+                <div class="label">Start Workflow</div>
+            </button>
+            
+            <button class="quick-action" onclick="handleQuickAction('safety-check')">
+                <div class="icon">🛡️</div>
+                <div class="label">Safety Check</div>
+            </button>
+            
+            <button class="quick-action" onclick="handleQuickAction('drug-lookup')">
+                <div class="icon">💊</div>
+                <div class="label">Drug Lookup</div>
+            </button>
+            
+            <button class="quick-action" onclick="handleQuickAction('patient-search')">
+                <div class="icon">🔍</div>
+                <div class="label">Find Patient</div>
+            </button>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <span class="icon">⚡</span>
+                Active Workflows
+            </div>
+            
+            <div class="workflow-card" onclick="openWorkflow('wf-001')">
+                <div class="header">
+                    <div class="title">Chemotherapy Safety Check</div>
+                    <div class="status">active</div>
+                </div>
+                <div class="description">Patient: Sarah Chen • Step 2 of 4</div>
+                <div class="progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%"></div>
+                    </div>
+                </div>
+                <div class="meta">
+                    <span>Started 15m ago</span>
+                    <span>Est. 10m remaining</span>
+                </div>
+            </div>
+
+            <div class="workflow-card" onclick="openWorkflow('wf-002')">
+                <div class="header">
+                    <div class="title">New Patient Workup</div>
+                    <div class="status">active</div>
+                </div>
+                <div class="description">Patient: James Wilson • Step 1 of 4</div>
+                <div class="progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 25%"></div>
+                    </div>
+                </div>
+                <div class="meta">
+                    <span>Started 5m ago</span>
+                    <span>Est. 35m remaining</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">
+                <span class="icon">📋</span>
+                Recent Templates
+            </div>
+            
+            <div class="workflow-card" onclick="startTemplate('template-001')">
+                <div class="header">
+                    <div class="title">Pre-Medication Assessment</div>
+                    <div class="status">template</div>
+                </div>
+                <div class="description">Standard pre-chemo safety verification</div>
+                <div class="meta">
+                    <span>📱 Mobile optimized</span>
+                    <span>⏱️ 15 minutes</span>
+                </div>
+            </div>
+
+            <div class="workflow-card" onclick="startTemplate('template-002')">
+                <div class="header">
+                    <div class="title">Treatment Response Review</div>
+                    <div class="status">template</div>
+                </div>
+                <div class="description">Evaluate treatment efficacy and next steps</div>
+                <div class="meta">
+                    <span>👥 Collaborative</span>
+                    <span>⏱️ 30 minutes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Buttons -->
+    <div class="fab-menu" id="fabMenu">
+        <button class="fab-action" onclick="handleFabAction('voice')" title="Voice Commands">
+            🎤
+        </button>
+        <button class="fab-action" onclick="handleFabAction('note')" title="Quick Note">
+            📝
+        </button>
+        <button class="fab-action" onclick="handleFabAction('camera')" title="Scan Barcode">
+            📷
+        </button>
+    </div>
+
+    <!-- Emergency Button -->
+    <button class="emergency-button" onclick="handleEmergency()" title="Emergency Protocol">
+        🚨
+    </button>
+
+    <script>
+        // Touch feedback system
+        function createTouchFeedback(x, y) {
+            const feedback = document.createElement('div');
+            feedback.className = 'touch-feedback';
+            feedback.style.left = (x - 10) + 'px';
+            feedback.style.top = (y - 10) + 'px';
+            document.body.appendChild(feedback);
+            
+            setTimeout(() => {
+                document.body.removeChild(feedback);
+            }, 600);
+        }
+
+        // Add touch feedback to all interactive elements
+        document.addEventListener('touchstart', (e) => {
+            if (e.target.closest('.quick-action, .workflow-card, .fab-action, .emergency-button')) {
+                const touch = e.touches[0];
+                createTouchFeedback(touch.clientX, touch.clientY);
+            }
+        });
+
+        // Haptic feedback (if supported)
+        function hapticFeedback(type = 'light') {
+            if ('vibrate' in navigator) {
+                const patterns = {
+                    light: [10],
+                    medium: [20],
+                    heavy: [30],
+                    success: [10, 50, 10],
+                    error: [100, 50, 100]
+                };
+                navigator.vibrate(patterns[type] || patterns.light);
+            }
+        }
+
+        // Quick action handlers
+        function handleQuickAction(action) {
+            hapticFeedback('light');
+            
+            switch(action) {
+                case 'start-workflow':
+                    showToast('Opening workflow templates...');
+                    // In a real app, this would navigate to workflow selection
+                    setTimeout(() => goToPage('/'), 500);
+                    break;
+                case 'safety-check':
+                    showToast('Starting safety checklist...');
+                    startTemplate('template-safety');
+                    break;
+                case 'drug-lookup':
+                    showToast('Opening drug database...');
+                    setTimeout(() => goToPage('/#/interactions'), 500);
+                    break;
+                case 'patient-search':
+                    showToast('Opening patient search...');
+                    setTimeout(() => goToPage('/#/patients'), 500);
+                    break;
+            }
+        }
+
+        // Workflow management
+        function openWorkflow(workflowId) {
+            hapticFeedback('medium');
+            showToast(`Opening workflow ${workflowId}...`);
+            
+            // Store offline action if needed
+            if (!navigator.onLine) {
+                storeOfflineAction('open_workflow', { workflowId });
+            }
+            
+            setTimeout(() => goToPage(`/#/workflow/${workflowId}`), 500);
+        }
+
+        function startTemplate(templateId) {
+            hapticFeedback('medium');
+            showToast(`Starting template ${templateId}...`);
+            
+            if (!navigator.onLine) {
+                storeOfflineAction('start_template', { templateId });
+            }
+            
+            setTimeout(() => goToPage(`/#/workflow/new?template=${templateId}`), 500);
+        }
+
+        // FAB menu functionality
+        let fabMenuOpen = false;
+
+        function toggleFabMenu() {
+            fabMenuOpen = !fabMenuOpen;
+            const fabMenu = document.getElementById('fabMenu');
+            fabMenu.classList.toggle('open', fabMenuOpen);
+        }
+
+        function handleFabAction(action) {
+            hapticFeedback('light');
+            toggleFabMenu();
+            
+            switch(action) {
+                case 'voice':
+                    startVoiceCommand();
+                    break;
+                case 'note':
+                    openQuickNote();
+                    break;
+                case 'camera':
+                    openBarcodeScanner();
+                    break;
+            }
+        }
+
+        // Emergency handling
+        function handleEmergency() {
+            hapticFeedback('heavy');
+            
+            if (confirm('Start Emergency Protocol?')) {
+                showToast('🚨 Starting emergency workflow...', 'error');
+                
+                // Priority workflow for emergencies
+                const emergencyWorkflow = {
+                    id: 'emergency-' + Date.now(),
+                    type: 'emergency',
+                    priority: 'critical',
+                    started: new Date().toISOString()
+                };
+                
+                storeOfflineAction('emergency_workflow', emergencyWorkflow);
+                setTimeout(() => goToPage('/#/workflow/emergency'), 200);
+            }
+        }
+
+        // Voice commands
+        function startVoiceCommand() {
+            if ('speechRecognition' in window || 'webkitSpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+                
+                recognition.onstart = () => {
+                    showToast('🎤 Listening for voice command...');
+                };
+                
+                recognition.onresult = (event) => {
+                    const command = event.results[0][0].transcript.toLowerCase();
+                    processVoiceCommand(command);
+                };
+                
+                recognition.onerror = () => {
+                    showToast('Voice recognition failed', 'error');
+                };
+                
+                recognition.start();
+            } else {
+                showToast('Voice commands not supported on this device', 'warning');
+            }
+        }
+
+        function processVoiceCommand(command) {
+            if (command.includes('start workflow')) {
+                handleQuickAction('start-workflow');
+            } else if (command.includes('safety check')) {
+                handleQuickAction('safety-check');
+            } else if (command.includes('emergency')) {
+                handleEmergency();
+            } else if (command.includes('drug') || command.includes('medication')) {
+                handleQuickAction('drug-lookup');
+            } else {
+                showToast(`Command not recognized: "${command}"`, 'warning');
+            }
+        }
+
+        // Quick note functionality
+        function openQuickNote() {
+            const note = prompt('Quick note:');
+            if (note) {
+                storeOfflineAction('quick_note', {
+                    content: note,
+                    timestamp: new Date().toISOString()
+                });
+                showToast('Note saved', 'success');
+            }
+        }
+
+        // Barcode scanner
+        function openBarcodeScanner() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                showToast('Camera access required for barcode scanning');
+                // In a real app, this would open the camera for barcode scanning
+            } else {
+                showToast('Camera not available on this device', 'warning');
+            }
+        }
+
+        // Offline functionality
+        function storeOfflineAction(type, data) {
+            const actions = JSON.parse(localStorage.getItem('offlineActions') || '[]');
+            actions.push({
+                id: Date.now(),
+                type,
+                data,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('offlineActions', JSON.stringify(actions));
+        }
+
+        function syncOfflineActions() {
+            const actions = JSON.parse(localStorage.getItem('offlineActions') || '[]');
+            if (actions.length > 0) {
+                showSync();
+                
+                // In a real app, this would sync with the server
+                setTimeout(() => {
+                    localStorage.removeItem('offlineActions');
+                    hideSync();
+                }, 2000);
+            }
+        }
+
+        // Connection monitoring
+        function updateConnectionStatus() {
+            const offlineIndicator = document.getElementById('offlineIndicator');
+            
+            if (navigator.onLine) {
+                offlineIndicator.classList.remove('show');
+                syncOfflineActions();
+            } else {
+                offlineIndicator.classList.add('show');
+            }
+        }
+
+        // Toast notifications
+        function showToast(message, type = 'info') {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${type === 'error' ? '#dc2626' : type === 'success' ? '#059669' : type === 'warning' ? '#d97706' : '#3b82f6'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 25px;
+                font-size: 0.9em;
+                z-index: 10000;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => toast.style.opacity = '1', 10);
+            
+            // Hide toast
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        function showSync() {
+            document.getElementById('syncIndicator').classList.add('show');
+        }
+
+        function hideSync() {
+            document.getElementById('syncIndicator').classList.remove('show');
+        }
+
+        // Navigation
+        function goToPage(url) {
+            if (navigator.onLine) {
+                window.location.href = url;
+            } else {
+                showToast('This feature requires internet connection', 'warning');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateConnectionStatus();
+            
+            // Listen for connection changes
+            window.addEventListener('online', updateConnectionStatus);
+            window.addEventListener('offline', updateConnectionStatus);
+            
+            // Prevent default touch behaviors that might interfere
+            document.addEventListener('touchmove', (e) => {
+                if (e.target.closest('.workflow-card, .quick-action')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            
+            // FAB menu toggle on emergency button long press
+            let longPressTimer;
+            document.querySelector('.emergency-button').addEventListener('touchstart', () => {
+                longPressTimer = setTimeout(toggleFabMenu, 500);
+            });
+            
+            document.querySelector('.emergency-button').addEventListener('touchend', () => {
+                clearTimeout(longPressTimer);
+            });
+            
+            console.log('OncoSafeRx Mobile Workflow Interface Ready');
+        });
+
+        // Service Worker messaging
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', (event) => {
+                if (event.data.type === 'WORKFLOW_SYNC_COMPLETE') {
+                    showToast('Workflows synced', 'success');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

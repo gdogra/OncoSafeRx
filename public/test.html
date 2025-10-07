@@ -1,48 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://emfrwckxctyarphjvfeu.supabase.co wss://emfrwckxctyarphjvfeu.supabase.co https://oncosaferx.onrender.com https://oncosaferx-backend.onrender.com; worker-src 'self' blob:; frame-ancestors 'none'; object-src 'none'">
-    <title>OncoSafeRx Diagnostic Test</title>
+    <title>Deployment Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 50px; 
+            background: #f0f0f0; 
+        }
+        .test-box { 
+            background: #4CAF50; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            text-align: center; 
+        }
+    </style>
 </head>
 <body>
-    <h1>OncoSafeRx Production Diagnostic</h1>
-    <div id="js-status">JavaScript loading...</div>
-    <div id="module-status">Module test...</div>
-    <div id="react-status">React test...</div>
-    <div id="bundle-status">Bundle test...</div>
-    
+    <div class="test-box">
+        <h1>🚀 Deployment Test - SUCCESS!</h1>
+        <p>Timestamp: 2025-10-04 01:55 UTC</p>
+        <p>If you can see this, deployments are working.</p>
+        <button onclick="testJS()">Test JavaScript</button>
+        <div id="js-result"></div>
+    </div>
+
     <script>
-        try {
-            // Test 1: Basic JavaScript
-            document.getElementById('js-status').innerHTML = '✅ JavaScript working';
-            document.getElementById('js-status').style.color = 'green';
-            
-            // Test 2: Try to load the actual bundle
-            const script = document.createElement('script');
-            script.src = '/assets/index-Bhw970Mt.js';
-            script.onload = function() {
-                document.getElementById('bundle-status').innerHTML = '✅ Bundle loaded successfully';
-                document.getElementById('bundle-status').style.color = 'green';
-            };
-            script.onerror = function() {
-                document.getElementById('bundle-status').innerHTML = '❌ Bundle failed to load';
-                document.getElementById('bundle-status').style.color = 'red';
-            };
-            document.head.appendChild(script);
-            
-            // Test 3: Module support
-            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-                document.getElementById('module-status').innerHTML = '✅ Modern APIs available';
-                document.getElementById('module-status').style.color = 'green';
-            } else {
-                document.getElementById('module-status').innerHTML = '❌ Modern APIs missing';
-                document.getElementById('module-status').style.color = 'red';
-            }
-            
-        } catch (error) {
-            document.body.innerHTML += '<div style="color: red;">Error: ' + error.message + '</div>';
+        console.log('✅ Test script loaded successfully');
+        
+        function testJS() {
+            document.getElementById('js-result').innerHTML = 
+                '<p style="color: yellow; margin-top: 10px;">✅ JavaScript is working!</p>';
         }
+        
+        // Auto-test on load
+        setTimeout(() => {
+            document.body.style.border = '5px solid #FF5722';
+            console.log('✅ Auto-test completed');
+        }, 1000);
     </script>
 </body>
 </html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OncoSafeRx - Offline Mode</title>
+    <meta name="theme-color" content="#1e40af">
+    <link rel="icon" href="/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+        }
+
+        .offline-container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .offline-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .features {
+            text-align: left;
+            margin: 30px 0;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .features h3 {
+            margin-bottom: 15px;
+            color: #ffd700;
+        }
+
+        .features ul {
+            list-style: none;
+        }
+
+        .features li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .actions {
+            margin-top: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            margin: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: #1e40af;
+            border-color: #1e40af;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .connection-status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .connection-status.online {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .workflow-actions {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .workflow-card {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .workflow-card:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .workflow-card h4 {
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .workflow-card p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .offline-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .workflow-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon pulse">
+            📱
+        </div>
+        
+        <h1>OncoSafeRx Offline</h1>
+        <p class="subtitle">You're currently offline, but essential clinical workflows remain available</p>
+
+        <div class="features">
+            <h3>Available in Offline Mode:</h3>
+            <ul>
+                <li>Continue active workflows</li>
+                <li>View cached workflow templates</li>
+                <li>Add notes and observations</li>
+                <li>Access patient safety checklists</li>
+                <li>Review drug interaction data</li>
+                <li>Emergency protocols</li>
+            </ul>
+        </div>
+
+        <div class="workflow-actions">
+            <div class="workflow-card" onclick="goToWorkflows()">
+                <h4>⚡ Active Workflows</h4>
+                <p>Continue your in-progress clinical workflows</p>
+            </div>
+            
+            <div class="workflow-card" onclick="goToEmergency()">
+                <h4>🚨 Emergency Protocols</h4>
+                <p>Access critical care workflows</p>
+            </div>
+            
+            <div class="workflow-card" onclick="goToSafety()">
+                <h4>🛡️ Safety Checklists</h4>
+                <p>Medication safety verification</p>
+            </div>
+            
+            <div class="workflow-card" onclick="goToDrugs()">
+                <h4>💊 Drug Information</h4>
+                <p>Cached drug interactions and data</p>
+            </div>
+        </div>
+
+        <div class="connection-status" id="connectionStatus">
+            <strong>🔴 No internet connection</strong><br>
+            Your work will sync automatically when connection is restored
+        </div>
+
+        <div class="actions">
+            <a href="/" class="btn btn-primary">Return to OncoSafeRx</a>
+            <button class="btn" onclick="checkConnection()">Check Connection</button>
+        </div>
+    </div>
+
+    <script>
+        // Check online status
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connectionStatus');
+            
+            if (navigator.onLine) {
+                statusElement.className = 'connection-status online';
+                statusElement.innerHTML = '<strong>🟢 Connection restored</strong><br>Syncing your offline work...';
+                
+                // Attempt to sync and redirect
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } else {
+                statusElement.className = 'connection-status';
+                statusElement.innerHTML = '<strong>🔴 No internet connection</strong><br>Your work will sync automatically when connection is restored';
+            }
+        }
+
+        function checkConnection() {
+            if (navigator.onLine) {
+                // Try to fetch a small resource to verify connectivity
+                fetch('/favicon.ico', { method: 'HEAD', cache: 'no-cache' })
+                    .then(() => {
+                        window.location.href = '/';
+                    })
+                    .catch(() => {
+                        alert('Connection check failed. Please try again.');
+                    });
+            } else {
+                alert('Still offline. Please check your internet connection.');
+            }
+        }
+
+        function goToWorkflows() {
+            // Try to load workflow page, fallback to cached version
+            if (navigator.onLine) {
+                window.location.href = '/#/workflow';
+            } else {
+                window.location.href = '/workflow-mobile.html';
+            }
+        }
+
+        function goToEmergency() {
+            if (navigator.onLine) {
+                window.location.href = '/#/workflow?template=emergency';
+            } else {
+                alert('Emergency protocols available in cached workflow templates');
+                goToWorkflows();
+            }
+        }
+
+        function goToSafety() {
+            if (navigator.onLine) {
+                window.location.href = '/#/workflow?template=safety';
+            } else {
+                alert('Safety checklists available in cached workflow templates');
+                goToWorkflows();
+            }
+        }
+
+        function goToDrugs() {
+            if (navigator.onLine) {
+                window.location.href = '/#/interactions';
+            } else {
+                alert('Cached drug information available. Limited offline functionality.');
+            }
+        }
+
+        // Listen for online/offline events
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
+        // Initial status check
+        updateConnectionStatus();
+
+        // Periodic connection check
+        setInterval(() => {
+            if (navigator.onLine) {
+                fetch('/favicon.ico', { method: 'HEAD', cache: 'no-cache' })
+                    .then(() => {
+                        if (document.getElementById('connectionStatus').classList.contains('online')) {
+                            // Already showing online, redirect
+                            window.location.href = '/';
+                        } else {
+                            updateConnectionStatus();
+                        }
+                    })
+                    .catch(() => {
+                        // Network request failed, but navigator.onLine is true
+                        // This can happen with poor connectivity
+                    });
+            }
+        }, 5000);
+
+        console.log('OncoSafeRx Offline Mode - Workflow capabilities available');
+    </script>
+</body>
+</html>

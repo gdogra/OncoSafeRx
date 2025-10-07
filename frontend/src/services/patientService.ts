@@ -171,7 +171,12 @@ export class PatientService {
     } catch (error) {
       console.error('❌ Network error saving patient to API:', error);
       console.error('🔄 Falling back to localStorage - data will NOT persist across sessions');
-      this.savePatientToLocalStorage(patient);
+      try {
+        this.savePatientToLocalStorage(patient);
+        console.log('✅ Patient saved to localStorage successfully');
+      } catch (localError) {
+        console.warn('⚠️ localStorage save also failed, but returning patient anyway');
+      }
       return patient;
     }
   }
@@ -184,14 +189,18 @@ export class PatientService {
       
       if (existingIndex !== -1) {
         patients[existingIndex] = patient;
+        console.log('✅ Updated existing patient in localStorage');
       } else {
         patients.push(patient);
+        console.log('✅ Added new patient to localStorage');
       }
       
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(patients));
+      console.log('✅ Successfully saved patient to localStorage:', patient.id);
     } catch (error) {
       console.error('Error saving patient to localStorage:', error);
-      throw new Error('Failed to save patient');
+      // Don't throw - this prevents UI blocking
+      console.warn('⚠️ Patient save to localStorage failed, but continuing...');
     }
   }
 

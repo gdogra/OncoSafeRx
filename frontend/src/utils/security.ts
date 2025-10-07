@@ -19,7 +19,8 @@ export class SecurityManager {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: https:",
-      "connect-src 'self' https://oncosaferx-backend.onrender.com https://emfrwckxctyarphjvfeu.supabase.co",
+      // Use same-origin /api for backend; allow Supabase
+      "connect-src 'self' https://emfrwckxctyarphjvfeu.supabase.co wss://emfrwckxctyarphjvfeu.supabase.co",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'"

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OncoSafeRx - Simple Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>OncoSafeRx Status Page</h1>
+    <div id="status">Loading...</div>
+    
+    <script>
+        const statusDiv = document.getElementById('status');
+        
+        // Test 1: Basic functionality
+        statusDiv.innerHTML = '<div class="success">✅ Simple HTML page loading successfully</div>';
+        
+        // Test 2: Try to load React bundle
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = '/assets/index-4Ly-s4cr.js';
+        script.onload = function() {
+            statusDiv.innerHTML += '<div class="success">✅ React bundle loaded successfully</div>';
+        };
+        script.onerror = function() {
+            statusDiv.innerHTML += '<div class="error">❌ React bundle failed to load</div>';
+            statusDiv.innerHTML += '<div>Please try refreshing or contact support</div>';
+        };
+        document.head.appendChild(script);
+        
+        // Add timestamp
+        statusDiv.innerHTML += '<div>Last updated: ' + new Date().toISOString() + '</div>';
+    </script>
+</body>
+</html>

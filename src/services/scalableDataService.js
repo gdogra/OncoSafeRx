@@ -41,6 +41,16 @@ class ScalableDataService {
    */
   async initializeConnections() {
     try {
+      // Check if we're in a Supabase-only environment (production)
+      const hasSupabase = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY;
+      const hasPostgres = process.env.DB_HOST || process.env.DATABASE_URL;
+      
+      if (hasSupabase && !hasPostgres) {
+        console.log('🔄 ScalableDataService: Running in Supabase-only mode, skipping direct PostgreSQL connections');
+        this.initialized = true;
+        return;
+      }
+      
       // Primary PostgreSQL connection (write operations)
       this.connections.primary = new Pool({
         host: process.env.DB_HOST || 'localhost',
@@ -216,6 +226,12 @@ class ScalableDataService {
    * Execute query with automatic connection routing and caching
    */
   async executeQuery(sql, params = [], options = {}) {
+    // If we're in Supabase-only mode, return empty result
+    if (!this.connections.primary) {
+      console.log('🔄 ScalableDataService: No direct PostgreSQL connection available, skipping query');
+      return { rows: [], rowCount: 0 };
+    }
+
     const {
       operationType = 'read',
       workload = 'default',

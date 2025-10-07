@@ -16,10 +16,12 @@
   # Backend base URL for Edge proxy
   BACKEND_URL = "https://oncosaferx-07yv.onrender.com"
 
-# API proxy handled by Edge Functions (see netlify/edge-functions/api-proxy.ts)
-[[edge_functions]]
-  function = "api-proxy"
-  path = "/api/*"
+# API proxy via redirects (simpler approach)
+[[redirects]]
+  from = "/api/*"
+  to = "https://oncosaferx-07yv.onrender.com/api/:splat"
+  status = 200
+  force = true
 
 # SPA fallback so client-side routes work
 [[redirects]]

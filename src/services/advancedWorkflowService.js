@@ -758,8 +758,8 @@ class AdvancedWorkflowService {
   async loadWorkflowTemplates() {
     try {
       // Check if data service is initialized before using it
-      if (!scalableDataService.initialized) {
-        console.log('Data service not yet initialized, using default templates');
+      if (!scalableDataService.initialized || !scalableDataService.connections.primary) {
+        console.log('🔄 AdvancedWorkflowService: No database connection available, using default templates');
         await this.initializeDefaultTemplates();
         return;
       }

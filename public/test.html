@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline';">
+    <title>Test React Loading</title>
+</head>
+<body>
+    <div id="root">Loading...</div>
+    <script>
+        document.getElementById('root').innerHTML = 'JavaScript is working!';
+        console.log('Test page loaded successfully');
+    </script>
+</body>
+</html>

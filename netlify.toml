@@ -1,6 +1,8 @@
 [build]
   base = "frontend"
-  publish = "frontend/dist"
+  # When base is set, publish is relative to base.
+  # Using "frontend/dist" here makes Netlify look for frontend/frontend/dist.
+  publish = "dist"
   command = "rm -rf node_modules/.cache && rm -rf dist && rm -f .env && echo 'VITE_API_URL=/api' > .env && echo 'VITE_SUPABASE_URL=https://emfrwckxctyarphjvfeu.supabase.co' >> .env && echo 'VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c' >> .env && npm ci --legacy-peer-deps && npm run build && echo 'Static files in dist:' && ls -la dist/*.html"
 
 [build.environment]
@@ -19,7 +21,7 @@
 # API proxy via redirects (simpler approach)
 [[redirects]]
   from = "/api/*"
-  to = "https://oncosaferx.onrender.com/api/:splat"
+  to = "https://oncosaferx-backend.onrender.com/api/:splat"
   status = 200
   force = true
 

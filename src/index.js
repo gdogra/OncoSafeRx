@@ -311,7 +311,18 @@ app.use('/api/editorial', editorialRoutes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/roi', roiRoutes);
 app.use('/api/pain', painRoutes);
-app.use('/api/patients', patientRoutes);
+// Allow disabling patient APIs to simplify or avoid DB deps
+const PATIENTS_DISABLED = String(process.env.PATIENTS_DISABLED || '').toLowerCase() === 'true';
+if (PATIENTS_DISABLED) {
+  console.log('⚠️  Patients API disabled via env (PATIENTS_DISABLED=true)');
+  app.use('/api/patients', (req, res) => {
+    // Provide a stable shape so frontends don’t crash
+    if (req.method === 'GET') return res.json({ patients: [], total: 0, page: 1, pageSize: 0, disabled: true });
+    return res.status(503).json({ error: 'Patients feature disabled' });
+  });
+} else {
+  app.use('/api/patients', patientRoutes);
+}
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/search', searchRoutes);

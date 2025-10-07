@@ -209,7 +209,31 @@ const useAuthSafely = () => {
   }
 };
 
+// Feature flag to disable patient functionality in the UI
+const PATIENTS_DISABLED = String((import.meta as any)?.env?.VITE_PATIENTS_DISABLED || '').toLowerCase() === 'true';
+
 export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  if (PATIENTS_DISABLED) {
+    const noopActions = {
+      setCurrentPatient: (_p: PatientProfile | null) => {},
+      updatePatientData: (_d: Partial<PatientProfile>) => {},
+      addRecentPatient: (_p: PatientProfile) => {},
+      removePatient: async (_id: string) => {},
+      syncFromServer: async () => {},
+      addAlert: (_a: ClinicalAlert) => {},
+      acknowledgeAlert: (_id: string) => {},
+      startSession: (_s: ClinicalSession) => {},
+      endSession: (_id: string) => {},
+      clearError: () => {},
+    };
+    const value = { state: initialState, dispatch: (() => undefined) as any, actions: noopActions } as any;
+    return (
+      <PatientContext.Provider value={value}>
+        {children}
+      </PatientContext.Provider>
+    );
+  }
+
   const [state, dispatch] = useReducer(patientReducer, initialState);
   const authContext = useAuthSafely();
 

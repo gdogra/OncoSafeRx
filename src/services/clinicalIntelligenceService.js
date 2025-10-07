@@ -11,7 +11,7 @@ export class ClinicalIntelligenceService {
       const basicInfo = await supabaseService.getDrugByRxcui(rxcui);
       
       const enhancedInfo = {
-        ...basicInfo,
+        ...(basicInfo || {}),
         clinicalInsights: await this.getDrugClinicalInsights(rxcui, patientContext),
         riskProfile: await this.getDrugRiskProfile(rxcui, patientContext),
         monitoringRequirements: await this.getMonitoringRequirements(rxcui, patientContext),

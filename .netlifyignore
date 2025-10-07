@@ -1,0 +1,11 @@
+# Prevent accidental deployment of legacy compiled bundles and nested frontends
+frontend/frontend/
+frontend/frontend/**
+frontend/frontend/frontend/
+frontend/frontend/frontend/**
+frontend/frontend/dist/
+frontend/frontend/dist/**
+
+# Ignore any stray build artifacts in repo root
+**/dist-legacy/**
+**/build-legacy/**

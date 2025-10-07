@@ -545,9 +545,12 @@ class AlertService {
   private checkDrugAllergies(patient: PatientProfile, drug: Drug): DoseCalculationAlert[] {
     const alerts: DoseCalculationAlert[] = [];
 
-    patient.allergies.forEach(allergy => {
-      const allergenLower = allergy.allergen.toLowerCase();
-      const drugNameLower = drug.name.toLowerCase();
+    const drugNameLower = String((drug as any)?.name || '').toLowerCase();
+    const allergies = Array.isArray((patient as any)?.allergies) ? (patient as any).allergies : [];
+
+    allergies.forEach((allergy: any) => {
+      const allergenLower = String(allergy?.allergen || allergy?.name || '').toLowerCase();
+      if (!allergenLower || !drugNameLower) return;
 
       // Direct drug name match
       if (drugNameLower.includes(allergenLower) || allergenLower.includes(drugNameLower)) {
@@ -603,38 +606,42 @@ class AlertService {
 
   private checkLabValues(patient: PatientProfile, drug: Drug): DoseCalculationAlert[] {
     const alerts: DoseCalculationAlert[] = [];
-    const drugName = drug.name.toLowerCase();
+    const drugName = String((drug as any)?.name || '').toLowerCase();
 
     // Get most recent lab values
+    const labs = Array.isArray((patient as any)?.labValues) ? (patient as any).labValues : [];
     const getRecentLab = (labType: string) => {
-      return patient.labValues
-        .filter(lab => lab.labType.toLowerCase().includes(labType))
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+      const key = String(labType || '').toLowerCase();
+      const filtered = labs
+        .filter((lab: any) => String(lab?.labType || '').toLowerCase().includes(key))
+        .sort((a: any, b: any) => (new Date(b?.timestamp || 0).getTime()) - (new Date(a?.timestamp || 0).getTime()));
+      return filtered[0];
     };
 
     // Check absolute neutrophil count for chemotherapy
     const anc = getRecentLab('anc') || getRecentLab('neutrophil');
     if (anc && (drugName.includes('doxorubicin') || drugName.includes('carboplatin') || drugName.includes('paclitaxel'))) {
-      if (anc.value < 1000) {
+      const ancVal = Number((anc as any)?.value);
+      if (Number.isFinite(ancVal) && ancVal < 1000) {
         alerts.push({
           id: `lab-anc-low-${Date.now()}`,
           type: 'lab',
           severity: 'critical',
           message: 'Severe neutropenia - hold chemotherapy',
-          details: `ANC ${anc.value} cells/μL is below safe threshold for chemotherapy`,
+          details: `ANC ${ancVal} cells/μL is below safe threshold for chemotherapy`,
           recommendedAction: 'Hold treatment until ANC > 1000, consider growth factor support',
           affectedMedication: drug.name,
           category: 'hematologic',
           source: 'NCCN Guidelines',
           priority: 10
         });
-      } else if (anc.value < 1500) {
+      } else if (Number.isFinite(ancVal) && ancVal < 1500) {
         alerts.push({
           id: `lab-anc-borderline-${Date.now()}`,
           type: 'lab',
           severity: 'high',
           message: 'Borderline neutropenia detected',
-          details: `ANC ${anc.value} cells/μL requires close monitoring`,
+          details: `ANC ${ancVal} cells/μL requires close monitoring`,
           recommendedAction: 'Consider dose reduction or delay, monitor closely',
           affectedMedication: drug.name,
           category: 'hematologic',
@@ -646,14 +653,15 @@ class AlertService {
 
     // Check platelet count
     const platelets = getRecentLab('platelet');
-    if (platelets && platelets.value < 100) {
+    const pltVal = Number((platelets as any)?.value);
+    if (platelets && Number.isFinite(pltVal) && pltVal < 100) {
       alerts.push({
         id: `lab-platelets-low-${Date.now()}`,
         type: 'lab',
-        severity: platelets.value < 50 ? 'critical' : 'high',
-        message: `${platelets.value < 50 ? 'Severe' : 'Moderate'} thrombocytopenia detected`,
-        details: `Platelet count ${platelets.value} × 10³/μL may contraindicate therapy`,
-        recommendedAction: platelets.value < 50 ? 'Hold treatment, consider platelet transfusion' : 'Monitor closely, consider dose reduction',
+        severity: pltVal < 50 ? 'critical' : 'high',
+        message: `${pltVal < 50 ? 'Severe' : 'Moderate'} thrombocytopenia detected`,
+        details: `Platelet count ${pltVal} × 10³/μL may contraindicate therapy`,
+        recommendedAction: pltVal < 50 ? 'Hold treatment, consider platelet transfusion' : 'Monitor closely, consider dose reduction',
         affectedMedication: drug.name,
         category: 'hematologic',
         source: 'Hematology Guidelines',
@@ -664,14 +672,15 @@ class AlertService {
     // Check LVEF for cardiotoxic drugs
     const lvef = getRecentLab('lvef') || getRecentLab('ejection fraction');
     if (lvef && (drugName.includes('doxorubicin') || drugName.includes('trastuzumab'))) {
-      if (lvef.value < 50) {
+      const lvefVal = Number((lvef as any)?.value);
+      if (Number.isFinite(lvefVal) && lvefVal < 50) {
         alerts.push({
           id: `lab-lvef-low-${Date.now()}`,
           type: 'lab',
-          severity: lvef.value < 40 ? 'critical' : 'high',
+          severity: lvefVal < 40 ? 'critical' : 'high',
           message: 'Reduced cardiac function detected',
-          details: `LVEF ${lvef.value}% may contraindicate cardiotoxic therapy`,
-          recommendedAction: lvef.value < 40 ? 'Cardiology consultation required before treatment' : 'Close cardiac monitoring recommended',
+          details: `LVEF ${lvefVal}% may contraindicate cardiotoxic therapy`,
+          recommendedAction: lvefVal < 40 ? 'Cardiology consultation required before treatment' : 'Close cardiac monitoring recommended',
           affectedMedication: drug.name,
           category: 'cardiac',
           source: 'Cardio-Oncology Guidelines',
@@ -685,11 +694,13 @@ class AlertService {
 
   private checkContraindications(patient: PatientProfile, drug: Drug): DoseCalculationAlert[] {
     const alerts: DoseCalculationAlert[] = [];
-    const drugName = drug.name.toLowerCase();
+    const drugName = String((drug as any)?.name || '').toLowerCase();
 
     // Check active conditions for contraindications
-    patient.conditions.forEach(condition => {
-      const conditionName = condition.condition.toLowerCase();
+    const conditions = Array.isArray((patient as any)?.conditions) ? (patient as any).conditions : [];
+    conditions.forEach((condition: any) => {
+      const conditionName = String(condition?.condition || condition?.name || '').toLowerCase();
+      if (!conditionName) return;
 
       if (conditionName.includes('heart failure') && drugName.includes('doxorubicin')) {
         alerts.push({
@@ -787,8 +798,8 @@ class AlertService {
     rationale: string;
     urgency: 'routine' | 'urgent' | 'critical';
   }> {
-    const recommendations = [];
-    const drugName = drug.name.toLowerCase();
+    const recommendations = [] as Array<{ parameter: string; frequency: string; rationale: string; urgency: 'routine' | 'urgent' | 'critical'; }>;
+    const drugName = String((drug as any)?.name || '').toLowerCase();
 
     // Drug-specific monitoring
     if (drugName.includes('doxorubicin')) {

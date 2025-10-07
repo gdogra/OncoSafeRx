@@ -54,6 +54,9 @@ const Logout = lazy(() => import('./pages/Logout'));
 const AuthDebug = lazy(() => import('./pages/AuthDebug'));
 const ForceLogout = lazy(() => import('./pages/ForceLogout'));
 
+// Feature flag to disable patient UI routes (build-time)
+const PATIENTS_DISABLED = String((import.meta as any)?.env?.VITE_PATIENTS_DISABLED || '').toLowerCase() === 'true';
+
 // New Powerful AI Components
 const ClinicalDecisionEngine = lazy(() => import('./components/AI/ClinicalDecisionEngine'));
 const DrugSafetyAlertSystem = lazy(() => import('./components/Safety/DrugSafetyAlertSystem'));
@@ -241,20 +244,24 @@ function AppWithAuth() {
                     </Layout>
                   </ProtectedRoute>
                 } />
-                <Route path="/patients" element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Patients />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/patients/all" element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <ServerPatients />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
+                {!PATIENTS_DISABLED && (
+                  <>
+                    <Route path="/patients" element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <Patients />
+                        </Layout>
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/patients/all" element={
+                      <ProtectedRoute>
+                        <Layout>
+                          <ServerPatients />
+                        </Layout>
+                      </ProtectedRoute>
+                    } />
+                  </>
+                )}
                 <Route path="/collaboration" element={
                   <ProtectedRoute>
                     <Layout>

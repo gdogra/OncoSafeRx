@@ -1,7 +1,7 @@
 import React, { useEffect, Suspense, lazy } from 'react';
 // Deployment test - timestamp: 2025-10-04-01:50 UTC
 import { appVersion } from './utils/env';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { PatientProvider } from './context/PatientContext';
 import { SelectionProvider } from './context/SelectionContext';
@@ -484,10 +484,44 @@ function AppWithRouter() {
   // Initialize global keyboard shortcuts (now inside Router context)
   useGlobalKeyboardShortcuts();
 
+  // Persist and restore last route across refreshes
+  const RoutePersistence: React.FC = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    // Save path on change
+    useEffect(() => {
+      try {
+        const path = location.pathname + (location.search || '');
+        localStorage.setItem('osrx_last_path', path);
+      } catch {}
+    }, [location.pathname, location.search]);
+
+    // Restore last path once per session
+    useEffect(() => {
+      try {
+        const restored = sessionStorage.getItem('osrx_restored') === '1';
+        if (restored) return;
+        const current = location.pathname + (location.search || '');
+        const last = localStorage.getItem('osrx_last_path') || '';
+        const ignore: RegExp[] = [/^\/auth(\/|$)?/, /^\/force-logout/, /^\/logout/];
+        if (last && last !== current && !ignore.some(rx => rx.test(last))) {
+          navigate(last, { replace: true });
+        }
+        sessionStorage.setItem('osrx_restored', '1');
+      } catch {}
+    // run once
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    return null;
+  };
+
   return (
     <AuthProvider>
       {/* SessionRestorer must be inside AuthProvider to access useAuth */}
       <SessionRestorer />
+      <RoutePersistence />
       <AppWithAuth />
     </AuthProvider>
   );

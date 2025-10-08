@@ -327,6 +327,7 @@ const ServerPatients: React.FC = () => {
 
       // Persist to server
       console.log('🏥 Making API call to /api/patients...');
+      let success = false;
       try {
         const requestBody = JSON.stringify({ patient: newPatient });
         console.log('🏥 Request body:', requestBody);
@@ -363,6 +364,7 @@ const ServerPatients: React.FC = () => {
           console.log('🏥 Refreshing patient list...');
           await fetchPatients({ resetPage: true });
           console.log('🏥 ✅ Patient list refreshed');
+          success = true;
         } else {
           const errorText = await resp.text().catch(() => 'Unknown error');
           console.log('🏥 ❌ API Error response:', errorText);
@@ -379,8 +381,12 @@ const ServerPatients: React.FC = () => {
         showToast('warning', 'Saved locally (network error)');
       }
       
-      console.log('🏥 Closing create form...');
-      setShowCreateForm(false);
+      if (success) {
+        console.log('🏥 Closing create form (success)...');
+        setShowCreateForm(false);
+      } else {
+        console.log('🏥 Keeping create form open due to error');
+      }
       console.log('🏥 === PATIENT CREATION DEBUG END ===');
       
     } catch (globalError) {

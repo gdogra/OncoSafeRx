@@ -1,13 +1,15 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ClinicalDecisionSupport from '../components/AI/ClinicalDecisionSupport';
+import Modal from '../components/UI/Modal';
 import { usePatient } from '../context/PatientContext';
 
 const ClinicalDecisionSupportPage: React.FC = () => {
-  const { state } = usePatient();
+  const { state, actions } = usePatient();
   const location = useLocation();
   const navigate = useNavigate();
-  const { currentPatient, hydrated } = state as any;
+  const { currentPatient, hydrated, recentPatients } = state as any;
+  const [showPicker, setShowPicker] = React.useState(false);
   
   // Mock patient profile for demonstration when no patient is selected
   const DISABLE_SAMPLE_PATIENTS = String((import.meta as any)?.env?.VITE_DISABLE_SAMPLE_PATIENTS || '').toLowerCase() === 'true';
@@ -127,7 +129,13 @@ const ClinicalDecisionSupportPage: React.FC = () => {
             <p className="text-xs text-yellow-600 mt-1">
               Select a patient from the Patients page to see personalized recommendations
             </p>
-            <div className="mt-3">
+            <div className="mt-3 flex items-center gap-2">
+              <button
+                onClick={() => setShowPicker(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+              >
+                Select Patient
+              </button>
               <button
                 onClick={() => {
                   try {
@@ -136,9 +144,9 @@ const ClinicalDecisionSupportPage: React.FC = () => {
                   } catch {}
                   navigate('/patients');
                 }}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
               >
-                Select Patient
+                Open Patients Page
               </button>
             </div>
           </div>
@@ -156,6 +164,52 @@ const ClinicalDecisionSupportPage: React.FC = () => {
           onRecommendationAccept={handleRecommendationAccept}
         />
       )}
+
+      {/* Inline Patient Picker Modal */}
+      <Modal
+        isOpen={showPicker}
+        onClose={() => setShowPicker(false)}
+        title="Select Patient"
+        size="xl"
+      >
+        <div className="space-y-4">
+          {recentPatients?.length ? (
+            <div className="grid md:grid-cols-2 gap-3">
+              {recentPatients.map((p: any) => (
+                <button
+                  key={p.id}
+                  onClick={() => { actions.setCurrentPatient(p); setShowPicker(false); }}
+                  className="text-left border rounded p-3 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                  <div className="font-semibold text-gray-900">
+                    {p.demographics?.firstName} {p.demographics?.lastName}
+                  </div>
+                  <div className="text-sm text-gray-600">MRN: {p.demographics?.mrn || '—'}</div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="text-sm text-gray-600">
+              No recent patients yet. Use the Patients page to add/select a patient.
+            </div>
+          )}
+          <div className="text-right">
+            <button
+              onClick={() => {
+                try {
+                  const path = location.pathname + (location.search || '');
+                  localStorage.setItem('osrx_return_path', path);
+                } catch {}
+                setShowPicker(false);
+                navigate('/patients');
+              }}
+              className="px-3 py-2 text-sm bg-gray-100 rounded hover:bg-gray-200"
+            >
+              Open Patients Page
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

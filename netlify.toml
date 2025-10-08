@@ -62,6 +62,8 @@
   VITE_API_URL = "/api"
   REACT_APP_API_URL = "/api"
   VITE_ENABLE_SERVER_ANALYTICS = "false"
+  # Keep auth responsive under poor network
+  VITE_AUTH_TIMEOUT_MS = "7000"
   # Supabase configuration for frontend
   VITE_SUPABASE_URL = "https://emfrwckxctyarphjvfeu.supabase.co"
   VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c"

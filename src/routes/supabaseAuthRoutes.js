@@ -524,15 +524,28 @@ router.post('/proxy/login', requireProxyEnabled, checkAllowedOrigin, proxyLimite
   }
 
   const endpoint = `${url}/auth/v1/token?grant_type=password`;
-  const resp = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': anon,
-      'Authorization': `Bearer ${anon}`
-    },
-    body: JSON.stringify({ email, password })
-  });
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
+  let resp;
+  try {
+    resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': anon,
+        'Authorization': `Bearer ${anon}`
+      },
+      body: JSON.stringify({ email, password }),
+      signal: ctrl.signal
+    });
+  } catch (e) {
+    clearTimeout(timer);
+    console.warn('Proxy login upstream error:', e?.name || e?.message || e);
+    proxyAuthCounter.inc({ endpoint: 'login', outcome: 'error' });
+    return res.status(504).json({ error: 'Upstream Supabase auth timeout', code: 'upstream_timeout' });
+  } finally {
+    clearTimeout(timer);
+  }
 
   const body = await resp.json().catch(() => ({}));
   if (!resp.ok) {

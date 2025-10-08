@@ -511,21 +511,4 @@ function App() {
     </ErrorBoundary>
   );
 }
-                  const data = await resp.json();
-                  alert('API Health: ' + JSON.stringify(data, null, 2));
-                } catch (e) {
-                  alert('API Error: ' + e.message);
-                }
-              }} 
-              className="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700"
-            >
-              🔍 Test API
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default App;

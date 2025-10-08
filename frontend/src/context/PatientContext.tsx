@@ -359,6 +359,15 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
         if (DISABLE_SAMPLE_PATIENTS) {
           // Skip adding sample patients when disabled
+          // As a last resort, try global last selected patient
+          try {
+            const last = localStorage.getItem('osrx_last_patient');
+            if (last) {
+              const lastPatient = JSON.parse(last);
+              dispatch({ type: 'SET_CURRENT_PATIENT', payload: lastPatient });
+              dispatch({ type: 'ADD_RECENT_PATIENT', payload: lastPatient });
+            }
+          } catch {}
           return;
         }
 
@@ -664,6 +673,9 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
       dispatch({ type: 'SET_CURRENT_PATIENT', payload: patient });
       if (patient) {
         dispatch({ type: 'ADD_RECENT_PATIENT', payload: patient });
+        try { localStorage.setItem('osrx_last_patient', JSON.stringify(patient)); } catch {}
+      } else {
+        try { localStorage.removeItem('osrx_last_patient'); } catch {}
       }
     },
     

@@ -3,7 +3,8 @@ import ClinicalDecisionSupport from '../components/AI/ClinicalDecisionSupport';
 import { usePatient } from '../context/PatientContext';
 
 const ClinicalDecisionSupportPage: React.FC = () => {
-  const { currentPatient } = usePatient();
+  const { state } = usePatient();
+  const { currentPatient, hydrated } = state as any;
   
   // Mock patient profile for demonstration when no patient is selected
   const DISABLE_SAMPLE_PATIENTS = String((import.meta as any)?.env?.VITE_DISABLE_SAMPLE_PATIENTS || '').toLowerCase() === 'true';
@@ -91,6 +92,13 @@ const ClinicalDecisionSupportPage: React.FC = () => {
   // Use selected patient data if available, otherwise fall back to mock data
   const patientProfile = currentPatient || (DISABLE_SAMPLE_PATIENTS ? null : mockPatientProfile);
   const patientName = currentPatient?.name || (DISABLE_SAMPLE_PATIENTS ? 'No patient selected' : 'Demo Patient (Sarah Johnson)');
+
+  // Show a minimal loader until patient state hydrates
+  if (!hydrated) {
+    return (
+      <div className="p-6 text-center text-gray-500">Loading patient context…</div>
+    );
+  }
 
   return (
     <div className="space-y-6">

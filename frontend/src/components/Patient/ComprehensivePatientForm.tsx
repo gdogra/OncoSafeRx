@@ -288,18 +288,9 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (validateRequiredFields()) {
-      try { localStorage.removeItem(DRAFT_KEY); } catch {}
-      onSubmit(formData);
-    } else {
-      // Switch to first section with errors
-      if (errors.firstName || errors.lastName || errors.dateOfBirth || errors.sex) {
-        setActiveSection('demographics');
-      } else if (errors.email || errors.phone) {
-        setActiveSection('contact');
-      }
-    }
+    // Allow quick creation with sensible defaults; backend fills missing fields safely
+    try { localStorage.removeItem(DRAFT_KEY); } catch {}
+    onSubmit(formData);
   };
 
   const handleCancelInternal = () => {
@@ -1115,13 +1106,8 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
                 </button>
                 <button
                   type="submit"
-                  disabled={!isFormValid()}
-                  className={`flex items-center space-x-2 px-6 py-2 rounded-md transition-colors ${
-                    isFormValid()
-                      ? 'bg-primary-600 text-white hover:bg-primary-700'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
-                  title={!isFormValid() ? 'Please fill in all required fields (First Name, Last Name, Date of Birth, Sex)' : ''}
+                  className="flex items-center space-x-2 px-6 py-2 rounded-md transition-colors bg-primary-600 text-white hover:bg-primary-700"
+                  title="Create patient"
                 >
                   <Save className="w-4 h-4" />
                   <span>Create Patient</span>

@@ -249,7 +249,7 @@ const AIRecommendations: React.FC = () => {
                     </div>
                   </div>
                   <a
-                    href="/patients"
+                    href="/patients/all"
                     className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center"
                   >
                     Change Patient
@@ -269,7 +269,7 @@ const AIRecommendations: React.FC = () => {
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3">
                       <a
-                        href="/patients"
+                        href="/patients/all"
                         className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                       >
                         <Users className="w-4 h-4 mr-2" />

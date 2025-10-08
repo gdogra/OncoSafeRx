@@ -110,7 +110,7 @@ export const useGlobalKeyboardShortcuts = () => {
       key: 'p',
       alt: true,
       description: 'Go to Patients',
-      action: () => setTimeout(() => navigate('/patients'), 100),
+      action: () => setTimeout(() => navigate('/patients/all'), 100),
       category: 'navigation',
       global: true,
     },

@@ -29,7 +29,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
 
   const primaryNavItems = [
     { path: '/', label: 'Dashboard', icon: Home, color: 'blue' },
-    { path: '/patients', label: 'Patients', icon: Users, color: 'green' },
+    { path: '/patients/all', label: 'Patients', icon: Users, color: 'green' },
     { path: '/search', label: 'Drugs', icon: Search, color: 'purple' },
     { path: '/interactions', label: 'Safety', icon: AlertTriangle, color: 'red' },
     { path: '/regimens', label: 'Regimens', icon: FileText, color: 'orange' },
@@ -227,7 +227,7 @@ const MobileLayout: React.FC<MobileLayoutProps> = ({ children }) => {
       {/* Floating Action Button */}
       <div className="fixed bottom-6 right-6 z-30">
         <Link
-          to="/patients"
+          to="/patients/all"
           className="w-14 h-14 bg-primary-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-primary-700 active:scale-95 transition-all duration-200"
         >
           <Users className="w-6 h-6" />

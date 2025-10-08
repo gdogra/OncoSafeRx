@@ -17,7 +17,7 @@ import GenomicsAnalysis from './components/Genomics/GenomicsAnalysis';
 import ProtocolsAndRegimens from './pages/ProtocolsAndRegimens';
 import CuratedInteractions from './pages/CuratedInteractions';
 import AdvancedTrials from './pages/AdvancedTrials';
-import Patients from './pages/Patients';
+// import Patients from './pages/Patients';
 import Collaboration from './pages/Collaboration';
 import AIInsights from './pages/AIInsights';
 import DrugDatabase from './pages/DrugDatabase';
@@ -64,7 +64,7 @@ const NoAuthApp: React.FC = () => {
                     <Route path="/protocols" element={<ProtocolsAndRegimens />} />
                     <Route path="/trials" element={<AdvancedTrials />} />
                     <Route path="/genomics" element={<GenomicsAnalysis />} />
-                    <Route path="/patients" element={<Patients />} />
+                    <Route path="/patients" element={<ServerPatients />} />
                     <Route path="/collaboration" element={<Collaboration />} />
                     <Route path="/ai-insights" element={<AIInsights />} />
                     <Route path="/ai-recommendations" element={<AIRecommendations />} />

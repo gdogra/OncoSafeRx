@@ -39,7 +39,7 @@ export function useGlobalKeyboardShortcuts() {
     {
       key: 'p',
       modifiers: { alt: true },
-      action: () => navigate('/patients'),
+      action: () => navigate('/patients/all'),
       description: 'Go to patients'
     },
     {

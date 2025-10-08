@@ -55,7 +55,7 @@ const Header: React.FC = () => {
   const navItems = [
     { path: '/', label: 'Dashboard', icon: Activity },
     { path: '/clinical', label: 'Clinical Decision', icon: Stethoscope },
-    { path: '/patients', label: 'Patients', icon: Users },
+    { path: '/patients/all', label: 'Patients', icon: Users },
     { path: '/collaboration', label: 'Collaboration', icon: Users },
     { path: '/ai-insights', label: 'AI Insights', icon: Activity },
     { path: '/search', label: 'Drug Search', icon: Search },

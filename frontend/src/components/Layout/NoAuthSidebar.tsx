@@ -74,7 +74,7 @@ const NoAuthSidebar: React.FC<NoAuthSidebarProps> = ({ isOpen, onToggle, expande
     },
     {
       label: 'Patients',
-      path: '/patients',
+      path: '/patients/all',
       icon: Users,
       description: 'Patient management'
     },

@@ -245,7 +245,7 @@ const ClinicalDecisionSupportPage: React.FC = () => {
                     const path = location.pathname + (location.search || '');
                     localStorage.setItem('osrx_return_path', path);
                   } catch {}
-                  navigate('/patients');
+                  navigate('/patients/all');
                 }}
                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
               >

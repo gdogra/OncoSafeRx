@@ -28,8 +28,8 @@ const Protocols = lazy(() => import('./pages/Protocols'));
 const CuratedInteractions = lazy(() => import('./pages/CuratedInteractions'));
 const Regimens = lazy(() => import('./pages/Regimens'));
 const Trials = lazy(() => import('./pages/Trials'));
-const Patients = lazy(() => import('./pages/EnhancedPatients'));
-const LegacyPatients = lazy(() => import('./pages/Patients'));
+// const Patients = lazy(() => import('./pages/EnhancedPatients'));
+// const LegacyPatients = lazy(() => import('./pages/Patients'));
 const ServerPatients = lazy(() => import('./pages/ServerPatients'));
 const Collaboration = lazy(() => import('./pages/Collaboration'));
 const AIInsights = lazy(() => import('./pages/AIInsights'));
@@ -246,20 +246,20 @@ function AppWithAuth() {
                 } />
                 {!PATIENTS_DISABLED && (
                   <>
-                    <Route path="/patients" element={
-                      <ProtectedRoute>
-                        <Layout>
-                          <Patients />
-                        </Layout>
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/patients/all" element={
-                      <ProtectedRoute>
-                        <Layout>
-                          <ServerPatients />
-                        </Layout>
-                      </ProtectedRoute>
-                    } />
+                <Route path="/patients" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <ServerPatients />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/patients/all" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <ServerPatients />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
                   </>
                 )}
                 <Route path="/collaboration" element={

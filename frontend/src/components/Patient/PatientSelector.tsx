@@ -23,9 +23,10 @@ import {
 type PatientSelectorProps = {
   mode?: 'page' | 'modal';
   onSelect?: (patient: PatientProfile) => void;
+  compact?: boolean;
 };
 
-const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSelect }) => {
+const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSelect, compact = false }) => {
   const { state, actions } = usePatient();
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -33,6 +34,14 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const isModal = mode === 'modal';
+  const isCompact = compact || isModal;
+  const searchInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  React.useEffect(() => {
+    if (isCompact) {
+      setTimeout(() => searchInputRef.current?.focus(), 50);
+    }
+  }, [isCompact]);
   
 
   // Patient search: prefer server when authenticated; fallback to local recent patients
@@ -285,13 +294,14 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
         <div className="flex space-x-3">
           <div className="flex-1 relative">
             <input
+              ref={searchInputRef}
               type="text"
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               onFocus={handleSearchFocus}
               onBlur={handleSearchBlur}
               placeholder="Search by patient name or MRN..."
-              className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className={`block w-full border border-gray-300 rounded-md px-3 ${isCompact ? 'py-1.5' : 'py-2'} text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500`}
             />
             {isSearching && (
               <div className="absolute right-3 top-2.5">
@@ -305,7 +315,7 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
           >
             <button
               onClick={() => setShowCreateForm(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700"
+              className={`flex items-center space-x-2 ${isCompact ? 'px-3 py-1.5' : 'px-4 py-2'} bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700`}
             >
               <Plus className="w-4 h-4" />
               <span>New Patient</span>
@@ -314,7 +324,7 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
           <Tooltip content="Sync patients from server" position="bottom">
             <button
               onClick={() => actions.syncFromServer()}
-              className="flex items-center space-x-2 px-3 py-2 bg-white border text-sm font-medium rounded-md hover:bg-gray-50"
+              className={`flex items-center space-x-2 ${isCompact ? 'px-2.5 py-1.5' : 'px-3 py-2'} bg-white border text-sm font-medium rounded-md hover:bg-gray-50`}
             >
               <RefreshCw className="w-4 h-4" />
               <span>Sync</span>

@@ -211,6 +211,8 @@ const useAuthSafely = () => {
 
 // Feature flag to disable patient functionality in the UI
 const PATIENTS_DISABLED = String((import.meta as any)?.env?.VITE_PATIENTS_DISABLED || '').toLowerCase() === 'true';
+// Feature flag: disable fallback sample patients entirely
+const DISABLE_SAMPLE_PATIENTS = String((import.meta as any)?.env?.VITE_DISABLE_SAMPLE_PATIENTS || '').toLowerCase() === 'true';
 
 export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (PATIENTS_DISABLED) {
@@ -345,6 +347,11 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
             console.warn('Failed to fetch patients from API, using sample data:', error);
           }
         })();
+
+        if (DISABLE_SAMPLE_PATIENTS) {
+          // Skip adding sample patients when disabled
+          return;
+        }
 
         // Add sample patients if API fails or returns no data
         const samplePatients: PatientProfile[] = [

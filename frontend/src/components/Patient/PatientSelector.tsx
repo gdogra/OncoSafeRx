@@ -247,8 +247,8 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
 
   return (
     <div className="space-y-6">
-      {/* Current Patient Display */}
-      {currentPatient && (
+      {/* Current Patient Display (hide in compact mode) */}
+      {currentPatient && !isCompact && (
         <Card className="bg-primary-50 border-primary-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -369,8 +369,8 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
         )}
       </Card>
 
-      {/* Recent Patients */}
-      {recentPatients.length > 0 && (
+      {/* Recent Patients (hide in compact mode) */}
+      {recentPatients.length > 0 && !isCompact && (
         <Card>
           <div className="flex items-center space-x-2 mb-4">
             <Clock className="w-5 h-5 text-gray-400" />

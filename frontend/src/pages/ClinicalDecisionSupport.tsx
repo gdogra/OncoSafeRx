@@ -2,6 +2,7 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ClinicalDecisionSupport from '../components/AI/ClinicalDecisionSupport';
 import Modal from '../components/UI/Modal';
+import PatientSelector from '../components/Patient/PatientSelector';
 import { usePatient } from '../context/PatientContext';
 
 const ClinicalDecisionSupportPage: React.FC = () => {
@@ -172,43 +173,8 @@ const ClinicalDecisionSupportPage: React.FC = () => {
         title="Select Patient"
         size="xl"
       >
-        <div className="space-y-4">
-          {recentPatients?.length ? (
-            <div className="grid md:grid-cols-2 gap-3">
-              {recentPatients.map((p: any) => (
-                <button
-                  key={p.id}
-                  onClick={() => { actions.setCurrentPatient(p); setShowPicker(false); }}
-                  className="text-left border rounded p-3 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
-                  <div className="font-semibold text-gray-900">
-                    {p.demographics?.firstName} {p.demographics?.lastName}
-                  </div>
-                  <div className="text-sm text-gray-600">MRN: {p.demographics?.mrn || '—'}</div>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="text-sm text-gray-600">
-              No recent patients yet. Use the Patients page to add/select a patient.
-            </div>
-          )}
-          <div className="text-right">
-            <button
-              onClick={() => {
-                try {
-                  const path = location.pathname + (location.search || '');
-                  localStorage.setItem('osrx_return_path', path);
-                } catch {}
-                setShowPicker(false);
-                navigate('/patients');
-              }}
-              className="px-3 py-2 text-sm bg-gray-100 rounded hover:bg-gray-200"
-            >
-              Open Patients Page
-            </button>
-          </div>
-        </div>
+        {/* Embed full PatientSelector for rich search/create/select inside the modal */}
+        <PatientSelector />
       </Modal>
     </div>
   );

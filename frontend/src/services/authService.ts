@@ -116,7 +116,21 @@ export class SupabaseAuthService {
       // Optional server-side proxy auth (enabled via env or localStorage flag)
       const envProxy = (import.meta as any).env?.VITE_SUPABASE_AUTH_VIA_PROXY === 'true'
       const lsProxy = (() => { try { return localStorage.getItem('osrx_use_auth_proxy') === 'true' } catch { return false } })()
-      const useProxy = envProxy || lsProxy
+      const baseWantProxy = envProxy || lsProxy
+      // Probe server health to discover if proxy is actually enabled
+      const proxyEnabled = await (async () => {
+        if (!baseWantProxy) return false
+        try {
+          const ctrl = new AbortController()
+          const t = setTimeout(() => ctrl.abort(), 1500)
+          const resp = await fetch('/api/supabase-auth/health', { signal: ctrl.signal })
+          clearTimeout(t)
+          if (!resp.ok) return false
+          const body = await resp.json().catch(() => ({} as any))
+          return body?.proxyEnabled === true
+        } catch { return false }
+      })()
+      const useProxy = proxyEnabled
       const proxyAuth = useProxy ? (async () => {
         console.log('🔄 Attempting proxy authentication via server...')
         const resp = await fetch('/api/supabase-auth/proxy/login', {

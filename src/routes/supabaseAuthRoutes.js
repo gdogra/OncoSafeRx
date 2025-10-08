@@ -292,7 +292,8 @@ router.get('/health',
     res.json({
       status: 'healthy',
       authType: 'supabase',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      proxyEnabled: AUTH_PROXY_ENABLED === true
     });
   }
 );

@@ -272,6 +272,10 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         recents.forEach((patient: PatientProfile) => {
           dispatch({ type: 'ADD_RECENT_PATIENT', payload: patient });
         });
+        // Auto-select most recent patient if none currently selected
+        if (!toUseCurrent && Array.isArray(recents) && recents.length > 0) {
+          dispatch({ type: 'SET_CURRENT_PATIENT', payload: recents[0] });
+        }
       } else {
         // Try to fetch from patient API
         (async () => {
@@ -564,6 +568,8 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         samplePatients.forEach(patient => {
           dispatch({ type: 'ADD_RECENT_PATIENT', payload: patient });
         });
+        // Select the first sample patient by default to unify context
+        dispatch({ type: 'SET_CURRENT_PATIENT', payload: samplePatients[0] });
       }
 
       // Persist migrated data into namespaced keys

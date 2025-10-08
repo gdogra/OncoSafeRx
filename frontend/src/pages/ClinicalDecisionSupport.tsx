@@ -120,10 +120,37 @@ const ClinicalDecisionSupportPage: React.FC = () => {
         return hit ? Number(hit.value) : undefined;
       } catch { return undefined; }
     };
-    const diagnosisPrimary = (() => {
-      const conds = Array.isArray(p.conditions) ? p.conditions : [];
-      return conds[0]?.name || conds[0]?.condition || 'Unknown';
+    const condsArr = Array.isArray(p.conditions) ? p.conditions : [];
+    const primaryCond = condsArr[0] || {};
+    const diagnosisPrimary = primaryCond?.name || primaryCond?.condition || 'Unknown';
+    const diagnosisStage = primaryCond?.stage || undefined;
+    const diagnosisHistology = primaryCond?.histology || undefined;
+
+    // Derive quality of life from ECOG if available
+    const ecog = (() => {
+      try {
+        const vitals = Array.isArray(p.vitals) ? p.vitals : [];
+        return vitals[0]?.performanceStatus;
+      } catch { return undefined; }
     })();
+    const derivedQoL = (() => {
+      if (typeof ecog !== 'number') return undefined;
+      if (ecog <= 1) return 85;
+      if (ecog === 2) return 60;
+      return 40;
+    })();
+
+    // Build biomarkers map from genetics entries (geneSymbol -> phenotype/alleles)
+    const biomarkers: Record<string, string> = {};
+    try {
+      const gens = Array.isArray(p.genetics) ? p.genetics : [];
+      gens.forEach((g: any) => {
+        const key = g?.geneSymbol || g?.gene || '';
+        if (!key) return;
+        const value = g?.phenotype || (Array.isArray(g?.alleles) ? g.alleles.join('/') : '') || 'present';
+        biomarkers[key] = String(value);
+      });
+    } catch {}
     return {
       demographics: {
         age: calcAge || 60,
@@ -134,9 +161,9 @@ const ClinicalDecisionSupportPage: React.FC = () => {
       },
       diagnosis: {
         primary: diagnosisPrimary,
-        stage: undefined,
-        histology: undefined,
-        biomarkers: {},
+        stage: diagnosisStage,
+        histology: diagnosisHistology,
+        biomarkers,
         prognosis: undefined,
       },
       medicalHistory: {
@@ -160,7 +187,7 @@ const ClinicalDecisionSupportPage: React.FC = () => {
         phenotypes: {},
       },
       preferences: {
-        qualityOfLife: undefined,
+        qualityOfLife: derivedQoL,
         treatmentGoals: [],
         contraindications: [],
       },

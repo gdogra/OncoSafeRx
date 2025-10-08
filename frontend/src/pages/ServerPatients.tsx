@@ -412,35 +412,7 @@ const ServerPatients: React.FC = () => {
     setSaveError(null);
   };
 
-  // Simple patient details modal renderer
-  const renderDetailsModal = () => {
-    if (!detailPatient) return null;
-    const d = detailPatient.data?.demographics || detailPatient.demographics || {};
-    const name = `${d.firstName || ''} ${d.lastName || ''}`.trim() || 'Unnamed Patient';
-    const mrn = d.mrn || '—';
-    const dob = d.dateOfBirth ? new Date(d.dateOfBirth).toLocaleDateString() : '—';
-    return (
-      <Modal isOpen={!!detailPatient} onClose={() => setDetailPatient(null)} title="Patient Details" size="xl">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-lg font-semibold text-gray-900">{name}</div>
-              <div className="text-sm text-gray-600">MRN: {mrn} • DOB: {dob}</div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button onClick={() => { selectAndClose(detailPatient); setDetailPatient(null); }} className="px-3 py-2 text-sm bg-blue-600 text-white rounded">Select</button>
-              <button onClick={() => { openEdit(detailPatient); setDetailPatient(null); }} className="px-3 py-2 text-sm bg-white border rounded">Edit</button>
-            </div>
-          </div>
-          <Card>
-            <div className="text-sm text-gray-800">
-              <pre className="whitespace-pre-wrap break-words text-xs text-gray-700">{JSON.stringify(detailPatient.data || detailPatient, null, 2)}</pre>
-            </div>
-          </Card>
-        </div>
-      </Modal>
-    );
-  };
+  // Duplicate renderDetailsModal removed (kept single definition below)
 
   // Simple patient details modal renderer
   const renderDetailsModal = () => {

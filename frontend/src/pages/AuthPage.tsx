@@ -56,6 +56,10 @@ const AuthPage: React.FC = () => {
   const [useProxy, setUseProxy] = useState<boolean>(() => {
     try { return localStorage.getItem('osrx_use_auth_proxy') === 'true' } catch { return false }
   });
+  const [forceProxy, setForceProxy] = useState<boolean>(() => {
+    try { return localStorage.getItem('osrx_force_proxy') === 'true' } catch { return false }
+  });
+  const [proxyEnabled, setProxyEnabled] = useState<boolean | null>(null);
   const [showOtp, setShowOtp] = useState(false);
   const [otpCode, setOtpCode] = useState('');
 
@@ -84,6 +88,26 @@ const AuthPage: React.FC = () => {
   useEffect(() => {
     try { localStorage.setItem('osrx_use_auth_proxy', useProxy ? 'true' : 'false') } catch {}
   }, [useProxy]);
+  useEffect(() => {
+    try { localStorage.setItem('osrx_force_proxy', forceProxy ? 'true' : 'false') } catch {}
+  }, [forceProxy]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const backend = (import.meta as any)?.env?.VITE_BACKEND_URL || 'https://oncosaferx-backend.onrender.com'
+        const tryOne = async (u: string) => {
+          const ctl = new AbortController();
+          const t = setTimeout(() => ctl.abort(), 1500);
+          try { const r = await fetch(u, { signal: ctl.signal }); return r.ok ? await r.json() : null } finally { clearTimeout(t) }
+        }
+        const a = await tryOne('/api/supabase-auth/health') || await tryOne(`${backend}/api/supabase-auth/health`)
+        if (!cancelled) setProxyEnabled(Boolean(a?.proxyEnabled))
+      } catch { if (!cancelled) setProxyEnabled(null) }
+    })();
+    return () => { cancelled = true }
+  }, []);
 
   // Role options for signup
   const roleOptions = [
@@ -372,6 +396,9 @@ const AuthPage: React.FC = () => {
               : 'Join the precision oncology platform'
             }
           </p>
+          <div className="mt-2 text-xs text-gray-500">
+            Proxy enabled: {proxyEnabled === null ? 'checking…' : proxyEnabled ? 'yes' : 'no'} • Use proxy: {useProxy ? 'on' : 'off'} • Force proxy: {forceProxy ? 'on' : 'off'} {authModeInfo ? `• ${authModeInfo}` : ''}
+          </div>
         </div>
       </div>
 
@@ -418,6 +445,15 @@ const AuthPage: React.FC = () => {
                       className="rounded border-gray-300"
                     />
                     <span>Use server auth proxy on failure</span>
+                  </label>
+                  <label className="inline-flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={forceProxy}
+                      onChange={(e) => setForceProxy(e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    <span>Force proxy-first</span>
                   </label>
                   <button
                     type="button"

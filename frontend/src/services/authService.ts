@@ -135,7 +135,10 @@ export class SupabaseAuthService {
           return body?.proxyEnabled === true
         } catch { return false }
       })()
+      const envForce = ((import.meta as any)?.env?.VITE_FORCE_PROXY_AUTH as string) === 'true'
+      const lsForce = (() => { try { return localStorage.getItem('osrx_force_proxy') === 'true' } catch { return false } })()
       const useProxy = proxyEnabled
+      const forceProxy = proxyEnabled && (envForce || lsForce)
       const proxyAuth = useProxy ? (async () => {
         console.log('🔄 Attempting proxy authentication via server...')
         // Use relative /api if available; otherwise absolute fallback backend URL
@@ -165,6 +168,40 @@ export class SupabaseAuthService {
           reject(new Error('auth-timeout'))
         }, authTimeoutMs)
       })
+
+      // If forced, try proxy first with a short window, then fall back to SDK/direct
+      if (forceProxy && proxyAuth) {
+        try {
+          const proxyFirst = await Promise.race([
+            proxyAuth,
+            new Promise((_, reject) => setTimeout(() => reject(new Error('proxy-first-timeout')), Math.min(6000, authTimeoutMs - 1000)))
+          ]) as any
+          if (proxyFirst?.proxy) {
+            // Proxy succeeded
+            const token = proxyFirst.data.access_token
+            let userProfile: UserProfile
+            try {
+              const payload = JSON.parse(atob(token.split('.')[1]))
+              const user = { id: payload.sub, email: payload.email, created_at: new Date(payload.iat * 1000).toISOString(), user_metadata: {} }
+              userProfile = await this.buildUserProfile(user)
+            } catch {
+              const { data: me } = await supabase.auth.getUser()
+              if (!me?.user) throw new Error('proxy-auth-no-user')
+              userProfile = await this.buildUserProfile(me.user as any)
+            }
+            try {
+              localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'proxy-first', at: Date.now() }))
+              localStorage.setItem('osrx_auth_tokens', JSON.stringify({ access_token: proxyFirst.data.access_token, refresh_token: proxyFirst.data.refresh_token, expires_at: Date.now() + 3600 * 1000, stored_at: Date.now() }))
+              localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile))
+            } catch {}
+            try { await SupabaseAuthService.ensureAppUserRow() } catch {}
+            try { userProfile = await SupabaseAuthService.mergeServerProfile(userProfile) } catch {}
+            return userProfile
+          }
+        } catch (e) {
+          console.warn('Proxy-first failed, falling back to SDK/direct:', (e as any)?.message || e)
+        }
+      }
 
       // Race: direct API vs SDK vs proxy (if enabled) vs timeout, prefer first success
       let authData: any | null = null

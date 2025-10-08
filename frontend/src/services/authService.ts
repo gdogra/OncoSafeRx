@@ -113,6 +113,24 @@ export class SupabaseAuthService {
         } finally { clearTimeout(timer) }
       })()
 
+      // Optional server-side proxy auth (enabled via env or localStorage flag)
+      const envProxy = (import.meta as any).env?.VITE_SUPABASE_AUTH_VIA_PROXY === 'true'
+      const lsProxy = (() => { try { return localStorage.getItem('osrx_use_auth_proxy') === 'true' } catch { return false } })()
+      const useProxy = envProxy || lsProxy
+      const proxyAuth = useProxy ? (async () => {
+        console.log('🔄 Attempting proxy authentication via server...')
+        const resp = await fetch('/api/supabase-auth/proxy/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        })
+        if (!resp.ok) throw new Error(`proxy ${resp.status}`)
+        const body = await resp.json()
+        // Set session so SDK-aware parts can work; tolerate setSession errors
+        try { await supabase.auth.setSession({ access_token: body.access_token, refresh_token: body.refresh_token } as any) } catch {}
+        return { proxy: true, data: body }
+      })() : null
+
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => {
           console.log(`⏰ TIMEOUT: Auth exceeded ${Math.round(authTimeoutMs/1000)} seconds`)
@@ -120,11 +138,13 @@ export class SupabaseAuthService {
         }, authTimeoutMs)
       })
 
-      // Race: direct API vs SDK vs timeout, prefer first success
+      // Race: direct API vs SDK vs proxy (if enabled) vs timeout, prefer first success
       let authData: any | null = null
       let error: any | null = null
       try {
-        const winner: any = await Promise.race([directAuth, sdkAuth, timeoutPromise])
+        const racers: any[] = [directAuth, sdkAuth, timeoutPromise]
+        if (proxyAuth) racers.unshift(proxyAuth)
+        const winner: any = await Promise.race(racers)
         if (winner?.direct) {
           // Build profile from direct tokens immediately
           const token = winner.data.access_token
@@ -146,6 +166,29 @@ export class SupabaseAuthService {
           // Merge server profile to fill missing names from DB
           try { userProfile = await SupabaseAuthService.mergeServerProfile(userProfile) } catch {}
           return userProfile
+        } else if (winner?.proxy && useProxy) {
+          console.log('✅ Proxy auth successful (race)')
+          const token = winner.data.access_token
+          let userProfile: UserProfile
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]))
+            const user = { id: payload.sub, email: payload.email, created_at: new Date(payload.iat * 1000).toISOString(), user_metadata: {} }
+            userProfile = await this.buildUserProfile(user)
+          } catch {
+            const { data: me } = await supabase.auth.getUser()
+            if (!me?.user) throw new Error('proxy-auth-no-user')
+            userProfile = await this.buildUserProfile(me.user as any)
+          }
+          try {
+            localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'proxy', at: Date.now() }))
+            localStorage.setItem('osrx_auth_tokens', JSON.stringify({ access_token: winner.data.access_token, refresh_token: winner.data.refresh_token, expires_at: Date.now() + 3600 * 1000, stored_at: Date.now() }))
+            localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile))
+          } catch {}
+          // Best-effort: ensure app users row exists
+          try { await SupabaseAuthService.ensureAppUserRow() } catch {}
+          // Merge server profile to fill missing names
+          try { userProfile = await SupabaseAuthService.mergeServerProfile(userProfile) } catch {}
+          return userProfile
         } else {
           authData = winner
         }
@@ -158,9 +201,6 @@ export class SupabaseAuthService {
       if (error) {
         console.log('❌ Supabase error:', error.message, error)
         // Optional fallback: try server-side proxy if enabled
-        const envProxy = (import.meta as any).env?.VITE_SUPABASE_AUTH_VIA_PROXY === 'true'
-        const lsProxy = (() => { try { return localStorage.getItem('osrx_use_auth_proxy') === 'true' } catch { return false } })()
-        const useProxy = envProxy || lsProxy
         if (useProxy) {
           try {
             const resp = await fetch('/api/supabase-auth/proxy/login', {

@@ -65,6 +65,8 @@
   # Supabase configuration for frontend
   VITE_SUPABASE_URL = "https://emfrwckxctyarphjvfeu.supabase.co"
   VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c"
+  # Prefer server-side auth proxy to avoid network timeouts
+  VITE_SUPABASE_AUTH_VIA_PROXY = "true"
   VITE_DISABLE_SAMPLE_PATIENTS = "true"
   # Switch to Edge Functions for API proxy
   BUILD_ID = "restore-working-config-20251007-0915"

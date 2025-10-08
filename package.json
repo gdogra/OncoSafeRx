@@ -25,6 +25,7 @@
     "db:seed": "node src/scripts/seedDatabase.js",
     "sync:rxnorm": "node src/scripts/syncRxNorm.js",
     "sync:cpic": "node src/scripts/syncCPIC.js",
+    "backfill:profiles": "node src/scripts/backfillAuthUsersToProfiles.js",
     "migrate:users": "node src/scripts/migrateUsersToSupabase.js",
     "sync:patient-profiles": "node src/scripts/syncPatientProfiles.js",
     "ci:smoke-frontend": "node scripts/smoke-ci.js",

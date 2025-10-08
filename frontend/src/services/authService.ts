@@ -49,7 +49,7 @@ export class SupabaseAuthService {
       // Simple dev credentials
       if (password === 'dev' || password === 'test' || password === 'admin') {
         console.log('✅ Dev credentials accepted')
-        const profile = this.createDevUser(email)
+        let profile = this.createDevUser(email)
         
         // Create mock JWT tokens for dev mode API calls
         const mockTokens = {
@@ -67,6 +67,10 @@ export class SupabaseAuthService {
         } catch (storageError) {
           console.error('❌ Failed to store dev tokens:', storageError)
         }
+        // Merge server-side profile (if available) to get better names
+        try { profile = await SupabaseAuthService.mergeServerProfile(profile) } catch {}
+        // Best-effort: ensure app users row exists
+        try { await SupabaseAuthService.ensureAppUserRow() } catch {}
         return profile
       }
       
@@ -126,7 +130,7 @@ export class SupabaseAuthService {
           const token = winner.data.access_token
           const payload = JSON.parse(atob(token.split('.')[1]))
           const user = { id: payload.sub, email: payload.email, created_at: new Date(payload.iat * 1000).toISOString(), user_metadata: {} }
-          const userProfile = await this.buildUserProfile(user)
+          let userProfile = await this.buildUserProfile(user)
           try {
             localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'jwt-direct', at: Date.now() }))
             localStorage.setItem('osrx_auth_tokens', JSON.stringify({
@@ -137,6 +141,10 @@ export class SupabaseAuthService {
             }))
             localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile))
           } catch {}
+          // Best-effort: ensure app users row exists
+          try { await SupabaseAuthService.ensureAppUserRow() } catch {}
+          // Merge server profile to fill missing names from DB
+          try { userProfile = await SupabaseAuthService.mergeServerProfile(userProfile) } catch {}
           return userProfile
         } else {
           authData = winner
@@ -193,6 +201,8 @@ export class SupabaseAuthService {
         lastSignIn: authData.user.last_sign_in_at 
       })
       const userProfile = await this.buildUserProfile(authData.user)
+      // Best-effort: ensure app users row exists
+      try { await SupabaseAuthService.ensureAppUserRow() } catch {}
       try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct', at: Date.now() })) } catch {}
       return userProfile
 
@@ -258,7 +268,8 @@ export class SupabaseAuthService {
               }))
               localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile))
             } catch {}
-            
+            // Best-effort: ensure app users row exists
+            try { await SupabaseAuthService.ensureAppUserRow() } catch {}
             return userProfile
           } catch (jwtError) {
             console.log('❌ JWT parsing failed, attempting setSession...', jwtError)
@@ -275,12 +286,16 @@ export class SupabaseAuthService {
             const { data: setData, error: setErr } = await Promise.race([setSessionPromise, setTimeoutPromise]) as any
             if (setErr) throw setErr
             if (!setData?.session?.user) throw new Error('Failed to establish session from direct login')
-            const userProfile = await this.buildUserProfile(setData.session.user)
+            let userProfile = await this.buildUserProfile(setData.session.user)
             try { 
               localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct-api-fallback', at: Date.now() }))
               // For setSession success, also store user profile for session persistence
               localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile))
             } catch {}
+            // Best-effort: ensure app users row exists
+            try { await SupabaseAuthService.ensureAppUserRow() } catch {}
+            // Merge server profile to fill missing names from DB
+            try { userProfile = await SupabaseAuthService.mergeServerProfile(userProfile) } catch {}
             return userProfile
           }
         } else {
@@ -345,7 +360,9 @@ export class SupabaseAuthService {
       const { data: { session } } = await supabase.auth.getSession()
       if (session?.user) {
         console.log('🔄 Restored user from Supabase session')
-        return this.buildUserProfile(session.user)
+        let p = await this.buildUserProfile(session.user)
+        try { p = await SupabaseAuthService.mergeServerProfile(p) } catch {}
+        return p
       }
 
       // Check for stored auth path to determine how user was authenticated
@@ -364,13 +381,14 @@ export class SupabaseAuthService {
         // For production without authentication, create a default user
         if (window.location.hostname !== 'localhost') {
           console.log('🔄 Creating default user for unauthenticated production session')
-          const defaultUser = this.createDevUser('user@oncosaferx.com')
+          let defaultUser = this.createDevUser('user@oncosaferx.com')
           // Store as if it was a user profile
           try {
             localStorage.setItem('osrx_user_profile', JSON.stringify(defaultUser))
           } catch (e) {
             console.error('Failed to store default user profile:', e)
           }
+          try { defaultUser = await SupabaseAuthService.mergeServerProfile(defaultUser) } catch {}
           return defaultUser
         }
         return null
@@ -421,11 +439,13 @@ export class SupabaseAuthService {
         }
         
         if (storedDevUser) {
-          return storedDevUser
+          try { return await SupabaseAuthService.mergeServerProfile(storedDevUser) } catch { return storedDevUser }
         } else {
           // Create default dev user if no stored user found
           const defaultEmail = 'dev@oncosaferx.com'
-          return this.createDevUser(defaultEmail)
+          let u = this.createDevUser(defaultEmail)
+          try { u = await SupabaseAuthService.mergeServerProfile(u) } catch {}
+          return u
         }
       }
 
@@ -481,6 +501,78 @@ export class SupabaseAuthService {
     } catch (error) {
       console.log('Error getting current user:', error)
       return null
+    }
+  }
+
+  // Best-effort: ensure a corresponding row exists in app users table on the backend
+  private static async ensureAppUserRow(): Promise<void> {
+    try {
+      const { data } = await supabase.auth.getSession()
+      let token = data?.session?.access_token as string | undefined
+      if (!token) {
+        try {
+          const stored = localStorage.getItem('osrx_auth_tokens')
+          if (stored) {
+            const parsed = JSON.parse(stored)
+            token = parsed.access_token
+          }
+        } catch {}
+      }
+      if (token) {
+        await fetch('/api/supabase-auth/profile', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        return
+      }
+      // No Supabase token: best-effort server demo profile create using local user profile
+      try {
+        const storedProfile = localStorage.getItem('osrx_user_profile')
+        const email = storedProfile ? (JSON.parse(storedProfile)?.email || '') : ''
+        if (!email) return
+        const id = localStorage.getItem('osrx_session_user_id') || `dev-${Date.now()}`
+        const firstName = (JSON.parse(storedProfile || '{}')?.firstName) || email.split('@')[0]
+        const lastName = (JSON.parse(storedProfile || '{}')?.lastName) || 'User'
+        await fetch('/api/supabase-auth/demo/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, email, role: 'oncologist', first_name: firstName, last_name: lastName })
+        })
+      } catch {}
+    } catch {
+      // ignore
+    }
+  }
+
+  // Merge server-provided profile fields (from users table) when available
+  private static async mergeServerProfile(local: UserProfile): Promise<UserProfile> {
+    try {
+      // obtain token from session or stored tokens
+      const { data } = await supabase.auth.getSession()
+      let token = data?.session?.access_token as string | undefined
+      if (!token) {
+        try {
+          const stored = localStorage.getItem('osrx_auth_tokens')
+          if (stored) token = JSON.parse(stored)?.access_token
+        } catch {}
+      }
+      const resp = await fetch('/api/supabase-auth/profile', token ? { headers: { Authorization: `Bearer ${token}` } } : undefined)
+      if (!resp.ok) return local
+      const body = await resp.json().catch(() => ({} as any))
+      const serverUser = body?.user
+      if (!serverUser) return local
+      const merged = { ...local }
+      // Only fill when missing/empty locally
+      if (!merged.firstName && serverUser.firstName) merged.firstName = serverUser.firstName
+      if (!merged.lastName && serverUser.lastName) merged.lastName = serverUser.lastName
+      if (!merged.specialty && serverUser.specialty) merged.specialty = serverUser.specialty
+      if (!merged.institution && serverUser.institution) merged.institution = serverUser.institution
+      if (!merged.licenseNumber && serverUser.licenseNumber) merged.licenseNumber = serverUser.licenseNumber
+      if (!merged.yearsExperience && serverUser.yearsExperience) merged.yearsExperience = serverUser.yearsExperience
+      // sync to localStorage for consistency
+      try { localStorage.setItem('osrx_user_profile', JSON.stringify(merged)) } catch {}
+      return merged
+    } catch {
+      return local
     }
   }
 
@@ -540,13 +632,40 @@ export class SupabaseAuthService {
     });
     
     const role = user.user_metadata?.role || fallbackData?.role || 'oncologist'
+    // Derive names with robust fallbacks:
+    // 1) user_metadata.first_name/last_name
+    // 2) identity_data (OIDC providers)
+    // 3) parsed from email (before @)
+    let derivedFirst = user.user_metadata?.first_name || fallbackData?.firstName || ''
+    let derivedLast = user.user_metadata?.last_name || fallbackData?.lastName || ''
+    if ((!derivedFirst || !derivedLast) && user.identities?.[0]?.identity_data) {
+      const idData = user.identities[0].identity_data
+      const given = idData.given_name || idData.givenName || ''
+      const family = idData.family_name || idData.familyName || ''
+      const full = idData.name || ''
+      if (!derivedFirst && given) derivedFirst = given
+      if (!derivedLast && family) derivedLast = family
+      if ((!derivedFirst || !derivedLast) && full) {
+        const parts = String(full).trim().split(/\s+/)
+        if (!derivedFirst && parts.length) derivedFirst = parts[0]
+        if (!derivedLast && parts.length > 1) derivedLast = parts.slice(1).join(' ')
+      }
+    }
+    if (!derivedFirst && user.email) {
+      const local = String(user.email).split('@')[0]
+      // Split on . or _ to try to get a nicer first name
+      const pieces = local.split(/[._-]/)
+      derivedFirst = pieces[0] ? pieces[0].charAt(0).toUpperCase() + pieces[0].slice(1) : ''
+    }
+    if (!derivedFirst) derivedFirst = 'Clinician'
+    if (!derivedLast) derivedLast = 'User'
     
     // Always prioritize user_metadata over identity_data (user_metadata is what gets updated)
     const profile = {
       id: user.id,
       email: user.email || fallbackData?.email || '',
-      firstName: user.user_metadata?.first_name || fallbackData?.firstName || '',
-      lastName: user.user_metadata?.last_name || fallbackData?.lastName || '',
+      firstName: derivedFirst,
+      lastName: derivedLast,
       role,
       specialty: user.user_metadata?.specialty || fallbackData?.specialty || '',
       institution: user.user_metadata?.institution || fallbackData?.institution || '',

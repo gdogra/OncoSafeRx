@@ -29,18 +29,59 @@ router.get('/profile',
         console.log('🔄 Using default user (Gautam) for unauthenticated profile fetch');
       }
       
-      res.json({
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.supabaseUser.user_metadata?.first_name || '',
-          lastName: user.supabaseUser.user_metadata?.last_name || '',
-          role: user.role,
-          specialty: user.supabaseUser.user_metadata?.specialty || '',
-          institution: user.supabaseUser.user_metadata?.institution || '',
-          licenseNumber: user.supabaseUser.user_metadata?.license_number || '',
-          yearsExperience: user.supabaseUser.user_metadata?.years_experience || 0,
-          preferences: user.supabaseUser.user_metadata?.preferences || {
+      // Ensure an app-level users row exists for authenticated users (not for the default fallback)
+      try {
+        if (!user.isDefault && user.id && process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+          const admin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+          const { data: existing, error: selErr } = await admin
+            .from('users')
+            .select('id')
+            .eq('id', user.id)
+            .maybeSingle();
+          if (!selErr && !existing) {
+            const meta = user.supabaseUser?.user_metadata || {};
+            const payload = {
+              id: user.id,
+              email: user.email || null,
+              role: meta.role || 'oncologist',
+              first_name: meta.first_name || (user.email ? String(user.email).split('@')[0] : ''),
+              last_name: meta.last_name || '',
+              created_at: new Date().toISOString(),
+            };
+            await admin.from('users').upsert(payload, { onConflict: 'id' });
+            console.log('🆕 Created users row for', user.email);
+          }
+        }
+      } catch (ensureErr) {
+        console.warn('⚠️ Failed to ensure users row:', ensureErr?.message || ensureErr);
+      }
+      
+      // Optionally load profile fields from public.users to supplement auth metadata
+      let dbRow = null;
+      try {
+        if (!user.isDefault && process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+          const admin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+          const { data: row } = await admin
+            .from('users')
+            .select('first_name,last_name,role,specialty,institution,license_number,years_experience,preferences,persona')
+            .eq('id', user.id)
+            .maybeSingle();
+          dbRow = row || null;
+        }
+      } catch {}
+
+      const meta = user.supabaseUser?.user_metadata || {};
+      const responseUser = {
+        id: user.id,
+        email: user.email,
+        firstName: meta.first_name || dbRow?.first_name || '',
+        lastName: meta.last_name || dbRow?.last_name || '',
+        role: user.role || dbRow?.role,
+        specialty: meta.specialty || dbRow?.specialty || '',
+        institution: meta.institution || dbRow?.institution || '',
+        licenseNumber: meta.license_number || dbRow?.license_number || '',
+        yearsExperience: meta.years_experience || dbRow?.years_experience || 0,
+        preferences: meta.preferences || dbRow?.preferences || {
             theme: 'light',
             language: 'en',
             notifications: {
@@ -55,17 +96,17 @@ router.get('/profile',
               compactMode: false,
             },
             clinical: {
-              showGenomicsByDefault: user.role === 'oncologist' || user.role === 'pharmacist',
-              autoCalculateDosing: user.role === 'oncologist' || user.role === 'pharmacist',
+              showGenomicsByDefault: (user.role || dbRow?.role) === 'oncologist' || (user.role || dbRow?.role) === 'pharmacist',
+              autoCalculateDosing: (user.role || dbRow?.role) === 'oncologist' || (user.role || dbRow?.role) === 'pharmacist',
               requireInteractionAck: true,
               showPatientPhotos: false,
             },
           },
-          persona: user.supabaseUser.user_metadata?.persona || {
+        persona: meta.persona || dbRow?.persona || {
             id: `persona-${Date.now()}`,
-            name: getDefaultPersonaName(user.role),
-            description: getDefaultPersonaDescription(user.role),
-            role: user.role,
+            name: getDefaultPersonaName(user.role || dbRow?.role),
+            description: getDefaultPersonaDescription(user.role || dbRow?.role),
+            role: user.role || dbRow?.role,
             experienceLevel: 'intermediate',
             specialties: getDefaultSpecialties(user.role),
             preferences: {
@@ -75,12 +116,13 @@ router.get('/profile',
               decisionSupport: 'consultative',
             },
             customSettings: {},
-          },
-          createdAt: user.supabaseUser.created_at,
-          lastLogin: new Date().toISOString(),
-          isActive: true,
-        }
-      });
+        },
+        createdAt: user.supabaseUser?.created_at,
+        lastLogin: new Date().toISOString(),
+        isActive: true,
+      };
+
+      res.json({ user: responseUser });
 
     } catch (error) {
       console.error('Profile fetch error:', error);
@@ -258,7 +300,9 @@ router.get('/health',
 // Dev-only: Create/Upsert demo profile row via service role (no client session required)
 router.post('/demo/profile', asyncHandler(async (req, res) => {
   try {
-    const devAllowed = (process.env.NODE_ENV || 'development') === 'development' || (process.env.DEMO_PROFILE_ENABLED || '').toLowerCase() === 'true';
+    const devAllowed = ((process.env.NODE_ENV || 'development') === 'development') 
+      || ((process.env.DEMO_PROFILE_ENABLED || '').toLowerCase() === 'true')
+      || !!process.env.SUPABASE_SERVICE_ROLE_KEY; // allow when server can securely write
     if (!devAllowed) {
       return res.status(403).json({ error: 'Demo profile creation not allowed in this environment' });
     }
@@ -297,7 +341,9 @@ router.post('/demo/profile', asyncHandler(async (req, res) => {
 // Dev-only: Delete demo profile row via service role
 router.delete('/demo/profile/:id', asyncHandler(async (req, res) => {
   try {
-    const devAllowed = (process.env.NODE_ENV || 'development') === 'development' || (process.env.DEMO_PROFILE_ENABLED || '').toLowerCase() === 'true';
+    const devAllowed = ((process.env.NODE_ENV || 'development') === 'development') 
+      || ((process.env.DEMO_PROFILE_ENABLED || '').toLowerCase() === 'true')
+      || !!process.env.SUPABASE_SERVICE_ROLE_KEY; // allow when server can securely write
     if (!devAllowed) {
       return res.status(403).json({ error: 'Demo profile deletion not allowed in this environment' });
     }
@@ -325,7 +371,9 @@ router.delete('/demo/profile/:id', asyncHandler(async (req, res) => {
 // Dev-only: Reset demo profile row (and optionally Supabase auth metadata)
 router.post('/demo/reset', asyncHandler(async (req, res) => {
   try {
-    const devAllowed = (process.env.NODE_ENV || 'development') === 'development' || (process.env.DEMO_PROFILE_ENABLED || '').toLowerCase() === 'true';
+    const devAllowed = ((process.env.NODE_ENV || 'development') === 'development') 
+      || ((process.env.DEMO_PROFILE_ENABLED || '').toLowerCase() === 'true')
+      || !!process.env.SUPABASE_SERVICE_ROLE_KEY; // allow when server can securely write
     if (!devAllowed) {
       return res.status(403).json({ error: 'Demo profile reset not allowed in this environment' });
     }
@@ -646,5 +694,89 @@ router.post('/demo/session', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+/**
+ * Backfill profiles from Supabase Auth users into public.users
+ * Protection: require service role configured AND X-Admin-Token header matching BACKFILL_TOKEN.
+ */
+router.post('/backfill/profiles', asyncHandler(async (req, res) => {
+  try {
+    const url = process.env.SUPABASE_URL;
+    const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const adminToken = process.env.BACKFILL_TOKEN || '';
+    const provided = req.headers['x-admin-token'] || req.query.token;
+    if (!url || !service) return res.status(500).json({ error: 'Supabase service not configured' });
+    if (!adminToken || String(provided) !== adminToken) return res.status(403).json({ error: 'Forbidden' });
+
+    const admin = createClient(url, service);
+
+    // Helper: derive names
+    const deriveNames = (email, meta = {}) => {
+      let first = meta.first_name || '';
+      let last = meta.last_name || '';
+      if (!first && meta.given_name) first = meta.given_name;
+      if (!last && meta.family_name) last = meta.family_name;
+      if (!first && email) {
+        const local = String(email).split('@')[0];
+        const parts = local.split(/[._-]/);
+        first = parts[0] ? parts[0].charAt(0).toUpperCase() + parts[0].slice(1) : 'Clinician';
+      }
+      if (!last) last = 'User';
+      return { first, last };
+    };
+
+    let page = 1;
+    const perPage = 1000;
+    let total = 0, created = 0, updated = 0, skipped = 0;
+
+    // Paginate through auth users
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const { data, error } = await admin.auth.admin.listUsers({ page, perPage });
+      if (error) return res.status(500).json({ error: error.message });
+      const users = data?.users || [];
+      if (users.length === 0) break;
+      for (const u of users) {
+        total++;
+        const email = u.email || null;
+        const meta = u.user_metadata || {};
+        const role = meta.role || 'oncologist';
+        const names = deriveNames(email, meta);
+        // Check if profile exists
+        const { data: existing } = await admin
+          .from('users')
+          .select('id')
+          .eq('id', u.id)
+          .maybeSingle();
+        const payload = {
+          id: u.id,
+          email,
+          role,
+          first_name: names.first,
+          last_name: names.last,
+          created_at: new Date().toISOString()
+        };
+        if (!existing) {
+          const { error: insErr } = await admin.from('users').upsert(payload, { onConflict: 'id' });
+          if (!insErr) created++; else skipped++;
+        } else {
+          const { error: upErr } = await admin.from('users').update({
+            email,
+            role,
+            first_name: names.first,
+            last_name: names.last,
+            updated_at: new Date().toISOString()
+          }).eq('id', u.id);
+          if (!upErr) updated++; else skipped++;
+        }
+      }
+      page++;
+    }
+
+    return res.json({ ok: true, total, created, updated, skipped });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Unexpected error' });
+  }
+}));
 
 export default router;

@@ -7,6 +7,7 @@ import { useToast } from '../components/UI/Toast';
 import ComprehensivePatientForm from '../components/Patient/ComprehensivePatientForm';
 // Always allow creating patients on this page (production UX request)
 import Coachmark from '../components/UI/Coachmark';
+import Modal from '../components/UI/Modal';
 
 const PAGE_SIZE = 10;
 
@@ -24,6 +25,8 @@ const ServerPatients: React.FC = () => {
   const [usingDemoData, setUsingDemoData] = useState(false);
   const [usingDefaultUser, setUsingDefaultUser] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [detailPatient, setDetailPatient] = useState<any | null>(null);
+  const [detailsTab, setDetailsTab] = useState<'demo'|'meds'|'cond'|'labs'>('demo');
   const [showCoachBanner, setShowCoachBanner] = useState<boolean>(() => {
     try {
       if ((import.meta as any)?.env?.MODE !== 'production') return false;
@@ -448,7 +451,7 @@ const ServerPatients: React.FC = () => {
               ].map(t => (
                 <button
                   key={t.id}
-                  onClick={() => setDetailPatient((prev: any) => { (setDetailsTab as any)(t.id); return prev; })}
+                  onClick={() => setDetailsTab(t.id as any)}
                   className={`whitespace-nowrap py-2 px-3 border-b-2 text-sm font-medium ${detailsTab === (t.id as any) ? 'border-blue-600 text-blue-700' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
                 >
                   {t.label}

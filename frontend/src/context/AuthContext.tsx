@@ -98,19 +98,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('AuthContext: Starting login for', data.email);
       dispatch({ type: 'AUTH_START' });
       
-      // Critical UI-level timeout to prevent infinite spinning (extended for JWT parsing)
-      const loginTimeout = setTimeout(() => {
-        console.log('🛑 CRITICAL: Login exceeded 15 seconds - forcing failure');
-        dispatch({ type: 'AUTH_FAILURE', payload: 'Login timeout - please try again' });
-      }, 15000);
+      // Remove aggressive UI timeout; rely on service-level timeouts/fallbacks
+      // Keep a soft watchdog for logging only (no user-facing error)
+      const loginWatchdog = setTimeout(() => {
+        console.log('⏰ Notice: Login taking longer than expected...');
+      }, 10000);
       
       try {
         const user = await SupabaseAuthService.login(data);
-        clearTimeout(loginTimeout);
+        clearTimeout(loginWatchdog);
         console.log('AuthContext: Login successful, user:', user);
         dispatch({ type: 'AUTH_SUCCESS', payload: user });
       } catch (error) {
-        clearTimeout(loginTimeout);
+        clearTimeout(loginWatchdog);
         console.error('AuthContext: Login failed:', error);
         console.error('AuthContext: Login error details:', {
           message: error instanceof Error ? error.message : 'Unknown error',

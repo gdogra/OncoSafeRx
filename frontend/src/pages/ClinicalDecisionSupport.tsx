@@ -95,9 +95,84 @@ const ClinicalDecisionSupportPage: React.FC = () => {
     }, 1000);
   };
 
+  // Map app PatientProfile -> CDS component profile shape
+  const mapToCdsProfile = (p: any) => {
+    if (!p) return null;
+    const dob = p.demographics?.dateOfBirth;
+    const calcAge = (() => {
+      try {
+        if (!dob) return undefined;
+        const today = new Date();
+        const birth = new Date(dob);
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+        return age;
+      } catch { return undefined; }
+    })();
+    const recentLab = (name: string) => {
+      try {
+        const labs = Array.isArray(p.labValues) ? p.labValues : [];
+        const key = name.toLowerCase();
+        const hit = labs
+          .filter((l: any) => String(l?.labType || '').toLowerCase().includes(key))
+          .sort((a: any, b: any) => new Date(b?.timestamp || 0).getTime() - new Date(a?.timestamp || 0).getTime())[0];
+        return hit ? Number(hit.value) : undefined;
+      } catch { return undefined; }
+    };
+    const diagnosisPrimary = (() => {
+      const conds = Array.isArray(p.conditions) ? p.conditions : [];
+      return conds[0]?.name || conds[0]?.condition || 'Unknown';
+    })();
+    return {
+      demographics: {
+        age: calcAge || 60,
+        gender: (p.demographics?.sex as any) || 'other',
+        weight: p.demographics?.weightKg || 70,
+        height: p.demographics?.heightCm || 170,
+        ethnicity: p.demographics?.race || undefined,
+      },
+      diagnosis: {
+        primary: diagnosisPrimary,
+        stage: undefined,
+        histology: undefined,
+        biomarkers: {},
+        prognosis: undefined,
+      },
+      medicalHistory: {
+        comorbidities: (Array.isArray(p.conditions) ? p.conditions.map((c: any) => c.name || c.condition).filter(Boolean) : []),
+        previousTreatments: (Array.isArray(p.treatmentHistory) ? p.treatmentHistory.map((t: any) => t.regimen || t.treatmentType).filter(Boolean) : []),
+        allergies: (Array.isArray(p.allergies) ? p.allergies.map((a: any) => a.allergen || a.name || '').filter(Boolean) : []),
+        familyHistory: [],
+      },
+      labValues: {
+        creatinine: recentLab('creatinine'),
+        bilirubin: recentLab('bilirubin'),
+        ast: recentLab('ast'),
+        alt: recentLab('alt'),
+        plateletCount: recentLab('platelet'),
+        neutrophilCount: recentLab('anc') || recentLab('neutrophil'),
+        hemoglobin: recentLab('hemoglobin'),
+      },
+      genetics: {
+        tested: Array.isArray(p.genetics) ? p.genetics.length > 0 : false,
+        variants: {},
+        phenotypes: {},
+      },
+      preferences: {
+        qualityOfLife: undefined,
+        treatmentGoals: [],
+        contraindications: [],
+      },
+    };
+  };
+
   // Use selected patient data if available, otherwise fall back to mock data
-  const patientProfile = currentPatient || (DISABLE_SAMPLE_PATIENTS ? null : mockPatientProfile);
-  const patientName = currentPatient?.name || (DISABLE_SAMPLE_PATIENTS ? 'No patient selected' : 'Demo Patient (Sarah Johnson)');
+  const mapped = currentPatient ? mapToCdsProfile(currentPatient) : null;
+  const patientProfile = mapped || (DISABLE_SAMPLE_PATIENTS ? null : mockPatientProfile);
+  const patientName = currentPatient
+    ? `${currentPatient.demographics?.firstName || ''} ${currentPatient.demographics?.lastName || ''}`.trim() || 'Selected Patient'
+    : (DISABLE_SAMPLE_PATIENTS ? 'No patient selected' : 'Demo Patient (Sarah Johnson)');
 
   // Show a minimal loader until patient state hydrates
   if (!hydrated) {
@@ -160,7 +235,7 @@ const ClinicalDecisionSupportPage: React.FC = () => {
       {patientProfile && (
         <ClinicalDecisionSupport
           patientProfile={patientProfile}
-          currentMedications={currentMedications}
+          currentMedications={currentPatient ? (currentPatient.medications || []).map((m: any) => m?.drug?.name || m?.drugName || m?.name || '').filter(Boolean) : currentMedications}
           proposedTreatment={proposedTreatment}
           onRecommendationAccept={handleRecommendationAccept}
         />

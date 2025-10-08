@@ -1,9 +1,12 @@
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import ClinicalDecisionSupport from '../components/AI/ClinicalDecisionSupport';
 import { usePatient } from '../context/PatientContext';
 
 const ClinicalDecisionSupportPage: React.FC = () => {
   const { state } = usePatient();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { currentPatient, hydrated } = state as any;
   
   // Mock patient profile for demonstration when no patient is selected
@@ -124,6 +127,20 @@ const ClinicalDecisionSupportPage: React.FC = () => {
             <p className="text-xs text-yellow-600 mt-1">
               Select a patient from the Patients page to see personalized recommendations
             </p>
+            <div className="mt-3">
+              <button
+                onClick={() => {
+                  try {
+                    const path = location.pathname + (location.search || '');
+                    localStorage.setItem('osrx_return_path', path);
+                  } catch {}
+                  navigate('/patients');
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+              >
+                Select Patient
+              </button>
+            </div>
           </div>
         )}
         <p className="text-lg text-gray-600 max-w-3xl mx-auto">

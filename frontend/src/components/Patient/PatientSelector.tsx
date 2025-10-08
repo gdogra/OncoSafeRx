@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useToast } from '../UI/Toast';
 import { usePatient } from '../../context/PatientContext';
@@ -21,6 +22,7 @@ import {
 
 const PatientSelector: React.FC = () => {
   const { state, actions } = usePatient();
+  const navigate = useNavigate();
   const { showToast } = useToast();
   const { currentPatient, recentPatients } = state;
   const [searchQuery, setSearchQuery] = useState('');
@@ -79,6 +81,14 @@ const PatientSelector: React.FC = () => {
     setSearchQuery('');
     setSearchResults([]);
     setShowAllPatients(false);
+    // Navigate back to return path if set
+    try {
+      const ret = localStorage.getItem('osrx_return_path');
+      if (ret) {
+        localStorage.removeItem('osrx_return_path');
+        setTimeout(() => navigate(ret), 50);
+      }
+    } catch {}
   };
 
   const handleSearchFocus = () => {

@@ -77,26 +77,73 @@ export class SupabaseAuthService {
     // Production: Real Supabase authentication
     console.log('🌐 Production mode: Real Supabase auth')
     
-    // Skip connectivity test and go straight to authentication with bounded timeout
-    const authTimeoutMs = (import.meta as any)?.env?.VITE_AUTH_TIMEOUT_MS ? Number((import.meta as any).env.VITE_AUTH_TIMEOUT_MS) : 30000
+    // Skip connectivity test and go straight to authentication with a tighter timeout
+    const authTimeoutMs = (import.meta as any)?.env?.VITE_AUTH_TIMEOUT_MS ? Number((import.meta as any).env.VITE_AUTH_TIMEOUT_MS) : 12000
     console.log(`🔄 Starting authentication with ${Math.round(authTimeoutMs/1000)}-second timeout...`)
     
     try {
-      // Sign-in with bounded timeout
-      const authPromise = supabase.auth.signInWithPassword({
-        email,
-        password
-      })
-      
+      // Prepare SDK login and a direct REST fallback and race them for speed
+      const sdkAuth = (async () => {
+        console.log('🔄 Attempting Supabase SDK authentication...')
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) throw error
+        return data
+      })()
+
+      const su = ((import.meta as any)?.env?.VITE_SUPABASE_URL as string || '').trim()
+      const sk = ((import.meta as any)?.env?.VITE_SUPABASE_ANON_KEY as string || '').trim()
+      const directAuth = (async () => {
+        if (!su || !sk) throw new Error('no-direct-env')
+        const ctrl = new AbortController()
+        const timer = setTimeout(() => ctrl.abort(), Math.min(8000, authTimeoutMs - 2000))
+        try {
+          const resp = await fetch(`${su}/auth/v1/token?grant_type=password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', apikey: sk, Authorization: `Bearer ${sk}` },
+            body: JSON.stringify({ email, password }),
+            signal: ctrl.signal
+          })
+          if (!resp.ok) throw new Error(`direct ${resp.status}`)
+          const data = await resp.json()
+          return { direct: true, data }
+        } finally { clearTimeout(timer) }
+      })()
+
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => {
-          console.log(`⏰ TIMEOUT: Supabase auth exceeded ${Math.round(authTimeoutMs/1000)} seconds`)
-          reject(new Error(`Authentication timeout after ${Math.round(authTimeoutMs/1000)} seconds`))
+          console.log(`⏰ TIMEOUT: Auth exceeded ${Math.round(authTimeoutMs/1000)} seconds`)
+          reject(new Error('auth-timeout'))
         }, authTimeoutMs)
       })
-      
-      console.log('🔄 Attempting Supabase authentication...')
-      const { data: authData, error } = await Promise.race([authPromise, timeoutPromise]) as any
+
+      // Race: direct API vs SDK vs timeout, prefer first success
+      let authData: any | null = null
+      let error: any | null = null
+      try {
+        const winner: any = await Promise.race([directAuth, sdkAuth, timeoutPromise])
+        if (winner?.direct) {
+          // Build profile from direct tokens immediately
+          const token = winner.data.access_token
+          const payload = JSON.parse(atob(token.split('.')[1]))
+          const user = { id: payload.sub, email: payload.email, created_at: new Date(payload.iat * 1000).toISOString(), user_metadata: {} }
+          const userProfile = await this.buildUserProfile(user)
+          try {
+            localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'jwt-direct', at: Date.now() }))
+            localStorage.setItem('osrx_auth_tokens', JSON.stringify({
+              access_token: winner.data.access_token,
+              refresh_token: winner.data.refresh_token,
+              expires_at: payload.exp * 1000,
+              stored_at: Date.now()
+            }))
+            localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile))
+          } catch {}
+          return userProfile
+        } else {
+          authData = winner
+        }
+      } catch (e) {
+        error = e
+      }
 
       console.log('🔍 Auth response:', { authData: !!authData, error: !!error, errorMessage: error?.message })
       

@@ -414,13 +414,16 @@ const ServerPatients: React.FC = () => {
 
   // Duplicate renderDetailsModal removed (kept single definition below)
 
-  // Simple patient details modal renderer
+  // Simple patient details modal renderer with tabs
   const renderDetailsModal = () => {
     if (!detailPatient) return null;
     const d = detailPatient.data?.demographics || detailPatient.demographics || {};
     const name = `${d.firstName || ''} ${d.lastName || ''}`.trim() || 'Unnamed Patient';
     const mrn = d.mrn || '—';
     const dob = d.dateOfBirth ? new Date(d.dateOfBirth).toLocaleDateString() : '—';
+    const meds = (detailPatient.data?.medications || detailPatient.medications || []) as any[];
+    const conds = (detailPatient.data?.conditions || detailPatient.conditions || []) as any[];
+    const labs = (detailPatient.data?.labValues || detailPatient.labValues || []) as any[];
     return (
       <Modal isOpen={!!detailPatient} onClose={() => setDetailPatient(null)} title="Patient Details" size="xl">
         <div className="space-y-4">
@@ -434,9 +437,94 @@ const ServerPatients: React.FC = () => {
               <button onClick={() => { openEdit(detailPatient); setDetailPatient(null); }} className="px-3 py-2 text-sm bg-white border rounded">Edit</button>
             </div>
           </div>
+
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-4" aria-label="Tabs">
+              {[
+                { id: 'demo', label: 'Demographics' },
+                { id: 'meds', label: 'Medications' },
+                { id: 'cond', label: 'Conditions' },
+                { id: 'labs', label: 'Labs' },
+              ].map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => setDetailPatient((prev: any) => { (setDetailsTab as any)(t.id); return prev; })}
+                  className={`whitespace-nowrap py-2 px-3 border-b-2 text-sm font-medium ${detailsTab === (t.id as any) ? 'border-blue-600 text-blue-700' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </nav>
+          </div>
+
           <Card>
             <div className="text-sm text-gray-800">
-              <pre className="whitespace-pre-wrap break-words text-xs text-gray-700">{JSON.stringify(detailPatient.data || detailPatient, null, 2)}</pre>
+              {detailsTab === 'demo' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-gray-500 text-xs">First Name</div>
+                    <div className="font-medium">{d.firstName || '—'}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 text-xs">Last Name</div>
+                    <div className="font-medium">{d.lastName || '—'}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 text-xs">Sex</div>
+                    <div className="font-medium capitalize">{d.sex || '—'}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 text-xs">Height (cm)</div>
+                    <div className="font-medium">{d.heightCm ?? '—'}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 text-xs">Weight (kg)</div>
+                    <div className="font-medium">{d.weightKg ?? '—'}</div>
+                  </div>
+                </div>
+              )}
+              {detailsTab === 'meds' && (
+                <div className="space-y-2">
+                  {meds.length === 0 && <div className="text-gray-500 text-sm">No medications</div>}
+                  {meds.map((m: any, i: number) => {
+                    const dn = m?.drug?.name || m?.drugName || m?.name || 'Unknown';
+                    return (
+                      <div key={i} className="flex items-center justify-between border rounded px-3 py-2">
+                        <div>
+                          <div className="font-medium">{dn}</div>
+                          <div className="text-xs text-gray-500">{m?.dosage || m?.dose || '—'} • {m?.frequency || '—'} • {m?.route || '—'}</div>
+                        </div>
+                        <div className={`text-xs px-2 py-0.5 rounded ${m?.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>{m?.isActive ? 'Active' : 'Inactive'}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {detailsTab === 'cond' && (
+                <div className="space-y-2">
+                  {conds.length === 0 && <div className="text-gray-500 text-sm">No conditions</div>}
+                  {conds.map((c: any, i: number) => (
+                    <div key={i} className="border rounded px-3 py-2">
+                      <div className="font-medium">{c?.name || c?.condition || 'Unknown condition'}</div>
+                      <div className="text-xs text-gray-500">Status: {c?.status || '—'} {c?.icd10Code ? `• ICD-10: ${c.icd10Code}` : ''} {c?.stage ? `• Stage: ${c.stage}` : ''}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {detailsTab === 'labs' && (
+                <div className="space-y-2">
+                  {labs.length === 0 && <div className="text-gray-500 text-sm">No lab values</div>}
+                  {labs.map((l: any, i: number) => (
+                    <div key={i} className="border rounded px-3 py-2 flex items-center justify-between">
+                      <div>
+                        <div className="font-medium">{l?.labType || 'Lab'}</div>
+                        <div className="text-xs text-gray-500">{l?.timestamp ? new Date(l.timestamp).toLocaleString() : '—'}</div>
+                      </div>
+                      <div className="text-sm">{l?.value ?? '—'} {l?.unit || ''}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </Card>
         </div>

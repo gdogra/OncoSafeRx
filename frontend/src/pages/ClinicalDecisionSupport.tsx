@@ -174,7 +174,7 @@ const ClinicalDecisionSupportPage: React.FC = () => {
         size="xl"
       >
         {/* Embed full PatientSelector for rich search/create/select inside the modal */}
-        <PatientSelector />
+        <PatientSelector mode="modal" onSelect={() => setShowPicker(false)} />
       </Modal>
     </div>
   );

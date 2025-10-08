@@ -20,13 +20,19 @@ import {
   RefreshCw
 } from 'lucide-react';
 
-const PatientSelector: React.FC = () => {
+type PatientSelectorProps = {
+  mode?: 'page' | 'modal';
+  onSelect?: (patient: PatientProfile) => void;
+};
+
+const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSelect }) => {
   const { state, actions } = usePatient();
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { currentPatient, recentPatients } = state;
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const isModal = mode === 'modal';
   
 
   // Patient search: prefer server when authenticated; fallback to local recent patients
@@ -81,14 +87,18 @@ const PatientSelector: React.FC = () => {
     setSearchQuery('');
     setSearchResults([]);
     setShowAllPatients(false);
-    // Navigate back to return path if set
-    try {
-      const ret = localStorage.getItem('osrx_return_path');
-      if (ret) {
-        localStorage.removeItem('osrx_return_path');
-        setTimeout(() => navigate(ret), 50);
-      }
-    } catch {}
+    if (isModal) {
+      try { onSelect && onSelect(patient); } catch {}
+    } else {
+      // Navigate back to return path if set
+      try {
+        const ret = localStorage.getItem('osrx_return_path');
+        if (ret) {
+          localStorage.removeItem('osrx_return_path');
+          setTimeout(() => navigate(ret), 50);
+        }
+      } catch {}
+    }
   };
 
   const handleSearchFocus = () => {
@@ -149,6 +159,9 @@ const PatientSelector: React.FC = () => {
 
       // Optimistically set current patient
       actions.setCurrentPatient(newPatient);
+      if (isModal) {
+        try { onSelect && onSelect(newPatient); } catch {}
+      }
 
       try {
         // Try to get auth token, but don't let it block the API call
@@ -180,8 +193,8 @@ const PatientSelector: React.FC = () => {
         
         if (response.ok) {
           const result = await response.json();
-          console.log('✅ Patient created successfully in database:', result);
-          showToast('success', 'Patient created and saved to database');
+        console.log('✅ Patient created successfully in database:', result);
+        if (!isModal) showToast('success', 'Patient created and saved to database');
           
           // Update the patient with the server response if available
           if (result.patient) {
@@ -193,19 +206,19 @@ const PatientSelector: React.FC = () => {
           const errorText = await response.text().catch(() => 'Unknown error');
           console.error('❌ Server patient creation failed:', response.status, errorText);
           console.error('❌ Response body:', errorText);
-          showToast('error', `Patient creation failed: ${response.status} ${errorText}`);
+          if (!isModal) showToast('error', `Patient creation failed: ${response.status} ${errorText}`);
           try { await actions.syncFromServer(); } catch {}
         }
       } catch (networkError) {
         console.error('Network error creating patient:', networkError);
-        showToast('warning', 'Patient saved locally (network error)');
+        if (!isModal) showToast('warning', 'Patient saved locally (network error)');
       }
       
       // Always close the modal regardless of API success/failure
       setShowCreateForm(false);
     } catch (error) {
       console.error('Failed to create patient:', error);
-      showToast('error', 'Failed to create patient');
+      if (!isModal) showToast('error', 'Failed to create patient');
       
       // Don't close the modal if patient creation completely failed
       // This allows the user to retry or fix any issues

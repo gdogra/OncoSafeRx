@@ -793,4 +793,96 @@ router.post('/backfill/profiles', asyncHandler(async (req, res) => {
   }
 }));
 
+/**
+ * Admin: Create a Supabase Auth user (if missing) and upsert public.users profile.
+ * Protect with BACKFILL_TOKEN via x-admin-token header.
+ * Body: { email: string, password?: string, metadata?: object }
+ */
+router.post('/admin/create-user', asyncHandler(async (req, res) => {
+  const url = process.env.SUPABASE_URL;
+  const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const adminToken = process.env.BACKFILL_TOKEN || '';
+  if (!url || !service) return res.status(500).json({ error: 'Supabase service not configured' });
+  const provided = req.headers['x-admin-token'] || req.query.token;
+  if (!adminToken || String(provided) !== adminToken) return res.status(403).json({ error: 'Forbidden' });
+
+  const { email, password, metadata = {} } = req.body || {};
+  if (!email || typeof email !== 'string' || !email.includes('@')) {
+    return res.status(400).json({ error: 'Valid email required' });
+  }
+
+  const admin = createClient(url, service);
+
+  const deriveNames = (em, meta = {}) => {
+    let first = meta.first_name || '';
+    let last = meta.last_name || '';
+    if (!first && meta.given_name) first = meta.given_name;
+    if (!last && meta.family_name) last = meta.family_name;
+    if (!first) {
+      const local = String(em).split('@')[0];
+      const parts = local.split(/[._-]/);
+      first = parts[0] ? parts[0].charAt(0).toUpperCase() + parts[0].slice(1) : 'Clinician';
+    }
+    if (!last) last = 'User';
+    return { first, last };
+  };
+
+  // 1) Create auth user (or find if exists)
+  let userId = null;
+  try {
+    const { data, error } = await admin.auth.admin.createUser({
+      email,
+      password: password || `Temp-${Math.random().toString(36).slice(2)}!A9`,
+      email_confirm: true,
+      user_metadata: metadata
+    });
+    if (error && !String(error?.message || '').toLowerCase().includes('already registered')) {
+      return res.status(500).json({ error: error.message });
+    }
+    userId = data?.user?.id || null;
+  } catch (e) {
+    // ignore, will try to find
+  }
+
+  // If userId still null, try to find by listing users (best-effort)
+  if (!userId) {
+    try {
+      let page = 1; const perPage = 1000; let found = null;
+      // Cap pages to avoid long scans
+      for (; page <= 10; page++) {
+        const { data, error } = await admin.auth.admin.listUsers({ page, perPage });
+        if (error) break;
+        const users = data?.users || [];
+        const hit = users.find(u => (u.email || '').toLowerCase() === email.toLowerCase());
+        if (hit) { found = hit; break; }
+        if (users.length < perPage) break;
+      }
+      userId = found?.id || null;
+    } catch {}
+  }
+
+  if (!userId) return res.status(500).json({ error: 'Failed to create or find auth user' });
+
+  // 2) Upsert public.users profile
+  try {
+    const names = deriveNames(email, metadata);
+    const payload = {
+      id: userId,
+      email,
+      role: metadata.role || 'oncologist',
+      first_name: names.first,
+      last_name: names.last,
+      created_at: new Date().toISOString()
+    };
+    const { error: upErr } = await admin.from('users').upsert(payload, { onConflict: 'id' });
+    if (upErr) {
+      return res.status(500).json({ error: upErr.message });
+    }
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Failed to upsert profile' });
+  }
+
+  return res.json({ ok: true, id: userId, email });
+}));
+
 export default router;

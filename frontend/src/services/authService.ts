@@ -114,6 +114,7 @@ export class SupabaseAuthService {
       })()
 
       // Optional server-side proxy auth (enabled via env or localStorage flag)
+      const fallbackApi = ((import.meta as any)?.env?.VITE_BACKEND_URL as string) || ((window as any).__OSRX_BACKEND_URL__ as string) || 'https://oncosaferx-backend.onrender.com'
       const envProxy = (import.meta as any).env?.VITE_SUPABASE_AUTH_VIA_PROXY === 'true'
       const lsProxy = (() => { try { return localStorage.getItem('osrx_use_auth_proxy') === 'true' } catch { return false } })()
       const baseWantProxy = envProxy || lsProxy
@@ -123,9 +124,13 @@ export class SupabaseAuthService {
         try {
           const ctrl = new AbortController()
           const t = setTimeout(() => ctrl.abort(), 1500)
-          const resp = await fetch('/api/supabase-auth/health', { signal: ctrl.signal })
+          let resp = await fetch('/api/supabase-auth/health', { signal: ctrl.signal }).catch(() => null as any)
+          if (!resp || !resp.ok) {
+            // Try absolute fallback (Netlify redirect may not be active on some domains)
+            resp = await fetch(`${fallbackApi}/api/supabase-auth/health`, { signal: ctrl.signal }).catch(() => null as any)
+          }
           clearTimeout(t)
-          if (!resp.ok) return false
+          if (!resp || !resp.ok) return false
           const body = await resp.json().catch(() => ({} as any))
           return body?.proxyEnabled === true
         } catch { return false }
@@ -133,11 +138,20 @@ export class SupabaseAuthService {
       const useProxy = proxyEnabled
       const proxyAuth = useProxy ? (async () => {
         console.log('🔄 Attempting proxy authentication via server...')
-        const resp = await fetch('/api/supabase-auth/proxy/login', {
+        // Use relative /api if available; otherwise absolute fallback backend URL
+        const endpoint = `${fallbackApi}/api/supabase-auth/proxy/login`
+        let resp = await fetch('/api/supabase-auth/proxy/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password })
-        })
+        }).catch(() => null as any)
+        if (!resp || !resp.ok) {
+          resp = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          })
+        }
         if (!resp.ok) throw new Error(`proxy ${resp.status}`)
         const body = await resp.json()
         // Set session so SDK-aware parts can work; tolerate setSession errors

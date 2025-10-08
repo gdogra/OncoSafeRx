@@ -885,4 +885,66 @@ router.post('/admin/create-user', asyncHandler(async (req, res) => {
   return res.json({ ok: true, id: userId, email });
 }));
 
+/**
+ * Admin: Link profile row to auth user by email (fix mismatched IDs).
+ * Body: { email: string }
+ */
+router.post('/admin/link-user', asyncHandler(async (req, res) => {
+  const url = process.env.SUPABASE_URL;
+  const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const adminToken = process.env.BACKFILL_TOKEN || '';
+  if (!url || !service) return res.status(500).json({ error: 'Supabase service not configured' });
+  const provided = req.headers['x-admin-token'] || req.query.token;
+  if (!adminToken || String(provided) !== adminToken) return res.status(403).json({ error: 'Forbidden' });
+
+  const { email } = req.body || {};
+  if (!email || typeof email !== 'string' || !email.includes('@'))
+    return res.status(400).json({ error: 'Valid email required' });
+
+  const admin = createClient(url, service);
+
+  // Find auth user by email (paginate best-effort)
+  let authUser = null; let page = 1; const perPage = 1000;
+  while (page <= 10 && !authUser) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage });
+    if (error) break;
+    const users = data?.users || [];
+    const hit = users.find(u => (u.email || '').toLowerCase() === email.toLowerCase());
+    if (hit) { authUser = hit; break; }
+    if (users.length < perPage) break;
+    page++;
+  }
+  if (!authUser) return res.status(404).json({ error: 'Auth user not found' });
+
+  // Check profile row by email
+  const { data: prof, error: pErr } = await admin.from('users').select('id').eq('email', email).maybeSingle();
+  if (pErr) return res.status(500).json({ error: pErr.message });
+
+  // If exists and id differs, update id to auth id
+  if (prof && prof.id !== authUser.id) {
+    const { error: upErr } = await admin.from('users')
+      .update({ id: authUser.id, updated_at: new Date().toISOString() })
+      .eq('email', email);
+    if (upErr) return res.status(500).json({ error: upErr.message });
+    return res.json({ ok: true, linked: true, id: authUser.id, email });
+  }
+
+  // If no profile, create one minimally
+  if (!prof) {
+    const payload = {
+      id: authUser.id,
+      email,
+      role: authUser.user_metadata?.role || 'oncologist',
+      first_name: authUser.user_metadata?.first_name || (email.split('@')[0]),
+      last_name: authUser.user_metadata?.last_name || 'User',
+      created_at: new Date().toISOString()
+    };
+    const { error: insErr } = await admin.from('users').upsert(payload, { onConflict: 'id' });
+    if (insErr) return res.status(500).json({ error: insErr.message });
+    return res.json({ ok: true, created: true, id: authUser.id, email });
+  }
+
+  return res.json({ ok: true, linked: false, id: authUser.id, email });
+}));
+
 export default router;

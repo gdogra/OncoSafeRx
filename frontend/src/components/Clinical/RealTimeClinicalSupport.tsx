@@ -116,13 +116,13 @@ const RealTimeClinicalSupport: React.FC = () => {
     const newRecommendations: ClinicalRecommendation[] = [];
 
     // 1. Critical Drug Interaction Analysis
-    const opioidMeds = (currentPatient.medications || []).filter(med =>
+    const opioidMeds = (currentPatient.medications || []).filter((med: any) =>
       med.name && ['oxycodone', 'morphine', 'fentanyl', 'hydrocodone', 'codeine'].some(opioid =>
         med.name.toLowerCase().includes(opioid)
       )
     );
     
-    const benzoMeds = currentPatient.medications.filter(med =>
+    const benzoMeds = (currentPatient.medications || []).filter((med: any) =>
       med.name && ['alprazolam', 'lorazepam', 'clonazepam', 'diazepam'].some(benzo =>
         med.name.toLowerCase().includes(benzo)
       )
@@ -165,9 +165,10 @@ const RealTimeClinicalSupport: React.FC = () => {
     }
 
     // 2. Dosing Alerts Based on Patient Factors
-    const age = new Date().getFullYear() - new Date(currentPatient.demographics.dateOfBirth).getFullYear();
-    if (age > 65) {
-      currentPatient.medications.forEach(med => {
+    const dob = currentPatient?.demographics?.dateOfBirth;
+    const age = dob ? (new Date().getFullYear() - new Date(dob).getFullYear()) : undefined;
+    if (age && age > 65) {
+      (currentPatient.medications || []).forEach((med: any) => {
         if (med.name && med.name.toLowerCase().includes('digoxin')) {
           newAlerts.push({
             id: 'geriatric-digoxin-dosing',
@@ -222,8 +223,8 @@ const RealTimeClinicalSupport: React.FC = () => {
     });
 
     // 4. Lab-Based Monitoring Alerts
-    if (currentPatient.labValues.length > 0) {
-      const recentCreatinine = currentPatient.labValues
+    if ((currentPatient.labValues || []).length > 0) {
+      const recentCreatinine = (currentPatient.labValues || [])
         .filter(lab => lab.labType && lab.labType.toLowerCase().includes('creatinine'))
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
 

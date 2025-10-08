@@ -193,7 +193,11 @@ export class SupabaseAuthService {
         lastSignIn: authData.user.last_sign_in_at 
       })
       const userProfile = await this.buildUserProfile(authData.user)
-      try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct', at: Date.now() })) } catch {}
+      try { 
+        localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct', at: Date.now() }))
+        // Persist profile so UI restores instantly on refresh even if session check lags
+        localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile))
+      } catch {}
       return userProfile
 
     } catch (error) {

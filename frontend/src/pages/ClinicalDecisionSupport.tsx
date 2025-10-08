@@ -6,6 +6,7 @@ const ClinicalDecisionSupportPage: React.FC = () => {
   const { currentPatient } = usePatient();
   
   // Mock patient profile for demonstration when no patient is selected
+  const DISABLE_SAMPLE_PATIENTS = String((import.meta as any)?.env?.VITE_DISABLE_SAMPLE_PATIENTS || '').toLowerCase() === 'true';
   const mockPatientProfile = {
     demographics: {
       age: 62,
@@ -88,8 +89,8 @@ const ClinicalDecisionSupportPage: React.FC = () => {
   };
 
   // Use selected patient data if available, otherwise fall back to mock data
-  const patientProfile = currentPatient || mockPatientProfile;
-  const patientName = currentPatient?.name || 'Demo Patient (Sarah Johnson)';
+  const patientProfile = currentPatient || (DISABLE_SAMPLE_PATIENTS ? null : mockPatientProfile);
+  const patientName = currentPatient?.name || (DISABLE_SAMPLE_PATIENTS ? 'No patient selected' : 'Demo Patient (Sarah Johnson)');
 
   return (
     <div className="space-y-6">
@@ -108,7 +109,9 @@ const ClinicalDecisionSupportPage: React.FC = () => {
         {!currentPatient && (
           <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-sm text-yellow-800">
-              No patient selected - showing demo recommendations for: <span className="font-semibold">{patientName}</span>
+              {DISABLE_SAMPLE_PATIENTS
+                ? 'No patient selected. Select a patient from the Patients page to see personalized recommendations.'
+                : <>No patient selected - showing demo recommendations for: <span className="font-semibold">{patientName}</span></>}
             </p>
             <p className="text-xs text-yellow-600 mt-1">
               Select a patient from the Patients page to see personalized recommendations
@@ -120,12 +123,14 @@ const ClinicalDecisionSupportPage: React.FC = () => {
         </p>
       </div>
       
-      <ClinicalDecisionSupport
-        patientProfile={patientProfile}
-        currentMedications={currentMedications}
-        proposedTreatment={proposedTreatment}
-        onRecommendationAccept={handleRecommendationAccept}
-      />
+      {patientProfile && (
+        <ClinicalDecisionSupport
+          patientProfile={patientProfile}
+          currentMedications={currentMedications}
+          proposedTreatment={proposedTreatment}
+          onRecommendationAccept={handleRecommendationAccept}
+        />
+      )}
     </div>
   );
 };

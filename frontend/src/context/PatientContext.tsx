@@ -12,6 +12,7 @@ interface PatientState {
   lastSaveOffline?: boolean;
   offlineNote?: string | null;
   showOfflineBanner?: boolean;
+  hydrated?: boolean;
 }
 
 type PatientAction =
@@ -29,7 +30,8 @@ type PatientAction =
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'CLEAR_ERROR' }
   | { type: 'SET_OFFLINE_SAVE'; payload: { offline: boolean; note?: string | null } }
-  | { type: 'DISMISS_OFFLINE_BANNER' };
+  | { type: 'DISMISS_OFFLINE_BANNER' }
+  | { type: 'SET_HYDRATED'; payload: boolean };
 
 const initialState: PatientState = {
   currentPatient: null,
@@ -41,6 +43,7 @@ const initialState: PatientState = {
   lastSaveOffline: false,
   offlineNote: null,
   showOfflineBanner: false,
+  hydrated: false,
 };
 
 function patientReducer(state: PatientState, action: PatientAction): PatientState {
@@ -175,6 +178,12 @@ function patientReducer(state: PatientState, action: PatientAction): PatientStat
       return {
         ...state,
         showOfflineBanner: false,
+      };
+
+    case 'SET_HYDRATED':
+      return {
+        ...state,
+        hydrated: action.payload,
       };
 
     default:
@@ -602,6 +611,9 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
           }
         } catch {}
       })();
+
+      // Mark hydration complete
+      dispatch({ type: 'SET_HYDRATED', payload: true });
     } catch (error) {
       console.warn('Failed to load patient data from localStorage:', error);
     }

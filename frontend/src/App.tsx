@@ -494,37 +494,23 @@ function AppWithRouter() {
 }
 
 function App() {
-  // PRODUCTION EMERGENCY: Always render basic content first
+  // Restore full application UI with Router and providers
+  useEffect(() => {
+    // Initialize production-ready features
+    SecurityManager.initialize();
+    PerformanceMonitor.initialize();
+    PWAManager.initialize();
+    setupErrorSuppression();
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto p-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">OncoSafeRx - Production Status</h1>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">System Online</h2>
-          <p className="text-gray-600 mb-4">Application successfully deployed and running.</p>
-          <div className="space-y-2">
-            <div className="text-sm">URL: {window.location.href}</div>
-            <div className="text-sm">Environment: {(import.meta as any)?.env?.MODE || 'production'}</div>
-            <div className="text-sm">Timestamp: {new Date().toISOString()}</div>
-            <div className="text-sm">Backend API: https://oncosaferx.onrender.com/api</div>
-          </div>
-          <div className="mt-6 space-x-2">
-            <button 
-              onClick={() => window.location.reload()} 
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-              🔄 Refresh
-            </button>
-            <button 
-              onClick={() => window.location.href = '/emergency.html'} 
-              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-            >
-              📊 Emergency Page
-            </button>
-            <button 
-              onClick={async () => {
-                try {
-                  const resp = await fetch('/api/health');
+    <ErrorBoundary>
+      <Router>
+        <AppWithRouter />
+      </Router>
+    </ErrorBoundary>
+  );
+}
                   const data = await resp.json();
                   alert('API Health: ' + JSON.stringify(data, null, 2));
                 } catch (e) {

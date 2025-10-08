@@ -129,7 +129,7 @@ export class SupabaseAuthService {
         // Set session so SDK-aware parts can work; tolerate setSession errors
         try { await supabase.auth.setSession({ access_token: body.access_token, refresh_token: body.refresh_token } as any) } catch {}
         return { proxy: true, data: body }
-      })() : null
+      })().catch(() => null) : null
 
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => {

@@ -103,6 +103,15 @@ const DrugSearchInner: React.FC = () => {
     testConnectivity();
   }, []);
 
+  // Drive the offline banner from the connectivity probe to avoid mixed signals
+  useEffect(() => {
+    if (!rxnormToastDismissed) {
+      setRxnormOfflineToast(connStatus === 'offline');
+    } else {
+      setRxnormOfflineToast(false);
+    }
+  }, [connStatus, rxnormToastDismissed]);
+
   async function testConnectivity() {
     try {
       setConnTesting(true);

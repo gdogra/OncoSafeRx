@@ -551,6 +551,24 @@ const ServerPatients: React.FC = () => {
           </button>
         </div>
 
+        {/* Current selection summary */}
+        <div className="mb-3 text-sm text-gray-700 flex items-center gap-3">
+          <span className="font-medium">Current selection:</span>
+          <span className="px-2 py-1 rounded bg-gray-100">
+            { (usePatient() as any).state?.currentPatient
+              ? `${(usePatient() as any).state.currentPatient.demographics?.firstName || ''} ${(usePatient() as any).state.currentPatient.demographics?.lastName || ''}`.trim() || 'Selected'
+              : 'None' }
+          </span>
+          {(usePatient() as any).state?.currentPatient && (
+            <button
+              onClick={() => { actions.setCurrentPatient(null as any); try { localStorage.removeItem('osrx_last_patient_id'); localStorage.removeItem('osrx_last_patient'); } catch {} }}
+              className="px-2 py-1 border rounded text-xs bg-white"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -576,6 +594,9 @@ const ServerPatients: React.FC = () => {
                     <td className="px-4 py-2 text-sm text-gray-600 cursor-pointer" onClick={() => selectAndClose(p)}>{dob || '—'}</td>
                     <td className="px-4 py-2 text-sm text-gray-600 cursor-pointer" onClick={() => selectAndClose(p)}>{updated || '—'}</td>
                     <td className="px-4 py-2 text-sm text-gray-600">
+                      <button onClick={() => selectAndClose(p)} className="inline-flex items-center px-2 py-1 mr-2 bg-blue-600 text-white rounded text-xs hover:bg-blue-700">
+                        Select
+                      </button>
                       <button onClick={() => openEdit(p)} className="inline-flex items-center px-2 py-1 bg-white border rounded text-xs hover:bg-gray-50">
                         <Edit className="w-4 h-4 mr-1"/> Edit
                       </button>

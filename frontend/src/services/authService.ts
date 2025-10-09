@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase'
 import { UserProfile, LoginData, SignupData, UserPersona } from '../types/user'
+import { visitorTracking } from './visitorTracking'
 
 /**
  * Clean, simple authentication service
@@ -137,6 +138,15 @@ export class SupabaseAuthService {
             }))
             localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile))
           } catch {}
+          
+          // Track user login for analytics
+          try {
+            visitorTracking.setUser(userProfile.id, userProfile.role);
+            console.log('📊 User login tracked for analytics');
+          } catch (trackingError) {
+            console.warn('⚠️ Failed to track user login:', trackingError);
+          }
+          
           return userProfile
         } else {
           authData = winner
@@ -172,6 +182,15 @@ export class SupabaseAuthService {
               console.log('✅ Proxy auth successful');
               const userProfile = await this.buildUserProfile(setData.session.user);
               try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'proxy', at: Date.now() })) } catch {}
+              
+              // Track user login for analytics
+              try {
+                visitorTracking.setUser(userProfile.id, userProfile.role);
+                console.log('📊 User login tracked for analytics (proxy path)');
+              } catch (trackingError) {
+                console.warn('⚠️ Failed to track user login (proxy):', trackingError);
+              }
+              
               return userProfile;
             }
           } catch (proxyErr) {
@@ -198,6 +217,15 @@ export class SupabaseAuthService {
         // Persist profile so UI restores instantly on refresh even if session check lags
         localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile))
       } catch {}
+      
+      // Track user login for analytics
+      try {
+        visitorTracking.setUser(userProfile.id, userProfile.role);
+        console.log('📊 User login tracked for analytics (direct path)');
+      } catch (trackingError) {
+        console.warn('⚠️ Failed to track user login (direct):', trackingError);
+      }
+      
       return userProfile
 
     } catch (error) {
@@ -263,6 +291,14 @@ export class SupabaseAuthService {
               localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile))
             } catch {}
             
+            // Track user login for analytics
+            try {
+              visitorTracking.setUser(userProfile.id, userProfile.role);
+              console.log('📊 User login tracked for analytics (JWT direct path)');
+            } catch (trackingError) {
+              console.warn('⚠️ Failed to track user login (JWT direct):', trackingError);
+            }
+            
             return userProfile
           } catch (jwtError) {
             console.log('❌ JWT parsing failed, attempting setSession...', jwtError)
@@ -286,6 +322,15 @@ export class SupabaseAuthService {
               localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile))
               console.log('💾 Stored user profile for session persistence:', { id: userProfile.id, email: userProfile.email })
             } catch {}
+            
+            // Track user login for analytics
+            try {
+              visitorTracking.setUser(userProfile.id, userProfile.role);
+              console.log('📊 User login tracked for analytics (setSession fallback path)');
+            } catch (trackingError) {
+              console.warn('⚠️ Failed to track user login (setSession fallback):', trackingError);
+            }
+            
             return userProfile
           }
         } else {
@@ -361,6 +406,15 @@ export class SupabaseAuthService {
     
     if (storedProfile && storedProfile.id !== 'dev-user-default' && !storedProfile.email?.includes('user@oncosaferx.com')) {
       console.log('✅ Found valid stored user profile, using for instant restoration:', { id: storedProfile.id, email: storedProfile.email })
+      
+      // Track user for analytics on session restoration
+      try {
+        visitorTracking.setUser(storedProfile.id, storedProfile.role);
+        console.log('📊 User tracked for analytics (session restoration)');
+      } catch (trackingError) {
+        console.warn('⚠️ Failed to track user on session restoration:', trackingError);
+      }
+      
       return storedProfile
     }
     
@@ -370,7 +424,17 @@ export class SupabaseAuthService {
       const { data: { session } } = await supabase.auth.getSession()
       if (session?.user) {
         console.log('🔄 Restored user from Supabase session')
-        return this.buildUserProfile(session.user)
+        const userProfile = await this.buildUserProfile(session.user)
+        
+        // Track user for analytics on Supabase session restoration
+        try {
+          visitorTracking.setUser(userProfile.id, userProfile.role);
+          console.log('📊 User tracked for analytics (Supabase session restoration)');
+        } catch (trackingError) {
+          console.warn('⚠️ Failed to track user on Supabase session restoration:', trackingError);
+        }
+        
+        return userProfile
       }
 
       // Check for stored auth path to determine how user was authenticated
@@ -583,24 +647,53 @@ export class SupabaseAuthService {
     
     const role = user.user_metadata?.role || fallbackData?.role || 'oncologist'
     
-    // Always prioritize user_metadata over identity_data (user_metadata is what gets updated)
+    // Try to fetch complete profile from backend API
+    let dbProfile = null;
+    try {
+      console.log('🔧 Attempting to fetch profile from backend API...');
+      const response = await fetch('/api/supabase-auth/profile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.access_token || ''}` // Use auth token if available
+        }
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        if (result.user) {
+          dbProfile = result.user;
+          console.log('🔧 ✅ Successfully fetched profile from backend:', {
+            firstName: dbProfile.firstName,
+            lastName: dbProfile.lastName,
+            specialty: dbProfile.specialty
+          });
+        }
+      } else {
+        console.log('🔧 ⚠️ Backend profile fetch failed:', response.status);
+      }
+    } catch (error) {
+      console.log('🔧 ⚠️ Backend profile fetch error:', error);
+    }
+    
+    // Build profile, prioritizing backend data over auth metadata
     const profile = {
       id: user.id,
       email: user.email || fallbackData?.email || '',
-      firstName: user.user_metadata?.first_name || fallbackData?.firstName || '',
-      lastName: user.user_metadata?.last_name || fallbackData?.lastName || '',
-      role,
-      specialty: user.user_metadata?.specialty || fallbackData?.specialty || '',
-      institution: user.user_metadata?.institution || fallbackData?.institution || '',
-      licenseNumber: user.user_metadata?.license_number || fallbackData?.licenseNumber || '',
-      yearsExperience: user.user_metadata?.years_experience || fallbackData?.yearsExperience || 0,
-      preferences: user.user_metadata?.preferences || this.getDefaultPreferences(role),
-      persona: user.user_metadata?.persona || this.createDefaultPersona(role),
+      firstName: dbProfile?.firstName || user.user_metadata?.first_name || fallbackData?.firstName || '',
+      lastName: dbProfile?.lastName || user.user_metadata?.last_name || fallbackData?.lastName || '',
+      role: dbProfile?.role || role,
+      specialty: dbProfile?.specialty || user.user_metadata?.specialty || fallbackData?.specialty || '',
+      institution: dbProfile?.institution || user.user_metadata?.institution || fallbackData?.institution || '',
+      licenseNumber: dbProfile?.licenseNumber || user.user_metadata?.license_number || fallbackData?.licenseNumber || '',
+      yearsExperience: dbProfile?.yearsExperience || user.user_metadata?.years_experience || fallbackData?.yearsExperience || 0,
+      preferences: dbProfile?.preferences || user.user_metadata?.preferences || this.getDefaultPreferences(role),
+      persona: dbProfile?.persona || user.user_metadata?.persona || this.createDefaultPersona(role),
       createdAt: user.created_at || new Date().toISOString(),
       lastLogin: new Date().toISOString(),
       isActive: true,
-      roles: [role],
-      permissions: this.getRolePermissions(role)
+      roles: [dbProfile?.role || role],
+      permissions: this.getRolePermissions(dbProfile?.role || role)
     };
     
     console.log('🔧 buildUserProfile result:', {
@@ -608,7 +701,8 @@ export class SupabaseAuthService {
       lastName: profile.lastName,
       specialty: profile.specialty,
       licenseNumber: profile.licenseNumber,
-      yearsExperience: profile.yearsExperience
+      yearsExperience: profile.yearsExperience,
+      sourceUsed: dbProfile ? 'backend-api' : 'auth-metadata'
     });
     
     return profile;

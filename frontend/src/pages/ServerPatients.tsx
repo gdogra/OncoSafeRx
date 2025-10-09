@@ -473,11 +473,30 @@ const ServerPatients: React.FC = () => {
           console.log('🏥 ✅ Showing success toast...');
           showToast('success', 'Patient created successfully');
           
-          console.log('🏥 Refreshing patient list after short delay...');
-          // Add a small delay to ensure database consistency
-          await new Promise(resolve => setTimeout(resolve, 500));
-          await fetchPatients({ resetPage: true, bustCache: true });
-          console.log('🏥 ✅ Patient list refreshed');
+          console.log('🏥 Refreshing patient list after delay...');
+          // Add longer delay to ensure database consistency and replication
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          
+          // Clear search query and reset to page 1 to ensure new patient appears
+          setQuery('');
+          setPage(1);
+          
+          console.log('🏥 About to refresh patient list - looking for patient:', {
+            createdPatientId: serverPatient?.id,
+            updatedAt: serverPatient?.updated_at || 'unknown'
+          });
+          
+          const refreshResult = await fetchPatients({ resetPage: true, bustCache: true });
+          
+          console.log('🏥 ✅ Patient list refreshed - verifying patient appears in response...');
+          
+          // Check if the newly created patient appears in the refreshed data
+          // Note: We can't reliably check the 'patients' state immediately due to React's async state updates
+          console.log('🏥 Refresh completed. Patient creation process finished.', {
+            createdPatientId: serverPatient?.id,
+            refreshTriggered: true,
+            note: 'State updates are async - patient should appear in UI momentarily'
+          });
           success = true;
         } else {
           const errorText = await resp.text().catch(() => 'Unknown error');
@@ -513,9 +532,27 @@ const ServerPatients: React.FC = () => {
                 }
                 
                 showToast('success', 'Patient created successfully (retry)');
-                // Add delay and cache-busting for retry as well
-                await new Promise(resolve => setTimeout(resolve, 500));
-                await fetchPatients({ resetPage: true, bustCache: true });
+                // Add longer delay and cache-busting for retry as well
+                await new Promise(resolve => setTimeout(resolve, 3000));
+                
+                console.log('🏥 About to refresh patient list after retry - looking for patient:', {
+                  createdPatientId: serverPatient?.id,
+                  updatedAt: serverPatient?.updated_at || 'unknown'
+                });
+                
+                // Clear search query and reset to page 1 to ensure new patient appears
+                setQuery('');
+                setPage(1);
+                const refreshResult = await fetchPatients({ resetPage: true, bustCache: true });
+                
+                console.log('🏥 ✅ Patient list refreshed after retry - process completed...');
+                
+                // Note: We can't reliably check the 'patients' state immediately due to React's async state updates
+                console.log('🏥 Retry refresh completed. Patient creation process finished.', {
+                  createdPatientId: serverPatient?.id,
+                  refreshTriggered: true,
+                  note: 'State updates are async - patient should appear in UI momentarily'
+                });
                 success = true;
               } else {
                 showToast('error', `Create failed after retry: ${retryResp.status}`);

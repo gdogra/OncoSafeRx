@@ -72,6 +72,7 @@ const EvidenceBasedProtocolsSystem = lazy(() => import('./components/Protocols/E
 const LaboratoryIntegrationSystem = lazy(() => import('./components/Laboratory/LaboratoryIntegrationSystem'));
 const AdvancedWorkflowSystem = lazy(() => import('./components/Workflow/AdvancedWorkflowSystem'));
 const VisitorAnalyticsDashboard = lazy(() => import('./components/Analytics/VisitorAnalyticsDashboard'));
+const PatientJourney = lazy(() => import('./pages/PatientJourney'));
 const RoutingTest = lazy(() => import('./components/Debug/RoutingTest'));
 const AdminConsole = lazy(() => import('./components/Admin/AdminConsole'));
 const AdminLogin = lazy(() => import('./components/Admin/AdminLogin'));
@@ -442,6 +443,13 @@ function AppWithAuth() {
                   <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
                     <Layout>
                       <EvidenceBasedProtocolsSystem />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/patient-journey" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <PatientJourney />
                     </Layout>
                   </ProtectedRoute>
                 } />

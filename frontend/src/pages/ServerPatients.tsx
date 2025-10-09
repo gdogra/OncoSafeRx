@@ -352,7 +352,7 @@ const ServerPatients: React.FC = () => {
         lastName: patientData.lastName || 'Patient',
         dateOfBirth: patientData.dateOfBirth || '1980-01-01',
         sex: patientData.sex || 'unknown',
-        mrn: patientData.mrn || `MRN${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
+        mrn: patientData.mrn || `MRN${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${Math.floor(Math.random() * 10000)}`,
         heightCm: patientData.heightCm || 170,
         weightKg: patientData.weightKg || 70,
       };
@@ -432,11 +432,17 @@ const ServerPatients: React.FC = () => {
         const requestBody = JSON.stringify({ patient: newPatient });
         console.log('🏥 Request body:', requestBody);
         
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+        
         const resp = await fetch('/api/patients', {
           method: 'POST',
           headers,
-          body: requestBody
+          body: requestBody,
+          signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         console.log('🏥 API Response status:', resp.status);
         console.log('🏥 API Response ok:', resp.ok);
@@ -468,12 +474,57 @@ const ServerPatients: React.FC = () => {
         } else {
           const errorText = await resp.text().catch(() => 'Unknown error');
           console.log('🏥 ❌ API Error response:', errorText);
-          showToast('error', `Create failed: ${resp.status} ${errorText}`);
-          try { 
-            console.log('🏥 Attempting sync from server...');
-            await actions.syncFromServer(); 
-          } catch (syncError) {
-            console.log('🏥 Sync error:', syncError);
+          
+          // Handle specific error types
+          if (resp.status === 409) {
+            console.log('🏥 MRN conflict detected, retrying with new MRN...');
+            // Generate a new MRN and retry once
+            const newMrn = `MRN${Date.now()}-${Math.random().toString(36).substr(2, 12)}-${Math.floor(Math.random() * 100000)}`;
+            console.log('🏥 Retrying with new MRN:', newMrn);
+            
+            const retryPatient = { ...newPatient };
+            retryPatient.demographics.mrn = newMrn;
+            
+            try {
+              const retryBody = JSON.stringify({ patient: retryPatient });
+              const retryResp = await fetch('/api/patients', {
+                method: 'POST',
+                headers,
+                body: retryBody,
+                signal: controller.signal
+              });
+              
+              if (retryResp.ok) {
+                const retryResult = await retryResp.json().catch(() => ({}));
+                console.log('🏥 ✅ Retry successful:', retryResult);
+                
+                const serverPatient = retryResult?.patient ? (retryResult.patient.data || retryResult.patient) : null;
+                if (serverPatient) {
+                  actions.setCurrentPatient(serverPatient);
+                  try { localStorage.setItem('osrx_last_patient_id', String(serverPatient.id || '')); } catch {}
+                }
+                
+                showToast('success', 'Patient created successfully (retry)');
+                await fetchPatients({ resetPage: true });
+                success = true;
+              } else {
+                showToast('error', `Create failed after retry: ${retryResp.status}`);
+              }
+            } catch (retryError) {
+              console.log('🏥 Retry failed:', retryError);
+              showToast('error', 'MRN conflict - please try again');
+            }
+          } else {
+            showToast('error', `Create failed: ${resp.status} ${errorText}`);
+          }
+          
+          if (!success) {
+            try { 
+              console.log('🏥 Attempting sync from server...');
+              await actions.syncFromServer(); 
+            } catch (syncError) {
+              console.log('🏥 Sync error:', syncError);
+            }
           }
         }
       } catch (networkError) {

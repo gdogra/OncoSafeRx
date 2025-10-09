@@ -163,7 +163,17 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
   };
 
   useEffect(() => {
-    setPatients(patientService.getPatients());
+    const loadPatients = async () => {
+      try {
+        const loadedPatients = await patientService.getPatients();
+        setPatients(loadedPatients);
+      } catch (error) {
+        console.error('Failed to load patients:', error);
+        setPatients([]);
+      }
+    };
+    
+    loadPatients();
   }, []);
 
   const tabs: TabInfo[] = [

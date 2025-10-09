@@ -282,8 +282,9 @@ export class SupabaseAuthService {
             const userProfile = await this.buildUserProfile(setData.session.user)
             try { 
               localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct-api-fallback', at: Date.now() }))
-              // For setSession success, also store user profile for session persistence
+              // Store user profile for session persistence - this is critical for refresh persistence
               localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile))
+              console.log('💾 Stored user profile for session persistence:', { id: userProfile.id, email: userProfile.email })
             } catch {}
             return userProfile
           }
@@ -344,6 +345,26 @@ export class SupabaseAuthService {
    * Get current authenticated user
    */
   static async getCurrentUser(): Promise<UserProfile | null> {
+    console.log('🔍 getCurrentUser called - checking for existing session...')
+    
+    // First, check if we have a stored user profile (for instant restoration)
+    const storedProfile = (() => {
+      try {
+        const stored = localStorage.getItem('osrx_user_profile')
+        console.log('🔍 Checking stored profile:', stored ? 'Found' : 'Not found')
+        return stored ? JSON.parse(stored) : null
+      } catch (e) {
+        console.warn('Failed to parse stored user profile:', e)
+        return null
+      }
+    })()
+    
+    if (storedProfile && storedProfile.id !== 'dev-user-default' && !storedProfile.email?.includes('user@oncosaferx.com')) {
+      console.log('✅ Found valid stored user profile, using for instant restoration:', { id: storedProfile.id, email: storedProfile.email })
+      return storedProfile
+    }
+    
+    console.log('🔍 No valid stored profile, checking Supabase session...')
     try {
       // First try Supabase session
       const { data: { session } } = await supabase.auth.getSession()
@@ -381,13 +402,14 @@ export class SupabaseAuthService {
           return storedUser
         }
         
-        // For production without authentication and no stored profile, create a default user
+        // For production without authentication, create a default user ONLY if no session exists
         if (window.location.hostname !== 'localhost') {
-          console.log('🔄 Creating default user for unauthenticated production session')
+          console.log('🔄 No stored profile and no auth path - creating default user for production')
           const defaultUser = this.createDevUser('user@oncosaferx.com')
           // Store as if it was a user profile
           try {
             localStorage.setItem('osrx_user_profile', JSON.stringify(defaultUser))
+            localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'default-production', at: Date.now() }))
           } catch (e) {
             console.error('Failed to store default user profile:', e)
           }

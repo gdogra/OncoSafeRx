@@ -553,3 +553,5 @@ function App() {
   );
 }
 export default App;
+
+// Force redeploy to fix MIME type errors - build cache issue

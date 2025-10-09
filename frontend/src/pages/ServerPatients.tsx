@@ -351,7 +351,7 @@ const ServerPatients: React.FC = () => {
         lastName: patientData.lastName || 'Patient',
         dateOfBirth: patientData.dateOfBirth || '1980-01-01',
         sex: patientData.sex || 'unknown',
-        mrn: patientData.mrn || `MRN${Date.now()}`,
+        mrn: patientData.mrn || `MRN${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
         heightCm: patientData.heightCm || 170,
         weightKg: patientData.weightKg || 70,
       };

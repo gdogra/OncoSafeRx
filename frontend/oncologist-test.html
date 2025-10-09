@@ -173,7 +173,7 @@
                 lastName: document.getElementById('patientLastName').value,
                 dateOfBirth: document.getElementById('patientDOB').value,
                 sex: document.getElementById('patientSex').value,
-                mrn: document.getElementById('patientMRN').value || 'MRN' + Date.now(),
+                mrn: document.getElementById('patientMRN').value || 'MRN' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
                 heightCm: parseInt(document.getElementById('patientHeight').value) || 170,
                 weightKg: parseInt(document.getElementById('patientWeight').value) || 70,
                 addedAt: new Date().toISOString(),

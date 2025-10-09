@@ -529,14 +529,15 @@ export class SupabaseService {
     
     try {
       const { data, error } = await this.client
-        .from('sync_logs')
+        .from('data_sync_log')
         .insert({
           sync_type: logData.sync_type,
           status: logData.status,
           records_processed: logData.records_processed,
           errors: logData.errors,
           started_at: logData.started_at || new Date().toISOString(),
-          completed_at: logData.completed_at
+          completed_at: logData.completed_at,
+          triggered_by: logData.triggered_by || 'api'
         })
         .select()
         .single();
@@ -554,7 +555,7 @@ export class SupabaseService {
     
     try {
       const { data, error } = await this.client
-        .from('sync_logs')
+        .from('data_sync_log')
         .update({
           status: updateData.status,
           records_processed: updateData.records_processed,

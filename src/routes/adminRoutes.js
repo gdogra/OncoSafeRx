@@ -26,7 +26,7 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
     };
 
     // Get recent activity from sync logs (if available)
-    const recentSyncLogs = await supabaseService.client?.from('sync_logs')
+    const recentSyncLogs = await supabaseService.client?.from('data_sync_log')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(5) || [];
@@ -173,8 +173,8 @@ router.get('/logs', asyncHandler(async (req, res) => {
       });
     }
 
-    // Real implementation would query sync_logs table
-    const logs = await supabaseService.client?.from('sync_logs')
+    // Real implementation would query data_sync_log table
+    const logs = await supabaseService.client?.from('data_sync_log')
       .select('*')
       .order('created_at', { ascending: false })
       .range((page - 1) * limit, page * limit - 1) || [];
@@ -359,7 +359,7 @@ router.get('/export/:type', asyncHandler(async (req, res) => {
         break;
       
       case 'logs':
-        data = await supabaseService.client?.from('sync_logs')
+        data = await supabaseService.client?.from('data_sync_log')
           .select('*')
           .order('created_at', { ascending: false }) || [];
         filename = `logs_export_${new Date().toISOString().split('T')[0]}.json`;

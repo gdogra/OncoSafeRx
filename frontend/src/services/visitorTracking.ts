@@ -70,7 +70,7 @@ class VisitorTrackingService {
   private currentPageView: PageView | null = null;
   private isTrackingEnabled: boolean = false; // Will be enabled based on environment
   private apiEndpoint: string = '/api/analytics';
-  private enableServerAnalytics: boolean = false; // Server analytics disabled for now
+  private enableServerAnalytics: boolean = true; // Server analytics enabled for production tracking
 
   constructor() {
     this.initializeTracking();
@@ -609,13 +609,16 @@ class VisitorTrackingService {
     }
     
     try {
+      console.log('📊 Fetching analytics from server:', `${this.apiEndpoint}/metrics?range=${dateRange}`);
       const response = await fetch(`${this.apiEndpoint}/metrics?range=${dateRange}`);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
-      return await response.json();
+      const serverMetrics = await response.json();
+      console.log('📊 ✅ Retrieved analytics from server:', serverMetrics);
+      return serverMetrics;
     } catch (error) {
-      console.warn('Server analytics unavailable, falling back to local data');
+      console.warn('📊 Server analytics unavailable, falling back to local data:', error);
       return this.getLocalAnalytics(dateRange);
     }
   }

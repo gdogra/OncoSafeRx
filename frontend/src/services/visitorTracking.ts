@@ -68,30 +68,47 @@ class VisitorTrackingService {
   private sessionStartTime: number = 0;
   private currentPageStart: number = 0;
   private currentPageView: PageView | null = null;
-  private isTrackingEnabled: boolean = false; // Disable all tracking by default
+  private isTrackingEnabled: boolean = false; // Will be enabled based on environment
   private apiEndpoint: string = '/api/analytics';
-  private enableServerAnalytics: boolean = false; // Completely disable analytics to eliminate 404 errors
+  private enableServerAnalytics: boolean = false; // Server analytics disabled for now
 
   constructor() {
     this.initializeTracking();
   }
 
   private initializeTracking(): void {
-    // Analytics completely disabled - never initialize
-    console.debug('🚫 Analytics tracking completely disabled');
-    this.isTrackingEnabled = false;
-    return;
-    
-    // Legacy code (unreachable) - kept for reference
+    // Check if user has opted out
     const hasOptedOut = localStorage.getItem('analytics_opt_out') === 'true';
-    if (hasOptedOut || !this.enableServerAnalytics) {
+    if (hasOptedOut) {
       this.isTrackingEnabled = false;
-      console.debug('🚫 Analytics tracking disabled (user opt-out or server analytics disabled)');
+      console.debug('🚫 Analytics tracking disabled (user opt-out)');
       return;
     }
 
-    this.startSession();
-    this.setupEventListeners();
+    // Check environment configuration
+    const envTrackingEnabled = (import.meta as any)?.env?.VITE_ANALYTICS_ENABLED === 'true';
+    const isProduction = window.location.hostname === 'oncosaferx.com' || 
+                        window.location.hostname === 'www.oncosaferx.com' ||
+                        window.location.hostname.includes('netlify.app');
+    
+    // Enable tracking if explicitly enabled via env var OR in production
+    const shouldEnableTracking = envTrackingEnabled || isProduction;
+    
+    if (shouldEnableTracking) {
+      this.isTrackingEnabled = true;
+      console.debug('✅ Analytics tracking enabled', { 
+        reason: envTrackingEnabled ? 'environment variable' : 'production domain',
+        hostname: window.location.hostname 
+      });
+      this.startSession();
+      this.setupEventListeners();
+    } else {
+      this.isTrackingEnabled = false;
+      console.debug('🚫 Analytics tracking disabled', { 
+        hostname: window.location.hostname,
+        envEnabled: envTrackingEnabled 
+      });
+    }
   }
 
   private startSession(): void {

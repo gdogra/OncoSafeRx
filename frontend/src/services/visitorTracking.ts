@@ -508,6 +508,31 @@ class VisitorTrackingService {
     return this.currentSession;
   }
 
+  // Debug methods for testing
+  public forceTrackingEnabled(): void {
+    console.log('🔧 Force enabling tracking for testing...');
+    this.isTrackingEnabled = true;
+    if (!this.currentSession) {
+      this.startSession();
+      this.setupEventListeners();
+    }
+    console.log('✅ Tracking force-enabled');
+  }
+
+  public getStoredAnalyticsData(): any[] {
+    try {
+      return JSON.parse(localStorage.getItem('osrx_analytics_data') || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  public clearAnalyticsData(): void {
+    localStorage.removeItem('osrx_analytics_data');
+    localStorage.removeItem('current_session');
+    console.log('🗑️ Analytics data cleared');
+  }
+
   public async getAnalytics(dateRange: string = '7d'): Promise<AnalyticsMetrics> {
     const isDevelopment = window.location.hostname === 'localhost' || 
                          window.location.hostname === '127.0.0.1' ||
@@ -577,39 +602,31 @@ class VisitorTrackingService {
       return {
         totalVisitors: uniqueUsers.size,
         uniqueVisitors: uniqueUsers.size, 
-        totalPageviews: pageviews,
-        totalSessions: sessions,
-        totalInteractions: interactions,
-        avgSessionDuration: 0, // Would need more complex calculation
+        pageViews: pageviews, // Fixed: interface expects pageViews not totalPageviews
+        averageSessionDuration: 0,
+        bounceRate: 0,
         topPages: Array.from(uniquePages).slice(0, 10).map(page => ({
-          path: page as string,
+          url: page as string, // Fixed: interface expects url not path
           views: recentData.filter(item => 
-            item.eventType === 'pageview' && item.data?.path === page
-          ).length,
-          uniqueVisitors: 0 // Simplified for now
+            item.eventType === 'pageview' && (item.data?.url || item.data?.path) === page
+          ).length
         })),
-        userRoles: [{ role: 'oncologist', count: sessions }], // Simplified for development
+        userRoles: [{ role: 'oncologist', count: sessions }],
         deviceTypes: [{ type: 'Unknown', count: sessions }],
-        trafficSources: [{ source: 'Direct', count: sessions }],
-        realTimeVisitors: Math.min(sessions, 5), // Simplified
-        todayPageviews: pageviews,
-        conversionRate: 0 // Not tracked locally
+        geographicDistribution: [{ location: 'Unknown', count: sessions }] // Fixed: added missing field
       };
     } catch (error) {
       console.error('Failed to get local analytics:', error);
       return {
         totalVisitors: 0,
-        totalPageviews: 0, 
-        totalSessions: 0,
-        totalInteractions: 0,
-        avgSessionDuration: 0,
+        uniqueVisitors: 0,
+        pageViews: 0,
+        averageSessionDuration: 0,
+        bounceRate: 0,
         topPages: [],
         userRoles: [],
         deviceTypes: [],
-        trafficSources: [],
-        realTimeVisitors: 0,
-        todayPageviews: 0,
-        conversionRate: 0
+        geographicDistribution: []
       };
     }
   }
@@ -617,6 +634,11 @@ class VisitorTrackingService {
 
 // Create singleton instance
 export const visitorTracking = new VisitorTrackingService();
+
+// Make available globally for debugging in production
+if (typeof window !== 'undefined') {
+  (window as any).visitorTracking = visitorTracking;
+}
 
 // Export for use in components
 export default visitorTracking;

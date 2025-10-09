@@ -96,17 +96,30 @@ class VisitorTrackingService {
     
     if (shouldEnableTracking) {
       this.isTrackingEnabled = true;
-      console.debug('✅ Analytics tracking enabled', { 
+      console.log('✅ Analytics tracking ENABLED', { 
         reason: envTrackingEnabled ? 'environment variable' : 'production domain',
-        hostname: window.location.hostname 
+        hostname: window.location.hostname,
+        envTrackingEnabled,
+        isProduction
       });
       this.startSession();
       this.setupEventListeners();
+      
+      // Test tracking with a startup event
+      setTimeout(() => {
+        this.trackCustomEvent('tracking_test', { 
+          timestamp: new Date().toISOString(),
+          message: 'Tracking system initialized successfully'
+        });
+        console.log('📊 Test tracking event sent');
+      }, 1000);
     } else {
       this.isTrackingEnabled = false;
-      console.debug('🚫 Analytics tracking disabled', { 
+      console.log('🚫 Analytics tracking DISABLED', { 
         hostname: window.location.hostname,
-        envEnabled: envTrackingEnabled 
+        envEnabled: envTrackingEnabled,
+        isProduction,
+        reason: 'Not production domain and env var not set'
       });
     }
   }
@@ -258,13 +271,27 @@ class VisitorTrackingService {
   }
 
   public setUser(userId: string, userRole: string): void {
-    if (!this.isTrackingEnabled || !this.currentSession) return;
+    console.log('👤 Setting user for analytics:', { userId, userRole, trackingEnabled: this.isTrackingEnabled });
+    
+    if (!this.isTrackingEnabled || !this.currentSession) {
+      console.log('⚠️ Cannot set user - tracking disabled or no session');
+      return;
+    }
 
     this.currentSession.userId = userId;
     this.currentSession.userRole = userRole;
     
     // Update localStorage
     localStorage.setItem('current_session', JSON.stringify(this.currentSession));
+    
+    // Track user login event
+    this.trackCustomEvent('user_login', {
+      userId,
+      userRole,
+      timestamp: new Date().toISOString()
+    });
+    
+    console.log('✅ User set for analytics tracking:', { userId, userRole });
   }
 
   public trackPageView(customTitle?: string): void {
@@ -397,9 +424,17 @@ class VisitorTrackingService {
     try {
       const payload = {
         eventType,
-        data,
+        data: {
+          ...data,
+          userId: this.currentSession?.userId,
+          userRole: this.currentSession?.userRole,
+          url: window.location.pathname + window.location.search,
+          path: window.location.pathname
+        },
         timestamp: new Date().toISOString(),
-        sessionId: this.currentSession?.sessionId
+        sessionId: this.currentSession?.sessionId,
+        userId: this.currentSession?.userId,
+        userRole: this.currentSession?.userRole
       };
 
       // Store locally for admin viewing (always do this)
@@ -515,14 +550,33 @@ class VisitorTrackingService {
       const sessions = new Set(recentData.map((item: any) => item.sessionId)).size;
       const interactions = recentData.filter((item: any) => item.eventType === 'interaction').length;
       
+      // Calculate unique visitors by userId (for authenticated users) or sessionId (for anonymous)
+      const uniqueUsers = new Set();
+      recentData.forEach((item: any) => {
+        if (item.data?.userId) {
+          uniqueUsers.add(`user:${item.data.userId}`);
+        } else {
+          uniqueUsers.add(`session:${item.sessionId}`);
+        }
+      });
+      
       const uniquePages = new Set(
         recentData
           .filter((item: any) => item.eventType === 'pageview')
-          .map((item: any) => item.data?.path || '/')
+          .map((item: any) => item.data?.url || item.data?.path || '/')
       );
       
+      console.log('📊 Analytics Debug:', {
+        totalEvents: recentData.length,
+        pageviews,
+        sessions,
+        uniqueUsers: uniqueUsers.size,
+        sampleEvents: recentData.slice(0, 3)
+      });
+      
       return {
-        totalVisitors: sessions,
+        totalVisitors: uniqueUsers.size,
+        uniqueVisitors: uniqueUsers.size, 
         totalPageviews: pageviews,
         totalSessions: sessions,
         totalInteractions: interactions,

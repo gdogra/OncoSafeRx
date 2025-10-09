@@ -41,7 +41,7 @@ const API_BASE_URL = getApiUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 20000, // Increased to 20 seconds for production stability
 });
 
 // Request interceptor

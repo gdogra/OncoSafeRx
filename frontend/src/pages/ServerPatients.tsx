@@ -225,7 +225,7 @@ const ServerPatients: React.FC = () => {
       
       // Test if API proxy is working at all
       try {
-        const testResp = await fetch('/api/health', { signal: AbortSignal.timeout(3000) });
+        const testResp = await fetch('/api/health', { signal: AbortSignal.timeout(8000) });
         console.log('🏥 API health check:', {
           status: testResp.status,
           ok: testResp.ok,
@@ -233,13 +233,14 @@ const ServerPatients: React.FC = () => {
         });
       } catch (healthError) {
         console.warn('⚠️ API health check failed:', healthError?.message);
+        // If health check fails, continue anyway - might be a temporary issue
       }
       
       let resp: Response | null = null;
       try {
         resp = await fetch(`/api/patients?${params.toString()}`, { 
           headers: token ? { Authorization: `Bearer ${token}` } : {},
-          signal: AbortSignal.timeout(5000)
+          signal: AbortSignal.timeout(15000) // Increased timeout to 15 seconds for production
         });
       } catch (e: any) {
         const isTimeout = e?.name === 'TimeoutError' || /timeout/i.test(String(e?.message || ''));

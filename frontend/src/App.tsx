@@ -1,5 +1,5 @@
 import React, { useEffect, Suspense, lazy } from 'react';
-// Deployment test - timestamp: 2025-10-04-01:50 UTC
+// Deployment test - timestamp: 2025-10-09-21:20 UTC - Fix MIME type errors
 import { appVersion } from './utils/env';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';

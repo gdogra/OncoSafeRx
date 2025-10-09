@@ -166,7 +166,7 @@ const ServerPatients: React.FC = () => {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  const fetchPatients = async (opts?: { resetPage?: boolean }) => {
+  const fetchPatients = async (opts?: { resetPage?: boolean; bustCache?: boolean }) => {
     console.log('🎯 fetchPatients called with opts:', opts);
     setLoading(true);
     console.log('⚡ setLoading(true) completed');
@@ -213,6 +213,12 @@ const ServerPatients: React.FC = () => {
       console.log('💫 Final token status:', { hasToken: !!token });
       const p = opts?.resetPage ? 1 : page;
       const params = new URLSearchParams({ q: query, page: String(p), pageSize: String(PAGE_SIZE) });
+      
+      // Add cache-busting parameter if requested (e.g., after patient creation)
+      if (opts?.bustCache) {
+        params.append('_t', Date.now().toString());
+        console.log('🔄 Added cache-busting parameter to force fresh data');
+      }
       
       console.log('🔍 Fetching patients:', {
         url: `/api/patients?${params.toString()}`,
@@ -467,8 +473,10 @@ const ServerPatients: React.FC = () => {
           console.log('🏥 ✅ Showing success toast...');
           showToast('success', 'Patient created successfully');
           
-          console.log('🏥 Refreshing patient list...');
-          await fetchPatients({ resetPage: true });
+          console.log('🏥 Refreshing patient list after short delay...');
+          // Add a small delay to ensure database consistency
+          await new Promise(resolve => setTimeout(resolve, 500));
+          await fetchPatients({ resetPage: true, bustCache: true });
           console.log('🏥 ✅ Patient list refreshed');
           success = true;
         } else {
@@ -505,7 +513,9 @@ const ServerPatients: React.FC = () => {
                 }
                 
                 showToast('success', 'Patient created successfully (retry)');
-                await fetchPatients({ resetPage: true });
+                // Add delay and cache-busting for retry as well
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await fetchPatients({ resetPage: true, bustCache: true });
                 success = true;
               } else {
                 showToast('error', `Create failed after retry: ${retryResp.status}`);

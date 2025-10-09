@@ -22,6 +22,9 @@ const ServerPatients: React.FC = () => {
   const [editing, setEditing] = useState<any | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [editTab, setEditTab] = useState<'demo'|'meds'|'cond'|'allergies'|'labs'>('demo');
+  const [drugSuggestions, setDrugSuggestions] = useState<string[]>([]);
+  const [showDrugSuggestions, setShowDrugSuggestions] = useState<{[key: string]: boolean}>({});
   const [usingDemoData, setUsingDemoData] = useState(false);
   const [usingDefaultUser, setUsingDefaultUser] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -36,6 +39,102 @@ const ServerPatients: React.FC = () => {
   const [showCoach, setShowCoach] = useState(false);
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total]);
   const { showToast } = useToast();
+
+  // Comprehensive oncology drug database with common dosages
+  const drugDatabase = {
+    // Chemotherapy agents
+    'Carboplatin': ['AUC 5', 'AUC 6', '300mg/m²', '400mg/m²'],
+    'Cisplatin': ['75mg/m²', '100mg/m²', '50mg/m²', '20mg/m²'],
+    'Paclitaxel': ['175mg/m²', '80mg/m²', '100mg/m²', '135mg/m²'],
+    'Docetaxel': ['75mg/m²', '100mg/m²', '60mg/m²'],
+    'Doxorubicin': ['60mg/m²', '75mg/m²', '50mg/m²'],
+    'Cyclophosphamide': ['600mg/m²', '500mg/m²', '750mg/m²'],
+    'Gemcitabine': ['1000mg/m²', '1200mg/m²', '800mg/m²'],
+    'Fluorouracil': ['400mg/m²', '600mg/m²', '2400mg/m²'],
+    'Oxaliplatin': ['85mg/m²', '130mg/m²', '100mg/m²'],
+    'Etoposide': ['100mg/m²', '120mg/m²', '50mg'],
+    'Bleomycin': ['10 units/m²', '15 units/m²', '30 units'],
+    'Vincristine': ['1.4mg/m²', '2mg', '1mg'],
+    'Vinblastine': ['6mg/m²', '10mg/m²'],
+    'Methotrexate': ['500mg/m²', '1000mg/m²', '3000mg/m²', '15mg'],
+    
+    // Targeted therapy
+    'Trastuzumab': ['6mg/kg', '8mg/kg', '4mg/kg'],
+    'Bevacizumab': ['5mg/kg', '7.5mg/kg', '10mg/kg', '15mg/kg'],
+    'Cetuximab': ['400mg/m²', '250mg/m²'],
+    'Rituximab': ['375mg/m²', '500mg/m²'],
+    'Imatinib': ['400mg', '600mg', '800mg'],
+    'Erlotinib': ['150mg', '100mg', '50mg'],
+    'Gefitinib': ['250mg'],
+    'Sorafenib': ['400mg', '800mg'],
+    'Sunitinib': ['50mg', '37.5mg', '25mg'],
+    'Lapatinib': ['1250mg', '1000mg'],
+    
+    // Immunotherapy
+    'Pembrolizumab': ['200mg', '2mg/kg'],
+    'Nivolumab': ['3mg/kg', '240mg', '480mg'],
+    'Ipilimumab': ['3mg/kg', '10mg/kg'],
+    'Atezolizumab': ['1200mg', '15mg/kg'],
+    'Durvalumab': ['10mg/kg', '1500mg'],
+    
+    // Hormone therapy
+    'Tamoxifen': ['20mg', '40mg'],
+    'Anastrozole': ['1mg'],
+    'Letrozole': ['2.5mg'],
+    'Exemestane': ['25mg'],
+    'Fulvestrant': ['500mg', '250mg'],
+    'Leuprolide': ['7.5mg', '22.5mg', '30mg'],
+    'Goserelin': ['3.6mg', '10.8mg'],
+    
+    // Supportive care
+    'Ondansetron': ['8mg', '4mg', '24mg'],
+    'Granisetron': ['1mg', '2mg'],
+    'Palonosetron': ['0.25mg'],
+    'Dexamethasone': ['8mg', '12mg', '4mg', '20mg'],
+    'Prednisone': ['5mg', '10mg', '20mg', '40mg'],
+    'Filgrastim': ['5mcg/kg', '300mcg', '480mcg'],
+    'Pegfilgrastim': ['6mg'],
+    'Allopurinol': ['300mg', '100mg'],
+    'Proton Pump Inhibitor': ['20mg', '40mg'],
+    'Lorazepam': ['0.5mg', '1mg', '2mg'],
+    
+    // Pain management
+    'Morphine': ['5mg', '10mg', '15mg', '30mg', '60mg'],
+    'Oxycodone': ['5mg', '10mg', '15mg', '20mg', '30mg'],
+    'Fentanyl': ['12mcg/hr', '25mcg/hr', '50mcg/hr', '75mcg/hr', '100mcg/hr'],
+    'Tramadol': ['50mg', '100mg'],
+    'Hydromorphone': ['2mg', '4mg', '8mg'],
+    
+    // Newer agents
+    'Osimertinib': ['80mg', '40mg'],
+    'Alectinib': ['600mg', '300mg'],
+    'Crizotinib': ['250mg', '200mg'],
+    'Dabrafenib': ['150mg', '75mg'],
+    'Trametinib': ['2mg', '1.5mg'],
+    'Vemurafenib': ['960mg', '720mg'],
+    'Ibrutinib': ['420mg', '280mg', '140mg'],
+    'Venetoclax': ['400mg', '200mg', '100mg', '50mg', '20mg', '10mg']
+  };
+
+  const getDrugSuggestions = (searchTerm: string) => {
+    if (!searchTerm || searchTerm.length < 2) return [];
+    const term = searchTerm.toLowerCase();
+    return Object.keys(drugDatabase)
+      .filter(drug => drug.toLowerCase().includes(term))
+      .sort((a, b) => {
+        // Prioritize drugs that start with the search term
+        const aStarts = a.toLowerCase().startsWith(term);
+        const bStarts = b.toLowerCase().startsWith(term);
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+        return a.localeCompare(b);
+      })
+      .slice(0, 10); // Limit to 10 suggestions
+  };
+
+  const getDosageOptions = (drugName: string) => {
+    return drugDatabase[drugName] || ['Custom dosage'];
+  };
   const canCreatePatients = true;
   
   // Debug logging for production
@@ -409,6 +508,7 @@ const ServerPatients: React.FC = () => {
 
   const openEdit = (p: any) => {
     const d = p.data?.demographics || p.demographics || {};
+    const fullData = p.data || p;
     setEditing({
       id: p.id,
       firstName: d.firstName || '',
@@ -416,8 +516,13 @@ const ServerPatients: React.FC = () => {
       mrn: d.mrn || '',
       dateOfBirth: d.dateOfBirth || '',
       sex: d.sex || 'unknown',
+      medications: fullData.medications || [],
+      conditions: fullData.conditions || [],
+      allergies: fullData.allergies || [],
+      labValues: fullData.labValues || [],
       original: p,
     });
+    setEditTab('demo');
     setSaveError(null);
   };
 
@@ -567,6 +672,10 @@ const ServerPatients: React.FC = () => {
           dateOfBirth: editing.dateOfBirth,
           sex: editing.sex,
         },
+        medications: editing.medications || [],
+        conditions: editing.conditions || [],
+        allergies: editing.allergies || [],
+        labValues: editing.labValues || [],
         lastUpdated: new Date().toISOString(),
       };
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -757,46 +866,543 @@ const ServerPatients: React.FC = () => {
       </Card>
 
       {editing && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Edit Patient</h2>
-              <button onClick={() => setEditing(null)} className="text-gray-400 hover:text-gray-600" aria-label="Close"><X className="w-5 h-5"/></button>
-            </div>
+        <Modal isOpen={!!editing} onClose={() => setEditing(null)} title="Edit Patient" size="xl">
+          <div className="space-y-4">
             {saveError && <div className="mb-3 text-sm text-red-700">{saveError}</div>}
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">First Name</label>
-                <input value={editing.firstName} onChange={(e) => setEditing({ ...editing, firstName: e.target.value })} className="w-full border rounded px-3 py-2 text-sm"/>
-              </div>
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">Last Name</label>
-                <input value={editing.lastName} onChange={(e) => setEditing({ ...editing, lastName: e.target.value })} className="w-full border rounded px-3 py-2 text-sm"/>
-              </div>
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">MRN</label>
-                <input value={editing.mrn} onChange={(e) => setEditing({ ...editing, mrn: e.target.value })} className="w-full border rounded px-3 py-2 text-sm"/>
-              </div>
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">Date of Birth</label>
-                <input type="date" value={editing.dateOfBirth} onChange={(e) => setEditing({ ...editing, dateOfBirth: e.target.value })} className="w-full border rounded px-3 py-2 text-sm"/>
-              </div>
-              <div>
-                <label className="block text-sm text-gray-700 mb-1">Sex</label>
-                <select value={editing.sex} onChange={(e) => setEditing({ ...editing, sex: e.target.value })} className="w-full border rounded px-3 py-2 text-sm">
-                  <option value="female">Female</option>
-                  <option value="male">Male</option>
-                  <option value="other">Other</option>
-                  <option value="unknown">Unknown</option>
-                </select>
-              </div>
+            
+            <div className="border-b border-gray-200">
+              <nav className="-mb-px flex space-x-4" aria-label="Tabs">
+                {[
+                  { id: 'demo', label: 'Demographics' },
+                  { id: 'meds', label: 'Medications' },
+                  { id: 'cond', label: 'Conditions' },
+                  { id: 'allergies', label: 'Allergies' },
+                  { id: 'labs', label: 'Labs' },
+                ].map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => setEditTab(t.id as any)}
+                    className={`whitespace-nowrap py-2 px-3 border-b-2 text-sm font-medium ${editTab === (t.id as any) ? 'border-blue-600 text-blue-700' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </nav>
             </div>
-            <div className="mt-5 flex items-center justify-end gap-2">
+
+            <Card>
+              <div className="space-y-4">
+                {editTab === 'demo' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">First Name</label>
+                      <input value={editing.firstName} onChange={(e) => setEditing({ ...editing, firstName: e.target.value })} className="w-full border rounded px-3 py-2 text-sm"/>
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Last Name</label>
+                      <input value={editing.lastName} onChange={(e) => setEditing({ ...editing, lastName: e.target.value })} className="w-full border rounded px-3 py-2 text-sm"/>
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">MRN</label>
+                      <input value={editing.mrn} onChange={(e) => setEditing({ ...editing, mrn: e.target.value })} className="w-full border rounded px-3 py-2 text-sm"/>
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Date of Birth</label>
+                      <input type="date" value={editing.dateOfBirth} onChange={(e) => setEditing({ ...editing, dateOfBirth: e.target.value })} className="w-full border rounded px-3 py-2 text-sm"/>
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Sex</label>
+                      <select value={editing.sex} onChange={(e) => setEditing({ ...editing, sex: e.target.value })} className="w-full border rounded px-3 py-2 text-sm">
+                        <option value="female">Female</option>
+                        <option value="male">Male</option>
+                        <option value="other">Other</option>
+                        <option value="unknown">Unknown</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+                
+                {editTab === 'meds' && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-medium text-gray-900">Medications</h3>
+                      <button 
+                        onClick={() => {
+                          const newMed = { drugName: '', dosage: '', frequency: '', route: '', isActive: true };
+                          setEditing({ ...editing, medications: [...(editing.medications || []), newMed] });
+                        }}
+                        className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        Add Medication
+                      </button>
+                    </div>
+                    {(editing.medications || []).map((med: any, i: number) => (
+                      <div key={i} className="border rounded p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-medium">Medication {i + 1}</h4>
+                          <button 
+                            onClick={() => {
+                              const newMeds = [...(editing.medications || [])];
+                              newMeds.splice(i, 1);
+                              setEditing({ ...editing, medications: newMeds });
+                            }}
+                            className="text-red-600 hover:text-red-800 text-xs"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="relative">
+                            <label className="block text-xs text-gray-600 mb-1">Drug Name</label>
+                            <input 
+                              value={med.drugName || med.drug?.name || med.name || ''} 
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                const newMeds = [...(editing.medications || [])];
+                                newMeds[i] = { ...newMeds[i], drugName: value };
+                                setEditing({ ...editing, medications: newMeds });
+                                
+                                // Update suggestions and show/hide dropdown
+                                const suggestions = getDrugSuggestions(value);
+                                setDrugSuggestions(suggestions);
+                                setShowDrugSuggestions({ 
+                                  ...showDrugSuggestions, 
+                                  [`med-${i}`]: suggestions.length > 0 && value.length >= 2 
+                                });
+                              }}
+                              onFocus={(e) => {
+                                const value = e.target.value;
+                                const suggestions = getDrugSuggestions(value);
+                                setDrugSuggestions(suggestions);
+                                setShowDrugSuggestions({ 
+                                  ...showDrugSuggestions, 
+                                  [`med-${i}`]: suggestions.length > 0 && value.length >= 2 
+                                });
+                              }}
+                              onBlur={() => {
+                                // Delay hiding to allow clicking on suggestions
+                                setTimeout(() => {
+                                  setShowDrugSuggestions({ 
+                                    ...showDrugSuggestions, 
+                                    [`med-${i}`]: false 
+                                  });
+                                }, 150);
+                              }}
+                              className="w-full border rounded px-2 py-1 text-xs"
+                              placeholder="Enter drug name"
+                            />
+                            {showDrugSuggestions[`med-${i}`] && drugSuggestions.length > 0 && (
+                              <div className="absolute z-10 top-full left-0 right-0 bg-white border border-gray-300 rounded-md mt-1 max-h-40 overflow-y-auto shadow-lg">
+                                {drugSuggestions.map((drug, suggestionIndex) => (
+                                  <div
+                                    key={suggestionIndex}
+                                    className="px-3 py-2 hover:bg-blue-50 cursor-pointer text-xs border-b border-gray-100 last:border-b-0"
+                                    onMouseDown={(e) => {
+                                      e.preventDefault(); // Prevent blur from firing
+                                      const newMeds = [...(editing.medications || [])];
+                                      newMeds[i] = { ...newMeds[i], drugName: drug, dosage: '' }; // Clear dosage when drug changes
+                                      setEditing({ ...editing, medications: newMeds });
+                                      setShowDrugSuggestions({ 
+                                        ...showDrugSuggestions, 
+                                        [`med-${i}`]: false 
+                                      });
+                                    }}
+                                  >
+                                    {drug}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Dosage</label>
+                            {(() => {
+                              const drugName = med.drugName || med.drug?.name || med.name || '';
+                              const dosageOptions = getDosageOptions(drugName);
+                              const currentDosage = med.dosage || med.dose || '';
+                              const hasCustomDosage = currentDosage && !dosageOptions.includes(currentDosage);
+                              
+                              return (
+                                <select 
+                                  value={hasCustomDosage ? 'custom' : currentDosage} 
+                                  onChange={(e) => {
+                                    const newMeds = [...(editing.medications || [])];
+                                    if (e.target.value === 'custom') {
+                                      // Keep current value if switching to custom
+                                      newMeds[i] = { ...newMeds[i], dosage: currentDosage || '', isCustomDosage: true };
+                                    } else {
+                                      newMeds[i] = { ...newMeds[i], dosage: e.target.value, isCustomDosage: false };
+                                    }
+                                    setEditing({ ...editing, medications: newMeds });
+                                  }}
+                                  className="w-full border rounded px-2 py-1 text-xs"
+                                >
+                                  <option value="">Select dosage</option>
+                                  {dosageOptions.map((dosage, dosageIndex) => (
+                                    <option key={dosageIndex} value={dosage}>
+                                      {dosage}
+                                    </option>
+                                  ))}
+                                  {hasCustomDosage && (
+                                    <option value="custom">Custom: {currentDosage}</option>
+                                  )}
+                                  <option value="custom">Custom dosage...</option>
+                                </select>
+                              );
+                            })()}
+                            {(() => {
+                              const currentDosage = med.dosage || med.dose || '';
+                              const drugName = med.drugName || med.drug?.name || med.name || '';
+                              const dosageOptions = getDosageOptions(drugName);
+                              const isCustomSelected = med.isCustomDosage || (currentDosage && !dosageOptions.includes(currentDosage));
+                              
+                              return isCustomSelected && (
+                                <input 
+                                  value={currentDosage} 
+                                  onChange={(e) => {
+                                    const newMeds = [...(editing.medications || [])];
+                                    newMeds[i] = { ...newMeds[i], dosage: e.target.value, isCustomDosage: true };
+                                    setEditing({ ...editing, medications: newMeds });
+                                  }}
+                                  className="w-full border rounded px-2 py-1 text-xs mt-1"
+                                  placeholder="Enter custom dosage (e.g., 10mg, 5mg/kg)"
+                                />
+                              );
+                            })()}
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Frequency</label>
+                            <input 
+                              value={med.frequency || ''} 
+                              onChange={(e) => {
+                                const newMeds = [...(editing.medications || [])];
+                                newMeds[i] = { ...newMeds[i], frequency: e.target.value };
+                                setEditing({ ...editing, medications: newMeds });
+                              }}
+                              className="w-full border rounded px-2 py-1 text-xs"
+                              placeholder="e.g., twice daily"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Route</label>
+                            <select 
+                              value={med.route || ''} 
+                              onChange={(e) => {
+                                const newMeds = [...(editing.medications || [])];
+                                newMeds[i] = { ...newMeds[i], route: e.target.value };
+                                setEditing({ ...editing, medications: newMeds });
+                              }}
+                              className="w-full border rounded px-2 py-1 text-xs"
+                            >
+                              <option value="">Select route</option>
+                              <option value="oral">Oral</option>
+                              <option value="IV">IV</option>
+                              <option value="IM">IM</option>
+                              <option value="topical">Topical</option>
+                              <option value="inhalation">Inhalation</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="flex items-center">
+                          <input 
+                            type="checkbox" 
+                            checked={med.isActive !== false} 
+                            onChange={(e) => {
+                              const newMeds = [...(editing.medications || [])];
+                              newMeds[i] = { ...newMeds[i], isActive: e.target.checked };
+                              setEditing({ ...editing, medications: newMeds });
+                            }}
+                            className="mr-2"
+                          />
+                          <label className="text-xs text-gray-600">Active medication</label>
+                        </div>
+                      </div>
+                    ))}
+                    {(editing.medications || []).length === 0 && (
+                      <div className="text-sm text-gray-500 text-center py-4">No medications added</div>
+                    )}
+                  </div>
+                )}
+                
+                {editTab === 'cond' && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-medium text-gray-900">Medical Conditions</h3>
+                      <button 
+                        onClick={() => {
+                          const newCond = { name: '', status: '', icd10Code: '', stage: '' };
+                          setEditing({ ...editing, conditions: [...(editing.conditions || []), newCond] });
+                        }}
+                        className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        Add Condition
+                      </button>
+                    </div>
+                    {(editing.conditions || []).map((cond: any, i: number) => (
+                      <div key={i} className="border rounded p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-medium">Condition {i + 1}</h4>
+                          <button 
+                            onClick={() => {
+                              const newConds = [...(editing.conditions || [])];
+                              newConds.splice(i, 1);
+                              setEditing({ ...editing, conditions: newConds });
+                            }}
+                            className="text-red-600 hover:text-red-800 text-xs"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Condition Name</label>
+                            <input 
+                              value={cond.name || cond.condition || ''} 
+                              onChange={(e) => {
+                                const newConds = [...(editing.conditions || [])];
+                                newConds[i] = { ...newConds[i], name: e.target.value };
+                                setEditing({ ...editing, conditions: newConds });
+                              }}
+                              className="w-full border rounded px-2 py-1 text-xs"
+                              placeholder="Enter condition"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Status</label>
+                            <select 
+                              value={cond.status || ''} 
+                              onChange={(e) => {
+                                const newConds = [...(editing.conditions || [])];
+                                newConds[i] = { ...newConds[i], status: e.target.value };
+                                setEditing({ ...editing, conditions: newConds });
+                              }}
+                              className="w-full border rounded px-2 py-1 text-xs"
+                            >
+                              <option value="">Select status</option>
+                              <option value="active">Active</option>
+                              <option value="inactive">Inactive</option>
+                              <option value="resolved">Resolved</option>
+                              <option value="chronic">Chronic</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">ICD-10 Code</label>
+                            <input 
+                              value={cond.icd10Code || ''} 
+                              onChange={(e) => {
+                                const newConds = [...(editing.conditions || [])];
+                                newConds[i] = { ...newConds[i], icd10Code: e.target.value };
+                                setEditing({ ...editing, conditions: newConds });
+                              }}
+                              className="w-full border rounded px-2 py-1 text-xs"
+                              placeholder="e.g., Z51.11"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Stage</label>
+                            <input 
+                              value={cond.stage || ''} 
+                              onChange={(e) => {
+                                const newConds = [...(editing.conditions || [])];
+                                newConds[i] = { ...newConds[i], stage: e.target.value };
+                                setEditing({ ...editing, conditions: newConds });
+                              }}
+                              className="w-full border rounded px-2 py-1 text-xs"
+                              placeholder="e.g., Stage II"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {(editing.conditions || []).length === 0 && (
+                      <div className="text-sm text-gray-500 text-center py-4">No conditions added</div>
+                    )}
+                  </div>
+                )}
+                
+                {editTab === 'allergies' && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-medium text-gray-900">Allergies</h3>
+                      <button 
+                        onClick={() => {
+                          const newAllergy = { allergen: '', reaction: '', severity: '' };
+                          setEditing({ ...editing, allergies: [...(editing.allergies || []), newAllergy] });
+                        }}
+                        className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        Add Allergy
+                      </button>
+                    </div>
+                    {(editing.allergies || []).map((allergy: any, i: number) => (
+                      <div key={i} className="border rounded p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-medium">Allergy {i + 1}</h4>
+                          <button 
+                            onClick={() => {
+                              const newAllergies = [...(editing.allergies || [])];
+                              newAllergies.splice(i, 1);
+                              setEditing({ ...editing, allergies: newAllergies });
+                            }}
+                            className="text-red-600 hover:text-red-800 text-xs"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-1 gap-2">
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Allergen</label>
+                            <input 
+                              value={allergy.allergen || allergy.name || ''} 
+                              onChange={(e) => {
+                                const newAllergies = [...(editing.allergies || [])];
+                                newAllergies[i] = { ...newAllergies[i], allergen: e.target.value };
+                                setEditing({ ...editing, allergies: newAllergies });
+                              }}
+                              className="w-full border rounded px-2 py-1 text-xs"
+                              placeholder="Enter allergen"
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-xs text-gray-600 mb-1">Reaction</label>
+                              <input 
+                                value={allergy.reaction || ''} 
+                                onChange={(e) => {
+                                  const newAllergies = [...(editing.allergies || [])];
+                                  newAllergies[i] = { ...newAllergies[i], reaction: e.target.value };
+                                  setEditing({ ...editing, allergies: newAllergies });
+                                }}
+                                className="w-full border rounded px-2 py-1 text-xs"
+                                placeholder="e.g., rash, swelling"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-600 mb-1">Severity</label>
+                              <select 
+                                value={allergy.severity || ''} 
+                                onChange={(e) => {
+                                  const newAllergies = [...(editing.allergies || [])];
+                                  newAllergies[i] = { ...newAllergies[i], severity: e.target.value };
+                                  setEditing({ ...editing, allergies: newAllergies });
+                                }}
+                                className="w-full border rounded px-2 py-1 text-xs"
+                              >
+                                <option value="">Select severity</option>
+                                <option value="mild">Mild</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="severe">Severe</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {(editing.allergies || []).length === 0 && (
+                      <div className="text-sm text-gray-500 text-center py-4">No allergies added</div>
+                    )}
+                  </div>
+                )}
+                
+                {editTab === 'labs' && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-medium text-gray-900">Lab Values</h3>
+                      <button 
+                        onClick={() => {
+                          const newLab = { labType: '', value: '', unit: '', timestamp: new Date().toISOString().split('T')[0] };
+                          setEditing({ ...editing, labValues: [...(editing.labValues || []), newLab] });
+                        }}
+                        className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+                      >
+                        Add Lab Value
+                      </button>
+                    </div>
+                    {(editing.labValues || []).map((lab: any, i: number) => (
+                      <div key={i} className="border rounded p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-sm font-medium">Lab Value {i + 1}</h4>
+                          <button 
+                            onClick={() => {
+                              const newLabs = [...(editing.labValues || [])];
+                              newLabs.splice(i, 1);
+                              setEditing({ ...editing, labValues: newLabs });
+                            }}
+                            className="text-red-600 hover:text-red-800 text-xs"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Lab Type</label>
+                            <input 
+                              value={lab.labType || ''} 
+                              onChange={(e) => {
+                                const newLabs = [...(editing.labValues || [])];
+                                newLabs[i] = { ...newLabs[i], labType: e.target.value };
+                                setEditing({ ...editing, labValues: newLabs });
+                              }}
+                              className="w-full border rounded px-2 py-1 text-xs"
+                              placeholder="e.g., CBC, Glucose"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Date</label>
+                            <input 
+                              type="date"
+                              value={lab.timestamp ? lab.timestamp.split('T')[0] : ''} 
+                              onChange={(e) => {
+                                const newLabs = [...(editing.labValues || [])];
+                                newLabs[i] = { ...newLabs[i], timestamp: e.target.value + 'T00:00:00Z' };
+                                setEditing({ ...editing, labValues: newLabs });
+                              }}
+                              className="w-full border rounded px-2 py-1 text-xs"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Value</label>
+                            <input 
+                              value={lab.value || ''} 
+                              onChange={(e) => {
+                                const newLabs = [...(editing.labValues || [])];
+                                newLabs[i] = { ...newLabs[i], value: e.target.value };
+                                setEditing({ ...editing, labValues: newLabs });
+                              }}
+                              className="w-full border rounded px-2 py-1 text-xs"
+                              placeholder="Enter value"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs text-gray-600 mb-1">Unit</label>
+                            <input 
+                              value={lab.unit || ''} 
+                              onChange={(e) => {
+                                const newLabs = [...(editing.labValues || [])];
+                                newLabs[i] = { ...newLabs[i], unit: e.target.value };
+                                setEditing({ ...editing, labValues: newLabs });
+                              }}
+                              className="w-full border rounded px-2 py-1 text-xs"
+                              placeholder="e.g., mg/dL, %"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {(editing.labValues || []).length === 0 && (
+                      <div className="text-sm text-gray-500 text-center py-4">No lab values added</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </Card>
+            
+            <div className="flex items-center justify-end gap-2 pt-4">
               <button onClick={() => setEditing(null)} className="px-3 py-1.5 text-sm bg-white border rounded">Cancel</button>
               <button onClick={saveEdit} disabled={saving} className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded disabled:opacity-50">{saving ? 'Saving…' : 'Save'}</button>
             </div>
           </div>
-        </div>
+        </Modal>
       )}
 
       {showCreateForm && (

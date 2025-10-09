@@ -439,6 +439,13 @@ function AppWithAuth() {
                     </Layout>
                   </ProtectedRoute>
                 } />
+                <Route path="/evidence-analysis" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <EvidenceBasedProtocolsSystem />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
                 <Route path="/laboratory-integration" element={
                   <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
                     <Layout>

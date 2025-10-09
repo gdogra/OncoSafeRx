@@ -32,19 +32,37 @@ router.get('/', optionalSupabaseAuth, async (req, res) => {
       console.log('🔄 Using default user (Gautam) for unauthenticated request');
     }
     
-    // If Supabase is disabled or offline forced (dev), serve from in-memory store
-    if (forceOffline || !supabaseService.enabled) {
-      const list = await supabaseService.listPatientsByUser(req.user.id);
-      let patients = (list || []).map(r => ({ id: r.id, user_id: r.user_id, ...r.data }));
-      const total = patients.length;
-      const start = (page - 1) * pageSize;
-      const items = patients.slice(start, start + pageSize);
-      return res.json({ patients: items, total, page, pageSize, offline: true, defaultUser: !!req.user?.isDefault });
-    }
     const q = String(req.query.q || '').toLowerCase().trim();
     const page = Math.max(1, parseInt(String(req.query.page || '1'), 10) || 1);
     // If no pageSize is explicitly provided, return all patients (unpaginated)
     const pageSize = req.query.pageSize ? Math.min(50, Math.max(1, parseInt(String(req.query.pageSize), 10) || 10)) : null;
+    
+    // If Supabase is disabled or offline forced (dev), serve from in-memory store
+    if (forceOffline || !supabaseService.enabled) {
+      const list = await supabaseService.listPatientsByUser(req.user.id);
+      let patients = (list || []).map(r => ({ id: r.id, user_id: r.user_id, ...r.data }));
+      if (q) {
+        patients = patients.filter(p => {
+          try {
+            const d = p.demographics || {};
+            const name = `${d.firstName || ''} ${d.lastName || ''}`.toLowerCase();
+            const mrn = String(d.mrn || '').toLowerCase();
+            return name.includes(q) || mrn.includes(q);
+          } catch { return false; }
+        });
+      }
+      const total = patients.length;
+      // If pageSize is null, return all patients (unpaginated)
+      const items = pageSize ? patients.slice((page - 1) * pageSize, (page - 1) * pageSize + pageSize) : patients;
+      return res.json({ 
+        patients: items, 
+        total, 
+        page: pageSize ? page : 1, 
+        pageSize: pageSize || total, 
+        offline: true, 
+        defaultUser: !!req.user?.isDefault 
+      });
+    }
 
     // Bound Supabase call so UI doesn't hang in dev when upstream is slow
     let list = null;

@@ -868,10 +868,171 @@ const LaboratoryIntegrationSystem: React.FC = () => {
       {activeTab === 'alerts' && renderAlerts()}
       {activeTab === 'monitoring' && renderMonitoringRules()}
       {activeTab === 'systems' && (
-        <div className="text-center py-12">
-          <Settings className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Lab Systems Configuration</h3>
-          <p className="text-gray-600">Laboratory system connections and configuration will be managed here.</p>
+        <div className="space-y-6">
+          {/* Add New System Button */}
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold text-gray-900">Laboratory System Configuration</h2>
+            <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+              <Plus className="w-4 h-4 mr-2" />
+              Add New System
+            </button>
+          </div>
+
+          {/* Systems Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {labSystems.map(system => (
+              <div key={system.id} className="bg-white rounded-lg border border-gray-200 p-6">
+                {/* System Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg ${getConnectionStatusColor(system.connectionStatus)}`}>
+                      <Activity className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">{system.name}</h3>
+                      <p className="text-sm text-gray-600">{system.vendor} {system.version}</p>
+                    </div>
+                  </div>
+                  <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getConnectionStatusColor(system.connectionStatus)}`}>
+                    {system.connectionStatus}
+                  </span>
+                </div>
+
+                {/* System Details */}
+                <div className="space-y-3 mb-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-500">Type:</span>
+                      <span className="ml-2 font-medium">{system.type}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-500">Last Sync:</span>
+                      <span className="ml-2 font-medium">{new Date(system.lastSync).toLocaleString()}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="text-sm">
+                    <span className="text-gray-500">API Endpoint:</span>
+                    <span className="ml-2 font-mono text-xs bg-gray-100 px-2 py-1 rounded">
+                      {system.apiEndpoint || 'Not configured'}
+                    </span>
+                  </div>
+
+                  <div className="text-sm">
+                    <span className="text-gray-500">Protocol Support:</span>
+                    <div className="ml-2 flex space-x-2 mt-1">
+                      <span className={`inline-flex px-2 py-1 text-xs rounded ${system.hl7Support ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                        HL7 {system.hl7Support ? '✓' : '✗'}
+                      </span>
+                      <span className={`inline-flex px-2 py-1 text-xs rounded ${system.fhirSupport ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                        FHIR {system.fhirSupport ? '✓' : '✗'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="text-sm">
+                    <span className="text-gray-500">Supported Tests:</span>
+                    <div className="ml-2 flex flex-wrap gap-1 mt-1">
+                      {system.testsSupported.slice(0, 3).map(test => (
+                        <span key={test} className="inline-flex px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                          {test}
+                        </span>
+                      ))}
+                      {system.testsSupported.length > 3 && (
+                        <span className="text-xs text-gray-500">+{system.testsSupported.length - 3} more</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* System Actions */}
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                  <div className="flex space-x-2">
+                    <button 
+                      className="inline-flex items-center px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                      disabled={system.connectionStatus === 'syncing'}
+                    >
+                      <RefreshCw className={`w-4 h-4 mr-1 ${system.connectionStatus === 'syncing' ? 'animate-spin' : ''}`} />
+                      Sync Now
+                    </button>
+                    <button className="inline-flex items-center px-3 py-1.5 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
+                      <Settings className="w-4 h-4 mr-1" />
+                      Configure
+                    </button>
+                  </div>
+                  <button className="inline-flex items-center px-3 py-1.5 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors">
+                    <Eye className="w-4 h-4 mr-1" />
+                    Test Connection
+                  </button>
+                </div>
+
+                {/* Connection Status Details */}
+                {system.connectionStatus === 'error' && (
+                  <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <XCircle className="w-4 h-4 text-red-600" />
+                      <span className="text-sm text-red-800">Connection failed - Check credentials and network connectivity</span>
+                    </div>
+                  </div>
+                )}
+
+                {system.connectionStatus === 'syncing' && (
+                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <RefreshCw className="w-4 h-4 text-blue-600 animate-spin" />
+                      <span className="text-sm text-blue-800">Synchronizing data... This may take a few minutes</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* System Integration Guide */}
+          <div className="bg-gray-50 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Integration Guide</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 text-blue-600 rounded-lg mb-3">
+                  <Upload className="w-6 h-6" />
+                </div>
+                <h4 className="font-medium text-gray-900 mb-2">1. Connect System</h4>
+                <p className="text-sm text-gray-600">Configure API endpoints and authentication credentials for your laboratory system.</p>
+              </div>
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 text-green-600 rounded-lg mb-3">
+                  <CheckCircle className="w-6 h-6" />
+                </div>
+                <h4 className="font-medium text-gray-900 mb-2">2. Test Integration</h4>
+                <p className="text-sm text-gray-600">Verify connectivity and validate data exchange with test transactions.</p>
+              </div>
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 text-purple-600 rounded-lg mb-3">
+                  <Target className="w-6 h-6" />
+                </div>
+                <h4 className="font-medium text-gray-900 mb-2">3. Configure Monitoring</h4>
+                <p className="text-sm text-gray-600">Set up automated monitoring rules and alert thresholds for critical values.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Support Information */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="flex items-start space-x-3">
+              <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+              <div>
+                <h4 className="font-medium text-gray-900 mb-2">Need Help with Integration?</h4>
+                <p className="text-sm text-gray-600 mb-3">
+                  Our integration team can assist with connecting your laboratory systems to OncoSafeRx.
+                </p>
+                <div className="flex space-x-4 text-sm">
+                  <a href="#" className="text-blue-600 hover:text-blue-800">Integration Documentation</a>
+                  <a href="#" className="text-blue-600 hover:text-blue-800">API Reference</a>
+                  <a href="#" className="text-blue-600 hover:text-blue-800">Contact Support</a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

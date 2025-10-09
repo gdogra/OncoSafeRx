@@ -77,11 +77,22 @@ class VisitorTrackingService {
   }
 
   private initializeTracking(): void {
+    // ALWAYS log initialization attempt
+    console.log('🔍 ANALYTICS INIT DEBUG:', {
+      hostname: window.location.hostname,
+      href: window.location.href,
+      envVars: (import.meta as any)?.env,
+      localStorage: {
+        optOut: localStorage.getItem('analytics_opt_out'),
+        session: !!localStorage.getItem('current_session')
+      }
+    });
+
     // Check if user has opted out
     const hasOptedOut = localStorage.getItem('analytics_opt_out') === 'true';
     if (hasOptedOut) {
       this.isTrackingEnabled = false;
-      console.debug('🚫 Analytics tracking disabled (user opt-out)');
+      console.log('🚫 Analytics tracking disabled (user opt-out)');
       return;
     }
 
@@ -90,6 +101,13 @@ class VisitorTrackingService {
     const isProduction = window.location.hostname === 'oncosaferx.com' || 
                         window.location.hostname === 'www.oncosaferx.com' ||
                         window.location.hostname.includes('netlify.app');
+    
+    console.log('🔍 ANALYTICS ENV CHECK:', {
+      envTrackingEnabled,
+      isProduction,
+      hostname: window.location.hostname,
+      envViteAnalyticsEnabled: (import.meta as any)?.env?.VITE_ANALYTICS_ENABLED
+    });
     
     // Enable tracking if explicitly enabled via env var OR in production
     const shouldEnableTracking = envTrackingEnabled || isProduction;
@@ -516,7 +534,15 @@ class VisitorTrackingService {
       this.startSession();
       this.setupEventListeners();
     }
-    console.log('✅ Tracking force-enabled');
+    
+    // Immediately test with a manual event
+    this.trackCustomEvent('force_enabled_test', {
+      timestamp: new Date().toISOString(),
+      forced: true
+    });
+    
+    console.log('✅ Tracking force-enabled and test event sent');
+    console.log('📊 Current session:', this.currentSession);
   }
 
   public getStoredAnalyticsData(): any[] {
@@ -531,6 +557,45 @@ class VisitorTrackingService {
     localStorage.removeItem('osrx_analytics_data');
     localStorage.removeItem('current_session');
     console.log('🗑️ Analytics data cleared');
+  }
+
+  public testAnalyticsManually(): void {
+    console.log('🧪 Manual analytics test starting...');
+    
+    // Force store some test data
+    const testEvent = {
+      eventType: 'test_manual',
+      data: {
+        userId: 'test-user-' + Date.now(),
+        userRole: 'oncologist',
+        url: window.location.pathname,
+        path: window.location.pathname,
+        test: true
+      },
+      timestamp: new Date().toISOString(),
+      sessionId: 'test-session-' + Date.now(),
+      userId: 'test-user-' + Date.now(),
+      userRole: 'oncologist',
+      localTimestamp: Date.now()
+    };
+    
+    try {
+      const key = 'osrx_analytics_data';
+      const stored = JSON.parse(localStorage.getItem(key) || '[]');
+      stored.push(testEvent);
+      localStorage.setItem(key, JSON.stringify(stored));
+      
+      console.log('✅ Test event stored manually:', testEvent);
+      console.log('📊 Total events now:', stored.length);
+      
+      // Test analytics calculation
+      this.getAnalytics('7d').then(metrics => {
+        console.log('📈 Calculated metrics:', metrics);
+      });
+      
+    } catch (error) {
+      console.error('❌ Manual test failed:', error);
+    }
   }
 
   public async getAnalytics(dateRange: string = '7d'): Promise<AnalyticsMetrics> {

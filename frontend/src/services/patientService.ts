@@ -27,9 +27,15 @@ export class PatientService {
         'Content-Type': 'application/json'
       };
       
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
       const response = await fetch(this.API_BASE_URL, {
-        headers
+        headers,
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       if (response.ok) {
         const data = await response.json();
@@ -66,9 +72,15 @@ export class PatientService {
         'Content-Type': 'application/json'
       };
       
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
       const response = await fetch(`${this.API_BASE_URL}/${id}`, {
-        headers
+        headers,
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       if (response.ok) {
         const data = await response.json();
@@ -130,11 +142,17 @@ export class PatientService {
       console.log('📤 Making POST request to:', this.API_BASE_URL);
       console.log('📤 Request payload:', { patient: backendPatient });
       
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
       const response = await fetch(this.API_BASE_URL, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ patient: backendPatient })
+        body: JSON.stringify({ patient: backendPatient }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       console.log('📨 Response status:', response.status, response.statusText);
       
@@ -212,10 +230,16 @@ export class PatientService {
         'Content-Type': 'application/json'
       };
       
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
       const response = await fetch(`${this.API_BASE_URL}/${id}`, {
         method: 'DELETE',
-        headers
+        headers,
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       if (response.ok) {
         console.log('✅ Patient deleted from database');
@@ -249,9 +273,15 @@ export class PatientService {
         'Content-Type': 'application/json'
       };
       
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
       const response = await fetch(`${this.API_BASE_URL}?q=${encodeURIComponent(query)}`, {
-        headers
+        headers,
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       if (response.ok) {
         const data = await response.json();

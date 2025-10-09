@@ -365,7 +365,23 @@ export class SupabaseAuthService {
 
       if (!authPath) {
         console.log('🚫 No authentication path found')
-        // For production without authentication, create a default user
+        
+        // Check if we have a stored user profile from a previous session
+        const storedUser = (() => {
+          try {
+            const stored = localStorage.getItem('osrx_user_profile')
+            return stored ? JSON.parse(stored) : null
+          } catch {
+            return null
+          }
+        })()
+        
+        if (storedUser) {
+          console.log('🔄 Found stored user profile, attempting to restore session')
+          return storedUser
+        }
+        
+        // For production without authentication and no stored profile, create a default user
         if (window.location.hostname !== 'localhost') {
           console.log('🔄 Creating default user for unauthenticated production session')
           const defaultUser = this.createDevUser('user@oncosaferx.com')

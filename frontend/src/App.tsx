@@ -1,7 +1,7 @@
 import React, { useEffect, Suspense, lazy } from 'react';
 // Deployment test - timestamp: 2025-10-04-01:50 UTC
 import { appVersion } from './utils/env';
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { PatientProvider } from './context/PatientContext';
 import { SelectionProvider } from './context/SelectionContext';
@@ -465,7 +465,7 @@ function AppWithAuth() {
                         <a href="/auth" className="block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Go to Auth</a>
                         <a href="/admin/login" className="block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Admin Login</a>
                         <a href="/force-logout" className="block px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Force Logout</a>
-                        <a href="/" className="block px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Dashboard</a>
+                        <Link to="/" className="block px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Dashboard</Link>
                       </div>
                     </div>
                   </div>

@@ -582,7 +582,8 @@ export class SupabaseService {
         .from('patients')
         .select('id,user_id,data,created_at,updated_at')
         .eq('user_id', userId)
-        .order('updated_at', { ascending: false });
+        .order('updated_at', { ascending: false, nullsFirst: false })
+        .order('created_at', { ascending: false });
       if (error) throw error;
       return data || [];
     } catch (error) {
@@ -603,11 +604,13 @@ export class SupabaseService {
         console.log('🔄 Generated new UUID for invalid patient ID:', { old: patient.id, new: patientId });
       }
       
+      const now = new Date().toISOString();
       const payload = {
         id: patientId,
         user_id: userId,
         data: { ...patient, id: patientId },
-        updated_at: new Date().toISOString(),
+        created_at: now,
+        updated_at: now,
       };
       if (!payload.id) delete payload.id;
       

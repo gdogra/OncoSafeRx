@@ -40,7 +40,13 @@ router.get('/', optionalSupabaseAuth, async (req, res) => {
     // If Supabase is disabled or offline forced (dev), serve from in-memory store
     if (forceOffline || !supabaseService.enabled) {
       const list = await supabaseService.listPatientsByUser(req.user.id);
-      let patients = (list || []).map(r => ({ id: r.id, user_id: r.user_id, ...r.data }));
+      let patients = (list || []).map(r => ({ 
+        id: r.id, 
+        user_id: r.user_id, 
+        created_at: r.created_at,
+        updated_at: r.updated_at,
+        ...r.data 
+      }));
       if (q) {
         patients = patients.filter(p => {
           try {
@@ -72,7 +78,13 @@ router.get('/', optionalSupabaseAuth, async (req, res) => {
       console.warn('patients: list timeout or error, returning offline fallback:', e?.message || e);
       return res.json({ patients: [], total: 0, page, pageSize, offline: true, defaultUser: !!req.user?.isDefault });
     }
-    let patients = (list || []).map(r => ({ id: r.id, user_id: r.user_id, ...r.data }));
+    let patients = (list || []).map(r => ({ 
+      id: r.id, 
+      user_id: r.user_id, 
+      created_at: r.created_at,
+      updated_at: r.updated_at,
+      ...r.data 
+    }));
     if (q) {
       patients = patients.filter(p => {
         try {

@@ -211,8 +211,9 @@ const ServerPatients: React.FC = () => {
       }
       
       console.log('💫 Final token status:', { hasToken: !!token });
-      const p = opts?.resetPage ? 1 : page;
-      const params = new URLSearchParams({ q: query, page: String(p), pageSize: String(PAGE_SIZE) });
+      const p = opts?.forcePage ?? (opts?.resetPage ? 1 : page);
+      const q = opts?.forceQuery ?? query;
+      const params = new URLSearchParams({ q, page: String(p), pageSize: String(PAGE_SIZE) });
       
       // Add cache-busting parameter if requested (e.g., after patient creation)
       if (opts?.bustCache) {
@@ -224,7 +225,8 @@ const ServerPatients: React.FC = () => {
         url: `/api/patients?${params.toString()}`,
         hasToken: !!token,
         page: p,
-        query,
+        query: q,
+        forced: { page: opts?.forcePage, query: opts?.forceQuery },
         environment: process.env.NODE_ENV,
         baseURL: window.location.origin
       });
@@ -474,19 +476,25 @@ const ServerPatients: React.FC = () => {
           showToast('success', 'Patient created successfully');
           
           console.log('🏥 Refreshing patient list after delay...');
-          // Add longer delay to ensure database consistency and replication
-          await new Promise(resolve => setTimeout(resolve, 3000));
-          
-          // Clear search query and reset to page 1 to ensure new patient appears
-          setQuery('');
-          setPage(1);
+          // Brief delay to ensure database write completion
+          await new Promise(resolve => setTimeout(resolve, 500));
           
           console.log('🏥 About to refresh patient list - looking for patient:', {
             createdPatientId: serverPatient?.id,
             updatedAt: serverPatient?.updated_at || 'unknown'
           });
           
-          const refreshResult = await fetchPatients({ resetPage: true, bustCache: true });
+          // Clear search and reset page state, then fetch with explicit parameters
+          setQuery('');
+          setPage(1);
+          
+          // Force refresh with clean state - fetch page 1 with no query
+          const refreshResult = await fetchPatients({ 
+            resetPage: true, 
+            bustCache: true,
+            forceQuery: '', // Force empty query
+            forcePage: 1    // Force page 1
+          });
           
           console.log('🏥 ✅ Patient list refreshed - verifying patient appears in response...');
           
@@ -532,18 +540,25 @@ const ServerPatients: React.FC = () => {
                 }
                 
                 showToast('success', 'Patient created successfully (retry)');
-                // Add longer delay and cache-busting for retry as well
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                // Brief delay to ensure database write completion
+                await new Promise(resolve => setTimeout(resolve, 500));
                 
                 console.log('🏥 About to refresh patient list after retry - looking for patient:', {
                   createdPatientId: serverPatient?.id,
                   updatedAt: serverPatient?.updated_at || 'unknown'
                 });
                 
-                // Clear search query and reset to page 1 to ensure new patient appears
+                // Clear search and reset page state, then fetch with explicit parameters
                 setQuery('');
                 setPage(1);
-                const refreshResult = await fetchPatients({ resetPage: true, bustCache: true });
+                
+                // Force refresh with clean state - fetch page 1 with no query
+                const refreshResult = await fetchPatients({ 
+                  resetPage: true, 
+                  bustCache: true,
+                  forceQuery: '', // Force empty query
+                  forcePage: 1    // Force page 1
+                });
                 
                 console.log('🏥 ✅ Patient list refreshed after retry - process completed...');
                 

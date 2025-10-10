@@ -55,6 +55,29 @@ const ServerPatients: React.FC = () => {
     setDeletingPatient(patient.id);
     
     try {
+      // In development mode without backend, just simulate deletion
+      if (window.location.hostname === 'localhost') {
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Remove patient from local state
+        setPatients(prev => prev.filter(p => p.id !== patient.id));
+        setTotal(prev => Math.max(0, prev - 1));
+        
+        // Clear current patient if it was the deleted one
+        const currentPatient = patientState?.currentPatient;
+        if (currentPatient?.id === patient.id) {
+          actions.setCurrentPatient(null as any);
+          try { 
+            localStorage.removeItem('osrx_last_patient_id'); 
+            localStorage.removeItem('osrx_last_patient'); 
+          } catch {}
+        }
+        
+        showToast('success', 'Patient deleted (development mode)');
+        setDeletingPatient(null);
+        return;
+      }
       // Get current user/session info for creator verification
       let currentUserId = 'guest';
       try {
@@ -256,12 +279,48 @@ const ServerPatients: React.FC = () => {
   const fetchPatients = async (opts?: { resetPage?: boolean; bustCache?: boolean }) => {
     setLoading(true);
     
-    // In development without backend, just return empty results
+    // In development without backend, use mock data
     if (window.location.hostname === 'localhost') {
-      // Development mode: Skipping API calls, returning mock data
-      setPatients([]);
-      setTotal(0);
+      // Development mode: Using mock data
+      const mockPatients = [
+        {
+          id: 'mock-patient-1',
+          data: {
+            demographics: {
+              firstName: 'John',
+              lastName: 'Doe',
+              dateOfBirth: '1980-05-15',
+              sex: 'male',
+              mrn: 'MOCK-001',
+              heightCm: 175,
+              weightKg: 70
+            },
+            lastUpdated: new Date().toISOString()
+          },
+          lastUpdated: new Date().toISOString()
+        },
+        {
+          id: 'mock-patient-2',
+          data: {
+            demographics: {
+              firstName: 'Jane',
+              lastName: 'Smith',
+              dateOfBirth: '1975-08-22',
+              sex: 'female',
+              mrn: 'MOCK-002',
+              heightCm: 165,
+              weightKg: 65
+            },
+            lastUpdated: new Date().toISOString()
+          },
+          lastUpdated: new Date().toISOString()
+        }
+      ];
+      
+      setPatients(mockPatients);
+      setTotal(mockPatients.length);
       setLoading(false);
+      setUsingDemoData(true);
       return;
     }
     

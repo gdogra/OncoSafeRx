@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Card from '../components/UI/Card';
 import { usePatient } from '../context/PatientContext';
 import { supabase } from '../lib/supabase';
-import { Search, ChevronLeft, ChevronRight, RefreshCw, Edit, X, Plus } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, RefreshCw, Edit, X, Plus, Filter } from 'lucide-react';
 import { useToast } from '../components/UI/Toast';
 import ComprehensivePatientForm from '../components/Patient/ComprehensivePatientForm';
 // Always allow creating patients on this page (production UX request)
@@ -37,6 +37,12 @@ const ServerPatients: React.FC = () => {
     } catch { return false; }
   });
   const [showCoach, setShowCoach] = useState(false);
+  
+  // Filter states
+  const [ageFilter, setAgeFilter] = useState('');
+  const [genderFilter, setGenderFilter] = useState('');
+  const [cancerTypeFilter, setCancerTypeFilter] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total]);
   const { showToast } = useToast();
 
@@ -214,6 +220,11 @@ const ServerPatients: React.FC = () => {
       const p = opts?.forcePage ?? (opts?.resetPage ? 1 : page);
       const q = opts?.forceQuery ?? query;
       const params = new URLSearchParams({ q, page: String(p), pageSize: String(PAGE_SIZE) });
+      
+      // Add filter parameters if set
+      if (ageFilter) params.append('ageFilter', ageFilter);
+      if (genderFilter) params.append('genderFilter', genderFilter);
+      if (cancerTypeFilter) params.append('cancerTypeFilter', cancerTypeFilter);
       
       // Add cache-busting parameter if requested (e.g., after patient creation)
       if (opts?.bustCache) {
@@ -911,21 +922,110 @@ const ServerPatients: React.FC = () => {
             </p>
           </div>
         )}
-        <div className="flex items-center gap-2 mb-4">
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by name or MRN"
-            className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm"
-          />
-          <button onClick={() => fetchPatients({ resetPage: true })} className="px-3 py-2 bg-blue-600 text-white rounded text-sm">Search</button>
-          <button onClick={() => { setQuery(''); fetchPatients({ resetPage: true }); }} className="px-3 py-2 bg-white border rounded text-sm">Clear</button>
-          <button onClick={() => fetchPatients()} className="px-3 py-2 bg-white border rounded text-sm flex items-center gap-1">
-            <RefreshCw className="w-4 h-4" /> Refresh
-          </button>
-          <button onClick={() => setShowCreateForm(true)} className="px-3 py-2 bg-green-600 text-white rounded text-sm flex items-center gap-1">
-            <Plus className="w-4 h-4" /> Create Patient
-          </button>
+        <div className="space-y-4 mb-4">
+          <div className="flex items-center gap-2">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by name or MRN"
+              className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm"
+            />
+            <button onClick={() => fetchPatients({ resetPage: true })} className="px-3 py-2 bg-blue-600 text-white rounded text-sm">Search</button>
+            <button onClick={() => { setQuery(''); fetchPatients({ resetPage: true }); }} className="px-3 py-2 bg-white border rounded text-sm">Clear</button>
+            <button onClick={() => setShowFilters(!showFilters)} className={`px-3 py-2 border rounded text-sm flex items-center gap-1 ${showFilters ? 'bg-blue-50 border-blue-300 text-blue-700' : 'bg-white border-gray-300'}`}>
+              <Filter className="w-4 h-4" /> Filters
+            </button>
+            <button onClick={() => fetchPatients()} className="px-3 py-2 bg-white border rounded text-sm flex items-center gap-1">
+              <RefreshCw className="w-4 h-4" /> Refresh
+            </button>
+            <button onClick={() => setShowCreateForm(true)} className="px-3 py-2 bg-green-600 text-white rounded text-sm flex items-center gap-1">
+              <Plus className="w-4 h-4" /> Create Patient
+            </button>
+          </div>
+
+          {/* Filter Panel */}
+          {showFilters && (
+            <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <h4 className="text-sm font-medium text-gray-900 mb-3">Filter Patients</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Age Range</label>
+                  <select
+                    value={ageFilter}
+                    onChange={(e) => setAgeFilter(e.target.value)}
+                    className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                  >
+                    <option value="">All Ages</option>
+                    <option value="0-18">0-18 years</option>
+                    <option value="19-39">19-39 years</option>
+                    <option value="40-59">40-59 years</option>
+                    <option value="60-79">60-79 years</option>
+                    <option value="80+">80+ years</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Gender</label>
+                  <select
+                    value={genderFilter}
+                    onChange={(e) => setGenderFilter(e.target.value)}
+                    className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                  >
+                    <option value="">All Genders</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                    <option value="Unknown">Unknown/Not Specified</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Cancer Type</label>
+                  <select
+                    value={cancerTypeFilter}
+                    onChange={(e) => setCancerTypeFilter(e.target.value)}
+                    className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                  >
+                    <option value="">All Cancer Types</option>
+                    <option value="Breast">Breast Cancer</option>
+                    <option value="Lung">Lung Cancer</option>
+                    <option value="Colon">Colorectal Cancer</option>
+                    <option value="Prostate">Prostate Cancer</option>
+                    <option value="Lymphoma">Lymphoma</option>
+                    <option value="Leukemia">Leukemia</option>
+                    <option value="Pancreatic">Pancreatic Cancer</option>
+                    <option value="Ovarian">Ovarian Cancer</option>
+                    <option value="Brain">Brain Tumor</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex items-center justify-between mt-4">
+                <div className="text-xs text-gray-600">
+                  {(ageFilter || genderFilter || cancerTypeFilter) && (
+                    <span>Active filters: {[ageFilter && 'Age', genderFilter && 'Gender', cancerTypeFilter && 'Cancer Type'].filter(Boolean).join(', ')}</span>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setAgeFilter('');
+                      setGenderFilter('');
+                      setCancerTypeFilter('');
+                      fetchPatients({ resetPage: true });
+                    }}
+                    className="px-3 py-1 bg-gray-200 text-gray-700 rounded text-xs hover:bg-gray-300"
+                  >
+                    Clear All
+                  </button>
+                  <button
+                    onClick={() => fetchPatients({ resetPage: true })}
+                    className="px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
+                  >
+                    Apply Filters
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Current selection summary */}

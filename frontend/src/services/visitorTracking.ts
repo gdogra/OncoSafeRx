@@ -703,8 +703,8 @@ class VisitorTrackingService {
       });
       
       return {
-        totalVisitors: uniqueUsers.size,
-        uniqueVisitors: uniqueUsers.size, 
+        totalVisitors: sessions, // Total sessions/visits
+        uniqueVisitors: uniqueUsers.size, // Deduplicated unique users
         pageViews: pageviews, // Fixed: interface expects pageViews not totalPageviews
         averageSessionDuration: 0,
         bounceRate: 0,

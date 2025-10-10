@@ -20,7 +20,9 @@ import {
   Tag,
   Archive,
   RefreshCw,
-  Settings
+  Settings,
+  Database,
+  Users
 } from 'lucide-react';
 
 interface ComplianceAuditLog {

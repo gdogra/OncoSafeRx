@@ -461,7 +461,9 @@ class VisitorTrackingService {
       // Skip server calls in development to avoid 404 errors
       const isDevelopment = window.location.hostname === 'localhost' || 
                            window.location.hostname === '127.0.0.1' ||
-                           window.location.port === '5174';
+                           window.location.port === '5174' ||
+                           window.location.port === '5176' ||
+                           window.location.port === '3000';
       
       if (isDevelopment || !this.enableServerAnalytics) {
         console.debug('Analytics stored locally (dev mode or server analytics disabled):', eventType);

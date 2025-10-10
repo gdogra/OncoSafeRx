@@ -14,6 +14,12 @@ const HealthBanner: React.FC<{ className?: string }>= ({ className = '' }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Skip health checks in development when backend is not running
+    if (window.location.hostname === 'localhost') {
+      setError(null); // Don't show errors in development
+      return;
+    }
+    
     let cancelled = false;
     (async () => {
       try {

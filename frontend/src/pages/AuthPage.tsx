@@ -93,6 +93,12 @@ const AuthPage: React.FC = () => {
   }, [forceProxy]);
 
   useEffect(() => {
+    // Skip health checks in development when backend is not running
+    if (window.location.hostname === 'localhost') {
+      setProxyEnabled(false);
+      return;
+    }
+    
     let cancelled = false;
     (async () => {
       try {
@@ -100,7 +106,14 @@ const AuthPage: React.FC = () => {
         const tryOne = async (u: string) => {
           const ctl = new AbortController();
           const t = setTimeout(() => ctl.abort(), 1500);
-          try { const r = await fetch(u, { signal: ctl.signal }); return r.ok ? await r.json() : null } finally { clearTimeout(t) }
+          try { 
+            const r = await fetch(u, { signal: ctl.signal }); 
+            return r.ok ? await r.json() : null 
+          } catch (e) {
+            return null;
+          } finally { 
+            clearTimeout(t) 
+          }
         }
         const a = await tryOne('/api/supabase-auth/health') || await tryOne(`${backend}/api/supabase-auth/health`)
         if (!cancelled) setProxyEnabled(Boolean(a?.proxyEnabled))
@@ -932,15 +945,6 @@ const AuthPage: React.FC = () => {
 
       {/* Footer */}
       <div className="mt-8 text-center space-y-4">
-        {/* Admin Console Link */}
-        <div>
-          <a 
-            href="/admin/login" 
-            className="text-sm text-gray-600 hover:text-primary-600 underline"
-          >
-            Admin Console
-          </a>
-        </div>
         
         <p className="text-xs text-gray-500">
           By using OncoSafeRx, you agree to our terms and privacy policy.

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Card from '../components/UI/Card';
 import { usePatient } from '../context/PatientContext';
 import { supabase } from '../lib/supabase';
-import { Search, ChevronLeft, ChevronRight, RefreshCw, Edit, X, Plus, Filter } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, RefreshCw, Edit, X, Plus, Filter, Trash2 } from 'lucide-react';
 import { useToast } from '../components/UI/Toast';
 import ComprehensivePatientForm from '../components/Patient/ComprehensivePatientForm';
 // Always allow creating patients on this page (production UX request)
@@ -12,7 +12,6 @@ import Modal from '../components/UI/Modal';
 const PAGE_SIZE = 10;
 
 const ServerPatients: React.FC = () => {
-  console.log('🚀 ServerPatients component loaded');
   const { actions } = usePatient();
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
@@ -45,6 +44,99 @@ const ServerPatients: React.FC = () => {
   const [showFilters, setShowFilters] = useState(false);
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total]);
   const { showToast } = useToast();
+  
+  // State for individual patient deletion
+  const [deletingPatient, setDeletingPatient] = useState<string | null>(null);
+
+  const handleDeletePatient = async (patient: any) => {
+    if (!patient?.id) return;
+    
+    // Set loading state for this specific patient
+    setDeletingPatient(patient.id);
+    
+    try {
+      // Get current user/session info for creator verification
+      let currentUserId = 'guest';
+      try {
+        const { data: sess } = await supabase.auth.getSession();
+        currentUserId = sess?.session?.user?.id || 'guest';
+      } catch (sessionError) {
+        console.log('Session error for deletion:', sessionError);
+      }
+      
+      // Get auth token
+      let token: string | null = null;
+      try {
+        const { data: sess } = await supabase.auth.getSession();
+        token = sess?.session?.access_token || null;
+      } catch (tokenError) {
+        console.log('Token error for deletion:', tokenError);
+      }
+      
+      // Fallback to localStorage tokens
+      if (!token) {
+        try {
+          const storedTokens = localStorage.getItem('osrx_auth_tokens');
+          if (storedTokens) {
+            const parsed = JSON.parse(storedTokens);
+            token = parsed.access_token || null;
+          }
+        } catch (storageError) {
+          console.log('LocalStorage token error for deletion:', storageError);
+        }
+      }
+      
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      
+      // Make DELETE request to API
+      const resp = await fetch(`/api/patients/${patient.id}`, {
+        method: 'DELETE',
+        headers,
+        signal: AbortSignal.timeout(10000) // 10 second timeout
+      });
+      
+      if (resp.ok) {
+        showToast('success', 'Patient deleted successfully');
+        
+        // Refresh the patient list
+        await fetchPatients({ bustCache: true });
+        
+        // Clear current patient if it was the deleted one
+        const currentPatient = (usePatient() as any).state?.currentPatient;
+        if (currentPatient?.id === patient.id) {
+          actions.setCurrentPatient(null as any);
+          try { 
+            localStorage.removeItem('osrx_last_patient_id'); 
+            localStorage.removeItem('osrx_last_patient'); 
+          } catch {}
+        }
+      } else {
+        const errorBody = await resp.text().catch(() => 'Unknown error');
+        
+        if (resp.status === 403) {
+          showToast('error', 'You can only delete patients you created');
+        } else if (resp.status === 404) {
+          showToast('error', 'Patient not found');
+        } else if (resp.status === 401) {
+          showToast('error', 'Authentication required to delete patients');
+        } else {
+          showToast('error', `Delete failed: ${resp.status} ${errorBody}`);
+        }
+      }
+    } catch (error: any) {
+      console.error('Error deleting patient:', error);
+      if (error?.name === 'TimeoutError' || /timeout/i.test(String(error?.message || ''))) {
+        showToast('error', 'Delete request timed out');
+      } else {
+        showToast('error', 'Failed to delete patient');
+      }
+    } finally {
+      setDeletingPatient(null);
+    }
+  };
 
   // Comprehensive oncology drug database with common dosages
   const drugDatabase = {
@@ -143,17 +235,6 @@ const ServerPatients: React.FC = () => {
   };
   const canCreatePatients = true;
   
-  // Debug logging for production
-  useEffect(() => {
-    console.log('🔍 ServerPatients DEBUG:', {
-      canCreatePatients,
-      showCreateForm,
-      patientsCount: patients.length,
-      loading,
-      usingDemoData,
-      usingDefaultUser
-    });
-  }, [canCreatePatients, showCreateForm, patients.length, loading, usingDemoData, usingDefaultUser]);
   const restoredPatientRef = useRef(false);
 
   // Keyboard shortcut: press "c" to open Create Patient (when not typing)
@@ -173,9 +254,17 @@ const ServerPatients: React.FC = () => {
   }, []);
 
   const fetchPatients = async (opts?: { resetPage?: boolean; bustCache?: boolean }) => {
-    console.log('🎯 fetchPatients called with opts:', opts);
     setLoading(true);
-    console.log('⚡ setLoading(true) completed');
+    
+    // In development without backend, just return empty results
+    if (window.location.hostname === 'localhost') {
+      // Development mode: Skipping API calls, returning mock data
+      setPatients([]);
+      setTotal(0);
+      setLoading(false);
+      return;
+    }
+    
     try {
       console.log('💫 Getting authentication token...');
       
@@ -242,17 +331,19 @@ const ServerPatients: React.FC = () => {
         baseURL: window.location.origin
       });
       
-      // Test if API proxy is working at all
-      try {
-        const testResp = await fetch('/api/health', { signal: AbortSignal.timeout(8000) });
-        console.log('🏥 API health check:', {
-          status: testResp.status,
-          ok: testResp.ok,
-          url: testResp.url
-        });
-      } catch (healthError) {
-        console.warn('⚠️ API health check failed:', healthError?.message);
-        // If health check fails, continue anyway - might be a temporary issue
+      // Skip health check in development when backend is not running
+      if (window.location.hostname !== 'localhost') {
+        try {
+          const testResp = await fetch('/api/health', { signal: AbortSignal.timeout(8000) });
+          console.log('🏥 API health check:', {
+            status: testResp.status,
+            ok: testResp.ok,
+            url: testResp.url
+          });
+        } catch (healthError) {
+          console.warn('⚠️ API health check failed:', healthError?.message);
+          // If health check fails, continue anyway - might be a temporary issue
+        }
       }
       
       let resp: Response | null = null;
@@ -377,8 +468,6 @@ const ServerPatients: React.FC = () => {
   };
 
   const createNewPatient = async (patientData: any) => {
-    console.log('🏥 === PATIENT CREATION DEBUG START ===');
-    console.log('🏥 Input patientData:', patientData);
     
     try {
       // Build minimal patient profile compatible with backend schema
@@ -636,7 +725,6 @@ const ServerPatients: React.FC = () => {
       } else {
         console.log('🏥 Keeping create form open due to error');
       }
-      console.log('🏥 === PATIENT CREATION DEBUG END ===');
       
     } catch (globalError) {
       console.log('🏥 ❌ Global error in createNewPatient:', globalError);
@@ -645,7 +733,6 @@ const ServerPatients: React.FC = () => {
   };
 
   useEffect(() => { 
-    console.log('📅 useEffect triggered (page:', page, '), calling fetchPatients');
     fetchPatients(); 
     /* eslint-disable-next-line */ 
   }, [page]);
@@ -854,12 +941,6 @@ const ServerPatients: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Debug info for production troubleshooting */}
-      {(import.meta as any)?.env?.MODE === 'production' && (
-        <div className="p-2 bg-yellow-100 border border-yellow-300 rounded text-xs">
-          <strong>DEBUG:</strong> canCreatePatients={String(canCreatePatients)}, patients={patients.length}, loading={String(loading)}
-        </div>
-      )}
       
       {/* One-time coach banner (production) */}
       {showCoachBanner && (
@@ -1074,8 +1155,20 @@ const ServerPatients: React.FC = () => {
                       <button onClick={() => selectAndClose(p)} className="inline-flex items-center px-2 py-1 mr-2 bg-blue-600 text-white rounded text-xs hover:bg-blue-700">
                         Select
                       </button>
-                      <button onClick={() => openEdit(p)} className="inline-flex items-center px-2 py-1 bg-white border rounded text-xs hover:bg-gray-50">
+                      <button onClick={() => openEdit(p)} className="inline-flex items-center px-2 py-1 mr-2 bg-white border rounded text-xs hover:bg-gray-50">
                         <Edit className="w-4 h-4 mr-1"/> Edit
+                      </button>
+                      <button 
+                        onClick={() => handleDeletePatient(p)} 
+                        disabled={deletingPatient === p.id}
+                        className="inline-flex items-center px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 disabled:bg-red-400"
+                        title="Delete this patient (only if you created it)"
+                      >
+                        {deletingPatient === p.id ? (
+                          <span className="w-4 h-4 animate-spin border-2 border-white border-t-transparent rounded-full"></span>
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
                       </button>
                     </td>
                   </tr>

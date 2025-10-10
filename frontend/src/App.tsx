@@ -20,6 +20,7 @@ import { useGlobalKeyboardShortcuts } from './hooks/useGlobalKeyboardShortcuts';
 import { useVisitorTracking } from './hooks/useVisitorTracking';
 import setupErrorSuppression from './utils/errorSuppression';
 import { checkForUpdates } from './utils/versionCheck';
+import { setupConsoleFilter } from './utils/consoleFilter';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const DrugSearch = lazy(() => import('./pages/DrugSearch'));
 const InteractionChecker = lazy(() => import('./components/Interactions/InteractionChecker'));
@@ -40,8 +41,6 @@ const AITreatmentPlanner = lazy(() => import('./pages/AITreatmentPlanner'));
 const EHRIntegration = lazy(() => import('./components/EHR/EHRIntegration'));
 const Help = lazy(() => import('./pages/Help'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
-const FeedbackAdmin = lazy(() => import('./pages/FeedbackAdmin'));
-const UserAdmin = lazy(() => import('./pages/UserAdmin'));
 const PatientProfilesDiagnostics = lazy(() => import('./pages/PatientProfilesDiagnostics'));
 const AuthDiagnostics = lazy(() => import('./pages/AuthDiagnostics'));
 const EnvCheck = lazy(() => import('./pages/EnvCheck'));
@@ -75,13 +74,19 @@ const AdvancedWorkflowSystem = lazy(() => import('./components/Workflow/Advanced
 const VisitorAnalyticsDashboard = lazy(() => import('./components/Analytics/VisitorAnalyticsDashboard'));
 const PatientJourney = lazy(() => import('./pages/PatientJourney'));
 const RoutingTest = lazy(() => import('./components/Debug/RoutingTest'));
-const AdminConsole = lazy(() => import('./components/Admin/AdminConsole'));
-const AdminLogin = lazy(() => import('./components/Admin/AdminLogin'));
 
 // Component that handles initialization inside AuthProvider
 function AppWithAuth() {
   // Get auth state to check if initialization is complete
   const { state } = useAuth();
+  
+  // Initialize visitor tracking (must be called before any conditional returns)
+  useVisitorTracking();
+  
+  // Setup console filter for development mode
+  React.useEffect(() => {
+    setupConsoleFilter();
+  }, []);
   
   // Wait for AuthProvider to finish initialization before rendering
   if (state.isLoading) {
@@ -95,9 +100,6 @@ function AppWithAuth() {
     );
   }
   
-  // Initialize visitor tracking (now inside AuthProvider, after initialization)
-  useVisitorTracking();
-  
   return (
     <ToastProvider>
       <PatientProvider>
@@ -106,7 +108,7 @@ function AppWithAuth() {
             <Suspense fallback={<div className="p-4 text-sm text-gray-500">Loading…</div>}>
               <Routes>
                 {/* Public routes */}
-                <Route path="/auth" element={<AdminLogin />} />
+                <Route path="/auth" element={<AuthPage />} />
                 <Route path="/auth-old" element={<AuthPage />} />
                 <Route path="/login" element={<AuthPage />} />
                 <Route path="/signup" element={<AuthPage />} />
@@ -128,15 +130,12 @@ function AppWithAuth() {
                       </div>
                       <div className="mt-4 space-y-2">
                         <a href="/auth" className="block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Try /auth</a>
-                        <a href="/admin/login" className="block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Try /admin/login</a>
                         <a href="/logout" className="block px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Try /logout</a>
                       </div>
                     </div>
                   </div>
                 } />
                 
-                {/* Admin routes */}
-                <Route path="/admin/login" element={<AdminLogin />} />
                 
                 {/* Simple test route */}
                 <Route path="/test-admin" element={
@@ -144,9 +143,6 @@ function AppWithAuth() {
                     <div className="bg-white p-8 rounded-lg shadow-lg">
                       <h1 className="text-2xl font-bold text-gray-900 mb-4">Test Route Working!</h1>
                       <p className="text-gray-600">This confirms routing is working.</p>
-                      <a href="/admin/login" className="block mt-4 text-blue-600 hover:text-blue-800">
-                        → Try Admin Login
-                      </a>
                     </div>
                   </div>
                 } />
@@ -168,11 +164,6 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 
-                <Route path="/admin" element={
-                  <ProtectedRoute requiredPermission="admin_console_access">
-                    <AdminConsole />
-                  </ProtectedRoute>
-                } />
 
                 {/* Protected routes */}
                 <Route path="/" element={
@@ -333,20 +324,6 @@ function AppWithAuth() {
                     </Layout>
                   </ProtectedRoute>
                 } />
-                <Route path="/admin/feedback" element={
-                  <ProtectedRoute requiredPermission="manage_feedback">
-                    <Layout>
-                      <FeedbackAdmin />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/users" element={
-                  <ProtectedRoute requiredPermission="manage_users">
-                    <Layout>
-                      <UserAdmin />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
                 <Route path="/profile" element={
                   <ProtectedRoute>
                     <Layout>
@@ -485,7 +462,6 @@ function AppWithAuth() {
                       <p className="text-gray-600 mb-4">Current path: {window.location.pathname}</p>
                       <div className="space-y-2">
                         <a href="/auth" className="block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Go to Auth</a>
-                        <a href="/admin/login" className="block px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Admin Login</a>
                         <a href="/force-logout" className="block px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Force Logout</a>
                         <Link to="/" className="block px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Dashboard</Link>
                       </div>

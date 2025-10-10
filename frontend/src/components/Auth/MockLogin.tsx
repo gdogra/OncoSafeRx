@@ -8,7 +8,7 @@ const MockLogin: React.FC = () => {
     // Auto-login with mock user if not authenticated
     if (!state.isAuthenticated && !state.isLoading) {
       actions.login({
-        email: 'demo@oncosaferx.com',
+        email: 'test@example.com',
         password: 'demo'
       });
     }

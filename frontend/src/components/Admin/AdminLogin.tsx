@@ -181,13 +181,13 @@ const AdminLogin: React.FC = () => {
           <h3 className="text-sm font-medium text-blue-900 mb-2">Development Access</h3>
           <div className="space-y-2 text-xs text-blue-800">
             <div>
-              <strong>Test Credentials:</strong> Use gdogra@gmail.com or demo@oncosaferx.com with any password
+              <strong>Test Credentials:</strong> Use test@example.com with any password
             </div>
             <div>
               <strong>Role:</strong> Authenticated as Oncologist with admin privileges
             </div>
             <div>
-              <strong>Demo Mode:</strong> Use demo@oncosaferx.com / demo123 if VITE_ALLOW_DEMO_LOGIN is enabled
+              <strong>Demo Mode:</strong> Use test@example.com / demo123 if VITE_ALLOW_DEMO_LOGIN is enabled
             </div>
           </div>
         </div>

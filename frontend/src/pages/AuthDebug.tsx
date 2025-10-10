@@ -43,12 +43,6 @@ const AuthDebug: React.FC = () => {
                 🚪 Force Logout
               </a>
               <a 
-                href="/admin/login" 
-                className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 mr-2"
-              >
-                🔐 Admin Login
-              </a>
-              <a 
                 href="/auth" 
                 className="inline-block px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
               >

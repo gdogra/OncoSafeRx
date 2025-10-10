@@ -247,7 +247,7 @@ const AuthDiagnostics: React.FC = () => {
       // Prefer real auth user id if present; fall back to stable dev id
       const { data: userRes } = await supabase.auth.getUser();
       const authId = userRes?.user?.id || profileRow?.id || 'dev-demo-user';
-      const email = authState.user?.email || userRes?.user?.email || 'demo@oncosaferx.local';
+      const email = authState.user?.email || userRes?.user?.email || 'test@example.local';
       const role = (authState.user?.role as any) || 'oncologist';
       const first = 'Demo';
       const last = 'Clinician';

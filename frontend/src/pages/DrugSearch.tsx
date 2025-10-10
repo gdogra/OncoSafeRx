@@ -115,6 +115,14 @@ const DrugSearchInner: React.FC = () => {
   async function testConnectivity() {
     try {
       setConnTesting(true);
+      
+      // Skip connectivity test in development
+      if (window.location.hostname === 'localhost') {
+        setConnStatus('offline');
+        setConnTesting(false);
+        return;
+      }
+      
       const resp = await fetch(`/api/drugs/search?q=aspirin`, { method: 'GET' });
       if (!resp.ok) {
         setConnStatus('error');

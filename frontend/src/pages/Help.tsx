@@ -45,7 +45,7 @@ const Help: React.FC = () => {
     }
   ];
 
-  const COMMUNITY_URL = (import.meta as any)?.env?.VITE_COMMUNITY_URL || 'https://github.com/gdogra/OncoSafeRx/discussions';
+  const COMMUNITY_URL = (import.meta as any)?.env?.VITE_COMMUNITY_URL || 'https://github.com/oncosaferx/community/discussions';
 
   const supportOptions = [
     {

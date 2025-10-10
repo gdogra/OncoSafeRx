@@ -493,7 +493,19 @@ export class PWAManager {
       });
     }
 
-    // Custom analytics
+    // Skip server analytics in development to avoid 404 errors
+    const isDevelopment = window.location.hostname === 'localhost' || 
+                         window.location.hostname === '127.0.0.1' ||
+                         window.location.port === '5174' ||
+                         window.location.port === '5176' ||
+                         window.location.port === '3000';
+    
+    if (isDevelopment) {
+      console.debug('PWA installation tracked locally (dev mode)');
+      return;
+    }
+
+    // Custom analytics (production only)
     fetch('/api/analytics/pwa-install', {
       method: 'POST',
       headers: {

@@ -12,7 +12,7 @@ import Modal from '../components/UI/Modal';
 const PAGE_SIZE = 10;
 
 const ServerPatients: React.FC = () => {
-  const { actions } = usePatient();
+  const { actions, state: patientState } = usePatient();
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -105,7 +105,7 @@ const ServerPatients: React.FC = () => {
         await fetchPatients({ bustCache: true });
         
         // Clear current patient if it was the deleted one
-        const currentPatient = (usePatient() as any).state?.currentPatient;
+        const currentPatient = patientState?.currentPatient;
         if (currentPatient?.id === patient.id) {
           actions.setCurrentPatient(null as any);
           try { 
@@ -1113,11 +1113,11 @@ const ServerPatients: React.FC = () => {
         <div className="mb-3 text-sm text-gray-700 flex items-center gap-3">
           <span className="font-medium">Current selection:</span>
           <span className="px-2 py-1 rounded bg-gray-100">
-            { (usePatient() as any).state?.currentPatient
-              ? `${(usePatient() as any).state.currentPatient.demographics?.firstName || ''} ${(usePatient() as any).state.currentPatient.demographics?.lastName || ''}`.trim() || 'Selected'
+            { patientState?.currentPatient
+              ? `${patientState.currentPatient.demographics?.firstName || ''} ${patientState.currentPatient.demographics?.lastName || ''}`.trim() || 'Selected'
               : 'None' }
           </span>
-          {(usePatient() as any).state?.currentPatient && (
+          {patientState?.currentPatient && (
             <button
               onClick={() => { actions.setCurrentPatient(null as any); try { localStorage.removeItem('osrx_last_patient_id'); localStorage.removeItem('osrx_last_patient'); } catch {} }}
               className="px-2 py-1 border rounded text-xs bg-white"

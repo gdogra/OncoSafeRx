@@ -70,7 +70,7 @@ class VisitorTrackingService {
   private currentPageView: PageView | null = null;
   private isTrackingEnabled: boolean = false; // Will be enabled based on environment
   private apiEndpoint: string = '/api/analytics';
-  private enableServerAnalytics: boolean = true; // Server analytics enabled for production tracking
+  private enableServerAnalytics: boolean = false; // Server analytics disabled - no backend available
   private serverAvailable: boolean | null = null; // Track if analytics server is available
 
   constructor() {

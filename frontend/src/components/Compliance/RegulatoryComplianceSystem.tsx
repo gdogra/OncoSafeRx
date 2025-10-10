@@ -587,6 +587,465 @@ const RegulatoryComplianceSystem: React.FC = () => {
     </div>
   );
 
+  const renderReports = () => (
+    <div className="space-y-6">
+      {/* Report Generation Actions */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Generate Compliance Reports</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <button 
+            onClick={() => generateAuditReport('hipaa')}
+            className="flex flex-col items-center p-6 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200"
+          >
+            <FileText className="w-12 h-12 text-blue-600 mb-3" />
+            <h4 className="font-medium text-blue-900 mb-1">HIPAA Compliance Report</h4>
+            <p className="text-sm text-blue-700 text-center">Generate comprehensive HIPAA audit and compliance status report</p>
+          </button>
+          
+          <button 
+            onClick={() => generateAuditReport('fda')}
+            className="flex flex-col items-center p-6 bg-green-50 rounded-lg hover:bg-green-100 transition-colors border border-green-200"
+          >
+            <FileCheck className="w-12 h-12 text-green-600 mb-3" />
+            <h4 className="font-medium text-green-900 mb-1">FDA 21 CFR Part 11 Report</h4>
+            <p className="text-sm text-green-700 text-center">Electronic records and signatures compliance assessment</p>
+          </button>
+          
+          <button 
+            onClick={() => generateAuditReport('gdpr')}
+            className="flex flex-col items-center p-6 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors border border-purple-200"
+          >
+            <Shield className="w-12 h-12 text-purple-600 mb-3" />
+            <h4 className="font-medium text-purple-900 mb-1">GDPR Compliance Report</h4>
+            <p className="text-sm text-purple-700 text-center">Data protection and privacy compliance status</p>
+          </button>
+          
+          <button 
+            onClick={() => generateAuditReport('comprehensive')}
+            className="flex flex-col items-center p-6 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors border border-orange-200"
+          >
+            <Archive className="w-12 h-12 text-orange-600 mb-3" />
+            <h4 className="font-medium text-orange-900 mb-1">Comprehensive Audit Report</h4>
+            <p className="text-sm text-orange-700 text-center">All frameworks combined compliance overview</p>
+          </button>
+          
+          <button 
+            onClick={() => exportComplianceData('csv')}
+            className="flex flex-col items-center p-6 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
+          >
+            <Download className="w-12 h-12 text-gray-600 mb-3" />
+            <h4 className="font-medium text-gray-900 mb-1">Raw Data Export</h4>
+            <p className="text-sm text-gray-700 text-center">Export raw compliance data for analysis</p>
+          </button>
+          
+          <button 
+            onClick={() => generateAuditReport('custom')}
+            className="flex flex-col items-center p-6 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-200"
+          >
+            <Settings className="w-12 h-12 text-indigo-600 mb-3" />
+            <h4 className="font-medium text-indigo-900 mb-1">Custom Report Builder</h4>
+            <p className="text-sm text-indigo-700 text-center">Create custom compliance reports with selected criteria</p>
+          </button>
+        </div>
+      </div>
+
+      {/* Available Reports */}
+      <div className="bg-white rounded-lg border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">Available Reports</h3>
+            <div className="flex items-center space-x-2">
+              <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
+                <option value="all">All Report Types</option>
+                <option value="hipaa">HIPAA Reports</option>
+                <option value="fda">FDA Reports</option>
+                <option value="gdpr">GDPR Reports</option>
+                <option value="custom">Custom Reports</option>
+              </select>
+              <RefreshCw className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600" />
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <div className="space-y-4">
+            {reports.map(report => (
+              <div key={report.id} className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <h4 className="font-medium text-gray-900">{report.title}</h4>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        report.status === 'final' ? 'bg-green-100 text-green-800' :
+                        report.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-blue-100 text-blue-800'
+                      }`}>
+                        {report.status}
+                      </span>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        report.reportType === 'hipaa' ? 'bg-blue-100 text-blue-800' :
+                        report.reportType === 'fda' ? 'bg-green-100 text-green-800' :
+                        report.reportType === 'gdpr' ? 'bg-purple-100 text-purple-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {report.reportType.toUpperCase()}
+                      </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 mb-3">
+                      <div>
+                        <span className="font-medium">Generated:</span> {new Date(report.generatedDate).toLocaleDateString()}
+                      </div>
+                      <div>
+                        <span className="font-medium">Period:</span> {report.timeframe}
+                      </div>
+                      <div>
+                        <span className="font-medium">Generated by:</span> {report.generatedBy}
+                      </div>
+                    </div>
+
+                    {report.findings.length > 0 && (
+                      <div className="mt-3">
+                        <h5 className="text-sm font-medium text-gray-900 mb-2">Key Findings ({report.findings.length})</h5>
+                        <div className="space-y-2">
+                          {report.findings.slice(0, 2).map(finding => (
+                            <div key={finding.id} className="bg-white rounded p-3 border">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center space-x-2 mb-1">
+                                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                      finding.severity === 'critical' ? 'bg-red-100 text-red-800' :
+                                      finding.severity === 'high' ? 'bg-orange-100 text-orange-800' :
+                                      finding.severity === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                                      'bg-blue-100 text-blue-800'
+                                    }`}>
+                                      {finding.severity}
+                                    </span>
+                                  </div>
+                                  <h6 className="text-sm font-medium text-gray-900">{finding.title}</h6>
+                                  <p className="text-xs text-gray-600 mt-1">{finding.description}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          {report.findings.length > 2 && (
+                            <div className="text-xs text-gray-500 text-center py-1">
+                              + {report.findings.length - 2} more findings
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="ml-4 flex flex-col space-y-2">
+                    <button className="flex items-center space-x-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                      <Download className="w-4 h-4" />
+                      <span>Download</span>
+                    </button>
+                    <button className="flex items-center space-x-2 px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-sm">
+                      <Eye className="w-4 h-4" />
+                      <span>View</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Report Scheduling */}
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Automated Report Scheduling</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Report Type</label>
+              <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option>HIPAA Monthly Report</option>
+                <option>FDA Quarterly Report</option>
+                <option>GDPR Annual Report</option>
+                <option>Comprehensive Review</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
+              <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option>Monthly</option>
+                <option>Quarterly</option>
+                <option>Semi-annually</option>
+                <option>Annually</option>
+              </select>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Recipients</label>
+              <input 
+                type="email" 
+                placeholder="compliance@company.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Next Report Date</label>
+              <input 
+                type="date" 
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 flex justify-end">
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Schedule Report
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderPolicies = () => (
+    <div className="space-y-6">
+      {/* Policy Categories */}
+      <div className="bg-white rounded-lg border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">Organizational Policies & Procedures</h3>
+            <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              <Upload className="w-4 h-4" />
+              <span>Upload Policy</span>
+            </button>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            {[
+              { name: 'Privacy Policies', count: 12, color: 'blue', icon: Lock },
+              { name: 'Security Procedures', count: 8, color: 'red', icon: Shield },
+              { name: 'Data Handling', count: 15, color: 'green', icon: Database },
+              { name: 'Audit Procedures', count: 6, color: 'purple', icon: FileCheck },
+              { name: 'Training Materials', count: 24, color: 'orange', icon: Users },
+              { name: 'Emergency Protocols', count: 4, color: 'yellow', icon: AlertTriangle }
+            ].map((category, index) => {
+              const Icon = category.icon;
+              return (
+                <div key={index} className={`bg-${category.color}-50 border border-${category.color}-200 rounded-lg p-4`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className={`font-medium text-${category.color}-900`}>{category.name}</h4>
+                      <p className={`text-sm text-${category.color}-700`}>{category.count} documents</p>
+                    </div>
+                    <Icon className={`w-8 h-8 text-${category.color}-600`} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Policy Documents */}
+      <div className="bg-white rounded-lg border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">Policy Documents</h3>
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search policies..."
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="all">All Categories</option>
+                <option value="privacy">Privacy Policies</option>
+                <option value="security">Security Procedures</option>
+                <option value="data">Data Handling</option>
+                <option value="audit">Audit Procedures</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <div className="space-y-4">
+            {[
+              {
+                id: 'pol-001',
+                title: 'HIPAA Privacy Policy',
+                category: 'Privacy Policies',
+                version: '3.2',
+                lastUpdated: '2024-01-15',
+                status: 'Active',
+                owner: 'Privacy Officer',
+                reviewDate: '2024-07-15',
+                description: 'Comprehensive policy outlining HIPAA privacy requirements and procedures for handling protected health information.'
+              },
+              {
+                id: 'pol-002',
+                title: 'Data Encryption Standards',
+                category: 'Security Procedures',
+                version: '2.1',
+                lastUpdated: '2023-12-10',
+                status: 'Active',
+                owner: 'CISO',
+                reviewDate: '2024-06-10',
+                description: 'Technical standards and procedures for data encryption at rest and in transit.'
+              },
+              {
+                id: 'pol-003',
+                title: 'Incident Response Procedure',
+                category: 'Security Procedures',
+                version: '1.5',
+                lastUpdated: '2023-11-20',
+                status: 'Under Review',
+                owner: 'Security Team',
+                reviewDate: '2024-05-20',
+                description: 'Step-by-step procedures for responding to security incidents and data breaches.'
+              },
+              {
+                id: 'pol-004',
+                title: 'Data Retention Policy',
+                category: 'Data Handling',
+                version: '2.0',
+                lastUpdated: '2024-01-08',
+                status: 'Active',
+                owner: 'Data Protection Officer',
+                reviewDate: '2025-01-08',
+                description: 'Policy defining data retention periods and deletion procedures for different types of data.'
+              },
+              {
+                id: 'pol-005',
+                title: 'User Access Control Policy',
+                category: 'Security Procedures',
+                version: '3.0',
+                lastUpdated: '2023-10-30',
+                status: 'Pending Approval',
+                owner: 'IT Security',
+                reviewDate: '2024-04-30',
+                description: 'Policy governing user access rights, authentication, and authorization procedures.'
+              }
+            ].map((policy) => (
+              <div key={policy.id} className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <h4 className="font-medium text-gray-900">{policy.title}</h4>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        policy.status === 'Active' ? 'bg-green-100 text-green-800' :
+                        policy.status === 'Under Review' ? 'bg-yellow-100 text-yellow-800' :
+                        policy.status === 'Pending Approval' ? 'bg-blue-100 text-blue-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {policy.status}
+                      </span>
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                        v{policy.version}
+                      </span>
+                    </div>
+                    
+                    <p className="text-sm text-gray-600 mb-3">{policy.description}</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs text-gray-500">
+                      <div>
+                        <span className="font-medium">Category:</span> {policy.category}
+                      </div>
+                      <div>
+                        <span className="font-medium">Owner:</span> {policy.owner}
+                      </div>
+                      <div>
+                        <span className="font-medium">Last Updated:</span> {policy.lastUpdated}
+                      </div>
+                      <div>
+                        <span className="font-medium">Next Review:</span> {policy.reviewDate}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="ml-4 flex flex-col space-y-2">
+                    <button className="flex items-center space-x-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                      <Eye className="w-4 h-4" />
+                      <span>View</span>
+                    </button>
+                    <button className="flex items-center space-x-2 px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-sm">
+                      <Download className="w-4 h-4" />
+                      <span>Download</span>
+                    </button>
+                    <button className="flex items-center space-x-2 px-3 py-2 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 text-sm">
+                      <Settings className="w-4 h-4" />
+                      <span>Edit</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Policy Management Tools */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Policy Review Schedule</h3>
+          <div className="space-y-3">
+            {[
+              { name: 'HIPAA Privacy Policy', dueDate: '2024-07-15', daysLeft: 95 },
+              { name: 'Data Encryption Standards', dueDate: '2024-06-10', daysLeft: 60 },
+              { name: 'Incident Response Procedure', dueDate: '2024-05-20', daysLeft: 39 }
+            ].map((item, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900">{item.name}</h4>
+                  <p className="text-xs text-gray-600">Due: {item.dueDate}</p>
+                </div>
+                <div className="text-right">
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    item.daysLeft < 30 ? 'bg-red-100 text-red-800' :
+                    item.daysLeft < 60 ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {item.daysLeft} days
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Policy Training Status</h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Overall Training Completion</span>
+              <span className="text-sm font-medium">87%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-blue-600 h-2 rounded-full" style={{ width: '87%' }}></div>
+            </div>
+            
+            <div className="space-y-2 mt-4">
+              {[
+                { policy: 'HIPAA Privacy', completion: 95 },
+                { policy: 'Data Security', completion: 82 },
+                { policy: 'Incident Response', completion: 74 }
+              ].map((item, index) => (
+                <div key={index} className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">{item.policy}</span>
+                  <span className="font-medium">{item.completion}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -646,20 +1105,8 @@ const RegulatoryComplianceSystem: React.FC = () => {
       {activeTab === 'dashboard' && renderDashboard()}
       {activeTab === 'audit-logs' && renderAuditLogs()}
       {activeTab === 'frameworks' && renderFrameworks()}
-      {activeTab === 'reports' && (
-        <div className="text-center py-12">
-          <FileCheck className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Reports Section</h3>
-          <p className="text-gray-600">Compliance reports and documentation will be displayed here.</p>
-        </div>
-      )}
-      {activeTab === 'policies' && (
-        <div className="text-center py-12">
-          <Settings className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Policies Section</h3>
-          <p className="text-gray-600">Organizational policies and procedures will be managed here.</p>
-        </div>
-      )}
+      {activeTab === 'reports' && renderReports()}
+      {activeTab === 'policies' && renderPolicies()}
     </div>
   );
 };

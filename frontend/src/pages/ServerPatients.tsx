@@ -286,10 +286,26 @@ const ServerPatients: React.FC = () => {
           patientsCount: body.patients?.length || 0,
           total: body.total || 0,
           offline: body.offline,
-          samplePatient: body.patients?.[0]
+          samplePatient: body.patients?.[0],
+          bustCache: opts?.bustCache,
+          forcedParams: { page: opts?.forcePage, query: opts?.forceQuery }
         });
-        setPatients(body.patients || []);
-        setTotal(body.total || 0);
+        
+        const newPatients = body.patients || [];
+        const newTotal = body.total || 0;
+        
+        console.log('🔄 About to update state:', {
+          currentPatientsCount: patients.length,
+          currentTotal: total,
+          newPatientsCount: newPatients.length,
+          newTotal: newTotal,
+          firstNewPatient: newPatients[0]?.demographics
+        });
+        
+        setPatients(newPatients);
+        setTotal(newTotal);
+        
+        console.log('✅ State update completed');
         setUsingDemoData(body.offline || false);
         setUsingDefaultUser(!!body.defaultUser);
         // Attempt to restore last-selected patient once per load
@@ -497,6 +513,15 @@ const ServerPatients: React.FC = () => {
           });
           
           console.log('🏥 ✅ Patient list refreshed - verifying patient appears in response...');
+          
+          // Wait a moment for state to update, then verify
+          await new Promise(resolve => setTimeout(resolve, 100));
+          console.log('🏥 Post-refresh state verification:', {
+            totalPatients: total,
+            patientsInList: patients.length,
+            createdPatientInList: patients.some(p => p.id === serverPatient?.id),
+            firstPatientInList: patients[0]?.demographics
+          });
           
           // Check if the newly created patient appears in the refreshed data
           // Note: We can't reliably check the 'patients' state immediately due to React's async state updates

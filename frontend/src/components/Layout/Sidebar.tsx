@@ -81,16 +81,60 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
   const getGroupedNavItems = () => {
     const groups = [
       {
-        title: 'Overview',
+        title: user?.role === 'patient' ? 'My Care' : user?.role === 'caregiver' ? 'Care Management' : 'Overview',
         items: [
           { 
             path: '/', 
-            label: 'Dashboard', 
+            label: user?.role === 'patient' ? 'My Dashboard' : user?.role === 'caregiver' ? 'Care Dashboard' : 'Dashboard', 
             icon: Activity, 
-            description: 'Overview and analytics',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            description: user?.role === 'patient' ? 'Your treatment overview' : user?.role === 'caregiver' ? 'Patient care overview' : 'Overview and analytics',
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver'],
             requiresPermission: null
           },
+          ...(user?.role === 'patient' ? [
+            { 
+              path: '/my-profile', 
+              label: 'My Health Profile', 
+              icon: UserCheck, 
+              description: 'Your medical information',
+              roles: ['patient'],
+              requiresPermission: null
+            },
+            { 
+              path: '/my-medications', 
+              label: 'My Medications', 
+              icon: Pill, 
+              description: 'Track your medications',
+              roles: ['patient'],
+              requiresPermission: null
+            },
+            { 
+              path: '/my-appointments', 
+              label: 'Appointments', 
+              icon: Clipboard, 
+              description: 'Your upcoming visits',
+              roles: ['patient'],
+              requiresPermission: null
+            }
+          ] : []),
+          ...(user?.role === 'caregiver' ? [
+            { 
+              path: '/patient-info', 
+              label: 'Patient Information', 
+              icon: UserCheck, 
+              description: 'View patient details',
+              roles: ['caregiver'],
+              requiresPermission: null
+            },
+            { 
+              path: '/care-plan', 
+              label: 'Care Plan', 
+              icon: Heart, 
+              description: 'Treatment and care schedule',
+              roles: ['caregiver'],
+              requiresPermission: null
+            }
+          ] : [])
         ]
       },
       {
@@ -381,6 +425,43 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
           },
         ]
       },
+      ...(user?.role === 'patient' || user?.role === 'caregiver' ? [{
+        title: 'Education & Support',
+        items: [
+          { 
+            path: '/drug-lookup', 
+            label: 'Medication Information', 
+            icon: Search, 
+            description: 'Learn about your medications',
+            roles: ['patient', 'caregiver'],
+            requiresPermission: null
+          },
+          { 
+            path: '/side-effects', 
+            label: 'Side Effects Guide', 
+            icon: AlertTriangle, 
+            description: 'Understanding side effects',
+            roles: ['patient', 'caregiver'],
+            requiresPermission: null
+          },
+          { 
+            path: '/educational-resources', 
+            label: 'Educational Resources', 
+            icon: BookOpen, 
+            description: 'Cancer treatment information',
+            roles: ['patient', 'caregiver'],
+            requiresPermission: null
+          },
+          { 
+            path: '/support', 
+            label: 'Support & Community', 
+            icon: MessageSquare, 
+            description: 'Connect with others',
+            roles: ['patient', 'caregiver'],
+            requiresPermission: null
+          }
+        ]
+      }] : [])
     ];
 
     return groups;

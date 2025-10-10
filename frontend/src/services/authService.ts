@@ -724,15 +724,53 @@ export class SupabaseAuthService {
    * Create default persona for role
    */
   private static createDefaultPersona(role: string): UserPersona {
+    const getPersonaDefaults = (role: string) => {
+      switch (role) {
+        case 'patient':
+          return {
+            name: 'Patient',
+            preferences: {
+              aiAssistanceLevel: 'guided',
+              clinicalFocus: 'self-care',
+              riskTolerance: 'conservative'
+            }
+          };
+        case 'caregiver':
+          return {
+            name: 'Caregiver',
+            preferences: {
+              aiAssistanceLevel: 'guided',
+              clinicalFocus: 'support',
+              riskTolerance: 'conservative'
+            }
+          };
+        case 'oncologist':
+          return {
+            name: 'Oncologist',
+            preferences: {
+              aiAssistanceLevel: 'moderate',
+              clinicalFocus: 'treatment',
+              riskTolerance: 'moderate'
+            }
+          };
+        default:
+          return {
+            name: role.charAt(0).toUpperCase() + role.slice(1),
+            preferences: {
+              aiAssistanceLevel: 'moderate',
+              clinicalFocus: 'general',
+              riskTolerance: 'moderate'
+            }
+          };
+      }
+    };
+
+    const defaults = getPersonaDefaults(role);
     return {
       id: 'default-' + role,
-      name: role.charAt(0).toUpperCase() + role.slice(1),
+      name: defaults.name,
       role: role as any,
-      preferences: {
-        aiAssistanceLevel: 'moderate',
-        clinicalFocus: role === 'oncologist' ? 'treatment' : 'general',
-        riskTolerance: 'moderate'
-      },
+      preferences: defaults.preferences,
       isActive: true,
       createdAt: new Date().toISOString()
     }
@@ -747,7 +785,9 @@ export class SupabaseAuthService {
       pharmacist: ['read', 'write', 'dispense', 'analyze'],
       nurse: ['read', 'write', 'administer'],
       researcher: ['read', 'analyze', 'export'],
-      student: ['read']
+      student: ['read'],
+      patient: ['read_own', 'update_own'],
+      caregiver: ['read_limited', 'support']
     }
     return permissions[role] || ['read']
   }

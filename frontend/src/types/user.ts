@@ -3,7 +3,7 @@ export interface UserProfile {
   email: string;
   firstName: string;
   lastName: string;
-  role: 'oncologist' | 'pharmacist' | 'nurse' | 'researcher' | 'student';
+  role: 'oncologist' | 'pharmacist' | 'nurse' | 'researcher' | 'student' | 'patient' | 'caregiver';
   specialty?: string;
   institution?: string;
   licenseNumber?: string;
@@ -23,7 +23,7 @@ export interface UserPersona {
   id: string;
   name: string;
   description: string;
-  role: 'oncologist' | 'pharmacist' | 'nurse' | 'researcher' | 'student';
+  role: 'oncologist' | 'pharmacist' | 'nurse' | 'researcher' | 'student' | 'patient' | 'caregiver';
   experienceLevel: 'novice' | 'intermediate' | 'expert';
   specialties: string[];
   preferences: {

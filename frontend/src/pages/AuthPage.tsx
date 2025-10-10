@@ -124,6 +124,8 @@ const AuthPage: React.FC = () => {
 
   // Role options for signup
   const roleOptions = [
+    { value: 'patient', label: 'Patient', description: 'Cancer patient managing your own care' },
+    { value: 'caregiver', label: 'Caregiver', description: 'Family member or friend helping with care' },
     { value: 'oncologist', label: 'Oncologist', description: 'Medical doctor specializing in cancer treatment' },
     { value: 'pharmacist', label: 'Pharmacist', description: 'Medication therapy expert' },
     { value: 'nurse', label: 'Nurse', description: 'Patient care and treatment coordination' },

@@ -605,7 +605,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                   title="User Profile"
                 >
                   <span className="text-sm font-medium text-primary-700">
-                    {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                    {user.firstName?.charAt(0) || '?'}{user.lastName?.charAt(0) || '?'}
                   </span>
                   <span className="absolute left-16 bg-gray-900 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
                     User Profile

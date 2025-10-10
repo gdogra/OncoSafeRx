@@ -680,8 +680,8 @@ export class SupabaseAuthService {
     const profile = {
       id: user.id,
       email: user.email || fallbackData?.email || '',
-      firstName: dbProfile?.firstName || user.user_metadata?.first_name || fallbackData?.firstName || '',
-      lastName: dbProfile?.lastName || user.user_metadata?.last_name || fallbackData?.lastName || '',
+      firstName: dbProfile?.firstName || user.user_metadata?.first_name || fallbackData?.firstName || 'User',
+      lastName: dbProfile?.lastName || user.user_metadata?.last_name || fallbackData?.lastName || 'Name',
       role: dbProfile?.role || role,
       specialty: dbProfile?.specialty || user.user_metadata?.specialty || fallbackData?.specialty || '',
       institution: dbProfile?.institution || user.user_metadata?.institution || fallbackData?.institution || '',

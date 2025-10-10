@@ -187,7 +187,7 @@ const UserProfile: React.FC = () => {
           </a>
           <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
             <span className="text-lg font-semibold text-primary-700">
-              {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+              {user.firstName?.charAt(0) || '?'}{user.lastName?.charAt(0) || '?'}
             </span>
           </div>
           <Tooltip content="Upload profile picture (feature coming soon)" position="left">

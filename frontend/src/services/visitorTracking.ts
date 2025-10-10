@@ -71,6 +71,7 @@ class VisitorTrackingService {
   private isTrackingEnabled: boolean = false; // Will be enabled based on environment
   private apiEndpoint: string = '/api/analytics';
   private enableServerAnalytics: boolean = true; // Server analytics enabled for production tracking
+  private serverAvailable: boolean | null = null; // Track if analytics server is available
 
   constructor() {
     this.initializeTracking();
@@ -470,25 +471,44 @@ class VisitorTrackingService {
         return;
       }
 
+      // Check if we've already determined server is unavailable
+      if (this.serverAvailable === false) {
+        console.debug('Analytics server unavailable, skipping server request');
+        return;
+      }
+
       // Only send to server in production if server analytics enabled
       const payloadJson = JSON.stringify(payload);
       
       if (navigator.sendBeacon) {
-        navigator.sendBeacon(this.apiEndpoint, payloadJson);
+        const success = navigator.sendBeacon(this.apiEndpoint, payloadJson);
+        if (!success) {
+          this.sendAnalyticsWithFetch(payloadJson);
+        }
       } else {
-        fetch(this.apiEndpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: payloadJson,
-          keepalive: true
-        }).catch(() => {
-          // Silently fail - analytics shouldn't break the app
-        });
+        this.sendAnalyticsWithFetch(payloadJson);
       }
     } catch (error) {
       // Silently fail - analytics shouldn't break the app
       console.debug('Analytics tracking error:', error);
     }
+  }
+
+  private sendAnalyticsWithFetch(payloadJson: string): void {
+    fetch(this.apiEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: payloadJson,
+      keepalive: true,
+      signal: AbortSignal.timeout(5000) // 5 second timeout
+    }).catch(error => {
+      // After first failure, mark server as unavailable to prevent future attempts
+      if (error.name === 'TimeoutError' || error.message.includes('404')) {
+        console.debug('Analytics server not responding, disabling further attempts');
+        this.serverAvailable = false;
+      }
+      console.debug('Analytics request failed:', error.message);
+    });
   }
 
   private storeAnalyticsLocally(payload: any): void {

@@ -117,6 +117,15 @@ export class NoOpSupabaseService {
     return Promise.resolve({ ...updated });
   }
 
+  deleteUser(userId) {
+    const existing = this.users.get(userId);
+    if (existing) {
+      this.users.delete(userId);
+      return Promise.resolve({ success: true, id: userId, user: existing });
+    }
+    return Promise.resolve({ success: false, id: userId, error: 'User not found' });
+  }
+
   // Data sync logging (no-op)
   logSyncActivity(logData) {
     return Promise.resolve({ id: 'noop', ...logData });

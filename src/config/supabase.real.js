@@ -523,6 +523,40 @@ export class SupabaseService {
     }
   }
 
+  async deleteUser(userId) {
+    if (!this.enabled) return { success: true, id: userId };
+    
+    try {
+      // First, soft delete from users table
+      const { data: userData, error: userError } = await this.client
+        .from('users')
+        .update({ 
+          is_active: false, 
+          deleted_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId)
+        .select()
+        .single();
+      
+      if (userError) throw userError;
+      
+      // Then delete from Supabase auth (hard delete)
+      if (this.client?.auth?.admin) {
+        const { error: authError } = await this.client.auth.admin.deleteUser(userId);
+        if (authError) {
+          console.error('Auth user deletion failed:', authError);
+          // Don't throw - soft delete was successful
+        }
+      }
+      
+      return { success: true, id: userId, user: userData };
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
+    }
+  }
+
   // Data sync logging
   async logSyncActivity(logData) {
     if (!this.enabled) return { id: 'noop', ...logData };

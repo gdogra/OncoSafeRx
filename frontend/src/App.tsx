@@ -41,6 +41,7 @@ const EHRIntegration = lazy(() => import('./components/EHR/EHRIntegration'));
 const Help = lazy(() => import('./pages/Help'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const FeedbackAdmin = lazy(() => import('./pages/FeedbackAdmin'));
+const UserAdmin = lazy(() => import('./pages/UserAdmin'));
 const PatientProfilesDiagnostics = lazy(() => import('./pages/PatientProfilesDiagnostics'));
 const AuthDiagnostics = lazy(() => import('./pages/AuthDiagnostics'));
 const EnvCheck = lazy(() => import('./pages/EnvCheck'));
@@ -336,6 +337,13 @@ function AppWithAuth() {
                   <ProtectedRoute requiredPermission="manage_feedback">
                     <Layout>
                       <FeedbackAdmin />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/users" element={
+                  <ProtectedRoute requiredPermission="manage_users">
+                    <Layout>
+                      <UserAdmin />
                     </Layout>
                   </ProtectedRoute>
                 } />

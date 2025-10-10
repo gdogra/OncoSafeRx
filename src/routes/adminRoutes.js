@@ -136,6 +136,215 @@ router.get('/users/:userId', asyncHandler(async (req, res) => {
   }
 }));
 
+// User management - create new user
+router.post('/users', asyncHandler(async (req, res) => {
+  try {
+    const { email, full_name, role = 'user', institution, specialty, password } = req.body;
+    
+    // Validate required fields
+    if (!email || !full_name) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: email and full_name are required' 
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    // Validate role
+    const validRoles = ['admin', 'oncologist', 'pharmacist', 'nurse', 'researcher', 'user'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ 
+        error: 'Invalid role',
+        validRoles 
+      });
+    }
+
+    // Check if user already exists
+    const users = await supabaseService.getAllUsers();
+    const existingUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+    if (existingUser) {
+      return res.status(409).json({ error: 'User with this email already exists' });
+    }
+
+    const userData = {
+      email: email.toLowerCase(),
+      full_name,
+      role,
+      institution: institution || null,
+      specialty: specialty || null,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    // Create user in Supabase auth if password provided
+    if (password && supabaseService.enabled && supabaseService.client?.auth?.admin) {
+      try {
+        const { data: authUser, error: authError } = await supabaseService.client.auth.admin.createUser({
+          email: userData.email,
+          password,
+          email_confirm: true,
+          user_metadata: {
+            full_name: userData.full_name,
+            role: userData.role,
+            institution: userData.institution,
+            specialty: userData.specialty
+          }
+        });
+
+        if (authError) throw authError;
+        userData.id = authUser.user.id;
+      } catch (authError) {
+        console.error('Auth user creation failed:', authError);
+        return res.status(500).json({ 
+          error: 'Failed to create user authentication: ' + authError.message 
+        });
+      }
+    }
+
+    const newUser = await supabaseService.createUser(userData);
+    const { password_hash, ...userResponse } = newUser;
+    
+    res.status(201).json({ 
+      message: 'User created successfully',
+      user: userResponse 
+    });
+
+  } catch (error) {
+    console.error('Create user error:', error);
+    res.status(500).json({ error: 'Failed to create user' });
+  }
+}));
+
+// User management - update user
+router.put('/users/:userId', asyncHandler(async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { email, full_name, role, institution, specialty, is_active } = req.body;
+
+    // Validate role if provided
+    if (role) {
+      const validRoles = ['admin', 'oncologist', 'pharmacist', 'nurse', 'researcher', 'user'];
+      if (!validRoles.includes(role)) {
+        return res.status(400).json({ 
+          error: 'Invalid role',
+          validRoles 
+        });
+      }
+    }
+
+    // Validate email format if provided
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+      }
+    }
+
+    // Check if user exists
+    const users = await supabaseService.getAllUsers();
+    const existingUser = users.find(u => u.id === userId);
+    if (!existingUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Check for email conflicts (if email is being changed)
+    if (email && email.toLowerCase() !== existingUser.email.toLowerCase()) {
+      const emailConflict = users.find(u => u.id !== userId && u.email.toLowerCase() === email.toLowerCase());
+      if (emailConflict) {
+        return res.status(409).json({ error: 'Email already in use by another user' });
+      }
+    }
+
+    const updateData = {};
+    if (email !== undefined) updateData.email = email.toLowerCase();
+    if (full_name !== undefined) updateData.full_name = full_name;
+    if (role !== undefined) updateData.role = role;
+    if (institution !== undefined) updateData.institution = institution;
+    if (specialty !== undefined) updateData.specialty = specialty;
+    if (is_active !== undefined) updateData.is_active = is_active;
+
+    // Update auth metadata if email or other auth fields changed
+    if ((email || full_name || role) && supabaseService.enabled && supabaseService.client?.auth?.admin) {
+      try {
+        const authUpdate = {};
+        if (email) authUpdate.email = email;
+        if (full_name || role || institution || specialty) {
+          authUpdate.user_metadata = {
+            ...existingUser,
+            full_name: full_name || existingUser.full_name,
+            role: role || existingUser.role,
+            institution: institution !== undefined ? institution : existingUser.institution,
+            specialty: specialty !== undefined ? specialty : existingUser.specialty
+          };
+        }
+
+        const { error: authError } = await supabaseService.client.auth.admin.updateUserById(userId, authUpdate);
+        if (authError) {
+          console.error('Auth update failed:', authError);
+          // Continue with profile update even if auth update fails
+        }
+      } catch (authError) {
+        console.error('Auth update error:', authError);
+      }
+    }
+
+    const updatedUser = await supabaseService.updateUser(userId, updateData);
+    const { password_hash, ...userResponse } = updatedUser;
+    
+    res.json({ 
+      message: 'User updated successfully',
+      user: userResponse 
+    });
+
+  } catch (error) {
+    console.error('Update user error:', error);
+    res.status(500).json({ error: 'Failed to update user' });
+  }
+}));
+
+// User management - delete user
+router.delete('/users/:userId', asyncHandler(async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Check if user exists
+    const users = await supabaseService.getAllUsers();
+    const existingUser = users.find(u => u.id === userId);
+    if (!existingUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Prevent admin from deleting themselves
+    if (req.user && req.user.id === userId) {
+      return res.status(400).json({ error: 'Cannot delete your own account' });
+    }
+
+    // Prevent deleting the last admin
+    const adminUsers = users.filter(u => u.role === 'admin' && u.is_active && u.id !== userId);
+    if (existingUser.role === 'admin' && adminUsers.length === 0) {
+      return res.status(400).json({ 
+        error: 'Cannot delete the last admin user. Promote another user to admin first.' 
+      });
+    }
+
+    const result = await supabaseService.deleteUser(userId);
+    
+    res.json({ 
+      message: 'User deleted successfully',
+      user: result.user 
+    });
+
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ error: 'Failed to delete user' });
+  }
+}));
+
 // System logs and monitoring
 router.get('/logs', asyncHandler(async (req, res) => {
   try {

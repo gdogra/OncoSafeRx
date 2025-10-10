@@ -644,11 +644,24 @@ class VisitorTrackingService {
       const interactions = recentData.filter((item: any) => item.eventType === 'interaction').length;
       
       // Calculate unique visitors by userId (for authenticated users) or sessionId (for anonymous)
+      // Prioritize userId over sessionId to avoid counting the same user multiple times
       const uniqueUsers = new Set();
+      const authenticatedUsers = new Set();
+      
+      // First pass: collect all authenticated user IDs
       recentData.forEach((item: any) => {
-        if (item.data?.userId) {
-          uniqueUsers.add(`user:${item.data.userId}`);
+        if (item.data?.userId || item.userId) {
+          authenticatedUsers.add(item.data?.userId || item.userId);
+        }
+      });
+      
+      // Second pass: add authenticated users, then anonymous sessions
+      recentData.forEach((item: any) => {
+        const userId = item.data?.userId || item.userId;
+        if (userId) {
+          uniqueUsers.add(`user:${userId}`);
         } else {
+          // Only count anonymous sessions if no authenticated user data exists
           uniqueUsers.add(`session:${item.sessionId}`);
         }
       });

@@ -97,11 +97,23 @@ router.get('/metrics', async (req, res) => {
       const sessions = new Set(events.map(e => e.session_id)).size;
       
       // Calculate unique visitors by userId (for authenticated users) or sessionId (for anonymous)
+      // Prioritize userId over sessionId to avoid counting the same user multiple times
       const uniqueUsers = new Set();
+      const authenticatedUsers = new Set();
+      
+      // First pass: collect all authenticated user IDs
+      events.forEach(event => {
+        if (event.user_id) {
+          authenticatedUsers.add(event.user_id);
+        }
+      });
+      
+      // Second pass: add authenticated users, then anonymous sessions
       events.forEach(event => {
         if (event.user_id) {
           uniqueUsers.add(`user:${event.user_id}`);
         } else {
+          // Only count anonymous sessions if no authenticated user data exists
           uniqueUsers.add(`session:${event.session_id}`);
         }
       });

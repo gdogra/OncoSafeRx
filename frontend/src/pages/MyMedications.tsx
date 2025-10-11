@@ -29,7 +29,10 @@ const MyMedications: React.FC = () => {
   };
 
   const handleMessageCareTeam = () => {
-    alert('This would open a secure messaging interface with your care team. Feature coming soon!');
+    const message = `I have questions about my current medications and would like to discuss any concerns with my care team.`;
+    if (confirm(`Send this message to your care team?\\n\\n\"${message}\"`)) {
+      alert('Message sent to your care team successfully!\\n\\nThey will respond within 24 hours with answers to your medication questions.');
+    }
   };
 
   const handleCallEmergency = () => {

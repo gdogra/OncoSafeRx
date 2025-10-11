@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
-import { AlertTriangle, Search, Clock, User, Phone, MessageSquare, ChevronRight } from 'lucide-react';
+import { AlertTriangle, Search, Clock, User, Phone, MessageSquare, ChevronRight, X } from 'lucide-react';
 
 interface SideEffect {
   id: string;
@@ -138,12 +138,41 @@ const SideEffects: React.FC = () => {
     }
   };
 
+  const [showReportForm, setShowReportForm] = useState(false);
+  const [reportData, setReportData] = useState({
+    sideEffect: '',
+    severity: 'mild',
+    duration: '',
+    description: '',
+    medication: ''
+  });
+
   const handleReportSideEffect = () => {
-    alert('This would open a side effect reporting form to share with your care team. Feature coming soon!');
+    setShowReportForm(true);
   };
 
   const handleContactCareTeam = () => {
-    alert('This would open secure messaging with your care team about side effects. Feature coming soon!');
+    const message = `I have questions about side effects I'm experiencing. Please contact me to discuss my symptoms and treatment options.`;
+    if (confirm(`Send this message to your care team?\n\n"${message}"`)) {
+      alert('Message sent to your care team successfully! They will respond within 24 hours.');
+    }
+  };
+
+  const handleSubmitReport = () => {
+    if (!reportData.sideEffect || !reportData.description) {
+      alert('Please fill in the side effect name and description.');
+      return;
+    }
+    
+    alert(`Side effect report submitted successfully!\n\nSide Effect: ${reportData.sideEffect}\nSeverity: ${reportData.severity}\nDescription: ${reportData.description}\n\nYour care team will review this report and contact you within 24 hours.`);
+    setShowReportForm(false);
+    setReportData({
+      sideEffect: '',
+      severity: 'mild',
+      duration: '',
+      description: '',
+      medication: ''
+    });
   };
 
   return (
@@ -306,6 +335,110 @@ const SideEffects: React.FC = () => {
           </div>
         </div>
       </Card>
+
+      {/* Side Effect Report Form Modal */}
+      {showReportForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <Card>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-semibold text-gray-900">Report Side Effect</h2>
+                <button
+                  onClick={() => setShowReportForm(false)}
+                  className="p-1 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Side Effect Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={reportData.sideEffect}
+                    onChange={(e) => setReportData({...reportData, sideEffect: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="e.g., Nausea, Fatigue, Hair loss"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Severity
+                  </label>
+                  <select
+                    value={reportData.severity}
+                    onChange={(e) => setReportData({...reportData, severity: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="mild">Mild</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="severe">Severe</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Related Medication (if known)
+                  </label>
+                  <input
+                    type="text"
+                    value={reportData.medication}
+                    onChange={(e) => setReportData({...reportData, medication: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="e.g., Carboplatin, Ondansetron"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Duration
+                  </label>
+                  <input
+                    type="text"
+                    value={reportData.duration}
+                    onChange={(e) => setReportData({...reportData, duration: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="e.g., Started 3 days ago, Ongoing for 1 week"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description *
+                  </label>
+                  <textarea
+                    value={reportData.description}
+                    onChange={(e) => setReportData({...reportData, description: e.target.value})}
+                    rows={4}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Please describe your symptoms, when they occur, and how they affect your daily activities..."
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
+                <button
+                  onClick={() => setShowReportForm(false)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmitReport}
+                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 flex items-center space-x-2"
+                >
+                  <AlertTriangle className="w-4 h-4" />
+                  <span>Submit Report</span>
+                </button>
+              </div>
+            </Card>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

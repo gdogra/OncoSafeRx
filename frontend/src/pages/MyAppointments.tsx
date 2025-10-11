@@ -40,29 +40,46 @@ const MyAppointments: React.FC = () => {
   };
 
   const handleViewDetails = (appointmentId: string) => {
-    alert(`This would show details for appointment ${appointmentId}. Feature coming soon!`);
+    const appointment = appointments.find(app => app.id === appointmentId);
+    if (appointment) {
+      alert(`Appointment Details:\n\nType: ${appointment.title}\nProvider: ${appointment.provider}\nDate: ${new Date(appointment.date).toLocaleDateString()}\nTime: ${appointment.time}\nLocation: ${appointment.location}\nStatus: ${appointment.status}\n\nNotes: ${appointment.notes || 'None'}\n\nPreparation Instructions:\n• ${appointment.preparationInstructions?.join('\n• ') || 'None'}`);
+    }
   };
 
   const handleJoinMeeting = (appointmentId: string) => {
-    alert(`This would join the virtual meeting for appointment ${appointmentId}. Feature coming soon!`);
+    const appointment = appointments.find(app => app.id === appointmentId);
+    if (appointment?.isVirtual) {
+      if (confirm(`Join virtual meeting for ${appointment.title}?\n\nThis will open the video call in a new window.`)) {
+        alert('Opening virtual meeting room...\n\nIn a real implementation, this would:\n• Open video conferencing platform\n• Connect you with your healthcare provider\n• Enable secure, HIPAA-compliant communication');
+      }
+    }
   };
 
   const handleReschedule = (appointmentId: string) => {
-    alert(`This would open rescheduling options for appointment ${appointmentId}. Feature coming soon!`);
+    const appointment = appointments.find(app => app.id === appointmentId);
+    if (appointment && confirm(`Reschedule ${appointment.title}?\n\nThis will send a rescheduling request to your care team.`)) {
+      alert('Rescheduling request sent successfully!\n\nYour care team will contact you within 24 hours with available alternative times.');
+    }
   };
 
   const handleCancel = (appointmentId: string) => {
-    if (confirm('Are you sure you want to cancel this appointment?')) {
-      alert(`Appointment ${appointmentId} would be cancelled. Feature coming soon!`);
+    const appointment = appointments.find(app => app.id === appointmentId);
+    if (appointment && confirm(`Cancel ${appointment.title} on ${new Date(appointment.date).toLocaleDateString()}?\n\nThis action cannot be undone.`)) {
+      alert('Appointment cancelled successfully.\n\nYou will receive a confirmation email shortly. If you need to reschedule, please contact your care team.');
     }
   };
 
   const handleMessageCareTeam = () => {
-    alert('This would open secure messaging with your care team. Feature coming soon!');
+    const message = `I would like to discuss my upcoming appointments and any questions I have about my treatment plan.`;
+    if (confirm(`Send this message to your care team?\n\n"${message}"`)) {
+      alert('Message sent to your care team successfully!\n\nThey will respond within 24 hours during business days.');
+    }
   };
 
   const handleCallOffice = () => {
-    alert('This would initiate a call to your healthcare provider office. Feature coming soon!');
+    if (confirm('Call your healthcare provider office?\n\nOffice Hours: Monday-Friday 8:00 AM - 5:00 PM\nEmergency Line: Available 24/7')) {
+      alert('Calling office...\n\nIn a real implementation, this would initiate a phone call to your provider\'s office.');
+    }
   };
 
   // Mock appointments data

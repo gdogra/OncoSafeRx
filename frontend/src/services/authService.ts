@@ -677,32 +677,41 @@ export class SupabaseAuthService {
     // Query Supabase database directly for user role if not found in metadata
     // ALWAYS query database for Danny Maude to debug the role issue
     if (!role || user.email === 'maudedanny3@gmail.com') {
-      try {
-        console.log('🔍 Querying Supabase database for user:', user.email, 'existing role from metadata:', role);
-        const { data: userData, error } = await supabase
-          .from('users')
-          .select('*')  // Select all fields to see what's in the database
-          .eq('email', user.email)
-          .single();
-        
-        console.log('🔍 Database query result:', { userData, error, hasData: !!userData, hasError: !!error });
-        
-        if (userData && !error && userData.role) {
-          role = userData.role;
-          console.log('✅ Found role in database:', role, 'Full user data:', userData);
-        } else if (userData && !error && !userData.role) {
-          console.log('⚠️ User found in database but no role field set:', userData);
-          role = role || 'student'; // Keep existing role or fallback
-        } else if (error) {
-          console.error('❌ Database error:', error);
-          role = role || 'student'; // Keep existing role or fallback
-        } else {
-          console.log('⚠️ No user found in database for email:', user.email);
-          role = role || 'student'; // Keep existing role or fallback
+      // First check for specific user overrides due to database permission issues
+      if (user.email === 'maudedanny3@gmail.com') {
+        console.log('🔧 MANUAL OVERRIDE: Setting Danny Maude to patient role (production fix)');
+        role = 'patient';
+      } else {
+        try {
+          console.log('🔍 Querying Supabase database for user:', user.email, 'existing role from metadata:', role);
+          const { data: userData, error } = await supabase
+            .from('users')
+            .select('*')  // Select all fields to see what's in the database
+            .eq('email', user.email)
+            .single();
+          
+          console.log('🔍 Database query result:', { userData, error, hasData: !!userData, hasError: !!error });
+          
+          if (userData && !error && userData.role) {
+            role = userData.role;
+            console.log('✅ Found role in database:', role, 'Full user data:', userData);
+          } else if (userData && !error && !userData.role) {
+            console.log('⚠️ User found in database but no role field set:', userData);
+            role = role || 'patient'; // Default to patient instead of student
+          } else if (error && error.code === '42501') {
+            console.error('❌ Database permission denied (using metadata fallback):', error);
+            role = role || 'patient'; // Default to patient for permission errors
+          } else if (error) {
+            console.error('❌ Database error:', error);
+            role = role || 'patient'; // Default to patient instead of student
+          } else {
+            console.log('⚠️ No user found in database for email:', user.email);
+            role = role || 'patient'; // Default to patient instead of student
+          }
+        } catch (error) {
+          console.error('❌ Exception querying database for role:', error);
+          role = role || 'patient'; // Default to patient instead of student
         }
-      } catch (error) {
-        console.error('❌ Exception querying database for role:', error);
-        role = role || 'student'; // Keep existing role or fallback
       }
     }
     

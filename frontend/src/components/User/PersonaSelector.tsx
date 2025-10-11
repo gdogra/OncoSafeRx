@@ -248,6 +248,88 @@ const PersonaSelector: React.FC = () => {
             learningMode: true
           }
         }
+      ],
+      patient: [
+        {
+          id: 'patient-newly-diagnosed',
+          name: 'Newly Diagnosed Patient',
+          description: 'Recently diagnosed, seeking to understand treatment options',
+          role: 'patient',
+          experienceLevel: 'novice',
+          specialties: ['self-advocacy'],
+          preferences: {
+            riskTolerance: 'conservative',
+            alertSensitivity: 'high',
+            workflowStyle: 'thorough',
+            decisionSupport: 'guided',
+          },
+          customSettings: {
+            educationalContent: true,
+            simplifiedLanguage: true,
+            reminders: true,
+            supportResources: true
+          }
+        },
+        {
+          id: 'patient-experienced',
+          name: 'Experienced Patient',
+          description: 'Managing ongoing treatment, familiar with process',
+          role: 'patient',
+          experienceLevel: 'intermediate',
+          specialties: ['treatment-management'],
+          preferences: {
+            riskTolerance: 'moderate',
+            alertSensitivity: 'medium',
+            workflowStyle: 'efficient',
+            decisionSupport: 'consultative',
+          },
+          customSettings: {
+            trackingTools: true,
+            quickAccess: true,
+            progressReports: true
+          }
+        }
+      ],
+      caregiver: [
+        {
+          id: 'caregiver-family',
+          name: 'Family Caregiver',
+          description: 'Supporting loved one through cancer treatment',
+          role: 'caregiver',
+          experienceLevel: 'novice',
+          specialties: ['emotional-support', 'care-coordination'],
+          preferences: {
+            riskTolerance: 'conservative',
+            alertSensitivity: 'high',
+            workflowStyle: 'collaborative',
+            decisionSupport: 'guided',
+          },
+          customSettings: {
+            caregiverResources: true,
+            communicationTools: true,
+            emergencyInfo: true,
+            supportNetwork: true
+          }
+        },
+        {
+          id: 'caregiver-professional',
+          name: 'Professional Caregiver',
+          description: 'Home health aide or professional caregiver',
+          role: 'caregiver',
+          experienceLevel: 'intermediate',
+          specialties: ['daily-care', 'medication-assistance'],
+          preferences: {
+            riskTolerance: 'moderate',
+            alertSensitivity: 'medium',
+            workflowStyle: 'efficient',
+            decisionSupport: 'consultative',
+          },
+          customSettings: {
+            scheduleManagement: true,
+            medicationReminders: true,
+            healthTracking: true
+          }
+        }
       ]
     };
 

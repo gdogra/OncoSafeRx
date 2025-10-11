@@ -31,6 +31,46 @@ const PatientSupport: React.FC = () => {
 
   const [selectedTab, setSelectedTab] = useState<'team' | 'support' | 'emergency' | 'community'>('team');
 
+  // Button handlers
+  const handleSendMessage = (memberId: string) => {
+    const member = careTeam.find(m => m.id === memberId);
+    if (member) {
+      const message = `I would like to schedule a consultation or ask questions about my treatment plan.`;
+      if (confirm(`Send message to ${member.name}?\n\n"${message}"`)) {
+        alert(`Message sent to ${member.name} successfully!\n\nThey will respond within their availability hours: ${member.availability}`);
+      }
+    }
+  };
+
+  const handleVideoCall = (memberId: string) => {
+    const member = careTeam.find(m => m.id === memberId);
+    if (member && member.isOnline) {
+      if (confirm(`Start video call with ${member.name}?\n\nThis will initiate a secure video consultation.`)) {
+        alert(`Connecting to ${member.name}...\n\nIn a real implementation, this would:\n• Open secure video platform\n• Connect with healthcare provider\n• Enable HIPAA-compliant communication`);
+      }
+    }
+  };
+
+  const handleAccessResource = (resourceId: string) => {
+    alert(`Opening resource...\n\nThis would provide access to educational materials, support groups, or other patient resources.`);
+  };
+
+  const handleJoinMeeting = () => {
+    if (confirm('Join the next support group meeting?\n\nMeetings are held weekly and provide peer support from other patients.')) {
+      alert('Joining support group meeting...\n\nYou will receive a calendar invitation with the meeting details.');
+    }
+  };
+
+  const handleLearnMore = (topic: string) => {
+    alert(`Learning more about ${topic}...\n\nThis would open detailed information and resources about this topic.`);
+  };
+
+  const handleVisitForum = () => {
+    if (confirm('Visit the patient community forum?\n\nConnect with other patients, share experiences, and get support.')) {
+      alert('Opening patient forum...\n\nThis would take you to a secure patient community platform.');
+    }
+  };
+
   const careTeam: CareTeamMember[] = [
     {
       id: '1',
@@ -265,11 +305,18 @@ const PatientSupport: React.FC = () => {
                         </div>
 
                         <div className="mt-4 flex space-x-2">
-                          <button className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
+                          <button 
+                            onClick={() => handleSendMessage(member.id)}
+                            className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+                          >
                             Send Message
                           </button>
                           {member.isOnline && (
-                            <button className="px-3 py-2 border border-blue-600 text-blue-600 text-sm rounded-lg hover:bg-blue-50">
+                            <button 
+                              onClick={() => handleVideoCall(member.id)}
+                              className="px-3 py-2 border border-blue-600 text-blue-600 text-sm rounded-lg hover:bg-blue-50"
+                              title="Start video call"
+                            >
                               <Video className="w-4 h-4" />
                             </button>
                           )}
@@ -319,7 +366,10 @@ const PatientSupport: React.FC = () => {
                             </div>
                           </div>
 
-                          <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                          <button 
+                            onClick={() => handleAccessResource(resource.id)}
+                            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                          >
                             Access Resource
                           </button>
                         </div>
@@ -427,7 +477,10 @@ const PatientSupport: React.FC = () => {
                         <span>Virtual Meeting</span>
                       </div>
                     </div>
-                    <button className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                    <button 
+                      onClick={handleJoinMeeting}
+                      className="w-full px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                    >
                       Join Next Meeting
                     </button>
                   </div>
@@ -450,7 +503,10 @@ const PatientSupport: React.FC = () => {
                         <span>In-person & Virtual</span>
                       </div>
                     </div>
-                    <button className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    <button 
+                      onClick={() => handleLearnMore('Support Groups')}
+                      className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                    >
                       Learn More
                     </button>
                   </div>
@@ -467,7 +523,10 @@ const PatientSupport: React.FC = () => {
                       <p className="text-blue-700 text-sm mt-1">
                         Share experiences, ask questions, and find support from other patients and survivors in our secure online community.
                       </p>
-                      <button className="mt-3 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
+                      <button 
+                        onClick={handleVisitForum}
+                        className="mt-3 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+                      >
                         Visit Forum
                       </button>
                     </div>

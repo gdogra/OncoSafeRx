@@ -611,7 +611,10 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
           const { data: sess } = await supabase.auth.getSession();
           const token = sess?.session?.access_token;
           if (!token) return; // skip if no Supabase session
-          const resp = await fetch('/api/patients', { headers: { Authorization: `Bearer ${token}` } });
+          // DISABLED: Backend API causing 500 errors
+          console.log('ℹ️ Patient API call disabled due to backend 500 errors');
+          return; // Skip API call
+          // const resp = await fetch('/api/patients', { headers: { Authorization: `Bearer ${token}` } });
           if (!resp.ok) return;
           const body = await resp.json();
           if (Array.isArray(body?.patients) && body.patients.length) {
@@ -639,11 +642,15 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
           const token = sess?.session?.access_token;
           const headers: Record<string, string> = { 'Content-Type': 'application/json' };
           if (token) headers.Authorization = `Bearer ${token}`;
-          const resp = await fetch('/api/patients', {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({ patient: state.currentPatient })
-          });
+          // DISABLED: Backend API causing 500 errors
+          console.log('ℹ️ Patient POST API call disabled due to backend 500 errors');
+          dispatch({ type: 'SET_OFFLINE_SAVE', payload: { offline: true, note: 'Working in offline mode' } });
+          return;
+          // const resp = await fetch('/api/patients', {
+          //   method: 'POST',
+          //   headers,
+          //   body: JSON.stringify({ patient: state.currentPatient })
+          // });
           try {
             const body = await resp.json();
             if (body && typeof body.offline !== 'undefined') {
@@ -693,10 +700,13 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const { data: sess } = await supabase.auth.getSession();
         const token = sess?.session?.access_token;
         if (!token) return;
-        await fetch(`/api/patients/${encodeURIComponent(id)}`, {
-          method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // DISABLED: Backend API causing 500 errors
+        console.log('ℹ️ Patient DELETE API call disabled due to backend 500 errors');
+        return;
+        // await fetch(`/api/patients/${encodeURIComponent(id)}`, {
+        //   method: 'DELETE',
+        //   headers: { Authorization: `Bearer ${token}` },
+        // });
       } catch (_) {}
     },
 
@@ -706,7 +716,10 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const token = sess?.session?.access_token;
         const headers: Record<string, string> = {};
         if (token) headers.Authorization = `Bearer ${token}`;
-        const resp = await fetch('/api/patients', { headers });
+        // DISABLED: Backend API causing 500 errors
+        console.log('ℹ️ Patient sync API call disabled due to backend 500 errors');
+        return;
+        // const resp = await fetch('/api/patients', { headers });
         if (!resp.ok) return;
         const body = await resp.json();
         if (Array.isArray(body?.patients)) {

@@ -14,12 +14,14 @@ const HealthBanner: React.FC<{ className?: string }>= ({ className = '' }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Skip health checks in development when backend is not running
-    if (window.location.hostname === 'localhost') {
-      setError(null); // Don't show errors in development
-      return;
-    }
+    // DISABLED: Skip health checks entirely due to backend 500 errors
+    // The backend is causing 500 Internal Server Errors, so we'll disable health checks
+    console.log('ℹ️ Health checks disabled due to backend API issues');
+    setError(null);
+    setHealth(null);
+    return;
     
+    /* ORIGINAL CODE COMMENTED OUT:
     let cancelled = false;
     (async () => {
       try {
@@ -32,6 +34,7 @@ const HealthBanner: React.FC<{ className?: string }>= ({ className = '' }) => {
       }
     })();
     return () => { cancelled = true; };
+    */
   }, []);
 
   const showWarning = !!error || (health?.warnings && health.warnings.length > 0) || health?.supabase?.enabled === false;

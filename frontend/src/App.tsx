@@ -331,13 +331,6 @@ function AppWithAuth() {
                     </Layout>
                   </ProtectedRoute>
                 } />
-                <Route path="/testing" element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Testing />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
                 <Route path="/auth-diagnostics" element={
                   <ProtectedRoute>
                     <Layout>

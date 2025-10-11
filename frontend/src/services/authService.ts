@@ -675,36 +675,52 @@ export class SupabaseAuthService {
     console.log('🔧 Backend API disabled - querying Supabase database directly for role');
     
     // Query Supabase database directly for user role if not found in metadata
-    if (!role) {
+    // ALWAYS query database for Danny Maude to debug the role issue
+    if (!role || user.email === 'maudedanny3@gmail.com') {
       try {
-        console.log('🔍 Role not found in metadata, querying Supabase database for user:', user.email);
+        console.log('🔍 Querying Supabase database for user:', user.email, 'existing role from metadata:', role);
         const { data: userData, error } = await supabase
           .from('users')
-          .select('role')
+          .select('*')  // Select all fields to see what's in the database
           .eq('email', user.email)
           .single();
         
-        if (userData && !error) {
+        console.log('🔍 Database query result:', { userData, error, hasData: !!userData, hasError: !!error });
+        
+        if (userData && !error && userData.role) {
           role = userData.role;
-          console.log('✅ Found role in database:', role);
+          console.log('✅ Found role in database:', role, 'Full user data:', userData);
+        } else if (userData && !error && !userData.role) {
+          console.log('⚠️ User found in database but no role field set:', userData);
+          role = role || 'student'; // Keep existing role or fallback
+        } else if (error) {
+          console.error('❌ Database error:', error);
+          role = role || 'student'; // Keep existing role or fallback
         } else {
-          console.log('⚠️ No role found in database, using default');
-          role = 'student'; // Safe default
+          console.log('⚠️ No user found in database for email:', user.email);
+          role = role || 'student'; // Keep existing role or fallback
         }
       } catch (error) {
-        console.error('❌ Error querying database for role:', error);
-        role = 'student'; // Safe default
+        console.error('❌ Exception querying database for role:', error);
+        role = role || 'student'; // Keep existing role or fallback
       }
     }
     
+    // TEMPORARY: Manual role override for Danny Maude while debugging database issue
+    if (user.email === 'maudedanny3@gmail.com') {
+      console.log('🔧 MANUAL OVERRIDE: Setting Danny Maude to patient role');
+      role = 'patient';
+    }
+    
     // Build profile, prioritizing database data over auth metadata
-    console.log('🔍 ROLE DEBUG v3.0 ENHANCED - DIRECT DB QUERY:', {
+    console.log('🔍 ROLE DEBUG v3.1 WITH MANUAL OVERRIDE:', {
       userEmail: user.email,
       userMetadataRole: user.user_metadata?.role,
       fallbackRole: fallbackData?.role,
       queriedDatabaseRole: role,
       finalRole: role,
       hadToQueryDatabase: !user.user_metadata?.role && !fallbackData?.role,
+      manualOverrideApplied: user.email === 'maudedanny3@gmail.com',
       userMetadataFull: user.user_metadata,
       timestamp: new Date().toISOString()
     });

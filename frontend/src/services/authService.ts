@@ -677,6 +677,15 @@ export class SupabaseAuthService {
     }
     
     // Build profile, prioritizing backend data over auth metadata
+    console.log('🔍 ROLE DEBUG v2.1:', {
+      userMetadataRole: user.user_metadata?.role,
+      fallbackRole: fallbackData?.role,
+      computedRole: role,
+      dbProfileRole: dbProfile?.role,
+      finalRole: dbProfile?.role || role,
+      dbProfile: dbProfile
+    });
+    
     const profile = {
       id: user.id,
       email: user.email || fallbackData?.email || '',

@@ -28,6 +28,13 @@ const UserProfile: React.FC = () => {
   const { user } = state;
   
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'persona' | 'security'>('profile');
+  
+  // Reset to profile tab if patient tries to access persona tab
+  React.useEffect(() => {
+    if ((user?.role === 'patient' || user?.role === 'caregiver') && activeTab === 'persona') {
+      setActiveTab('profile');
+    }
+  }, [user?.role, activeTab]);
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState<Partial<UserProfileType>>(user || {});
   const [editedPreferences, setEditedPreferences] = useState<UserPreferences>(user?.preferences || {} as UserPreferences);
@@ -165,7 +172,8 @@ const UserProfile: React.FC = () => {
   const tabs = [
     { id: 'profile', label: 'Profile Information', icon: User },
     { id: 'preferences', label: 'Preferences', icon: Settings },
-    { id: 'persona', label: 'Testing Persona', icon: Users },
+    // Only show persona switching for non-patients
+    ...(user?.role !== 'patient' && user?.role !== 'caregiver' ? [{ id: 'persona', label: 'Testing Persona', icon: Users }] : []),
     { id: 'security', label: 'Security', icon: Eye }
   ];
 
@@ -531,7 +539,7 @@ const UserProfile: React.FC = () => {
         </Card>
       )}
 
-      {activeTab === 'persona' && (
+      {activeTab === 'persona' && user?.role !== 'patient' && user?.role !== 'caregiver' && (
         <div>
           <PersonaSelector />
         </div>

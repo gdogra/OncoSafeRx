@@ -75,7 +75,7 @@ services:
 
   # Development tools container
   dev-tools:
-    image: node:18-alpine
+    image: node:20-alpine
     container_name: oncosaferx-dev-tools
     working_dir: /app
     volumes:

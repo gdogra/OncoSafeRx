@@ -11,6 +11,14 @@ const Dashboard: React.FC = () => {
   const { user } = state;
   const userRole = user?.role || 'student';
   
+  // DEBUG: Temporary user role debugging
+  console.log('🔍 Dashboard Debug:', {
+    userRole,
+    userObject: user,
+    roles: user?.roles,
+    permissions: user?.permissions
+  });
+  
   // Patient-specific features
   const patientFeatures = [
     {

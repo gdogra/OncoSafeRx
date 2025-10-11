@@ -497,7 +497,7 @@ const AuthPage: React.FC = () => {
                     required
                     value={loginData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className={`block w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                    className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                       errors.email ? 'border-red-300' : 'border-gray-300'
                     }`}
                     placeholder="Enter your email"
@@ -521,7 +521,7 @@ const AuthPage: React.FC = () => {
                     required
                     value={loginData.password}
                     onChange={(e) => handleInputChange('password', e.target.value)}
-                    className={`block w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                    className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                       errors.password ? 'border-red-300' : 'border-gray-300'
                     }`}
                     placeholder="Enter your password"
@@ -587,7 +587,7 @@ const AuthPage: React.FC = () => {
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value)}
                     placeholder="6-digit code"
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
                   />
                   <button type="button" onClick={handleVerifyOtp} className="px-3 py-2 bg-violet-600 text-white rounded text-sm hover:bg-violet-700">Verify code</button>
                 </div>
@@ -648,7 +648,7 @@ const AuthPage: React.FC = () => {
                           required
                           value={signupData.firstName}
                           onChange={(e) => handleInputChange('firstName', e.target.value)}
-                          className={`block w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                          className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                             errors.firstName ? 'border-red-300' : 'border-gray-300'
                           }`}
                         />
@@ -669,7 +669,7 @@ const AuthPage: React.FC = () => {
                           required
                           value={signupData.lastName}
                           onChange={(e) => handleInputChange('lastName', e.target.value)}
-                          className={`block w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                          className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                             errors.lastName ? 'border-red-300' : 'border-gray-300'
                           }`}
                         />
@@ -691,7 +691,7 @@ const AuthPage: React.FC = () => {
                         required
                         value={signupData.email}
                         onChange={(e) => handleInputChange('email', e.target.value)}
-                        className={`block w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                        className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                           errors.email ? 'border-red-300' : 'border-gray-300'
                         }`}
                       />
@@ -713,7 +713,7 @@ const AuthPage: React.FC = () => {
                         required
                         value={signupData.password}
                         onChange={(e) => handleInputChange('password', e.target.value)}
-                        className={`block w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                        className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                           errors.password ? 'border-red-300' : 'border-gray-300'
                         }`}
                       />
@@ -741,7 +741,7 @@ const AuthPage: React.FC = () => {
                         required
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className={`block w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                        className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                           errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
                         }`}
                       />
@@ -779,7 +779,7 @@ const AuthPage: React.FC = () => {
                       required
                       value={signupData.role}
                       onChange={(e) => handleInputChange('role', e.target.value)}
-                      className={`block w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                      className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                         errors.role ? 'border-red-300' : 'border-gray-300'
                       }`}
                     >

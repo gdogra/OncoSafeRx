@@ -389,11 +389,16 @@ export class SupabaseAuthService {
   /**
    * Get current authenticated user
    */
-  static async getCurrentUser(): Promise<UserProfile | null> {
-    console.log('🔍 getCurrentUser called - checking for existing session...')
+  static async getCurrentUser(forceRefresh = false): Promise<UserProfile | null> {
+    console.log('🔍 getCurrentUser called - checking for existing session...', { forceRefresh })
     
-    // First, check if we have a stored user profile (for instant restoration)
+    // Check for forced refresh or stored profile
     const storedProfile = (() => {
+      if (forceRefresh) {
+        console.log('🔄 Force refresh requested - skipping stored profile')
+        return null
+      }
+      
       try {
         const stored = localStorage.getItem('osrx_user_profile')
         console.log('🔍 Checking stored profile:', stored ? 'Found' : 'Not found')
@@ -602,12 +607,27 @@ export class SupabaseAuthService {
    * Clear all stored authentication data
    */
   private static clearStoredAuth(): void {
+    console.log('🧹 Clearing all stored auth data...')
+    
     // Clean up all stored auth data
     localStorage.removeItem('osrx_dev_auth')
     localStorage.removeItem('osrx_dev_user')
     localStorage.removeItem('osrx_auth_path')
     localStorage.removeItem('osrx_auth_tokens')
     localStorage.removeItem('osrx_user_profile')
+    
+    // Clear Supabase session cache
+    localStorage.removeItem('sb-emfrwckxctyarphjvfeu-auth-token')
+    
+    // Clear any other Supabase-related cache
+    Object.keys(localStorage).forEach(key => {
+      if (key.includes('supabase') || key.startsWith('sb-') || key.includes('auth')) {
+        console.log('🧹 Removing cached key:', key)
+        localStorage.removeItem(key)
+      }
+    })
+    
+    console.log('🧹 Auth cache clearing complete')
   }
 
   /**

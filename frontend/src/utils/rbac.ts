@@ -267,6 +267,26 @@ export const ROLES: Record<string, Role> = {
     ],
     hierarchy: 10,
     isSystemRole: true
+  },
+  PATIENT: {
+    id: 'patient',
+    name: 'Patient',
+    description: 'Patient access with personal care management only',
+    permissions: [
+      // No clinical permissions - patients can only access their own care data
+    ],
+    hierarchy: 5,
+    isSystemRole: true
+  },
+  CAREGIVER: {
+    id: 'caregiver',
+    name: 'Caregiver',
+    description: 'Caregiver access with limited support permissions',
+    permissions: [
+      // Minimal permissions for supporting patient care
+    ],
+    hierarchy: 6,
+    isSystemRole: true
   }
 };
 

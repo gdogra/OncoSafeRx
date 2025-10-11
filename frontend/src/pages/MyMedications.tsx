@@ -3,7 +3,10 @@ import { useAuth } from '../context/AuthContext';
 import { usePatient } from '../context/PatientContext';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
+import Tooltip from '../components/UI/Tooltip';
+import { useToast } from '../components/UI/Toast';
 import { Pill, Clock, AlertTriangle, CheckCircle, Calendar, Bell, Info, Plus, Edit, Trash2, X } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface Medication {
   id: string;
@@ -25,16 +28,31 @@ const MyMedications: React.FC = () => {
   const { user } = state;
   const { state: patientState, actions } = usePatient();
   const { currentPatient } = patientState;
+  const { showToast } = useToast();
+
+  // API config and helpers
+  const ENABLE_PATIENT_API = String((import.meta as any)?.env?.VITE_ENABLE_PATIENT_API || '').toLowerCase() === 'true';
+  const API_BASE = (import.meta as any)?.env?.VITE_API_URL || '/api';
+
+  const authHeaders = async (): Promise<Record<string, string> | null> => {
+    try {
+      if (!ENABLE_PATIENT_API) return null;
+      const { data: sess } = await supabase.auth.getSession();
+      const token = sess?.session?.access_token;
+      if (!token) return null;
+      return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+    } catch { return null; }
+  };
 
   // Button handlers
   const handleEnableNotifications = () => {
-    alert('Notification settings would be configured here. This feature is coming soon!');
+    showToast('info', 'Notification settings coming soon!');
   };
 
   const handleMessageCareTeam = () => {
     const message = `I have questions about my current medications and would like to discuss any concerns with my care team.`;
-    if (confirm(`Send this message to your care team?\\n\\n\"${message}\"`)) {
-      alert('Message sent to your care team successfully!\\n\\nThey will respond within 24 hours with answers to your medication questions.');
+    if (confirm(`Send this message to your care team?\n\n"${message}"`)) {
+      showToast('success', 'Message sent to your care team. You will get a reply within 24 hours.');
     }
   };
 
@@ -50,12 +68,12 @@ const MyMedications: React.FC = () => {
 
   const handleSaveMedication = () => {
     if (!newMedication.name || !newMedication.dosage || !newMedication.frequency) {
-      alert('Please fill in all required fields (Name, Dosage, Frequency)');
+      showToast('error', 'Please fill in Name, Dosage and Frequency');
       return;
     }
 
     if (!currentPatient) {
-      alert('No patient selected. Please select a patient first.');
+      showToast('error', 'No patient selected. Please select a patient first.');
       return;
     }
 
@@ -70,7 +88,8 @@ const MyMedications: React.FC = () => {
       },
       dosage: newMedication.dosage,
       frequency: newMedication.frequency,
-      route: 'oral',
+      frequencyOther: newMedication.frequency === 'Other' ? (newMedication.frequencyOther || '') : undefined,
+      route: newMedication.route || 'oral',
       startDate: newMedication.startDate,
       indication: 'Patient-reported',
       prescriber: newMedication.prescribedBy || 'Self-reported',
@@ -79,22 +98,53 @@ const MyMedications: React.FC = () => {
       sideEffects: []
     };
 
-    const updatedMedications = [...(currentPatient.medications || []), patientMedication];
-    
-    actions.updatePatientData({
-      medications: updatedMedications
+    const tryApi = async () => {
+      const headers = await authHeaders();
+      if (!headers || !currentPatient?.id) return false;
+      try {
+        const resp = await fetch(`${API_BASE}/patients/${encodeURIComponent(currentPatient.id)}/medications`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ medication: patientMedication })
+        } as any);
+        if (!resp.ok) {
+          try {
+            const body = await resp.json();
+            const msg = body?.error || (Array.isArray(body?.details) ? body.details.join('; ') : 'Save failed');
+            showToast('error', msg);
+          } catch {
+            showToast('error', `Save failed: ${resp.status}`);
+          }
+          return false;
+        }
+        const body = await resp.json();
+        const meds = Array.isArray(body?.medications) ? body.medications : null;
+        if (meds) actions.updatePatientData({ medications: meds });
+        return true;
+      } catch { return false; }
+    };
+
+    // Try API first; fall back to local update
+    tryApi().then((ok) => {
+      if (!ok) {
+        const updatedMedications = [...(currentPatient.medications || []), patientMedication];
+        actions.updatePatientData({ medications: updatedMedications });
+        showToast('warning', 'Saved locally (offline)');
+      }
     });
 
     setNewMedication({
       name: '',
       dosage: '',
       frequency: '',
+      route: 'oral',
+      frequencyOther: '',
       prescribedBy: '',
       instructions: '',
       startDate: new Date().toISOString().split('T')[0]
     });
     setShowAddForm(false);
-    alert('Medication added successfully!');
+    showToast('success', 'Medication added');
   };
 
   const handleCancelAdd = () => {
@@ -104,6 +154,8 @@ const MyMedications: React.FC = () => {
       name: '',
       dosage: '',
       frequency: '',
+      route: 'oral',
+      frequencyOther: '',
       prescribedBy: '',
       instructions: '',
       startDate: new Date().toISOString().split('T')[0]
@@ -114,12 +166,117 @@ const MyMedications: React.FC = () => {
     if (!currentPatient) return;
     
     if (confirm('Are you sure you want to remove this medication from your list?')) {
-      const updatedMedications = currentPatient.medications.filter(med => med.id !== medicationId);
-      actions.updatePatientData({
-        medications: updatedMedications
+      const tryApi = async () => {
+        const headers = await authHeaders();
+        if (!headers || !currentPatient?.id) return false;
+        try {
+          const resp = await fetch(`${API_BASE}/patients/${encodeURIComponent(currentPatient.id)}/medications/${encodeURIComponent(medicationId)}`, {
+            method: 'DELETE',
+            headers
+          } as any);
+          if (!resp.ok) {
+            try {
+              const body = await resp.json();
+              const msg = body?.error || 'Delete failed';
+              showToast('error', msg);
+            } catch {
+              showToast('error', `Delete failed: ${resp.status}`);
+            }
+            return false;
+          }
+          const body = await resp.json();
+          const meds = Array.isArray(body?.medications) ? body.medications : null;
+          if (meds) actions.updatePatientData({ medications: meds });
+          return true;
+        } catch { return false; }
+      };
+
+      tryApi().then((ok) => {
+        if (!ok) {
+          const updatedMedications = currentPatient.medications.filter(med => med.id !== medicationId);
+          actions.updatePatientData({ medications: updatedMedications });
+          showToast('warning', 'Removed locally (offline)');
+        }
+        showToast('success', 'Medication removed');
       });
-      alert('Medication removed successfully!');
     }
+  };
+
+  const handleCompleteMedication = (medicationId: string) => {
+    if (!currentPatient) return;
+    const today = new Date().toISOString().split('T')[0];
+    const tryApi = async () => {
+      const headers = await authHeaders();
+      if (!headers || !currentPatient?.id) return false;
+      try {
+        const resp = await fetch(`${API_BASE}/patients/${encodeURIComponent(currentPatient.id)}/medications/${encodeURIComponent(medicationId)}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ medication: { isActive: false, endDate: today } })
+        } as any);
+        if (!resp.ok) {
+          try {
+            const body = await resp.json();
+            const msg = body?.error || 'Update failed';
+            showToast('error', msg);
+          } catch {
+            showToast('error', `Update failed: ${resp.status}`);
+          }
+          return false;
+        }
+        const body = await resp.json();
+        const meds = Array.isArray(body?.medications) ? body.medications : null;
+        if (meds) actions.updatePatientData({ medications: meds });
+        return true;
+      } catch { return false; }
+    };
+    tryApi().then((ok) => {
+      if (!ok) {
+        const updatedMedications = currentPatient.medications.map(med =>
+          med.id === medicationId ? { ...med, isActive: false, endDate: today } : med
+        );
+        actions.updatePatientData({ medications: updatedMedications });
+        showToast('warning', 'Updated locally (offline)');
+      }
+    });
+  };
+
+  const handleRestoreMedication = (medicationId: string) => {
+    if (!currentPatient) return;
+    const tryApi = async () => {
+      const headers = await authHeaders();
+      if (!headers || !currentPatient?.id) return false;
+      try {
+        const resp = await fetch(`${API_BASE}/patients/${encodeURIComponent(currentPatient.id)}/medications/${encodeURIComponent(medicationId)}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ medication: { isActive: true, endDate: null } })
+        } as any);
+        if (!resp.ok) {
+          try {
+            const body = await resp.json();
+            const msg = body?.error || 'Update failed';
+            showToast('error', msg);
+          } catch {
+            showToast('error', `Update failed: ${resp.status}`);
+          }
+          return false;
+        }
+        const body = await resp.json();
+        const meds = Array.isArray(body?.medications) ? body.medications : null;
+        if (meds) actions.updatePatientData({ medications: meds });
+        return true;
+      } catch { return false; }
+    };
+    tryApi().then((ok) => {
+      if (!ok) {
+        const updatedMedications = currentPatient.medications.map(med =>
+          med.id === medicationId ? { ...med, isActive: true, endDate: undefined } : med
+        );
+        actions.updatePatientData({ medications: updatedMedications });
+        showToast('warning', 'Updated locally (offline)');
+      }
+    });
   };
 
   const handleEditMedication = (medication: any) => {
@@ -128,6 +285,7 @@ const MyMedications: React.FC = () => {
       name: medication.drug?.name || '',
       dosage: medication.dosage || '',
       frequency: medication.frequency || '',
+      route: medication.route || 'oral',
       prescribedBy: medication.prescriber || '',
       instructions: medication.indication || '',
       startDate: medication.startDate || new Date().toISOString().split('T')[0]
@@ -137,7 +295,7 @@ const MyMedications: React.FC = () => {
 
   const handleUpdateMedication = () => {
     if (!newMedication.name || !newMedication.dosage || !newMedication.frequency) {
-      alert('Please fill in all required fields (Name, Dosage, Frequency)');
+      showToast('error', 'Please fill in Name, Dosage and Frequency');
       return;
     }
 
@@ -152,21 +310,49 @@ const MyMedications: React.FC = () => {
       },
       dosage: newMedication.dosage,
       frequency: newMedication.frequency,
+      route: newMedication.route || 'oral',
       prescriber: newMedication.prescribedBy || 'Self-reported',
       indication: newMedication.instructions || 'Take as directed',
       startDate: newMedication.startDate
     };
 
-    const updatedMedications = currentPatient.medications.map(med => 
-      med.id === editingMedication.id ? updatedMedication : med
-    );
-    
-    actions.updatePatientData({
-      medications: updatedMedications
+    const tryApi = async () => {
+      const headers = await authHeaders();
+      if (!headers || !currentPatient?.id) return false;
+      try {
+        const resp = await fetch(`${API_BASE}/patients/${encodeURIComponent(currentPatient.id)}/medications/${encodeURIComponent((editingMedication as any).id)}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ medication: updatedMedication })
+        } as any);
+        if (!resp.ok) {
+          try {
+            const body = await resp.json();
+            const msg = body?.error || (Array.isArray(body?.details) ? body.details.join('; ') : 'Update failed');
+            showToast('error', msg);
+          } catch {
+            showToast('error', `Update failed: ${resp.status}`);
+          }
+          return false;
+        }
+        const body = await resp.json();
+        const meds = Array.isArray(body?.medications) ? body.medications : null;
+        if (meds) actions.updatePatientData({ medications: meds });
+        return true;
+      } catch { return false; }
+    };
+
+    tryApi().then((ok) => {
+      if (!ok) {
+        const updatedMedications = currentPatient.medications.map(med => 
+          med.id === (editingMedication as any).id ? updatedMedication : med
+        );
+        actions.updatePatientData({ medications: updatedMedications });
+        showToast('warning', 'Updated locally (offline)');
+      }
+      handleCancelAdd();
+      showToast('success', 'Medication updated');
     });
-    
-    handleCancelAdd();
-    alert('Medication updated successfully!');
   };
 
   // Get medications from current patient
@@ -178,6 +364,8 @@ const MyMedications: React.FC = () => {
     name: '',
     dosage: '',
     frequency: '',
+    route: 'oral',
+    frequencyOther: '',
     prescribedBy: '',
     instructions: '',
     startDate: new Date().toISOString().split('T')[0]
@@ -210,6 +398,15 @@ const MyMedications: React.FC = () => {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
+  };
+
+  const formatRouteLabel = (route: string | undefined) => {
+    const r = String(route || '').toLowerCase();
+    if (!r) return '';
+    // Common codes that should stay uppercase
+    if (['iv', 'im', 'sc'].includes(r)) return r.toUpperCase();
+    // Title case for descriptive routes
+    return r.charAt(0).toUpperCase() + r.slice(1);
   };
 
   return (
@@ -337,6 +534,30 @@ const MyMedications: React.FC = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
+                Route
+              </label>
+              <select
+                value={newMedication.route}
+                onChange={(e) => setNewMedication({ ...newMedication, route: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="oral">Oral</option>
+                <option value="iv">IV (intravenous)</option>
+                <option value="im">IM (intramuscular)</option>
+                <option value="sc">SC (subcutaneous)</option>
+                <option value="topical">Topical</option>
+                <option value="inhalation">Inhalation</option>
+                <option value="sublingual">Sublingual</option>
+                <option value="rectal">Rectal</option>
+                <option value="transdermal">Transdermal</option>
+                <option value="ophthalmic">Ophthalmic</option>
+                <option value="otic">Otic</option>
+                <option value="nasal">Nasal</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 Prescribed By
               </label>
               <input
@@ -420,6 +641,14 @@ const MyMedications: React.FC = () => {
                           {getAdherenceDisplay(medication.adherence)} adherence
                         </span>
                       )}
+                      {medication.route && (
+                        <Tooltip content="Route of administration">
+                          <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                            {formatRouteLabel(medication.route)}
+                          </span>
+                        </Tooltip>
+                      )}
+                      
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -428,7 +657,7 @@ const MyMedications: React.FC = () => {
                           <strong>Dosage:</strong> {medication.dosage}
                         </p>
                         <p className="text-gray-600">
-                          <strong>Frequency:</strong> {medication.frequency}
+                          <strong>Frequency:</strong> {medication.frequency == 'Other' && (medication as any).frequencyOther ? (medication as any).frequencyOther : medication.frequency}
                         </p>
                         <p className="text-gray-600">
                           <strong>Prescribed by:</strong> {medication.prescriber || medication.prescribedBy}
@@ -463,6 +692,30 @@ const MyMedications: React.FC = () => {
                       </div>
                     )}
                   </div>
+                  {/* Action buttons */}
+                  <div className="flex flex-col space-y-2 ml-4">
+                    <button
+                      onClick={() => handleEditMedication(medication as any)}
+                      className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Edit medication"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleCompleteMedication(medication.id)}
+                      className="p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                      title="Mark as completed"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteMedication(medication.id)}
+                      className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Remove medication"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -492,6 +745,13 @@ const MyMedications: React.FC = () => {
                           {getAdherenceDisplay(medication.adherence)} adherence
                         </span>
                       )}
+                      {medication.route && (
+                        <Tooltip content="Route of administration">
+                          <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                            {formatRouteLabel(medication.route)}
+                          </span>
+                        </Tooltip>
+                      )}
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -519,6 +779,13 @@ const MyMedications: React.FC = () => {
                       title="Edit medication"
                     >
                       <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleRestoreMedication(medication.id)}
+                      className="p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                      title="Mark as active"
+                    >
+                      <CheckCircle className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteMedication(medication.id)}

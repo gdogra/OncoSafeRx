@@ -35,7 +35,8 @@ import {
   Calculator,
   Zap,
   Link2,
-  Workflow
+  Workflow,
+  TestTube
 } from 'lucide-react';
 import Tooltip from '../UI/Tooltip';
 

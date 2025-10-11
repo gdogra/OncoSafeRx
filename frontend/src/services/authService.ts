@@ -667,34 +667,11 @@ export class SupabaseAuthService {
     
     const role = user.user_metadata?.role || fallbackData?.role || 'oncologist'
     
-    // Try to fetch complete profile from backend API
+    // BACKEND API DISABLED: The backend API at oncosaferx.onrender.com returns hardcoded
+    // mock data that overrides correct Supabase database values. Disabling to ensure
+    // users get correct role data from Supabase directly.
     let dbProfile = null;
-    try {
-      console.log('🔧 Attempting to fetch profile from backend API...');
-      const response = await fetch('/api/supabase-auth/profile', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.access_token || ''}` // Use auth token if available
-        }
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
-        if (result.user) {
-          dbProfile = result.user;
-          console.log('🔧 ✅ Successfully fetched profile from backend:', {
-            firstName: dbProfile.firstName,
-            lastName: dbProfile.lastName,
-            specialty: dbProfile.specialty
-          });
-        }
-      } else {
-        console.log('🔧 ⚠️ Backend profile fetch failed:', response.status);
-      }
-    } catch (error) {
-      console.log('🔧 ⚠️ Backend profile fetch error:', error);
-    }
+    console.log('🔧 Backend API disabled - using Supabase data directly for reliability');
     
     // Build profile, prioritizing backend data over auth metadata
     console.log('🔍 ROLE DEBUG v2.1:', {
@@ -707,12 +684,10 @@ export class SupabaseAuthService {
       backendApiWorking: !!dbProfile
     });
     
-    // TEMPORARY FIX: Skip backend API role override for this specific user
-    const finalRole = user.email === 'maudedanny3@gmail.com' ? 
-      (user.user_metadata?.role || fallbackData?.role || 'patient') : 
-      (dbProfile?.role || role);
+    // With backend API disabled, always use Supabase auth metadata as source of truth
+    const finalRole = role; // This is user.user_metadata?.role || fallbackData?.role || 'oncologist'
     
-    console.log('🔧 TEMPORARY ROLE OVERRIDE for maudedanny3@gmail.com:', { finalRole });
+    console.log('🔧 Using Supabase metadata role directly:', { finalRole });
     
     const profile = {
       id: user.id,

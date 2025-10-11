@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
-import { Pill, Clock, AlertTriangle, CheckCircle, Calendar, Bell, Info, Plus, Edit, Trash2 } from 'lucide-react';
+import { Pill, Clock, AlertTriangle, CheckCircle, Calendar, Bell, Info, Plus, Edit, Trash2, X } from 'lucide-react';
 
 interface Medication {
   id: string;
@@ -38,8 +38,60 @@ const MyMedications: React.FC = () => {
     }
   };
 
-  // Mock medication data for patient view
-  const [medications] = useState<Medication[]>([
+  const handleAddMedication = () => {
+    setShowAddForm(true);
+  };
+
+  const handleSaveMedication = () => {
+    if (!newMedication.name || !newMedication.dosage || !newMedication.frequency) {
+      alert('Please fill in all required fields (Name, Dosage, Frequency)');
+      return;
+    }
+
+    const medication: Medication = {
+      id: Date.now().toString(),
+      name: newMedication.name,
+      dosage: newMedication.dosage,
+      frequency: newMedication.frequency,
+      startDate: newMedication.startDate,
+      prescribedBy: newMedication.prescribedBy || 'Self-reported',
+      instructions: newMedication.instructions || 'Take as directed',
+      isActive: true,
+      adherence: 100
+    };
+
+    setMedications([...medications, medication]);
+    setNewMedication({
+      name: '',
+      dosage: '',
+      frequency: '',
+      prescribedBy: '',
+      instructions: '',
+      startDate: new Date().toISOString().split('T')[0]
+    });
+    setShowAddForm(false);
+  };
+
+  const handleCancelAdd = () => {
+    setShowAddForm(false);
+    setNewMedication({
+      name: '',
+      dosage: '',
+      frequency: '',
+      prescribedBy: '',
+      instructions: '',
+      startDate: new Date().toISOString().split('T')[0]
+    });
+  };
+
+  const handleDeleteMedication = (medicationId: string) => {
+    if (confirm('Are you sure you want to remove this medication from your list?')) {
+      setMedications(medications.filter(med => med.id !== medicationId));
+    }
+  };
+
+  // Patient medication state
+  const [medications, setMedications] = useState<Medication[]>([
     {
       id: '1',
       name: 'Carboplatin',
@@ -80,6 +132,16 @@ const MyMedications: React.FC = () => {
     }
   ]);
 
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newMedication, setNewMedication] = useState({
+    name: '',
+    dosage: '',
+    frequency: '',
+    prescribedBy: '',
+    instructions: '',
+    startDate: new Date().toISOString().split('T')[0]
+  });
+
   const activeMedications = medications.filter(med => med.isActive);
   const completedMedications = medications.filter(med => !med.isActive);
 
@@ -101,6 +163,13 @@ const MyMedications: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">My Medications</h1>
           <p className="text-gray-600 mt-1">Track your current medications and treatment plan</p>
         </div>
+        <button 
+          onClick={handleAddMedication}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+        >
+          <Plus className="w-4 h-4" />
+          <span>Add Medication</span>
+        </button>
       </div>
 
       {/* Quick Stats */}
@@ -145,6 +214,123 @@ const MyMedications: React.FC = () => {
           </div>
         </Card>
       </div>
+
+      {/* Add Medication Form */}
+      {showAddForm && (
+        <Card>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-gray-900">Add New Medication</h2>
+            <button
+              onClick={handleCancelAdd}
+              className="p-1 text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Medication Name *
+              </label>
+              <input
+                type="text"
+                value={newMedication.name}
+                onChange={(e) => setNewMedication({...newMedication, name: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., Tylenol, Metformin"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Dosage *
+              </label>
+              <input
+                type="text"
+                value={newMedication.dosage}
+                onChange={(e) => setNewMedication({...newMedication, dosage: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., 500mg, 10ml"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Frequency *
+              </label>
+              <select
+                value={newMedication.frequency}
+                onChange={(e) => setNewMedication({...newMedication, frequency: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Select frequency</option>
+                <option value="Once daily">Once daily</option>
+                <option value="Twice daily">Twice daily</option>
+                <option value="Three times daily">Three times daily</option>
+                <option value="Four times daily">Four times daily</option>
+                <option value="Every other day">Every other day</option>
+                <option value="Weekly">Weekly</option>
+                <option value="As needed">As needed</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Prescribed By
+              </label>
+              <input
+                type="text"
+                value={newMedication.prescribedBy}
+                onChange={(e) => setNewMedication({...newMedication, prescribedBy: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., Dr. Smith"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Start Date
+              </label>
+              <input
+                type="date"
+                value={newMedication.startDate}
+                onChange={(e) => setNewMedication({...newMedication, startDate: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Instructions
+              </label>
+              <textarea
+                value={newMedication.instructions}
+                onChange={(e) => setNewMedication({...newMedication, instructions: e.target.value})}
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., Take with food, avoid alcohol"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-3 mt-6">
+            <button
+              onClick={handleCancelAdd}
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveMedication}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Add Medication
+            </button>
+          </div>
+        </Card>
+      )}
 
       {/* Important Notice */}
       <Alert type="info" title="Important">
@@ -264,6 +450,17 @@ const MyMedications: React.FC = () => {
                         </p>
                       </div>
                     </div>
+                  </div>
+                  
+                  {/* Action buttons */}
+                  <div className="flex flex-col space-y-2 ml-4">
+                    <button
+                      onClick={() => handleDeleteMedication(medication.id)}
+                      className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Remove medication"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               </div>

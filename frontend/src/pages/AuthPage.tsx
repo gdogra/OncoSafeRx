@@ -823,21 +823,23 @@ const AuthPage: React.FC = () => {
                     </div>
                   )}
 
-                  <div>
-                    <label htmlFor="institution" className="block text-sm font-medium text-gray-700">
-                      Institution/Hospital
-                    </label>
-                    <div className="mt-1 relative">
-                      <input
-                        id="institution"
-                        type="text"
-                        value={signupData.institution || ''}
-                        onChange={(e) => handleInputChange('institution', e.target.value)}
-                        className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                      />
-                      <Building className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
+                  {(signupData.role !== 'patient' && signupData.role !== 'caregiver') && (
+                    <div>
+                      <label htmlFor="institution" className="block text-sm font-medium text-gray-700">
+                        Institution/Hospital
+                      </label>
+                      <div className="mt-1 relative">
+                        <input
+                          id="institution"
+                          type="text"
+                          value={signupData.institution || ''}
+                          onChange={(e) => handleInputChange('institution', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                        <Building className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {(signupData.role === 'oncologist' || signupData.role === 'pharmacist') && (
                     <div>
@@ -862,23 +864,25 @@ const AuthPage: React.FC = () => {
                     </div>
                   )}
 
-                  <div>
-                    <label htmlFor="yearsExperience" className="block text-sm font-medium text-gray-700">
-                      Years of Experience
-                    </label>
-                    <div className="mt-1 relative">
-                      <input
-                        id="yearsExperience"
-                        type="number"
-                        min="0"
-                        max="50"
-                        value={signupData.yearsExperience || ''}
-                        onChange={(e) => handleInputChange('yearsExperience', e.target.value)}
-                        className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                      />
-                      <Calendar className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
+                  {(signupData.role !== 'patient' && signupData.role !== 'caregiver') && (
+                    <div>
+                      <label htmlFor="yearsExperience" className="block text-sm font-medium text-gray-700">
+                        Years of Experience
+                      </label>
+                      <div className="mt-1 relative">
+                        <input
+                          id="yearsExperience"
+                          type="number"
+                          min="0"
+                          max="50"
+                          value={signupData.yearsExperience || ''}
+                          onChange={(e) => handleInputChange('yearsExperience', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                        <Calendar className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   <div className="flex items-center">
                     <input

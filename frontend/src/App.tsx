@@ -102,6 +102,7 @@ function AppWithAuth() {
   
   return (
     <ToastProvider>
+      {/* DEPLOYMENT TEST: Fixed styling and role restrictions - v2.1 */}
       <PatientProvider>
         <SelectionProvider>
           <ComparisonProvider>

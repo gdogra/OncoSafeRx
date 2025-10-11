@@ -11,13 +11,15 @@ const Dashboard: React.FC = () => {
   const { user } = state;
   const userRole = user?.role || 'student';
   
-  // DEBUG: Temporary user role debugging
-  console.log('🔍 Dashboard Debug:', {
+  // DEBUG: Temporary user role debugging v2.1
+  console.log('🔍 Dashboard Debug v2.1:', {
     userRole,
     userObject: user,
-    roles: user?.roles,
-    permissions: user?.permissions
+    timestamp: new Date().toISOString()
   });
+  
+  // Also show debug info in the UI temporarily
+  const showDebug = window.location.hostname !== 'localhost';
   
   // Patient-specific features
   const patientFeatures = [
@@ -327,6 +329,14 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      
+      {/* DEBUG: Temporary visible debugging */}
+      {showDebug && (
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+          <strong>DEBUG v2.1:</strong> User Role: {userRole} | Email: {user?.email} | 
+          Features: {selectedFeatures.length} | Time: {new Date().toLocaleTimeString()}
+        </div>
+      )}
       
       {/* Header */}
       <div className="text-center">

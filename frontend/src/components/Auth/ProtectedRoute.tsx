@@ -59,15 +59,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   } 
   // Fallback to role-based access (legacy)
   else if (requiredRole) {
-    const hasRequiredRole = requiredRole.includes(state.user.role) || rbac.hasAnyRole(requiredRole);
+    // SIMPLIFIED: Primary check on user.role (the main role field)
+    const hasRequiredRole = requiredRole.includes(state.user.role);
     
     // DEBUG: Temporary role debugging
-    console.log('🔍 ProtectedRoute Debug:', {
+    console.log('🔍 ProtectedRoute Debug v2.1:', {
       requiredRole,
       userRole: state.user.role,
-      userRoles: state.user.roles,
       hasRequiredRole,
-      rbacCheck: rbac.hasAnyRole(requiredRole)
+      userObject: state.user
     });
     
     if (!hasRequiredRole) {

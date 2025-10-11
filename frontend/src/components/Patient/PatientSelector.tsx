@@ -73,6 +73,7 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
         .includes(q) ||
       (patient.demographics.mrn || '').toLowerCase().includes(q)
     );
+    */
   };
 
   const [searchResults, setSearchResults] = useState<PatientProfile[]>([]);

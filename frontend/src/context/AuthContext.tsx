@@ -186,19 +186,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     let mounted = true;
 
-    // Detect hard refresh and clear auth if needed
+    // Detect hard refresh and clear auth if needed - DISABLED FOR PRODUCTION STABILITY
     const detectHardRefresh = () => {
-      // Method 1: Check navigation type (modern browsers)
+      // TEMPORARILY DISABLE hard refresh detection due to production authentication issues
+      // The detection was too aggressive and clearing auth on normal page loads
+      
+      console.log('⚠️ Hard refresh detection DISABLED for production stability');
+      
+      // Set session flag for tracking but don't clear auth
+      sessionStorage.setItem('osrx_session_active', 'true');
+      
+      // Always return false to preserve authentication
+      return false;
+      
+      /* ORIGINAL LOGIC COMMENTED OUT FOR SAFETY:
+      
       let isHardRefresh = false;
       
       try {
-        // Performance Navigation API v2
         const navigationEntry = performance.getEntriesByType('navigation')[0] as any;
         if (navigationEntry?.type === 'reload') {
           isHardRefresh = true;
         }
       } catch (e) {
-        // Fallback to deprecated API
         try {
           if (performance.navigation && performance.navigation.type === 1) {
             isHardRefresh = true;
@@ -208,10 +218,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
       
-      // Method 2: Check session storage flag (universal fallback)
       const sessionFlag = sessionStorage.getItem('osrx_session_active');
       if (!sessionFlag) {
-        // First load in this session - likely a hard refresh or new tab
         isHardRefresh = true;
       }
       
@@ -221,14 +229,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.removeItem('osrx_session_user_id');
         localStorage.removeItem('osrx_last_path');
         sessionStorage.clear();
-        // Set flag to prevent clearing on subsequent navigation
         sessionStorage.setItem('osrx_session_active', 'true');
         return true;
       }
       
-      // Set session flag for subsequent navigations
       sessionStorage.setItem('osrx_session_active', 'true');
       return false;
+      
+      */
     };
 
     // Failsafe timeout to prevent infinite loading - increased for better auth restoration

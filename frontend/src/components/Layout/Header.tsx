@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, Search, AlertTriangle, Dna, FileText, HelpCircle, Users, Stethoscope, LogIn, LogOut, User as UserIcon, ChevronDown } from 'lucide-react';
+import { Activity, Search, AlertTriangle, Dna, FileText, HelpCircle, Users, Stethoscope, LogIn, LogOut, User as UserIcon, ChevronDown, Calendar, BookOpen } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { interactionService } from '../../services/api';
@@ -52,21 +52,39 @@ const Header: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleOutside);
   }, [accountOpen]);
 
-  const navItems = [
-    { path: '/', label: 'Dashboard', icon: Activity },
-    { path: '/clinical', label: 'Clinical Decision', icon: Stethoscope },
-    { path: '/patients/all', label: 'Patients', icon: Users },
-    { path: '/collaboration', label: 'Collaboration', icon: Users },
-    { path: '/ai-insights', label: 'AI Insights', icon: Activity },
-    { path: '/search', label: 'Drug Search', icon: Search },
-    { path: '/interactions', label: 'Interactions', icon: AlertTriangle },
-    { path: '/genomics', label: 'Genomics', icon: Dna },
-    { path: '/regimens', label: 'Regimens', icon: FileText },
-    { path: '/curated', label: 'Curated', icon: FileText },
-    { path: '/trials', label: 'Trials', icon: FileText },
-    { path: '/protocols', label: 'Protocols', icon: FileText },
-    { path: '/help', label: 'Help', icon: HelpCircle },
-  ];
+  const isPatientRole = (() => {
+    try {
+      const u = state.user as any;
+      const roles: string[] = Array.isArray(u?.roles) ? u.roles : (u?.role ? [u.role] : []);
+      return roles.includes('patient') || roles.includes('caregiver');
+    } catch { return false; }
+  })();
+
+  const navItems = isPatientRole
+    ? [
+        { path: '/my-care', label: 'My Care', icon: Activity },
+        { path: '/care-plan', label: 'Care Plan', icon: FileText },
+        { path: '/education', label: 'Education', icon: BookOpen },
+        { path: '/support', label: 'Support', icon: Users },
+        { path: '/my-medications', label: 'Medications', icon: Stethoscope },
+        { path: '/my-appointments', label: 'Appointments', icon: Calendar },
+        { path: '/help', label: 'Help', icon: HelpCircle },
+      ]
+    : [
+        { path: '/', label: 'Dashboard', icon: Activity },
+        { path: '/clinical', label: 'Clinical Decision', icon: Stethoscope },
+        { path: '/patients/all', label: 'Patients', icon: Users },
+        { path: '/collaboration', label: 'Collaboration', icon: Users },
+        { path: '/ai-insights', label: 'AI Insights', icon: Activity },
+        { path: '/search', label: 'Drug Search', icon: Search },
+        { path: '/interactions', label: 'Interactions', icon: AlertTriangle },
+        { path: '/genomics', label: 'Genomics', icon: Dna },
+        { path: '/regimens', label: 'Regimens', icon: FileText },
+        { path: '/curated', label: 'Curated', icon: FileText },
+        { path: '/trials', label: 'Trials', icon: FileText },
+        { path: '/protocols', label: 'Protocols', icon: FileText },
+        { path: '/help', label: 'Help', icon: HelpCircle },
+      ];
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">

@@ -419,7 +419,7 @@ const FederatedLearningEngine: React.FC = () => {
                     <span className="font-medium text-green-900">Privacy Protection</span>
                   </div>
                   <ul className="text-sm text-green-700 space-y-1">
-                    <li>• Differential privacy (ε < 0.1)</li>
+                    <li>• Differential privacy (ε {'<'} 0.1)</li>
                     <li>• Secure multi-party computation</li>
                     <li>• Homomorphic encryption</li>
                     <li>• Zero-knowledge proofs</li>

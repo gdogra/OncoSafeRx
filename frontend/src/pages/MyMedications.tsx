@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { usePatient } from '../context/PatientContext';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import { Pill, Clock, AlertTriangle, CheckCircle, Calendar, Bell, Info, Plus, Edit, Trash2, X } from 'lucide-react';
@@ -22,6 +23,8 @@ interface Medication {
 const MyMedications: React.FC = () => {
   const { state } = useAuth();
   const { user } = state;
+  const { state: patientState, actions } = usePatient();
+  const { currentPatient } = patientState;
 
   // Button handlers
   const handleEnableNotifications = () => {
@@ -51,19 +54,37 @@ const MyMedications: React.FC = () => {
       return;
     }
 
-    const medication: Medication = {
+    if (!currentPatient) {
+      alert('No patient selected. Please select a patient first.');
+      return;
+    }
+
+    const patientMedication = {
       id: Date.now().toString(),
-      name: newMedication.name,
+      drug: {
+        id: Date.now().toString(),
+        rxcui: '',
+        name: newMedication.name,
+        generic_name: newMedication.name,
+        oncologyDrug: false
+      },
       dosage: newMedication.dosage,
       frequency: newMedication.frequency,
+      route: 'oral',
       startDate: newMedication.startDate,
-      prescribedBy: newMedication.prescribedBy || 'Self-reported',
-      instructions: newMedication.instructions || 'Take as directed',
+      indication: 'Patient-reported',
+      prescriber: newMedication.prescribedBy || 'Self-reported',
       isActive: true,
-      adherence: 100
+      adherence: 'excellent' as const,
+      sideEffects: []
     };
 
-    setMedications([...medications, medication]);
+    const updatedMedications = [...(currentPatient.medications || []), patientMedication];
+    
+    actions.updatePatientData({
+      medications: updatedMedications
+    });
+
     setNewMedication({
       name: '',
       dosage: '',
@@ -73,6 +94,7 @@ const MyMedications: React.FC = () => {
       startDate: new Date().toISOString().split('T')[0]
     });
     setShowAddForm(false);
+    alert('Medication added successfully!');
   };
 
   const handleCancelAdd = () => {
@@ -89,20 +111,26 @@ const MyMedications: React.FC = () => {
   };
 
   const handleDeleteMedication = (medicationId: string) => {
+    if (!currentPatient) return;
+    
     if (confirm('Are you sure you want to remove this medication from your list?')) {
-      setMedications(medications.filter(med => med.id !== medicationId));
+      const updatedMedications = currentPatient.medications.filter(med => med.id !== medicationId);
+      actions.updatePatientData({
+        medications: updatedMedications
+      });
+      alert('Medication removed successfully!');
     }
   };
 
-  const handleEditMedication = (medication: Medication) => {
+  const handleEditMedication = (medication: any) => {
     setEditingMedication(medication);
     setNewMedication({
-      name: medication.name,
-      dosage: medication.dosage,
-      frequency: medication.frequency,
-      prescribedBy: medication.prescribedBy,
-      instructions: medication.instructions,
-      startDate: medication.startDate
+      name: medication.drug?.name || '',
+      dosage: medication.dosage || '',
+      frequency: medication.frequency || '',
+      prescribedBy: medication.prescriber || '',
+      instructions: medication.indication || '',
+      startDate: medication.startDate || new Date().toISOString().split('T')[0]
     });
     setShowAddForm(true);
   };
@@ -113,66 +141,36 @@ const MyMedications: React.FC = () => {
       return;
     }
 
-    if (!editingMedication) return;
+    if (!editingMedication || !currentPatient) return;
 
-    const updatedMedication: Medication = {
+    const updatedMedication = {
       ...editingMedication,
-      name: newMedication.name,
+      drug: {
+        ...editingMedication.drug,
+        name: newMedication.name,
+        generic_name: newMedication.name
+      },
       dosage: newMedication.dosage,
       frequency: newMedication.frequency,
-      prescribedBy: newMedication.prescribedBy || 'Self-reported',
-      instructions: newMedication.instructions || 'Take as directed',
+      prescriber: newMedication.prescribedBy || 'Self-reported',
+      indication: newMedication.instructions || 'Take as directed',
       startDate: newMedication.startDate
     };
 
-    setMedications(medications.map(med => 
+    const updatedMedications = currentPatient.medications.map(med => 
       med.id === editingMedication.id ? updatedMedication : med
-    ));
+    );
+    
+    actions.updatePatientData({
+      medications: updatedMedications
+    });
     
     handleCancelAdd();
+    alert('Medication updated successfully!');
   };
 
-  // Patient medication state
-  const [medications, setMedications] = useState<Medication[]>([
-    {
-      id: '1',
-      name: 'Carboplatin',
-      dosage: '400mg',
-      frequency: 'Every 3 weeks',
-      startDate: '2024-01-15',
-      prescribedBy: 'Dr. Smith',
-      instructions: 'Administered intravenously over 30-60 minutes',
-      sideEffects: ['Fatigue', 'Nausea', 'Hair loss'],
-      isActive: true,
-      nextDose: '2024-10-15',
-      adherence: 95
-    },
-    {
-      id: '2',
-      name: 'Ondansetron',
-      dosage: '8mg',
-      frequency: 'Twice daily as needed',
-      startDate: '2024-01-15',
-      prescribedBy: 'Dr. Smith',
-      instructions: 'Take 30 minutes before meals or at first sign of nausea',
-      sideEffects: ['Headache', 'Constipation'],
-      isActive: true,
-      adherence: 88
-    },
-    {
-      id: '3',
-      name: 'Prednisone',
-      dosage: '10mg',
-      frequency: 'Once daily',
-      startDate: '2024-02-01',
-      endDate: '2024-03-01',
-      prescribedBy: 'Dr. Johnson',
-      instructions: 'Take with food to reduce stomach irritation',
-      sideEffects: ['Increased appetite', 'Difficulty sleeping'],
-      isActive: false,
-      adherence: 92
-    }
-  ]);
+  // Get medications from current patient
+  const medications = currentPatient?.medications || [];
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
@@ -188,10 +186,26 @@ const MyMedications: React.FC = () => {
   const activeMedications = medications.filter(med => med.isActive);
   const completedMedications = medications.filter(med => !med.isActive);
 
-  const getAdherenceColor = (adherence: number) => {
+  const getAdherenceColor = (adherence: number | string) => {
+    if (typeof adherence === 'string') {
+      switch (adherence) {
+        case 'excellent': return 'text-green-600 bg-green-100';
+        case 'good': return 'text-blue-600 bg-blue-100';
+        case 'fair': return 'text-yellow-600 bg-yellow-100';
+        case 'poor': return 'text-red-600 bg-red-100';
+        default: return 'text-gray-600 bg-gray-100';
+      }
+    }
     if (adherence >= 90) return 'text-green-600 bg-green-100';
     if (adherence >= 80) return 'text-yellow-600 bg-yellow-100';
     return 'text-red-600 bg-red-100';
+  };
+
+  const getAdherenceDisplay = (adherence: number | string) => {
+    if (typeof adherence === 'string') {
+      return adherence.charAt(0).toUpperCase() + adherence.slice(1);
+    }
+    return `${adherence}%`;
   };
 
   const formatDate = (dateString: string) => {
@@ -237,7 +251,7 @@ const MyMedications: React.FC = () => {
             <div>
               <p className="text-sm text-gray-600">Average Adherence</p>
               <p className="text-2xl font-bold text-gray-900">
-                {Math.round(activeMedications.reduce((sum, med) => sum + (med.adherence || 0), 0) / activeMedications.length || 0)}%
+                {activeMedications.length > 0 ? 'Good' : 'N/A'}
               </p>
             </div>
           </div>
@@ -399,11 +413,11 @@ const MyMedications: React.FC = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">{medication.name}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">{medication.drug?.name || medication.name}</h3>
                       <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>
                       {medication.adherence && (
                         <span className={`px-2 py-1 text-xs rounded-full ${getAdherenceColor(medication.adherence)}`}>
-                          {medication.adherence}% adherence
+                          {getAdherenceDisplay(medication.adherence)} adherence
                         </span>
                       )}
                     </div>
@@ -417,7 +431,7 @@ const MyMedications: React.FC = () => {
                           <strong>Frequency:</strong> {medication.frequency}
                         </p>
                         <p className="text-gray-600">
-                          <strong>Prescribed by:</strong> {medication.prescribedBy}
+                          <strong>Prescribed by:</strong> {medication.prescriber || medication.prescribedBy}
                         </p>
                       </div>
                       <div>
@@ -475,7 +489,7 @@ const MyMedications: React.FC = () => {
                       <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">Completed</span>
                       {medication.adherence && (
                         <span className={`px-2 py-1 text-xs rounded-full ${getAdherenceColor(medication.adherence)}`}>
-                          {medication.adherence}% adherence
+                          {getAdherenceDisplay(medication.adherence)} adherence
                         </span>
                       )}
                     </div>
@@ -491,7 +505,7 @@ const MyMedications: React.FC = () => {
                       </div>
                       <div>
                         <p className="text-gray-600">
-                          <strong>Prescribed by:</strong> {medication.prescribedBy}
+                          <strong>Prescribed by:</strong> {medication.prescriber || medication.prescribedBy}
                         </p>
                       </div>
                     </div>

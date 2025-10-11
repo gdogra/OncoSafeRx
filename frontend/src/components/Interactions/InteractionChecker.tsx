@@ -12,14 +12,15 @@ import FeatureErrorBoundary from '../ErrorBoundary/FeatureErrorBoundary';
 import { AlertTriangle, X, Info } from 'lucide-react';
 import { useSelection } from '../../context/SelectionContext';
 import { usePatient } from '../../context/PatientContext';
+import { patientService } from '../../services/patientService';
 
 const InteractionCheckerInner: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [selectedDrugs, setSelectedDrugs] = useState<Drug[]>([]);
   const selection = useSelection();
-  const { state } = usePatient();
-  const { currentPatient } = state;
+  const { state, actions } = usePatient();
+  const { currentPatient, hydrated, recentPatients } = state as any;
   const [results, setResults] = useState<InteractionCheckResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +39,61 @@ const InteractionCheckerInner: React.FC = () => {
     if (best) filtered = filtered.filter((a: any) => a.best === true);
     return filtered;
   };
+
+  // Apply patient selection from URL parameter once hydrated
+  useEffect(() => {
+    const patientId = searchParams.get('patient');
+    if (!patientId || !hydrated) return;
+
+    // If current patient already matches, skip
+    if (currentPatient && String(currentPatient.id) === String(patientId)) return;
+
+    // Try to find in recent patients first
+    const localHit = Array.isArray(recentPatients)
+      ? recentPatients.find((p: any) => String(p.id) === String(patientId))
+      : null;
+    if (localHit) {
+      try { actions.setCurrentPatient(localHit); } catch {}
+      return;
+    }
+
+    // Fallback: attempt to load via patientService (will use API with localStorage fallback)
+    (async () => {
+      try {
+        const p = await patientService.getPatient(String(patientId));
+        if (p) {
+          // Transform to PatientProfile shape expected by context as best as possible
+          const profile = {
+            id: p.id,
+            demographics: {
+              firstName: p.firstName,
+              lastName: p.lastName,
+              dateOfBirth: p.dateOfBirth || '1980-01-01',
+              sex: p.gender || 'other',
+              mrn: p.mrn,
+              heightCm: p.height,
+              weightKg: p.weight,
+            },
+            allergies: [],
+            medications: [],
+            conditions: [],
+            labValues: [],
+            genetics: [],
+            vitals: [],
+            treatmentHistory: [],
+            notes: [],
+            preferences: {},
+            lastUpdated: new Date().toISOString(),
+            createdBy: 'system',
+            isActive: true,
+          } as any;
+          try { actions.setCurrentPatient(profile); } catch {}
+        }
+      } catch (e) {
+        console.warn('Failed to load patient by id from URL param:', e);
+      }
+    })();
+  }, [searchParams, hydrated, currentPatient, recentPatients, actions]);
 
   useEffect(() => {
     try {
@@ -336,6 +392,11 @@ const InteractionCheckerInner: React.FC = () => {
     if (severities.includes('minor')) return 'minor';
     return 'unknown';
   };
+
+  // Show minimal loader until patient context hydration completes
+  if (!hydrated) {
+    return <div className="p-6 text-center text-gray-500">Loading patient context…</div>;
+  }
 
   return (
     <div className="space-y-6">

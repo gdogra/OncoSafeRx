@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Dna, Activity, Zap, Microscope, Target, TrendingUp, Database, Brain, Network, FileText, Download, Upload, Settings, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Treemap, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, HeatmapChart, AreaChart, Area, LineChart, Line, BarChart, Bar } from 'recharts';
+import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Treemap, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, AreaChart, Area, LineChart, Line, BarChart, Bar } from 'recharts';
 
 interface GenomicVariant {
   id: string;

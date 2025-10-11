@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/UI/Card';
 import { BookOpen, Play, Download, ExternalLink, Search, Heart, Pill, Shield, Users, ArrowRight, Star, Clock, User } from 'lucide-react';
+import Modal from '../components/UI/Modal';
 
 interface EducationalResource {
   id: string;
@@ -21,6 +22,29 @@ const PatientEducation: React.FC = () => {
   const { user } = state;
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [showStories, setShowStories] = useState(false);
+  const [activeArticle, setActiveArticle] = useState<EducationalResource | null>(null);
+
+  // Button handlers
+  const handleReadStories = () => {
+    setShowStories(true);
+  };
+
+  const handleResourceAction = (resource: EducationalResource) => {
+    const actions = {
+      video: () => setActiveArticle(resource),
+      pdf: () => setActiveArticle(resource),
+      interactive: () => setActiveArticle(resource),
+      article: () => setActiveArticle(resource)
+    };
+
+    const action = resource.type === 'video' ? actions.video :
+                  resource.type === 'pdf' ? actions.pdf :
+                  resource.type === 'interactive' ? actions.interactive :
+                  actions.article;
+    
+    action();
+  };
 
   const categories = [
     { id: 'all', name: 'All Resources', icon: BookOpen },
@@ -179,7 +203,10 @@ const PatientEducation: React.FC = () => {
                 Read inspiring stories from other patients who have successfully navigated their cancer journey. 
                 Learn from their experiences and find hope in their recovery.
               </p>
-              <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              <button 
+                onClick={handleReadStories}
+                className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
                 <span>Read Stories</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
@@ -230,7 +257,10 @@ const PatientEducation: React.FC = () => {
                 </div>
 
                 {/* Action Button */}
-                <button className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                <button 
+                  onClick={() => handleResourceAction(resource)}
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                >
                   <TypeIcon className="w-4 h-4" />
                   <span>
                     {resource.type === 'video' ? 'Watch Video' :
@@ -301,6 +331,37 @@ const PatientEducation: React.FC = () => {
           </div>
         </div>
       </Card>
+
+      {/* Stories Modal */}
+      <Modal isOpen={showStories} onClose={() => setShowStories(false)} title="Patient Success Stories" size="lg">
+        <div className="space-y-4">
+          <p className="text-gray-700">Real-world experiences from patients navigating treatment and recovery.</p>
+          <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <li>Managing side effects during chemotherapy</li>
+            <li>Finding support networks that work</li>
+            <li>Returning to everyday life after treatment</li>
+          </ul>
+          <p className="text-sm text-gray-500">This is a preview. Full stories will appear here.</p>
+        </div>
+      </Modal>
+
+      {/* Article/Resource Modal */}
+      <Modal
+        isOpen={!!activeArticle}
+        onClose={() => setActiveArticle(null)}
+        title={activeArticle ? activeArticle.title : 'Resource'}
+        size="lg"
+      >
+        {activeArticle && (
+          <div className="space-y-3">
+            <div className="text-sm text-gray-500">Type: {activeArticle.type.toUpperCase()} • {activeArticle.duration}</div>
+            <p className="text-gray-800">{activeArticle.description}</p>
+            <div className="text-sm text-gray-600">Category: {activeArticle.category}</div>
+            <div className="text-xs text-gray-500">Rating: {activeArticle.rating} • Views: {activeArticle.views.toLocaleString()}</div>
+            <div className="pt-2 text-sm text-gray-500">This is a preview. Full content will appear here.</div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

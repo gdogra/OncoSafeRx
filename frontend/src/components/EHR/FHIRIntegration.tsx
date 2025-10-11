@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Database, Zap, Shield, CheckCircle, AlertTriangle, Clock, Download, Upload, Settings, Refresh, Activity, FileText, Users, Heart } from 'lucide-react';
+import { Database, Zap, Shield, CheckCircle, AlertTriangle, Clock, Download, Upload, Settings, RefreshCw as Refresh, Activity, FileText, Users, Heart } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 
 interface FHIRResource {

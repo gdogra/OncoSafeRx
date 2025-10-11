@@ -1201,7 +1201,7 @@ const TreatmentPlanner: React.FC = () => {
           {Object.entries(biomarkers).map(([biomarker, data]: [string, any]) => (
             <div key={biomarker} className="bg-white p-3 rounded border">
               <div className="flex items-center justify-between mb-2">
-                <h7 className="font-medium text-gray-900">{biomarker}</h7>
+                <h6 className="font-medium text-gray-900">{biomarker}</h6>
                 <span className="text-xs text-gray-600">Baseline: {data.baseline}</span>
               </div>
               

@@ -222,6 +222,8 @@ const useAuthSafely = () => {
 const PATIENTS_DISABLED = String((import.meta as any)?.env?.VITE_PATIENTS_DISABLED || '').toLowerCase() === 'true';
 // Feature flag: disable fallback sample patients entirely
 const DISABLE_SAMPLE_PATIENTS = String((import.meta as any)?.env?.VITE_DISABLE_SAMPLE_PATIENTS || '').toLowerCase() === 'true';
+// Feature flag: enable backend patient API calls
+const ENABLE_PATIENT_API = String((import.meta as any)?.env?.VITE_ENABLE_PATIENT_API || '').toLowerCase() === 'true';
 
 export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (PATIENTS_DISABLED) {
@@ -398,21 +400,23 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
             medications: [
               {
                 id: 'med-1',
+                drug: { rxcui: '', name: 'Tamoxifen' } as any,
                 drugName: 'Tamoxifen',
                 dosage: '20 mg',
                 frequency: 'Daily',
                 route: 'Oral',
                 startDate: '2024-01-01',
+                indication: 'Breast Cancer',
                 isActive: true,
-                prescribedBy: 'Dr. Smith',
+                prescriber: 'Dr. Smith',
               }
             ],
             conditions: [
               {
                 id: 'cond-1',
-                name: 'Breast Cancer',
+                condition: 'Breast Cancer',
                 icd10: 'C50.9',
-                dateOfDiagnosis: '2023-12-15',
+                dateOfOnset: '2023-12-15',
                 status: 'active',
                 stage: 'T2N0M0',
               }
@@ -421,7 +425,7 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
               {
                 id: 'lab-1',
                 labType: 'Complete Blood Count',
-                value: '4.5',
+                value: 4.5,
                 unit: 'x10^9/L',
                 referenceRange: '4.0-11.0',
                 timestamp: '2024-01-15T10:00:00Z',
@@ -442,6 +446,8 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
               }
             ],
             treatmentHistory: [],
+            appointments: [],
+            sideEffectReports: [],
             notes: [],
             preferences: {},
             lastUpdated: '2024-01-15T10:00:00Z',
@@ -463,21 +469,23 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
             medications: [
               {
                 id: 'med-2',
+                drug: { rxcui: '', name: 'Carboplatin' } as any,
                 drugName: 'Carboplatin',
                 dosage: 'AUC 5',
                 frequency: 'Every 3 weeks',
                 route: 'IV',
                 startDate: '2024-01-08',
+                indication: 'NSCLC',
                 isActive: true,
-                prescribedBy: 'Dr. Johnson',
+                prescriber: 'Dr. Johnson',
               }
             ],
             conditions: [
               {
                 id: 'cond-2',
-                name: 'Non-Small Cell Lung Cancer',
+                condition: 'Non-Small Cell Lung Cancer',
                 icd10: 'C78.0',
-                dateOfDiagnosis: '2023-11-20',
+                dateOfOnset: '2023-11-20',
                 status: 'active',
                 stage: 'IIIA',
               }
@@ -486,7 +494,7 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
               {
                 id: 'lab-2',
                 labType: 'Creatinine',
-                value: '1.2',
+                value: 1.2,
                 unit: 'mg/dL',
                 referenceRange: '0.7-1.3',
                 timestamp: '2024-01-14T08:30:00Z',
@@ -507,6 +515,8 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
               }
             ],
             treatmentHistory: [],
+            appointments: [],
+            sideEffectReports: [],
             notes: [],
             preferences: {},
             lastUpdated: '2024-01-14T14:00:00Z',
@@ -538,21 +548,23 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
             medications: [
               {
                 id: 'med-3',
+                drug: { rxcui: '', name: 'Bevacizumab' } as any,
                 drugName: 'Bevacizumab',
                 dosage: '15 mg/kg',
                 frequency: 'Every 3 weeks',
                 route: 'IV',
                 startDate: '2024-01-02',
+                indication: 'Colorectal Cancer',
                 isActive: true,
-                prescribedBy: 'Dr. Williams',
+                prescriber: 'Dr. Williams',
               }
             ],
             conditions: [
               {
                 id: 'cond-3',
-                name: 'Colorectal Cancer',
+                condition: 'Colorectal Cancer',
                 icd10: 'C18.9',
-                dateOfDiagnosis: '2023-10-05',
+                dateOfOnset: '2023-10-05',
                 status: 'active',
                 stage: 'IV',
               }
@@ -561,7 +573,7 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
               {
                 id: 'lab-3',
                 labType: 'CEA',
-                value: '8.5',
+                value: 8.5,
                 unit: 'ng/mL',
                 referenceRange: '<3.0',
                 timestamp: '2024-01-13T11:15:00Z',
@@ -582,6 +594,8 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
               }
             ],
             treatmentHistory: [],
+            appointments: [],
+            sideEffectReports: [],
             notes: [],
             preferences: {},
             lastUpdated: '2024-01-13T11:15:00Z',
@@ -605,16 +619,13 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         localStorage.setItem(lsKey('recent_patients'), legacyRecents);
       }
 
-      // Try to hydrate from server if available
+      // Try to hydrate from server if available (flag-controlled)
       (async () => {
         try {
           const { data: sess } = await supabase.auth.getSession();
           const token = sess?.session?.access_token;
-          if (!token) return; // skip if no Supabase session
-          // DISABLED: Backend API causing 500 errors
-          console.log('ℹ️ Patient API call disabled due to backend 500 errors');
-          return; // Skip API call
-          // const resp = await fetch('/api/patients', { headers: { Authorization: `Bearer ${token}` } });
+          if (!token || !ENABLE_PATIENT_API) return; // skip if no session or disabled
+          const resp = await fetch('/api/patients', { headers: { Authorization: `Bearer ${token}` } } as any);
           if (!resp.ok) return;
           const body = await resp.json();
           if (Array.isArray(body?.patients) && body.patients.length) {
@@ -642,15 +653,15 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
           const token = sess?.session?.access_token;
           const headers: Record<string, string> = { 'Content-Type': 'application/json' };
           if (token) headers.Authorization = `Bearer ${token}`;
-          // DISABLED: Backend API causing 500 errors
-          console.log('ℹ️ Patient POST API call disabled due to backend 500 errors');
-          dispatch({ type: 'SET_OFFLINE_SAVE', payload: { offline: true, note: 'Working in offline mode' } });
-          return;
-          // const resp = await fetch('/api/patients', {
-          //   method: 'POST',
-          //   headers,
-          //   body: JSON.stringify({ patient: state.currentPatient })
-          // });
+          if (!ENABLE_PATIENT_API) {
+            dispatch({ type: 'SET_OFFLINE_SAVE', payload: { offline: true, note: 'Working in offline mode' } });
+            return;
+          }
+          const resp = await fetch('/api/patients', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ patient: state.currentPatient })
+          } as any);
           try {
             const body = await resp.json();
             if (body && typeof body.offline !== 'undefined') {
@@ -674,6 +685,54 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
     localStorage.setItem(lsKey('recent_patients'), JSON.stringify(state.recentPatients));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.recentPatients, currentUserId]);
+
+  // Auto-provision a default patient profile for logged-in patient users
+  useEffect(() => {
+    try {
+      const user = authContext.state?.user as any;
+      if (!state.hydrated) return;
+      if (state.currentPatient) return;
+      if (!user) return;
+      const roles: string[] = Array.isArray(user.roles) ? user.roles : (user.role ? [user.role] : []);
+      const isPatient = roles.includes('patient');
+      if (!isPatient) return;
+
+      const firstName = user.firstName || user.user_metadata?.first_name || (user.email?.split('@')[0] || 'Patient');
+      const lastName = user.lastName || user.user_metadata?.last_name || '';
+
+      const defaultProfile: PatientProfile = {
+        id: `patient-${user.id}`,
+        demographics: {
+          firstName,
+          lastName,
+          dateOfBirth: '1980-01-01',
+          sex: 'other',
+          mrn: undefined as any,
+          heightCm: 170,
+          weightKg: 70,
+        } as any,
+        allergies: [],
+        medications: [],
+        conditions: [],
+        labValues: [],
+        genetics: [],
+        vitals: [],
+        treatmentHistory: [],
+        appointments: [],
+        sideEffectReports: [],
+        notes: [],
+        preferences: {},
+        lastUpdated: new Date().toISOString(),
+        createdBy: user.id,
+        isActive: true,
+      } as any;
+
+      dispatch({ type: 'SET_CURRENT_PATIENT', payload: defaultProfile });
+      dispatch({ type: 'ADD_RECENT_PATIENT', payload: defaultProfile });
+    } catch (e) {
+      console.warn('Auto-provision patient profile failed:', e);
+    }
+  }, [state.hydrated, state.currentPatient, authContext.state?.user]);
 
   const actions = {
     setCurrentPatient: (patient: PatientProfile | null) => {
@@ -699,14 +758,11 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         dispatch({ type: 'REMOVE_PATIENT', payload: { id } });
         const { data: sess } = await supabase.auth.getSession();
         const token = sess?.session?.access_token;
-        if (!token) return;
-        // DISABLED: Backend API causing 500 errors
-        console.log('ℹ️ Patient DELETE API call disabled due to backend 500 errors');
-        return;
-        // await fetch(`/api/patients/${encodeURIComponent(id)}`, {
-        //   method: 'DELETE',
-        //   headers: { Authorization: `Bearer ${token}` },
-        // });
+        if (!token || !ENABLE_PATIENT_API) return;
+        await fetch(`/api/patients/${encodeURIComponent(id)}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
+        } as any);
       } catch (_) {}
     },
 
@@ -716,10 +772,8 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const token = sess?.session?.access_token;
         const headers: Record<string, string> = {};
         if (token) headers.Authorization = `Bearer ${token}`;
-        // DISABLED: Backend API causing 500 errors
-        console.log('ℹ️ Patient sync API call disabled due to backend 500 errors');
-        return;
-        // const resp = await fetch('/api/patients', { headers });
+        if (!ENABLE_PATIENT_API) return;
+        const resp = await fetch('/api/patients', { headers } as any);
         if (!resp.ok) return;
         const body = await resp.json();
         if (Array.isArray(body?.patients)) {

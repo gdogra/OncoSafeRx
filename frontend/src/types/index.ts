@@ -5,10 +5,12 @@ export interface Drug {
   name: string;
   generic_name?: string;
   genericName?: string;
+  generic?: string;
   synonym?: string;
   tty?: string;
   brand_names?: string[];
   brandNames?: string[];
+  brand?: string;
   active_ingredients?: string[];
   dosage_forms?: string[];
   strengths?: string[];
@@ -22,6 +24,10 @@ export interface Drug {
   adverse_reactions?: string[];
   sideEffects?: string[];
   interactions?: any[];
+  hasInteractions?: boolean;
+  isPopular?: boolean;
+  isOncology?: boolean;
+  relevanceScore?: number;
   dosing?: {
     standard?: string;
     renal?: string;
@@ -31,6 +37,13 @@ export interface Drug {
   fdaApproved?: boolean;
   oncologyDrug?: boolean;
   clinicalData?: any; // Store full enhanced clinical data from API
+  // Extended clinical insights used in some views
+  clinicalInsights?: any;
+  realWorldEvidence?: any;
+  riskProfile?: any;
+  monitoringRequirements?: any;
+  clinicalDecisionSupport?: any;
+  costEffectiveness?: any;
 }
 
 export interface DrugSearchResult {
@@ -191,6 +204,9 @@ export interface PatientDemographics {
   lastName: string;
   dateOfBirth: string;
   sex: 'male' | 'female' | 'other';
+  // Back-compat fields used in some components
+  age?: number;
+  gender?: string;
   race?: string;
   ethnicity?: string;
   heightCm?: number;
@@ -228,6 +244,9 @@ export interface PatientAllergy {
 export interface PatientMedication {
   id: string;
   drug: Drug;
+  // Back-compat convenience fields
+  name?: string;
+  drugName?: string;
   dosage: string;
   frequency: string;
   route: string;
@@ -235,19 +254,26 @@ export interface PatientMedication {
   endDate?: string;
   indication: string;
   prescriber?: string;
+  prescribedBy?: string;
   isActive: boolean;
-  adherence?: 'excellent' | 'good' | 'fair' | 'poor';
+  adherence?: 'excellent' | 'good' | 'fair' | 'poor' | number;
   sideEffects?: string[];
+  instructions?: string;
+  nextDose?: string;
 }
 
 export interface PatientCondition {
   id: string;
   condition: string;
+  name?: string;
   icd10Code?: string;
+  icd10?: string;
   status: 'active' | 'resolved' | 'inactive';
   dateOfOnset: string;
+  dateOfDiagnosis?: string;
   dateResolved?: string;
   severity?: 'mild' | 'moderate' | 'severe';
+  stage?: string;
   notes?: string;
 }
 
@@ -263,6 +289,7 @@ export interface PatientGenetics {
 }
 
 export interface PatientVitals {
+  id?: string;
   timestamp: string;
   bloodPressureSystolic?: number;
   bloodPressureDiastolic?: number;
@@ -291,6 +318,44 @@ export interface TreatmentHistory {
   notes?: string;
 }
 
+export interface PatientAppointment {
+  id: string;
+  title: string;
+  type: 'consultation' | 'treatment' | 'lab' | 'imaging' | 'follow-up';
+  provider: string;
+  date: string;
+  time: string;
+  duration: string;
+  location: string;
+  status: 'scheduled' | 'confirmed' | 'completed' | 'cancelled' | 'requested';
+  notes?: string;
+  preparationInstructions?: string[];
+  isVirtual: boolean;
+  reminder: boolean;
+  createdBy: string;
+  createdAt: string;
+  requestData?: {
+    reason: string;
+    urgency: 'routine' | 'urgent' | 'emergency';
+    preferredDates: string[];
+    preferredTimes: string[];
+    additionalNotes?: string;
+  };
+}
+
+export interface PatientSideEffectReport {
+  id: string;
+  sideEffect: string;
+  severity: 'mild' | 'moderate' | 'severe';
+  duration: string;
+  description: string;
+  medication?: string;
+  reportedAt: string;
+  reportedBy: string;
+  status: 'reported' | 'reviewed' | 'resolved';
+  careTeamNotes?: string;
+}
+
 export interface PatientProfile {
   id: string;
   demographics: PatientDemographics;
@@ -301,11 +366,16 @@ export interface PatientProfile {
   genetics: PatientGenetics[];
   vitals: PatientVitals[];
   treatmentHistory: TreatmentHistory[];
+  primaryDiagnosis?: string;
+  appointments: PatientAppointment[];
+  sideEffectReports: PatientSideEffectReport[];
+  // Back-compat field occasionally referenced
+  genomicProfile?: any;
   notes: Array<{
     id: string;
     timestamp: string;
     author: string;
-    type: 'clinical' | 'pharmacy' | 'nursing' | 'other';
+    type: 'clinical' | 'pharmacy' | 'nursing' | 'ai-chat' | 'other';
     content: string;
   }>;
   preferences: {

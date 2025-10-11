@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Minimize2, Maximize2, X, Loader } from 'lucide-react';
 import { searchKnowledgeBase } from '../../data/knowledgeBase';
+import { usePatient } from '../../context/PatientContext';
+import { useAuth } from '../../context/AuthContext';
 
 interface ChatMessage {
   id: string;
@@ -17,19 +19,67 @@ interface AIChatProps {
 }
 
 const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, className = '' }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      type: 'ai',
-      content: "Hello! I'm your OncoSafeRx assistant. I can help you with drug interactions, pharmacogenomics, safety monitoring, and navigating the platform. What can I help you with today?",
-      timestamp: new Date(),
+  const { state: patientState, actions: patientActions } = usePatient();
+  const { state: authState } = useAuth();
+  const { currentPatient } = patientState;
+  const { user } = authState;
+  
+  // Load messages from patient context or use default
+  const getChatMessages = (): ChatMessage[] => {
+    if (!currentPatient) {
+      return [{
+        id: '1',
+        type: 'ai',
+        content: "Hello! I'm your OncoSafeRx assistant. I can help you with drug interactions, pharmacogenomics, safety monitoring, and navigating the platform. What can I help you with today?",
+        timestamp: new Date(),
+      }];
     }
-  ]);
+    
+    // Filter notes that are chat messages (type 'ai-chat')
+    const chatNotes = currentPatient.notes.filter(note => note.type === 'ai-chat' || note.content.startsWith('CHAT:'));
+    const chatMessages = chatNotes.map(note => ({
+      id: note.id,
+      type: note.content.startsWith('CHAT:USER:') ? 'user' as const : 'ai' as const,
+      content: note.content.replace(/^CHAT:(USER|AI):/, ''),
+      timestamp: new Date(note.timestamp),
+    }));
+
+    // If no chat messages exist, add welcome message
+    if (chatMessages.length === 0) {
+      const welcomeMessage = {
+        id: 'welcome-' + Date.now(),
+        type: 'ai' as const,
+        content: "Hello! I'm your OncoSafeRx assistant. I can help you with drug interactions, pharmacogenomics, safety monitoring, and navigating the platform. What can I help you with today?",
+        timestamp: new Date(),
+      };
+      // Save welcome message to patient
+      const noteContent = `CHAT:AI:${welcomeMessage.content}`;
+      const newNote = {
+        id: welcomeMessage.id,
+        timestamp: welcomeMessage.timestamp.toISOString(),
+        author: 'OncoSafeRx Assistant',
+        type: 'ai-chat' as const,
+        content: noteContent,
+      };
+      const updatedNotes = [...currentPatient.notes, newNote];
+      patientActions.updatePatientData({ notes: updatedNotes });
+      return [welcomeMessage];
+    }
+
+    return chatMessages;
+  };
+
+  const [messages, setMessages] = useState<ChatMessage[]>(getChatMessages());
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Update messages when current patient changes
+  useEffect(() => {
+    setMessages(getChatMessages());
+  }, [currentPatient]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -274,6 +324,23 @@ Could you be more specific about what you'd like help with? You can ask question
     };
   };
 
+  const saveMessageToPatient = (message: ChatMessage) => {
+    if (!currentPatient || !user) return;
+
+    const noteContent = message.type === 'user' ? `CHAT:USER:${message.content}` : `CHAT:AI:${message.content}`;
+    const newNote = {
+      id: message.id,
+      timestamp: message.timestamp.toISOString(),
+      author: message.type === 'user' ? (user.email || 'User') : 'OncoSafeRx Assistant',
+      type: 'ai-chat' as const,
+      content: noteContent,
+    };
+
+    // Add the note to the patient's notes array
+    const updatedNotes = [...currentPatient.notes, newNote];
+    patientActions.updatePatientData({ notes: updatedNotes });
+  };
+
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
@@ -285,6 +352,10 @@ Could you be more specific about what you'd like help with? You can ask question
     };
 
     setMessages(prev => [...prev, userMessage]);
+    
+    // Save user message to patient context
+    saveMessageToPatient(userMessage);
+    
     setInputValue('');
     setIsLoading(true);
 
@@ -300,6 +371,10 @@ Could you be more specific about what you'd like help with? You can ask question
       };
 
       setMessages(prev => [...prev, aiMessage]);
+      
+      // Save AI message to patient context
+      saveMessageToPatient(aiMessage);
+      
       setIsLoading(false);
     }, 1000 + Math.random() * 1000); // 1-2 second delay
   };

@@ -38,6 +38,14 @@ const UserProfile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState<Partial<UserProfileType>>(user || {});
   const [editedPreferences, setEditedPreferences] = useState<UserPreferences>(user?.preferences || {} as UserPreferences);
+
+  // Keep editedUser and editedPreferences in sync with user changes
+  React.useEffect(() => {
+    if (user) {
+      setEditedUser(user);
+      setEditedPreferences(user.preferences || {} as UserPreferences);
+    }
+  }, [user]);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -262,7 +270,7 @@ const UserProfile: React.FC = () => {
               <div className="relative">
                 <input
                   type="text"
-                  value={isEditing ? editedUser.firstName || '' : user.firstName}
+                  value={isEditing ? editedUser.firstName || '' : user.firstName || ''}
                   onChange={(e) => setEditedUser(prev => ({ ...prev, firstName: e.target.value }))}
                   disabled={!isEditing}
                   className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
@@ -277,7 +285,7 @@ const UserProfile: React.FC = () => {
               </label>
               <input
                 type="text"
-                value={isEditing ? editedUser.lastName || '' : user.lastName}
+                value={isEditing ? editedUser.lastName || '' : user.lastName || ''}
                 onChange={(e) => setEditedUser(prev => ({ ...prev, lastName: e.target.value }))}
                 disabled={!isEditing}
                 className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
@@ -291,7 +299,7 @@ const UserProfile: React.FC = () => {
               <div className="relative">
                 <input
                   type="email"
-                  value={isEditing ? editedUser.email || '' : user.email}
+                  value={isEditing ? editedUser.email || '' : user.email || ''}
                   onChange={(e) => setEditedUser(prev => ({ ...prev, email: e.target.value }))}
                   disabled={!isEditing}
                   className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"

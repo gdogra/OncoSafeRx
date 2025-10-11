@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { FileText, Brain, Target, AlertTriangle, CheckCircle, Upload, Download, Eye, Filter, Search, Star, TrendingUp, Dna, Award, Shield } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, TreeMap, ScatterChart, Scatter } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Treemap, ScatterChart, Scatter } from 'recharts';
 
 interface GenomicVariant {
   id: string;
@@ -872,7 +872,7 @@ const NGSReportInterpreter: React.FC = () => {
                         <span className="font-medium">{currentReport.quality_metrics.quality_metrics.q30_bases}%</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Coverage >100x:</span>
+                        <span className="text-gray-600">Coverage {'>'}100x:</span>
                         <span className="font-medium">{currentReport.quality_metrics.coverage_metrics.percentage_100x}%</span>
                       </div>
                     </div>
@@ -1022,7 +1022,7 @@ const NGSReportInterpreter: React.FC = () => {
                           </h4>
                           <div className="flex items-center gap-2 mt-1">
                             <span className="text-sm text-gray-600">
-                              {variant.chromosome}:{variant.position} {variant.reference}>{variant.alternate}
+                              {variant.chromosome}:{variant.position} {variant.reference}{'>'}{variant.alternate}
                             </span>
                             {actionability && (
                               <span className={`px-2 py-1 text-xs font-medium rounded border ${getTierColor(actionability.tier)}`}>
@@ -1238,11 +1238,11 @@ const NGSReportInterpreter: React.FC = () => {
                       <span className="font-medium">{currentReport.quality_metrics.coverage_metrics.median_coverage.toFixed(0)}x</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Targets >20x:</span>
+                      <span>Targets {'>'}20x:</span>
                       <span className="font-medium">{currentReport.quality_metrics.coverage_metrics.percentage_20x}%</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Targets >100x:</span>
+                      <span>Targets {'>'}100x:</span>
                       <span className="font-medium">{currentReport.quality_metrics.coverage_metrics.percentage_100x}%</span>
                     </div>
                     <div className="flex justify-between">

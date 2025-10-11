@@ -47,10 +47,17 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
   // Patient search: prefer server when authenticated; fallback to local recent patients
   const searchPatients = async (query: string): Promise<PatientProfile[]> => {
     if (!query.trim()) return [];
-    
-    // DISABLED: Backend API causing 500 errors - return mock data instead
-    console.log('ℹ️ Patient search API disabled due to backend 500 errors');
-    return []; // Return empty results to avoid errors
+    const ENABLE_PATIENT_API = String((import.meta as any)?.env?.VITE_ENABLE_PATIENT_API || '').toLowerCase() === 'true';
+    if (!ENABLE_PATIENT_API) {
+      // Fallback to recent patients search when API disabled
+      const q = query.toLowerCase();
+      return recentPatients.filter(patient => 
+        `${patient.demographics.firstName} ${patient.demographics.lastName}`
+          .toLowerCase()
+          .includes(q) ||
+        (patient.demographics.mrn || '').toLowerCase().includes(q)
+      );
+    }
     
     /* ORIGINAL CODE COMMENTED OUT:
     try {
@@ -166,6 +173,8 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
         genetics: [],
         vitals: patientData.vitals ? [patientData.vitals] : [],
         treatmentHistory: [],
+        appointments: [],
+        sideEffectReports: [],
         notes: [],
         preferences: {},
         lastUpdated: new Date().toISOString(),
@@ -191,8 +200,7 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
         
       // Update the patient with the local result
       if (result.patient) {
-        const serverPatient = result.patient.data || result.patient;
-        actions.setCurrentPatient(serverPatient);
+        actions.setCurrentPatient(result.patient as any);
         try { await actions.syncFromServer(); } catch {}
       }
       

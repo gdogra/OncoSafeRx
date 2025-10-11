@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { usePatient } from '../context/PatientContext';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import AppointmentRequestForm, { AppointmentRequestData } from '../components/Forms/AppointmentRequestForm';
@@ -24,6 +25,8 @@ interface Appointment {
 const MyAppointments: React.FC = () => {
   const { state } = useAuth();
   const { user } = state;
+  const { state: patientState, actions } = usePatient();
+  const { currentPatient } = patientState;
 
   const [selectedView, setSelectedView] = useState<'upcoming' | 'past' | 'all'>('upcoming');
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
@@ -34,7 +37,43 @@ const MyAppointments: React.FC = () => {
   };
 
   const handleAppointmentSubmit = (data: AppointmentRequestData) => {
+    if (!currentPatient) {
+      alert('No patient selected. Please select a patient first.');
+      return;
+    }
+
     console.log('Appointment request submitted:', data);
+    
+    // Create new appointment from request data
+    const newAppointment = {
+      id: crypto.randomUUID(),
+      title: `${data.type.charAt(0).toUpperCase() + data.type.slice(1)} Appointment`,
+      type: data.type as 'consultation' | 'treatment' | 'lab' | 'imaging' | 'follow-up',
+      provider: data.provider,
+      date: data.preferredDates[0] || new Date().toISOString().split('T')[0],
+      time: data.preferredTimes[0] || '10:00 AM',
+      duration: '60 minutes',
+      location: 'To be confirmed',
+      status: 'requested' as const,
+      notes: data.reason,
+      preparationInstructions: [],
+      isVirtual: false,
+      reminder: true,
+      createdBy: user?.id || 'patient',
+      createdAt: new Date().toISOString(),
+      requestData: {
+        reason: data.reason,
+        urgency: data.urgency,
+        preferredDates: data.preferredDates,
+        preferredTimes: data.preferredTimes,
+        additionalNotes: data.additionalNotes
+      }
+    };
+
+    // Add appointment to patient's appointments
+    const updatedAppointments = [...(currentPatient.appointments || []), newAppointment];
+    actions.updatePatientData({ appointments: updatedAppointments });
+
     alert(`Appointment request submitted successfully!\n\nType: ${data.type}\nProvider: ${data.provider}\nReason: ${data.reason}\n\nYour request will be reviewed and you'll receive a confirmation within 24 hours.`);
     setShowAppointmentForm(false);
   };
@@ -56,15 +95,31 @@ const MyAppointments: React.FC = () => {
   };
 
   const handleReschedule = (appointmentId: string) => {
+    if (!currentPatient) return;
+    
     const appointment = appointments.find(app => app.id === appointmentId);
     if (appointment && confirm(`Reschedule ${appointment.title}?\n\nThis will send a rescheduling request to your care team.`)) {
+      const updatedAppointments = currentPatient.appointments.map(apt => 
+        apt.id === appointmentId 
+          ? { ...apt, notes: (apt.notes || '') + '\n[Rescheduling requested by patient]' }
+          : apt
+      );
+      actions.updatePatientData({ appointments: updatedAppointments });
       alert('Rescheduling request sent successfully!\n\nYour care team will contact you within 24 hours with available alternative times.');
     }
   };
 
   const handleCancel = (appointmentId: string) => {
+    if (!currentPatient) return;
+    
     const appointment = appointments.find(app => app.id === appointmentId);
     if (appointment && confirm(`Cancel ${appointment.title} on ${new Date(appointment.date).toLocaleDateString()}?\n\nThis action cannot be undone.`)) {
+      const updatedAppointments = currentPatient.appointments.map(apt => 
+        apt.id === appointmentId 
+          ? { ...apt, status: 'cancelled' as const }
+          : apt
+      );
+      actions.updatePatientData({ appointments: updatedAppointments });
       alert('Appointment cancelled successfully.\n\nYou will receive a confirmation email shortly. If you need to reschedule, please contact your care team.');
     }
   };
@@ -82,8 +137,8 @@ const MyAppointments: React.FC = () => {
     }
   };
 
-  // Mock appointments data
-  const appointments: Appointment[] = [
+  // Get appointments from current patient or default to sample data
+  const sampleAppointments: Appointment[] = [
     {
       id: '1',
       title: 'Oncology Consultation',
@@ -170,10 +225,16 @@ const MyAppointments: React.FC = () => {
     }
   ];
 
+  // Use patient appointments if available, otherwise show sample data
+  const appointments = currentPatient?.appointments?.length ? 
+    currentPatient.appointments : 
+    sampleAppointments;
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed': return 'bg-green-100 text-green-600';
       case 'scheduled': return 'bg-blue-100 text-blue-600';
+      case 'requested': return 'bg-yellow-100 text-yellow-600';
       case 'completed': return 'bg-gray-100 text-gray-600';
       case 'cancelled': return 'bg-red-100 text-red-600';
       default: return 'bg-gray-100 text-gray-600';

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { usePatient } from '../context/PatientContext';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import { AlertTriangle, Search, Clock, User, Phone, MessageSquare, ChevronRight, X } from 'lucide-react';
@@ -18,9 +19,19 @@ interface SideEffect {
 const SideEffects: React.FC = () => {
   const { state } = useAuth();
   const { user } = state;
+  const { state: patientState, actions } = usePatient();
+  const { currentPatient } = patientState;
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [showReportForm, setShowReportForm] = useState(false);
+  const [reportData, setReportData] = useState({
+    sideEffect: '',
+    severity: 'mild',
+    duration: '',
+    description: '',
+    medication: ''
+  });
 
   // Mock side effects data
   const sideEffects: SideEffect[] = [
@@ -138,15 +149,6 @@ const SideEffects: React.FC = () => {
     }
   };
 
-  const [showReportForm, setShowReportForm] = useState(false);
-  const [reportData, setReportData] = useState({
-    sideEffect: '',
-    severity: 'mild',
-    duration: '',
-    description: '',
-    medication: ''
-  });
-
   const handleReportSideEffect = () => {
     setShowReportForm(true);
   };
@@ -163,6 +165,28 @@ const SideEffects: React.FC = () => {
       alert('Please fill in the side effect name and description.');
       return;
     }
+
+    if (!currentPatient) {
+      alert('No patient selected. Please select a patient first.');
+      return;
+    }
+    
+    // Create new side effect report
+    const newReport = {
+      id: crypto.randomUUID(),
+      sideEffect: reportData.sideEffect,
+      severity: reportData.severity as 'mild' | 'moderate' | 'severe',
+      duration: reportData.duration,
+      description: reportData.description,
+      medication: reportData.medication || undefined,
+      reportedAt: new Date().toISOString(),
+      reportedBy: user?.id || 'patient',
+      status: 'reported' as const
+    };
+
+    // Add report to patient's side effect reports
+    const updatedReports = [...(currentPatient.sideEffectReports || []), newReport];
+    actions.updatePatientData({ sideEffectReports: updatedReports });
     
     alert(`Side effect report submitted successfully!\n\nSide Effect: ${reportData.sideEffect}\nSeverity: ${reportData.severity}\nDescription: ${reportData.description}\n\nYour care team will review this report and contact you within 24 hours.`);
     setShowReportForm(false);
@@ -314,6 +338,59 @@ const SideEffects: React.FC = () => {
             <p className="text-gray-600">
               Try adjusting your search terms or category filter.
             </p>
+          </div>
+        </Card>
+      )}
+
+      {/* My Side Effect Reports */}
+      {currentPatient?.sideEffectReports && currentPatient.sideEffectReports.length > 0 && (
+        <Card>
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">My Side Effect Reports</h2>
+          <div className="space-y-4">
+            {currentPatient.sideEffectReports
+              .sort((a, b) => new Date(b.reportedAt).getTime() - new Date(a.reportedAt).getTime())
+              .map((report) => (
+              <div key={report.id} className="border border-gray-200 rounded-lg p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="text-lg font-medium text-gray-900">{report.sideEffect}</h3>
+                  <div className="flex items-center space-x-2">
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      report.severity === 'severe' ? 'bg-red-100 text-red-600' :
+                      report.severity === 'moderate' ? 'bg-yellow-100 text-yellow-600' :
+                      'bg-green-100 text-green-600'
+                    }`}>
+                      {report.severity.charAt(0).toUpperCase() + report.severity.slice(1)}
+                    </span>
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      report.status === 'reported' ? 'bg-blue-100 text-blue-600' :
+                      report.status === 'reviewed' ? 'bg-orange-100 text-orange-600' :
+                      'bg-gray-100 text-gray-600'
+                    }`}>
+                      {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-gray-700 mb-2">{report.description}</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                  <div>
+                    <strong>Duration:</strong> {report.duration || 'Not specified'}
+                  </div>
+                  <div>
+                    <strong>Medication:</strong> {report.medication || 'Not specified'}
+                  </div>
+                  <div>
+                    <strong>Reported:</strong> {new Date(report.reportedAt).toLocaleDateString()}
+                  </div>
+                </div>
+                {report.careTeamNotes && (
+                  <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-blue-800">
+                      <strong>Care Team Notes:</strong> {report.careTeamNotes}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </Card>
       )}

@@ -320,9 +320,9 @@ const DrugComparisonTool: React.FC<DrugComparisonToolProps> = ({
     );
 
     if (currentDrug.rxcui === bestDrug.rxcui && currentDrug.rxcui !== worstDrug.rxcui) {
-      return <TrendingUp className="w-4 h-4 text-green-500" title="Best in category" />;
+      return <TrendingUp className="w-4 h-4 text-green-500" />;
     } else if (currentDrug.rxcui === worstDrug.rxcui && currentDrug.rxcui !== bestDrug.rxcui) {
-      return <TrendingUp className="w-4 h-4 text-red-500 rotate-180" title="Needs attention" />;
+      return <TrendingUp className="w-4 h-4 text-red-500 rotate-180" />;
     }
     return null;
   };

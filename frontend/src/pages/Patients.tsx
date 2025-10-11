@@ -7,11 +7,23 @@ import Card from '../components/UI/Card';
 import { Users, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Tooltip from '../components/UI/Tooltip';
+import OnboardingWizard from '../components/Patient/OnboardingWizard';
+import { useAuth } from '../context/AuthContext';
 
 const Patients: React.FC = () => {
   const navigate = useNavigate();
   const { state, dispatch } = usePatient();
+  const auth = useAuth();
   const { currentPatient } = state;
+  const userRole = auth.state?.user?.role || '';
+  const showOnboarding = (() => {
+    try {
+      const done = localStorage.getItem('osrx_onboarding_done') === '1';
+      const isPatient = String(userRole) === 'patient';
+      return isPatient && !done && !currentPatient;
+    } catch { return false; }
+  })();
+  const [onbOpen, setOnbOpen] = React.useState<boolean>(showOnboarding);
 
   const dismissOfflineBanner = () => {
     try {
@@ -44,6 +56,7 @@ const Patients: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <OnboardingWizard isOpen={onbOpen} onClose={() => setOnbOpen(false)} />
       {/* Offline persistence banner */}
       {state.lastSaveOffline && state.showOfflineBanner && (
         <div className="rounded-md border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800">

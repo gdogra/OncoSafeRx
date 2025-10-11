@@ -1,6 +1,6 @@
 import React from 'react';
 import { useComparison } from '../../contexts/ComparisonContext';
-import { Compare, Check, AlertCircle } from 'lucide-react';
+import { GitCompare as Compare, Check, AlertCircle } from 'lucide-react';
 import { Drug } from '../../types';
 import Tooltip from '../UI/Tooltip';
 

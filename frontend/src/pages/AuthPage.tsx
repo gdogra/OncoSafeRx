@@ -766,10 +766,10 @@ const AuthPage: React.FC = () => {
                   <div>
                     <div className="flex items-center space-x-2 mb-2">
                       <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                        Professional Role *
+                        I am a *
                       </label>
                       <Tooltip 
-                        content="Your role determines available features, permissions, and UI customization"
+                        content="This determines what features and information you'll see in the app"
                         type="help"
                         iconOnly
                       />
@@ -783,11 +783,20 @@ const AuthPage: React.FC = () => {
                         errors.role ? 'border-red-300' : 'border-gray-300'
                       }`}
                     >
-                      {roleOptions.map(option => (
-                        <option key={option.value} value={option.value}>
-                          {option.label} - {option.description}
-                        </option>
-                      ))}
+                      <option value="">Select your role...</option>
+                      <optgroup label="Patients & Caregivers">
+                        <option value="patient">Patient - Cancer patient managing your own care</option>
+                        <option value="caregiver">Caregiver - Family member or friend helping with care</option>
+                      </optgroup>
+                      <optgroup label="Healthcare Professionals">
+                        <option value="oncologist">Oncologist - Medical doctor specializing in cancer treatment</option>
+                        <option value="pharmacist">Pharmacist - Medication therapy expert</option>
+                        <option value="nurse">Nurse - Patient care and treatment coordination</option>
+                      </optgroup>
+                      <optgroup label="Research & Education">
+                        <option value="researcher">Researcher - Clinical research and trials</option>
+                        <option value="student">Student - Medical, pharmacy, or nursing student</option>
+                      </optgroup>
                     </select>
                     {errors.role && (
                       <p className="mt-1 text-xs text-red-600">{errors.role}</p>

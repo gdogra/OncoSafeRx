@@ -665,27 +665,52 @@ export class SupabaseAuthService {
       identity_data: user.identities?.[0]?.identity_data
     });
     
-    const role = user.user_metadata?.role || fallbackData?.role || 'oncologist'
+    // First try to get role from user_metadata, then fallback, then query database
+    let role = user.user_metadata?.role || fallbackData?.role;
     
     // BACKEND API DISABLED: The backend API at oncosaferx.onrender.com returns hardcoded
     // mock data that overrides correct Supabase database values. Disabling to ensure
     // users get correct role data from Supabase directly.
     let dbProfile = null;
-    console.log('🔧 Backend API disabled - using Supabase data directly for reliability');
+    console.log('🔧 Backend API disabled - querying Supabase database directly for role');
     
-    // Build profile, prioritizing backend data over auth metadata
-    console.log('🔍 ROLE DEBUG v2.1:', {
+    // Query Supabase database directly for user role if not found in metadata
+    if (!role) {
+      try {
+        console.log('🔍 Role not found in metadata, querying Supabase database for user:', user.email);
+        const { data: userData, error } = await supabase
+          .from('users')
+          .select('role')
+          .eq('email', user.email)
+          .single();
+        
+        if (userData && !error) {
+          role = userData.role;
+          console.log('✅ Found role in database:', role);
+        } else {
+          console.log('⚠️ No role found in database, using default');
+          role = 'student'; // Safe default
+        }
+      } catch (error) {
+        console.error('❌ Error querying database for role:', error);
+        role = 'student'; // Safe default
+      }
+    }
+    
+    // Build profile, prioritizing database data over auth metadata
+    console.log('🔍 ROLE DEBUG v3.0 ENHANCED - DIRECT DB QUERY:', {
+      userEmail: user.email,
       userMetadataRole: user.user_metadata?.role,
       fallbackRole: fallbackData?.role,
-      computedRole: role,
-      dbProfileRole: dbProfile?.role,
-      finalRole: dbProfile?.role || role,
-      dbProfile: dbProfile,
-      backendApiWorking: !!dbProfile
+      queriedDatabaseRole: role,
+      finalRole: role,
+      hadToQueryDatabase: !user.user_metadata?.role && !fallbackData?.role,
+      userMetadataFull: user.user_metadata,
+      timestamp: new Date().toISOString()
     });
     
-    // With backend API disabled, always use Supabase auth metadata as source of truth
-    const finalRole = role; // This is user.user_metadata?.role || fallbackData?.role || 'oncologist'
+    // Use role from metadata, fallback, or database query as source of truth
+    const finalRole = role; // This is user.user_metadata?.role || fallbackData?.role || database.role || 'student'
     
     console.log('🔧 Using Supabase metadata role directly:', { finalRole });
     

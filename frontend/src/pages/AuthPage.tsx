@@ -411,9 +411,6 @@ const AuthPage: React.FC = () => {
               : 'Join the precision oncology platform'
             }
           </p>
-          <div className="mt-2 text-xs text-gray-500">
-            Proxy enabled: {proxyEnabled === null ? 'checking…' : proxyEnabled ? 'yes' : 'no'} • Use proxy: {useProxy ? 'on' : 'off'} • Force proxy: {forceProxy ? 'on' : 'off'} {authModeInfo ? `• ${authModeInfo}` : ''}
-          </div>
         </div>
       </div>
 

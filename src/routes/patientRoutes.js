@@ -1,5 +1,6 @@
 import express from 'express';
 import supabaseService from '../config/supabase.js';
+import Joi from 'joi';
 import { optionalSupabaseAuth, authenticateSupabase } from '../middleware/supabaseAuth.js';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
@@ -428,6 +429,160 @@ router.post('/:id/sync-profile', optionalSupabaseAuth, async (req, res) => {
     return res.json({ ok: true, profile: up || payload });
   } catch (e) {
     return res.status(500).json({ error: e?.message || 'Failed to sync patient profile' });
+  }
+});
+
+// --- Medication sub-resources ---
+async function loadPatientById(userId, patientId) {
+  if (!supabaseService.enabled) {
+    const list = await supabaseService.listPatientsByUser(userId);
+    const rec = (list || []).find(r => String(r.id) === String(patientId));
+    if (!rec) return null;
+    return rec.data || rec;
+  }
+  const { data, error } = await supabaseService.client
+    .from('patients')
+    .select('id,user_id,data,created_at,updated_at')
+    .eq('user_id', userId)
+    .eq('id', patientId)
+    .single();
+  if (error) return null;
+  return data?.data || { id: data?.id, ...(data || {}) };
+}
+
+// Joi schemas for medication payloads
+const medicationBaseSchema = Joi.object({
+  id: Joi.string().optional(),
+  drugName: Joi.string().allow('', null),
+  dosage: Joi.string().max(120).allow('', null),
+  frequency: Joi.string().max(120).allow('', null),
+  route: Joi.string().max(60).allow('', null),
+  startDate: Joi.string().isoDate().allow('', null),
+  endDate: Joi.alternatives(Joi.string().isoDate(), Joi.allow(null)).optional(),
+  indication: Joi.string().allow('', null),
+  prescriber: Joi.string().allow('', null),
+  prescribedBy: Joi.string().allow('', null),
+  isActive: Joi.boolean().optional(),
+  adherence: Joi.alternatives(
+    Joi.string().valid('excellent', 'good', 'fair', 'poor'),
+    Joi.number().min(0).max(100)
+  ).optional(),
+  sideEffects: Joi.array().items(Joi.string()).optional(),
+  drug: Joi.object({
+    id: Joi.any().optional(),
+    rxcui: Joi.string().allow('', null).optional(),
+    name: Joi.string().allow('', null).optional(),
+    generic_name: Joi.string().allow('', null).optional(),
+  }).unknown(true).optional(),
+}).unknown(true);
+
+const createMedicationSchema = medicationBaseSchema.keys({
+  dosage: Joi.string().max(120).required(),
+  frequency: Joi.string().valid(
+    'Once daily', 'Twice daily', 'Three times daily', 'Four times daily',
+    'Every other day', 'Weekly', 'As needed', 'Other'
+  ).required(),
+  route: Joi.string().valid(
+    'oral','iv','im','sc','subcutaneous','topical','inhalation','sublingual','rectal','transdermal','ophthalmic','otic','nasal'
+  ).optional(),
+}).custom((value, helpers) => {
+  // Require either drugName or drug.name
+  if (!value.drugName && !(value.drug && value.drug.name)) {
+    return helpers.error('any.custom', { message: 'drugName or drug.name is required' });
+  }
+  return value;
+}, 'medication name presence');
+
+const updateMedicationSchema = medicationBaseSchema; // partial allowed
+
+router.get('/:id/medications', optionalSupabaseAuth, async (req, res) => {
+  try {
+    if (!req.user) {
+      req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'gdogra@gmail.com', role: 'oncologist', isDefault: true };
+      console.log('🔄 Using default user (Gautam) for medications list');
+    }
+    const pid = req.params.id;
+    const patient = await loadPatientById(req.user.id, pid);
+    if (!patient) return res.status(404).json({ error: 'Patient not found' });
+    const meds = Array.isArray(patient.medications) ? patient.medications : [];
+    return res.json({ medications: meds, offline: !supabaseService.enabled });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Failed to list medications' });
+  }
+});
+
+router.post('/:id/medications', optionalSupabaseAuth, async (req, res) => {
+  try {
+    if (!req.user) {
+      req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'gdogra@gmail.com', role: 'oncologist', isDefault: true };
+      console.log('🔄 Using default user (Gautam) for medication create');
+    }
+    const pid = req.params.id;
+    const medication = req.body?.medication || req.body;
+    if (!medication) return res.status(400).json({ error: 'Missing medication' });
+    const { error: vErr, value: medValue } = createMedicationSchema.validate(medication, { abortEarly: false });
+    if (vErr) return res.status(400).json({ error: 'Invalid medication', details: vErr.details.map(d => d.message) });
+
+    const patient = await loadPatientById(req.user.id, pid);
+    if (!patient) return res.status(404).json({ error: 'Patient not found' });
+
+    const meds = Array.isArray(patient.medications) ? patient.medications : [];
+    const id = medValue.id || `med-${Date.now()}`;
+    const newMed = { id, isActive: true, startDate: new Date().toISOString().split('T')[0], ...medValue };
+    const updated = { ...patient, id: pid, medications: [...meds, newMed] };
+    const saved = await supabaseService.upsertPatient(req.user.id, updated);
+    return res.json({ ok: true, medication: newMed, medications: updated.medications, patient: saved?.data || updated, offline: !supabaseService.enabled });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Failed to add medication' });
+  }
+});
+
+router.put('/:id/medications/:medId', optionalSupabaseAuth, async (req, res) => {
+  try {
+    if (!req.user) {
+      req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'gdogra@gmail.com', role: 'oncologist', isDefault: true };
+      console.log('🔄 Using default user (Gautam) for medication update');
+    }
+    const pid = req.params.id;
+    const medId = req.params.medId;
+    const patch = req.body?.medication || req.body || {};
+    const { error: vErr, value: patchValue } = updateMedicationSchema.validate(patch, { abortEarly: false });
+    if (vErr) return res.status(400).json({ error: 'Invalid medication update', details: vErr.details.map(d => d.message) });
+
+    const patient = await loadPatientById(req.user.id, pid);
+    if (!patient) return res.status(404).json({ error: 'Patient not found' });
+    const meds = Array.isArray(patient.medications) ? patient.medications : [];
+    const idx = meds.findIndex(m => String(m.id) === String(medId));
+    if (idx === -1) return res.status(404).json({ error: 'Medication not found' });
+    const updatedMed = { ...meds[idx], ...patchValue, id: medId };
+    const updatedMeds = meds.map(m => (String(m.id) === String(medId) ? updatedMed : m));
+    const updatedPatient = { ...patient, id: pid, medications: updatedMeds };
+    const saved = await supabaseService.upsertPatient(req.user.id, updatedPatient);
+    return res.json({ ok: true, medication: updatedMed, medications: updatedMeds, patient: saved?.data || updatedPatient, offline: !supabaseService.enabled });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Failed to update medication' });
+  }
+});
+
+router.delete('/:id/medications/:medId', optionalSupabaseAuth, async (req, res) => {
+  try {
+    if (!req.user) {
+      req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'gdogra@gmail.com', role: 'oncologist', isDefault: true };
+      console.log('🔄 Using default user (Gautam) for medication delete');
+    }
+    const pid = req.params.id;
+    const medId = req.params.medId;
+    const patient = await loadPatientById(req.user.id, pid);
+    if (!patient) return res.status(404).json({ error: 'Patient not found' });
+    const meds = Array.isArray(patient.medications) ? patient.medications : [];
+    const exists = meds.some(m => String(m.id) === String(medId));
+    if (!exists) return res.status(404).json({ error: 'Medication not found' });
+    const updatedMeds = meds.filter(m => String(m.id) !== String(medId));
+    const updatedPatient = { ...patient, id: pid, medications: updatedMeds };
+    const saved = await supabaseService.upsertPatient(req.user.id, updatedPatient);
+    return res.json({ ok: true, deleted: medId, medications: updatedMeds, patient: saved?.data || updatedPatient, offline: !supabaseService.enabled });
+  } catch (e) {
+    return res.status(500).json({ error: e?.message || 'Failed to delete medication' });
   }
 });
 

@@ -703,15 +703,23 @@ export class SupabaseAuthService {
       computedRole: role,
       dbProfileRole: dbProfile?.role,
       finalRole: dbProfile?.role || role,
-      dbProfile: dbProfile
+      dbProfile: dbProfile,
+      backendApiWorking: !!dbProfile
     });
+    
+    // TEMPORARY FIX: Skip backend API role override for this specific user
+    const finalRole = user.email === 'maudedanny3@gmail.com' ? 
+      (user.user_metadata?.role || fallbackData?.role || 'patient') : 
+      (dbProfile?.role || role);
+    
+    console.log('🔧 TEMPORARY ROLE OVERRIDE for maudedanny3@gmail.com:', { finalRole });
     
     const profile = {
       id: user.id,
       email: user.email || fallbackData?.email || '',
       firstName: dbProfile?.firstName || user.user_metadata?.first_name || fallbackData?.firstName || 'User',
       lastName: dbProfile?.lastName || user.user_metadata?.last_name || fallbackData?.lastName || 'Name',
-      role: dbProfile?.role || role,
+      role: finalRole,
       specialty: dbProfile?.specialty || user.user_metadata?.specialty || fallbackData?.specialty || '',
       institution: dbProfile?.institution || user.user_metadata?.institution || fallbackData?.institution || '',
       licenseNumber: dbProfile?.licenseNumber || user.user_metadata?.license_number || fallbackData?.licenseNumber || '',

@@ -56,6 +56,8 @@ const ForceLogout = lazy(() => import('./pages/ForceLogout'));
 
 // Patient-specific components
 const MyMedications = lazy(() => import('./pages/MyMedications'));
+const MyAppointments = lazy(() => import('./pages/MyAppointments'));
+const CarePlan = lazy(() => import('./pages/CarePlan'));
 const PatientEducation = lazy(() => import('./pages/PatientEducation'));
 const PatientSupport = lazy(() => import('./pages/PatientSupport'));
 const CareManagement = lazy(() => import('./pages/CareManagement'));
@@ -354,10 +356,31 @@ function AppWithAuth() {
                     </Layout>
                   </ProtectedRoute>
                 } />
+                <Route path="/my-profile" element={
+                  <ProtectedRoute requiredRole={['patient']}>
+                    <Layout>
+                      <Profile />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
                 <Route path="/my-medications" element={
                   <ProtectedRoute requiredRole={['patient', 'caregiver']}>
                     <Layout>
                       <MyMedications />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/my-appointments" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
+                    <Layout>
+                      <MyAppointments />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/care-plan" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
+                    <Layout>
+                      <CarePlan />
                     </Layout>
                   </ProtectedRoute>
                 } />
@@ -379,6 +402,29 @@ function AppWithAuth() {
                   <ProtectedRoute requiredRole={['patient', 'caregiver']}>
                     <Layout>
                       <PatientSupport />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                
+                {/* Education & Support routes */}
+                <Route path="/drug-lookup" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
+                    <Layout>
+                      <DrugSearch />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/side-effects" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
+                    <Layout>
+                      <PatientEducation />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/educational-resources" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
+                    <Layout>
+                      <PatientEducation />
                     </Layout>
                   </ProtectedRoute>
                 } />

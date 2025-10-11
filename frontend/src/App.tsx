@@ -59,6 +59,7 @@ const MyMedications = lazy(() => import('./pages/MyMedications'));
 const MyAppointments = lazy(() => import('./pages/MyAppointments'));
 const CarePlan = lazy(() => import('./pages/CarePlan'));
 const PatientEducation = lazy(() => import('./pages/PatientEducation'));
+const SideEffects = lazy(() => import('./pages/SideEffects'));
 const PatientSupport = lazy(() => import('./pages/PatientSupport'));
 const CareManagement = lazy(() => import('./pages/CareManagement'));
 
@@ -417,7 +418,7 @@ function AppWithAuth() {
                 <Route path="/side-effects" element={
                   <ProtectedRoute requiredRole={['patient', 'caregiver']}>
                     <Layout>
-                      <PatientEducation />
+                      <SideEffects />
                     </Layout>
                   </ProtectedRoute>
                 } />

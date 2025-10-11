@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
+import AppointmentRequestForm, { AppointmentRequestData } from '../components/Forms/AppointmentRequestForm';
 import { Calendar, Clock, MapPin, User, Phone, Plus, Video, MessageSquare, Bell, Info, CheckCircle, AlertTriangle } from 'lucide-react';
 
 interface Appointment {
@@ -25,10 +26,17 @@ const MyAppointments: React.FC = () => {
   const { user } = state;
 
   const [selectedView, setSelectedView] = useState<'upcoming' | 'past' | 'all'>('upcoming');
+  const [showAppointmentForm, setShowAppointmentForm] = useState(false);
 
   // Button handlers
   const handleRequestAppointment = () => {
-    alert('This would open an appointment request form. Feature coming soon!');
+    setShowAppointmentForm(true);
+  };
+
+  const handleAppointmentSubmit = (data: AppointmentRequestData) => {
+    console.log('Appointment request submitted:', data);
+    alert(`Appointment request submitted successfully!\n\nType: ${data.type}\nProvider: ${data.provider}\nReason: ${data.reason}\n\nYour request will be reviewed and you'll receive a confirmation within 24 hours.`);
+    setShowAppointmentForm(false);
   };
 
   const handleViewDetails = (appointmentId: string) => {
@@ -480,6 +488,13 @@ const MyAppointments: React.FC = () => {
           </button>
         </div>
       </Card>
+
+      {/* Appointment Request Form */}
+      <AppointmentRequestForm
+        isOpen={showAppointmentForm}
+        onClose={() => setShowAppointmentForm(false)}
+        onSubmit={handleAppointmentSubmit}
+      />
     </div>
   );
 };

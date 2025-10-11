@@ -74,6 +74,7 @@ const MyMedications: React.FC = () => {
 
   const handleCancelAdd = () => {
     setShowAddForm(false);
+    setEditingMedication(null);
     setNewMedication({
       name: '',
       dosage: '',
@@ -88,6 +89,44 @@ const MyMedications: React.FC = () => {
     if (confirm('Are you sure you want to remove this medication from your list?')) {
       setMedications(medications.filter(med => med.id !== medicationId));
     }
+  };
+
+  const handleEditMedication = (medication: Medication) => {
+    setEditingMedication(medication);
+    setNewMedication({
+      name: medication.name,
+      dosage: medication.dosage,
+      frequency: medication.frequency,
+      prescribedBy: medication.prescribedBy,
+      instructions: medication.instructions,
+      startDate: medication.startDate
+    });
+    setShowAddForm(true);
+  };
+
+  const handleUpdateMedication = () => {
+    if (!newMedication.name || !newMedication.dosage || !newMedication.frequency) {
+      alert('Please fill in all required fields (Name, Dosage, Frequency)');
+      return;
+    }
+
+    if (!editingMedication) return;
+
+    const updatedMedication: Medication = {
+      ...editingMedication,
+      name: newMedication.name,
+      dosage: newMedication.dosage,
+      frequency: newMedication.frequency,
+      prescribedBy: newMedication.prescribedBy || 'Self-reported',
+      instructions: newMedication.instructions || 'Take as directed',
+      startDate: newMedication.startDate
+    };
+
+    setMedications(medications.map(med => 
+      med.id === editingMedication.id ? updatedMedication : med
+    ));
+    
+    handleCancelAdd();
   };
 
   // Patient medication state
@@ -133,6 +172,7 @@ const MyMedications: React.FC = () => {
   ]);
 
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
   const [newMedication, setNewMedication] = useState({
     name: '',
     dosage: '',
@@ -219,7 +259,9 @@ const MyMedications: React.FC = () => {
       {showAddForm && (
         <Card>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Add New Medication</h2>
+            <h2 className="text-xl font-semibold text-gray-900">
+              {editingMedication ? 'Edit Medication' : 'Add New Medication'}
+            </h2>
             <button
               onClick={handleCancelAdd}
               className="p-1 text-gray-400 hover:text-gray-600"
@@ -323,10 +365,10 @@ const MyMedications: React.FC = () => {
               Cancel
             </button>
             <button
-              onClick={handleSaveMedication}
+              onClick={editingMedication ? handleUpdateMedication : handleSaveMedication}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              Add Medication
+              {editingMedication ? 'Update Medication' : 'Add Medication'}
             </button>
           </div>
         </Card>
@@ -454,6 +496,13 @@ const MyMedications: React.FC = () => {
                   
                   {/* Action buttons */}
                   <div className="flex flex-col space-y-2 ml-4">
+                    <button
+                      onClick={() => handleEditMedication(medication)}
+                      className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Edit medication"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
                     <button
                       onClick={() => handleDeleteMedication(medication.id)}
                       className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"

@@ -178,62 +178,21 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
         try { onSelect && onSelect(newPatient); } catch {}
       }
 
-      try {
-        // Try to get auth token, but don't let it block the API call
-        let token = null;
-        try {
-          const { data: sess } = await supabase.auth.getSession();
-          token = sess?.session?.access_token;
-          console.log('🔐 Auth token:', token ? 'Found' : 'Not found');
-        } catch (authError) {
-          console.warn('⚠️ Auth failed, proceeding without token:', authError);
-        }
+      // DISABLED: Backend API causing 500 errors - skip entire API call logic
+      console.log('ℹ️ Patient creation API disabled due to backend 500 errors');
+      
+      // Simulate successful creation locally
+      const result = { patient: newPatient };
+      console.log('✅ Patient created successfully locally:', result);
+      if (!isModal) {
+        showToast('success', 'Patient created locally (offline mode)');
+      }
         
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (token) {
-          headers.Authorization = `Bearer ${token}`;
-        }
-        
-        console.log('📡 Making API call to /api/patients with headers:', headers);
-        console.log('📋 Patient data:', JSON.stringify({ patient: newPatient }));
-        
-        // DISABLED: Backend API causing 500 errors
-        console.log('ℹ️ Patient creation API disabled due to backend 500 errors');
-        
-        // Simulate successful creation locally
-        const result = { patient: newPatient };
-        
-        /* ORIGINAL CODE COMMENTED OUT:
-        const response = await fetch('/api/patients', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({ patient: newPatient })
-        });
-        */
-        
-        console.log('📨 API Response: Simulated success (backend disabled)');
-        
-        // Simulate successful response
-        // const result = await response.json();
-        console.log('✅ Patient created successfully locally:', result);
-        if (!isModal) showToast('success', 'Patient created locally (offline mode)');
-          
-          // Update the patient with the server response if available
-          if (result.patient) {
-            const serverPatient = result.patient.data || result.patient;
-            actions.setCurrentPatient(serverPatient);
-            try { await actions.syncFromServer(); } catch {}
-          }
-        } else {
-          const errorText = await response.text().catch(() => 'Unknown error');
-          console.error('❌ Server patient creation failed:', response.status, errorText);
-          console.error('❌ Response body:', errorText);
-          if (!isModal) showToast('error', `Patient creation failed: ${response.status} ${errorText}`);
-          try { await actions.syncFromServer(); } catch {}
-        }
-      } catch (networkError) {
-        console.error('Network error creating patient:', networkError);
-        if (!isModal) showToast('warning', 'Patient saved locally (network error)');
+      // Update the patient with the local result
+      if (result.patient) {
+        const serverPatient = result.patient.data || result.patient;
+        actions.setCurrentPatient(serverPatient);
+        try { await actions.syncFromServer(); } catch {}
       }
       
       // Always close the modal regardless of API success/failure

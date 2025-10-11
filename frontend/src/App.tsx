@@ -174,21 +174,21 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 <Route path="/search" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
                     <Layout>
                       <DrugSearch />
                     </Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/interactions" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
                     <Layout>
                       <InteractionChecker />
                     </Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/curated" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
                     <Layout>
                       <CuratedInteractions />
                     </Layout>
@@ -202,7 +202,7 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 <Route path="/trials" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
                     <Layout>
                       <Trials />
                     </Layout>
@@ -216,7 +216,7 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 <Route path="/protocols" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
                     <Layout>
                       <Protocols />
                     </Layout>
@@ -239,14 +239,14 @@ function AppWithAuth() {
                 {!PATIENTS_DISABLED && (
                   <>
                 <Route path="/patients" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
                     <Layout>
                       <ServerPatients />
                     </Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/patients/all" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
                     <Layout>
                       <ServerPatients />
                     </Layout>
@@ -255,21 +255,21 @@ function AppWithAuth() {
                   </>
                 )}
                 <Route path="/collaboration" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
                     <Layout>
                       <Collaboration />
                     </Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/ai-insights" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
                     <Layout>
                       <AIInsights />
                     </Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/database" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
                     <Layout>
                       <DrugDatabase />
                     </Layout>
@@ -290,7 +290,7 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 <Route path="/pain" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
                     <Layout>
                       <Pain />
                     </Layout>
@@ -304,14 +304,14 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 <Route path="/ai" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
                     <Layout>
                       <AIRecommendations />
                     </Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/ehr" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
                     <Layout>
                       <EHRIntegration />
                     </Layout>
@@ -332,9 +332,46 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 <Route path="/auth-diagnostics" element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
                     <Layout>
                       <AuthDiagnostics />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                
+                {/* Patient-specific routes */}
+                <Route path="/my-care" element={
+                  <ProtectedRoute requiredRole={['patient']}>
+                    <Layout>
+                      <Dashboard />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/my-medications" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
+                    <Layout>
+                      <Dashboard />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/care-management" element={
+                  <ProtectedRoute requiredRole={['caregiver']}>
+                    <Layout>
+                      <Dashboard />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/education" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
+                    <Layout>
+                      <Help />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/support" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
+                    <Layout>
+                      <Help />
                     </Layout>
                   </ProtectedRoute>
                 } />

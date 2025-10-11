@@ -1,11 +1,98 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { hasPermission, getRoleConfig } from '../utils/roleConfig';
 import Card from '../components/UI/Card';
 import Tooltip from '../components/UI/Tooltip';
-import { Activity, Search, AlertTriangle, Dna, FileText, Users, TrendingUp, Shield, Brain, Target, Calendar, DollarSign, Zap, Heart, FlaskConical, Database, ShieldAlert } from 'lucide-react';
+import { Activity, Search, AlertTriangle, Dna, FileText, Users, TrendingUp, Shield, Brain, Target, Calendar, DollarSign, Zap, Heart, FlaskConical, Database, ShieldAlert, BookOpen, Stethoscope, MessageSquare } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
-  const features = [
+  const { state } = useAuth();
+  const { user } = state;
+  const userRole = user?.role || 'student';
+  
+  // Patient-specific features
+  const patientFeatures = [
+    {
+      icon: Heart,
+      title: 'My Care Dashboard',
+      description: 'View your treatment plan, medications, and upcoming appointments',
+      link: '/my-care',
+      color: 'bg-blue-500',
+      badge: 'Patient Portal',
+      features: ['Medication tracking', 'Appointment calendar', 'Treatment timeline', 'Communication']
+    },
+    {
+      icon: Stethoscope,
+      title: 'My Medications',
+      description: 'Track your medications, dosages, and side effects',
+      link: '/my-medications',
+      color: 'bg-green-500',
+      badge: 'Personal',
+      features: ['Current medications', 'Dosage tracking', 'Side effect reporting', 'Reminders']
+    },
+    {
+      icon: BookOpen,
+      title: 'Educational Resources',
+      description: 'Learn about your condition, treatments, and how to manage your care',
+      link: '/education',
+      color: 'bg-purple-500',
+      badge: 'Learning',
+      features: ['Treatment guides', 'Side effect management', 'Nutrition tips', 'Support groups']
+    },
+    {
+      icon: MessageSquare,
+      title: 'Support & Communication',
+      description: 'Connect with your care team and access support resources',
+      link: '/support',
+      color: 'bg-orange-500',
+      badge: 'Support',
+      features: ['Care team messaging', 'Support groups', 'Emergency contacts', 'Resources']
+    }
+  ];
+
+  // Caregiver-specific features
+  const caregiverFeatures = [
+    {
+      icon: Users,
+      title: 'Care Management',
+      description: 'Manage and coordinate care for your loved one',
+      link: '/care-management',
+      color: 'bg-teal-500',
+      badge: 'Caregiver',
+      features: ['Patient status', 'Medication management', 'Appointment tracking', 'Care coordination']
+    },
+    {
+      icon: Heart,
+      title: 'Patient Medications',
+      description: 'Track medications, reminders, and side effects',
+      link: '/my-medications',
+      color: 'bg-green-500',
+      badge: 'Medication',
+      features: ['Medication schedules', 'Side effect tracking', 'Pharmacy coordination', 'Reminders']
+    },
+    {
+      icon: BookOpen,
+      title: 'Educational Resources',
+      description: 'Learn how to provide the best support and care',
+      link: '/education',
+      color: 'bg-purple-500',
+      badge: 'Learning',
+      features: ['Caregiver guides', 'Communication tips', 'Stress management', 'Support networks']
+    },
+    {
+      icon: MessageSquare,
+      title: 'Support Resources',
+      description: 'Access support groups and resources for caregivers',
+      link: '/support',
+      color: 'bg-orange-500',
+      badge: 'Support',
+      features: ['Caregiver support', 'Respite care', 'Financial resources', 'Community groups']
+    }
+  ];
+
+  // Clinical features (for healthcare providers)
+  const clinicalFeatures = [
     {
       icon: Search,
       title: 'AI-Enhanced Drug Search',
@@ -187,6 +274,49 @@ const Dashboard: React.FC = () => {
     },
   ];
 
+  // Select features based on user role
+  const getFeatures = () => {
+    switch (userRole) {
+      case 'patient':
+        return patientFeatures;
+      case 'caregiver':
+        return caregiverFeatures;
+      case 'oncologist':
+      case 'pharmacist':
+      case 'nurse':
+      case 'researcher':
+      case 'student':
+        return [...clinicalFeatures, ...aiFeatures];
+      default:
+        return patientFeatures; // Default to patient view for safety
+    }
+  };
+
+  const selectedFeatures = getFeatures();
+
+  // Role-specific header text
+  const getHeaderText = () => {
+    switch (userRole) {
+      case 'patient':
+        return {
+          title: 'My Cancer Care Portal',
+          subtitle: 'Your personal dashboard for managing cancer treatment and care'
+        };
+      case 'caregiver':
+        return {
+          title: 'Caregiver Dashboard',
+          subtitle: 'Tools and resources to help you support your loved one\'s cancer care'
+        };
+      default:
+        return {
+          title: 'OncoSafeRx',
+          subtitle: 'The world\'s first AI-powered precision oncology platform with genomic optimization and predictive analytics'
+        };
+    }
+  };
+
+  const headerText = getHeaderText();
+
   return (
     <div className="space-y-8">
       
@@ -194,10 +324,10 @@ const Dashboard: React.FC = () => {
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">
           <Activity className="w-10 h-10 text-primary-600" />
-          <h1 className="text-4xl font-bold text-gray-900">OncoSafeRx</h1>
+          <h1 className="text-4xl font-bold text-gray-900">{headerText.title}</h1>
         </div>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-4">
-          The world's first AI-powered precision oncology platform with genomic optimization and predictive analytics
+          {headerText.subtitle}
         </p>
         <div className="flex items-center justify-center space-x-4 text-sm">
           <span className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-1 rounded-full font-medium">
@@ -216,7 +346,8 @@ const Dashboard: React.FC = () => {
       <div className="mb-8">
       </div>
 
-      {/* Stats */}
+      {/* Stats - Only show for clinical roles */}
+      {userRole !== 'patient' && userRole !== 'caregiver' && (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
@@ -244,16 +375,25 @@ const Dashboard: React.FC = () => {
           );
         })}
       </div>
+      )}
 
-      {/* Revolutionary AI Features - First of their kind */}
+      {/* Features section */}
       <div>
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Revolutionary AI Features</h2>
-          <p className="text-lg text-gray-600 mb-4">World's first AI-powered precision oncology capabilities</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            {userRole === 'patient' ? 'Your Care Tools' : 
+             userRole === 'caregiver' ? 'Caregiver Resources' : 
+             'Revolutionary AI Features'}
+          </h2>
+          <p className="text-lg text-gray-600 mb-4">
+            {userRole === 'patient' ? 'Tools to help you manage your cancer care' :
+             userRole === 'caregiver' ? 'Resources to support your loved one\'s care' :
+             'World\'s first AI-powered precision oncology capabilities'}
+          </p>
           <div className="w-24 h-1 bg-gradient-to-r from-purple-600 to-blue-600 mx-auto rounded-full"></div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {aiFeatures.map((feature, index) => {
+          {selectedFeatures.filter(f => f.isNew).map((feature, index) => {
             const Icon = feature.icon;
             return (
               <Link key={index} to={feature.link} className="group block h-full">
@@ -297,14 +437,23 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Traditional Platform Features */}
+      {/* Additional Features */}
+      {selectedFeatures.filter(f => !f.isNew).length > 0 && (
       <div>
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Core Platform Features</h2>
-          <p className="text-gray-600">Comprehensive oncology tools and clinical decision support</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            {userRole === 'patient' ? 'Additional Resources' : 
+             userRole === 'caregiver' ? 'Additional Tools' : 
+             'Core Platform Features'}
+          </h2>
+          <p className="text-gray-600">
+            {userRole === 'patient' ? 'More resources to support your care journey' :
+             userRole === 'caregiver' ? 'Additional tools for comprehensive care support' :
+             'Comprehensive oncology tools and clinical decision support'}
+          </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {features.map((feature, index) => {
+          {selectedFeatures.filter(f => !f.isNew).map((feature, index) => {
             const Icon = feature.icon;
             return (
               <Tooltip
@@ -352,6 +501,7 @@ const Dashboard: React.FC = () => {
           })}
         </div>
       </div>
+      )}
 
       {/* Quick Start */}
       <Card className="bg-gradient-to-r from-primary-50 to-blue-50 border-primary-200">

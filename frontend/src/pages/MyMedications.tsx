@@ -23,6 +23,21 @@ const MyMedications: React.FC = () => {
   const { state } = useAuth();
   const { user } = state;
 
+  // Button handlers
+  const handleEnableNotifications = () => {
+    alert('Notification settings would be configured here. This feature is coming soon!');
+  };
+
+  const handleMessageCareTeam = () => {
+    alert('This would open a secure messaging interface with your care team. Feature coming soon!');
+  };
+
+  const handleCallEmergency = () => {
+    if (confirm('Are you experiencing a medical emergency? Click OK to call the emergency line.')) {
+      window.open('tel:+1-800-EMERGENCY', '_self');
+    }
+  };
+
   // Mock medication data for patient view
   const [medications] = useState<Medication[]>([
     {
@@ -268,7 +283,10 @@ const MyMedications: React.FC = () => {
               <p className="text-blue-700 text-sm mt-1">
                 Never miss a dose! Set up notifications on your phone or use a pill organizer to stay on track with your medication schedule.
               </p>
-              <button className="mt-3 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
+              <button 
+                onClick={handleEnableNotifications}
+                className="mt-3 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+              >
                 Enable Notifications
               </button>
             </div>
@@ -288,10 +306,16 @@ const MyMedications: React.FC = () => {
                 Have questions about your medications or experiencing side effects? Your care team is here to help.
               </p>
               <div className="mt-3 space-x-3">
-                <button className="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700">
+                <button 
+                  onClick={handleMessageCareTeam}
+                  className="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700"
+                >
                   Message Care Team
                 </button>
-                <button className="px-4 py-2 border border-green-600 text-green-600 text-sm rounded-lg hover:bg-green-50">
+                <button 
+                  onClick={handleCallEmergency}
+                  className="px-4 py-2 border border-green-600 text-green-600 text-sm rounded-lg hover:bg-green-50"
+                >
                   Call Emergency Line
                 </button>
               </div>

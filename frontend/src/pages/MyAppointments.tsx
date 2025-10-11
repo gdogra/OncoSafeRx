@@ -26,6 +26,37 @@ const MyAppointments: React.FC = () => {
 
   const [selectedView, setSelectedView] = useState<'upcoming' | 'past' | 'all'>('upcoming');
 
+  // Button handlers
+  const handleRequestAppointment = () => {
+    alert('This would open an appointment request form. Feature coming soon!');
+  };
+
+  const handleViewDetails = (appointmentId: string) => {
+    alert(`This would show details for appointment ${appointmentId}. Feature coming soon!`);
+  };
+
+  const handleJoinMeeting = (appointmentId: string) => {
+    alert(`This would join the virtual meeting for appointment ${appointmentId}. Feature coming soon!`);
+  };
+
+  const handleReschedule = (appointmentId: string) => {
+    alert(`This would open rescheduling options for appointment ${appointmentId}. Feature coming soon!`);
+  };
+
+  const handleCancel = (appointmentId: string) => {
+    if (confirm('Are you sure you want to cancel this appointment?')) {
+      alert(`Appointment ${appointmentId} would be cancelled. Feature coming soon!`);
+    }
+  };
+
+  const handleMessageCareTeam = () => {
+    alert('This would open secure messaging with your care team. Feature coming soon!');
+  };
+
+  const handleCallOffice = () => {
+    alert('This would initiate a call to your healthcare provider office. Feature coming soon!');
+  };
+
   // Mock appointments data
   const appointments: Appointment[] = [
     {
@@ -195,7 +226,10 @@ const MyAppointments: React.FC = () => {
                 View Details
               </button>
               {nextAppointment.isVirtual && (
-                <button className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                <button 
+                  onClick={() => handleJoinMeeting(nextAppointment.id)}
+                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                >
                   <Video className="w-4 h-4 inline mr-1" />
                   Join
                 </button>
@@ -352,24 +386,39 @@ const MyAppointments: React.FC = () => {
                   <div className="flex flex-col space-y-2">
                     {appointment.status === 'scheduled' || appointment.status === 'confirmed' ? (
                       <>
-                        <button className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
+                        <button 
+                          onClick={() => handleViewDetails(appointment.id)}
+                          className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >
                           View Details
                         </button>
                         {appointment.isVirtual && (
-                          <button className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+                          <button 
+                            onClick={() => handleJoinMeeting(appointment.id)}
+                            className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+                          >
                             <Video className="w-4 h-4 inline mr-1" />
                             Join Meeting
                           </button>
                         )}
-                        <button className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50">
+                        <button 
+                          onClick={() => handleReschedule(appointment.id)}
+                          className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50"
+                        >
                           Reschedule
                         </button>
-                        <button className="px-3 py-1 text-sm text-red-600 hover:text-red-700">
+                        <button 
+                          onClick={() => handleCancel(appointment.id)}
+                          className="px-3 py-1 text-sm text-red-600 hover:text-red-700"
+                        >
                           Cancel
                         </button>
                       </>
                     ) : (
-                      <button className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50">
+                      <button 
+                        onClick={() => handleViewDetails(appointment.id)}
+                        className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50"
+                      >
                         View Details
                       </button>
                     )}
@@ -391,7 +440,10 @@ const MyAppointments: React.FC = () => {
                   : "No appointments found."
                 }
               </p>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+              <button 
+                onClick={handleRequestAppointment}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
                 Request New Appointment
               </button>
             </div>
@@ -403,17 +455,26 @@ const MyAppointments: React.FC = () => {
       <Card>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+          <button 
+            onClick={handleRequestAppointment}
+            className="flex items-center space-x-3 p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+          >
             <Plus className="w-5 h-5 text-blue-600" />
             <span className="font-medium text-blue-900">Request Appointment</span>
           </button>
           
-          <button className="flex items-center space-x-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+          <button 
+            onClick={handleMessageCareTeam}
+            className="flex items-center space-x-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+          >
             <MessageSquare className="w-5 h-5 text-green-600" />
             <span className="font-medium text-green-900">Message Care Team</span>
           </button>
           
-          <button className="flex items-center space-x-3 p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+          <button 
+            onClick={handleCallOffice}
+            className="flex items-center space-x-3 p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+          >
             <Phone className="w-5 h-5 text-purple-600" />
             <span className="font-medium text-purple-900">Call Office</span>
           </button>

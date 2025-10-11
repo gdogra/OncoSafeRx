@@ -54,6 +54,12 @@ const Logout = lazy(() => import('./pages/Logout'));
 const AuthDebug = lazy(() => import('./pages/AuthDebug'));
 const ForceLogout = lazy(() => import('./pages/ForceLogout'));
 
+// Patient-specific components
+const MyMedications = lazy(() => import('./pages/MyMedications'));
+const PatientEducation = lazy(() => import('./pages/PatientEducation'));
+const PatientSupport = lazy(() => import('./pages/PatientSupport'));
+const CareManagement = lazy(() => import('./pages/CareManagement'));
+
 // Feature flag to disable patient UI routes (build-time)
 const PATIENTS_DISABLED = String((import.meta as any)?.env?.VITE_PATIENTS_DISABLED || '').toLowerCase() === 'true';
 
@@ -351,28 +357,28 @@ function AppWithAuth() {
                 <Route path="/my-medications" element={
                   <ProtectedRoute requiredRole={['patient', 'caregiver']}>
                     <Layout>
-                      <Dashboard />
+                      <MyMedications />
                     </Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/care-management" element={
                   <ProtectedRoute requiredRole={['caregiver']}>
                     <Layout>
-                      <Dashboard />
+                      <CareManagement />
                     </Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/education" element={
                   <ProtectedRoute requiredRole={['patient', 'caregiver']}>
                     <Layout>
-                      <Help />
+                      <PatientEducation />
                     </Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/support" element={
                   <ProtectedRoute requiredRole={['patient', 'caregiver']}>
                     <Layout>
-                      <Help />
+                      <PatientSupport />
                     </Layout>
                   </ProtectedRoute>
                 } />

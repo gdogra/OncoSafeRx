@@ -34,23 +34,26 @@ const PatientEducation: React.FC = () => {
   };
 
   const handleResourceAction = (resource: EducationalResource) => {
-    if (resource.title === 'Understanding Your Cancer Diagnosis' && resource.type === 'article') {
+    // Route to detailed pages for core resources
+    if (resource.type === 'article' && resource.title === 'Understanding Your Cancer Diagnosis') {
       navigate('/education/understanding-diagnosis');
       return;
     }
-    const actions = {
-      video: () => setActiveArticle(resource),
-      pdf: () => setActiveArticle(resource),
-      interactive: () => setActiveArticle(resource),
-      article: () => setActiveArticle(resource)
-    };
+    if (resource.type === 'video' && resource.title === 'Managing Chemotherapy Side Effects') {
+      navigate('/education/video/chemo-side-effects');
+      return;
+    }
+    if (resource.type === 'pdf' && resource.title === 'Nutrition During Cancer Treatment') {
+      navigate('/education/pdf/nutrition-during-treatment');
+      return;
+    }
+    if (resource.type === 'interactive' && resource.title === 'Meditation for Cancer Patients') {
+      navigate('/education/interactive/meditation');
+      return;
+    }
 
-    const action = resource.type === 'video' ? actions.video :
-                  resource.type === 'pdf' ? actions.pdf :
-                  resource.type === 'interactive' ? actions.interactive :
-                  actions.article;
-    
-    action();
+    // Fallback: open inline preview modal
+    setActiveArticle(resource);
   };
 
   const categories = [

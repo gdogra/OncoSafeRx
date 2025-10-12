@@ -64,6 +64,9 @@ const PatientSupport = lazy(() => import('./pages/PatientSupport'));
 const CareManagement = lazy(() => import('./pages/CareManagement'));
 const PatientSuccessStories = lazy(() => import('./pages/PatientSuccessStories'));
 const ArticleUnderstandingDiagnosis = lazy(() => import('./pages/ArticleUnderstandingDiagnosis'));
+const ChemoSideEffectsVideo = lazy(() => import('./pages/ChemoSideEffectsVideo'));
+const NutritionDuringTreatmentPDF = lazy(() => import('./pages/NutritionDuringTreatmentPDF'));
+const MeditationInteractive = lazy(() => import('./pages/MeditationInteractive'));
 
 // Feature flag to disable patient UI routes (build-time)
 const PATIENTS_DISABLED = String((import.meta as any)?.env?.VITE_PATIENTS_DISABLED || '').toLowerCase() === 'true';
@@ -238,6 +241,27 @@ function AppWithAuth() {
                   <ProtectedRoute requiredRole={['patient', 'caregiver']}>
                     <Layout>
                       <ArticleUnderstandingDiagnosis />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/education/video/chemo-side-effects" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
+                    <Layout>
+                      <ChemoSideEffectsVideo />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/education/pdf/nutrition-during-treatment" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
+                    <Layout>
+                      <NutritionDuringTreatmentPDF />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/education/interactive/meditation" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
+                    <Layout>
+                      <MeditationInteractive />
                     </Layout>
                   </ProtectedRoute>
                 } />

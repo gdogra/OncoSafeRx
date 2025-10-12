@@ -739,11 +739,16 @@ export class SupabaseAuthService {
     
     console.log('🔧 Using Supabase metadata role directly:', { finalRole });
     
+    const local = (user.email || '').split('@')[0] || '';
+    const parts = local ? local.split(/[._-]+/).filter(Boolean) : [];
+    const toTitle = (s: string) => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
+    const derivedFirst = (user.user_metadata?.first_name) || (fallbackData?.firstName) || (parts[0] ? toTitle(parts[0].replace(/[0-9]+$/, '')) : '');
+    const derivedLast = (user.user_metadata?.last_name) || (fallbackData?.lastName) || (parts[1] ? toTitle(parts[1].replace(/[0-9]+$/, '')) : '');
     const profile = {
       id: user.id,
       email: user.email || fallbackData?.email || '',
-      firstName: dbProfile?.firstName || user.user_metadata?.first_name || fallbackData?.firstName || 'User',
-      lastName: dbProfile?.lastName || user.user_metadata?.last_name || fallbackData?.lastName || 'Name',
+      firstName: dbProfile?.firstName || derivedFirst || 'User',
+      lastName: dbProfile?.lastName || derivedLast || '',
       role: finalRole,
       specialty: dbProfile?.specialty || user.user_metadata?.specialty || fallbackData?.specialty || '',
       institution: dbProfile?.institution || user.user_metadata?.institution || fallbackData?.institution || '',

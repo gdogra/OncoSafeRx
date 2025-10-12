@@ -3,6 +3,8 @@ export interface UserProfile {
   email: string;
   firstName: string;
   lastName: string;
+  avatarUrl?: string;
+  avatarThumbUrl?: string;
   role: 'oncologist' | 'pharmacist' | 'nurse' | 'researcher' | 'student' | 'patient' | 'caregiver';
   specialty?: string;
   institution?: string;
@@ -69,6 +71,7 @@ export interface SignupData {
   password: string;
   firstName: string;
   lastName: string;
+  avatarUrl?: string;
   role: UserProfile['role'];
   specialty?: string;
   institution?: string;

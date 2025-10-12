@@ -20,12 +20,16 @@ import {
 } from 'lucide-react';
 import Card from '../UI/Card';
 import Tooltip from '../UI/Tooltip';
+import { useToast } from '../UI/Toast';
+import Modal from '../UI/Modal';
+import { supabase } from '../../lib/supabase';
 import PersonaSelector from './PersonaSelector';
 
 // Build timestamp: 2025-10-04-00:10 - DEBUG LOGGING DEPLOYED - CACHE BUST
 const UserProfile: React.FC = () => {
   const { state, actions } = useAuth();
   const { user } = state;
+  const { showToast } = useToast();
   
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'persona' | 'security'>('profile');
   
@@ -46,6 +50,26 @@ const UserProfile: React.FC = () => {
       setEditedPreferences(user.preferences || {} as UserPreferences);
     }
   }, [user]);
+
+  const isPatientOrCaregiver = (user?.role === 'patient' || user?.role === 'caregiver' || (isEditing && (editedUser.role === 'patient' || editedUser.role === 'caregiver')));
+
+  const applyTheme = React.useCallback((theme?: string) => {
+    try {
+      const root = document.documentElement;
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const useDark = theme === 'dark' || (theme === 'auto' && prefersDark);
+      root.classList[useDark ? 'add' : 'remove']('dark');
+      root.setAttribute('data-theme', theme || 'light');
+    } catch {}
+  }, []);
+
+  React.useEffect(() => {
+    applyTheme(user?.preferences?.theme as any);
+  }, [user?.preferences?.theme, applyTheme]);
+
+  React.useEffect(() => {
+    applyTheme(editedPreferences?.theme as any);
+  }, [editedPreferences?.theme, applyTheme]);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -54,6 +78,177 @@ const UserProfile: React.FC = () => {
     new: false,
     confirm: false
   });
+
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(user?.avatarThumbUrl || user?.avatarUrl);
+  const [cropOpen, setCropOpen] = useState(false);
+  const [cropDataUrl, setCropDataUrl] = useState<string | null>(null);
+  const [cropScale, setCropScale] = useState<number>(1.0);
+  const [cropOffset, setCropOffset] = useState<{x:number,y:number}>({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const dragStart = React.useRef<{x:number,y:number,ox:number,oy:number} | null>(null);
+  const [cropImgDim, setCropImgDim] = useState<{w:number,h:number}>({ w: 0, h: 0 });
+  const MAX_PREVIEW = 256;
+
+  const onPickAvatar = () => fileInputRef.current?.click();
+  // Resize helper (canvas) to reduce storage use
+  const resizeImage = (blob: Blob, maxSize = 512, quality = 0.85, square = false): Promise<{ dataUrl: string; blob: Blob; type: string }> => {
+    return new Promise((resolve, reject) => {
+      try {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Failed to read image'));
+        reader.onload = () => {
+          const img = new Image();
+          img.onload = () => {
+            
+            const canvas = document.createElement('canvas');
+            let { width, height } = img;
+            // Determine target size keeping aspect
+            let targetW = width, targetH = height;
+            if (square) {
+              // Fit shortest side to maxSize, then center-crop square
+              const scale = maxSize / Math.min(width, height);
+              targetW = Math.round(width * scale);
+              targetH = Math.round(height * scale);
+              canvas.width = maxSize; canvas.height = maxSize;
+            } else {
+              if (width > height && width > maxSize) {
+                targetH = Math.round((height * maxSize) / width);
+                targetW = maxSize;
+              } else if (height > width && height > maxSize) {
+                targetW = Math.round((width * maxSize) / height);
+                targetH = maxSize;
+              } else if (width === height && width > maxSize) {
+                targetW = maxSize; targetH = maxSize;
+              }
+              canvas.width = targetW; canvas.height = targetH;
+            }
+            const ctx = canvas.getContext('2d');
+            if (!ctx) { reject(new Error('Canvas not supported')); return; }
+            if (square) {
+              const temp = document.createElement('canvas');
+              temp.width = targetW; temp.height = targetH;
+              const tctx = temp.getContext('2d');
+              if (!tctx) { reject(new Error('Canvas not supported')); return; }
+              tctx.drawImage(img, 0, 0, targetW, targetH);
+              const sx = Math.max(0, Math.floor((targetW - maxSize) / 2));
+              const sy = Math.max(0, Math.floor((targetH - maxSize) / 2));
+              ctx.drawImage(temp, sx, sy, maxSize, maxSize, 0, 0, maxSize, maxSize);
+            } else {
+              ctx.drawImage(img, 0, 0, targetW, targetH);
+            }
+                // Prefer JPEG to save space
+            const mime = 'image/jpeg';
+            canvas.toBlob((blob) => {
+              if (!blob) { reject(new Error('Failed to create blob')); return; }
+              const dataUrl = canvas.toDataURL(mime, quality);
+              resolve({ dataUrl, blob, type: mime });
+            }, mime, quality);
+          };
+          img.onerror = () => reject(new Error('Invalid image'));
+          img.src = String(reader.result || '');
+        };
+        reader.readAsDataURL(blob);
+      } catch (err) {
+        reject(err as any);
+      }
+    });
+  };
+
+  const onAvatarSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { showToast('error', 'Please select an image'); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropDataUrl(String(reader.result || ''));
+      setCropScale(1.0);
+      setCropOpen(true);
+  React.useEffect(()=>{
+    const baseScale = MAX_PREVIEW/Math.min(cropImgDim.w||1,cropImgDim.h||1);
+    const sVal = baseScale*cropScale;
+    const drawW = cropImgDim.w*sVal; const drawH = cropImgDim.h*sVal;
+    const minX = Math.min(0, MAX_PREVIEW - drawW); const minY = Math.min(0, MAX_PREVIEW - drawH);
+    let nx = cropOffset.x; let ny = cropOffset.y;
+    if(nx>0) nx=0; if(ny>0) ny=0; if(nx<minX) nx=minX; if(ny<minY) ny=minY;
+    setCropOffset({ x: nx, y: ny });
+  }, [cropScale, cropImgDim.w, cropImgDim.h]);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Create square thumbnail with center-crop and zoom scale
+  const createCenterThumb = async (src: string, maxSize = 128, scale = 1.0, offsetX = 0, offsetY = 0): Promise<{ dataUrl: string; blob: Blob; type: string }> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = maxSize; canvas.height = maxSize;
+        const ctx = canvas.getContext('2d'); if (!ctx) { reject(new Error('Canvas unsupported')); return; }
+        const baseScale = maxSize / Math.min(img.width, img.height);
+        const s = baseScale * scale;
+        const drawW = img.width * s; const drawH = img.height * s;
+        // Apply offset (clamped by caller)
+        const dx = offsetX; const dy = offsetY;
+        ctx.drawImage(img, dx, dy, drawW, drawH);
+        const mime = 'image/jpeg';
+        canvas.toBlob((blob) => {
+          if (!blob) { reject(new Error('Blob failed')); return; }
+          resolve({ dataUrl: canvas.toDataURL(mime, 0.85), blob, type: mime });
+        }, mime, 0.85);
+      };
+      img.onerror = () => reject(new Error('Invalid image'));
+      img.src = src;
+    });
+  };
+
+  const confirmCropAndUpload = async () => {
+    if (!cropDataUrl) { setCropOpen(false); return; }
+    try {
+      // Download data URL as Blob for resizing
+      const resp = await fetch(cropDataUrl);
+      const blob = await resp.blob();
+      const large = await resizeImage(blob, 512, 0.85, false);
+      const thumb = await createCenterThumb(cropDataUrl, 128, cropScale, cropOffset.x, cropOffset.y);
+      const base = `${user.id}/${Date.now()}`;
+      const { error: upErr } = await supabase.storage.from('avatars').upload(`${base}.jpg`, large.blob, { upsert: true, contentType: large.type });
+      let upErr2: any = null;
+      if (!upErr) {
+        const r = await supabase.storage.from('avatars').upload(`${base}-thumb.jpg`, thumb.blob, { upsert: true, contentType: thumb.type });
+        upErr2 = r.error;
+      }
+      if (!upErr && !upErr2) {
+        const { data: d1 } = supabase.storage.from('avatars').getPublicUrl(`${base}.jpg`);
+        const { data: d2 } = supabase.storage.from('avatars').getPublicUrl(`${base}-thumb.jpg`);
+        const url = d1?.publicUrl || '';
+        const thumbUrl = d2?.publicUrl || '';
+        if (url) {
+          setAvatarPreview(thumbUrl || url);
+          setEditedUser(prev => ({ ...prev, avatarUrl: url, avatarThumbUrl: thumbUrl || url } as any));
+          showToast('success', 'Profile photo uploaded (cropped)');
+          setCropOpen(false);
+          return;
+        }
+      }
+      throw upErr || upErr2 || new Error('Upload failed');
+    } catch {
+      try {
+        const resp = await fetch(cropDataUrl);
+        const blob = await resp.blob();
+        const large = await resizeImage(blob, 512, 0.85, false);
+        const thumb = await createCenterThumb(cropDataUrl, 128, cropScale, cropOffset.x, cropOffset.y);
+        setAvatarPreview(thumb.dataUrl || large.dataUrl);
+        setEditedUser(prev => ({ ...prev, avatarUrl: large.dataUrl, avatarThumbUrl: thumb.dataUrl } as any));
+        showToast('warning', 'Saved locally (optimized). Configure Storage for hosting.');
+        setCropOpen(false);
+      } catch {
+        setAvatarPreview(cropDataUrl);
+        setEditedUser(prev => ({ ...prev, avatarUrl: cropDataUrl!, avatarThumbUrl: cropDataUrl! } as any));
+        showToast('warning', 'Saved locally. Configure Storage for hosting.');
+        setCropOpen(false);
+      }
+    }
+  };
 
   if (!user) {
     return (
@@ -201,16 +396,58 @@ const UserProfile: React.FC = () => {
           >
             Auth Diagnostics
           </a>
-          <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-            <span className="text-lg font-semibold text-primary-700">
-              {user.firstName?.charAt(0) || '?'}{user.lastName?.charAt(0) || '?'}
-            </span>
+          <div className="w-12 h-12 rounded-full overflow-hidden bg-primary-100 flex items-center justify-center">
+            {avatarPreview ? (
+              <img src={avatarPreview} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-lg font-semibold text-primary-700">
+                {user.firstName?.charAt(0) || '?'}{user.lastName?.charAt(0) || '?'}
+              </span>
+            )}
           </div>
-          <Tooltip content="Upload profile picture (feature coming soon)" position="left">
-            <button className="p-2 text-gray-400 hover:text-gray-600 cursor-not-allowed">
+          <Tooltip content="Upload profile picture" position="left">
+            <button onClick={onPickAvatar} className="p-2 text-gray-500 hover:text-gray-700">
               <Camera className="w-5 h-5" />
             </button>
           </Tooltip>
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={onAvatarSelected} />
+
+          {/* Crop Modal */}
+          <Modal isOpen={cropOpen} onClose={() => setCropOpen(false)} title="Adjust Profile Photo" size="md">
+            <div className="space-y-4">
+              <div className="flex items-center justify-center">
+                <div className="w-64 h-64 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
+                  {cropDataUrl && (
+                    <img
+                      src={cropDataUrl}
+                      alt="Crop preview"
+                      style={{ transform: `translate(${cropOffset.x}px, ${cropOffset.y}px) scale(${cropScale})` }}
+                      className="max-w-none select-none cursor-grab"
+                      draggable={false}
+                      onLoad={(e:any)=>{ const i=e.currentTarget; setCropImgDim({ w: i.naturalWidth, h: i.naturalHeight }); setCropOffset({x:0,y:0}); }}
+                      onMouseDown={(e)=>{ dragStart.current = { x: e.clientX, y: e.clientY, ox: cropOffset.x, oy: cropOffset.y }; setDragging(true); }}
+                      onMouseMove={(e)=>{ if(!dragging||!dragStart.current) return; const dx=e.clientX-dragStart.current.x; const dy=e.clientY-dragStart.current.y; const baseScale=MAX_PREVIEW/Math.min(cropImgDim.w||1,cropImgDim.h||1); const s=baseScale*cropScale; const drawW=cropImgDim.w*s; const drawH=cropImgDim.h*s; const minX=Math.min(0, MAX_PREVIEW - drawW); const minY=Math.min(0, MAX_PREVIEW - drawH); let nx=dragStart.current.ox+dx; let ny=dragStart.current.oy+dy; if(nx>0) nx=0; if(ny>0) ny=0; if(nx<minX) nx=minX; if(ny<minY) ny=minY; setCropOffset({ x: nx, y: ny }); }}
+                      onMouseUp={()=>{ setDragging(false); dragStart.current=null; }}
+                      onMouseLeave={()=>{ setDragging(false); dragStart.current=null; }}
+                      onTouchStart={(e)=>{ const t=e.touches[0]; dragStart.current={ x: t.clientX, y: t.clientY, ox: cropOffset.x, oy: cropOffset.y }; setDragging(true); }}
+                      onTouchMove={(e)=>{ if(!dragging||!dragStart.current) return; const t=e.touches[0]; const dx=t.clientX-dragStart.current.x; const dy=t.clientY-dragStart.current.y; const baseScale=MAX_PREVIEW/Math.min(cropImgDim.w||1,cropImgDim.h||1); const s=baseScale*cropScale; const drawW=cropImgDim.w*s; const drawH=cropImgDim.h*s; const minX=Math.min(0, MAX_PREVIEW - drawW); const minY=Math.min(0, MAX_PREVIEW - drawH); let nx=dragStart.current.ox+dx; let ny=dragStart.current.oy+dy; if(nx>0) nx=0; if(ny>0) ny=0; if(nx<minX) nx=minX; if(ny<minY) ny=minY; setCropOffset({ x: nx, y: ny }); }}
+                      onTouchEnd={()=>{ setDragging(false); dragStart.current=null; }}
+                    />
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">Zoom</label>
+                <input type="range" min="1" max="3" step="0.05" value={cropScale}
+                  onChange={(e) => setCropScale(parseFloat(e.target.value))}
+                  className="w-full" />
+              </div>
+              <div className="flex justify-end gap-2">
+                <button onClick={() => setCropOpen(false)} className="px-4 py-2 border border-gray-300 rounded">Cancel</button>
+                <button onClick={confirmCropAndUpload} className="px-4 py-2 bg-primary-600 text-white rounded">Save</button>
+              </div>
+            </div>
+          </Modal>
         </div>
       </div>
 
@@ -308,6 +545,7 @@ const UserProfile: React.FC = () => {
               </div>
             </div>
 
+            { !isPatientOrCaregiver && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Professional Role
@@ -350,6 +588,7 @@ const UserProfile: React.FC = () => {
               </div>
             )}
 
+            { !isPatientOrCaregiver && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Institution
@@ -365,6 +604,7 @@ const UserProfile: React.FC = () => {
                 <Building className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
               </div>
             </div>
+            )
 
             {(user.role === 'oncologist' || user.role === 'pharmacist' || 
               (isEditing && (editedUser.role === 'oncologist' || editedUser.role === 'pharmacist'))) && (
@@ -385,6 +625,7 @@ const UserProfile: React.FC = () => {
               </div>
             )}
 
+            { !isPatientOrCaregiver && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Years of Experience
@@ -402,6 +643,7 @@ const UserProfile: React.FC = () => {
                 <Calendar className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
               </div>
             </div>
+            )
           </div>
 
           {isEditing && (

@@ -167,6 +167,8 @@ export class SimpleAuthService {
         email: updates.email || currentProfile?.email || 'oncologist@hospital.com',
         firstName: updates.firstName || currentProfile?.firstName || 'Doctor',
         lastName: updates.lastName || currentProfile?.lastName || 'User',
+        avatarUrl: updates.avatarUrl || currentProfile?.avatarUrl,
+        avatarThumbUrl: (updates as any).avatarThumbUrl || currentProfile?.avatarThumbUrl,
         role: updates.role || currentProfile?.role || 'oncologist',
         specialty: updates.specialty || currentProfile?.specialty || 'Medical Oncology',
         institution: updates.institution || currentProfile?.institution || 'Hospital',

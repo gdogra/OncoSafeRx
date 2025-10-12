@@ -593,12 +593,18 @@ const MyAppointments: React.FC = () => {
                             Join Meeting
                           </button>
                         )}
-                        <button 
-                          onClick={() => handleReschedule(appointment.id)}
-                          className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50"
-                        >
-                          Reschedule
-                        </button>
+                        {!appointment.rescheduleRequested ? (
+                          <button 
+                            onClick={() => handleReschedule(appointment.id)}
+                            className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50"
+                          >
+                            Reschedule
+                          </button>
+                        ) : (
+                          <span className="px-3 py-1 text-xs bg-yellow-100 text-yellow-700 rounded-full text-center">
+                            Reschedule Requested
+                          </span>
+                        )}
                         <button 
                           onClick={() => handleCancel(appointment.id)}
                           className="px-3 py-1 text-sm text-red-600 hover:text-red-700"

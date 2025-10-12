@@ -545,66 +545,67 @@ const UserProfile: React.FC = () => {
               </div>
             </div>
 
-            { !isPatientOrCaregiver && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Professional Role
-              </label>
-              <div className="relative">
-                <select
-                  value={isEditing ? editedUser.role || '' : user.role}
-                  onChange={(e) => setEditedUser(prev => ({ ...prev, role: e.target.value as any }))}
-                  disabled={!isEditing}
-                  className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
-                >
-                  <option value="oncologist">Oncologist</option>
-                  <option value="pharmacist">Pharmacist</option>
-                  <option value="nurse">Nurse</option>
-                  <option value="researcher">Researcher</option>
-                  <option value="student">Student</option>
-                </select>
-                <Stethoscope className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
-              </div>
-            </div>
+            {!isPatientOrCaregiver && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Professional Role
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={isEditing ? editedUser.role || '' : user.role}
+                      onChange={(e) => setEditedUser(prev => ({ ...prev, role: e.target.value as any }))}
+                      disabled={!isEditing}
+                      className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    >
+                      <option value="oncologist">Oncologist</option>
+                      <option value="pharmacist">Pharmacist</option>
+                      <option value="nurse">Nurse</option>
+                      <option value="researcher">Researcher</option>
+                      <option value="student">Student</option>
+                    </select>
+                    <Stethoscope className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
+                  </div>
+                </div>
 
-            {(user.role === 'oncologist' || (isEditing && editedUser.role === 'oncologist')) && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Specialty
-                </label>
-                <select
-                  value={isEditing ? editedUser.specialty || '' : user.specialty || ''}
-                  onChange={(e) => setEditedUser(prev => ({ ...prev, specialty: e.target.value }))}
-                  disabled={!isEditing}
-                  className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
-                >
-                  <option value="">Select specialty...</option>
-                  {specialtyOptions.map(specialty => (
-                    <option key={specialty} value={specialty}>
-                      {specialty}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                {(user.role === 'oncologist' || (isEditing && editedUser.role === 'oncologist')) && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Specialty
+                    </label>
+                    <select
+                      value={isEditing ? editedUser.specialty || '' : user.specialty || ''}
+                      onChange={(e) => setEditedUser(prev => ({ ...prev, specialty: e.target.value }))}
+                      disabled={!isEditing}
+                      className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    >
+                      <option value="">Select specialty...</option>
+                      {specialtyOptions.map(specialty => (
+                        <option key={specialty} value={specialty}>
+                          {specialty}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Institution
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={isEditing ? editedUser.institution || '' : user.institution || ''}
+                      onChange={(e) => setEditedUser(prev => ({ ...prev, institution: e.target.value }))}
+                      disabled={!isEditing}
+                      className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    />
+                    <Building className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
+                  </div>
+                </div>
+              </>
             )}
-
-            { !isPatientOrCaregiver && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Institution
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={isEditing ? editedUser.institution || '' : user.institution || ''}
-                  onChange={(e) => setEditedUser(prev => ({ ...prev, institution: e.target.value }))}
-                  disabled={!isEditing}
-                  className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
-                />
-                <Building className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
-              </div>
-            </div>
-            )
 
             {(user.role === 'oncologist' || user.role === 'pharmacist' || 
               (isEditing && (editedUser.role === 'oncologist' || editedUser.role === 'pharmacist'))) && (
@@ -625,25 +626,25 @@ const UserProfile: React.FC = () => {
               </div>
             )}
 
-            { !isPatientOrCaregiver && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Years of Experience
-              </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  min="0"
-                  max="50"
-                  value={isEditing ? editedUser.yearsExperience || '' : user.yearsExperience || ''}
-                  onChange={(e) => setEditedUser(prev => ({ ...prev, yearsExperience: parseInt(e.target.value) || undefined }))}
-                  disabled={!isEditing}
-                  className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
-                />
-                <Calendar className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
+            {!isPatientOrCaregiver && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Years of Experience
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    max="50"
+                    value={isEditing ? editedUser.yearsExperience || '' : user.yearsExperience || ''}
+                    onChange={(e) => setEditedUser(prev => ({ ...prev, yearsExperience: parseInt(e.target.value) || undefined }))}
+                    disabled={!isEditing}
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                  />
+                  <Calendar className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
+                </div>
               </div>
-            </div>
-            )
+            )}
           </div>
 
           {isEditing && (

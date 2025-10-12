@@ -22,6 +22,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { SearchFilter } from '../hooks/useAdvancedSearch';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 
 interface DrugCategoryStats {
   category: string;
@@ -378,6 +379,7 @@ const DrugDatabase: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Drug Database' }]} />
       {/* Header */}
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">

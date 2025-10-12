@@ -62,6 +62,8 @@ const PatientEducation = lazy(() => import('./pages/PatientEducation'));
 const SideEffects = lazy(() => import('./pages/SideEffects'));
 const PatientSupport = lazy(() => import('./pages/PatientSupport'));
 const CareManagement = lazy(() => import('./pages/CareManagement'));
+const PatientSuccessStories = lazy(() => import('./pages/PatientSuccessStories'));
+const ArticleUnderstandingDiagnosis = lazy(() => import('./pages/ArticleUnderstandingDiagnosis'));
 
 // Feature flag to disable patient UI routes (build-time)
 const PATIENTS_DISABLED = String((import.meta as any)?.env?.VITE_PATIENTS_DISABLED || '').toLowerCase() === 'true';
@@ -215,6 +217,27 @@ function AppWithAuth() {
                   <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
                     <Layout>
                       <Trials />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/education" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse', 'student']}>
+                    <Layout>
+                      <PatientEducation />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/stories" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
+                    <Layout>
+                      <PatientSuccessStories />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/education/understanding-diagnosis" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
+                    <Layout>
+                      <ArticleUnderstandingDiagnosis />
                     </Layout>
                   </ProtectedRoute>
                 } />

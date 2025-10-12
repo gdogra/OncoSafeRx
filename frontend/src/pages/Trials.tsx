@@ -6,6 +6,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 import AutoComplete, { AutoCompleteOption } from '../components/UI/AutoComplete';
 import { useSelection } from '../context/SelectionContext';
 import { inferBiomarkerForDrug } from '../utils/biomarkers';
@@ -226,6 +227,7 @@ const Trials: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Clinical Trials' }]} />
       <h1 className="text-2xl font-bold text-gray-900">Clinical Trials (MVP)</h1>
       <Card>
         <div className="grid md:grid-cols-6 gap-3">

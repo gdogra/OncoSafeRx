@@ -1,5 +1,6 @@
 import React from 'react';
 import RealWorldAnalytics from '../components/Analytics/RealWorldAnalytics';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 import FeatureErrorBoundary from '../components/ErrorBoundary/FeatureErrorBoundary';
 
 const Analytics: React.FC = () => {
@@ -9,6 +10,8 @@ const Analytics: React.FC = () => {
       fallbackMessage="The analytics dashboard is temporarily unavailable. This may be due to data processing or connectivity issues."
     >
       <div className="space-y-6">
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Analytics' }]} />
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Analytics' }]} />
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Real-World Analytics</h1>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">

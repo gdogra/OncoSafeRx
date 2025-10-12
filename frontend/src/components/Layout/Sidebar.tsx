@@ -445,6 +445,22 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             requiresPermission: null
           },
           { 
+            path: '/stories', 
+            label: 'Success Stories', 
+            icon: Heart, 
+            description: 'Real-world patient experiences',
+            roles: ['patient', 'caregiver'],
+            requiresPermission: null
+          },
+          { 
+            path: '/education/understanding-diagnosis', 
+            label: 'Understanding Diagnosis', 
+            icon: BookOpen, 
+            description: 'Cancer types, staging, and expectations',
+            roles: ['patient', 'caregiver'],
+            requiresPermission: null
+          },
+          { 
             path: '/support', 
             label: 'Support & Community', 
             icon: MessageSquare, 

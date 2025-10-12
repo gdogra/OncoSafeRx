@@ -4,6 +4,8 @@ import ClinicalDecisionSupport from '../components/AI/ClinicalDecisionSupport';
 import Modal from '../components/UI/Modal';
 import PatientSelector from '../components/Patient/PatientSelector';
 import { usePatient } from '../context/PatientContext';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
+import { useAuth } from '../context/AuthContext';
 
 const ClinicalDecisionSupportPage: React.FC = () => {
   const { state, actions } = usePatient();
@@ -11,6 +13,8 @@ const ClinicalDecisionSupportPage: React.FC = () => {
   const navigate = useNavigate();
   const { currentPatient, hydrated, recentPatients } = state as any;
   const [showPicker, setShowPicker] = React.useState(false);
+  const { state: authState } = useAuth();
+  const userRole = authState?.user?.role || 'guest';
   
   // Mock patient profile for demonstration when no patient is selected
   const DISABLE_SAMPLE_PATIENTS = String((import.meta as any)?.env?.VITE_DISABLE_SAMPLE_PATIENTS || '').toLowerCase() === 'true';
@@ -210,6 +214,7 @@ const ClinicalDecisionSupportPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Clinical Decision Support' }]} />
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">AI Clinical Decision Support</h1>
         {currentPatient && (
@@ -226,11 +231,15 @@ const ClinicalDecisionSupportPage: React.FC = () => {
           <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-sm text-yellow-800">
               {DISABLE_SAMPLE_PATIENTS
-                ? 'No patient selected. Select a patient from the Patients page to see personalized recommendations.'
+                ? (userRole === 'patient' || userRole === 'caregiver'
+                    ? 'No profile selected. Open your profile to see personalized recommendations.'
+                    : 'No patient selected. Select a patient from the Patients page to see personalized recommendations.')
                 : <>No patient selected - showing demo recommendations for: <span className="font-semibold">{patientName}</span></>}
             </p>
             <p className="text-xs text-yellow-600 mt-1">
-              Select a patient from the Patients page to see personalized recommendations
+              {userRole === 'patient' || userRole === 'caregiver'
+                ? 'Open your profile to personalize recommendations'
+                : 'Select a patient from the Patients page to see personalized recommendations'}
             </p>
             <div className="mt-3 flex items-center gap-2">
               <button
@@ -245,11 +254,15 @@ const ClinicalDecisionSupportPage: React.FC = () => {
                     const path = location.pathname + (location.search || '');
                     localStorage.setItem('osrx_return_path', path);
                   } catch {}
-                  navigate('/patients/all');
+                  if (userRole === 'patient' || userRole === 'caregiver') {
+                    navigate(userRole === 'patient' ? '/my-profile' : '/patient-info');
+                  } else {
+                    navigate('/patients/all');
+                  }
                 }}
                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
               >
-                Open Patients Page
+                {userRole === 'patient' || userRole === 'caregiver' ? 'Open My Profile' : 'Open Patients Page'}
               </button>
             </div>
           </div>

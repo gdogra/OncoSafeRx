@@ -4,6 +4,7 @@ import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import ProtocolDetailModal from '../components/Protocols/ProtocolDetailModal';
 import { FileText, ExternalLink, Search, Calendar, Users, TrendingUp } from 'lucide-react';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 
 const Protocols: React.FC = () => {
   const [searchParams] = useSearchParams();

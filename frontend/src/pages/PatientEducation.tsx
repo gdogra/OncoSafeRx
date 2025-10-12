@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/UI/Card';
 import { BookOpen, Play, Download, ExternalLink, Search, Heart, Pill, Shield, Users, ArrowRight, Star, Clock, User } from 'lucide-react';
 import Modal from '../components/UI/Modal';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 
 interface EducationalResource {
   id: string;
@@ -21,16 +23,21 @@ const PatientEducation: React.FC = () => {
   const { state } = useAuth();
   const { user } = state;
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showStories, setShowStories] = useState(false);
   const [activeArticle, setActiveArticle] = useState<EducationalResource | null>(null);
 
   // Button handlers
   const handleReadStories = () => {
-    setShowStories(true);
+    navigate('/stories');
   };
 
   const handleResourceAction = (resource: EducationalResource) => {
+    if (resource.title === 'Understanding Your Cancer Diagnosis' && resource.type === 'article') {
+      navigate('/education/understanding-diagnosis');
+      return;
+    }
     const actions = {
       video: () => setActiveArticle(resource),
       pdf: () => setActiveArticle(resource),
@@ -146,6 +153,8 @@ const PatientEducation: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Educational Resources' }]} />
+
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Educational Resources</h1>

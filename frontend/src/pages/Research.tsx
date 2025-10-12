@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Card from '../components/UI/Card';
 import Tooltip from '../components/UI/Tooltip';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { 
   BarChart3, 
   Users, 
@@ -581,6 +582,7 @@ const Research: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Research' }]} />
       {/* Header */}
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">

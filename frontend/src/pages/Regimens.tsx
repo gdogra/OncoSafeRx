@@ -6,6 +6,7 @@ import LoadingSpinner from '../components/UI/LoadingSpinner';
 import Tooltip from '../components/UI/Tooltip';
 import EnhancedDoseCalculator from '../components/Dosing/EnhancedDoseCalculator';
 import { Search, Download, FileText, Calculator, Copy, Check, AlertTriangle, Info, Filter, Shield } from 'lucide-react';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 
 type Regimen = {
   id: string;
@@ -218,6 +219,7 @@ const Regimens: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Regimens' }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Regimen Templates</h1>
         <div className="flex items-center space-x-2">

@@ -10,8 +10,10 @@ import DrugSelector from './DrugSelector';
 import AdvancedInteractionChecker from './AdvancedInteractionChecker';
 import FeatureErrorBoundary from '../ErrorBoundary/FeatureErrorBoundary';
 import { AlertTriangle, X, Info } from 'lucide-react';
+import Breadcrumbs from '../UI/Breadcrumbs';
 import { useSelection } from '../../context/SelectionContext';
 import { usePatient } from '../../context/PatientContext';
+import { useAuth } from '../../context/AuthContext';
 import { patientService } from '../../services/patientService';
 
 const InteractionCheckerInner: React.FC = () => {
@@ -400,29 +402,30 @@ const InteractionCheckerInner: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Interactions' }]} />
       {/* Header */}
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">
           <AlertTriangle className="w-8 h-8 text-warning-600" />
           <h1 className="text-3xl font-bold text-gray-900">Advanced Drug Interaction Analysis</h1>
         </div>
-        {currentPatient && (
+        {(currentPatient || authState?.user) && (
           <div className="mb-4">
             <p className="text-xl font-semibold text-primary-600">
-              Advanced interaction analysis for {currentPatient.demographics?.firstName} {currentPatient.demographics?.lastName}
+              Advanced interaction analysis for {(authState?.user?.role === 'patient') ? `${authState?.user?.firstName || ''} ${authState?.user?.lastName || ''}`.trim() : `${currentPatient?.demographics?.firstName || ''} ${currentPatient?.demographics?.lastName || ''}`.trim()}
             </p>
             <div className="text-sm text-gray-600 mt-1">
-              {currentPatient.demographics?.dateOfBirth 
+              {currentPatient?.demographics?.dateOfBirth 
                 ? Math.floor((new Date().getTime() - new Date(currentPatient.demographics.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
-                : currentPatient.age || 'Unknown age'
-              } years old • {currentPatient.demographics?.sex || currentPatient.gender || 'Unknown gender'}
-              {currentPatient.conditions && (
+                : (currentPatient?.age || 'Unknown age')
+              } years old • {currentPatient?.demographics?.sex || currentPatient?.gender || 'Unknown gender'}
+              {currentPatient?.conditions && (
                 <> • Conditions: {
-                  Array.isArray(currentPatient.conditions) 
-                    ? currentPatient.conditions.slice(0, 2).map(c => typeof c === 'object' ? c.name || c.primary || 'Unknown' : c).join(', ') + (currentPatient.conditions.length > 2 ? '...' : '')
-                    : typeof currentPatient.conditions === 'object' 
-                      ? (currentPatient.conditions.name || currentPatient.conditions.primary || 'Condition specified')
-                      : currentPatient.conditions
+                  Array.isArray(currentPatient?.conditions) 
+                    ? currentPatient?.conditions.slice(0, 2).map(c => typeof c === 'object' ? c.name || c.primary || 'Unknown' : c).join(', ') + (currentPatient?.conditions.length > 2 ? '...' : '')
+                    : typeof currentPatient?.conditions === 'object' 
+                      ? (currentPatient?.conditions?.name || currentPatient?.conditions?.primary || 'Condition specified')
+                      : currentPatient?.conditions
                 }</>
               )}
             </div>

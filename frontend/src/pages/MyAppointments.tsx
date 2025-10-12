@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { useAuth } from '../context/AuthContext';
 import { usePatient } from '../context/PatientContext';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import AppointmentRequestForm, { AppointmentRequestData } from '../components/Forms/AppointmentRequestForm';
 import { Calendar, Clock, MapPin, User, Phone, Plus, Video, MessageSquare, Bell, Info, CheckCircle, AlertTriangle } from 'lucide-react';
+import { collaborationService } from '../services/collaborationService';
+import { ConsultationRequest } from '../types/collaboration';
+import { useToast } from '../components/UI/Toast';
 
 interface Appointment {
   id: string;
@@ -20,6 +24,8 @@ interface Appointment {
   preparationInstructions?: string[];
   isVirtual: boolean;
   reminder: boolean;
+  rescheduleRequested?: boolean;
+  rescheduleRequestedAt?: string;
 }
 
 const MyAppointments: React.FC = () => {
@@ -27,6 +33,7 @@ const MyAppointments: React.FC = () => {
   const { user } = state;
   const { state: patientState, actions } = usePatient();
   const { currentPatient } = patientState;
+  const { showToast } = useToast();
 
   const [selectedView, setSelectedView] = useState<'upcoming' | 'past' | 'all'>('upcoming');
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
@@ -74,6 +81,35 @@ const MyAppointments: React.FC = () => {
     const updatedAppointments = [...(currentPatient.appointments || []), newAppointment];
     actions.updatePatientData({ appointments: updatedAppointments });
 
+      try {
+        if (appointment.type === 'consultation') {
+          const consult = {
+            id: `consult-${appointment.id}`,
+            requesterId: (user && user.id) || 'patient',
+            specialtyRequested: (appointment.title || 'Consultation').replace(/consultation/i, '').trim() || 'Consultation',
+            urgency: 'routine',
+            patientId: currentPatient.id,
+            clinicalQuestion: `Reschedule requested for ${appointment.title}`,
+            relevantHistory: 'Reschedule request originated from patient portal.',
+            currentMedications: (currentPatient.medications || []).map((m) => m?.drug?.name || m?.drugName || m?.name || '').filter(Boolean),
+            allergies: (currentPatient.allergies || []).map((a) => a?.allergen || a?.name || '').filter(Boolean),
+            preferredConsultant: appointment.provider,
+            requestedDate: appointment.date,
+            requestType: 'opinion',
+            attachedStudies: [],
+            labResults: [],
+            notes: `Related appointment: ${appointment.id}`,
+            status: 'pending',
+            assignedTo: undefined,
+            responseDeadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+            consultantResponse: undefined,
+            followUpRequired: false,
+            createdDate: nowIso,
+          } as any;
+          collaborationService.saveConsultationRequest(consult);
+        }
+      } catch {}
+
     alert(`Appointment request submitted successfully!\n\nType: ${data.type}\nProvider: ${data.provider}\nReason: ${data.reason}\n\nYour request will be reviewed and you'll receive a confirmation within 24 hours.`);
     setShowAppointmentForm(false);
   };
@@ -105,7 +141,36 @@ const MyAppointments: React.FC = () => {
           : apt
       );
       actions.updatePatientData({ appointments: updatedAppointments });
-      alert('Rescheduling request sent successfully!\n\nYour care team will contact you within 24 hours with available alternative times.');
+
+      try {
+        if (appointment.type === 'consultation') {
+          const consult = {
+            id: `consult-${appointment.id}`,
+            requesterId: (user && user.id) || 'patient',
+            specialtyRequested: (appointment.title || 'Consultation').replace(/consultation/i, '').trim() || 'Consultation',
+            urgency: 'routine',
+            patientId: currentPatient.id,
+            clinicalQuestion: `Reschedule requested for ${appointment.title}`,
+            relevantHistory: 'Reschedule request originated from patient portal.',
+            currentMedications: (currentPatient.medications || []).map((m) => m?.drug?.name || m?.drugName || m?.name || '').filter(Boolean),
+            allergies: (currentPatient.allergies || []).map((a) => a?.allergen || a?.name || '').filter(Boolean),
+            preferredConsultant: appointment.provider,
+            requestedDate: appointment.date,
+            requestType: 'opinion',
+            attachedStudies: [],
+            labResults: [],
+            notes: `Related appointment: ${appointment.id}`,
+            status: 'pending',
+            assignedTo: undefined,
+            responseDeadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+            consultantResponse: undefined,
+            followUpRequired: false,
+            createdDate: nowIso,
+          } as any;
+          collaborationService.saveConsultationRequest(consult);
+        }
+      } catch {}
+      showToast('success', 'Rescheduling request sent');
     }
   };
 
@@ -120,6 +185,35 @@ const MyAppointments: React.FC = () => {
           : apt
       );
       actions.updatePatientData({ appointments: updatedAppointments });
+
+      try {
+        if (appointment.type === 'consultation') {
+          const consult = {
+            id: `consult-${appointment.id}`,
+            requesterId: (user && user.id) || 'patient',
+            specialtyRequested: (appointment.title || 'Consultation').replace(/consultation/i, '').trim() || 'Consultation',
+            urgency: 'routine',
+            patientId: currentPatient.id,
+            clinicalQuestion: `Reschedule requested for ${appointment.title}`,
+            relevantHistory: 'Reschedule request originated from patient portal.',
+            currentMedications: (currentPatient.medications || []).map((m) => m?.drug?.name || m?.drugName || m?.name || '').filter(Boolean),
+            allergies: (currentPatient.allergies || []).map((a) => a?.allergen || a?.name || '').filter(Boolean),
+            preferredConsultant: appointment.provider,
+            requestedDate: appointment.date,
+            requestType: 'opinion',
+            attachedStudies: [],
+            labResults: [],
+            notes: `Related appointment: ${appointment.id}`,
+            status: 'pending',
+            assignedTo: undefined,
+            responseDeadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+            consultantResponse: undefined,
+            followUpRequired: false,
+            createdDate: nowIso,
+          } as any;
+          collaborationService.saveConsultationRequest(consult);
+        }
+      } catch {}
       alert('Appointment cancelled successfully.\n\nYou will receive a confirmation email shortly. If you need to reschedule, please contact your care team.');
     }
   };
@@ -286,6 +380,13 @@ const MyAppointments: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: 'Home', href: '/' },
+          { label: 'My Care', href: '/my-care' },
+          { label: 'My Appointments' },
+        ]}
+      />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -413,6 +514,11 @@ const MyAppointments: React.FC = () => {
                         {appointment.isVirtual && (
                           <span className="px-2 py-1 bg-purple-100 text-purple-600 rounded-full text-xs font-medium">
                             Virtual
+                          </span>
+                        )}
+                        {appointment.rescheduleRequested && (
+                          <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">
+                            Reschedule Requested
                           </span>
                         )}
                       </div>

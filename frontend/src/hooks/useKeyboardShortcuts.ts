@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 // Define keyboard shortcuts
 export interface KeyboardShortcut {
@@ -71,8 +72,10 @@ export const useKeyboardShortcuts = (shortcuts: KeyboardShortcut[]) => {
 // Global keyboard shortcuts hook
 export const useGlobalKeyboardShortcuts = () => {
   const navigate = useNavigate();
+  const { state } = useAuth();
+  const role = state?.user?.role || 'guest';
 
-  const globalShortcuts: KeyboardShortcut[] = [
+  let globalShortcuts: KeyboardShortcut[] = [
     // Navigation shortcuts
     {
       key: 'h',
@@ -181,6 +184,11 @@ export const useGlobalKeyboardShortcuts = () => {
       global: true,
     },
   ];
+
+  // Patient/caregiver friendly: hide shortcuts that reference provider-only pages
+  if (role === 'patient' || role === 'caregiver') {
+    globalShortcuts = globalShortcuts.filter(sc => sc.description !== 'Go to Patients');
+  }
 
   useKeyboardShortcuts(globalShortcuts);
 

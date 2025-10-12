@@ -4,6 +4,7 @@ import { usePatient } from '../context/PatientContext';
 import { supabase } from '../lib/supabase';
 import { Search, ChevronLeft, ChevronRight, RefreshCw, Edit, X, Plus, Filter, Trash2 } from 'lucide-react';
 import { useToast } from '../components/UI/Toast';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 import ComprehensivePatientForm from '../components/Patient/ComprehensivePatientForm';
 // Always allow creating patients on this page (production UX request)
 import Coachmark from '../components/UI/Coachmark';
@@ -1000,6 +1001,7 @@ const ServerPatients: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Patients' }]} />
       
       {/* One-time coach banner (production) */}
       {showCoachBanner && (

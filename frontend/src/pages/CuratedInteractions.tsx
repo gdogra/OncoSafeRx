@@ -5,6 +5,7 @@ import { interactionService } from '../services/api';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { useSelection } from '../context/SelectionContext';
 import EnhancedDrugSearchBar from '../components/DrugSearch/EnhancedDrugSearchBar';
 
@@ -112,6 +113,7 @@ const CuratedInteractions: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Curated Interactions' }]} />
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Curated Drug Interactions</h1>
         <div className="flex items-center space-x-2">

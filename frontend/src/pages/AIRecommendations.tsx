@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { usePatient } from '../context/PatientContext';
 import RecommendationEngine from '../components/AI/RecommendationEngine';
 import InteroperabilityManager from '../components/Analytics/InteroperabilityManager';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { 
   Brain, 
   Globe, 
@@ -137,6 +138,7 @@ const AIRecommendations: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'AI Recommendations' }]} />
       {/* Header */}
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">

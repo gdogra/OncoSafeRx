@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
@@ -159,6 +160,8 @@ const CarePlan: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'My Care Plan' }]} />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

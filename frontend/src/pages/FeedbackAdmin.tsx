@@ -8,6 +8,7 @@ import HealthBanner from '../components/System/HealthBanner';
 import DeployStatusPanel from '../components/Admin/DeployStatusPanel';
 import { useToast } from '../components/UI/Toast';
 import { feedbackService } from '../services/feedbackService';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 
 const FeedbackAdmin: React.FC = () => {
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
@@ -132,6 +133,7 @@ const FeedbackAdmin: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Feedback Admin' }]} />
       {/* System health banner */}
       <HealthBanner />
       {/* Header */}

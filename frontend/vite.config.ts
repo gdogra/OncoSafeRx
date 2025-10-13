@@ -34,6 +34,14 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     chunkSizeWarningLimit: 800,
+    rollupOptions: {
+      // Fix recharts/react-is dependency resolution issue
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-is']
+        }
+      }
+    },
   },
   test: {
     globals: true,

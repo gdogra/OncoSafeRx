@@ -103,6 +103,8 @@ const RoutingTest = lazy(() => import('./components/Debug/RoutingTest'));
 function AppWithAuth() {
   // Get auth state to check if initialization is complete
   const { state } = useAuth();
+  // Initialize global keyboard shortcuts (inside AuthProvider)
+  useGlobalKeyboardShortcuts();
   
   // Initialize visitor tracking (must be called before any conditional returns)
   useVisitorTracking();
@@ -690,8 +692,7 @@ function AppWithAuth() {
 
 // Component that handles keyboard shortcuts inside Router context
 function AppWithRouter() {
-  // Initialize global keyboard shortcuts (now inside Router context)
-  useGlobalKeyboardShortcuts();
+  // Keyboard shortcuts moved into AppWithAuth to ensure AuthProvider is present
 
   // Persist and restore last route across refreshes
   const RoutePersistence: React.FC = () => {

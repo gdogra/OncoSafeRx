@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useRBAC } from '../../utils/rbac';
 
@@ -19,6 +19,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { state } = useAuth();
   const rbac = useRBAC(state.user);
   const location = useLocation();
+  const navigate = useNavigate();
 
   if (state.isLoading) {
     return (
@@ -48,22 +49,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // Check permission-based access first (preferred)
   if (requiredPermission) {
     if (!rbac.hasPermission(requiredPermission)) {
-      return (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h2>
-            <p className="text-sm text-gray-600">
-              You don't have permission to access this page.
-            </p>
-            <button
-              onClick={() => window.history.back()}
-              className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
-            >
-              Go Back
-            </button>
-          </div>
-        </div>
-      );
+      try { (window as any)?.showToast?.('error', 'Access denied'); } catch {}
+      return <Navigate to="/" replace />;
     }
   } 
   // Fallback to role-based access (legacy)
@@ -92,25 +79,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
     
     if (!hasRequiredRole) {
-      return (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h2>
-            <p className="text-sm text-gray-600">
-              You don't have the required role to access this page.
-            </p>
-            <p className="text-xs text-gray-500 mt-2">
-              Current role: {state.user.role} | Required: {requiredRole.join(', ')}
-            </p>
-            <button
-              onClick={() => window.history.back()}
-              className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"
-            >
-              Go Back
-            </button>
-          </div>
-        </div>
-      );
+      try { (window as any)?.showToast?.('error', 'Access denied'); } catch {}
+      return <Navigate to="/" replace />;
     }
   }
 

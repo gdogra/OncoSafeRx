@@ -10,6 +10,11 @@ import ThemeToggle from '../UI/ThemeToggle';
 import HealthBanner from '../System/HealthBanner';
 import LogoutButton from '../Admin/LogoutButton';
 import { useIsMobile } from '../../hooks/useResponsive';
+import { useAuth } from '../../context/AuthContext';
+import { Link } from 'react-router-dom';
+import { Shield } from 'lucide-react';
+import AdminModeBanner from '../Admin/AdminModeBanner';
+import { useAuth } from '../../context/AuthContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -17,6 +22,11 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isMobile = useIsMobile();
+  const { state } = useAuth();
+  const role = state.user?.role || '';
+  const envLabel = (import.meta as any)?.env?.VITE_ENV_LABEL as string | undefined;
+  const { state } = useAuth();
+  const role = state.user?.role || '';
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
 
@@ -74,6 +84,29 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </button>
             <h1 className="text-lg font-semibold text-gray-900">OncoSafeRx</h1>
             <div className="flex items-center gap-2">
+              {envLabel && (
+                <span className="px-2 py-0.5 rounded-full text-xs font-medium border bg-gray-50 text-gray-700 border-gray-200" title={`Environment: ${envLabel}`}>
+                  {envLabel}
+                </span>
+              )}
+              {role && (
+                <span
+                  className={`px-2 py-0.5 rounded-full text-xs font-medium border ${
+                    role === 'admin' || role === 'super_admin'
+                      ? 'bg-red-50 text-red-700 border-red-200'
+                      : 'bg-gray-50 text-gray-700 border-gray-200'
+                  }`}
+                  title={`Role: ${role}`}
+                >
+                  {role === 'super_admin' ? 'Admin' : role.charAt(0).toUpperCase() + role.slice(1)}
+                </span>
+              )}
+              {(role === 'admin' || role === 'super_admin') && (
+                <Link to="/admin" className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-50" title="Admin Home">
+                  <Shield className="w-3.5 h-3.5 text-red-600" />
+                  <span className="text-gray-800">Admin</span>
+                </Link>
+              )}
               <ThemeToggle />
               <div className="w-10 text-right">
                 <ConnectivityStatus compact />
@@ -88,10 +121,33 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {/* Global connectivity widget for desktop */}
             {!isMobile && (
               <div className="flex justify-end items-center gap-3 mb-4">
+                {envLabel && (
+                  <span className="px-2.5 py-1 rounded-full text-xs font-medium border bg-gray-50 text-gray-700 border-gray-200" title={`Environment: ${envLabel}`}>{envLabel}</span>
+                )}
+                {role && (
+                  <span
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium border ${
+                      role === 'admin' || role === 'super_admin'
+                        ? 'bg-red-50 text-red-700 border-red-200'
+                        : 'bg-gray-50 text-gray-700 border-gray-200'
+                    }`}
+                    title={`Role: ${role}`}
+                  >
+                    {role === 'super_admin' ? 'Admin' : role.charAt(0).toUpperCase() + role.slice(1)}
+                  </span>
+                )}
+                {(role === 'admin' || role === 'super_admin') && (
+                  <Link to="/admin" className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-gray-300 rounded-md text-xs bg-white hover:bg-gray-50" title="Admin Home">
+                    <Shield className="w-4 h-4 text-red-600" />
+                    <span className="text-gray-800">Admin</span>
+                  </Link>
+                )}
                 <ThemeToggle />
                 <ConnectivityStatus />
               </div>
             )}
+            {/* Admin mode banner */}
+            <AdminModeBanner />
             {/* System health banner (auto-hides when healthy) */}
             <HealthBanner className="mb-4" />
             {children}

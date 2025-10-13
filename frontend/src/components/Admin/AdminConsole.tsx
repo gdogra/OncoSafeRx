@@ -60,6 +60,8 @@ interface SystemMetrics {
 }
 
 const AdminConsole: React.FC = () => {
+  const PUSH_ADMIN_ENABLED = String((import.meta as any)?.env?.VITE_ENABLE_PUSH_ADMIN || '').toLowerCase() === 'true';
+  
   const { state: authState } = useAuth();
   const { user } = authState;
   const rbac = useRBAC(user);
@@ -934,7 +936,6 @@ const AdminConsole: React.FC = () => {
               {schedules.length === 0 && <div className="text-sm text-gray-600">No scheduled notifications</div>}
             </div>
           </div>
-  const PUSH_ADMIN_ENABLED = String((import.meta as any)?.env?.VITE_ENABLE_PUSH_ADMIN || '').toLowerCase() === 'true';
         </div>
       )}
     </div>

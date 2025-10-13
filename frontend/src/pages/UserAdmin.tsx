@@ -44,7 +44,9 @@ interface CreateUserForm {
 
 const UserAdmin: React.FC = () => {
   const { showToast } = useToast();
-  const { logout, user } = useAuth();
+  const { state, actions } = useAuth();
+  const { user } = state;
+  const { logout } = actions;
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

@@ -5,7 +5,7 @@ export interface UserProfile {
   lastName: string;
   avatarUrl?: string;
   avatarThumbUrl?: string;
-  role: 'oncologist' | 'pharmacist' | 'nurse' | 'researcher' | 'student' | 'patient' | 'caregiver';
+  role: 'oncologist' | 'pharmacist' | 'nurse' | 'researcher' | 'student' | 'patient' | 'caregiver' | 'admin' | 'super_admin';
   specialty?: string;
   institution?: string;
   licenseNumber?: string;
@@ -25,7 +25,7 @@ export interface UserPersona {
   id: string;
   name: string;
   description: string;
-  role: 'oncologist' | 'pharmacist' | 'nurse' | 'researcher' | 'student' | 'patient' | 'caregiver';
+  role: 'oncologist' | 'pharmacist' | 'nurse' | 'researcher' | 'student' | 'patient' | 'caregiver' | 'admin' | 'super_admin';
   experienceLevel: 'novice' | 'intermediate' | 'expert';
   specialties: string[];
   preferences: {

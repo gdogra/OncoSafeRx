@@ -729,7 +729,7 @@ export class SupabaseAuthService {
       email: user.email || fallbackData?.email || '',
       firstName: dbProfile?.first_name || derivedFirst || 'User',
       lastName: dbProfile?.last_name || derivedLast || '',
-      role: finalRole,
+      role: finalRole as UserProfile['role'],
       specialty: dbProfile?.specialty || user.user_metadata?.specialty || fallbackData?.specialty || '',
       institution: dbProfile?.institution || user.user_metadata?.institution || fallbackData?.institution || '',
       licenseNumber: dbProfile?.license_number || user.user_metadata?.license_number || fallbackData?.licenseNumber || '',

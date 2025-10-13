@@ -8,6 +8,8 @@ import Tooltip from '../components/UI/Tooltip';
 import { useToast } from '../components/UI/Toast';
 import { Pill, Clock, AlertTriangle, CheckCircle, Calendar, Bell, Info, Plus, Edit, Trash2, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { reminderManager } from '../utils/reminders';
+import { PWAManager } from '../utils/pwa';
 
 interface Medication {
   id: string;
@@ -48,8 +50,64 @@ const MyMedications: React.FC = () => {
   };
 
   // Button handlers
-  const handleEnableNotifications = () => {
-    showToast('info', 'Notification settings coming soon!');
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(() => {
+    try { return reminderManager.isEnabled(); } catch { return false; }
+  });
+  const handleEnableNotifications = async () => {
+    if (!currentPatient) {
+      showToast('error', 'Select a patient first');
+      return;
+    }
+    if (!reminderManager.isSupported()) {
+      showToast('error', 'Notifications are not supported in this browser');
+      return;
+    }
+    // Also try to create a Push subscription for background notifications
+    try { await PWAManager.requestNotificationPermission(); } catch {}
+    const meds = (currentPatient.medications || []).filter(m => m.isActive);
+    const res = await reminderManager.enableForMedications(meds as any[]);
+    if (res.permission === 'granted') {
+      setNotificationsEnabled(true);
+      showToast('success', `Medication reminders enabled (${res.scheduled} scheduled).`);
+    } else if (res.permission === 'denied') {
+      showToast('error', 'Please allow notifications to enable reminders.');
+    } else {
+      showToast('info', 'Notification permission was dismissed.');
+    }
+  };
+  const handleDisableNotifications = () => {
+    reminderManager.disable();
+    setNotificationsEnabled(false);
+    showToast('warning', 'Medication reminders disabled');
+  };
+
+  // Keep schedules in sync when page opens or meds change
+  React.useEffect(() => {
+    try {
+      if (notificationsEnabled && currentPatient) {
+        reminderManager.reschedule((currentPatient.medications || []) as any[]);
+      }
+    } catch {}
+  }, [notificationsEnabled, currentPatient?.id, (currentPatient as any)?.medications]);
+
+  const handleTestNotification = async () => {
+    const perm = await (async () => {
+      if (!('Notification' in window)) return 'denied' as const;
+      if (Notification.permission === 'granted') return 'granted' as const;
+      if (Notification.permission === 'denied') return 'denied' as const;
+      try { return await Notification.requestPermission(); } catch { return 'denied' as const; }
+    })();
+    if (perm !== 'granted') {
+      showToast('error', 'Please allow notifications to run a test.');
+      return;
+    }
+    try {
+      // eslint-disable-next-line no-new
+      new Notification('Test Medication Reminder', { body: 'This is a test notification from OncoSafeRx.' });
+      showToast('success', 'Test notification sent');
+    } catch {
+      showToast('error', 'Unable to show a notification in this browser');
+    }
   };
 
   const handleMessageCareTeam = () => {
@@ -98,7 +156,14 @@ const MyMedications: React.FC = () => {
       prescriber: newMedication.prescribedBy || 'Self-reported',
       isActive: true,
       adherence: 'excellent' as const,
-      sideEffects: []
+      sideEffects: [],
+      nextDose: (newMedication as any).nextDose || undefined,
+      doseTimes: (newMedication as any).doseTimes
+        ? String((newMedication as any).doseTimes)
+            .split(',')
+            .map((s: string) => s.trim())
+            .filter((s: string) => s)
+        : undefined
     };
 
     const tryApi = async () => {
@@ -144,10 +209,13 @@ const MyMedications: React.FC = () => {
       frequencyOther: '',
       prescribedBy: '',
       instructions: '',
-      startDate: new Date().toISOString().split('T')[0]
+      startDate: new Date().toISOString().split('T')[0],
+      nextDose: '',
+      doseTimes: ''
     });
     setShowAddForm(false);
     showToast('success', 'Medication added');
+    try { if (notificationsEnabled) reminderManager.reschedule(((currentPatient?.medications || []).concat([patientMedication])) as any[]); } catch {}
   };
 
   const handleCancelAdd = () => {
@@ -161,7 +229,9 @@ const MyMedications: React.FC = () => {
       frequencyOther: '',
       prescribedBy: '',
       instructions: '',
-      startDate: new Date().toISOString().split('T')[0]
+      startDate: new Date().toISOString().split('T')[0],
+      nextDose: '',
+      doseTimes: ''
     });
   };
 
@@ -201,6 +271,7 @@ const MyMedications: React.FC = () => {
           showToast('warning', 'Removed locally (offline)');
         }
         showToast('success', 'Medication removed');
+        try { if (notificationsEnabled) reminderManager.reschedule((currentPatient?.medications || []) as any[]); } catch {}
       });
     }
   };
@@ -241,6 +312,7 @@ const MyMedications: React.FC = () => {
         actions.updatePatientData({ medications: updatedMedications });
         showToast('warning', 'Updated locally (offline)');
       }
+      try { if (notificationsEnabled) reminderManager.reschedule((currentPatient?.medications || []) as any[]); } catch {}
     });
   };
 
@@ -279,6 +351,7 @@ const MyMedications: React.FC = () => {
         actions.updatePatientData({ medications: updatedMedications });
         showToast('warning', 'Updated locally (offline)');
       }
+      try { if (notificationsEnabled) reminderManager.reschedule((currentPatient?.medications || []) as any[]); } catch {}
     });
   };
 
@@ -292,7 +365,9 @@ const MyMedications: React.FC = () => {
       route: (medication as any).route || 'oral',
       prescribedBy: (medication as any).prescriber || '',
       instructions: (medication as any).indication || '',
-      startDate: medication.startDate || new Date().toISOString().split('T')[0]
+      startDate: medication.startDate || new Date().toISOString().split('T')[0],
+      nextDose: (medication as any).nextDose || '',
+      doseTimes: Array.isArray((medication as any).doseTimes) ? (medication as any).doseTimes.join(',') : ''
     });
     setShowAddForm(true);
   };
@@ -314,7 +389,8 @@ const MyMedications: React.FC = () => {
       route: newMedication.route || 'oral',
       prescriber: newMedication.prescribedBy || 'Self-reported',
       indication: newMedication.instructions || 'Take as directed',
-      startDate: newMedication.startDate
+      startDate: newMedication.startDate,
+      nextDose: (newMedication as any).nextDose || (editingMedication as any).nextDose
     };
 
     const tryApi = async () => {
@@ -361,7 +437,18 @@ const MyMedications: React.FC = () => {
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
-  const [newMedication, setNewMedication] = useState({
+  const [newMedication, setNewMedication] = useState<{
+    name: string;
+    dosage: string;
+    frequency: string;
+    route: string;
+    frequencyOther: string;
+    prescribedBy: string;
+    instructions: string;
+    startDate: string;
+    nextDose: string;
+    doseTimes?: string;
+  }>({
     name: '',
     dosage: '',
     frequency: '',
@@ -369,7 +456,8 @@ const MyMedications: React.FC = () => {
     frequencyOther: '',
     prescribedBy: '',
     instructions: '',
-    startDate: new Date().toISOString().split('T')[0]
+    startDate: new Date().toISOString().split('T')[0],
+    nextDose: ''
   });
 
   const activeMedications = medications.filter(med => med.isActive);
@@ -587,6 +675,32 @@ const MyMedications: React.FC = () => {
                 onChange={(e) => setNewMedication({...newMedication, startDate: e.target.value})}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Next Dose (optional)
+              </label>
+              <input
+                type="datetime-local"
+                value={newMedication.nextDose}
+                onChange={(e) => setNewMedication({ ...newMedication, nextDose: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Dose Times (optional)
+              </label>
+              <input
+                type="text"
+                value={newMedication.doseTimes || ''}
+                onChange={(e) => setNewMedication({ ...newMedication, doseTimes: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., 08:00, 20:00"
+              />
+              <p className="text-xs text-gray-500 mt-1">Enter one or more times in 24-hour format, separated by commas.</p>
             </div>
 
             <div className="md:col-span-2">
@@ -813,20 +927,47 @@ const MyMedications: React.FC = () => {
       {/* Medication Reminders */}
       <Card>
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Medication Reminders</h2>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className={`rounded-lg p-4 border ${notificationsEnabled ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
           <div className="flex items-start space-x-3">
-            <Bell className="w-5 h-5 text-blue-600 mt-0.5" />
-            <div>
-              <h3 className="font-medium text-blue-900">Set up medication reminders</h3>
-              <p className="text-blue-700 text-sm mt-1">
-                Never miss a dose! Set up notifications on your phone or use a pill organizer to stay on track with your medication schedule.
+            <Bell className={`w-5 h-5 ${notificationsEnabled ? 'text-green-600' : 'text-blue-600'} mt-0.5`} />
+            <div className="flex-1">
+              <h3 className={`font-medium ${notificationsEnabled ? 'text-green-900' : 'text-blue-900'}`}>
+                {notificationsEnabled ? 'Medication reminders are enabled' : 'Set up medication reminders'}
+              </h3>
+              <p className={`${notificationsEnabled ? 'text-green-700' : 'text-blue-700'} text-sm mt-1`}>
+                {notificationsEnabled
+                  ? 'We will send notifications around your scheduled dose times while the app is open.'
+                  : 'Never miss a dose! Enable notifications to get reminders around your scheduled dose times.'}
               </p>
-              <button 
-                onClick={handleEnableNotifications}
-                className="mt-3 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
-              >
-                Enable Notifications
-              </button>
+              {notificationsEnabled ? (
+                <div className="mt-3 flex items-center gap-3">
+                  <button 
+                    onClick={() => reminderManager.reschedule((currentPatient?.medications || []) as any[])}
+                    className="px-4 py-2 border border-green-600 text-green-700 text-sm rounded-lg hover:bg-green-50"
+                  >
+                    Reschedule from Medications
+                  </button>
+                  <button 
+                    onClick={handleTestNotification}
+                    className="px-4 py-2 border border-blue-600 text-blue-700 text-sm rounded-lg hover:bg-blue-50"
+                  >
+                    Send Test Notification
+                  </button>
+                  <button 
+                    onClick={handleDisableNotifications}
+                    className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700"
+                  >
+                    Disable Notifications
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={handleEnableNotifications}
+                  className="mt-3 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+                >
+                  Enable Notifications
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -47,6 +47,14 @@ const PatientEducation: React.FC = () => {
       navigate('/education/pdf/nutrition-during-treatment');
       return;
     }
+    if (resource.type === 'article' && resource.title === 'Understanding Your Lab Results') {
+      navigate('/education/article/lab-results');
+      return;
+    }
+    if (resource.type === 'video' && resource.title === 'Building Your Support Network') {
+      navigate('/education/video/support-network');
+      return;
+    }
     if (resource.type === 'interactive' && resource.title === 'Meditation for Cancer Patients') {
       navigate('/education/interactive/meditation');
       return;
@@ -370,7 +378,16 @@ const PatientEducation: React.FC = () => {
             <p className="text-gray-800">{activeArticle.description}</p>
             <div className="text-sm text-gray-600">Category: {activeArticle.category}</div>
             <div className="text-xs text-gray-500">Rating: {activeArticle.rating} • Views: {activeArticle.views.toLocaleString()}</div>
-            <div className="pt-2 text-sm text-gray-500">This is a preview. Full content will appear here.</div>
+            {activeArticle.title === 'Understanding Your Lab Results' && (
+              <div className="text-sm text-gray-700">
+                Learn how to read common labs like CBC, CMP, and ANC. Trends over time matter more than a single value; always discuss results with your care team.
+              </div>
+            )}
+            {activeArticle.title === 'Building Your Support Network' && (
+              <div className="text-sm text-gray-700">
+                Practical steps to involve friends and family, coordinate help, and access professional support resources.
+              </div>
+            )}
           </div>
         )}
       </Modal>

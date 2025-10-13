@@ -21,45 +21,45 @@ export class SimpleAuthService {
   
   // Missing methods that AuthContext needs
   static async getCurrentUser(): Promise<UserProfile | null> {
-    console.log('🔍 SIMPLE getCurrentUser called');
+    
     try {
       const stored = localStorage.getItem('osrx_user_profile');
       if (stored) {
         const profile = JSON.parse(stored);
-        console.log('✅ SIMPLE: Found user in localStorage');
+        
         return profile;
       }
     } catch (e) {
-      console.warn('⚠️ SIMPLE: Failed to get current user');
+      
     }
     return null;
   }
   
   static onAuthStateChange(callback: (user: UserProfile | null) => void) {
-    console.log('🔍 SIMPLE onAuthStateChange called');
+    
     // Return a simple subscription object
     return {
       data: {
         subscription: {
-          unsubscribe: () => console.log('🔍 SIMPLE: Auth state subscription unsubscribed')
+          unsubscribe: () => {}
         }
       }
     };
   }
   
   static logout() {
-    console.log('🔍 SIMPLE logout called');
+    
     try {
       localStorage.removeItem('osrx_user_profile');
       localStorage.removeItem('osrx_session_user_id');
-      console.log('✅ SIMPLE: Logged out, cleared localStorage');
+      
     } catch (e) {
-      console.warn('⚠️ SIMPLE: Logout cleanup failed');
+      
     }
   }
   
   static async signup(data: any): Promise<UserProfile> {
-    console.log('🔍 SIMPLE signup called:', data.email);
+    
     
     // For signup, create user profile with provided data
     const userId = `user-${Date.now()}`;
@@ -101,16 +101,16 @@ export class SimpleAuthService {
     try {
       localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile));
       localStorage.setItem('osrx_session_user_id', userId);
-      console.log('✅ SIMPLE: Signup successful, profile saved');
+      
     } catch (e) {
-      console.warn('⚠️ SIMPLE: Failed to save signup profile');
+      
     }
     
     return userProfile;
   }
 
   static async login(data: any): Promise<UserProfile> {
-    console.log('🔍 SIMPLE login called:', data.email);
+    
     
     // Create a simple user profile for any login
     const userId = `user-${Date.now()}`;
@@ -152,9 +152,9 @@ export class SimpleAuthService {
     try {
       localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile));
       localStorage.setItem('osrx_session_user_id', userId);
-      console.log('✅ SIMPLE: Login successful, profile saved');
+      
     } catch (e) {
-      console.warn('⚠️ SIMPLE: Failed to save login profile');
+      
     }
     
     return userProfile;
@@ -224,23 +224,23 @@ export class SimpleAuthService {
           });
           
           if (response.ok) {
-            console.log('✅ SIMPLE: Profile saved to database');
+        
           } else {
-            console.warn('⚠️ SIMPLE: Database save failed, using localStorage fallback');
+            
           }
         } else {
-          console.warn('⚠️ SIMPLE: No auth token, using localStorage fallback');
+          
         }
       } catch (error) {
-        console.warn('⚠️ SIMPLE: Database save error, using localStorage fallback:', error);
+        
       }
       
       // Save to localStorage as backup
       try {
         localStorage.setItem('osrx_user_profile', JSON.stringify(profile));
-        console.log('✅ SIMPLE: Profile saved to localStorage');
+        
       } catch (e) {
-        console.warn('⚠️ SIMPLE: localStorage save failed, continuing anyway');
+        
       }
       
       return profile;

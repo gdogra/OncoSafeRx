@@ -685,12 +685,15 @@ export class SupabaseAuthService {
     console.log('🔧 Backend API disabled - querying Supabase database directly for role');
     
     // Query Supabase database directly for user role if not found in metadata
-    // ALWAYS query database for Danny Maude to debug the role issue
-    if (!role || user.email === 'maudedanny3@gmail.com') {
+    // ALWAYS query database for Danny Maude and gdogra to debug the role issue
+    if (!role || user.email === 'maudedanny3@gmail.com' || user.email === 'gdogra@gmail.com') {
       // First check for specific user overrides due to database permission issues
       if (user.email === 'maudedanny3@gmail.com') {
         console.log('🔧 MANUAL OVERRIDE: Setting Danny Maude to patient role (production fix)');
         role = 'patient';
+      } else if (user.email === 'gdogra@gmail.com') {
+        console.log('🔧 MANUAL OVERRIDE: Setting gdogra@gmail.com to oncologist role');
+        role = 'oncologist';
       } else {
         try {
           console.log('🔍 Querying Supabase database for user:', user.email, 'existing role from metadata:', role);

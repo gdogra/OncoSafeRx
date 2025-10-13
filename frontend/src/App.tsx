@@ -67,6 +67,8 @@ const ArticleUnderstandingDiagnosis = lazy(() => import('./pages/ArticleUndersta
 const ChemoSideEffectsVideo = lazy(() => import('./pages/ChemoSideEffectsVideo'));
 const NutritionDuringTreatmentPDF = lazy(() => import('./pages/NutritionDuringTreatmentPDF'));
 const MeditationInteractive = lazy(() => import('./pages/MeditationInteractive'));
+const ArticleLabResults = lazy(() => import('./pages/ArticleLabResults'));
+const VideoSupportNetwork = lazy(() => import('./pages/VideoSupportNetwork'));
 
 // Feature flag to disable patient UI routes (build-time)
 const PATIENTS_DISABLED = String((import.meta as any)?.env?.VITE_PATIENTS_DISABLED || '').toLowerCase() === 'true';
@@ -255,6 +257,20 @@ function AppWithAuth() {
                   <ProtectedRoute requiredRole={['patient', 'caregiver']}>
                     <Layout>
                       <NutritionDuringTreatmentPDF />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/education/article/lab-results" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
+                    <Layout>
+                      <ArticleLabResults />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/education/video/support-network" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
+                    <Layout>
+                      <VideoSupportNetwork />
                     </Layout>
                   </ProtectedRoute>
                 } />

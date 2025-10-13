@@ -90,8 +90,8 @@ export const config: AppConfig = {
   },
   
   performance: {
-    // Disable by default to avoid chrome-extension cache errors; consider enabling once sw.js is hardened
-    enableServiceWorker: false,
+    // Enable service worker to support background notifications and offline features
+    enableServiceWorker: true,
     enableLazyLoading: true,
     cacheStrategy: environment === 'production' ? 'stale-while-revalidate' : 'network-first'
   }

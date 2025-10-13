@@ -61,7 +61,9 @@ const AdminConsole: React.FC = () => {
   const rbac = useRBAC(user);
   const navigate = useNavigate();
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'analytics' | 'system' | 'audit'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'analytics' | 'system' | 'audit' | 'push'>('overview');
+  const [pushStatus, setPushStatus] = useState<string>('');
+  const [pushForm, setPushForm] = useState<{ title: string; body: string; url: string; requireInteraction: boolean }>({ title: '', body: '', url: '/', requireInteraction: false });
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -145,6 +147,28 @@ const AdminConsole: React.FC = () => {
       console.error('Failed to load admin data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTestPush = async () => {
+    try {
+      const resp = await fetch('/api/push/test', { method: 'POST' } as any);
+      const body = await resp.json();
+      if (resp.ok) setPushStatus(`OK • Subscribers: ${body.subscribers}`);
+      else setPushStatus(`Error: ${body?.error || resp.status}`);
+    } catch (e: any) {
+      setPushStatus(`Error: ${e?.message || 'failed'}`);
+    }
+  };
+
+  const handleSendCustomPush = async () => {
+    try {
+      const resp = await fetch('/api/push/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pushForm) } as any);
+      const body = await resp.json();
+      if (resp.ok) setPushStatus(`Sent: ${body.sent} • Subscribers: ${body.subscribers}`);
+      else setPushStatus(`Error: ${body?.error || resp.status}`);
+    } catch (e: any) {
+      setPushStatus(`Error: ${e?.message || 'failed'}`);
     }
   };
 
@@ -574,7 +598,8 @@ const AdminConsole: React.FC = () => {
             { id: 'users', label: 'Users', icon: Users, permission: 'manage_users' },
             { id: 'analytics', label: 'Analytics', icon: BarChart3, permission: 'view_visitor_analytics' },
             { id: 'system', label: 'System', icon: Settings, permission: 'manage_system_settings' },
-            { id: 'audit', label: 'Audit Logs', icon: FileText, permission: 'view_audit_logs' }
+            { id: 'audit', label: 'Audit Logs', icon: FileText, permission: 'view_audit_logs' },
+            { id: 'push', label: 'Push', icon: Smartphone, permission: null }
           ].filter(tab => !tab.permission || rbac.hasPermission(tab.permission)).map(tab => {
             const Icon = tab.icon;
             return (
@@ -611,6 +636,42 @@ const AdminConsole: React.FC = () => {
           <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">Audit Logs</h3>
           <p className="text-gray-600">System audit trails and compliance logging.</p>
+        </div>
+      )}
+      {activeTab === 'push' && (
+        <div className="space-y-4">
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded">
+            <h3 className="font-medium text-blue-900 mb-2">Background Push Test</h3>
+            <p className="text-sm text-blue-800">Ensure a service worker is registered and VAPID keys are configured. Click to ping the server test endpoint.</p>
+            <div className="mt-3 flex items-center gap-2">
+              <button onClick={handleTestPush} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Send Test</button>
+              {pushStatus && <span className="text-sm text-gray-700">{pushStatus}</span>}
+            </div>
+          </div>
+          <div className="p-4 bg-white border border-gray-200 rounded">
+            <h3 className="font-medium text-gray-900 mb-2">Send Custom Push</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">Title</label>
+                <input value={pushForm.title} onChange={(e) => setPushForm({ ...pushForm, title: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="OncoSafeRx" />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">URL</label>
+                <input value={pushForm.url} onChange={(e) => setPushForm({ ...pushForm, url: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2" placeholder="/" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm text-gray-700 mb-1">Body</label>
+                <textarea value={pushForm.body} onChange={(e) => setPushForm({ ...pushForm, body: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2" rows={3} placeholder="Background notification" />
+              </div>
+              <label className="inline-flex items-center text-sm text-gray-700">
+                <input type="checkbox" checked={pushForm.requireInteraction} onChange={(e) => setPushForm({ ...pushForm, requireInteraction: e.target.checked })} className="mr-2" />
+                Require Interaction
+              </label>
+            </div>
+            <div className="mt-3">
+              <button onClick={handleSendCustomPush} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Send Custom Push</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

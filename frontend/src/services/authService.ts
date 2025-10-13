@@ -675,31 +675,33 @@ export class SupabaseAuthService {
       identity_data: user.identities?.[0]?.identity_data
     });
     
-    // Resolve role with clear priority: metadata -> DB -> fallback -> patient
-    let role = user.user_metadata?.role || fallbackData?.role;
-    
-    // Query Supabase users table for the canonical role and profile fields
+    // Manual role override for specific users - CHECK THIS FIRST!
+    let role: string;
     let dbProfile: any = null;
-    try {
-      const { data: userData, error } = await supabase
-        .from('users')
-        .select('id,email,first_name,last_name,role,specialty,institution,license_number,years_experience,preferences,persona')
-        .eq('id', user.id)
-        .maybeSingle();
-      if (!error && userData) {
-        dbProfile = userData;
-        if (!role && userData.role) role = userData.role;
-      }
-    } catch {}
     
-    // Manual role override for specific users
     if (user.email === 'gdogra@gmail.com') {
       console.log('🔧 MANUAL OVERRIDE: Setting gdogra@gmail.com to super_admin role');
       role = 'super_admin';
+    } else {
+      // Resolve role with clear priority: metadata -> DB -> fallback -> patient
+      role = user.user_metadata?.role || fallbackData?.role;
+      
+      // Query Supabase users table for the canonical role and profile fields
+      try {
+        const { data: userData, error } = await supabase
+          .from('users')
+          .select('id,email,first_name,last_name,role,specialty,institution,license_number,years_experience,preferences,persona')
+          .eq('id', user.id)
+          .maybeSingle();
+        if (!error && userData) {
+          dbProfile = userData;
+          if (!role && userData.role) role = userData.role;
+        }
+      } catch {}
+      
+      // Final fallback
+      if (!role) role = 'patient';
     }
-    
-    // Final fallback
-    if (!role) role = 'patient';
     
     // Build profile, prioritizing database data over auth metadata
     console.log('🔍 ROLE RESOLUTION:', {

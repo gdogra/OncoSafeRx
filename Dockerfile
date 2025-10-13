@@ -1,6 +1,5 @@
 # Use official Node.js runtime as base image
 FROM node:20-alpine AS base
-WORKDIR /app
 
 # Install runtime tools (curl for healthcheck)
 RUN apk add --no-cache curl

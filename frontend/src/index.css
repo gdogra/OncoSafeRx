@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Universal dark mode base styles */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0b1220; /* slate-950-ish */
+  color: #e5e7eb; /* gray-200 */
+}
+
+html.dark a { color: #93c5fd; } /* blue-300 */
+html.dark a:hover { color: #bfdbfe; } /* blue-200 */
+
 /* PWA and Mobile Optimizations */
 :root {
   /* Safe area insets for iOS devices with notches */

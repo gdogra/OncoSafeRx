@@ -753,6 +753,17 @@ function App() {
     PerformanceMonitor.initialize();
     PWAManager.initialize();
     setupErrorSuppression();
+    // Apply stored theme ASAP
+    try {
+      const stored = localStorage.getItem('osrx_theme');
+      if (stored) {
+        const root = document.documentElement;
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const useDark = stored === 'dark' || (stored === 'auto' && prefersDark);
+        root.classList[useDark ? 'add' : 'remove']('dark');
+        root.setAttribute('data-theme', stored || 'light');
+      }
+    } catch {}
   }, []);
 
   return (

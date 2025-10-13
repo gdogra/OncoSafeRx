@@ -13,6 +13,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { Shield } from 'lucide-react';
 import AdminModeBanner from '../Admin/AdminModeBanner';
+import AdminApiStatus from '../Admin/AdminApiStatus';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -57,7 +58,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         ]}
       />
       
-      <div className="min-h-screen bg-gray-50 flex">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
         {/* Sidebar */}
         <Sidebar 
           isOpen={isMobile ? sidebarOpen : sidebarExpanded} 
@@ -98,10 +99,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </span>
               )}
               {(role === 'admin' || role === 'super_admin') && (
-                <Link to="/admin" className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-50" title="Admin Home">
-                  <Shield className="w-3.5 h-3.5 text-red-600" />
-                  <span className="text-gray-800">Admin</span>
-                </Link>
+                <>
+                  <Link to="/admin" className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-50" title="Admin Home">
+                    <Shield className="w-3.5 h-3.5 text-red-600" />
+                    <span className="text-gray-800">Admin</span>
+                  </Link>
+                  <AdminApiStatus />
+                </>
               )}
               <ThemeToggle />
               <div className="w-10 text-right">
@@ -112,7 +116,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         )}
 
         {/* Main content area */}
-        <main id="main-content" className="flex-1 overflow-y-auto bg-gray-50" tabIndex={-1}>
+        <main id="main-content" className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900" tabIndex={-1}>
           <div className="px-4 sm:px-6 lg:px-8 py-4">
             {/* Global connectivity widget for desktop */}
             {!isMobile && (
@@ -133,10 +137,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </span>
                 )}
                 {(role === 'admin' || role === 'super_admin') && (
-                  <Link to="/admin" className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-gray-300 rounded-md text-xs bg-white hover:bg-gray-50" title="Admin Home">
-                    <Shield className="w-4 h-4 text-red-600" />
-                    <span className="text-gray-800">Admin</span>
-                  </Link>
+                  <>
+                    <Link to="/admin" className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-gray-300 rounded-md text-xs bg-white hover:bg-gray-50" title="Admin Home">
+                      <Shield className="w-4 h-4 text-red-600" />
+                      <span className="text-gray-800">Admin</span>
+                    </Link>
+                    <AdminApiStatus />
+                  </>
                 )}
                 <ThemeToggle />
                 <ConnectivityStatus />

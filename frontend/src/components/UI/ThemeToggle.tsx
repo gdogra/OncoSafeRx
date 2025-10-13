@@ -16,6 +16,7 @@ const ThemeToggle: React.FC<{ className?: string }> = ({ className = '' }) => {
       const useDark = mode === 'dark' || (mode === 'auto' && prefersDark);
       root.classList[useDark ? 'add' : 'remove']('dark');
       root.setAttribute('data-theme', mode || 'light');
+      try { localStorage.setItem('osrx_theme', mode); } catch {}
     } catch {}
   };
 

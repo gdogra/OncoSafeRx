@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useRBAC } from '../../utils/rbac';
-import AdminAccessDenied from '../Admin/AdminAccessDenied';
+// import AdminAccessDenied from '../Admin/AdminAccessDenied';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -51,7 +51,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (requiredPermission) {
     if (!rbac.hasPermission(requiredPermission)) {
       if (location.pathname.startsWith('/admin')) {
-        return <AdminAccessDenied />;
+        try { (window as any)?.showToast?.('error', 'Admin access required'); } catch {}
+        return <Navigate to="/" replace />;
       }
       try { (window as any)?.showToast?.('error', 'Access denied'); } catch {}
       return <Navigate to="/" replace />;
@@ -84,7 +85,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     
     if (!hasRequiredRole) {
       if (location.pathname.startsWith('/admin')) {
-        return <AdminAccessDenied />;
+        try { (window as any)?.showToast?.('error', 'Admin access required'); } catch {}
+        return <Navigate to="/" replace />;
       }
       try { (window as any)?.showToast?.('error', 'Access denied'); } catch {}
       return <Navigate to="/" replace />;

@@ -63,6 +63,7 @@ const UserProfile: React.FC = () => {
       const useDark = theme === 'dark' || (theme === 'auto' && prefersDark);
       root.classList[useDark ? 'add' : 'remove']('dark');
       root.setAttribute('data-theme', theme || 'light');
+      try { localStorage.setItem('osrx_theme', String(theme || 'light')); } catch {}
     } catch {}
   }, []);
 

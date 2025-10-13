@@ -18,7 +18,7 @@ const Card: React.FC<CardProps> = ({ children, className, padding = 'md', onClic
   return (
     <div
       className={clsx(
-        'bg-white rounded-lg shadow-sm border border-gray-200',
+        'bg-white dark:bg-gray-800 dark:text-gray-100 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700',
         paddingClasses[padding],
         onClick && 'cursor-pointer',
         className

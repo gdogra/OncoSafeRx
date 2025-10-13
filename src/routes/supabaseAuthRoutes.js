@@ -3,6 +3,7 @@ import Joi from 'joi';
 import { rateLimit } from 'express-rate-limit';
 import client from 'prom-client';
 import { authenticateSupabase, optionalSupabaseAuth } from '../middleware/supabaseAuth.js';
+import { generateToken } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import fetch from 'node-fetch';
 import { createClient } from '@supabase/supabase-js';
@@ -127,6 +128,35 @@ router.get('/profile',
     } catch (error) {
       console.error('Profile fetch error:', error);
       res.status(500).json({ error: 'Failed to fetch profile' });
+    }
+  })
+);
+
+/**
+ * Exchange Supabase auth for backend JWT
+ * - Requires Authorization: Bearer <supabase_jwt>
+ * - Issues backend JWT signed with server secret, including role from metadata
+ */
+router.post('/exchange/backend-jwt',
+  authenticateSupabase,
+  asyncHandler(async (req, res) => {
+    try {
+      const user = req.user; // From authenticateSupabase
+      if (!user?.id || !user?.email) {
+        return res.status(400).json({ error: 'Invalid user context for exchange' });
+      }
+
+      const appUser = {
+        id: user.id,
+        email: user.email,
+        role: user.role || 'user'
+      };
+
+      const token = generateToken(appUser);
+      return res.json({ token, expiresIn: process.env.JWT_EXPIRES_IN || '24h' });
+    } catch (e) {
+      console.error('JWT exchange error:', e);
+      return res.status(500).json({ error: 'Failed to exchange token' });
     }
   })
 );

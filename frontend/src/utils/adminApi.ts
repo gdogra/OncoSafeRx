@@ -1,20 +1,57 @@
 // Admin API utility with authentication
 export const adminFetch = async (url: string, options: RequestInit = {}) => {
-  // Get auth token from localStorage
-  const getAuthToken = (): string | null => {
+  // Prefer backend JWT; fallback to exchange Supabase -> backend
+  const readBackendJwt = (): string | null => {
     try {
-      const tokens = localStorage.getItem('osrx_auth_tokens');
-      if (tokens) {
-        const parsed = JSON.parse(tokens);
-        return parsed.access_token || null;
-      }
+      const raw = localStorage.getItem('osrx_backend_jwt');
+      if (!raw) return null;
+      const { token, exp } = JSON.parse(raw);
+      if (token && (!exp || Date.now() < exp - 60_000)) return token; // 1 min skew
     } catch {
-      console.warn('Failed to parse auth tokens');
+      // ignore
     }
     return null;
   };
 
-  const token = getAuthToken();
+  const readSupabaseJwt = (): string | null => {
+    try {
+      const tokens = localStorage.getItem('osrx_auth_tokens');
+      if (!tokens) return null;
+      const parsed = JSON.parse(tokens);
+      return parsed.access_token || null;
+    } catch {
+      return null;
+    }
+  };
+
+  const ensureBackendJwt = async (): Promise<string | null> => {
+    const existing = readBackendJwt();
+    if (existing) return existing;
+    const supa = readSupabaseJwt();
+    if (!supa) return null;
+    try {
+      const resp = await fetch('/api/supabase-auth/exchange/backend-jwt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${supa}` }
+      });
+      if (!resp.ok) return null;
+      const body = await resp.json();
+      const backend = body?.token;
+      if (backend) {
+        // Decode exp if present
+        let exp: number | null = null;
+        try { const payload = JSON.parse(atob(backend.split('.')[1])); exp = payload?.exp ? payload.exp * 1000 : null; } catch {}
+        try { localStorage.setItem('osrx_backend_jwt', JSON.stringify({ token: backend, exp })); } catch {}
+        return backend;
+      }
+    } catch {}
+    return null;
+  };
+
+  let token = readBackendJwt();
+  if (!token) token = await ensureBackendJwt();
+  // As a final fallback (should be rare), try Supabase token directly
+  if (!token) token = readSupabaseJwt();
   
   // Debug: Check token content
   if (token) {

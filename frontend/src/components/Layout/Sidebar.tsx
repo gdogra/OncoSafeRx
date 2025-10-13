@@ -80,12 +80,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     setCollapsedGroups(newCollapsed);
   };
 
-  // Fetch small admin badges (users and audit totals) for super admins only
+  // Fetch small admin badges (users and audit totals) for admin/super_admin only
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
       try {
-        if (user?.role !== 'super_admin') return;
+        if (!(user?.role === 'admin' || user?.role === 'super_admin')) return;
         const d = await adminApi.get('/api/admin/dashboard');
         if (d.ok) {
           const body = await d.json();
@@ -93,7 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         }
       } catch {}
       try {
-        if (user?.role !== 'super_admin') return;
+        if (!(user?.role === 'admin' || user?.role === 'super_admin')) return;
         const a = await adminApi.get('/api/admin/audit?page=1&limit=1');
         if (a.ok) {
           const body = await a.json();

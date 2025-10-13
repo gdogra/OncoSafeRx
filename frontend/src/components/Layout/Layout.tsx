@@ -6,6 +6,7 @@ import ComparisonTray from '../Comparison/ComparisonTray';
 import SkipLinks from '../UI/SkipLinks';
 ConnectivityStatus
 import ConnectivityStatus from '../UI/ConnectivityStatus';
+import ThemeToggle from '../UI/ThemeToggle';
 import HealthBanner from '../System/HealthBanner';
 import LogoutButton from '../Admin/LogoutButton';
 import { useIsMobile } from '../../hooks/useResponsive';
@@ -72,8 +73,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </svg>
             </button>
             <h1 className="text-lg font-semibold text-gray-900">OncoSafeRx</h1>
-            <div className="w-10 text-right">
-              <ConnectivityStatus compact />
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <div className="w-10 text-right">
+                <ConnectivityStatus compact />
+              </div>
             </div>
           </div>
         )}
@@ -83,7 +87,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="px-4 sm:px-6 lg:px-8 py-4">
             {/* Global connectivity widget for desktop */}
             {!isMobile && (
-              <div className="flex justify-end mb-4">
+              <div className="flex justify-end items-center gap-3 mb-4">
+                <ThemeToggle />
                 <ConnectivityStatus />
               </div>
             )}

@@ -5,9 +5,11 @@ import { adminApi } from '../utils/adminApi';
 import { Download } from 'lucide-react';
 import { useToast } from '../components/UI/Toast';
 import AccessDeniedBanner from '../components/Admin/AccessDeniedBanner';
+import { useNavigate } from 'react-router-dom';
 
 const AdminSettings: React.FC = () => {
   const { showToast } = useToast();
+  const navigate = useNavigate();
   const [unauthorized, setUnauthorized] = React.useState(false);
 
   const exportFile = async (type: 'users' | 'stats') => {
@@ -26,7 +28,7 @@ const AdminSettings: React.FC = () => {
       showToast('success', `Exported ${type}`);
     } catch (e: any) {
       console.error(e);
-      if (e?.status === 401 || e?.status === 403) setUnauthorized(true);
+      if (e?.status === 401 || e?.status === 403) { setUnauthorized(true); navigate('/'); }
       showToast('error', e?.message || 'Export failed');
     }
   };

@@ -80,18 +80,25 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
   }
 
   // Make the authenticated request
-  const response = await fetch(url, {
+  const doRequest = async (): Promise<Response> => fetch(url, {
     ...options,
     headers
   });
-
+  let response = await doRequest();
+  if (response.status === 401 || response.status === 403) {
+    try { (window as any)?.showToast?.('info', 'Refreshing access…'); } catch {}
+    // Retry once after clearing backend JWT and re-exchanging
+    try { localStorage.removeItem('osrx_backend_jwt'); } catch {}
+    const refreshed = await ensureBackendJwt();
+    if (refreshed) headers['Authorization'] = `Bearer ${refreshed}`;
+    response = await doRequest();
+  }
   if (!response.ok) {
     const err: any = new Error(`Admin API call failed: ${response.status} ${response.statusText}`);
     err.status = response.status;
     try { err.body = await response.clone().json(); } catch {}
     throw err;
   }
-
   return response;
 };
 

@@ -16,6 +16,7 @@ import {
 import Card from '../components/UI/Card';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { useToast } from '../components/UI/Toast';
+import { useNavigate } from 'react-router-dom';
 import { adminApi } from '../utils/adminApi';
 import AccessDeniedBanner from '../components/Admin/AccessDeniedBanner';
 import { useAuth } from '../context/AuthContext';
@@ -44,6 +45,7 @@ interface CreateUserForm {
 
 const UserAdmin: React.FC = () => {
   const { showToast } = useToast();
+  const navigate = useNavigate();
   const { state, actions } = useAuth();
   const { user } = state;
   const { logout } = actions;
@@ -136,7 +138,8 @@ const UserAdmin: React.FC = () => {
       console.error('Error loading users:', error);
       if (error?.status === 401 || error?.status === 403) {
         setUnauthorized(true);
-        showToast('error', 'Admin access required (401/403)');
+        showToast('error', 'Admin access required');
+        navigate('/');
       } else {
         showToast('error', 'Failed to load users');
       }
@@ -166,7 +169,7 @@ const UserAdmin: React.FC = () => {
       });
       loadUsers();
     } catch (error: any) {
-      if (error?.status === 401 || error?.status === 403) setUnauthorized(true);
+      if (error?.status === 401 || error?.status === 403) { setUnauthorized(true); navigate('/'); }
       showToast('error', error.message);
     }
   };
@@ -188,7 +191,7 @@ const UserAdmin: React.FC = () => {
       setEditForm({});
       loadUsers();
     } catch (error: any) {
-      if (error?.status === 401 || error?.status === 403) setUnauthorized(true);
+      if (error?.status === 401 || error?.status === 403) { setUnauthorized(true); navigate('/'); }
       showToast('error', error.message);
     }
   };
@@ -209,7 +212,7 @@ const UserAdmin: React.FC = () => {
       showToast('success', 'User deleted successfully');
       loadUsers();
     } catch (error: any) {
-      if (error?.status === 401 || error?.status === 403) setUnauthorized(true);
+      if (error?.status === 401 || error?.status === 403) { setUnauthorized(true); navigate('/'); }
       showToast('error', error.message);
     }
   };
@@ -246,7 +249,7 @@ const UserAdmin: React.FC = () => {
       if (!backfillDryRun) loadUsers();
     } catch (e: any) {
       console.error('Backfill error:', e);
-      if (e?.status === 401 || e?.status === 403) setUnauthorized(true);
+      if (e?.status === 401 || e?.status === 403) { setUnauthorized(true); navigate('/'); }
       showToast('error', e?.message || 'Backfill failed');
     }
   };

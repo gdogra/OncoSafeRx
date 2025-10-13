@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 interface KeyboardShortcut {
   key: string;
@@ -21,6 +22,29 @@ interface KeyboardShortcut {
 export function useGlobalKeyboardShortcuts() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { state, actions } = useAuth();
+
+  const applyTheme = (mode: 'light' | 'dark' | 'auto') => {
+    try {
+      const root = document.documentElement;
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const useDark = mode === 'dark' || (mode === 'auto' && prefersDark);
+      root.classList[useDark ? 'add' : 'remove']('dark');
+      root.setAttribute('data-theme', mode || 'light');
+    } catch {}
+  };
+
+  const toggleTheme = async () => {
+    const current = (state.user?.preferences?.theme as any) || 'light';
+    const next = current === 'light' ? 'dark' : current === 'dark' ? 'auto' : 'light';
+    applyTheme(next);
+    try {
+      await actions.updateProfile({ preferences: { ...(state.user?.preferences || {}), theme: next } as any });
+      try { (window as any)?.showToast?.('success', `Theme: ${next}`); } catch {}
+    } catch {
+      try { (window as any)?.showToast?.('warning', 'Theme changed locally (save failed)'); } catch {}
+    }
+  };
 
   const shortcuts: KeyboardShortcut[] = [
     // Navigation shortcuts
@@ -155,6 +179,14 @@ export function useGlobalKeyboardShortcuts() {
         showKeyboardShortcutsHelp();
       },
       description: 'Show keyboard shortcuts help'
+    },
+
+    // Theme toggle: Shift + D
+    {
+      key: 'd',
+      modifiers: { shift: true },
+      action: toggleTheme,
+      description: 'Toggle theme (light/dark/auto)'
     },
 
     // Print and export

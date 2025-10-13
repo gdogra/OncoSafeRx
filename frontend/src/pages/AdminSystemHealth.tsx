@@ -5,6 +5,7 @@ import { Activity, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '../components/UI/Toast';
 import { adminApi } from '../utils/adminApi';
 import AccessDeniedBanner from '../components/Admin/AccessDeniedBanner';
+import { useNavigate } from 'react-router-dom';
 
 type DashboardStats = {
   users: {
@@ -22,6 +23,7 @@ type DashboardStats = {
 
 const AdminSystemHealth: React.FC = () => {
   const { showToast } = useToast();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [unauthorized, setUnauthorized] = useState(false);
@@ -35,7 +37,7 @@ const AdminSystemHealth: React.FC = () => {
         setStats(body.stats);
       } catch (e: any) {
         console.error(e);
-        if (e?.status === 401 || e?.status === 403) setUnauthorized(true);
+        if (e?.status === 401 || e?.status === 403) { setUnauthorized(true); navigate('/'); }
         showToast('error', e?.message || 'Failed to load system health');
       } finally {
         setLoading(false);

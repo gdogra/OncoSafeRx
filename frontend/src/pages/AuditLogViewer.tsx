@@ -5,6 +5,7 @@ import { useToast } from '../components/UI/Toast';
 import { Download, Filter, RefreshCw, Search } from 'lucide-react';
 import { adminApi } from '../utils/adminApi';
 import AccessDeniedBanner from '../components/Admin/AccessDeniedBanner';
+import { useNavigate } from 'react-router-dom';
 
 type AuditLog = {
   id: string;
@@ -19,6 +20,7 @@ type Pagination = { page: number; limit: number; total: number; pages: number };
 
 const AuditLogViewer: React.FC = () => {
   const { showToast } = useToast();
+  const navigate = useNavigate();
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 50, total: 0, pages: 0 });
@@ -50,7 +52,7 @@ const AuditLogViewer: React.FC = () => {
       if (body.pagination) setPagination((prev) => ({ ...prev, ...body.pagination }));
     } catch (e: any) {
       console.error('Audit fetch failed:', e);
-      if (e?.status === 401 || e?.status === 403) setUnauthorized(true);
+      if (e?.status === 401 || e?.status === 403) { setUnauthorized(true); navigate('/'); }
       showToast('error', e?.message || 'Failed to load audit logs');
     } finally {
       setLoading(false);

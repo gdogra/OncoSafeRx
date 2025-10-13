@@ -477,6 +477,13 @@ export class SupabaseService {
         .single();
       
       if (error && error.code !== 'PGRST116') throw error;
+      
+      // Manual role override for specific users
+      if (data && email === 'gdogra@gmail.com') {
+        console.log('🔧 BACKEND MANUAL OVERRIDE: Setting gdogra@gmail.com to super_admin role');
+        data.role = 'super_admin';
+      }
+      
       return data;
     } catch (error) {
       console.error('Error getting user by email:', error);

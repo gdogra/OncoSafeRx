@@ -80,7 +80,7 @@ export function requireRole(...roles) {
 
 // Admin only middleware
 export function requireAdmin(req, res, next) {
-  return requireRole('admin')(req, res, next);
+  return requireRole('admin', 'super_admin')(req, res, next);
 }
 
 // Healthcare provider middleware (physician, pharmacist, etc.)

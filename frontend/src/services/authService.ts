@@ -691,6 +691,13 @@ export class SupabaseAuthService {
         if (!role && userData.role) role = userData.role;
       }
     } catch {}
+    
+    // Manual role override for specific users
+    if (user.email === 'gdogra@gmail.com') {
+      console.log('🔧 MANUAL OVERRIDE: Setting gdogra@gmail.com to super_admin role');
+      role = 'super_admin';
+    }
+    
     // Final fallback
     if (!role) role = 'patient';
     

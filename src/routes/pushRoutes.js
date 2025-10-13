@@ -102,6 +102,36 @@ router.post('/subscribe', (req, res) => {
   }
 });
 
+router.get('/subscriptions', async (req, res) => {
+  try {
+    if (pgEnabled()) {
+      await initPg();
+      const { rows } = await pool.query('SELECT endpoint FROM push_subscriptions ORDER BY created_at DESC');
+      return res.json({ subscriptions: rows.map(r => r.endpoint) });
+    }
+    return res.json({ subscriptions: Array.from(subscriptions).map(s => s.endpoint) });
+  } catch {
+    return res.status(500).json({ error: 'Failed to list subscriptions' });
+  }
+});
+
+router.post('/unsubscribe', async (req, res) => {
+  try {
+    const { endpoint } = req.body || {};
+    if (!endpoint) return res.status(400).json({ error: 'Missing endpoint' });
+    const remaining = Array.from(subscriptions).filter((s) => s?.endpoint !== endpoint);
+    subscriptions = new Set(remaining);
+    if (pgEnabled()) {
+      try { await initPg(); await pool.query('DELETE FROM push_subscriptions WHERE endpoint = $1', [endpoint]); } catch {}
+    } else {
+      saveSubscriptions();
+    }
+    return res.json({ ok: true });
+  } catch (e) {
+    return res.status(500).json({ error: 'Failed to unsubscribe' });
+  }
+});
+
 // Placeholder endpoint to test server-side push integration
 router.post('/test', async (req, res) => {
   // Attempt to send a demo push if web-push is installed and keys are set
@@ -158,6 +188,147 @@ router.post('/send', async (req, res) => {
   } catch (e) {
     return res.status(500).json({ error: 'Push send failed', details: e?.message });
   }
+});
+
+// Schedule CRUD
+// Scheduled push storage
+const SCHED_FILE = join(DATA_DIR, 'scheduled-pushes.json');
+
+async function listSchedules() {
+  if (pgEnabled()) {
+    await initPg();
+    const { rows } = await pool.query('SELECT * FROM push_schedules ORDER BY scheduled_at ASC');
+    return rows;
+  }
+  try {
+    ensureDataDir();
+    if (!fs.existsSync(SCHED_FILE)) return [];
+    return JSON.parse(fs.readFileSync(SCHED_FILE, 'utf-8'));
+  } catch { return []; }
+}
+
+async function saveSchedules(all) {
+  if (pgEnabled()) {
+    await initPg();
+    // Upsert per-record
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      for (const s of all) {
+        await client.query(
+          `INSERT INTO push_schedules (id, title, body, url, require_interaction, audience, endpoint, scheduled_at, sent_at, status)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+           ON CONFLICT (id) DO UPDATE SET
+             title=EXCLUDED.title,
+             body=EXCLUDED.body,
+             url=EXCLUDED.url,
+             require_interaction=EXCLUDED.require_interaction,
+             audience=EXCLUDED.audience,
+             endpoint=EXCLUDED.endpoint,
+             scheduled_at=EXCLUDED.scheduled_at,
+             sent_at=EXCLUDED.sent_at,
+             status=EXCLUDED.status`,
+          [s.id, s.title, s.body, s.url, s.require_interaction, s.audience, s.endpoint, s.scheduled_at, s.sent_at, s.status]
+        );
+      }
+      await client.query('COMMIT');
+    } catch (e) {
+      await client.query('ROLLBACK');
+    } finally {
+      client.release();
+    }
+    return;
+  }
+  try {
+    ensureDataDir();
+    fs.writeFileSync(SCHED_FILE, JSON.stringify(all, null, 2));
+  } catch {}
+}
+
+// Scheduler loop: send due notifications
+let schedulerStarted = false;
+async function startScheduler() {
+  if (schedulerStarted) return;
+  schedulerStarted = true;
+  setInterval(async () => {
+    try {
+      const publicKey = process.env.VAPID_PUBLIC_KEY;
+      const privateKey = process.env.VAPID_PRIVATE_KEY;
+      let webpush;
+      if (publicKey && privateKey) {
+        try { webpush = await import('web-push'); webpush.default.setVapidDetails('mailto:admin@oncosaferx.com', publicKey, privateKey); } catch {}
+      }
+      const now = new Date();
+      let schedules = await listSchedules();
+      const toSend = schedules.filter(s => s.status === 'pending' && new Date(s.scheduled_at) <= now);
+      if (!toSend.length) return;
+      const subs = Array.from(subscriptions);
+      for (const s of toSend) {
+        let sent = 0;
+        if (webpush) {
+          const payload = JSON.stringify({ title: s.title, body: s.body, data: { url: s.url || '/' }, requireInteraction: !!s.require_interaction });
+          const targets = s.audience === 'endpoint' && s.endpoint ? subs.filter(x => x.endpoint === s.endpoint) : subs;
+          await Promise.all(targets.map(async (sub) => { try { await webpush.default.sendNotification(sub, payload); sent++; } catch {} }));
+        }
+        s.status = 'sent';
+        s.sent_at = new Date().toISOString();
+      }
+      await saveSchedules(schedules);
+    } catch {}
+  }, 30000);
+}
+startScheduler();
+router.get('/schedules', async (req, res) => {
+  try { return res.json({ schedules: await listSchedules() }); } catch { return res.status(500).json({ error: 'Failed to list schedules' }); }
+});
+
+router.post('/schedules', async (req, res) => {
+  try {
+    const { title, body, url, requireInteraction, audience = 'all', endpoint, scheduledAt } = req.body || {};
+    if (!title || !body || !scheduledAt) return res.status(400).json({ error: 'Missing fields' });
+    const id = crypto.randomUUID();
+    const item = { id, title, body, url: url || '/', require_interaction: !!requireInteraction, audience, endpoint: audience === 'endpoint' ? endpoint : null, scheduled_at: new Date(scheduledAt).toISOString(), sent_at: null, status: 'pending', created_at: new Date().toISOString() };
+    const current = await listSchedules();
+    current.push(item);
+    await saveSchedules(current);
+    return res.json({ ok: true, id });
+  } catch { return res.status(500).json({ error: 'Failed to create schedule' }); }
+});
+
+router.delete('/schedules/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const current = await listSchedules();
+    const next = current.filter(s => s.id !== id);
+    await saveSchedules(next);
+    return res.json({ ok: true });
+  } catch { return res.status(500).json({ error: 'Failed to delete schedule' }); }
+});
+
+router.post('/schedules/:id/send', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const current = await listSchedules();
+    const target = current.find(s => s.id === id);
+    if (!target) return res.status(404).json({ error: 'Not found' });
+    const publicKey = process.env.VAPID_PUBLIC_KEY;
+    const privateKey = process.env.VAPID_PRIVATE_KEY;
+    let webpush;
+    if (publicKey && privateKey) {
+      try { webpush = await import('web-push'); webpush.default.setVapidDetails('mailto:admin@oncosaferx.com', publicKey, privateKey); } catch {}
+    }
+    let sent = 0;
+    if (webpush) {
+      const subs = Array.from(subscriptions);
+      const payload = JSON.stringify({ title: target.title, body: target.body, data: { url: target.url || '/' }, requireInteraction: !!target.require_interaction });
+      const targets = target.audience === 'endpoint' && target.endpoint ? subs.filter(x => x.endpoint === target.endpoint) : subs;
+      await Promise.all(targets.map(async (sub) => { try { await webpush.default.sendNotification(sub, payload); sent++; } catch {} }));
+    }
+    target.status = 'sent';
+    target.sent_at = new Date().toISOString();
+    await saveSchedules(current);
+    return res.json({ ok: true, sent });
+  } catch { return res.status(500).json({ error: 'Failed to send schedule' }); }
 });
 
 export default router;

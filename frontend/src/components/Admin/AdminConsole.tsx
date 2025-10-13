@@ -61,9 +61,12 @@ const AdminConsole: React.FC = () => {
   const rbac = useRBAC(user);
   const navigate = useNavigate();
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'analytics' | 'system' | 'audit' | 'push'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'analytics' | 'system' | 'audit' | 'push' | 'subscriptions' | 'schedules'>('overview');
   const [pushStatus, setPushStatus] = useState<string>('');
   const [pushForm, setPushForm] = useState<{ title: string; body: string; url: string; requireInteraction: boolean }>({ title: '', body: '', url: '/', requireInteraction: false });
+  const [subs, setSubs] = useState<Array<{ endpoint: string }>>([]);
+  const [schedules, setSchedules] = useState<any[]>([]);
+  const [schedForm, setSchedForm] = useState<{ title: string; body: string; url: string; requireInteraction: boolean; scheduledAt: string; audience: 'all' | 'endpoint'; endpoint?: string }>({ title: '', body: '', url: '/', requireInteraction: false, scheduledAt: '', audience: 'all' });
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -171,6 +174,31 @@ const AdminConsole: React.FC = () => {
       setPushStatus(`Error: ${e?.message || 'failed'}`);
     }
   };
+
+  const loadSubs = async () => {
+    try {
+      const resp = await fetch('/api/push/subscriptions');
+      const body = await resp.json();
+      if (resp.ok) setSubs((body?.subscriptions || []).map((e: string) => ({ endpoint: e })));
+    } catch {}
+  };
+  const removeSub = async (endpoint: string) => {
+    try { await fetch('/api/push/unsubscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint }) } as any); loadSubs(); } catch {}
+  };
+
+  const loadSchedules = async () => {
+    try { const resp = await fetch('/api/push/schedules'); const body = await resp.json(); if (resp.ok) setSchedules(body?.schedules || []); } catch {}
+  };
+  const createSchedule = async () => {
+    try { const resp = await fetch('/api/push/schedules', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(schedForm) } as any); if (resp.ok) { setPushStatus('Schedule created'); setSchedForm({ title: '', body: '', url: '/', requireInteraction: false, scheduledAt: '', audience: 'all' }); loadSchedules(); } } catch {}
+  };
+  const deleteSchedule = async (id: string) => { try { await fetch(`/api/push/schedules/${id}`, { method: 'DELETE' } as any); loadSchedules(); } catch {} };
+  const sendScheduleNow = async (id: string) => { try { await fetch(`/api/push/schedules/${id}/send`, { method: 'POST' } as any); loadSchedules(); } catch {} };
+
+  useEffect(() => {
+    if (activeTab === 'subscriptions') loadSubs();
+    if (activeTab === 'schedules') loadSchedules();
+  }, [activeTab]);
 
   const getStatusColor = (isActive: boolean) => {
     return isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
@@ -599,7 +627,9 @@ const AdminConsole: React.FC = () => {
             { id: 'analytics', label: 'Analytics', icon: BarChart3, permission: 'view_visitor_analytics' },
             { id: 'system', label: 'System', icon: Settings, permission: 'manage_system_settings' },
             { id: 'audit', label: 'Audit Logs', icon: FileText, permission: 'view_audit_logs' },
-            { id: 'push', label: 'Push', icon: Smartphone, permission: null }
+            { id: 'push', label: 'Push', icon: Smartphone, permission: null },
+            { id: 'subscriptions', label: 'Subscriptions', icon: Users, permission: null },
+            { id: 'schedules', label: 'Schedules', icon: Clock, permission: null }
           ].filter(tab => !tab.permission || rbac.hasPermission(tab.permission)).map(tab => {
             const Icon = tab.icon;
             return (
@@ -670,6 +700,85 @@ const AdminConsole: React.FC = () => {
             </div>
             <div className="mt-3">
               <button onClick={handleSendCustomPush} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Send Custom Push</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {activeTab === 'subscriptions' && (
+        <div className="space-y-4">
+          <div className="p-4 bg-white border border-gray-200 rounded">
+            <h3 className="font-medium text-gray-900 mb-2">Push Subscriptions</h3>
+            <p className="text-sm text-gray-700 mb-2">Total: {subs.length}</p>
+            <div className="space-y-2">
+              {subs.map(s => (
+                <div key={s.endpoint} className="flex items-center justify-between p-2 border rounded">
+                  <code className="text-xs break-all mr-2">{s.endpoint}</code>
+                  <button onClick={() => removeSub(s.endpoint)} className="px-2 py-1 text-xs bg-red-600 text-white rounded">Remove</button>
+                </div>
+              ))}
+              {subs.length === 0 && <div className="text-sm text-gray-600">No subscriptions</div>}
+            </div>
+          </div>
+        </div>
+      )}
+      {activeTab === 'schedules' && (
+        <div className="space-y-4">
+          <div className="p-4 bg-white border border-gray-200 rounded">
+            <h3 className="font-medium text-gray-900 mb-2">Create Schedule</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">Title</label>
+                <input value={schedForm.title} onChange={(e) => setSchedForm({ ...schedForm, title: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">URL</label>
+                <input value={schedForm.url} onChange={(e) => setSchedForm({ ...schedForm, url: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm text-gray-700 mb-1">Body</label>
+                <textarea value={schedForm.body} onChange={(e) => setSchedForm({ ...schedForm, body: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2" rows={3} />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">Scheduled At</label>
+                <input type="datetime-local" value={schedForm.scheduledAt} onChange={(e) => setSchedForm({ ...schedForm, scheduledAt: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2" />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">Audience</label>
+                <select value={schedForm.audience} onChange={(e) => setSchedForm({ ...schedForm, audience: e.target.value as any })} className="w-full border border-gray-300 rounded px-3 py-2">
+                  <option value="all">All</option>
+                  <option value="endpoint">Specific Endpoint</option>
+                </select>
+              </div>
+              {schedForm.audience === 'endpoint' && (
+                <div className="md:col-span-2">
+                  <label className="block text-sm text-gray-700 mb-1">Endpoint</label>
+                  <input value={schedForm.endpoint || ''} onChange={(e) => setSchedForm({ ...schedForm, endpoint: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2" />
+                </div>
+              )}
+              <label className="inline-flex items-center text-sm text-gray-700">
+                <input type="checkbox" checked={schedForm.requireInteraction} onChange={(e) => setSchedForm({ ...schedForm, requireInteraction: e.target.checked })} className="mr-2" />
+                Require Interaction
+              </label>
+            </div>
+            <div className="mt-3">
+              <button onClick={createSchedule} className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Create</button>
+            </div>
+          </div>
+          <div className="p-4 bg-white border border-gray-200 rounded">
+            <h3 className="font-medium text-gray-900 mb-2">Scheduled Notifications</h3>
+            <div className="space-y-2">
+              {schedules.map(s => (
+                <div key={s.id} className="p-2 border rounded">
+                  <div className="text-sm font-medium text-gray-900">{s.title}</div>
+                  <div className="text-xs text-gray-600">{s.body}</div>
+                  <div className="text-xs text-gray-500">{s.status} • {new Date(s.scheduled_at).toLocaleString()}</div>
+                  <div className="mt-2 flex items-center gap-2">
+                    <button onClick={() => sendScheduleNow(s.id)} className="px-2 py-1 text-xs bg-blue-600 text-white rounded">Send Now</button>
+                    <button onClick={() => deleteSchedule(s.id)} className="px-2 py-1 text-xs bg-red-600 text-white rounded">Delete</button>
+                  </div>
+                </div>
+              ))}
+              {schedules.length === 0 && <div className="text-sm text-gray-600">No scheduled notifications</div>}
             </div>
           </div>
         </div>

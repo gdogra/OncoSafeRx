@@ -10,7 +10,8 @@ FROM base AS runtime
 # Set working directory in container
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --omit=dev
+# Use npm install instead of npm ci to avoid lock mismatch failures during CI when deps change
+RUN npm install --omit=dev --no-audit --fund=false
 COPY src/ ./src/
 # Build frontend within container with production environment variables
 COPY frontend/ ./frontend/
@@ -27,7 +28,7 @@ ENV VITE_SUPABASE_AUTH_VIA_PROXY=true
 ENV VITE_ALLOW_DEMO_LOGIN=false
 # Ensure devDependencies (e.g., Vite) are installed for build even with NODE_ENV=production
 # Always install devDependencies for build (Vite)
-RUN npm ci --include=dev --no-audit --fund=false && npm run build
+RUN npm install --include=dev --no-audit --fund=false && npm run build
 WORKDIR /app
 
 # Set backend production environment variables

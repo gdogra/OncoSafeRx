@@ -67,6 +67,7 @@ const ArticleUnderstandingDiagnosis = lazy(() => import('./pages/ArticleUndersta
 const ChemoSideEffectsVideo = lazy(() => import('./pages/ChemoSideEffectsVideo'));
 const NutritionDuringTreatmentPDF = lazy(() => import('./pages/NutritionDuringTreatmentPDF'));
 const MeditationInteractive = lazy(() => import('./pages/MeditationInteractive'));
+const NotificationSettings = lazy(() => import('./pages/NotificationSettings'));
 const ArticleLabResults = lazy(() => import('./pages/ArticleLabResults'));
 const VideoSupportNetwork = lazy(() => import('./pages/VideoSupportNetwork'));
 
@@ -257,6 +258,13 @@ function AppWithAuth() {
                   <ProtectedRoute requiredRole={['patient', 'caregiver']}>
                     <Layout>
                       <NutritionDuringTreatmentPDF />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/settings/notifications" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse', 'researcher']}>
+                    <Layout>
+                      <NotificationSettings />
                     </Layout>
                   </ProtectedRoute>
                 } />

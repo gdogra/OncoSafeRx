@@ -72,11 +72,13 @@ const app = express();
 initSentry(app);
 const PORT = parseInt(process.env.PORT) || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
+const IS_PROD = NODE_ENV === 'production';
+const logInfo = (...args) => { if (!IS_PROD) console.log(...args); };
 const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
 
-console.log(`🚀 Starting server with PORT=${PORT} (from env: ${process.env.PORT})`);
-console.log(`🌍 Environment: ${NODE_ENV}`);
-console.log(`🔗 CORS Origin: ${CORS_ORIGIN}`);
+logInfo(`Starting server on PORT=${PORT}`);
+logInfo(`Environment: ${NODE_ENV}`);
+logInfo(`CORS Origin: ${CORS_ORIGIN}`);
 
 // Middleware
 app.set('trust proxy', 1);
@@ -125,8 +127,8 @@ if ((process.env.ENABLE_CSP || '').toLowerCase() === 'true') {
     console.warn('CSP configuration error:', e?.message || e);
   }
 }
-// Strict-Transport-Security when enabled; only use behind HTTPS/terminating proxy
-if (getBoolean('ENABLE_HSTS', NODE_ENV === 'production')) {
+// Strict-Transport-Security when explicitly enabled; only use behind HTTPS/terminating proxy
+if (getBoolean('ENABLE_HSTS', false)) {
   app.use(helmet.hsts({ maxAge: 15552000, includeSubDomains: true, preload: false }));
 }
 app.use(cors({ origin: CORS_ORIGIN === '*' ? true : CORS_ORIGIN.split(',').map(s => s.trim()), credentials: true }));
@@ -390,12 +392,12 @@ if (NODE_ENV === 'development' && process.env.USE_VITE !== 'false') {
 // Serve frontend build (SPA) for non-API routes
 try {
   const clientBuildPath = join(__dirname, '../frontend/dist');
-  console.log(`Frontend serving config: NODE_ENV=${NODE_ENV}, SERVE_FRONTEND=${process.env.SERVE_FRONTEND}, buildPath=${clientBuildPath}`);
+  logInfo(`Frontend serving config: NODE_ENV=${NODE_ENV}, SERVE_FRONTEND=${process.env.SERVE_FRONTEND}, buildPath=${clientBuildPath}`);
   
   const fs = await import('fs');
   const buildExists = fs.existsSync(clientBuildPath);
   const indexExists = fs.existsSync(join(clientBuildPath, 'index.html'));
-  console.log(`Frontend build exists: ${buildExists}, index.html exists: ${indexExists}`);
+  logInfo(`Frontend build exists: ${buildExists}, index.html exists: ${indexExists}`);
   
   if (buildExists && indexExists) {
     // Serve static files with proper MIME types
@@ -417,28 +419,28 @@ try {
         }
       }
     }));
-    console.log(`✅ Serving static files from: ${clientBuildPath}`);
+    logInfo(`Serving static files from: ${clientBuildPath}`);
     
     // Route all non-API, non-asset requests to React index.html
     app.get(/^\/(?!api|test-frontend|health|metrics|assets|favicon\.ico).*/, (req, res, next) => {
-      console.log(`Serving SPA for: ${req.path}`);
+      logInfo(`Serving SPA for: ${req.path}`);
       // Prevent stale HTML caching so hashed asset references stay fresh
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.setHeader('Pragma', 'no-cache');
       res.setHeader('Expires', '0');
       res.sendFile(join(clientBuildPath, 'index.html'), (err) => {
         if (err) {
-          console.log(`❌ Error serving index.html for ${req.path}:`, err.message);
+          if (!IS_PROD) console.log(`Error serving index.html for ${req.path}:`, err.message);
           next();
         }
       });
     });
-    console.log('✅ Frontend SPA routing configured');
+    logInfo('Frontend SPA routing configured');
   } else {
-    console.log('❌ Frontend build directory or index.html not found');
+    logInfo('Frontend build directory or index.html not found');
   }
 } catch (e) {
-  console.log('❌ Error setting up frontend serving:', e.message);
+  console.warn('Error setting up frontend serving:', e.message);
 }
 
 // Test frontend route
@@ -487,14 +489,13 @@ app.use(sentryErrorHandler());
 app.use(errorHandler);
 
 const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`OncoSafeRx API server running on port ${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
-  console.log(`Environment: NODE_ENV=${NODE_ENV}, CORS_ORIGIN=${CORS_ORIGIN}`);
+  console.log(`OncoSafeRx API running on port ${PORT}`);
+  logInfo(`Health: http://localhost:${PORT}/health  CORS: ${CORS_ORIGIN}`);
 });
 
 // Graceful shutdown
 const shutdown = (signal) => {
-  console.log(`Received ${signal}. Shutting down gracefully...`);
+  console.log(`Received ${signal}. Shutting down...`);
   server.close(() => {
     console.log('HTTP server closed');
     process.exit(0);

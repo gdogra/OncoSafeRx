@@ -75,6 +75,7 @@ const AdminSettings = lazy(() => import('./pages/AdminSettings'));
 const FeedbackAdmin = lazy(() => import('./pages/FeedbackAdmin'));
 const AdminConsole = lazy(() => import('./components/Admin/AdminConsole'));
 const AdminHome = lazy(() => import('./pages/AdminHome'));
+const AdminAuthDiagnostics = lazy(() => import('./pages/AdminAuthDiagnostics'));
 const ArticleLabResults = lazy(() => import('./pages/ArticleLabResults'));
 const VideoSupportNetwork = lazy(() => import('./pages/VideoSupportNetwork'));
 
@@ -323,6 +324,13 @@ function AppWithAuth() {
                   <ProtectedRoute requiredRole={['admin','super_admin']}>
                     <Layout>
                       <AdminConsole />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/auth-diagnostics" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <AdminAuthDiagnostics />
                     </Layout>
                   </ProtectedRoute>
                 } />

@@ -25,6 +25,11 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
   };
 
   const ensureBackendJwt = async (): Promise<string | null> => {
+    // Respect cached unsupported flag to avoid spamming 404s
+    try {
+      const untilRaw = localStorage.getItem('osrx_exchange_unsupported_until');
+      if (untilRaw && Date.now() < Number(untilRaw)) return null;
+    } catch {}
     const existing = readBackendJwt();
     if (existing) return existing;
     const supa = readSupabaseJwt();
@@ -34,6 +39,11 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${supa}` }
       });
+      if (resp.status === 404) {
+        // Mark unsupported for 24h
+        try { localStorage.setItem('osrx_exchange_unsupported_until', String(Date.now() + 24*60*60*1000)); } catch {}
+        return null;
+      }
       if (!resp.ok) return null;
       const body = await resp.json();
       const backend = body?.token;

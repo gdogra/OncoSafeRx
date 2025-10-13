@@ -1,8 +1,17 @@
 import jwt from 'jsonwebtoken';
 import supabaseService from '../config/supabase.js';
+import { createClient } from '@supabase/supabase-js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
+
+// Optional Supabase admin client for token introspection (fallback)
+let supabaseAdmin = null;
+try {
+  if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+  }
+} catch {}
 
 // Generate JWT token
 export function generateToken(user) {
@@ -36,12 +45,28 @@ export function authenticateToken(req, res, next) {
   }
 
   const decoded = verifyToken(token);
-  if (!decoded) {
-    return res.status(403).json({ error: 'Invalid or expired token' });
+  if (decoded) {
+    req.user = decoded;
+    return next();
   }
 
-  req.user = decoded;
-  next();
+  // Fallback: accept Supabase JWT by introspecting via service role
+  (async () => {
+    try {
+      if (!supabaseAdmin) throw new Error('supabase_admin_unavailable');
+      const { data, error } = await supabaseAdmin.auth.getUser(token);
+      if (error || !data?.user) throw new Error('invalid_supabase_token');
+      const supa = data.user;
+      req.user = {
+        id: supa.id,
+        email: supa.email,
+        role: supa.user_metadata?.role || 'user'
+      };
+      return next();
+    } catch (e) {
+      return res.status(403).json({ error: 'Invalid or expired token' });
+    }
+  })();
 }
 
 // Optional authentication middleware (doesn't fail if no token)

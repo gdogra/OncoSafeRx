@@ -68,11 +68,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   } 
   // Fallback to role-based access (legacy)
   else if (requiredRole) {
-    // EMERGENCY PRODUCTION FIX: Temporarily allow any authenticated user
-    // while we debug the role access issues
-    const isEmergencyBypass = window.location.hostname !== 'localhost';
-    
-    // SIMPLIFIED: Primary check on user.role (the main role field)
+    // Optional controlled bypass via env (default: off)
+    const emergencyBypass = String((import.meta as any)?.env?.VITE_AUTH_EMERGENCY_BYPASS || '').toLowerCase() === 'true';
+
+    // Primary check on user.role (the main role field)
     const hasRequiredRole = requiredRole.includes(state.user.role);
     
     // Enhanced debugging for production
@@ -80,15 +79,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       requiredRole,
       userRole: state.user.role,
       hasRequiredRole,
-      isEmergencyBypass,
+      emergencyBypass,
       hostname: window.location.hostname,
       userObject: state.user,
       currentPath: location.pathname
     });
     
-    // EMERGENCY: Allow access in production while we debug
-    if (isEmergencyBypass) {
-      console.warn('⚠️ EMERGENCY BYPASS: Allowing access due to production auth issues');
+    // Optional: allow access only if explicitly enabled via env
+    if (emergencyBypass) {
+      console.warn('⚠️ AUTH BYPASS ENABLED via VITE_AUTH_EMERGENCY_BYPASS');
       return <>{children}</>;
     }
     

@@ -31,6 +31,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useRBAC, ROLES, PERMISSIONS } from '../../utils/rbac';
 import visitorTracking from '../../services/visitorTracking';
 import LogoutButton from './LogoutButton';
+// useRBAC already imported above
 
 interface AdminUser {
   id: string;
@@ -61,16 +62,24 @@ const AdminConsole: React.FC = () => {
   const rbac = useRBAC(user);
   const navigate = useNavigate();
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'analytics' | 'system' | 'audit' | 'push' | 'subscriptions' | 'schedules'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'analytics' | 'system' | 'audit' | 'push' | 'subscriptions' | 'schedules' | 'role_management'>('overview');
   const [pushStatus, setPushStatus] = useState<string>('');
   const [pushForm, setPushForm] = useState<{ title: string; body: string; url: string; requireInteraction: boolean }>({ title: '', body: '', url: '/', requireInteraction: false });
   const [subs, setSubs] = useState<Array<{ endpoint: string }>>([]);
   const [schedules, setSchedules] = useState<any[]>([]);
   const [schedForm, setSchedForm] = useState<{ title: string; body: string; url: string; requireInteraction: boolean; scheduledAt: string; audience: 'all' | 'endpoint'; endpoint?: string }>({ title: '', body: '', url: '/', requireInteraction: false, scheduledAt: '', audience: 'all' });
+  const [roleUsers, setRoleUsers] = useState<Array<{ id: string; email: string; full_name: string; role: string }>>([]);
+  const [roleBusy, setRoleBusy] = useState<string>('');
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Audit log state
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [auditPage, setAuditPage] = useState(1);
+  const [auditMeta, setAuditMeta] = useState<{ total: number; pages: number; page: number }>({ total: 0, pages: 1, page: 1 });
+  const [auditFilters, setAuditFilters] = useState<{ actor: string; target: string; action: string; from: string; to: string }>({ actor: '', target: '', action: '', from: '', to: '' });
 
   useEffect(() => {
     if (!rbac.canAccessAdminConsole()) {
@@ -198,7 +207,54 @@ const AdminConsole: React.FC = () => {
   useEffect(() => {
     if (activeTab === 'subscriptions') loadSubs();
     if (activeTab === 'schedules') loadSchedules();
+    if (activeTab === 'role_management') loadRoleUsers();
   }, [activeTab]);
+
+  const loadRoleUsers = async () => {
+    try {
+      const resp = await fetch('/api/admin/users?limit=200');
+      const body = await resp.json();
+      if (resp.ok) setRoleUsers((body?.users || []).map((u: any) => ({ id: u.id, email: u.email, full_name: u.full_name, role: u.role })));
+    } catch {}
+  };
+  const saveUserRole = async (userId: string, newRole: string) => {
+    setRoleBusy(userId);
+    try {
+      const resp = await fetch(`/api/admin/users/${encodeURIComponent(userId)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role: newRole }) } as any);
+      const body = await resp.json();
+      if (resp.ok) {
+        setRoleUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
+        setPushStatus('Role updated');
+      } else {
+        setPushStatus(body?.error || 'Failed to update role');
+      }
+    } catch (e: any) {
+      setPushStatus(e?.message || 'Network error');
+    } finally {
+      setRoleBusy('');
+    }
+  };
+
+  const loadAudit = async (page: number = 1) => {
+    try {
+      const params = new URLSearchParams({ page: page.toString(), limit: '50' });
+      if (auditFilters.actor) params.append('actor', auditFilters.actor);
+      if (auditFilters.target) params.append('target', auditFilters.target);
+      if (auditFilters.action) params.append('action', auditFilters.action);
+      if (auditFilters.from) params.append('from', auditFilters.from);
+      if (auditFilters.to) params.append('to', auditFilters.to);
+      
+      const resp = await fetch(`/api/admin/audit?${params.toString()}`);
+      const body = await resp.json();
+      if (resp.ok) {
+        setAuditLogs(body?.logs || []);
+        setAuditMeta({ total: body?.total || 0, pages: body?.pages || 1, page: body?.page || 1 });
+      }
+    } catch (e) {
+      console.error('Failed to load audit logs:', e);
+      setAuditLogs([]);
+    }
+  };
 
   const getStatusColor = (isActive: boolean) => {
     return isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
@@ -624,6 +680,7 @@ const AdminConsole: React.FC = () => {
           {[
             { id: 'overview', label: 'Overview', icon: Monitor, permission: null },
             { id: 'users', label: 'Users', icon: Users, permission: 'manage_users' },
+            { id: 'role_management', label: 'Role Management', icon: Users, permission: 'manage_roles' },
             { id: 'analytics', label: 'Analytics', icon: BarChart3, permission: 'view_visitor_analytics' },
             { id: 'system', label: 'System', icon: Settings, permission: 'manage_system_settings' },
             { id: 'audit', label: 'Audit Logs', icon: FileText, permission: 'view_audit_logs' },
@@ -654,6 +711,47 @@ const AdminConsole: React.FC = () => {
       {activeTab === 'overview' && renderOverview()}
       {activeTab === 'users' && renderUsers()}
       {activeTab === 'analytics' && renderAnalytics()}
+      {activeTab === 'role_management' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Role Management</h3>
+            <p className="text-sm text-gray-600 mb-4">Manage user roles (super_admin/manage_roles only).</p>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="bg-gray-50 text-left text-sm text-gray-600">
+                    <th className="px-4 py-2">Email</th>
+                    <th className="px-4 py-2">Name</th>
+                    <th className="px-4 py-2">Role</th>
+                    <th className="px-4 py-2">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {roleUsers.map(u => (
+                    <tr key={u.id} className="border-b">
+                      <td className="px-4 py-2 text-sm">{u.email}</td>
+                      <td className="px-4 py-2 text-sm">{u.full_name}</td>
+                      <td className="px-4 py-2">
+                        <select value={u.role} onChange={(e) => setRoleUsers(prev => prev.map(x => x.id === u.id ? { ...x, role: e.target.value } : x))} className="border border-gray-300 rounded px-2 py-1 text-sm">
+                          {['super_admin', 'admin', 'oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver'].map(r => (
+                            <option key={r} value={r}>{r}</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-4 py-2">
+                        <button disabled={roleBusy === u.id} onClick={() => saveUserRole(u.id, u.role)} className="px-3 py-1 bg-blue-600 text-white rounded text-sm disabled:opacity-60">{roleBusy === u.id ? 'Saving…' : 'Save'}</button>
+                      </td>
+                    </tr>
+                  ))}
+                  {roleUsers.length === 0 && (
+                    <tr><td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-600">No users</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
       {activeTab === 'system' && (
         <div className="text-center py-12">
           <Settings className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -662,10 +760,54 @@ const AdminConsole: React.FC = () => {
         </div>
       )}
       {activeTab === 'audit' && (
-        <div className="text-center py-12">
-          <FileText className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Audit Logs</h3>
-          <p className="text-gray-600">System audit trails and compliance logging.</p>
+        <div className="space-y-4">
+          <div className="p-4 bg-white border border-gray-200 rounded">
+            <h3 className="font-medium text-gray-900 mb-2">Audit Logs</h3>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-3">
+              <input placeholder="Actor ID" value={auditFilters.actor} onChange={(e) => setAuditFilters({ ...auditFilters, actor: e.target.value })} className="border border-gray-300 rounded px-2 py-1 text-sm" />
+              <input placeholder="Target User ID" value={auditFilters.target} onChange={(e) => setAuditFilters({ ...auditFilters, target: e.target.value })} className="border border-gray-300 rounded px-2 py-1 text-sm" />
+              <input placeholder="Action (e.g., role_update)" value={auditFilters.action} onChange={(e) => setAuditFilters({ ...auditFilters, action: e.target.value })} className="border border-gray-300 rounded px-2 py-1 text-sm" />
+              <input type="datetime-local" value={auditFilters.from} onChange={(e) => setAuditFilters({ ...auditFilters, from: e.target.value })} className="border border-gray-300 rounded px-2 py-1 text-sm" />
+              <input type="datetime-local" value={auditFilters.to} onChange={(e) => setAuditFilters({ ...auditFilters, to: e.target.value })} className="border border-gray-300 rounded px-2 py-1 text-sm" />
+            </div>
+            <div className="flex items-center gap-2 mb-3">
+              <button onClick={() => { setAuditPage(1); loadAudit(1); }} className="px-3 py-1 bg-blue-600 text-white rounded text-sm">Apply</button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="bg-gray-50 text-left text-sm text-gray-600">
+                    <th className="px-4 py-2">Time</th>
+                    <th className="px-4 py-2">Actor</th>
+                    <th className="px-4 py-2">Target</th>
+                    <th className="px-4 py-2">Action</th>
+                    <th className="px-4 py-2">Details</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {auditLogs.map((log) => (
+                    <tr key={log.id} className="border-b">
+                      <td className="px-4 py-2 text-sm">{new Date(log.created_at).toLocaleString()}</td>
+                      <td className="px-4 py-2 text-sm">{log.actor_id}</td>
+                      <td className="px-4 py-2 text-sm">{log.target_user_id}</td>
+                      <td className="px-4 py-2 text-sm">{log.action}</td>
+                      <td className="px-4 py-2 text-xs"><code>{JSON.stringify(log.details)}</code></td>
+                    </tr>
+                  ))}
+                  {auditLogs.length === 0 && (
+                    <tr><td colSpan={5} className="px-4 py-6 text-center text-sm text-gray-600">No audit entries</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex items-center justify-between mt-3">
+              <span className="text-sm text-gray-600">Page {auditPage} of {auditMeta.pages} • {auditMeta.total} entries</span>
+              <div className="space-x-2">
+                <button disabled={auditPage <= 1} onClick={() => { const p = Math.max(1, auditPage - 1); setAuditPage(p); loadAudit(p); }} className="px-2 py-1 text-sm border rounded disabled:opacity-50">Prev</button>
+                <button disabled={auditPage >= auditMeta.pages} onClick={() => { const p = Math.min(auditMeta.pages, auditPage + 1); setAuditPage(p); loadAudit(p); }} className="px-2 py-1 text-sm border rounded disabled:opacity-50">Next</button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
       {activeTab === 'push' && (

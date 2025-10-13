@@ -3,6 +3,7 @@ import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import supabaseService from '../config/supabase.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import enterpriseRBACService from '../services/enterpriseRBACService.js';
+import crypto from 'crypto';
 
 const router = express.Router();
 
@@ -294,6 +295,24 @@ router.put('/users/:userId', asyncHandler(async (req, res) => {
     }
 
     const updatedUser = await supabaseService.updateUser(userId, updateData);
+
+    // Audit: record role change if applicable
+    try {
+      if (role && role !== existingUser.role && supabaseService.enabled && supabaseService.client) {
+        const { error: auditErr } = await supabaseService.client.from('admin_audit').insert({
+          id: (await import('crypto')).randomUUID(),
+          actor_id: req.user?.id || 'unknown',
+          target_user_id: userId,
+          action: 'role_update',
+          details: { before: existingUser.role, after: role }
+        });
+        if (auditErr) {
+          console.warn('Audit insert failed:', auditErr.message);
+        }
+      }
+    } catch (e) {
+      console.warn('Audit logging error:', e?.message || e);
+    }
     const { password_hash, ...userResponse } = updatedUser;
     
     res.json({ 
@@ -600,3 +619,80 @@ router.get('/export/:type', asyncHandler(async (req, res) => {
 }));
 
 export default router;
+// List admin audit logs with filters
+router.get('/audit', asyncHandler(async (req, res) => {
+  try {
+    const { page = 1, limit = 50, actor, target, action, from, to } = req.query;
+    const p = Math.max(1, parseInt(page));
+    const l = Math.min(200, Math.max(1, parseInt(limit)));
+    const fromIdx = (p - 1) * l;
+    const toIdx = fromIdx + l - 1;
+
+    if (!supabaseService.enabled || !supabaseService.client) {
+      return res.json({ logs: [], pagination: { page: p, limit: l, total: 0, pages: 0 } });
+    }
+
+    let query = supabaseService.client.from('admin_audit').select('*', { count: 'exact' }).order('created_at', { ascending: false });
+    if (actor) query = query.eq('actor_id', actor);
+    if (target) query = query.eq('target_user_id', target);
+    if (action) query = query.eq('action', action);
+    if (from) query = query.gte('created_at', new Date(from).toISOString());
+    if (to) query = query.lte('created_at', new Date(to).toISOString());
+    query = query.range(fromIdx, toIdx);
+    const { data, error, count } = await query;
+    if (error) return res.status(500).json({ error: error.message });
+    const total = count || 0;
+    return res.json({ logs: data || [], pagination: { page: p, limit: l, total, pages: Math.ceil(total / l) } });
+  } catch (e) {
+    return res.status(500).json({ error: 'Failed to fetch audit logs' });
+  }
+}));
+
+// Backfill roles based on auth metadata role when DB role is missing
+router.post('/users/backfill-roles', asyncHandler(async (req, res) => {
+  try {
+    const dryRun = String(req.query.dryRun || req.query.dryrun || req.body?.dryRun || '').toLowerCase() === 'true';
+    let updated = 0;
+    let scanned = 0;
+    if (supabaseService.enabled && supabaseService.client?.auth?.admin) {
+      // Iterate auth users in pages
+      let page = 1;
+      const perPage = 1000;
+      while (true) {
+        const { data, error } = await supabaseService.client.auth.admin.listUsers({ page, perPage });
+        if (error) break;
+        const list = data?.users || [];
+        if (list.length === 0) break;
+        for (const u of list) {
+          scanned++;
+          const metaRole = u?.user_metadata?.role;
+          if (!metaRole) continue;
+          // Check DB role
+          const { data: dbRow } = await supabaseService.client.from('users').select('id,role').eq('id', u.id).maybeSingle();
+          if (!dbRow || !dbRow.role) {
+            if (!dryRun) {
+              await supabaseService.client.from('users').upsert({ id: u.id, role: metaRole });
+              await supabaseService.client.from('admin_audit').insert({ id: crypto.randomUUID(), actor_id: req.user?.id || 'system', target_user_id: u.id, action: 'role_backfill', details: { role: metaRole } });
+            }
+            updated++;
+          }
+        }
+        page++;
+        if (list.length < perPage) break;
+      }
+    } else {
+      // No-op service: iterate in-memory users
+      const users = await supabaseService.getAllUsers();
+      for (const u of users) {
+        scanned++;
+        if (!u.role && u.user_metadata?.role) {
+          if (!dryRun) await supabaseService.updateUser(u.id, { role: u.user_metadata.role });
+          updated++;
+        }
+      }
+    }
+    return res.json({ ok: true, scanned, updated, dryRun });
+  } catch (e) {
+    return res.status(500).json({ error: 'Backfill failed' });
+  }
+}));

@@ -675,74 +675,32 @@ export class SupabaseAuthService {
       identity_data: user.identities?.[0]?.identity_data
     });
     
-    // First try to get role from user_metadata, then fallback, then query database
+    // Resolve role with clear priority: metadata -> DB -> fallback -> patient
     let role = user.user_metadata?.role || fallbackData?.role;
     
-    // BACKEND API DISABLED: The backend API at oncosaferx.onrender.com returns hardcoded
-    // mock data that overrides correct Supabase database values. Disabling to ensure
-    // users get correct role data from Supabase directly.
-    let dbProfile = null;
-    console.log('🔧 Backend API disabled - querying Supabase database directly for role');
-    
-    // Query Supabase database directly for user role if not found in metadata
-    // ALWAYS query database for Danny Maude and gdogra to debug the role issue
-    if (!role || user.email === 'maudedanny3@gmail.com' || user.email === 'gdogra@gmail.com') {
-      // First check for specific user overrides due to database permission issues
-      if (user.email === 'maudedanny3@gmail.com') {
-        console.log('🔧 MANUAL OVERRIDE: Setting Danny Maude to patient role (production fix)');
-        role = 'patient';
-      } else if (user.email === 'gdogra@gmail.com') {
-        console.log('🔧 MANUAL OVERRIDE: Setting gdogra@gmail.com to oncologist role');
-        role = 'oncologist';
-      } else {
-        try {
-          console.log('🔍 Querying Supabase database for user:', user.email, 'existing role from metadata:', role);
-          const { data: userData, error } = await supabase
-            .from('users')
-            .select('*')  // Select all fields to see what's in the database
-            .eq('email', user.email)
-            .single();
-          
-          console.log('🔍 Database query result:', { userData, error, hasData: !!userData, hasError: !!error });
-          
-          if (userData && !error && userData.role) {
-            role = userData.role;
-            console.log('✅ Found role in database:', role, 'Full user data:', userData);
-          } else if (userData && !error && !userData.role) {
-            console.log('⚠️ User found in database but no role field set:', userData);
-            role = role || 'patient'; // Default to patient instead of student
-          } else if (error && error.code === '42501') {
-            console.error('❌ Database permission denied (using metadata fallback):', error);
-            role = role || 'patient'; // Default to patient for permission errors
-          } else if (error) {
-            console.error('❌ Database error:', error);
-            role = role || 'patient'; // Default to patient instead of student
-          } else {
-            console.log('⚠️ No user found in database for email:', user.email);
-            role = role || 'patient'; // Default to patient instead of student
-          }
-        } catch (error) {
-          console.error('❌ Exception querying database for role:', error);
-          role = role || 'patient'; // Default to patient instead of student
-        }
+    // Query Supabase users table for the canonical role and profile fields
+    let dbProfile: any = null;
+    try {
+      const { data: userData, error } = await supabase
+        .from('users')
+        .select('id,email,first_name,last_name,role,specialty,institution,license_number,years_experience,preferences,persona')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (!error && userData) {
+        dbProfile = userData;
+        if (!role && userData.role) role = userData.role;
       }
-    }
-    
-    // TEMPORARY: Manual role override for Danny Maude while debugging database issue
-    if (user.email === 'maudedanny3@gmail.com') {
-      console.log('🔧 MANUAL OVERRIDE: Setting Danny Maude to patient role');
-      role = 'patient';
-    }
+    } catch {}
+    // Final fallback
+    if (!role) role = 'patient';
     
     // Build profile, prioritizing database data over auth metadata
-    console.log('🔍 ROLE DEBUG v3.1 WITH MANUAL OVERRIDE:', {
+    console.log('🔍 ROLE RESOLUTION:', {
       userEmail: user.email,
       userMetadataRole: user.user_metadata?.role,
       fallbackRole: fallbackData?.role,
-      queriedDatabaseRole: role,
       finalRole: role,
-      hadToQueryDatabase: !user.user_metadata?.role && !fallbackData?.role,
-      manualOverrideApplied: user.email === 'maudedanny3@gmail.com',
+      hadToQueryDatabase: !!dbProfile,
       userMetadataFull: user.user_metadata,
       timestamp: new Date().toISOString()
     });
@@ -760,13 +718,13 @@ export class SupabaseAuthService {
     const profile = {
       id: user.id,
       email: user.email || fallbackData?.email || '',
-      firstName: dbProfile?.firstName || derivedFirst || 'User',
-      lastName: dbProfile?.lastName || derivedLast || '',
+      firstName: dbProfile?.first_name || derivedFirst || 'User',
+      lastName: dbProfile?.last_name || derivedLast || '',
       role: finalRole,
       specialty: dbProfile?.specialty || user.user_metadata?.specialty || fallbackData?.specialty || '',
       institution: dbProfile?.institution || user.user_metadata?.institution || fallbackData?.institution || '',
-      licenseNumber: dbProfile?.licenseNumber || user.user_metadata?.license_number || fallbackData?.licenseNumber || '',
-      yearsExperience: dbProfile?.yearsExperience || user.user_metadata?.years_experience || fallbackData?.yearsExperience || 0,
+      licenseNumber: dbProfile?.license_number || user.user_metadata?.license_number || fallbackData?.licenseNumber || '',
+      yearsExperience: dbProfile?.years_experience || user.user_metadata?.years_experience || fallbackData?.yearsExperience || 0,
       preferences: dbProfile?.preferences || user.user_metadata?.preferences || this.getDefaultPreferences(role),
       persona: dbProfile?.persona || user.user_metadata?.persona || this.createDefaultPersona(role),
       createdAt: user.created_at || new Date().toISOString(),

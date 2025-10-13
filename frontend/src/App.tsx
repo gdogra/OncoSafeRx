@@ -68,6 +68,12 @@ const ChemoSideEffectsVideo = lazy(() => import('./pages/ChemoSideEffectsVideo')
 const NutritionDuringTreatmentPDF = lazy(() => import('./pages/NutritionDuringTreatmentPDF'));
 const MeditationInteractive = lazy(() => import('./pages/MeditationInteractive'));
 const NotificationSettings = lazy(() => import('./pages/NotificationSettings'));
+const UserAdmin = lazy(() => import('./pages/UserAdmin'));
+const AuditLogViewer = lazy(() => import('./pages/AuditLogViewer'));
+const AdminSystemHealth = lazy(() => import('./pages/AdminSystemHealth'));
+const AdminSettings = lazy(() => import('./pages/AdminSettings'));
+const FeedbackAdmin = lazy(() => import('./pages/FeedbackAdmin'));
+const AdminConsole = lazy(() => import('./components/Admin/AdminConsole'));
 const ArticleLabResults = lazy(() => import('./pages/ArticleLabResults'));
 const VideoSupportNetwork = lazy(() => import('./pages/VideoSupportNetwork'));
 
@@ -265,6 +271,48 @@ function AppWithAuth() {
                   <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse', 'researcher']}>
                     <Layout>
                       <NotificationSettings />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/users" element={
+                  <ProtectedRoute requiredRole={['super_admin']}>
+                    <Layout>
+                      <UserAdmin />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/audit" element={
+                  <ProtectedRoute requiredRole={['super_admin']}>
+                    <Layout>
+                      <AuditLogViewer />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/health" element={
+                  <ProtectedRoute requiredRole={['super_admin']}>
+                    <Layout>
+                      <AdminSystemHealth />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/settings" element={
+                  <ProtectedRoute requiredRole={['super_admin']}>
+                    <Layout>
+                      <AdminSettings />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/feedback" element={
+                  <ProtectedRoute requiredRole={['super_admin']}>
+                    <Layout>
+                      <FeedbackAdmin />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/console" element={
+                  <ProtectedRoute requiredRole={['super_admin']}>
+                    <Layout>
+                      <AdminConsole />
                     </Layout>
                   </ProtectedRoute>
                 } />

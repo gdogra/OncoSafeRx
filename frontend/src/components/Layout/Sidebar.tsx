@@ -12,6 +12,7 @@ import {
   HelpCircle, 
   Users, 
   Stethoscope,
+  Settings as SettingsIcon,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
@@ -363,11 +364,51 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         title: 'Compliance & Governance',
         items: [
           { 
+            path: '/admin/console', 
+            label: 'Admin Console', 
+            icon: SettingsIcon, 
+            description: 'Administrative overview & tools',
+            roles: ['super_admin'],
+            requiresPermission: null
+          },
+          { 
             path: '/regulatory-compliance', 
             label: 'Regulatory Compliance', 
             icon: Shield, 
             description: 'HIPAA, FDA, GDPR compliance management',
             roles: ['oncologist', 'pharmacist', 'nurse'],
+            requiresPermission: null
+          },
+          { 
+            path: '/admin/health', 
+            label: 'System Health', 
+            icon: Activity, 
+            description: 'Platform status and services',
+            roles: ['super_admin'],
+            requiresPermission: null
+          },
+          { 
+            path: '/admin/audit', 
+            label: 'Audit Logs', 
+            icon: FileText, 
+            description: 'Administrative audit trail',
+            roles: ['super_admin'],
+            requiresPermission: null
+          },
+          { 
+            path: '/admin/users', 
+            label: 'User Management', 
+            icon: Users, 
+            description: 'Manage user accounts and roles',
+            roles: ['super_admin'],
+            requiresPermission: null
+          },
+          { 
+            path: '/admin/settings', 
+            label: 'Admin Settings', 
+            icon: SettingsIcon, 
+            description: 'Maintenance and utilities',
+            roles: ['super_admin'],
             requiresPermission: null
           },
           { 

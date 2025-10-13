@@ -10,7 +10,8 @@ import {
   Shield,
   CheckCircle,
   XCircle,
-  AlertTriangle
+  AlertTriangle,
+  RefreshCw
 } from 'lucide-react';
 import Card from '../components/UI/Card';
 import { useToast } from '../components/UI/Toast';
@@ -61,6 +62,8 @@ const UserAdmin: React.FC = () => {
     total: 0,
     pages: 0
   });
+  const [backfillDryRun, setBackfillDryRun] = useState(true);
+  const [backfillResult, setBackfillResult] = useState<{ scanned: number; updated: number } | null>(null);
   
   const { showToast } = useToast();
 
@@ -189,6 +192,21 @@ const UserAdmin: React.FC = () => {
       showToast('success', 'Users exported successfully');
     } catch (error) {
       showToast('error', 'Failed to export users');
+    }
+  };
+
+  const runBackfill = async () => {
+    try {
+      const params = new URLSearchParams({ dryRun: String(backfillDryRun) });
+      const resp = await fetch(`/api/admin/users/backfill-roles?${params.toString()}`, { method: 'POST' });
+      if (!resp.ok) throw new Error('Backfill failed');
+      const body = await resp.json();
+      setBackfillResult({ scanned: body.scanned || 0, updated: body.updated || 0 });
+      showToast('success', backfillDryRun ? `Dry run: ${body.updated} updates of ${body.scanned} scanned` : `Updated ${body.updated} users`);
+      if (!backfillDryRun) loadUsers();
+    } catch (e: any) {
+      console.error('Backfill error:', e);
+      showToast('error', e?.message || 'Backfill failed');
     }
   };
 
@@ -330,6 +348,28 @@ const UserAdmin: React.FC = () => {
             <option value="inactive">Inactive</option>
           </select>
         </div>
+      </Card>
+
+      {/* Role Backfill Utility */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Role Backfill Utility</h3>
+            <p className="text-gray-600 text-sm">Populate missing user roles from auth metadata (one-time utility)</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="flex items-center text-sm text-gray-700">
+              <input type="checkbox" className="mr-2" checked={backfillDryRun} onChange={(e) => setBackfillDryRun(e.target.checked)} />
+              Dry Run
+            </label>
+            <button onClick={runBackfill} className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+              <RefreshCw size={16} /> {backfillDryRun ? 'Preview Changes' : 'Run Backfill'}
+            </button>
+          </div>
+        </div>
+        {backfillResult && (
+          <div className="mt-3 text-sm text-gray-700">Scanned: {backfillResult.scanned} • {backfillDryRun ? 'Would update' : 'Updated'}: {backfillResult.updated}</div>
+        )}
       </Card>
 
       {/* Users Table */}

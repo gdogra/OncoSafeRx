@@ -74,6 +74,7 @@ const AdminSystemHealth = lazy(() => import('./pages/AdminSystemHealth'));
 const AdminSettings = lazy(() => import('./pages/AdminSettings'));
 const FeedbackAdmin = lazy(() => import('./pages/FeedbackAdmin'));
 const AdminConsole = lazy(() => import('./components/Admin/AdminConsole'));
+const AdminHome = lazy(() => import('./pages/AdminHome'));
 const ArticleLabResults = lazy(() => import('./pages/ArticleLabResults'));
 const VideoSupportNetwork = lazy(() => import('./pages/VideoSupportNetwork'));
 
@@ -271,6 +272,13 @@ function AppWithAuth() {
                   <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse', 'researcher']}>
                     <Layout>
                       <NotificationSettings />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin" element={
+                  <ProtectedRoute requiredRole={['super_admin']}>
+                    <Layout>
+                      <AdminHome />
                     </Layout>
                   </ProtectedRoute>
                 } />

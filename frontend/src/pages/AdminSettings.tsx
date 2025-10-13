@@ -1,5 +1,6 @@
 import React from 'react';
 import Card from '../components/UI/Card';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { Download } from 'lucide-react';
 import { useToast } from '../components/UI/Toast';
 
@@ -28,6 +29,7 @@ const AdminSettings: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin', href: '/admin/console' }, { label: 'Admin Settings' }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Admin Settings</h1>
@@ -51,4 +53,3 @@ const AdminSettings: React.FC = () => {
 };
 
 export default AdminSettings;
-

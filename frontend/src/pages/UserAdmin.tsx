@@ -14,6 +14,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import Card from '../components/UI/Card';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { useToast } from '../components/UI/Toast';
 
 interface User {
@@ -243,6 +244,7 @@ const UserAdmin: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin', href: '/admin/console' }, { label: 'User Management' }]} />
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>

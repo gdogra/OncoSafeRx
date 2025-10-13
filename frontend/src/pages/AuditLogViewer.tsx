@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Card from '../components/UI/Card';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { useToast } from '../components/UI/Toast';
 import { Download, Filter, RefreshCw, Search } from 'lucide-react';
 
@@ -93,6 +94,7 @@ const AuditLogViewer: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin', href: '/admin/console' }, { label: 'Audit Logs' }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Audit Logs</h1>
@@ -192,4 +194,3 @@ const AuditLogViewer: React.FC = () => {
 };
 
 export default AuditLogViewer;
-

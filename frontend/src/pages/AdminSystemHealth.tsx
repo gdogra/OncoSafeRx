@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Card from '../components/UI/Card';
+import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { Activity, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '../components/UI/Toast';
 
@@ -42,6 +43,7 @@ const AdminSystemHealth: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin', href: '/admin/console' }, { label: 'System Health' }]} />
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">System Health</h1>
@@ -130,4 +132,3 @@ const AdminSystemHealth: React.FC = () => {
 };
 
 export default AdminSystemHealth;
-

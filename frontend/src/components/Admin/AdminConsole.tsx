@@ -31,6 +31,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useRBAC, ROLES, PERMISSIONS } from '../../utils/rbac';
 import visitorTracking from '../../services/visitorTracking';
 import LogoutButton from './LogoutButton';
+import Breadcrumbs from '../UI/Breadcrumbs';
 // useRBAC already imported above
 
 interface AdminUser {
@@ -643,6 +644,7 @@ const AdminConsole: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
+      <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin Console' }]} />
       {/* Logout Button */}
       <LogoutButton />
       

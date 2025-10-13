@@ -53,6 +53,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [focusedItem, setFocusedItem] = useState<string | null>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const [adminBadges, setAdminBadges] = useState<{ users?: { total: number; active: number }; auditTotal?: number }>({});
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -77,6 +78,31 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     }
     setCollapsedGroups(newCollapsed);
   };
+
+  // Fetch small admin badges (users and audit totals) for super admins only
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        if (user?.role !== 'super_admin') return;
+        const d = await fetch('/api/admin/dashboard');
+        if (d.ok) {
+          const body = await d.json();
+          if (!cancelled) setAdminBadges(prev => ({ ...prev, users: { total: body?.stats?.users?.total || 0, active: body?.stats?.users?.active || 0 } }));
+        }
+      } catch {}
+      try {
+        if (user?.role !== 'super_admin') return;
+        const a = await fetch('/api/admin/audit?page=1&limit=1');
+        if (a.ok) {
+          const body = await a.json();
+          if (!cancelled) setAdminBadges(prev => ({ ...prev, auditTotal: body?.pagination?.total || 0 }));
+        }
+      } catch {}
+    };
+    load();
+    return () => { cancelled = true; };
+  }, [user?.role]);
 
   // Grouped navigation items with clear Information Architecture
   const getGroupedNavItems = () => {
@@ -363,6 +389,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       {
         title: 'Compliance & Governance',
         items: [
+          { 
+            path: '/admin', 
+            label: 'Admin Home', 
+            icon: Shield, 
+            description: 'Admin landing overview',
+            roles: ['super_admin'],
+            requiresPermission: null
+          },
           { 
             path: '/admin/console', 
             label: 'Admin Console', 
@@ -694,6 +728,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                         >
                           {description}
                         </div>
+                      </div>
+                    )}
+                    {isOpen && user?.role === 'super_admin' && (
+                      <div className="ml-2">
+                        {path === '/admin/users' && adminBadges.users && (
+                          <Tooltip content={`Active ${adminBadges.users.active} of ${adminBadges.users.total}`}>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                              {adminBadges.users.active}/{adminBadges.users.total}
+                            </span>
+                          </Tooltip>
+                        )}
+                        {path === '/admin/audit' && typeof adminBadges.auditTotal === 'number' && (
+                          <Tooltip content={`Total audit entries: ${adminBadges.auditTotal}`}>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                              {adminBadges.auditTotal}
+                            </span>
+                          </Tooltip>
+                        )}
                       </div>
                     )}
                     

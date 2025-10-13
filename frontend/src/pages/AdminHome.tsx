@@ -3,6 +3,7 @@ import Card from '../components/UI/Card';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { Link } from 'react-router-dom';
 import { Shield, Users, FileText, Activity, Settings as SettingsIcon, MessageSquare } from 'lucide-react';
+import { adminApi } from '../utils/adminApi';
 
 type DashboardStats = {
   users: { total: number; active: number; inactive: number; byRole: Record<string, number> };
@@ -19,31 +20,25 @@ const AdminHome: React.FC = () => {
     const load = async () => {
       try {
         // Dashboard stats
-        const d = await fetch('/api/admin/dashboard');
-        if (d.ok) {
-          const body = await d.json();
-          setStats(body?.stats || null);
-        }
+        const d = await adminApi.get('/api/admin/dashboard');
+        const body = await d.json();
+        setStats(body?.stats || null);
       } catch {}
       try {
         // Get audit total cheaply (limit 1, rely on count on backend)
-        const a = await fetch('/api/admin/audit?page=1&limit=1');
-        if (a.ok) {
-          const body = await a.json();
-          setAuditTotal(body?.pagination?.total ?? null);
-        }
+        const a = await adminApi.get('/api/admin/audit?page=1&limit=1');
+        const body = await a.json();
+        setAuditTotal(body?.pagination?.total ?? null);
       } catch {}
       try {
         // Load recent system logs to compute last sync time and error count
-        const r = await fetch('/api/admin/logs?page=1&limit=25');
-        if (r.ok) {
-          const body = await r.json();
-          const logs = (body?.logs || []) as Array<any>;
-          const latest = logs[0]?.created_at || logs[0]?.started_at || null;
-          setLastSyncAt(latest ? new Date(latest).toISOString() : null);
-          const errors = logs.filter((l: any) => (String(l.status || '').toLowerCase() !== 'completed')).length;
-          setErrorCount(errors);
-        }
+        const r = await adminApi.get('/api/admin/logs?page=1&limit=25');
+        const body = await r.json();
+        const logs = (body?.logs || []) as Array<any>;
+        const latest = logs[0]?.created_at || logs[0]?.started_at || null;
+        setLastSyncAt(latest ? new Date(latest).toISOString() : null);
+        const errors = logs.filter((l: any) => (String(l.status || '').toLowerCase() !== 'completed')).length;
+        setErrorCount(errors);
       } catch {}
     };
     load();

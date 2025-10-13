@@ -16,6 +16,7 @@ import {
 import Card from '../components/UI/Card';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { useToast } from '../components/UI/Toast';
+import { adminApi } from '../utils/adminApi';
 
 interface User {
   id: string;
@@ -85,7 +86,7 @@ const UserAdmin: React.FC = () => {
       if (roleFilter) params.append('role', roleFilter);
       if (statusFilter) params.append('status', statusFilter);
 
-      const response = await fetch(`/api/admin/users?${params}`);
+      const response = await adminApi.get(`/api/admin/users?${params}`);
       if (!response.ok) throw new Error('Failed to load users');
       
       const data = await response.json();
@@ -101,11 +102,7 @@ const UserAdmin: React.FC = () => {
 
   const createUser = async () => {
     try {
-      const response = await fetch('/api/admin/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(createForm)
-      });
+      const response = await adminApi.post('/api/admin/users', createForm);
 
       if (!response.ok) {
         const error = await response.json();
@@ -132,11 +129,7 @@ const UserAdmin: React.FC = () => {
     if (!selectedUser) return;
     
     try {
-      const response = await fetch(`/api/admin/users/${selectedUser.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editForm)
-      });
+      const response = await adminApi.put(`/api/admin/users/${selectedUser.id}`, editForm);
 
       if (!response.ok) {
         const error = await response.json();
@@ -159,9 +152,7 @@ const UserAdmin: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`/api/admin/users/${user.id}`, {
-        method: 'DELETE'
-      });
+      const response = await adminApi.delete(`/api/admin/users/${user.id}`);
 
       if (!response.ok) {
         const error = await response.json();
@@ -199,7 +190,7 @@ const UserAdmin: React.FC = () => {
   const runBackfill = async () => {
     try {
       const params = new URLSearchParams({ dryRun: String(backfillDryRun) });
-      const resp = await fetch(`/api/admin/users/backfill-roles?${params.toString()}`, { method: 'POST' });
+      const resp = await adminApi.post(`/api/admin/users/backfill-roles?${params.toString()}`, {});
       if (!resp.ok) throw new Error('Backfill failed');
       const body = await resp.json();
       setBackfillResult({ scanned: body.scanned || 0, updated: body.updated || 0 });

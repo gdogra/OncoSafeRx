@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { hasPermission, getRoleConfig, RolePermissions } from '../../utils/roleConfig';
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation';
+import { adminApi } from '../../utils/adminApi';
 import { 
   Activity, 
   Search, 
@@ -85,7 +86,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     const load = async () => {
       try {
         if (user?.role !== 'super_admin') return;
-        const d = await fetch('/api/admin/dashboard');
+        const d = await adminApi.get('/api/admin/dashboard');
         if (d.ok) {
           const body = await d.json();
           if (!cancelled) setAdminBadges(prev => ({ ...prev, users: { total: body?.stats?.users?.total || 0, active: body?.stats?.users?.active || 0 } }));
@@ -93,7 +94,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       } catch {}
       try {
         if (user?.role !== 'super_admin') return;
-        const a = await fetch('/api/admin/audit?page=1&limit=1');
+        const a = await adminApi.get('/api/admin/audit?page=1&limit=1');
         if (a.ok) {
           const body = await a.json();
           if (!cancelled) setAdminBadges(prev => ({ ...prev, auditTotal: body?.pagination?.total || 0 }));

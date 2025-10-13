@@ -32,6 +32,7 @@ import { useRBAC, ROLES, PERMISSIONS } from '../../utils/rbac';
 import visitorTracking from '../../services/visitorTracking';
 import LogoutButton from './LogoutButton';
 import Breadcrumbs from '../UI/Breadcrumbs';
+import { adminApi } from '../../utils/adminApi';
 // useRBAC already imported above
 
 interface AdminUser {
@@ -213,7 +214,7 @@ const AdminConsole: React.FC = () => {
 
   const loadRoleUsers = async () => {
     try {
-      const resp = await fetch('/api/admin/users?limit=200');
+      const resp = await adminApi.get('/api/admin/users?limit=200');
       const body = await resp.json();
       if (resp.ok) setRoleUsers((body?.users || []).map((u: any) => ({ id: u.id, email: u.email, full_name: u.full_name, role: u.role })));
     } catch {}
@@ -221,7 +222,7 @@ const AdminConsole: React.FC = () => {
   const saveUserRole = async (userId: string, newRole: string) => {
     setRoleBusy(userId);
     try {
-      const resp = await fetch(`/api/admin/users/${encodeURIComponent(userId)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role: newRole }) } as any);
+      const resp = await adminApi.put(`/api/admin/users/${encodeURIComponent(userId)}`, { role: newRole });
       const body = await resp.json();
       if (resp.ok) {
         setRoleUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
@@ -245,7 +246,7 @@ const AdminConsole: React.FC = () => {
       if (auditFilters.from) params.append('from', auditFilters.from);
       if (auditFilters.to) params.append('to', auditFilters.to);
       
-      const resp = await fetch(`/api/admin/audit?${params.toString()}`);
+      const resp = await adminApi.get(`/api/admin/audit?${params.toString()}`);
       const body = await resp.json();
       if (resp.ok) {
         setAuditLogs(body?.logs || []);

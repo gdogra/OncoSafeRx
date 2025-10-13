@@ -3,6 +3,7 @@ import Card from '../components/UI/Card';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { useToast } from '../components/UI/Toast';
 import { Download, Filter, RefreshCw, Search } from 'lucide-react';
+import { adminApi } from '../utils/adminApi';
 
 type AuditLog = {
   id: string;
@@ -41,8 +42,7 @@ const AuditLogViewer: React.FC = () => {
   const loadLogs = async () => {
     setLoading(true);
     try {
-      const resp = await fetch(`/api/admin/audit?${params}`);
-      if (!resp.ok) throw new Error(`Failed to load audit logs (${resp.status})`);
+      const resp = await adminApi.get(`/api/admin/audit?${params}`);
       const body = await resp.json();
       setLogs(body.logs || []);
       if (body.pagination) setPagination((prev) => ({ ...prev, ...body.pagination }));

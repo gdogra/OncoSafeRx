@@ -3,6 +3,7 @@ import Card from '../components/UI/Card';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { Activity, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '../components/UI/Toast';
+import { adminApi } from '../utils/adminApi';
 
 type DashboardStats = {
   users: {
@@ -27,8 +28,7 @@ const AdminSystemHealth: React.FC = () => {
     const load = async () => {
       setLoading(true);
       try {
-        const resp = await fetch('/api/admin/dashboard');
-        if (!resp.ok) throw new Error('Failed to fetch dashboard');
+        const resp = await adminApi.get('/api/admin/dashboard');
         const body = await resp.json();
         setStats(body.stats);
       } catch (e: any) {

@@ -4,7 +4,6 @@ import MobileLayout from '../Mobile/MobileLayout';
 import FeedbackButton from '../Feedback/FeedbackButton';
 import ComparisonTray from '../Comparison/ComparisonTray';
 import SkipLinks from '../UI/SkipLinks';
-ConnectivityStatus
 import ConnectivityStatus from '../UI/ConnectivityStatus';
 import ThemeToggle from '../UI/ThemeToggle';
 import HealthBanner from '../System/HealthBanner';
@@ -14,7 +13,6 @@ import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { Shield } from 'lucide-react';
 import AdminModeBanner from '../Admin/AdminModeBanner';
-import { useAuth } from '../../context/AuthContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -25,8 +23,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { state } = useAuth();
   const role = state.user?.role || '';
   const envLabel = (import.meta as any)?.env?.VITE_ENV_LABEL as string | undefined;
-  const { state } = useAuth();
-  const role = state.user?.role || '';
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
 

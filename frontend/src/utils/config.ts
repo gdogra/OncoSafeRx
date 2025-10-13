@@ -91,7 +91,7 @@ export const config: AppConfig = {
   
   performance: {
     // Enable service worker to support background notifications and offline features
-    enableServiceWorker: true,
+    enableServiceWorker: false,
     enableLazyLoading: true,
     cacheStrategy: environment === 'production' ? 'stale-while-revalidate' : 'network-first'
   }

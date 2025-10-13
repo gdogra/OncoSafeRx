@@ -166,6 +166,7 @@ export interface ClinicalTrial {
   eligibility_criteria?: string;
   locations?: any;
   contact_info?: any;
+  url?: string;
 }
 
 // Oncology protocol types
@@ -221,6 +222,7 @@ export interface PatientDemographics {
 }
 
 export interface PatientLabValues {
+  id?: string;
   timestamp: string;
   labType: string;
   value: number;
@@ -232,6 +234,8 @@ export interface PatientLabValues {
 
 export interface PatientAllergy {
   id: string;
+  // Back-compat display field occasionally referenced
+  name?: string;
   allergen: string;
   allergenType: 'drug' | 'food' | 'environmental' | 'other';
   reaction: string;
@@ -243,7 +247,7 @@ export interface PatientAllergy {
 
 export interface PatientMedication {
   id: string;
-  drug: Drug;
+  drug?: Drug;
   // Back-compat convenience fields
   name?: string;
   drugName?: string;
@@ -286,6 +290,8 @@ export interface PatientGenetics {
   testMethod?: string;
   clinicalSignificance?: string;
   notes?: string;
+  // Back-compat property referenced in some components
+  geneFunction?: string;
 }
 
 export interface PatientVitals {
@@ -366,11 +372,16 @@ export interface PatientProfile {
   genetics: PatientGenetics[];
   vitals: PatientVitals[];
   treatmentHistory: TreatmentHistory[];
+  medicalHistory?: any[];
   primaryDiagnosis?: string;
-  appointments: PatientAppointment[];
-  sideEffectReports: PatientSideEffectReport[];
+  appointments?: PatientAppointment[];
+  sideEffectReports?: PatientSideEffectReport[];
   // Back-compat field occasionally referenced
   genomicProfile?: any;
+  // Additional back-compat fields referenced in some pages
+  age?: number;
+  gender?: string;
+  genomicData?: any;
   notes: Array<{
     id: string;
     timestamp: string;

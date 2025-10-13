@@ -266,7 +266,7 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 <Route path="/genomics" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'researcher']}>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'researcher', 'patient']}>
                     <Layout>
                       <GenomicsAnalysis />
                     </Layout>

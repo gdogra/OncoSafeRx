@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { 
   Upload, 
   Download, 
@@ -26,6 +27,7 @@ import {
 import { Patient } from '../../types/clinical';
 import { GenomicAnalysisService } from '../../services/genomicAnalysisService';
 import { patientService } from '../../services/patientService';
+import { useAuth } from '../../context/AuthContext';
 
 interface TabInfo {
   id: string;
@@ -35,6 +37,7 @@ interface TabInfo {
 }
 
 const EnhancedGenomicsAnalysis: React.FC = () => {
+  const { state: auth } = useAuth();
   const [activeTab, setActiveTab] = useState('upload');
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -167,6 +170,10 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
       try {
         const loadedPatients = await patientService.getPatients();
         setPatients(loadedPatients);
+        // If the current user is a patient, auto-select their record and skip manual selection
+        if (auth.user?.role === 'patient' && loadedPatients.length > 0) {
+          setSelectedPatient(loadedPatients[0]);
+        }
       } catch (error) {
         console.error('Failed to load patients:', error);
         setPatients([]);
@@ -174,7 +181,8 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
     };
     
     loadPatients();
-  }, []);
+    // Re-evaluate if auth role changes
+  }, [auth.user?.role]);
 
   const tabs: TabInfo[] = [
     {
@@ -317,25 +325,48 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
 
   const renderUploadTab = () => (
     <div className="space-y-6">
-      {/* Patient Selection */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Patient</h3>
-        <select
-          value={selectedPatient?.id || ''}
-          onChange={(e) => {
-            const patient = patients.find(p => p.id === e.target.value);
-            setSelectedPatient(patient || null);
-          }}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        >
-          <option value="">Choose a patient...</option>
-          {patients.map(patient => (
-            <option key={patient.id} value={patient.id}>
-              {patient.firstName} {patient.lastName} - {patient.mrn}
-            </option>
-          ))}
-        </select>
-      </div>
+      {/* Patient Selection (hidden for patient users) */}
+      {auth.user?.role !== 'patient' ? (
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Patient</h3>
+          <select
+            value={selectedPatient?.id || ''}
+            onChange={(e) => {
+              const patient = patients.find(p => p.id === e.target.value);
+              setSelectedPatient(patient || null);
+            }}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Choose a patient...</option>
+            {patients.map(patient => (
+              <option key={patient.id} value={patient.id}>
+                {patient.firstName} {patient.lastName} - {patient.mrn}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : selectedPatient ? (
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Your Profile</h3>
+          <p className="text-gray-700">
+            {selectedPatient.firstName} {selectedPatient.lastName}
+            {selectedPatient.mrn ? ` • MRN ${selectedPatient.mrn}` : ''}
+          </p>
+        </div>
+      ) : (
+        <div className="bg-yellow-50 rounded-lg border border-yellow-200 p-6">
+          <h3 className="text-lg font-semibold text-yellow-900 mb-2">We couldn’t find your record yet</h3>
+          <p className="text-yellow-800 mb-4">
+            To analyze your genomics, please create your health profile first.
+          </p>
+          <Link
+            to="/my-profile"
+            className="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+          >
+            Create My Profile
+          </Link>
+        </div>
+      )}
 
       {/* File Upload */}
       {selectedPatient && (

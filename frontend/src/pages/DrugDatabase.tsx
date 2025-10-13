@@ -280,7 +280,7 @@ const DrugDatabase: React.FC = () => {
         </div>
         <div className="flex items-center space-x-1">
           {drug.fdaApproved && (
-            <CheckCircle className="w-4 h-4 text-green-500" title="FDA Approved" />
+            <CheckCircle className="w-4 h-4 text-green-500" aria-label="FDA Approved" />
           )}
           <button
             onClick={() => addToComparison(drug)}

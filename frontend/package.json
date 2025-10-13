@@ -43,6 +43,7 @@
     "dev": "vite",
     "start": "vite",
     "build": "vite build",
+    "type-check:core": "tsc --noEmit -p tsconfig.core.json",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { hasPermission, getRoleConfig } from '../../utils/roleConfig';
+import { hasPermission, getRoleConfig, RolePermissions } from '../../utils/roleConfig';
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation';
 import { 
   Activity, 
@@ -420,6 +420,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       ...(user?.role === 'patient' || user?.role === 'caregiver' ? [{
         title: 'Education & Support',
         items: [
+          // Patient quick link to Genomics
+          ...(user?.role === 'patient' ? [{
+            path: '/genomics',
+            label: 'Analyze My Genomics',
+            icon: Dna,
+            description: 'Upload and analyze your genomic report',
+            roles: ['patient'],
+            requiresPermission: null
+          }] : []),
           { 
             path: '/drug-lookup', 
             label: 'Medication Information', 
@@ -485,7 +494,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         if (!item.roles.includes(user.role)) return false;
         
         // Check permission if required
-        if (item.requiresPermission && !hasPermission(user.role, item.requiresPermission)) {
+        if (item.requiresPermission && !hasPermission(user.role, item.requiresPermission as keyof RolePermissions)) {
           return false;
         }
         
@@ -550,8 +559,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         {/* Navigation */}
         <nav 
           ref={(el) => {
-            containerRef.current = el;
-            sidebarRef.current = el;
+            containerRef.current = el as unknown as HTMLElement | null;
+            sidebarRef.current = el as HTMLDivElement | null;
           }}
           className="flex-1 px-2 py-4 space-y-2 overflow-y-auto"
           role="navigation"

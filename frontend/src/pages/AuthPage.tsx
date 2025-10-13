@@ -291,9 +291,8 @@ const AuthPage: React.FC = () => {
       return;
     }
     try {
-      const redirectTo = `${window.location.origin}/`;
       const { SupabaseAuthService } = await import('../services/authService');
-      await SupabaseAuthService.requestMagicLink(email, redirectTo);
+      await SupabaseAuthService.requestMagicLink(email);
       showToast('success', 'Magic link sent. Check your email.');
     } catch (e: any) {
       setErrors(prev => ({ ...prev, submit: e?.message || 'Failed to send magic link' }));
@@ -305,8 +304,8 @@ const AuthPage: React.FC = () => {
     setErrors(prev => ({ ...prev, submit: '' }));
     try {
       const { SupabaseAuthService } = await import('../services/authService');
-      const profile = await SupabaseAuthService.verifyEmailOtp(loginData.email, otpCode);
-      showToast('success', `Welcome back, ${profile.firstName || profile.email}`);
+      await SupabaseAuthService.verifyEmailOtp(loginData.email, otpCode);
+      showToast('success', `Code verified for ${loginData.email}`);
     } catch (e: any) {
       setErrors(prev => ({ ...prev, submit: e?.message || 'Failed to verify code' }));
       showToast('error', e?.message || 'Failed to verify code');
@@ -320,9 +319,8 @@ const AuthPage: React.FC = () => {
       return;
     }
     try {
-      const redirectTo = `${window.location.origin}/`;
       const { SupabaseAuthService } = await import('../services/authService');
-      await SupabaseAuthService.resendConfirmation(email, redirectTo);
+      await SupabaseAuthService.resendConfirmation(email);
       showToast('success', 'Confirmation email sent');
     } catch (e: any) {
       showToast('error', e?.message || 'Failed to resend confirmation');

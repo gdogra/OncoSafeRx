@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
 import Card from '../components/UI/Card';
 import { Clock, User, Tag, ChevronDown, ChevronUp, Quote, Heart } from 'lucide-react';
+import FeedbackModal from '../components/Feedback/FeedbackModal';
 
 const PatientSuccessStories: React.FC = () => {
   const [expandedStory, setExpandedStory] = useState<number | null>(null);
+  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
 
   const toggleStory = (index: number) => {
     setExpandedStory(expandedStory === index ? null : index);
@@ -412,10 +414,21 @@ const PatientSuccessStories: React.FC = () => {
         <p className="text-gray-700 mb-4">
           Your experience could help someone else on their cancer journey. If you'd like to share your story, we'd love to hear from you.
         </p>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+        <button
+          onClick={() => setIsFeedbackOpen(true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+        >
           Submit Your Story
         </button>
       </div>
+
+      {/* Story submission uses existing feedback system */}
+      <FeedbackModal
+        isOpen={isFeedbackOpen}
+        onClose={() => setIsFeedbackOpen(false)}
+        initialType="compliment"
+        initialComponent="Patient Success Stories"
+      />
     </div>
   );
 };

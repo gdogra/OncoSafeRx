@@ -14,6 +14,7 @@ interface Medication {
   name: string;
   dosage: string;
   frequency: string;
+  frequencyOther?: string;
   startDate: string;
   endDate?: string;
   prescribedBy: string;
@@ -22,6 +23,7 @@ interface Medication {
   isActive: boolean;
   nextDose?: string;
   adherence?: number;
+  drug?: { name?: string };
 }
 
 const MyMedications: React.FC = () => {
@@ -286,9 +288,10 @@ const MyMedications: React.FC = () => {
       name: medication.drug?.name || '',
       dosage: medication.dosage || '',
       frequency: medication.frequency || '',
-      route: medication.route || 'oral',
-      prescribedBy: medication.prescriber || '',
-      instructions: medication.indication || '',
+      frequencyOther: (medication as any).frequencyOther || '',
+      route: (medication as any).route || 'oral',
+      prescribedBy: (medication as any).prescriber || '',
+      instructions: (medication as any).indication || '',
       startDate: medication.startDate || new Date().toISOString().split('T')[0]
     });
     setShowAddForm(true);
@@ -304,11 +307,8 @@ const MyMedications: React.FC = () => {
 
     const updatedMedication = {
       ...editingMedication,
-      drug: {
-        ...editingMedication.drug,
-        name: newMedication.name,
-        generic_name: newMedication.name
-      },
+      // Store updated name primarily in drugName for compatibility
+      drugName: newMedication.name,
       dosage: newMedication.dosage,
       frequency: newMedication.frequency,
       route: newMedication.route || 'oral',
@@ -346,8 +346,8 @@ const MyMedications: React.FC = () => {
     tryApi().then((ok) => {
       if (!ok) {
         const updatedMedications = currentPatient.medications.map(med => 
-          med.id === (editingMedication as any).id ? updatedMedication : med
-        );
+          med.id === (editingMedication as any).id ? (updatedMedication as any) : med
+        ) as any;
         actions.updatePatientData({ medications: updatedMedications });
         showToast('warning', 'Updated locally (offline)');
       }

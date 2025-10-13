@@ -277,7 +277,7 @@ const ServerPatients: React.FC = () => {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  const fetchPatients = async (opts?: { resetPage?: boolean; bustCache?: boolean }) => {
+  const fetchPatients = async (opts?: { resetPage?: boolean; bustCache?: boolean; forcePage?: number; forceQuery?: string }) => {
     setLoading(true);
     
     // In development without backend, use mock data
@@ -357,8 +357,8 @@ const ServerPatients: React.FC = () => {
             setTimeout(() => reject(new Error('Session timeout')), 1000)
           );
           
-          const { data } = await Promise.race([sessionPromise, timeoutPromise]);
-          token = data?.session?.access_token;
+          const raced: any = await Promise.race([sessionPromise as any, timeoutPromise as any]);
+          token = raced?.data?.session?.access_token;
           console.log('💫 Got token from getSession()');
         } catch (error) {
           console.warn('💫 getSession() failed:', error.message);

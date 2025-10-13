@@ -480,26 +480,23 @@ export class CollaborationService {
       id: apiTeam.id,
       name: apiTeam.name,
       description: apiTeam.description,
-      specialty: apiTeam.specialty.toLowerCase(),
-      members: apiTeam.members.map((member: any) => ({
+      specialty: String(apiTeam.specialty || 'multidisciplinary').toLowerCase() as any,
+      members: (apiTeam.members || []).map((member: any) => ({
         id: member.id,
         name: member.name,
-        role: member.role.toLowerCase().replace(' ', '_'),
+        role: (String(member.role || 'physician').toLowerCase().replace(' ', '_')) as any,
         title: member.role,
         email: member.email,
         phone: member.phone,
         specialty: member.specialization,
         credentials: [],
-        availability: { status: 'available', lastSeen: new Date().toISOString() },
-        isLead: member.isLead || false
+        permissions: [{ resource: 'patients', actions: ['view'] }],
+        availability: { status: 'available' as const },
+        joinedDate: apiTeam.createdDate || new Date().toISOString(),
+        lastActive: new Date().toISOString(),
       })),
-      settings: {
-        allowGuestAccess: false,
-        requireApproval: true,
-        autoArchive: true
-      },
-      createdBy: 'system',
-      createdAt: apiTeam.createdDate || new Date().toISOString(),
+      patients: [],
+      createdDate: apiTeam.createdDate || new Date().toISOString(),
       lastActivity: new Date().toISOString(),
       isActive: apiTeam.isActive !== false
     };
@@ -509,33 +506,23 @@ export class CollaborationService {
     return {
       id: apiBoard.id,
       name: apiBoard.name,
-      description: apiBoard.description,
-      teamId: apiBoard.teamId,
-      schedule: {
-        frequency: 'weekly',
-        dayOfWeek: apiBoard.schedule.dayOfWeek.toLowerCase(),
-        time: apiBoard.schedule.time,
-        duration: apiBoard.schedule.duration,
-        timezone: 'America/New_York'
-      },
-      meetingLink: apiBoard.schedule.virtualLink || '',
-      cases: apiBoard.cases.map((case_: any) => ({
-        id: case_.id,
-        patientId: case_.patientId,
-        title: case_.title,
-        presenter: case_.presenter,
-        status: case_.status,
-        scheduledDate: case_.dateScheduled,
-        summary: case_.summary,
-        attachments: [],
-        discussion: {
-          points: case_.questions || [],
-          decisions: [],
-          followUpActions: []
-        }
-      })),
-      nextMeeting: apiBoard.nextMeeting,
-      isActive: apiBoard.isActive !== false
+      type: 'weekly',
+      scheduledDate: apiBoard.nextMeeting || new Date().toISOString(),
+      duration: apiBoard.schedule?.duration || 60,
+      location: apiBoard.location || 'Virtual',
+      virtualMeetingUrl: apiBoard.schedule?.virtualLink,
+      chair: (apiBoard.chair?.id || '') as string,
+      presenters: (apiBoard.presenters || []).map((p: any) => p.id),
+      attendees: (apiBoard.attendees || []).map((a: any) => a.id),
+      cases: [],
+      agenda: [],
+      notes: '',
+      decisions: [],
+      actionItems: [],
+      status: 'scheduled',
+      createdBy: apiBoard.createdBy || 'system',
+      createdDate: apiBoard.createdDate || new Date().toISOString(),
+      lastModified: new Date().toISOString()
     };
   }
 
@@ -543,27 +530,22 @@ export class CollaborationService {
     return {
       id: apiPathway.id,
       name: apiPathway.name,
-      description: apiPathway.description,
-      cancerType: apiPathway.cancerType,
+      version: apiPathway.version || '1.0',
+      condition: apiPathway.cancerType || apiPathway.condition || 'Oncology',
       stage: apiPathway.stage,
-      version: apiPathway.version,
-      steps: apiPathway.steps.map((step: any) => ({
-        id: step.id,
-        order: step.order,
-        title: step.title,
-        description: step.description,
-        estimatedDuration: step.timeframe,
-        requirements: step.requirements || [],
-        responsibleRole: step.responsible,
-        isRequired: true,
-        branchingLogic: []
-      })),
-      outcomes: {
-        primaryEndpoints: apiPathway.outcomes?.primaryEndpoints || [],
-        qualityMetrics: apiPathway.outcomes?.qualityMetrics || []
-      },
-      lastUpdated: apiPathway.lastUpdated,
-      isActive: apiPathway.isActive !== false
+      lineOfTherapy: apiPathway.lineOfTherapy,
+      steps: [],
+      decisionPoints: [],
+      evidenceBasis: apiPathway.evidenceBasis || 'Institutional guidelines',
+      lastReviewed: apiPathway.lastUpdated || new Date().toISOString(),
+      reviewBy: apiPathway.reviewBy || 'Clinical Committee',
+      approvedBy: apiPathway.approvedBy || 'Medical Director',
+      effectiveDate: apiPathway.effectiveDate || new Date().toISOString(),
+      patientsEnrolled: apiPathway.patientsEnrolled || 0,
+      completionRate: apiPathway.completionRate || 0,
+      outcomeMetrics: [],
+      varianceReporting: true,
+      qualityIndicators: []
     };
   }
 

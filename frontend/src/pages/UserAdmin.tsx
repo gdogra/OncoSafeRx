@@ -62,7 +62,7 @@ const UserAdmin: React.FC = () => {
     pages: 0
   });
   
-  const { addToast } = useToast();
+  const { showToast } = useToast();
 
   const validRoles = ['admin', 'oncologist', 'pharmacist', 'nurse', 'researcher', 'user'];
 
@@ -89,7 +89,7 @@ const UserAdmin: React.FC = () => {
       setPagination(prev => ({ ...prev, ...data.pagination }));
     } catch (error) {
       console.error('Error loading users:', error);
-      addToast('Failed to load users', 'error');
+      showToast('error', 'Failed to load users');
     } finally {
       setLoading(false);
     }
@@ -108,7 +108,7 @@ const UserAdmin: React.FC = () => {
         throw new Error(error.error || 'Failed to create user');
       }
 
-      addToast('User created successfully', 'success');
+      showToast('success', 'User created successfully');
       setShowCreateModal(false);
       setCreateForm({
         email: '',
@@ -120,7 +120,7 @@ const UserAdmin: React.FC = () => {
       });
       loadUsers();
     } catch (error: any) {
-      addToast(error.message, 'error');
+      showToast('error', error.message);
     }
   };
 
@@ -139,13 +139,13 @@ const UserAdmin: React.FC = () => {
         throw new Error(error.error || 'Failed to update user');
       }
 
-      addToast('User updated successfully', 'success');
+      showToast('success', 'User updated successfully');
       setShowEditModal(false);
       setSelectedUser(null);
       setEditForm({});
       loadUsers();
     } catch (error: any) {
-      addToast(error.message, 'error');
+      showToast('error', error.message);
     }
   };
 
@@ -164,10 +164,10 @@ const UserAdmin: React.FC = () => {
         throw new Error(error.error || 'Failed to delete user');
       }
 
-      addToast('User deleted successfully', 'success');
+      showToast('success', 'User deleted successfully');
       loadUsers();
     } catch (error: any) {
-      addToast(error.message, 'error');
+      showToast('error', error.message);
     }
   };
 
@@ -186,9 +186,9 @@ const UserAdmin: React.FC = () => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       
-      addToast('Users exported successfully', 'success');
+      showToast('success', 'Users exported successfully');
     } catch (error) {
-      addToast('Failed to export users', 'error');
+      showToast('error', 'Failed to export users');
     }
   };
 

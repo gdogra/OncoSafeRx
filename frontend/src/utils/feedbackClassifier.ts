@@ -200,13 +200,13 @@ export class FeedbackClassifier {
     category: FeedbackCategory,
     priority: Priority
   ): string[] {
-    const labels = [type, category, priority];
+    const labels: string[] = [type, category, priority];
     
     const text = `${feedback.title} ${feedback.description}`.toLowerCase();
     
     // Add specific labels based on content
     if (text.includes('mobile') || text.includes('phone')) labels.push('mobile');
-    if (text.includes('accessibility')) labels.push('accessibility');
+    if (text.includes('accessibility')) labels.push('a11y');
     if (text.includes('performance')) labels.push('performance');
     if (text.includes('api')) labels.push('api');
     if (feedback.component) labels.push(`component:${feedback.component}`);

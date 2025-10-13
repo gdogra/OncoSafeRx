@@ -75,14 +75,20 @@ export class SimpleAuthService {
       yearsExperience: data.yearsExperience || 5,
       preferences: {
         theme: 'light',
+        language: 'en',
         notifications: { email: true, push: true, criticalAlerts: true, weeklyReports: false },
-        dashboard: { defaultView: 'overview', compactMode: false },
-        clinical: { riskTolerance: 'moderate', alertSensitivity: 'high', workflowStyle: 'thorough', decisionSupport: 'guided' }
+        dashboard: { defaultView: 'overview', refreshInterval: 15, compactMode: false },
+        clinical: { showGenomicsByDefault: true, autoCalculateDosing: true, requireInteractionAck: false, showPatientPhotos: false }
       },
       persona: {
+        id: `persona-${userId}`,
         name: data.persona?.name || 'Medical Oncologist',
         description: data.persona?.description || 'Clinical oncology specialist',
-        capabilities: data.persona?.capabilities || ['drug-interactions', 'protocols', 'research']
+        role: data.role || 'oncologist',
+        experienceLevel: 'expert',
+        specialties: [data.specialty || 'Medical Oncology'],
+        preferences: { riskTolerance: 'moderate', alertSensitivity: 'high', workflowStyle: 'thorough', decisionSupport: 'guided' },
+        customSettings: {}
       },
       createdAt: new Date().toISOString(),
       lastLogin: new Date().toISOString(),
@@ -120,14 +126,20 @@ export class SimpleAuthService {
       yearsExperience: 5,
       preferences: {
         theme: 'light',
+        language: 'en',
         notifications: { email: true, push: true, criticalAlerts: true, weeklyReports: false },
-        dashboard: { defaultView: 'overview', compactMode: false },
-        clinical: { riskTolerance: 'moderate', alertSensitivity: 'high', workflowStyle: 'thorough', decisionSupport: 'guided' }
+        dashboard: { defaultView: 'overview', refreshInterval: 15, compactMode: false },
+        clinical: { showGenomicsByDefault: true, autoCalculateDosing: true, requireInteractionAck: false, showPatientPhotos: false }
       },
       persona: {
+        id: `persona-${userId}`,
         name: 'Medical Oncologist',
         description: 'Clinical oncology specialist',
-        capabilities: ['drug-interactions', 'protocols', 'research']
+        role: 'oncologist',
+        experienceLevel: 'expert',
+        specialties: ['Medical Oncology'],
+        preferences: { riskTolerance: 'moderate', alertSensitivity: 'high', workflowStyle: 'thorough', decisionSupport: 'guided' },
+        customSettings: {}
       },
       createdAt: new Date().toISOString(),
       lastLogin: new Date().toISOString(),
@@ -176,14 +188,20 @@ export class SimpleAuthService {
         yearsExperience: updates.yearsExperience || currentProfile?.yearsExperience || 5,
         preferences: updates.preferences || currentProfile?.preferences || {
           theme: 'light',
+          language: 'en',
           notifications: { email: true, push: true, criticalAlerts: true, weeklyReports: false },
-          dashboard: { defaultView: 'overview', compactMode: false },
-          clinical: { riskTolerance: 'moderate', alertSensitivity: 'high', workflowStyle: 'thorough', decisionSupport: 'guided' }
+          dashboard: { defaultView: 'overview', refreshInterval: 15, compactMode: false },
+          clinical: { showGenomicsByDefault: true, autoCalculateDosing: true, requireInteractionAck: false, showPatientPhotos: false }
         },
         persona: updates.persona || currentProfile?.persona || {
+          id: `persona-${userId}`,
           name: 'Medical Oncologist',
           description: 'Clinical oncology specialist',
-          capabilities: ['drug-interactions', 'protocols', 'research']
+          role: 'oncologist',
+          experienceLevel: 'expert',
+          specialties: ['Medical Oncology'],
+          preferences: { riskTolerance: 'moderate', alertSensitivity: 'high', workflowStyle: 'thorough', decisionSupport: 'guided' },
+          customSettings: {}
         },
         createdAt: currentProfile?.createdAt || new Date().toISOString(),
         lastLogin: new Date().toISOString(),
@@ -242,14 +260,20 @@ export class SimpleAuthService {
         yearsExperience: 5,
         preferences: {
           theme: 'light',
+          language: 'en',
           notifications: { email: true, push: true, criticalAlerts: true, weeklyReports: false },
-          dashboard: { defaultView: 'overview', compactMode: false },
-          clinical: { riskTolerance: 'moderate', alertSensitivity: 'high', workflowStyle: 'thorough', decisionSupport: 'guided' }
+          dashboard: { defaultView: 'overview', refreshInterval: 15, compactMode: false },
+          clinical: { showGenomicsByDefault: true, autoCalculateDosing: true, requireInteractionAck: false, showPatientPhotos: false }
         },
         persona: {
+          id: `persona-${userId}`,
           name: 'Medical Oncologist',
           description: 'Clinical oncology specialist',
-          capabilities: ['drug-interactions', 'protocols', 'research']
+          role: 'oncologist',
+          experienceLevel: 'expert',
+          specialties: ['Medical Oncology'],
+          preferences: { riskTolerance: 'moderate', alertSensitivity: 'high', workflowStyle: 'thorough', decisionSupport: 'guided' },
+          customSettings: {}
         },
         createdAt: new Date().toISOString(),
         lastLogin: new Date().toISOString(),

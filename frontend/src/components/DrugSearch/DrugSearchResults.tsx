@@ -4,7 +4,7 @@ import DrugCard from './DrugCard';
 import Alert from '../UI/Alert';
 import Tooltip from '../UI/Tooltip';
 import { Database, Globe, Star, Pill, Filter, TrendingUp, Clock, Info } from 'lucide-react';
-import { getPins } from '../../utils/pins';
+import { getPins, togglePin } from '../../utils/pins';
 
 interface DrugSearchResultsProps {
   results: DrugSearchResult | null;
@@ -148,7 +148,8 @@ const DrugSearchResults: React.FC<DrugSearchResultsProps> = ({
 
     return categories;
   }, [results]);
-  const pins = useMemo(() => getPins(), [results]);
+  const [pinTick, setPinTick] = useState(0);
+  const pins = useMemo(() => getPins(), [results, pinTick]);
 
   // Flattened list for keyboard navigation
   const flatList = useMemo(() => {

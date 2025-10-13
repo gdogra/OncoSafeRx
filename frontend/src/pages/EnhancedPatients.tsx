@@ -434,7 +434,7 @@ const EnhancedPatients: React.FC = () => {
   };
 
   const PatientTimeline: React.FC<{ patient: Patient }> = ({ patient }) => {
-    const timeline = patientService.getTreatmentTimeline(patient.id);
+    const timeline: any = patientService.getTreatmentTimeline(patient.id);
     
     const getSeverityIcon = (severity?: string) => {
       switch (severity) {
@@ -468,7 +468,7 @@ const EnhancedPatients: React.FC = () => {
           </div>
           
           <div className="space-y-4">
-            {timeline.map((event, index) => (
+            {(Array.isArray(timeline) ? timeline : []).map((event, index) => (
               <div key={index} className={`p-4 border rounded-lg ${getSeverityColor(event.severity)}`}>
                 <div className="flex items-start space-x-3">
                   {getSeverityIcon(event.severity)}
@@ -491,7 +491,7 @@ const EnhancedPatients: React.FC = () => {
               </div>
             ))}
             
-            {timeline.length === 0 && (
+            {(Array.isArray(timeline) ? timeline : []).length === 0 && (
               <div className="text-gray-500 text-center py-8">No timeline events</div>
             )}
           </div>
@@ -797,7 +797,7 @@ const EnhancedPatients: React.FC = () => {
       )}
 
       {/* Mobile FAB for quick create */}
-      {viewMode !== 'create' && (
+      {!(viewMode as any === 'create') && (
         <button
           onClick={handleCreatePatient}
           className="fixed bottom-4 right-4 md:hidden inline-flex items-center justify-center rounded-full shadow-lg bg-blue-600 text-white w-12 h-12"

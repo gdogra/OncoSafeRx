@@ -164,7 +164,7 @@ const FeedbackDashboard: React.FC<FeedbackDashboardProps> = ({ isOpen, onClose }
               Feedback by Type
             </h3>
             <div className="space-y-3">
-              {Object.entries(byType).map(([type, count]) => (
+              {(Object.entries(byType) as Array<[string, number]>).map(([type, count]) => (
                 <div key={type} className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <span className="text-lg">{getTypeIcon(type)}</span>
@@ -191,7 +191,7 @@ const FeedbackDashboard: React.FC<FeedbackDashboardProps> = ({ isOpen, onClose }
               Priority Distribution
             </h3>
             <div className="space-y-3">
-              {Object.entries(byPriority).map(([priority, count]) => (
+              {(Object.entries(byPriority) as Array<[string, number]>).map(([priority, count]) => (
                 <div key={priority} className="flex items-center justify-between">
                   <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(priority)}`}>
                     {priority}

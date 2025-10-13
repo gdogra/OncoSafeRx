@@ -253,7 +253,7 @@ export class PerformanceMonitor {
   }
 
   // Lazy loading performance
-  public static monitorLazyLoading(componentName: string): void {
+  public static monitorLazyLoading(componentName: string): () => void {
     const startTime = performance.now();
     
     return () => {

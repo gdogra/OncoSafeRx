@@ -253,7 +253,7 @@ const RegulatoryCompliance: React.FC = () => {
             expiry_date: '2024-11-01',
             status: 'Valid',
             scope: 'Personal data processing for healthcare applications',
-            risk_impact: 'Critical'
+            risk_impact: 'High'
           }
         ]
       },

@@ -157,7 +157,7 @@ const CareManagement: React.FC = () => {
   const pendingTasks = careTasks.filter(task => !task.completed);
   const completedTasks = careTasks.filter(task => task.completed);
 
-  const tabs = [
+  const tabs: Array<{ id: 'overview' | 'appointments' | 'medications' | 'tasks'; label: string; icon: any }> = [
     { id: 'overview', label: 'Overview', icon: Activity },
     { id: 'appointments', label: 'Appointments', icon: Calendar },
     { id: 'medications', label: 'Medications', icon: Pill },

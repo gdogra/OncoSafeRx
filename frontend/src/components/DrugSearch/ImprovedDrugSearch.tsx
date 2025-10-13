@@ -954,7 +954,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
         )}
         {!searchLoading && !searchError && searchResults.length > 0 && (
           <EnhancedDrugResults
-            drugs={searchResults
+            drugs={(searchResults
               .map((d: any) => ({
               id: d.rxcui || d.id || d.name,
               name: d.name,
@@ -983,7 +983,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
               publications: 0,
               isOncologyDrug: !!d.insights?.isOncologyDrug,
               isOrphanDrug: !!d.insights?.isOrphanDrug,
-            }))
+              })) as any)
             .filter((drug: any) => {
               if (!pinnedOnly) return true;
               try {

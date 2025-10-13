@@ -37,12 +37,10 @@ export class FeatureErrorBoundary extends React.Component<
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     import('../../utils/errorReporting').then(({ errorReporter }) => {
       errorReporter.reportError(error, {
-        feature: this.props.featureName,
         component: errorInfo.componentStack?.split('\n')[1]?.trim(),
-        action: 'Feature Component Error',
+        action: `${this.props.featureName}: Feature Component Error`,
         severity: 'medium',
-        tags: ['react', 'feature', this.props.featureName.toLowerCase()],
-        retryCount: this.state.retryCount,
+        tags: ['react', 'feature', this.props.featureName.toLowerCase(), `retry-${this.state.retryCount}`],
       });
     });
   }

@@ -113,6 +113,8 @@ export interface GenomicProfile {
   ngsReports?: string[]; // References to NGS report IDs
   biomarkerTests?: BiomarkerTest[];
   pharmacogenomics?: PharmacogenomicProfile[];
+  // Back-compat to accept legacy shapes
+  variants?: any[];
 }
 
 export interface BiomarkerTest {

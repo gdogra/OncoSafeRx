@@ -98,7 +98,7 @@ const MedicationManager: React.FC<MedicationManagerProps> = ({ patientId }) => {
       sideEffects: newMedication.sideEffects || []
     };
 
-    const updatedMedications = [...(currentPatient.medications || []), medication];
+    const updatedMedications = ([...(currentPatient.medications || []), medication] as unknown) as PatientMedication[];
     actions.updatePatientData({ medications: updatedMedications });
 
     // Reset form
@@ -130,7 +130,7 @@ const MedicationManager: React.FC<MedicationManagerProps> = ({ patientId }) => {
 
     const updatedMedications = currentPatient.medications.map(med => 
       med.id === editingMedication.id ? { ...newMedication, id: editingMedication.id } : med
-    );
+    ) as unknown as PatientMedication[];
     
     actions.updatePatientData({ medications: updatedMedications });
 
@@ -164,7 +164,7 @@ const MedicationManager: React.FC<MedicationManagerProps> = ({ patientId }) => {
     actions.updatePatientData({ medications: updatedMedications });
   };
 
-  const getAdherenceColor = (adherence?: string) => {
+  const getAdherenceColor = (adherence?: string | number) => {
     switch (adherence) {
       case 'excellent': return 'bg-green-100 text-green-800';
       case 'good': return 'bg-blue-100 text-blue-800';

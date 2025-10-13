@@ -86,11 +86,12 @@ const AdvancedDoseCalculator: React.FC<AdvancedDoseCalculatorProps> = ({
   useEffect(() => {
     if (patient.dateOfBirth && patient.weight && patient.renalFunction.creatinine) {
       const age = calculateAge(patient.dateOfBirth);
+      const g: 'male' | 'female' = patient.gender === 'female' ? 'female' : 'male';
       const crCl = DoseCalculationService.calculateCreatinineClearance(
         age, 
         patient.weight, 
         patient.renalFunction.creatinine, 
-        patient.gender
+        g
       );
       setCreatinineCalculation(crCl);
     }

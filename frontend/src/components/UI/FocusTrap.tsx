@@ -32,7 +32,7 @@ const FocusTrap: React.FC<FocusTrapProps> = ({
 
   return (
     <div
-      ref={containerRef}
+      ref={(el) => { (containerRef as unknown as React.MutableRefObject<HTMLElement | null>).current = el as unknown as HTMLElement | null; }}
       className={className}
       tabIndex={-1}
     >

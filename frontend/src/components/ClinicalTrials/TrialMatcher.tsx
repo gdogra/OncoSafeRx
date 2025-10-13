@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, Users, Calendar, Award, ExternalLink, CheckCircle, XCircle, Clock, Zap, Brain, Target, FileText } from 'lucide-react';
+import { Search, MapPin, Users, Calendar, Award, ExternalLink, CheckCircle, XCircle, Clock, Zap, Brain, Target, FileText, AlertTriangle } from 'lucide-react';
 import Card from '../UI/Card';
 import LoadingSpinner from '../UI/LoadingSpinner';
 import FeatureErrorBoundary from '../ErrorBoundary/FeatureErrorBoundary';
@@ -583,7 +583,7 @@ const TrialMatcher: React.FC = () => {
                 <h4 className="font-medium text-gray-900 mb-2">Demographics</h4>
                 <div className="text-sm text-gray-600 space-y-1">
                   <p>{patientProfile.demographics.age} years old, {patientProfile.demographics.gender}</p>
-                  <p>{patientProfile.demographics.city}, {patientProfile.demographics.state}</p>
+                  <p>{patientProfile.demographics.location.city}, {patientProfile.demographics.location.state}</p>
                   <p>{patientProfile.demographics.ethnicity}</p>
                 </div>
               </div>

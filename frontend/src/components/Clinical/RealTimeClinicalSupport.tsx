@@ -228,7 +228,7 @@ const RealTimeClinicalSupport: React.FC = () => {
         .filter(lab => lab.labType && lab.labType.toLowerCase().includes('creatinine'))
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
 
-      if (recentCreatinine && parseFloat(recentCreatinine.value) > 1.5) {
+      if (recentCreatinine && Number(recentCreatinine.value as any) > 1.5) {
         newAlerts.push({
           id: 'renal-function-alert',
           type: 'warning',

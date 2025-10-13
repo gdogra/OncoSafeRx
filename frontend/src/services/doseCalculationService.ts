@@ -112,7 +112,7 @@ export class DoseCalculationService {
       this.calculateAge(patient.dateOfBirth),
       patient.weight,
       patient.renalFunction.creatinine,
-      patient.gender
+      (patient.gender === 'female' ? 'female' : 'male')
     );
     
     let calculatedDose = baselineDose;

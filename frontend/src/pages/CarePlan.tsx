@@ -151,7 +151,7 @@ const CarePlan: React.FC = () => {
     }
   };
 
-  const tabs = [
+  const tabs: Array<{ id: 'overview' | 'goals' | 'timeline' | 'resources'; label: string; icon: any }> = [
     { id: 'overview', label: 'Overview', icon: FileText },
     { id: 'goals', label: 'Goals', icon: Target },
     { id: 'timeline', label: 'Timeline', icon: Calendar },

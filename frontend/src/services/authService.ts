@@ -1,11 +1,21 @@
 import { supabase } from '../lib/supabase'
-import { UserProfile, LoginData, SignupData, UserPersona } from '../types/user'
+import { UserProfile, LoginData, SignupData, UserPersona, UserPreferences } from '../types/user'
 import { visitorTracking } from './visitorTracking'
 
 /**
  * Clean, simple authentication service
  */
 export class SupabaseAuthService {
+  // Optional API used in some views; provide safe fallbacks
+  static async requestMagicLink(email: string): Promise<void> {
+    throw new Error('Magic link not enabled');
+  }
+  static async verifyEmailOtp(email: string, token: string): Promise<void> {
+    throw new Error('Email OTP not enabled');
+  }
+  static async resendConfirmation(email: string): Promise<void> {
+    throw new Error('Resend confirmation not enabled');
+  }
   
   /**
    * Sign in a user - CLEAN VERSION
@@ -778,13 +788,15 @@ export class SupabaseAuthService {
   /**
    * Get default preferences for role
    */
-  private static getDefaultPreferences(role: string) {
-    return {
+  private static getDefaultPreferences(role: string): UserPreferences {
+    const prefs: UserPreferences = {
       theme: 'light',
-      notifications: true,
-      autoSave: true,
-      language: 'en'
-    }
+      language: 'en',
+      notifications: { email: true, push: false, criticalAlerts: true, weeklyReports: false },
+      dashboard: { defaultView: 'overview', refreshInterval: 60, compactMode: false },
+      clinical: { showGenomicsByDefault: true, autoCalculateDosing: true, requireInteractionAck: true, showPatientPhotos: false },
+    } as any;
+    return prefs;
   }
 
   /**
@@ -836,10 +848,17 @@ export class SupabaseAuthService {
     return {
       id: 'default-' + role,
       name: defaults.name,
+      description: `${defaults.name} default persona`,
       role: role as any,
-      preferences: defaults.preferences,
-      isActive: true,
-      createdAt: new Date().toISOString()
+      experienceLevel: 'intermediate',
+      specialties: [],
+      preferences: {
+        riskTolerance: 'moderate',
+        alertSensitivity: 'medium',
+        workflowStyle: 'thorough',
+        decisionSupport: 'guided'
+      },
+      customSettings: defaults.preferences
     }
   }
 

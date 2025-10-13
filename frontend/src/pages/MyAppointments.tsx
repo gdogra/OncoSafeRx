@@ -8,6 +8,7 @@ import AppointmentRequestForm, { AppointmentRequestData } from '../components/Fo
 import { Calendar, Clock, MapPin, User, Phone, Plus, Video, MessageSquare, Bell, Info, CheckCircle, AlertTriangle } from 'lucide-react';
 import { collaborationService } from '../services/collaborationService';
 import { ConsultationRequest } from '../types/collaboration';
+import { PatientAppointment } from '../types';
 import { useToast } from '../components/UI/Toast';
 
 interface Appointment {
@@ -70,35 +71,36 @@ const MyAppointments: React.FC = () => {
       createdAt: new Date().toISOString(),
       requestData: {
         reason: data.reason,
-        urgency: data.urgency,
+        urgency: data.isUrgent ? 'urgent' : 'normal',
         preferredDates: data.preferredDates,
         preferredTimes: data.preferredTimes,
-        additionalNotes: data.additionalNotes
+        additionalNotes: data.notes
       }
     };
 
-    // Add appointment to patient's appointments
-    const updatedAppointments = [...(currentPatient.appointments || []), newAppointment];
+    // Add appointment to patient's appointments  
+    const updatedAppointments = [...(currentPatient.appointments || []), newAppointment as PatientAppointment];
     actions.updatePatientData({ appointments: updatedAppointments });
 
       try {
-        if (appointment.type === 'consultation') {
+        const nowIso = new Date().toISOString();
+        if (newAppointment.type === 'consultation') {
           const consult = {
-            id: `consult-${appointment.id}`,
+            id: `consult-${newAppointment.id}`,
             requesterId: (user && user.id) || 'patient',
-            specialtyRequested: (appointment.title || 'Consultation').replace(/consultation/i, '').trim() || 'Consultation',
+            specialtyRequested: (newAppointment.title || 'Consultation').replace(/consultation/i, '').trim() || 'Consultation',
             urgency: 'routine',
             patientId: currentPatient.id,
-            clinicalQuestion: `Reschedule requested for ${appointment.title}`,
-            relevantHistory: 'Reschedule request originated from patient portal.',
+            clinicalQuestion: `New appointment requested: ${newAppointment.title}`,
+            relevantHistory: 'Appointment request originated from patient portal.',
             currentMedications: (currentPatient.medications || []).map((m) => m?.drug?.name || m?.drugName || m?.name || '').filter(Boolean),
             allergies: (currentPatient.allergies || []).map((a) => a?.allergen || a?.name || '').filter(Boolean),
-            preferredConsultant: appointment.provider,
-            requestedDate: appointment.date,
+            preferredConsultant: newAppointment.provider,
+            requestedDate: newAppointment.date,
             requestType: 'opinion',
             attachedStudies: [],
             labResults: [],
-            notes: `Related appointment: ${appointment.id}`,
+            notes: `Related appointment: ${newAppointment.id}`,
             status: 'pending',
             assignedTo: undefined,
             responseDeadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
@@ -133,6 +135,7 @@ const MyAppointments: React.FC = () => {
   const handleReschedule = (appointmentId: string) => {
     if (!currentPatient) return;
     
+    const nowIso = new Date().toISOString();
     const appointment = appointments.find(app => app.id === appointmentId);
     if (appointment && confirm(`Reschedule ${appointment.title}?\n\nThis will send a rescheduling request to your care team.`)) {
       const updatedAppointments = currentPatient.appointments.map(apt => 
@@ -177,6 +180,7 @@ const MyAppointments: React.FC = () => {
   const handleCancel = (appointmentId: string) => {
     if (!currentPatient) return;
     
+    const nowIso = new Date().toISOString();
     const appointment = appointments.find(app => app.id === appointmentId);
     if (appointment && confirm(`Cancel ${appointment.title} on ${new Date(appointment.date).toLocaleDateString()}?\n\nThis action cannot be undone.`)) {
       const updatedAppointments = currentPatient.appointments.map(apt => 
@@ -320,9 +324,9 @@ const MyAppointments: React.FC = () => {
   ];
 
   // Use patient appointments if available, otherwise show sample data
-  const appointments = currentPatient?.appointments?.length ? 
-    currentPatient.appointments : 
-    sampleAppointments;
+  const appointments: any[] = currentPatient?.appointments?.length ? 
+    (currentPatient.appointments as any[]) : 
+    (sampleAppointments as any[]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

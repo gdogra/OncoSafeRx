@@ -46,17 +46,18 @@ export interface UserPreferences {
     criticalAlerts: boolean;
     weeklyReports: boolean;
   };
-  dashboard: {
+  dashboard?: {
     defaultView: 'overview' | 'patients' | 'interactions' | 'genomics';
     refreshInterval: number;
     compactMode: boolean;
   };
-  clinical: {
+  clinical?: {
     showGenomicsByDefault: boolean;
     autoCalculateDosing: boolean;
     requireInteractionAck: boolean;
     showPatientPhotos: boolean;
   };
+  [key: string]: any;
 }
 
 export interface AuthState {

@@ -21,8 +21,19 @@ const Dashboard: React.FC = () => {
   // Also show debug info in the UI temporarily
   const showDebug = window.location.hostname !== 'localhost';
   
+  type FeatureItem = {
+    icon: any;
+    title: string;
+    description: string;
+    link: string;
+    color: string;
+    badge?: string;
+    features: string[];
+    isNew?: boolean;
+  };
+
   // Patient-specific features
-  const patientFeatures = [
+  const patientFeatures: FeatureItem[] = [
     {
       icon: Heart,
       title: 'My Care Dashboard',
@@ -62,7 +73,7 @@ const Dashboard: React.FC = () => {
   ];
 
   // Caregiver-specific features
-  const caregiverFeatures = [
+  const caregiverFeatures: FeatureItem[] = [
     {
       icon: Users,
       title: 'Care Management',
@@ -102,7 +113,7 @@ const Dashboard: React.FC = () => {
   ];
 
   // Clinical features (for healthcare providers)
-  const clinicalFeatures = [
+  const clinicalFeatures: FeatureItem[] = [
     {
       icon: Search,
       title: 'AI-Enhanced Drug Search',
@@ -160,7 +171,7 @@ const Dashboard: React.FC = () => {
   ];
 
   // Revolutionary AI-Powered Features - First of their kind
-  const aiFeatures = [
+  const aiFeatures: FeatureItem[] = [
     {
       icon: Brain,
       title: 'AI Treatment Planner',
@@ -347,6 +358,17 @@ const Dashboard: React.FC = () => {
         <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-4">
           {headerText.subtitle}
         </p>
+        {userRole === 'patient' && (
+          <div className="mt-2 mb-2">
+            <Link
+              to="/genomics"
+              className="inline-flex items-center px-5 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+            >
+              <Dna className="w-4 h-4 mr-2" />
+              Analyze My Genomics
+            </Link>
+          </div>
+        )}
         <div className="flex items-center justify-center space-x-4 text-sm">
           <span className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-1 rounded-full font-medium">
             🚀 First of its Kind
@@ -544,6 +566,15 @@ const Dashboard: React.FC = () => {
               <AlertTriangle className="w-4 h-4 mr-2" />
               Check Interactions
             </Link>
+            {userRole === 'patient' && (
+              <Link
+                to="/genomics"
+                className="inline-flex items-center px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <Dna className="w-4 h-4 mr-2" />
+                Analyze My Genomics
+              </Link>
+            )}
           </div>
         </div>
       </Card>

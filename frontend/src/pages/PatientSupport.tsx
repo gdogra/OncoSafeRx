@@ -184,7 +184,7 @@ const PatientSupport: React.FC = () => {
     }
   };
 
-  const tabs = [
+  const tabs: Array<{ id: 'team' | 'support' | 'emergency' | 'community'; label: string; icon: any }> = [
     { id: 'team', label: 'Care Team', icon: Users },
     { id: 'support', label: 'Support Resources', icon: Heart },
     { id: 'emergency', label: 'Emergency Contacts', icon: Bell },

@@ -18,6 +18,7 @@ import ProtocolsAndRegimens from './pages/ProtocolsAndRegimens';
 import CuratedInteractions from './pages/CuratedInteractions';
 import AdvancedTrials from './pages/AdvancedTrials';
 // import Patients from './pages/Patients';
+import ServerPatients from './pages/ServerPatients';
 import Collaboration from './pages/Collaboration';
 import AIInsights from './pages/AIInsights';
 import DrugDatabase from './pages/DrugDatabase';

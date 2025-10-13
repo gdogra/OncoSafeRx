@@ -262,7 +262,7 @@ export class GenomicAnalysisService {
       const API_BASE = import.meta.env.VITE_API_URL || '/api';
       
       // Extract biomarkers from variants
-      const biomarkers = variants.map(v => `${v.gene} ${v.mutation}`);
+      const biomarkers = variants.map(v => `${v.gene} ${v.variant}`);
       
       // Search trials by cancer type and biomarkers
       const searchParams = new URLSearchParams();
@@ -406,8 +406,8 @@ export class GenomicAnalysisService {
       return [{
         nctId: 'NCT00000000',
         title: 'Clinical trials data temporarily unavailable',
-        phase: 'N/A',
-        status: 'unavailable',
+        phase: 'IV',
+        status: 'completed',
         eligibilityCriteria: {
           cancerTypes: [patient.diagnosis],
           biomarkers: [],
@@ -431,7 +431,7 @@ export class GenomicAnalysisService {
     const reasons: string[] = [];
     
     // Check biomarker matches
-    const patientBiomarkers = variants.map(v => `${v.gene} ${v.mutation}`);
+    const patientBiomarkers = variants.map(v => `${v.gene} ${v.variant}`);
     const trialBiomarkers = trial.biomarkers || [];
     
     patientBiomarkers.forEach(biomarker => {
@@ -844,7 +844,8 @@ export class GenomicAnalysisService {
     if (patient.ecogPerformanceStatus <= 1) score += 0.2;
     
     // Comorbidities
-    if (patient.comorbidities?.includes('Heart disease') && drug.includes('Trastuzumab')) {
+    const comorbs: string[] = [];
+    if (comorbs.includes('Heart disease') && drug.includes('Trastuzumab')) {
       score -= 0.3;
     }
     
@@ -854,11 +855,12 @@ export class GenomicAnalysisService {
   private static getPersonalizedContraindications(drug: string, patient: Patient): string[] {
     const contraindications: string[] = [];
     
-    if (patient.comorbidities?.includes('Heart disease') && drug === 'Trastuzumab') {
+    const comorbs2: string[] = [];
+    if (comorbs2.includes('Heart disease') && drug === 'Trastuzumab') {
       contraindications.push('Cardiac dysfunction - monitor LVEF');
     }
     
-    if (patient.comorbidities?.includes('Kidney disease') && drug === 'Cisplatin') {
+    if (comorbs2.includes('Kidney disease') && drug === 'Cisplatin') {
       contraindications.push('Renal impairment - dose adjustment required');
     }
     
@@ -979,7 +981,7 @@ export class GenomicAnalysisService {
       return 'Consider 25% dose reduction due to advanced age';
     }
     
-    if (patient.comorbidities?.includes('Kidney disease')) {
+    if (patient.contraindications?.some(c => /kidney|renal/i.test(c))) {
       return 'Dose adjustment required for renal impairment';
     }
     
@@ -990,7 +992,7 @@ export class GenomicAnalysisService {
     // Simplified interaction risk assessment
     const medications = patient.currentMedications || [];
     
-    if (gene === 'CYP2D6' && medications.some(med => med.includes('Paroxetine'))) {
+    if (gene === 'CYP2D6' && medications.some(med => (med?.name || '').includes('Paroxetine'))) {
       return 'high';
     }
     

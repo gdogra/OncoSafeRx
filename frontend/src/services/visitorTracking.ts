@@ -377,9 +377,8 @@ class VisitorTrackingService {
       selector += `#${element.id}`;
     } else if (element.className) {
       // Handle both string and DOMTokenList className
-      const className = typeof element.className === 'string' 
-        ? element.className 
-        : element.className.toString();
+      const cls: any = (element as any).className;
+      const className = typeof cls === 'string' ? cls : Array.from(cls as DOMTokenList).join(' ');
       const firstClass = className.split(' ')[0];
       if (firstClass) {
         selector += `.${firstClass}`;

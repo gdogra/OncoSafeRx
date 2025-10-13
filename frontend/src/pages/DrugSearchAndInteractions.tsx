@@ -449,7 +449,6 @@ const DrugSearchAndInteractionsInner: React.FC = () => {
                 {interactionResults && (
                   <InteractionResults 
                     results={interactionResults}
-                    onUpdateDrugs={setSelectedDrugs}
                   />
                 )}
               </div>

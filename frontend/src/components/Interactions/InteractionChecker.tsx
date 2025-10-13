@@ -22,6 +22,7 @@ const InteractionCheckerInner: React.FC = () => {
   const [selectedDrugs, setSelectedDrugs] = useState<Drug[]>([]);
   const selection = useSelection();
   const { state, actions } = usePatient();
+  const { state: authState } = useAuth();
   const { currentPatient, hydrated, recentPatients } = state as any;
   const [results, setResults] = useState<InteractionCheckResult | null>(null);
   const [loading, setLoading] = useState(false);

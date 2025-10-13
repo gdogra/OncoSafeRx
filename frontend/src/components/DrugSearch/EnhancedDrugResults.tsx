@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import clsx from 'clsx';
 import Card from '../UI/Card';
 import {
   Pill,
@@ -32,6 +33,42 @@ import {
   Share2,
   Download
 } from 'lucide-react';
+
+// Lightweight UI fallbacks to avoid missing component imports
+const CardHeader: React.FC<{ className?: string; children: React.ReactNode }> = ({ className, children }) => (
+  <div className={clsx('pb-2', className)}>{children}</div>
+);
+const CardContent: React.FC<{ className?: string; children: React.ReactNode }> = ({ className, children }) => (
+  <div className={clsx('pt-2', className)}>{children}</div>
+);
+const CardTitle: React.FC<{ className?: string; children: React.ReactNode }> = ({ className, children }) => (
+  <h3 className={clsx('text-base font-semibold', className)}>{children}</h3>
+);
+const Badge: React.FC<{ className?: string; variant?: 'outline' | 'solid'; children: React.ReactNode }> = ({ className, children, variant = 'solid' }) => (
+  <span className={clsx(
+    'inline-flex items-center px-2 py-0.5 rounded text-xs',
+    variant === 'outline' ? 'border border-gray-300 text-gray-700' : 'bg-gray-100 text-gray-800',
+    className
+  )}>{children}</span>
+);
+const Button: React.FC<{ className?: string; variant?: 'default' | 'outline' | 'ghost'; size?: 'sm' | 'md'; onClick?: () => void; disabled?: boolean; children: React.ReactNode }>
+  = ({ className, variant = 'default', size = 'md', onClick, disabled, children }) => (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={clsx(
+        'inline-flex items-center gap-1 rounded transition-colors',
+        size === 'sm' ? 'px-2 py-1 text-sm' : 'px-3 py-2',
+        variant === 'default' && 'bg-gray-900 text-white hover:bg-gray-800',
+        variant === 'outline' && 'border border-gray-300 text-gray-700 hover:bg-gray-50',
+        variant === 'ghost' && 'text-gray-600 hover:bg-gray-100',
+        disabled && 'opacity-50 cursor-not-allowed',
+        className
+      )}
+    >
+      {children}
+    </button>
+  );
 
 interface EnhancedDrug {
   id: string;
@@ -476,19 +513,18 @@ const EnhancedDrugResults: React.FC<EnhancedDrugResultsProps> = ({
         
         <div className="flex items-center space-x-4">
           {/* Sort Controls */}
-          <Select value={currentSortBy} onValueChange={setCurrentSortBy}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Sort by..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="relevance">Relevance</SelectItem>
-              <SelectItem value="name">Name (A-Z)</SelectItem>
-              <SelectItem value="safety">Safety Score</SelectItem>
-              <SelectItem value="efficacy">Efficacy Score</SelectItem>
-              <SelectItem value="approval_date">Approval Date</SelectItem>
-              <SelectItem value="clinical_trials">Clinical Trials</SelectItem>
-            </SelectContent>
-          </Select>
+          <select
+            value={currentSortBy}
+            onChange={(e) => setCurrentSortBy(e.target.value)}
+            className="w-48 border border-gray-300 rounded px-3 py-2 text-sm"
+          >
+            <option value="relevance">Relevance</option>
+            <option value="name">Name (A-Z)</option>
+            <option value="safety">Safety Score</option>
+            <option value="efficacy">Efficacy Score</option>
+            <option value="approval_date">Approval Date</option>
+            <option value="clinical_trials">Clinical Trials</option>
+          </select>
 
           {/* View Mode Toggle */}
           <div className="flex bg-gray-100 rounded-lg p-1">

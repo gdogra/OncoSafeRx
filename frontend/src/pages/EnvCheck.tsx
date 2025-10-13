@@ -55,10 +55,10 @@ export default function EnvCheck() {
     return () => { cancelled = true }
   }, [])
 
-  const Row = ({ label, value }: { label: string, value: React.ReactNode }) => (
+  const Row = ({ label, value, children }: { label: string, value?: React.ReactNode, children?: React.ReactNode }) => (
     <div style={{ display: 'flex', gap: 12, padding: '6px 0', alignItems: 'center' }}>
       <div style={{ width: 220, color: '#374151' }}>{label}</div>
-      <div style={{ fontWeight: 600 }}>{value}</div>
+      <div style={{ fontWeight: 600 }}>{children ?? value}</div>
     </div>
   )
 
@@ -119,4 +119,3 @@ export default function EnvCheck() {
     </div>
   )
 }
-

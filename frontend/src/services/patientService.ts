@@ -559,19 +559,29 @@ export class PatientService {
       hepaticFunction: {
         alt: apiPatient.labValues?.find((lab: any) => lab.labType === 'alt')?.value || 25,
         ast: apiPatient.labValues?.find((lab: any) => lab.labType === 'ast')?.value || 25,
-        bilirubin: apiPatient.labValues?.find((lab: any) => lab.labType === 'bilirubin')?.value || 1.0
+        bilirubin: apiPatient.labValues?.find((lab: any) => lab.labType === 'bilirubin')?.value || 1.0,
+        albumin: apiPatient.labValues?.find((lab: any) => lab.labType === 'albumin')?.value || 4.0
       },
       allergies: (apiPatient.allergies || []).map((allergy: any) => allergy.allergen),
       currentMedications: (apiPatient.medications || [])
         .filter((med: any) => med.isActive)
         .map((med: any) => med.drugName || med.drug),
       treatmentHistory: apiPatient.treatmentHistory || [],
+      contraindications: apiPatient.contraindications || [],
       labValues: apiPatient.labValues || [],
       biomarkers: apiPatient.biomarkers || [],
       genomicProfile: {
-        variants: apiPatient.genetics || [],
+        // Map backend genetics to mutations format if present
+        mutations: (apiPatient.genetics || []).map((g: any) => ({
+          gene: g.geneSymbol || g.gene || 'UNK',
+          variant: g.variant || g.alleles?.join('/') || 'NA',
+          variantType: g.variantType || 'mutation',
+          alleleFrequency: g.alleleFrequency,
+          clinicalSignificance: g.clinicalSignificance || 'uncertain'
+        })),
         testDate: apiPatient.genetics?.[0]?.testDate || new Date().toISOString(),
-        testingLab: 'Unknown Lab'
+        testType: apiPatient.genetics?.[0]?.testMethod || 'NGS',
+        microsatelliteInstability: 'MSS'
       }
     };
   }
@@ -710,15 +720,15 @@ export class PatientService {
     ];
 
     // Only add if no patients exist
-    const existingPatients = this.getPatients();
-    if (existingPatients.length === 0) {
+    const existingPatients = this.getPatientsFromLocalStorage();
+    if ((existingPatients || []).length === 0) {
       samplePatients.forEach(patient => this.savePatient(patient));
     }
   }
 
   // Export patient data
-  public exportPatientData(patientId?: string): string {
-    const data = patientId ? [this.getPatient(patientId)] : this.getPatients();
+  public async exportPatientData(patientId?: string): Promise<string> {
+    const data = patientId ? [await this.getPatient(patientId)] : await this.getPatients();
     return JSON.stringify({
       patients: data,
       exportDate: new Date().toISOString(),

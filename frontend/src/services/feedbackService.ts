@@ -99,13 +99,9 @@ class FeedbackService {
       // Send to analytics if available
       try {
         const analytics = await import('../utils/analytics');
-        analytics.analytics.logEvent('feedback_submitted', {
-          type: result.classification.type,
-          category: result.classification.category,
-          priority: result.classification.priority,
-          page,
-          ticketNumber: result.ticketNumber
-        });
+        if (analytics?.analytics?.logSelection) {
+          analytics.analytics.logSelection('feedback', 'submitted', 'feedback');
+        }
       } catch (e) {
         console.warn('Analytics not available:', e);
       }
@@ -147,8 +143,7 @@ class FeedbackService {
         expectedBehavior: formData.expectedBehavior,
         actualBehavior: formData.actualBehavior,
         browserInfo: this.getBrowserInfo(),
-        feature: this.inferFeatureFromPage(page),
-        fallbackMode: true
+        feature: this.inferFeatureFromPage(page)
       },
       status: 'new',
       estimatedEffort: classification.estimatedEffort,

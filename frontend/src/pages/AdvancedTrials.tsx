@@ -466,14 +466,26 @@ const AdvancedTrials: React.FC = () => {
       let trialsData: Trial[] = [];
       
       if (currentPatient) {
-        // Search with patient context
-        const patientTrials = await clinicalTrialsService.searchTrialsForPatient({
-          conditions: currentPatient.conditions || [],
-          medications: currentPatient.medications || [],
-          age: currentPatient.age,
-          gender: currentPatient.gender?.toLowerCase(),
-          genomicData: currentPatient.genomicData
-        });
+        // Build a lightweight patient context for search
+        const dob = currentPatient.demographics?.dateOfBirth;
+        const derivedAge = (() => {
+          try {
+            if (!dob) return undefined;
+            const d = new Date(dob);
+            const diff = Date.now() - d.getTime();
+            return Math.floor(diff / (365.25 * 24 * 60 * 60 * 1000));
+          } catch { return undefined; }
+        })();
+
+        const patientContext = {
+          conditions: (currentPatient.conditions || []).map(c => c.name || c.condition || ''),
+          medications: (currentPatient.medications || []).map(m => ({ name: m.drug?.name || m.drugName || m.name || '' })),
+          age: derivedAge,
+          gender: (currentPatient.demographics?.sex || currentPatient.demographics?.gender || '').toLowerCase(),
+          genomicData: currentPatient.genomicProfile || currentPatient.genetics || currentPatient.genomicData
+        };
+
+        const patientTrials = await clinicalTrialsService.searchTrialsForPatient(patientContext);
         trialsData = patientTrials;
       } else {
         // General search for common oncology conditions

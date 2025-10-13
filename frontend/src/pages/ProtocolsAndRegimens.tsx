@@ -702,12 +702,8 @@ const ProtocolsAndRegimens: React.FC = () => {
                 </div>
                 
                 <EnhancedDoseCalculator
-                  drugName={selectedDrugForCalculator.name}
-                  standardDose={selectedDrugForCalculator.dose}
-                  onClose={() => {
-                    setShowEnhancedCalculator(false);
-                    setSelectedDrugForCalculator(null);
-                  }}
+                  drug={{ rxcui: '', name: selectedDrugForCalculator.name } as any}
+                  standardDose={parseFloat(String(selectedDrugForCalculator.dose).replace(/[^0-9.]/g, '')) || 0}
                 />
               </div>
             </div>

@@ -137,7 +137,7 @@ const VisitorAnalyticsDashboard: React.FC = () => {
     );
   };
 
-  const renderMetricCard = (title: string, value: string | number, change?: number, icon: React.ElementType) => {
+  const renderMetricCard = (title: string, value: string | number, icon: React.ElementType, change?: number) => {
     const Icon = icon;
     
     return (
@@ -168,11 +168,11 @@ const VisitorAnalyticsDashboard: React.FC = () => {
       <div className="p-6">
         <div className="space-y-4">
           {analytics?.topPages.map((page, index) => (
-            <div key={page.path || page.url || index} className="flex items-center justify-between">
+            <div key={(page as any).path || page.url || index} className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <span className="text-sm font-medium text-gray-500 w-6">{index + 1}</span>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{page.path || page.url}</p>
+                  <p className="text-sm font-medium text-gray-900">{(page as any).path || page.url}</p>
                   <p className="text-xs text-gray-500">{formatNumber(page.views)} views</p>
                 </div>
               </div>
@@ -514,10 +514,10 @@ const VisitorAnalyticsDashboard: React.FC = () => {
         <>
           {/* Key Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {renderMetricCard('Total Visitors', formatNumber(analytics.totalVisitors), 12.5, Users)}
-            {renderMetricCard('Unique Visitors', formatNumber(analytics.uniqueVisitors), 8.3, Eye)}
-            {renderMetricCard('Page Views', formatNumber(analytics.pageViews), 15.7, MousePointer)}
-            {renderMetricCard('Avg. Session', formatDuration(analytics.averageSessionDuration), -2.1, Clock)}
+            {renderMetricCard('Total Visitors', formatNumber(analytics.totalVisitors), Users, 12.5)}
+            {renderMetricCard('Unique Visitors', formatNumber(analytics.uniqueVisitors), Eye, 8.3)}
+            {renderMetricCard('Page Views', formatNumber(analytics.pageViews), MousePointer, 15.7)}
+            {renderMetricCard('Avg. Session', formatDuration(analytics.averageSessionDuration), Clock, -2.1)}
           </div>
 
           {/* Additional Metrics */}

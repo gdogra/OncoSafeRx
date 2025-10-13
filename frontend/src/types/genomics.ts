@@ -147,6 +147,7 @@ export interface ClinicalTrial {
   title: string;
   phase: 'I' | 'II' | 'III' | 'IV';
   status: 'recruiting' | 'active' | 'completed' | 'suspended' | 'terminated';
+  url?: string;
   
   // Eligibility
   eligibilityCriteria: {

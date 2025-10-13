@@ -16,7 +16,8 @@ import {
   EyeOff,
   Save,
   Camera,
-  Users
+  Users,
+  Dna
 } from 'lucide-react';
 import Card from '../UI/Card';
 import Tooltip from '../UI/Tooltip';
@@ -24,6 +25,7 @@ import { useToast } from '../UI/Toast';
 import Modal from '../UI/Modal';
 import { supabase } from '../../lib/supabase';
 import PersonaSelector from './PersonaSelector';
+import { Link } from 'react-router-dom';
 
 // Build timestamp: 2025-10-04-00:10 - DEBUG LOGGING DEPLOYED - CACHE BUST
 const UserProfile: React.FC = () => {
@@ -42,6 +44,7 @@ const UserProfile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState<Partial<UserProfileType>>(user || {});
   const [editedPreferences, setEditedPreferences] = useState<UserPreferences>(user?.preferences || {} as UserPreferences);
+  const [showGenomicsCta, setShowGenomicsCta] = useState(false);
 
   // Keep editedUser and editedPreferences in sync with user changes
   React.useEffect(() => {
@@ -275,6 +278,10 @@ const UserProfile: React.FC = () => {
       
       setIsEditing(false);
       console.log('👤 ✅ Editing mode disabled');
+      // After successful save, suggest genomics to patients
+      if ((user?.role === 'patient' || editedUser.role === 'patient')) {
+        setShowGenomicsCta(true);
+      }
       
       // Show success message
       if ((window as any).showToast) {
@@ -450,6 +457,22 @@ const UserProfile: React.FC = () => {
           </Modal>
         </div>
       </div>
+
+      {/* Patient CTA to analyze genomics after saving profile */}
+      {showGenomicsCta && (user?.role === 'patient' || editedUser.role === 'patient') && (
+        <div className="p-4 border border-green-200 bg-green-50 rounded-lg flex items-center justify-between">
+          <div className="text-green-800">
+            <div className="font-semibold">Profile updated</div>
+            <div className="text-sm">Ready to analyze your genomics for personalized insights?</div>
+          </div>
+          <Link
+            to="/genomics"
+            className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+          >
+            <Dna className="w-4 h-4 mr-2" /> Analyze My Genomics
+          </Link>
+        </div>
+      )}
 
       {/* Navigation Tabs */}
       <div className="border-b border-gray-200">

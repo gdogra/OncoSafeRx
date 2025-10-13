@@ -1,6 +1,14 @@
 import { config } from './config';
 import CryptoJS from 'crypto-js';
 
+interface SecuritySession {
+  userId: string;
+  userData: any;
+  createdAt: number;
+  lastActivity: number;
+  fingerprint: string;
+}
+
 // Security utilities for production
 export class SecurityManager {
   private static readonly ENCRYPTION_KEY = (import.meta as any)?.env?.VITE_ENCRYPTION_KEY || (import.meta as any)?.env?.REACT_APP_ENCRYPTION_KEY || 'oncosaferx-default-key';
@@ -88,8 +96,8 @@ export class SecurityManager {
     this.setSecureItem(this.SESSION_KEY, session);
   }
 
-  public static getSession(): any | null {
-    const session = this.getSecureItem(this.SESSION_KEY);
+  public static getSession(): SecuritySession | null {
+    const session = this.getSecureItem<SecuritySession>(this.SESSION_KEY);
     
     if (!session) return null;
 
@@ -304,7 +312,7 @@ export class SecurityManager {
   }
 
   private static cleanupExpiredSessions(): void {
-    const session = this.getSecureItem(this.SESSION_KEY);
+    const session = this.getSecureItem<SecuritySession>(this.SESSION_KEY);
     if (session && Date.now() - session.lastActivity > this.MAX_SESSION_DURATION) {
       this.clearSession();
     }

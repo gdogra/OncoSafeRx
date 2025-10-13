@@ -769,7 +769,7 @@ const AdvancedWorkflowSystem: React.FC = () => {
                     <p className="text-xs text-gray-600">{template.description}</p>
                   </div>
                   {template.mobileOptimized && (
-                    <Smartphone className="w-4 h-4 text-green-500" title="Mobile Optimized" />
+                    <Smartphone className="w-4 h-4 text-green-500" aria-label="Mobile Optimized" />
                   )}
                 </div>
                 
@@ -842,10 +842,10 @@ const AdvancedWorkflowSystem: React.FC = () => {
                 <div className="flex items-center space-x-2 mb-2">
                   <h3 className="text-lg font-semibold text-gray-900">{template.name}</h3>
                   {template.mobileOptimized && (
-                    <Smartphone className="w-4 h-4 text-green-500" title="Mobile Optimized" />
+                    <Smartphone className="w-4 h-4 text-green-500" aria-label="Mobile Optimized" />
                   )}
                   {template.isPublic && (
-                    <Flag className="w-4 h-4 text-blue-500" title="Public Template" />
+                    <Flag className="w-4 h-4 text-blue-500" aria-label="Public Template" />
                   )}
                 </div>
                 <p className="text-sm text-gray-600 mb-3">{template.description}</p>

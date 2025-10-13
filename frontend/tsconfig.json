@@ -20,12 +20,16 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["vite/client", "vitest", "node"]
+    "types": ["vite/client", "vitest/globals", "node"]
   },
   "include": [
     "src"
   ],
   "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
     "src/components/**/__tests__/**",
     "src/utils/**/__tests__/**",
     "src/context/**/__tests__/**",

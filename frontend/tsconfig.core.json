@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/types/**/*.ts",
+    "src/context/**/*.ts{,x}",
+    "src/components/UI/**/*.ts{,x}",
+    "src/components/Feedback/**/*.ts{,x}",
+    "src/components/Layout/**/*.ts{,x}",
+    "src/components/Genomics/**/*.ts{,x}",
+    "src/pages/PatientSuccessStories.tsx",
+    "src/pages/Profile.tsx",
+    "src/services/patientService.ts"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
+  ],
+  "compilerOptions": {
+    "noEmit": true
+  }
+}

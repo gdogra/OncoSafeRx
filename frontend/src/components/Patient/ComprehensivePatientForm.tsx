@@ -160,8 +160,8 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(formData)); } catch {}
   }, [formData]);
   
-  const [newAllergy, setNewAllergy] = useState({ allergen: '', reaction: '', severity: 'mild' as const });
-  const [newMedicalCondition, setNewMedicalCondition] = useState({ condition: '', yearDiagnosed: '', status: 'active' as const });
+  const [newAllergy, setNewAllergy] = useState<{ allergen: string; reaction: string; severity: 'mild' | 'moderate' | 'severe'; }>({ allergen: '', reaction: '', severity: 'mild' });
+  const [newMedicalCondition, setNewMedicalCondition] = useState<{ condition: string; yearDiagnosed: string; status: 'active' | 'resolved' | 'chronic'; }>({ condition: '', yearDiagnosed: '', status: 'active' });
   const [newFamilyHistory, setNewFamilyHistory] = useState({ relationship: '', condition: '', ageAtDiagnosis: '' });
 
   const sections = [

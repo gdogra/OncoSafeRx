@@ -50,12 +50,18 @@ const AIDashboard: React.FC = () => {
     loadData();
   }, []);
 
-  const loadData = () => {
+  const loadData = async () => {
     aiService.generateSampleData();
     setRecommendations(aiService.getAIRecommendations());
     setModels(aiService.getPredictiveModels());
     setRweStudies(aiService.getRealWorldEvidence());
-    setPatients(patientService.getPatients());
+    try {
+      const list = await patientService.getPatients();
+      setPatients(list);
+    } catch (e) {
+      console.warn('Failed to load patients for AI Dashboard', e);
+      setPatients([]);
+    }
   };
 
   const tabs: TabInfo[] = [

@@ -4,6 +4,7 @@ import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { Activity, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '../components/UI/Toast';
 import { adminApi } from '../utils/adminApi';
+import AccessDeniedBanner from '../components/Admin/AccessDeniedBanner';
 
 type DashboardStats = {
   users: {
@@ -23,6 +24,7 @@ const AdminSystemHealth: React.FC = () => {
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [unauthorized, setUnauthorized] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -33,6 +35,7 @@ const AdminSystemHealth: React.FC = () => {
         setStats(body.stats);
       } catch (e: any) {
         console.error(e);
+        if (e?.status === 401 || e?.status === 403) setUnauthorized(true);
         showToast('error', e?.message || 'Failed to load system health');
       } finally {
         setLoading(false);
@@ -43,6 +46,7 @@ const AdminSystemHealth: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {unauthorized && <AccessDeniedBanner />}
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin', href: '/admin/console' }, { label: 'System Health' }]} />
       <div className="flex items-center justify-between">
         <div>

@@ -49,7 +49,10 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
   });
 
   if (!response.ok) {
-    throw new Error(`Admin API call failed: ${response.status} ${response.statusText}`);
+    const err: any = new Error(`Admin API call failed: ${response.status} ${response.statusText}`);
+    err.status = response.status;
+    try { err.body = await response.clone().json(); } catch {}
+    throw err;
   }
 
   return response;

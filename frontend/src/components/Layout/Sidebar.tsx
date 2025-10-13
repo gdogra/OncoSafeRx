@@ -395,7 +395,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: 'Admin Home', 
             icon: Shield, 
             description: 'Admin landing overview',
-            roles: ['super_admin'],
+            roles: ['admin','super_admin'],
             requiresPermission: null
           },
           { 
@@ -403,7 +403,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: 'Admin Console', 
             icon: SettingsIcon, 
             description: 'Administrative overview & tools',
-            roles: ['super_admin'],
+            roles: ['admin','super_admin'],
             requiresPermission: null
           },
           { 
@@ -419,7 +419,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: 'System Health', 
             icon: Activity, 
             description: 'Platform status and services',
-            roles: ['super_admin'],
+            roles: ['admin','super_admin'],
             requiresPermission: null
           },
           { 
@@ -427,7 +427,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: 'Audit Logs', 
             icon: FileText, 
             description: 'Administrative audit trail',
-            roles: ['super_admin'],
+            roles: ['admin','super_admin'],
             requiresPermission: null
           },
           { 
@@ -435,7 +435,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: 'User Management', 
             icon: Users, 
             description: 'Manage user accounts and roles',
-            roles: ['super_admin'],
+            roles: ['admin','super_admin'],
             requiresPermission: null
           },
           { 
@@ -443,7 +443,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: 'Admin Settings', 
             icon: SettingsIcon, 
             description: 'Maintenance and utilities',
-            roles: ['super_admin'],
+            roles: ['admin','super_admin'],
             requiresPermission: null
           },
           { 

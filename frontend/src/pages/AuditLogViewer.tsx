@@ -4,6 +4,7 @@ import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { useToast } from '../components/UI/Toast';
 import { Download, Filter, RefreshCw, Search } from 'lucide-react';
 import { adminApi } from '../utils/adminApi';
+import AccessDeniedBanner from '../components/Admin/AccessDeniedBanner';
 
 type AuditLog = {
   id: string;
@@ -21,6 +22,7 @@ const AuditLogViewer: React.FC = () => {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 50, total: 0, pages: 0 });
+  const [unauthorized, setUnauthorized] = useState(false);
 
   // Filters
   const [actor, setActor] = useState('');
@@ -48,6 +50,7 @@ const AuditLogViewer: React.FC = () => {
       if (body.pagination) setPagination((prev) => ({ ...prev, ...body.pagination }));
     } catch (e: any) {
       console.error('Audit fetch failed:', e);
+      if (e?.status === 401 || e?.status === 403) setUnauthorized(true);
       showToast('error', e?.message || 'Failed to load audit logs');
     } finally {
       setLoading(false);
@@ -94,6 +97,7 @@ const AuditLogViewer: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {unauthorized && <AccessDeniedBanner />}
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin', href: '/admin/console' }, { label: 'Audit Logs' }]} />
       <div className="flex items-center justify-between">
         <div>

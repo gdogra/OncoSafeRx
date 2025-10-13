@@ -17,6 +17,7 @@ import Card from '../components/UI/Card';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { useToast } from '../components/UI/Toast';
 import { adminApi } from '../utils/adminApi';
+import AccessDeniedBanner from '../components/Admin/AccessDeniedBanner';
 import { useAuth } from '../context/AuthContext';
 
 interface User {
@@ -69,6 +70,7 @@ const UserAdmin: React.FC = () => {
   });
   const [backfillDryRun, setBackfillDryRun] = useState(true);
   const [backfillResult, setBackfillResult] = useState<{ scanned: number; updated: number } | null>(null);
+  const [unauthorized, setUnauthorized] = useState(false);
 
   const validRoles = ['admin', 'oncologist', 'pharmacist', 'nurse', 'researcher', 'user'];
 
@@ -128,9 +130,14 @@ const UserAdmin: React.FC = () => {
       const data = await response.json();
       setUsers(data.users || []);
       setPagination(prev => ({ ...prev, ...data.pagination }));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading users:', error);
-      showToast('error', 'Failed to load users');
+      if (error?.status === 401 || error?.status === 403) {
+        setUnauthorized(true);
+        showToast('error', 'Admin access required (401/403)');
+      } else {
+        showToast('error', 'Failed to load users');
+      }
     } finally {
       setLoading(false);
     }
@@ -157,6 +164,7 @@ const UserAdmin: React.FC = () => {
       });
       loadUsers();
     } catch (error: any) {
+      if (error?.status === 401 || error?.status === 403) setUnauthorized(true);
       showToast('error', error.message);
     }
   };
@@ -178,6 +186,7 @@ const UserAdmin: React.FC = () => {
       setEditForm({});
       loadUsers();
     } catch (error: any) {
+      if (error?.status === 401 || error?.status === 403) setUnauthorized(true);
       showToast('error', error.message);
     }
   };
@@ -198,13 +207,14 @@ const UserAdmin: React.FC = () => {
       showToast('success', 'User deleted successfully');
       loadUsers();
     } catch (error: any) {
+      if (error?.status === 401 || error?.status === 403) setUnauthorized(true);
       showToast('error', error.message);
     }
   };
 
   const exportUsers = async () => {
     try {
-      const response = await fetch('/api/admin/export/users');
+      const response = await adminApi.get('/api/admin/export/users');
       if (!response.ok) throw new Error('Failed to export users');
       
       const blob = await response.blob();
@@ -234,6 +244,7 @@ const UserAdmin: React.FC = () => {
       if (!backfillDryRun) loadUsers();
     } catch (e: any) {
       console.error('Backfill error:', e);
+      if (e?.status === 401 || e?.status === 403) setUnauthorized(true);
       showToast('error', e?.message || 'Backfill failed');
     }
   };
@@ -271,6 +282,7 @@ const UserAdmin: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {unauthorized && <AccessDeniedBanner />}
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin', href: '/admin/console' }, { label: 'User Management' }]} />
       {/* Header */}
       <div className="flex justify-between items-center">

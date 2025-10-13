@@ -276,49 +276,49 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 <Route path="/admin" element={
-                  <ProtectedRoute requiredRole={['super_admin']}>
+                  <ProtectedRoute requiredRole={['admin','super_admin']}>
                     <Layout>
                       <AdminHome />
                     </Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/admin/users" element={
-                  <ProtectedRoute requiredRole={['super_admin']}>
+                  <ProtectedRoute requiredRole={['admin','super_admin']}>
                     <Layout>
                       <UserAdmin />
                     </Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/admin/audit" element={
-                  <ProtectedRoute requiredRole={['super_admin']}>
+                  <ProtectedRoute requiredRole={['admin','super_admin']}>
                     <Layout>
                       <AuditLogViewer />
                     </Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/admin/health" element={
-                  <ProtectedRoute requiredRole={['super_admin']}>
+                  <ProtectedRoute requiredRole={['admin','super_admin']}>
                     <Layout>
                       <AdminSystemHealth />
                     </Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/admin/settings" element={
-                  <ProtectedRoute requiredRole={['super_admin']}>
+                  <ProtectedRoute requiredRole={['admin','super_admin']}>
                     <Layout>
                       <AdminSettings />
                     </Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/admin/feedback" element={
-                  <ProtectedRoute requiredRole={['super_admin']}>
+                  <ProtectedRoute requiredRole={['admin','super_admin']}>
                     <Layout>
                       <FeedbackAdmin />
                     </Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/admin/console" element={
-                  <ProtectedRoute requiredRole={['super_admin']}>
+                  <ProtectedRoute requiredRole={['admin','super_admin']}>
                     <Layout>
                       <AdminConsole />
                     </Layout>

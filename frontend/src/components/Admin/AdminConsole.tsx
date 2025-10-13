@@ -32,6 +32,7 @@ import { useRBAC, ROLES, PERMISSIONS } from '../../utils/rbac';
 import visitorTracking from '../../services/visitorTracking';
 import LogoutButton from './LogoutButton';
 import Breadcrumbs from '../UI/Breadcrumbs';
+import AccessDeniedBanner from './AccessDeniedBanner';
 import { adminApi } from '../../utils/adminApi';
 // useRBAC already imported above
 
@@ -660,6 +661,11 @@ const AdminConsole: React.FC = () => {
             <p className="text-gray-600">System administration and visitor analytics management</p>
           </div>
         </div>
+        {!PUSH_ADMIN_ENABLED && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-yellow-800 text-sm">
+            Push admin features are disabled. Set VITE_ENABLE_PUSH_ADMIN=true to enable push tabs.
+          </div>
+        )}
       </div>
 
       {/* Admin Info Bar */}
@@ -687,9 +693,11 @@ const AdminConsole: React.FC = () => {
             { id: 'analytics', label: 'Analytics', icon: BarChart3, permission: 'view_visitor_analytics' },
             { id: 'system', label: 'System', icon: Settings, permission: 'manage_system_settings' },
             { id: 'audit', label: 'Audit Logs', icon: FileText, permission: 'view_audit_logs' },
-            { id: 'push', label: 'Push', icon: Smartphone, permission: null },
-            { id: 'subscriptions', label: 'Subscriptions', icon: Users, permission: null },
-            { id: 'schedules', label: 'Schedules', icon: Clock, permission: null }
+            ...(PUSH_ADMIN_ENABLED ? [
+              { id: 'push', label: 'Push', icon: Smartphone, permission: null },
+              { id: 'subscriptions', label: 'Subscriptions', icon: Users, permission: null },
+              { id: 'schedules', label: 'Schedules', icon: Clock, permission: null }
+            ] : [])
           ].filter(tab => !tab.permission || rbac.hasPermission(tab.permission)).map(tab => {
             const Icon = tab.icon;
             return (
@@ -926,6 +934,7 @@ const AdminConsole: React.FC = () => {
               {schedules.length === 0 && <div className="text-sm text-gray-600">No scheduled notifications</div>}
             </div>
           </div>
+  const PUSH_ADMIN_ENABLED = String((import.meta as any)?.env?.VITE_ENABLE_PUSH_ADMIN || '').toLowerCase() === 'true';
         </div>
       )}
     </div>

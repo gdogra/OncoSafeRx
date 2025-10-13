@@ -1,15 +1,18 @@
 import React from 'react';
 import Card from '../components/UI/Card';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
+import { adminApi } from '../utils/adminApi';
 import { Download } from 'lucide-react';
 import { useToast } from '../components/UI/Toast';
+import AccessDeniedBanner from '../components/Admin/AccessDeniedBanner';
 
 const AdminSettings: React.FC = () => {
   const { showToast } = useToast();
+  const [unauthorized, setUnauthorized] = React.useState(false);
 
   const exportFile = async (type: 'users' | 'stats') => {
     try {
-      const resp = await fetch(`/api/admin/export/${type}`);
+      const resp = await adminApi.get(`/api/admin/export/${type}`);
       if (!resp.ok) throw new Error('Export failed');
       const blob = await resp.blob();
       const url = URL.createObjectURL(blob);
@@ -23,12 +26,14 @@ const AdminSettings: React.FC = () => {
       showToast('success', `Exported ${type}`);
     } catch (e: any) {
       console.error(e);
+      if (e?.status === 401 || e?.status === 403) setUnauthorized(true);
       showToast('error', e?.message || 'Export failed');
     }
   };
 
   return (
     <div className="space-y-6">
+      {unauthorized && <AccessDeniedBanner />}
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin', href: '/admin/console' }, { label: 'Admin Settings' }]} />
       <div className="flex items-center justify-between">
         <div>

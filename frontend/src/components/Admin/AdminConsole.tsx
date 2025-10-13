@@ -78,7 +78,6 @@ const AdminConsole: React.FC = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   
   // Audit log state
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
@@ -476,132 +475,6 @@ const AdminConsole: React.FC = () => {
     </div>
   );
 
-  const renderUsers = () => (
-    <div className="space-y-6">
-      {/* User Management Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
-          <p className="text-sm text-gray-600">Manage user accounts, roles, and permissions</p>
-        </div>
-        {rbac.hasPermission('manage_users') && (
-          <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            <Plus className="w-4 h-4" />
-            <span>Add User</span>
-          </button>
-        )}
-      </div>
-
-      {/* Search and Filters */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="flex flex-wrap gap-4">
-          <div className="flex-1 min-w-64">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-          <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            <option value="all">All Roles</option>
-            <option value="super_admin">Super Admin</option>
-            <option value="system_admin">System Admin</option>
-            <option value="analytics_admin">Analytics Admin</option>
-            <option value="oncologist">Oncologist</option>
-            <option value="pharmacist">Pharmacist</option>
-            <option value="nurse">Nurse</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Users Table */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roles</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Login Count</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {users.filter(user => 
-                user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                user.email.toLowerCase().includes(searchTerm.toLowerCase())
-              ).map(user => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                          <span className="text-sm font-medium text-blue-700">
-                            {user.firstName[0]}{user.lastName[0]}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {user.firstName} {user.lastName}
-                        </div>
-                        <div className="text-sm text-gray-500">{user.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex flex-wrap gap-1">
-                      {user.roles.map(roleId => (
-                        <span key={roleId} className="inline-flex px-2 py-1 text-xs font-semibold bg-purple-100 text-purple-800 rounded-full">
-                          {getRoleDisplayName(roleId)}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(user.isActive)}`}>
-                      {user.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatLastLogin(user.lastLogin)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.loginCount}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center space-x-2">
-                      {rbac.hasPermission('manage_users') && (
-                        <>
-                          <button className="text-blue-600 hover:text-blue-900">
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button className="text-red-600 hover:text-red-900">
-                            {user.isActive ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
-                          </button>
-                        </>
-                      )}
-                      <button className="text-gray-600 hover:text-gray-900">
-                        <Eye className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
 
   const renderAnalytics = () => (
     <div className="space-y-6">
@@ -690,7 +563,7 @@ const AdminConsole: React.FC = () => {
         <nav className="-mb-px flex space-x-8">
           {[
             { id: 'overview', label: 'Overview', icon: Monitor, permission: null },
-            { id: 'users', label: 'Users', icon: Users, permission: 'manage_users' },
+            { id: 'users', label: 'Users', icon: Users, permission: 'manage_users', redirect: '/admin/users' },
             { id: 'role_management', label: 'Role Management', icon: Users, permission: 'manage_roles' },
             { id: 'analytics', label: 'Analytics', icon: BarChart3, permission: 'view_visitor_analytics' },
             { id: 'system', label: 'System', icon: Settings, permission: 'manage_system_settings' },
@@ -705,7 +578,13 @@ const AdminConsole: React.FC = () => {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => {
+                  if (tab.redirect) {
+                    navigate(tab.redirect);
+                  } else {
+                    setActiveTab(tab.id as any);
+                  }
+                }}
                 className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab.id
                     ? 'border-red-500 text-red-600'
@@ -722,7 +601,6 @@ const AdminConsole: React.FC = () => {
 
       {/* Tab Content */}
       {activeTab === 'overview' && renderOverview()}
-      {activeTab === 'users' && renderUsers()}
       {activeTab === 'analytics' && renderAnalytics()}
       {activeTab === 'role_management' && (
         <div className="space-y-6">

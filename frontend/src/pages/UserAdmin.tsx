@@ -17,6 +17,7 @@ import Card from '../components/UI/Card';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { useToast } from '../components/UI/Toast';
 import { adminApi } from '../utils/adminApi';
+import { useAuth } from '../context/AuthContext';
 
 interface User {
   id: string;
@@ -41,6 +42,8 @@ interface CreateUserForm {
 }
 
 const UserAdmin: React.FC = () => {
+  const { showToast } = useToast();
+  const { logout, user } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -66,10 +69,43 @@ const UserAdmin: React.FC = () => {
   });
   const [backfillDryRun, setBackfillDryRun] = useState(true);
   const [backfillResult, setBackfillResult] = useState<{ scanned: number; updated: number } | null>(null);
-  
-  const { showToast } = useToast();
 
   const validRoles = ['admin', 'oncologist', 'pharmacist', 'nurse', 'researcher', 'user'];
+
+  // Debug function to force token refresh
+  const debugTokenRefresh = () => {
+    console.log('🔄 Forcing logout to refresh token...');
+    if (confirm('This will log you out to refresh your authentication token. Continue?')) {
+      logout();
+    }
+  };
+
+  // Debug function to show current token info
+  const debugShowToken = () => {
+    try {
+      const stored = localStorage.getItem('osrx_auth_tokens');
+      if (stored) {
+        const tokens = JSON.parse(stored);
+        if (tokens.access_token) {
+          const payload = JSON.parse(atob(tokens.access_token.split('.')[1]));
+          console.log('🔍 Current Token Info:', {
+            email: payload.email,
+            role: payload.role,
+            userId: payload.id,
+            expires: new Date(payload.exp * 1000).toLocaleString(),
+            isValid: payload.exp * 1000 > Date.now()
+          });
+          showToast('info', `Token role: ${payload.role} for ${payload.email}`);
+        }
+      } else {
+        console.log('❌ No token found in localStorage');
+        showToast('error', 'No authentication token found');
+      }
+    } catch (error) {
+      console.error('❌ Token decode error:', error);
+      showToast('error', 'Failed to decode authentication token');
+    }
+  };
 
   useEffect(() => {
     loadUsers();
@@ -241,8 +277,23 @@ const UserAdmin: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
           <p className="text-gray-600 mt-1">Manage user accounts and permissions</p>
+          <p className="text-sm text-blue-600">Current user: {user?.email} ({user?.role})</p>
         </div>
         <div className="flex gap-3">
+          <button
+            onClick={debugShowToken}
+            className="flex items-center gap-2 px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 text-sm"
+            title="Debug: Show current token info"
+          >
+            🔍 Debug Token
+          </button>
+          <button
+            onClick={debugTokenRefresh}
+            className="flex items-center gap-2 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm"
+            title="Force logout to refresh authentication"
+          >
+            🔄 Refresh Auth
+          </button>
           <button
             onClick={exportUsers}
             className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"

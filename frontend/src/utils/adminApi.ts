@@ -16,6 +16,20 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
 
   const token = getAuthToken();
   
+  // Debug: Check token content
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      console.log('🔍 JWT Token Debug:', {
+        email: payload.email,
+        role: payload.role,
+        expires: new Date(payload.exp * 1000).toLocaleString()
+      });
+    } catch (e) {
+      console.log('🔍 Token decode failed:', e.message);
+    }
+  }
+  
   // Prepare headers with authentication
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

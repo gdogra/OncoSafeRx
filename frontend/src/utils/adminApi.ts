@@ -48,10 +48,10 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
     return null;
   };
 
-  let token = readBackendJwt();
+  // Prefer Supabase JWT first to avoid 404 spam on older backends
+  let token = readSupabaseJwt();
+  if (!token) token = readBackendJwt();
   if (!token) token = await ensureBackendJwt();
-  // As a final fallback (should be rare), try Supabase token directly
-  if (!token) token = readSupabaseJwt();
   
   // Debug: Check token content
   if (token) {
@@ -89,9 +89,18 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
     try { (window as any)?.showToast?.('info', 'Refreshing access…'); } catch {}
     // Retry once after clearing backend JWT and re-exchanging
     try { localStorage.removeItem('osrx_backend_jwt'); } catch {}
+    // Try exchanging now (older servers may not support this; handle 404 below)
     const refreshed = await ensureBackendJwt();
     if (refreshed) headers['Authorization'] = `Bearer ${refreshed}`;
     response = await doRequest();
+    // If still unauthorized and we used backend JWT, try Supabase JWT one last time
+    if ((response.status === 401 || response.status === 403)) {
+      const supa = readSupabaseJwt();
+      if (supa) {
+        headers['Authorization'] = `Bearer ${supa}`;
+        response = await doRequest();
+      }
+    }
   }
   if (!response.ok) {
     const err: any = new Error(`Admin API call failed: ${response.status} ${response.statusText}`);

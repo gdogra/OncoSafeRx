@@ -35,45 +35,6 @@ export function verifyToken(token) {
   }
 }
 
-// Authentication middleware
-function extractBearerToken(req) {
-  // 1) Standard Authorization header
-  const hAuth = req.headers['authorization'] || req.headers['Authorization'];
-  if (hAuth) {
-    const parts = String(hAuth).split(' ');
-    if (parts.length === 2 && /^Bearer$/i.test(parts[0])) return parts[1];
-    if (parts.length === 1) return parts[0];
-  }
-  // 2) Reverse proxies may forward as X-Forwarded-Authorization
-  const xfAuth = req.headers['x-forwarded-authorization'];
-  if (xfAuth) {
-    const parts = String(xfAuth).split(' ');
-    if (parts.length === 2 && /^Bearer$/i.test(parts[0])) return parts[1];
-    if (parts.length === 1) return parts[0];
-  }
-  // 3) Some clients send X-Authorization or X-Client-Authorization
-  const xAuth = req.headers['x-authorization'] || req.headers['x-client-authorization'] || req.headers['x-supabase-authorization'];
-  if (xAuth) {
-    const parts = String(xAuth).split(' ');
-    if (parts.length === 2 && /^Bearer$/i.test(parts[0])) return parts[1];
-    if (parts.length === 1) return parts[0];
-  }
-  // 4) Cookies (Supabase often stores sb-access-token)
-  try {
-    const raw = req.headers['cookie'];
-    if (raw) {
-      const cookies = Object.fromEntries(String(raw).split(';').map(p => p.trim().split('=')));
-      if (cookies['sb-access-token']) return cookies['sb-access-token'];
-      if (cookies['supabase-access-token']) return cookies['supabase-access-token'];
-    }
-  } catch {}
-  // 5) Query param fallback (debug only)
-  if (process.env.ALLOW_QUERY_TOKEN === 'true' && req.query && req.query.token) {
-    return String(req.query.token);
-  }
-  return null;
-}
-
 export function extractBearerToken(req) {
   // 1) Standard Authorization header
   const hAuth = req.headers['authorization'] || req.headers['Authorization'];

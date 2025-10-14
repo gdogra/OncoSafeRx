@@ -53,6 +53,15 @@ const Dashboard: React.FC = () => {
       features: ['Current medications', 'Dosage tracking', 'Side effect reporting', 'Reminders']
     },
     {
+      icon: AlertTriangle,
+      title: 'Drug Interactions',
+      description: 'Check drug-drug interactions for your medications',
+      link: '/interactions',
+      color: 'bg-yellow-500',
+      badge: 'Safety',
+      features: ['Severity levels', 'Clinical guidance', 'Patient-specific notes']
+    },
+    {
       icon: BookOpen,
       title: 'Educational Resources',
       description: 'Learn about your condition, treatments, and how to manage your care',
@@ -91,6 +100,15 @@ const Dashboard: React.FC = () => {
       color: 'bg-green-500',
       badge: 'Medication',
       features: ['Medication schedules', 'Side effect tracking', 'Pharmacy coordination', 'Reminders']
+    },
+    {
+      icon: AlertTriangle,
+      title: 'Drug Interactions',
+      description: 'Quickly check interactions across the patient’s medications',
+      link: '/interactions',
+      color: 'bg-yellow-500',
+      badge: 'Safety',
+      features: ['Severity levels', 'Actionable advice', 'Monitor risks']
     },
     {
       icon: BookOpen,

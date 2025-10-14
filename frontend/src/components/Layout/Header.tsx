@@ -68,6 +68,7 @@ const Header: React.FC = () => {
         { path: '/support', label: 'Support', icon: Users },
         { path: '/my-medications', label: 'Medications', icon: Stethoscope },
         { path: '/my-appointments', label: 'Appointments', icon: Calendar },
+        { path: '/interactions', label: 'Interactions', icon: AlertTriangle },
         { path: '/help', label: 'Help', icon: HelpCircle },
       ]
     : [

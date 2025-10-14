@@ -408,7 +408,11 @@ const InteractionCheckerInner: React.FC = () => {
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">
           <AlertTriangle className="w-8 h-8 text-warning-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Advanced Drug Interaction Analysis</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            {authState?.user?.role === 'patient' || authState?.user?.role === 'caregiver'
+              ? 'Drug Interaction Checker'
+              : 'Advanced Drug Interaction Analysis'}
+          </h1>
         </div>
         {(currentPatient || authState?.user) && (
           <div className="mb-4">
@@ -433,8 +437,18 @@ const InteractionCheckerInner: React.FC = () => {
           </div>
         )}
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          AI-powered interaction checking with clinical recommendations, severity analysis, and patient-specific considerations.
+          {authState?.user?.role === 'patient' || authState?.user?.role === 'caregiver'
+            ? 'Check for potential interactions between your medications. This tool is for informational purposes only and does not replace advice from your healthcare provider.'
+            : 'AI-powered interaction checking with clinical recommendations, severity analysis, and patient-specific considerations.'}
         </p>
+
+        {(authState?.user?.role === 'patient' || authState?.user?.role === 'caregiver') && (
+          <div className="max-w-3xl mx-auto mt-4">
+            <Alert type="info" title="Important">
+              Results are educational and may not include all possible interactions. Always consult your oncology team or pharmacist before starting, stopping, or changing any medication.
+            </Alert>
+          </div>
+        )}
       </div>
 
       {/* Enhanced Interaction Checker */}

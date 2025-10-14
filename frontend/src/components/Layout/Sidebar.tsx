@@ -226,7 +226,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: user?.role === 'researcher' ? 'Adverse Events' : 'Interactions', 
             icon: AlertTriangle, 
             description: user?.role === 'researcher' ? 'Study adverse events' : 'Drug interactions',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver'],
             requiresPermission: null
           },
           { 

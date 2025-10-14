@@ -5,12 +5,17 @@ import Alert from '../UI/Alert';
 import { AlertTriangle, Info, Database, Globe, MapPinned } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { inferBiomarkerForDrug } from '../../utils/biomarkers';
+import Tooltip from '../UI/Tooltip';
+import { useAuth } from '../../context/AuthContext';
 
 interface InteractionResultsProps {
   results: InteractionCheckResult;
 }
 
 const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
+  const { state: authState } = useAuth();
+  const role = authState?.user?.role;
+  const isPatientLike = role === 'patient' || role === 'caregiver';
   const getSeverityIcon = (severity: string) => {
     switch (severity.toLowerCase()) {
       case 'major':
@@ -99,6 +104,19 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
             }`}>
               {interaction.riskLevel || interaction.severity.toUpperCase()}
             </span>
+            <Tooltip
+              content={isPatientLike
+                ? 'These results summarize potential interactions from trusted medical sources. Not all interactions are shown. Always consult your care team.'
+                : 'Severity reflects clinical impact; Evidence Level indicates strength of evidence; Sources show curated vs. external origins.'}
+            >
+              <button
+                type="button"
+                aria-label="About these results"
+                className="p-1 text-gray-400 hover:text-gray-600"
+              >
+                <Info className="w-4 h-4" />
+              </button>
+            </Tooltip>
           </div>
         </div>
 

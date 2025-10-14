@@ -218,7 +218,7 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 <Route path="/interactions" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver']}>
                     <Layout>
                       <InteractionChecker />
                     </Layout>

@@ -124,13 +124,6 @@ export async function authenticateToken(req, res, next) {
     const decoded = verifyToken(token);
     if (decoded) {
       req.user = decoded;
-      // Bootstrap override: treat configured email as super_admin
-      try {
-        const override = String(process.env.ADMIN_OVERRIDE_EMAIL || '').toLowerCase();
-        if (override && req.user?.email && String(req.user.email).toLowerCase() === override) {
-          req.user.role = 'super_admin';
-        }
-      } catch {}
       // Hydrate role from profile if available
       try {
         const profile = await supabaseService.getUserByEmail?.(req.user.email);
@@ -155,13 +148,6 @@ export async function authenticateToken(req, res, next) {
                 email: payload.email,
                 role: payload.role || payload.user_metadata?.role || 'user'
               };
-              // Bootstrap override: treat configured email as super_admin
-              try {
-                const override = String(process.env.ADMIN_OVERRIDE_EMAIL || '').toLowerCase();
-                if (override && req.user?.email && String(req.user.email).toLowerCase() === override) {
-                  req.user.role = 'super_admin';
-                }
-              } catch {}
               // Hydrate role from profile if available
               try {
                 const profile = await supabaseService.getUserByEmail?.(req.user.email);
@@ -184,13 +170,6 @@ export async function authenticateToken(req, res, next) {
       email: supa.email,
       role: supa.user_metadata?.role || 'user'
     };
-    // Bootstrap override: treat configured email as super_admin
-    try {
-      const override = String(process.env.ADMIN_OVERRIDE_EMAIL || '').toLowerCase();
-      if (override && req.user?.email && String(req.user.email).toLowerCase() === override) {
-        req.user.role = 'super_admin';
-      }
-    } catch {}
     // Hydrate role from profile if available
     try {
       const profile = await supabaseService.getUserByEmail?.(req.user.email);

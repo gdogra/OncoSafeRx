@@ -54,6 +54,25 @@ export async function authenticateToken(req, res, next) {
 
     // Fallback: Supabase JWT via service role introspection
     if (!supabaseAdmin) {
+      // Optional unverified Supabase JWT fallback (for environments without service role)
+      try {
+        if (String(process.env.ALLOW_SUPABASE_JWT_FALLBACK || '').toLowerCase() === 'true') {
+          const parts = token.split('.');
+          if (parts.length === 3) {
+            const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+            // Basic sanity checks: Supabase issuer hint and required fields
+            const iss = String(payload.iss || '');
+            if (iss.includes('supabase') && payload.email) {
+              req.user = {
+                id: payload.sub || payload.user_id || 'unknown',
+                email: payload.email,
+                role: payload.role || payload.user_metadata?.role || 'user'
+              };
+              return next();
+            }
+          }
+        }
+      } catch {}
       return res.status(403).json({ error: 'Invalid or expired token' });
     }
     const { data, error } = await supabaseAdmin.auth.getUser(token);

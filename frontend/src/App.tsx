@@ -99,6 +99,7 @@ const AdvancedWorkflowSystem = lazy(() => import('./components/Workflow/Advanced
 const VisitorAnalyticsDashboard = lazy(() => import('./components/Analytics/VisitorAnalyticsDashboard'));
 const PatientJourney = lazy(() => import('./pages/PatientJourney'));
 const RoutingTest = lazy(() => import('./components/Debug/RoutingTest'));
+const TokenDebug = lazy(() => import('./pages/TokenDebug'));
 
 // Component that handles initialization inside AuthProvider
 function AppWithAuth() {
@@ -188,6 +189,14 @@ function AppWithAuth() {
                   <ProtectedRoute>
                     <Layout>
                       <RoutingTest />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                
+                <Route path="/debug-tokens" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <TokenDebug />
                     </Layout>
                   </ProtectedRoute>
                 } />

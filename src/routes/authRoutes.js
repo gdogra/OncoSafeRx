@@ -275,31 +275,6 @@ router.post('/change-password',
   })
 );
 
-// WhoAmI: lightweight identity/role check without requiring admin
-router.get('/whoami', optionalAuth, asyncHandler(async (req, res) => {
-  try {
-    // Try to extract token to decode payload if req.user missing
-    let payload = null;
-    try {
-      const { extractBearerToken } = await import('../middleware/auth.js');
-      const token = extractBearerToken(req);
-      if (token) {
-        const base = token.split('.')[1];
-        if (base) payload = JSON.parse(Buffer.from(base, 'base64').toString('utf8'));
-      }
-    } catch {}
-
-    return res.json({
-      authenticated: !!req.user,
-      email: req.user?.email || payload?.email || null,
-      role: req.user?.role || payload?.role || null,
-      supabaseEnabled: !!supabaseService?.enabled,
-      tokenPresent: !!payload
-    });
-  } catch (e) {
-    return res.status(500).json({ error: 'whoami failed' });
-  }
-}));
 
 // Logout (client-side token invalidation)
 router.post('/logout',

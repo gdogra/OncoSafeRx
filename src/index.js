@@ -194,6 +194,32 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Auth diagnostics: echo what the server sees (no secrets)
+app.get('/api/diag/auth', (req, res) => {
+  try {
+    const headers = Object.fromEntries(Object.entries(req.headers).filter(([k]) => !['cookie','authorization'].includes(k)));
+    // Surface selected auth-related headers
+    const authHeaders = {
+      authorization: req.headers['authorization'] || null,
+      x_forwarded_authorization: req.headers['x-forwarded-authorization'] || null,
+      x_authorization: req.headers['x-authorization'] || null,
+      x_client_authorization: req.headers['x-client-authorization'] || null,
+      x_supabase_authorization: req.headers['x-supabase-authorization'] || null,
+      cookie_present: !!req.headers['cookie']
+    };
+    // Try to reuse our token extractor
+    const { extractBearerToken } = require('./middleware/auth.js');
+    let token = null;
+    try { token = extractBearerToken(req); } catch {}
+    // Do a safe decode without verifying
+    let payload = null;
+    try { if (token) payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf8')); } catch {}
+    return res.json({ ok: true, authHeaders, tokenPresent: !!token, payloadSummary: payload ? { email: payload.email, role: payload.role, iss: payload.iss } : null, headers });
+  } catch (e) {
+    return res.status(500).json({ ok: false });
+  }
+});
+
 // Public frontend config (anon/public values only)
 app.get('/api/frontend/config', (req, res) => {
   try {

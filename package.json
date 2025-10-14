@@ -1,6 +1,6 @@
 {
   "name": "oncosaferx",
-  "version": "1.0.1",
+  "version": "20.0.0",
   "description": "Oncology drug interaction and recommendation platform",
   "main": "src/index.js",
   "type": "module",

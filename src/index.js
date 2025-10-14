@@ -172,7 +172,7 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'healthy', 
     timestamp: new Date().toISOString(),
-    version: '1.0.6'
+    version: process.env.APP_VERSION || '20.0.0'
   });
 });
 
@@ -181,7 +181,7 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'healthy', 
     timestamp: new Date().toISOString(),
-    version: '1.0.1',
+    version: process.env.APP_VERSION || '20.0.0',
     api: 'oncosaferx',
     supabase: {
       enabled: !!supabaseService?.enabled

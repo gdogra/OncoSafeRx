@@ -366,7 +366,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: 'Analytics', 
             icon: BarChart3, 
             description: 'Performance analytics',
-            roles: ['oncologist', 'pharmacist', 'researcher'],
+            roles: ['admin','super_admin'],
             requiresPermission: 'canViewAnalytics'
           },
           { 

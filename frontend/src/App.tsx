@@ -432,7 +432,7 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 <Route path="/analytics" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'researcher']}>
+                  <ProtectedRoute requiredPermission="view_visitor_analytics">
                     <Layout>
                       <Analytics />
                     </Layout>

@@ -7,6 +7,20 @@ export type DisplayPatient = {
 };
 
 export function getDisplayPatient(currentPatient: any, user: any): DisplayPatient | null {
+  const roles: string[] = Array.isArray(user?.roles) ? user.roles : (user?.role ? [user.role] : []);
+  const isPatientLike = roles.includes('patient') || roles.includes('caregiver');
+
+  // For patient/caregiver users, prefer the authenticated user over any previously selected currentPatient
+  if (isPatientLike && user) {
+    return {
+      firstName: user.firstName || user.user_metadata?.first_name || '',
+      lastName: user.lastName || user.user_metadata?.last_name || '',
+      dateOfBirth: undefined,
+      sex: user.gender || user.sex,
+      conditions: [],
+    };
+  }
+
   if (currentPatient?.demographics) {
     return {
       firstName: currentPatient.demographics.firstName || '',
@@ -16,6 +30,7 @@ export function getDisplayPatient(currentPatient: any, user: any): DisplayPatien
       conditions: Array.isArray(currentPatient?.conditions) ? currentPatient.conditions : [],
     };
   }
+
   if (user) {
     return {
       firstName: user.firstName || user.user_metadata?.first_name || '',
@@ -49,4 +64,3 @@ export function getConditionNames(conditions: any[] | undefined, limit = 2): str
     .filter((s: string) => !!s)
     .slice(0, limit);
 }
-

@@ -38,6 +38,21 @@
     <!-- FORCE COMPLETE REBUILD -->
     <meta name="build-timestamp" content="2025-10-07-00:00:00" />
     <meta name="cache-buster" content="SIMPLIFIED-CONFIG-FIX-20251007-0000" />
+
+    <!-- Apply stored theme ASAP (before app loads) -->
+    <script>
+      (function() {
+        try {
+          var stored = localStorage.getItem('osrx_theme');
+          if (!stored) return;
+          var root = document.documentElement;
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var useDark = stored === 'dark' || (stored === 'auto' && prefersDark);
+          if (useDark) root.classList.add('dark'); else root.classList.remove('dark');
+          root.setAttribute('data-theme', stored || 'light');
+        } catch(e) {}
+      })();
+    </script>
     
     <!-- Schema.org markup for healthcare organization -->
     <script type="application/ld+json">

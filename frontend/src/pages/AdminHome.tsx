@@ -15,6 +15,8 @@ const AdminHome: React.FC = () => {
   const [auditTotal, setAuditTotal] = useState<number | null>(null);
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
   const [errorCount, setErrorCount] = useState<number | null>(null);
+  const [authStatus, setAuthStatus] = useState<{ status: 'ok'|'unauthorized'|'error'|'unknown'; detail: string }>({ status: 'unknown', detail: 'Not checked' });
+  const [tokenInfo, setTokenInfo] = useState<{ supaRole?: string; backendRole?: string }>({});
 
   useEffect(() => {
     const load = async () => {
@@ -23,6 +25,7 @@ const AdminHome: React.FC = () => {
         const d = await adminApi.get('/api/admin/dashboard');
         const body = await d.json();
         setStats(body?.stats || null);
+        setAuthStatus({ status: 'ok', detail: '200 OK' });
       } catch {}
       try {
         // Get audit total cheaply (limit 1, rely on count on backend)
@@ -40,6 +43,24 @@ const AdminHome: React.FC = () => {
         const errors = logs.filter((l: any) => (String(l.status || '').toLowerCase() !== 'completed')).length;
         setErrorCount(errors);
       } catch {}
+      try {
+        // Decode tokens for display
+        const tokensRaw = localStorage.getItem('osrx_auth_tokens');
+        const backendRaw = localStorage.getItem('osrx_backend_jwt');
+        const info: any = {};
+        if (tokensRaw) { try { const t = JSON.parse(tokensRaw).access_token; const p = JSON.parse(atob(t.split('.')[1])); info.supaRole = p.role; } catch {} }
+        if (backendRaw) { try { const t = JSON.parse(backendRaw).token; const p = JSON.parse(atob(t.split('.')[1])); info.backendRole = p.role; } catch {} }
+        setTokenInfo(info);
+      } catch {}
+      // If dashboard failed above, reflect unauthorized/error
+      try {
+        const resp = await fetch('/api/admin/dashboard', { method: 'GET' });
+        if (!resp.ok) {
+          setAuthStatus({ status: resp.status === 401 || resp.status === 403 ? 'unauthorized' : 'error', detail: String(resp.status) });
+        }
+      } catch {
+        setAuthStatus({ status: 'error', detail: 'Network/Error' });
+      }
     };
     load();
   }, []);
@@ -51,6 +72,7 @@ const AdminHome: React.FC = () => {
     { path: '/admin/health', label: 'System Health', desc: 'Platform status and services', icon: Activity, color: 'text-green-600', bg: 'bg-green-50', badge: stats ? (stats.system.supabase ? 'Healthy' : 'Offline') : null },
     { path: '/admin/settings', label: 'Admin Settings', desc: 'Maintenance and utilities', icon: SettingsIcon, color: 'text-gray-700', bg: 'bg-gray-100', badge: null as React.ReactNode },
     { path: '/admin/feedback', label: 'Feedback Admin', desc: 'Triage feedback and integrations', icon: MessageSquare, color: 'text-indigo-600', bg: 'bg-indigo-50', badge: null as React.ReactNode },
+    { path: '/admin/auth-diagnostics', label: 'Auth Status', desc: `Admin API ${authStatus.detail}`, icon: Shield, color: authStatus.status==='ok'?'text-green-600':authStatus.status==='unauthorized'?'text-red-600':'text-yellow-600', bg: authStatus.status==='ok'?'bg-green-50':authStatus.status==='unauthorized'?'bg-red-50':'bg-yellow-50', badge: tokenInfo.backendRole || tokenInfo.supaRole || null },
   ];
 
   return (

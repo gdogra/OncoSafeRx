@@ -16,7 +16,12 @@
   # Backend base URL for non-Netlify custom domains fallback
   VITE_BACKEND_URL = "https://oncosaferx-backend.onrender.com"
 
-# API proxy via redirects (simpler approach)
+# Use Edge Function to proxy API so we can preserve auth headers + cookies
+[[edge_functions]]
+  function = "api-proxy"
+  path = "/api/*"
+
+# API proxy via redirects (fallback when Edge Functions are not available)
 [[redirects]]
   from = "/api/*"
   to = "https://oncosaferx-backend.onrender.com/api/:splat"

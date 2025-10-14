@@ -90,6 +90,11 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
     headers['X-Authorization'] = `Bearer ${token}`;
     headers['X-Client-Authorization'] = `Bearer ${token}`;
     headers['X-Supabase-Authorization'] = `Bearer ${token}`;
+    // Also set a first-party cookie so servers reading Supabase tokens from cookies can authenticate
+    try {
+      // Session cookie (no explicit expiry) scoped to root path
+      document.cookie = `sb-access-token=${token}; Path=/; SameSite=Lax`;
+    } catch {}
   } else {
     console.warn('No auth token available for admin API call');
   }
@@ -107,7 +112,8 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
 
   const doRequest = async (): Promise<Response> => fetch(finalUrl, {
     ...options,
-    headers
+    headers,
+    credentials: 'same-origin'
   });
   let response = await doRequest();
   if (response.status === 401 || response.status === 403) {

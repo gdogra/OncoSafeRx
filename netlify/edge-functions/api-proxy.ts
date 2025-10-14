@@ -23,7 +23,7 @@ export default async (request: Request, context: Context) => {
   // Forward to Render backend (use env BACKEND_URL if provided)
   const backendBase = (context as any)?.env?.BACKEND_URL
     || (globalThis as any)?.BACKEND_URL
-    || 'https://oncosaferx.onrender.com';
+    || 'https://oncosaferx-backend.onrender.com';
   const backendUrl = `${backendBase.replace(/\/$/, '')}/api/${apiPath}${search}`;
   
   try {
@@ -45,6 +45,10 @@ export default async (request: Request, context: Context) => {
       'User-Agent': incoming.get('user-agent') || 'Netlify-Edge-Function/1.0',
       'Origin': incoming.get('origin') || '',
       'Authorization': incoming.get('authorization') || '',
+      'X-Forwarded-Authorization': incoming.get('x-forwarded-authorization') || '',
+      'X-Authorization': incoming.get('x-authorization') || '',
+      'X-Client-Authorization': incoming.get('x-client-authorization') || '',
+      'X-Supabase-Authorization': incoming.get('x-supabase-authorization') || '',
       'Cookie': incoming.get('cookie') || '',
       'X-Forwarded-For': incoming.get('x-forwarded-for') || '',
       'X-Forwarded-Host': url.host,

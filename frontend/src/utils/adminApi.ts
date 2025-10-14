@@ -85,12 +85,27 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
+    // Add proxy-friendly duplicate headers in case Authorization is stripped
+    headers['X-Forwarded-Authorization'] = `Bearer ${token}`;
+    headers['X-Authorization'] = `Bearer ${token}`;
+    headers['X-Client-Authorization'] = `Bearer ${token}`;
+    headers['X-Supabase-Authorization'] = `Bearer ${token}`;
   } else {
     console.warn('No auth token available for admin API call');
   }
 
   // Make the authenticated request
-  const doRequest = async (): Promise<Response> => fetch(url, {
+  // Optional query token fallback for constrained proxies (opt-in via localStorage)
+  let finalUrl = url;
+  try {
+    const allowQueryToken = localStorage.getItem('osrx_allow_query_token') === 'true';
+    if (allowQueryToken && token && typeof url === 'string' && url.startsWith('/')) {
+      const sep = url.includes('?') ? '&' : '?';
+      finalUrl = `${url}${sep}token=${encodeURIComponent(token)}`;
+    }
+  } catch {}
+
+  const doRequest = async (): Promise<Response> => fetch(finalUrl, {
     ...options,
     headers
   });

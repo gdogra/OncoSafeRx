@@ -36,37 +36,40 @@ export function verifyToken(token) {
 }
 
 // Authentication middleware
-export function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+export async function authenticateToken(req, res, next) {
+  try {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
-  if (!token) {
-    return res.status(401).json({ error: 'Access token required' });
-  }
+    if (!token) {
+      return res.status(401).json({ error: 'Access token required' });
+    }
 
-  const decoded = verifyToken(token);
-  if (decoded) {
-    req.user = decoded;
-    return next();
-  }
-
-  // Fallback: accept Supabase JWT by introspecting via service role
-  (async () => {
-    try {
-      if (!supabaseAdmin) throw new Error('supabase_admin_unavailable');
-      const { data, error } = await supabaseAdmin.auth.getUser(token);
-      if (error || !data?.user) throw new Error('invalid_supabase_token');
-      const supa = data.user;
-      req.user = {
-        id: supa.id,
-        email: supa.email,
-        role: supa.user_metadata?.role || 'user'
-      };
+    // Try backend JWT first
+    const decoded = verifyToken(token);
+    if (decoded) {
+      req.user = decoded;
       return next();
-    } catch (e) {
+    }
+
+    // Fallback: Supabase JWT via service role introspection
+    if (!supabaseAdmin) {
       return res.status(403).json({ error: 'Invalid or expired token' });
     }
-  })();
+    const { data, error } = await supabaseAdmin.auth.getUser(token);
+    if (error || !data?.user) {
+      return res.status(403).json({ error: 'Invalid or expired token' });
+    }
+    const supa = data.user;
+    req.user = {
+      id: supa.id,
+      email: supa.email,
+      role: supa.user_metadata?.role || 'user'
+    };
+    return next();
+  } catch (e) {
+    return res.status(403).json({ error: 'Invalid or expired token' });
+  }
 }
 
 // Optional authentication middleware (doesn't fail if no token)

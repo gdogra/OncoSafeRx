@@ -526,29 +526,43 @@ const UserAdmin: React.FC = () => {
         </div>
 
         {/* Pagination */}
-        {pagination.pages > 1 && (
-          <div className="px-6 py-3 border-t border-gray-200 flex items-center justify-between">
-            <div className="text-sm text-gray-700">
-              Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} users
+        <div className="px-6 py-3 border-t border-gray-200 flex items-center justify-between">
+          <div className="text-sm text-gray-700">
+            {typeof pagination.total === 'number' && pagination.total > 0 ? (
+              <>Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} users</>
+            ) : (
+              <>Showing {filteredUsers.length} users</>
+            )}
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-sm text-gray-700">
+              <span>Rows per page:</span>
+              <select
+                value={pagination.limit}
+                onChange={(e) => setPagination(prev => ({ ...prev, page: 1, limit: Number(e.target.value) }))}
+                className="px-2 py-1 border border-gray-300 rounded"
+              >
+                {[10, 20, 50, 100].map(n => <option key={n} value={n}>{n}</option>)}
+              </select>
             </div>
             <div className="flex gap-2">
               <button
-                onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
-                disabled={pagination.page === 1}
+                onClick={() => setPagination(prev => ({ ...prev, page: Math.max(1, prev.page - 1) }))}
+                disabled={pagination.page <= 1}
                 className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
               >
                 Previous
               </button>
               <button
-                onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-                disabled={pagination.page === pagination.pages}
+                onClick={() => setPagination(prev => ({ ...prev, page: (pagination.pages ? Math.min(pagination.pages, prev.page + 1) : prev.page + 1) }))}
+                disabled={pagination.pages ? pagination.page >= pagination.pages : filteredUsers.length < pagination.limit}
                 className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50"
               >
                 Next
               </button>
             </div>
           </div>
-        )}
+        </div>
       </Card>
 
       {/* Create User Modal */}

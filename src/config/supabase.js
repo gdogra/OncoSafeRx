@@ -6,9 +6,15 @@ import { randomUUID } from 'crypto';
 dotenv.config();
 
 // Optional flag to force offline/no-op mode (useful in restricted network/dev)
-const supabaseDisabled = String(process.env.SUPABASE_DISABLED || process.env.SUPABASE_OFFLINE || '').toLowerCase() === 'true';
+let supabaseDisabled = String(process.env.SUPABASE_DISABLED || process.env.SUPABASE_OFFLINE || '').toLowerCase() === 'true';
 
 // Check if Supabase credentials are available and not explicitly disabled
+// In production, prefer enabling Supabase if credentials are present, unless explicitly forced off
+const forceDisable = String(process.env.SUPABASE_FORCE_DISABLED || '').toLowerCase() === 'true';
+if ((process.env.NODE_ENV === 'production') && !forceDisable && (process.env.SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY))) {
+  supabaseDisabled = false;
+}
+
 const hasSupabaseCredentials = !supabaseDisabled && process.env.SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY);
 
 // No-op Supabase service for environments without Supabase

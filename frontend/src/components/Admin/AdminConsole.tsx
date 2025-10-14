@@ -96,67 +96,40 @@ const AdminConsole: React.FC = () => {
   const loadAdminData = async () => {
     setLoading(true);
     try {
-      // Simulate loading admin data
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Fetch real admin dashboard data
+      const dashboardResponse = await adminApi.get('/api/admin/dashboard');
+      const dashboardData = await dashboardResponse.json();
       
-      // Mock users data
-      setUsers([
-        {
-          id: 'user-1',
-          email: 'admin@oncosaferx.com',
-          firstName: 'System',
-          lastName: 'Administrator',
-          roles: ['super_admin'],
-          isActive: true,
-          lastLogin: new Date().toISOString(),
-          loginCount: 156,
-          organizationId: 'org-1'
-        },
-        {
-          id: 'user-2',
-          email: 'analytics@oncosaferx.com',
-          firstName: 'Analytics',
-          lastName: 'Manager',
-          roles: ['analytics_admin'],
-          isActive: true,
-          lastLogin: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          loginCount: 89,
-          organizationId: 'org-1'
-        },
-        {
-          id: 'user-3',
-          email: 'dr.smith@hospital.com',
-          firstName: 'Dr. Sarah',
-          lastName: 'Smith',
-          roles: ['oncologist'],
-          isActive: true,
-          lastLogin: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-          loginCount: 234,
-          organizationId: 'org-2'
-        },
-        {
-          id: 'user-4',
-          email: 'pharmacist@hospital.com',
-          firstName: 'Michael',
-          lastName: 'Johnson',
-          roles: ['pharmacist'],
-          isActive: false,
-          lastLogin: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          loginCount: 45,
-          organizationId: 'org-2'
-        }
-      ]);
+      // Fetch users data
+      const usersResponse = await adminApi.get('/api/admin/users?limit=100');
+      const usersData = await usersResponse.json();
+      
+      // Transform users data to match expected format
+      const transformedUsers = usersData.users.map((user: any) => ({
+        id: user.id,
+        email: user.email,
+        firstName: user.full_name?.split(' ')[0] || 'Unknown',
+        lastName: user.full_name?.split(' ').slice(1).join(' ') || '',
+        roles: [user.role],
+        isActive: user.is_active,
+        lastLogin: user.last_login || new Date().toISOString(),
+        loginCount: user.login_count || 0,
+        organizationId: user.organization_id || null
+      }));
+      
+      setUsers(transformedUsers);
 
-      // Mock system metrics
+      // Set system metrics from dashboard data
+      const userStats = dashboardData.stats?.users;
       setSystemMetrics({
-        totalUsers: 1247,
-        activeUsers: 892,
-        onlineUsers: 43,
-        systemUptime: '15d 4h 32m',
-        memoryUsage: 68.5,
-        cpuUsage: 23.1,
-        databaseConnections: 12,
-        errorRate: 0.02
+        totalUsers: userStats?.total || 0,
+        activeUsers: userStats?.active || 0,
+        onlineUsers: Math.floor((userStats?.active || 0) * 0.1), // Estimate 10% online
+        systemUptime: '15d 4h 32m', // Keep static for now
+        memoryUsage: 68.5, // Keep static for now
+        cpuUsage: 23.1, // Keep static for now
+        databaseConnections: 12, // Keep static for now
+        errorRate: 0.02 // Keep static for now
       });
 
     } catch (error) {

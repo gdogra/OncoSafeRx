@@ -63,17 +63,17 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
   if (!token) token = readBackendJwt();
   if (!token) token = await ensureBackendJwt();
   
-  // Debug: Check token content
-  if (token) {
+  // Debug only in development
+  if (token && (import.meta as any)?.env?.MODE !== 'production') {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      console.log('🔍 JWT Token Debug:', {
+      console.log('JWT token (dev):', {
         email: payload.email,
         role: payload.role,
-        expires: new Date(payload.exp * 1000).toLocaleString()
+        exp: payload.exp
       });
     } catch (e) {
-      console.log('🔍 Token decode failed:', e.message);
+      console.log('Token decode failed (dev):', (e as any)?.message);
     }
   }
   
@@ -95,8 +95,6 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
       // Session cookie (no explicit expiry) scoped to root path
       document.cookie = `sb-access-token=${token}; Path=/; SameSite=Lax`;
     } catch {}
-  } else {
-    console.warn('No auth token available for admin API call');
   }
 
   // Make the authenticated request

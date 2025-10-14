@@ -234,26 +234,27 @@ const InteractionCheckerInner: React.FC = () => {
     setLoading(true);
     setError(null);
 
+    const isDev = (import.meta as any)?.env?.MODE !== 'production';
     try {
       // Try the primary checkInteractions endpoint first
       let result;
       try {
-        console.log('Trying primary interaction check endpoint...');
+        if (isDev) console.log('Trying primary interaction check endpoint...');
         result = await interactionService.checkInteractions(
           selectedDrugs.map(drug => ({ rxcui: drug.rxcui, name: drug.name }))
         );
-        console.log('Primary endpoint result:', result);
+        if (isDev) console.log('Primary endpoint result:', result);
         
         // Check if result has meaningful interactions
         const hasInteractions = result?.interactions?.stored?.length > 0 || result?.interactions?.external?.length > 0;
         
         if (!hasInteractions) {
-          console.log('Primary endpoint returned no interactions, triggering fallback...');
+          if (isDev) console.log('Primary endpoint returned no interactions, triggering fallback...');
           throw new Error('No interactions found via primary endpoint');
         }
       } catch (checkError) {
         // Fallback: Query curated interactions for each drug pair
-        console.warn('Primary interaction check failed, using curated data fallback');
+        if (isDev) console.warn('Primary interaction check failed, using curated data fallback');
         
         const allInteractions = [];
         
@@ -261,13 +262,13 @@ const InteractionCheckerInner: React.FC = () => {
         const allDrugNames: string[] = [];
         selectedDrugs.forEach(drug => {
           const names = extractBaseDrugNames(drug.name);
-          console.log(`Extracted from "${drug.name}":`, names);
+          if (isDev) console.log(`Extracted from "${drug.name}":`, names);
           allDrugNames.push(...names);
         });
         
         // Remove duplicates
         const uniqueDrugNames = Array.from(new Set(allDrugNames));
-        console.log('All unique drug names:', uniqueDrugNames);
+        if (isDev) console.log('All unique drug names:', uniqueDrugNames);
         
         // Check interactions between all drug pairs
         for (let i = 0; i < uniqueDrugNames.length; i++) {
@@ -290,7 +291,7 @@ const InteractionCheckerInner: React.FC = () => {
                 })));
               }
             } catch (knownError) {
-              console.warn(`Failed to check curated interactions for ${drugA} + ${drugB}:`, knownError);
+              if (isDev) console.warn(`Failed to check curated interactions for ${drugA} + ${drugB}:`, knownError);
             }
           }
         }
@@ -336,17 +337,17 @@ const InteractionCheckerInner: React.FC = () => {
           };
           
           // Check extracted drug names against known interactions
-          console.log('Checking fallback interactions for:', uniqueDrugNames);
+          if (isDev) console.log('Checking fallback interactions for:', uniqueDrugNames);
           for (let i = 0; i < uniqueDrugNames.length; i++) {
             for (let j = i + 1; j < uniqueDrugNames.length; j++) {
               const drugA = uniqueDrugNames[i];
               const drugB = uniqueDrugNames[j];
               
-              console.log(`Checking fallback for: ${drugA} + ${drugB}`);
+              if (isDev) console.log(`Checking fallback for: ${drugA} + ${drugB}`);
               
               if (knownMajorInteractions[drugA]?.[drugB] || knownMajorInteractions[drugB]?.[drugA]) {
                 const interaction = knownMajorInteractions[drugA]?.[drugB] || knownMajorInteractions[drugB]?.[drugA];
-                console.log(`Found fallback interaction: ${drugA} + ${drugB}`, interaction);
+                if (isDev) console.log(`Found fallback interaction: ${drugA} + ${drugB}`, interaction);
                 allInteractions.push({
                   ...interaction,
                   drugs: [drugA, drugB],
@@ -356,7 +357,7 @@ const InteractionCheckerInner: React.FC = () => {
               }
             }
           }
-          console.log('Final fallback interactions:', allInteractions);
+          if (isDev) console.log('Final fallback interactions:', allInteractions);
         }
         
         // Format results to match expected structure

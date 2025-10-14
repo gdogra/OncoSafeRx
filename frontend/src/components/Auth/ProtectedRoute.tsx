@@ -34,14 +34,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (!state.isAuthenticated || !state.user) {
-    // Enhanced debugging for production auth issues
-    console.error('🚨 ProtectedRoute: Authentication failed', {
-      isAuthenticated: state.isAuthenticated,
-      hasUser: !!state.user,
-      userRole: state.user?.role,
-      currentPath: location.pathname,
-      authState: state
-    });
+    // Log only in development
+    if ((import.meta as any)?.env?.MODE !== 'production') {
+      console.error('ProtectedRoute: Authentication failed', {
+        isAuthenticated: state.isAuthenticated,
+        hasUser: !!state.user,
+        userRole: state.user?.role,
+        currentPath: location.pathname,
+      });
+    }
     
     // Redirect to auth page, saving the attempted location
     return <Navigate to={fallbackPath} state={{ from: location }} replace />;
@@ -66,20 +67,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     // Primary check on user.role (the main role field)
     const hasRequiredRole = requiredRole.includes(state.user.role);
     
-    // Enhanced debugging for production
-    console.log('🔍 ProtectedRoute Debug v3.0 EMERGENCY:', {
-      requiredRole,
-      userRole: state.user.role,
-      hasRequiredRole,
-      emergencyBypass,
-      hostname: window.location.hostname,
-      userObject: state.user,
-      currentPath: location.pathname
-    });
+    // Log only in development
+    if ((import.meta as any)?.env?.MODE !== 'production') {
+      console.log('ProtectedRoute role check:', {
+        requiredRole,
+        userRole: state.user.role,
+        hasRequiredRole,
+        emergencyBypass,
+        currentPath: location.pathname
+      });
+    }
     
     // Optional: allow access only if explicitly enabled via env
     if (emergencyBypass) {
-      console.warn('⚠️ AUTH BYPASS ENABLED via VITE_AUTH_EMERGENCY_BYPASS');
+      if ((import.meta as any)?.env?.MODE !== 'production') {
+        console.warn('AUTH BYPASS ENABLED via VITE_AUTH_EMERGENCY_BYPASS');
+      }
       return <>{children}</>;
     }
     

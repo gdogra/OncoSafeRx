@@ -16,7 +16,7 @@ export function apiBaseUrl(): string {
   
   // CRITICAL OVERRIDE: Use Netlify proxy for production (bypasses CORS issues)
   if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
-    console.log('🚨 ENV Utils: Using Netlify proxy for production API calls');
+    // Avoid noisy logging in production
     const productionUrl = '/api';
     cachedApiUrl = productionUrl;
     return productionUrl;

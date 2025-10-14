@@ -401,6 +401,48 @@ const InteractionCheckerInner: React.FC = () => {
     return <div className="p-6 text-center text-gray-500">Loading patient context…</div>;
   }
 
+  // Derive a single coherent patient display source to avoid mismatched fields
+  const displayPatient = (() => {
+    if (currentPatient?.demographics) {
+      return {
+        firstName: currentPatient.demographics.firstName || '',
+        lastName: currentPatient.demographics.lastName || '',
+        dateOfBirth: currentPatient.demographics.dateOfBirth,
+        sex: currentPatient.demographics.sex || (currentPatient as any)?.gender,
+        conditions: (currentPatient as any)?.conditions || []
+      };
+    }
+    const u = authState?.user as any;
+    if (u) {
+      return {
+        firstName: u.firstName || u.user_metadata?.first_name || '',
+        lastName: u.lastName || u.user_metadata?.last_name || '',
+        dateOfBirth: undefined,
+        sex: u.gender || u.sex,
+        conditions: [] as any[]
+      };
+    }
+    return null;
+  })();
+
+  const displayName = displayPatient ? `${displayPatient.firstName} ${displayPatient.lastName}`.trim() : '';
+  const displayAge = (() => {
+    try {
+      if (displayPatient?.dateOfBirth) {
+        return Math.floor((Date.now() - new Date(displayPatient.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      }
+    } catch {}
+    return undefined;
+  })();
+  const displaySex = displayPatient?.sex || 'Unknown gender';
+  const conditionNames = (() => {
+    const list = Array.isArray(displayPatient?.conditions) ? (displayPatient!.conditions as any[]) : [];
+    return list
+      .map((c: any) => (typeof c === 'object' ? (c.name || c.primary || c.condition || '').trim() : ''))
+      .filter((s: string) => !!s)
+      .slice(0, 2);
+  })();
+
   return (
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Interactions' }]} />
@@ -414,24 +456,15 @@ const InteractionCheckerInner: React.FC = () => {
               : 'Advanced Drug Interaction Analysis'}
           </h1>
         </div>
-        {(currentPatient || authState?.user) && (
+        {displayPatient && (
           <div className="mb-4">
             <p className="text-xl font-semibold text-primary-600">
-              Advanced interaction analysis for {(authState?.user?.role === 'patient') ? `${authState?.user?.firstName || ''} ${authState?.user?.lastName || ''}`.trim() : `${currentPatient?.demographics?.firstName || ''} ${currentPatient?.demographics?.lastName || ''}`.trim()}
+              Advanced interaction analysis for {displayName}
             </p>
             <div className="text-sm text-gray-600 mt-1">
-              {currentPatient?.demographics?.dateOfBirth 
-                ? Math.floor((new Date().getTime() - new Date(currentPatient.demographics.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
-                : (currentPatient?.age || 'Unknown age')
-              } years old • {currentPatient?.demographics?.sex || currentPatient?.gender || 'Unknown gender'}
-              {currentPatient?.conditions && (
-                <> • Conditions: {
-                  Array.isArray(currentPatient?.conditions) 
-                    ? currentPatient?.conditions.slice(0, 2).map(c => typeof c === 'object' ? c.name || c.primary || 'Unknown' : c).join(', ') + (currentPatient?.conditions.length > 2 ? '...' : '')
-                    : typeof currentPatient?.conditions === 'object' 
-                      ? (currentPatient?.conditions?.name || currentPatient?.conditions?.primary || 'Condition specified')
-                      : currentPatient?.conditions
-                }</>
+              {typeof displayAge === 'number' ? `${displayAge} years old` : 'Age unavailable'} • {displaySex}
+              {conditionNames.length > 0 && (
+                <> • Conditions: {conditionNames.join(', ')}{(displayPatient?.conditions?.length || 0) > conditionNames.length ? '…' : ''}</>
               )}
             </div>
           </div>

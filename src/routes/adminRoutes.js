@@ -57,22 +57,47 @@ router.get('/dashboard', asyncHandler(async (req, res) => {
 // User management - get all users with pagination
 router.get('/users', asyncHandler(async (req, res) => {
   try {
-    const { page = 1, limit = 20, role, status } = req.query;
+    const { page = 1, limit = 50, role, status, q, sort = 'created_at', dir = 'desc' } = req.query;
     const offset = (page - 1) * limit;
 
     let users = await supabaseService.getAllUsers();
-    
+
     // Filter by role if specified
     if (role) {
       users = users.filter(user => user.role === role);
     }
-    
+
     // Filter by status if specified
     if (status === 'active') {
       users = users.filter(user => user.is_active);
     } else if (status === 'inactive') {
       users = users.filter(user => !user.is_active);
     }
+
+    // Global search filter across all users (email, full_name, institution, specialty)
+    if (q && String(q).trim()) {
+      const needle = String(q).trim().toLowerCase();
+      users = users.filter(u => {
+        return (
+          (u.email && u.email.toLowerCase().includes(needle)) ||
+          (u.full_name && u.full_name.toLowerCase().includes(needle)) ||
+          (u.institution && String(u.institution).toLowerCase().includes(needle)) ||
+          (u.specialty && String(u.specialty).toLowerCase().includes(needle))
+        );
+      });
+    }
+
+    // Sorting (simple client-side for NoOp; DB-backed services should apply server-side)
+    const allowedSort = new Set(['email','full_name','created_at','role','is_active']);
+    const sortKey = allowedSort.has(String(sort)) ? String(sort) : 'created_at';
+    const sortDir = String(dir).toLowerCase() === 'asc' ? 'asc' : 'desc';
+    users.sort((a,b) => {
+      const av = (a?.[sortKey] ?? '').toString().toLowerCase();
+      const bv = (b?.[sortKey] ?? '').toString().toLowerCase();
+      if (av < bv) return sortDir === 'asc' ? -1 : 1;
+      if (av > bv) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
 
     // Apply pagination
     const total = users.length;
@@ -97,6 +122,57 @@ router.get('/users', asyncHandler(async (req, res) => {
   } catch (error) {
     console.error('Get users error:', error);
     res.status(500).json({ error: 'Failed to fetch users' });
+  }
+}));
+
+// Bulk user operations (activate, deactivate, delete, role)
+router.post('/users/bulk', asyncHandler(async (req, res) => {
+  try {
+    const { action, ids = [], role } = req.body || {};
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ error: 'No user IDs provided' });
+    }
+    const allowed = new Set(['activate','deactivate','delete','role']);
+    if (!allowed.has(action)) {
+      return res.status(400).json({ error: 'Invalid action', allowed: Array.from(allowed) });
+    }
+    if (action === 'role' && !role) {
+      return res.status(400).json({ error: 'Role is required for role change' });
+    }
+
+    let updated = 0;
+    for (const id of ids) {
+      try {
+        if (action === 'activate') {
+          await supabaseService.updateUser(id, { is_active: true });
+        } else if (action === 'deactivate') {
+          await supabaseService.updateUser(id, { is_active: false });
+        } else if (action === 'delete') {
+          await supabaseService.deleteUser(id);
+        } else if (action === 'role') {
+          const beforeList = await supabaseService.getAllUsers();
+          const before = beforeList.find(u => u.id === id)?.role;
+          await supabaseService.updateUser(id, { role });
+          // Audit role change
+          try {
+            if (supabaseService.enabled && supabaseService.client) {
+              await supabaseService.client.from('admin_audit').insert({
+                id: (await import('crypto')).randomUUID(),
+                actor_id: req.user?.id || 'unknown',
+                target_user_id: id,
+                action: 'role_update_bulk',
+                details: { before, after: role }
+              });
+            }
+          } catch {}
+        }
+        updated++;
+      } catch {}
+    }
+    return res.json({ ok: true, updated, action, count: ids.length });
+  } catch (e) {
+    console.error('Bulk user op error:', e);
+    return res.status(500).json({ error: 'Bulk operation failed' });
   }
 }));
 

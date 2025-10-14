@@ -374,8 +374,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: 'Visitor Analytics', 
             icon: Users, 
             description: 'Site usage and visitor tracking',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
-            requiresPermission: null
+            roles: ['admin','super_admin'],
+            requiresPermission: 'canViewAnalytics'
           },
           { 
             path: '/research', 

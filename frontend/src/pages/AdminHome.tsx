@@ -2,12 +2,24 @@ import React, { useEffect, useState } from 'react';
 import Card from '../components/UI/Card';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { Link } from 'react-router-dom';
-import { Shield, Users, FileText, Activity, Settings as SettingsIcon, MessageSquare } from 'lucide-react';
+import { Shield, Users, FileText, Activity, Settings as SettingsIcon, MessageSquare, BarChart3, Eye } from 'lucide-react';
 import { adminApi } from '../utils/adminApi';
 
 type DashboardStats = {
   users: { total: number; active: number; inactive: number; byRole: Record<string, number> };
   system: { supabase: boolean; timestamp: string };
+};
+
+type AnalyticsMetrics = {
+  totalVisitors: number;
+  uniqueVisitors: number;
+  pageViews: number;
+  averageSessionDuration?: number;
+  bounceRate?: number;
+  topPages: Array<{ url: string; views: number }>;
+  userRoles: Array<{ role: string; count: number }>;
+  deviceTypes: Array<{ type: string; count: number }>;
+  geographicDistribution: Array<{ location: string; count: number }>;
 };
 
 const AdminHome: React.FC = () => {
@@ -17,6 +29,7 @@ const AdminHome: React.FC = () => {
   const [errorCount, setErrorCount] = useState<number | null>(null);
   const [authStatus, setAuthStatus] = useState<{ status: 'ok'|'unauthorized'|'error'|'unknown'; detail: string }>({ status: 'unknown', detail: 'Not checked' });
   const [tokenInfo, setTokenInfo] = useState<{ supaRole?: string; backendRole?: string }>({});
+  const [analytics, setAnalytics] = useState<AnalyticsMetrics | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -26,6 +39,12 @@ const AdminHome: React.FC = () => {
         const body = await d.json();
         setStats(body?.stats || null);
         setAuthStatus({ status: 'ok', detail: '200 OK' });
+      } catch {}
+      try {
+        // Load visitor tracking summary (last 7 days)
+        const a = await adminApi.get('/api/analytics/metrics?range=7d');
+        const body = await a.json();
+        setAnalytics(body || null);
       } catch {}
       try {
         // Get audit total cheaply (limit 1, rely on count on backend)
@@ -72,6 +91,7 @@ const AdminHome: React.FC = () => {
     { path: '/admin/health', label: 'System Health', desc: 'Platform status and services', icon: Activity, color: 'text-green-600', bg: 'bg-green-50', badge: stats ? (stats.system.supabase ? 'Healthy' : 'Offline') : null },
     { path: '/admin/settings', label: 'Admin Settings', desc: 'Maintenance and utilities', icon: SettingsIcon, color: 'text-gray-700', bg: 'bg-gray-100', badge: null as React.ReactNode },
     { path: '/admin/feedback', label: 'Feedback Admin', desc: 'Triage feedback and integrations', icon: MessageSquare, color: 'text-indigo-600', bg: 'bg-indigo-50', badge: null as React.ReactNode },
+    { path: '/visitor-analytics', label: 'Visitor Analytics', desc: 'Tracking metrics and top pages', icon: BarChart3, color: 'text-teal-600', bg: 'bg-teal-50', badge: analytics ? String(analytics.uniqueVisitors) : null },
     { path: '/admin/auth-diagnostics', label: 'Auth Status', desc: `Admin API ${authStatus.detail}`, icon: Shield, color: authStatus.status==='ok'?'text-green-600':authStatus.status==='unauthorized'?'text-red-600':'text-yellow-600', bg: authStatus.status==='ok'?'bg-green-50':authStatus.status==='unauthorized'?'bg-red-50':'bg-yellow-50', badge: tokenInfo.backendRole || tokenInfo.supaRole || null },
   ];
 
@@ -105,14 +125,72 @@ const AdminHome: React.FC = () => {
                       <div>Recent Errors: {errorCount !== null ? errorCount : '—'}</div>
                     </div>
                   )}
+                  {path === '/visitor-analytics' && (
+                    <div className="mt-2 text-xs text-gray-600">
+                      <div>Unique Visitors (7d): {analytics ? analytics.uniqueVisitors : '—'}</div>
+                      <div>Page Views (7d): {analytics ? analytics.pageViews : '—'}</div>
+                    </div>
+                  )}
                 </div>
               </div>
             </Card>
           </Link>
         ))}
       </div>
+
+      {/* Tracking Metrics */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">Visitor Tracking (7 days)</h2>
+            <p className="text-sm text-gray-600">Quick glance at traffic and engagement</p>
+          </div>
+          <Link to="/visitor-analytics" className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700">
+            <BarChart3 className="w-4 h-4" />
+            Open Analytics
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="border rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-gray-600">Total Visitors</div>
+                <div className="text-2xl font-bold text-gray-900">{analytics ? analytics.totalVisitors : '—'}</div>
+              </div>
+              <Users className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+          <div className="border rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-gray-600">Unique Visitors</div>
+                <div className="text-2xl font-bold text-gray-900">{analytics ? analytics.uniqueVisitors : '—'}</div>
+              </div>
+              <UserIcon />
+            </div>
+          </div>
+          <div className="border rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-gray-600">Page Views</div>
+                <div className="text-2xl font-bold text-gray-900">{analytics ? analytics.pageViews : '—'}</div>
+              </div>
+              <Eye className="w-6 h-6 text-indigo-600" />
+            </div>
+          </div>
+          <div className="border rounded-lg p-4">
+            <div className="text-sm text-gray-600 mb-1">Top Page</div>
+            <div className="text-sm text-gray-900 truncate">
+              {analytics?.topPages?.[0] ? `${analytics.topPages[0].url} — ${analytics.topPages[0].views} views` : '—'}
+            </div>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 };
 
 export default AdminHome;
+
+// Small helper to avoid adding a lucide import for a single-user icon if not needed
+const UserIcon = () => <div className="p-1.5 bg-green-100 rounded"><Users className="w-5 h-5 text-green-700" /></div>;

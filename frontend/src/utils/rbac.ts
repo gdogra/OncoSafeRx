@@ -208,10 +208,7 @@ export const ROLES: Record<string, Role> = {
       'view_drug_interactions',
       'access_protocols',
       'manage_protocols',
-      'generate_reports',
-      'admin_console_access',
-      'view_visitor_analytics',
-      'manage_analytics'
+      'generate_reports'
     ],
     hierarchy: 60,
     isSystemRole: true

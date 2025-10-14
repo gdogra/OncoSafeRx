@@ -68,13 +68,17 @@ const UserAdmin: React.FC = () => {
   const [editForm, setEditForm] = useState<Partial<User>>({});
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 20,
+    limit: 50,
     total: 0,
     pages: 0
   });
   const [backfillDryRun, setBackfillDryRun] = useState(true);
   const [backfillResult, setBackfillResult] = useState<{ scanned: number; updated: number } | null>(null);
   const [unauthorized, setUnauthorized] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkRole, setBulkRole] = useState<string>('user');
+  const [sortBy, setSortBy] = useState<'created_at'|'email'|'role'>('created_at');
+  const [sortDir, setSortDir] = useState<'asc'|'desc'>('desc');
 
   const validRoles = ['admin', 'oncologist', 'pharmacist', 'nurse', 'researcher', 'user'];
 
@@ -115,7 +119,7 @@ const UserAdmin: React.FC = () => {
 
   useEffect(() => {
     loadUsers();
-  }, [pagination.page, roleFilter, statusFilter]);
+  }, [pagination.page, roleFilter, statusFilter, sortBy, sortDir]);
 
   const loadUsers = async () => {
     setLoading(true);
@@ -127,6 +131,9 @@ const UserAdmin: React.FC = () => {
       
       if (roleFilter) params.append('role', roleFilter);
       if (statusFilter) params.append('status', statusFilter);
+      if (searchTerm) params.append('q', searchTerm);
+      if (sortBy) params.append('sort', sortBy);
+      if (sortDir) params.append('dir', sortDir);
 
       const response = await adminApi.get(`/api/admin/users?${params}`);
       if (!response.ok) throw new Error('Failed to load users');
@@ -134,6 +141,7 @@ const UserAdmin: React.FC = () => {
       const data = await response.json();
       setUsers(data.users || []);
       setPagination(prev => ({ ...prev, ...data.pagination }));
+      setSelectedIds(new Set());
     } catch (error: any) {
       console.error('Error loading users:', error);
       if (error?.status === 401 || error?.status === 403) {
@@ -145,6 +153,50 @@ const UserAdmin: React.FC = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const toggleUserActive = async (user: User) => {
+    try {
+      const resp = await adminApi.put(`/api/admin/users/${user.id}`, { is_active: !user.is_active });
+      if (!resp.ok) throw new Error('Failed to update status');
+      showToast('success', `${!user.is_active ? 'Reactivated' : 'Deactivated'} ${user.email}`);
+      loadUsers();
+    } catch (e: any) {
+      if (e?.status === 401 || e?.status === 403) { setUnauthorized(true); navigate('/'); }
+      showToast('error', e?.message || 'Failed to update status');
+    }
+  };
+
+  const toggleSelected = (id: string, checked: boolean) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (checked) next.add(id); else next.delete(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(new Set(filteredUsers.map(u => u.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  const runBulk = async (action: 'activate'|'deactivate'|'delete'|'role') => {
+    if (selectedIds.size === 0) return;
+    if (action === 'delete' && !confirm(`Delete ${selectedIds.size} users? This cannot be undone.`)) return;
+    try {
+      const body: any = { action, ids: Array.from(selectedIds) };
+      if (action === 'role') body.role = bulkRole;
+      const resp = await adminApi.post('/api/admin/users/bulk', body);
+      if (!resp.ok) throw new Error('Bulk operation failed');
+      const res = await resp.json();
+      showToast('success', `Bulk ${action}: ${res.updated}/${res.count}`);
+      loadUsers();
+    } catch (e: any) {
+      showToast('error', e?.message || 'Bulk action failed');
     }
   };
 
@@ -376,7 +428,7 @@ const UserAdmin: React.FC = () => {
 
       {/* Filters */}
       <Card className="p-6">
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-4 items-center">
           <div className="flex-1 min-w-0">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
@@ -408,6 +460,26 @@ const UserAdmin: React.FC = () => {
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Sort by:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="created_at">Created</option>
+              <option value="email">Email</option>
+              <option value="role">Role</option>
+            </select>
+            <select
+              value={sortDir}
+              onChange={(e) => setSortDir(e.target.value as any)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="asc">Asc</option>
+              <option value="desc">Desc</option>
+            </select>
+          </div>
         </div>
       </Card>
 
@@ -435,10 +507,42 @@ const UserAdmin: React.FC = () => {
 
       {/* Users Table */}
       <Card>
+        {/* Bulk Actions Toolbar */}
+        <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200">
+          <div className="flex items-center gap-3 text-sm">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={filteredUsers.length > 0 && filteredUsers.every(u => selectedIds.has(u.id))}
+                onChange={e => toggleSelectAll(e.target.checked)}
+              />
+              <span>Select all</span>
+            </label>
+            <span className="text-gray-600">Selected: {selectedIds.size}</span>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            <button onClick={() => runBulk('activate')} disabled={selectedIds.size === 0} className="px-3 py-1 bg-green-600 text-white rounded disabled:opacity-50">Activate</button>
+            <button onClick={() => runBulk('deactivate')} disabled={selectedIds.size === 0} className="px-3 py-1 bg-yellow-600 text-white rounded disabled:opacity-50">Deactivate</button>
+            <button onClick={() => runBulk('delete')} disabled={selectedIds.size === 0} className="px-3 py-1 bg-red-600 text-white rounded disabled:opacity-50">Delete</button>
+            <div className="w-px h-5 bg-gray-300" />
+            <span>Change role:</span>
+            <select value={bulkRole} onChange={(e) => setBulkRole(e.target.value)} className="px-2 py-1 border rounded">
+              {validRoles.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
+            <button onClick={() => runBulk('role')} disabled={selectedIds.size === 0} className="px-3 py-1 bg-blue-600 text-white rounded disabled:opacity-50">Apply</button>
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
               <tr>
+                <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">
+                  <input
+                    type="checkbox"
+                    checked={filteredUsers.length > 0 && filteredUsers.every(u => selectedIds.has(u.id))}
+                    onChange={e => toggleSelectAll(e.target.checked)}
+                  />
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Institution</th>
@@ -447,29 +551,36 @@ const UserAdmin: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
+                  <td colSpan={7} className="px-6 py-12 text-center">
                     <div className="flex items-center justify-center">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                      <span className="ml-2 text-gray-600">Loading users...</span>
+                      <span className="ml-2 text-gray-600 dark:text-gray-300">Loading users...</span>
                     </div>
                   </td>
                 </tr>
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                     No users found
                   </td>
                 </tr>
               ) : (
                 filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
+                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="px-3 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(user.id)}
+                        onChange={(e) => toggleSelected(user.id, e.target.checked)}
+                      />
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{user.full_name}</div>
-                        <div className="text-sm text-gray-500">{user.email}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{user.full_name}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -477,7 +588,7 @@ const UserAdmin: React.FC = () => {
                         {user.role}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
                       {user.institution || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -496,8 +607,16 @@ const UserAdmin: React.FC = () => {
                           </>
                         )}
                       </span>
+                      <div className="mt-1">
+                        <button
+                          onClick={() => toggleUserActive(user)}
+                          className={`text-xs px-2 py-0.5 rounded border ${user.is_active ? 'text-yellow-700 border-yellow-300 hover:bg-yellow-50' : 'text-green-700 border-green-300 hover:bg-green-50'}`}
+                        >
+                          {user.is_active ? 'Deactivate' : 'Reactivate'}
+                        </button>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       {new Date(user.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

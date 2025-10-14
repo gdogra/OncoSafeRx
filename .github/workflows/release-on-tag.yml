@@ -1,0 +1,40 @@
+name: Release on tag
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body: |
+            Release ${{ github.ref_name }}
+            
+            Highlights
+            - Backend auth readiness
+              - Supabase JWT introspection fallback when backend JWT verification fails.
+              - Production-safe Supabase enablement when keys exist (unless SUPABASE_FORCE_DISABLED=true).
+            - Universal theme support
+              - User preference (light/dark/auto) applied app-wide at startup and persists until changed.
+              - Global dark base styles; core UI containers include dark variants.
+            - Admin UX and diagnostics
+              - Admin routes redirect non-admins to “/” with a toast.
+              - Admin API status pill in header; links to diagnostics.
+              - Admin Home “Auth Status” tile.
+              - New /admin/auth-diagnostics page.
+            - UserAdmin improvements
+              - Pagination controls and “Rows per page”.
+              - Page resets to 1 on filter/search change.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

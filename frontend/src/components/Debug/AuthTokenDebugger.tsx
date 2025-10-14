@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Eye, EyeOff, RefreshCw, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Shield, Eye, EyeOff, RefreshCw, AlertTriangle, CheckCircle, Zap } from 'lucide-react';
 import Card from '../UI/Card';
 import { useAuth } from '../../context/AuthContext';
+import { forceRefreshAndTest } from '../../utils/tokenRefresh';
 
 const AuthTokenDebugger: React.FC = () => {
   const { state } = useAuth();
@@ -202,8 +203,8 @@ const AuthTokenDebugger: React.FC = () => {
               )}
             </div>
 
-            {/* Test Button */}
-            <div className="flex justify-center">
+            {/* Action Buttons */}
+            <div className="flex justify-center space-x-4">
               <button
                 onClick={testAdminEndpoint}
                 disabled={loading}
@@ -212,6 +213,15 @@ const AuthTokenDebugger: React.FC = () => {
                 <Shield className="w-4 h-4" />
                 <span>Test Admin Endpoint</span>
                 {loading && <RefreshCw className="w-4 h-4 animate-spin" />}
+              </button>
+              
+              <button
+                onClick={forceRefreshAndTest}
+                disabled={loading}
+                className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg disabled:opacity-50"
+              >
+                <Zap className="w-4 h-4" />
+                <span>Force Refresh Tokens</span>
               </button>
             </div>
 

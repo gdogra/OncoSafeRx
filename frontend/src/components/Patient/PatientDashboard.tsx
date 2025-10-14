@@ -45,6 +45,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useToast } from '../UI/Toast';
+import { calculateAgeFromDOB } from '../../utils/patientDisplay';
 
 const PatientDashboard: React.FC = () => {
   const { state, actions } = usePatient();
@@ -71,16 +72,7 @@ const PatientDashboard: React.FC = () => {
     );
   }
 
-  const calculateAge = (dateOfBirth: string): number => {
-    const today = new Date();
-    const birthDate = new Date(dateOfBirth);
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
-    return age;
-  };
+  const calculateAge = (dateOfBirth: string): number => (calculateAgeFromDOB(dateOfBirth) ?? 0);
 
   const calculateBSA = (heightCm?: number, weightKg?: number): number | null => {
     if (!heightCm || !weightKg) return null;

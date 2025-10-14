@@ -15,6 +15,7 @@ import { useSelection } from '../../context/SelectionContext';
 import { usePatient } from '../../context/PatientContext';
 import { useAuth } from '../../context/AuthContext';
 import { patientService } from '../../services/patientService';
+import { getDisplayPatient, calculateAgeFromDOB, getConditionNames } from '../../utils/patientDisplay';
 
 const InteractionCheckerInner: React.FC = () => {
   const navigate = useNavigate();
@@ -402,46 +403,12 @@ const InteractionCheckerInner: React.FC = () => {
   }
 
   // Derive a single coherent patient display source to avoid mismatched fields
-  const displayPatient = (() => {
-    if (currentPatient?.demographics) {
-      return {
-        firstName: currentPatient.demographics.firstName || '',
-        lastName: currentPatient.demographics.lastName || '',
-        dateOfBirth: currentPatient.demographics.dateOfBirth,
-        sex: currentPatient.demographics.sex || (currentPatient as any)?.gender,
-        conditions: (currentPatient as any)?.conditions || []
-      };
-    }
-    const u = authState?.user as any;
-    if (u) {
-      return {
-        firstName: u.firstName || u.user_metadata?.first_name || '',
-        lastName: u.lastName || u.user_metadata?.last_name || '',
-        dateOfBirth: undefined,
-        sex: u.gender || u.sex,
-        conditions: [] as any[]
-      };
-    }
-    return null;
-  })();
+  const displayPatient = getDisplayPatient(currentPatient, authState?.user);
 
   const displayName = displayPatient ? `${displayPatient.firstName} ${displayPatient.lastName}`.trim() : '';
-  const displayAge = (() => {
-    try {
-      if (displayPatient?.dateOfBirth) {
-        return Math.floor((Date.now() - new Date(displayPatient.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
-      }
-    } catch {}
-    return undefined;
-  })();
+  const displayAge = calculateAgeFromDOB(displayPatient?.dateOfBirth);
   const displaySex = displayPatient?.sex || 'Unknown gender';
-  const conditionNames = (() => {
-    const list = Array.isArray(displayPatient?.conditions) ? (displayPatient!.conditions as any[]) : [];
-    return list
-      .map((c: any) => (typeof c === 'object' ? (c.name || c.primary || c.condition || '').trim() : ''))
-      .filter((s: string) => !!s)
-      .slice(0, 2);
-  })();
+  const conditionNames = getConditionNames(displayPatient?.conditions, 2);
 
   return (
     <div className="space-y-6">

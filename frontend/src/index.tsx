@@ -4,6 +4,20 @@ import './index.css';
 import NoAuthApp from './NoAuthApp';
 import ErrorBoundary from './components/System/ErrorBoundary';
 import reportWebVitals from './reportWebVitals';
+// Silence debug logging in production (keep warn/error)
+try {
+  if ((import.meta as any)?.env?.MODE === 'production') {
+    const noop = () => {};
+    // Only neutralize verbose logs; keep warn/error for issues
+    // @ts-ignore
+    console.log = noop;
+    // @ts-ignore
+    console.debug = noop;
+    // @ts-ignore
+    console.info = noop;
+  }
+} catch {}
+
 // Optional Sentry init (dynamic, safe if dependency absent)
 try {
   const dsn = import.meta.env.VITE_SENTRY_DSN as string | undefined

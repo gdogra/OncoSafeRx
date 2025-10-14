@@ -1,4 +1,5 @@
 import express from 'express';
+import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import { USAGE_METRICS, DRUG_ANALYTICS, CLINICAL_OUTCOMES, QUALITY_METRICS, ROI_METRICS } from '../data/analytics.js';
 import supabaseService from '../config/supabase.js';
 
@@ -59,7 +60,7 @@ router.post('/', async (req, res) => {
 });
 
 // GET endpoint for retrieving visitor metrics (for dashboard)
-router.get('/metrics', async (req, res) => {
+router.get('/metrics', authenticateToken, requireAdmin, async (req, res) => {
   try {
     const { range = '7d' } = req.query;
     

@@ -140,6 +140,21 @@ router.post('/users/bulk', asyncHandler(async (req, res) => {
       return res.status(400).json({ error: 'Role is required for role change' });
     }
 
+    // Guard: do not allow removing/deactivating the last active admin
+    const allUsers = await supabaseService.getAllUsers();
+    const activeAdminIds = new Set(allUsers.filter(u => u.role === 'admin' && u.is_active).map(u => u.id));
+    let impact = 0;
+    if (action === 'deactivate') {
+      impact = ids.filter(id => activeAdminIds.has(id)).length;
+    } else if (action === 'delete') {
+      impact = ids.filter(id => activeAdminIds.has(id)).length;
+    } else if (action === 'role' && role !== 'admin') {
+      impact = ids.filter(id => activeAdminIds.has(id)).length;
+    }
+    if (activeAdminIds.size - impact <= 0 && impact > 0) {
+      return res.status(400).json({ error: 'Cannot remove or deactivate the last active admin user' });
+    }
+
     let updated = 0;
     for (const id of ids) {
       try {
@@ -344,6 +359,18 @@ router.put('/users/:userId', asyncHandler(async (req, res) => {
     if (institution !== undefined) updateData.institution = institution;
     if (specialty !== undefined) updateData.specialty = specialty;
     if (is_active !== undefined) updateData.is_active = is_active;
+
+    // Guard: prevent removing/deactivating the last active admin
+    if (existingUser.role === 'admin' && existingUser.is_active) {
+      const togglingInactive = (is_active === false);
+      const changingRoleAway = (role !== undefined && role !== 'admin');
+      if (togglingInactive || changingRoleAway) {
+        const otherActiveAdmins = users.filter(u => u.role === 'admin' && u.is_active && u.id !== userId).length;
+        if (otherActiveAdmins === 0) {
+          return res.status(400).json({ error: 'Cannot remove or deactivate the last active admin user' });
+        }
+      }
+    }
 
     // Update auth metadata if email or other auth fields changed
     if ((email || full_name || role) && supabaseService.enabled && supabaseService.client?.auth?.admin) {

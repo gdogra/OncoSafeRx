@@ -49,6 +49,11 @@ export async function authenticateToken(req, res, next) {
     const decoded = verifyToken(token);
     if (decoded) {
       req.user = decoded;
+      // Hydrate role from profile if available
+      try {
+        const profile = await supabaseService.getUserByEmail?.(req.user.email);
+        if (profile?.role) req.user.role = profile.role;
+      } catch {}
       return next();
     }
 
@@ -68,6 +73,11 @@ export async function authenticateToken(req, res, next) {
                 email: payload.email,
                 role: payload.role || payload.user_metadata?.role || 'user'
               };
+              // Hydrate role from profile if available
+              try {
+                const profile = await supabaseService.getUserByEmail?.(req.user.email);
+                if (profile?.role) req.user.role = profile.role;
+              } catch {}
               return next();
             }
           }
@@ -85,6 +95,11 @@ export async function authenticateToken(req, res, next) {
       email: supa.email,
       role: supa.user_metadata?.role || 'user'
     };
+    // Hydrate role from profile if available
+    try {
+      const profile = await supabaseService.getUserByEmail?.(req.user.email);
+      if (profile?.role) req.user.role = profile.role;
+    } catch {}
     return next();
   } catch (e) {
     return res.status(403).json({ error: 'Invalid or expired token' });

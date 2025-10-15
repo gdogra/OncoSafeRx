@@ -64,8 +64,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     // Optional controlled bypass via env (default: off)
     const emergencyBypass = String((import.meta as any)?.env?.VITE_AUTH_EMERGENCY_BYPASS || '').toLowerCase() === 'true';
 
-    // Primary check on user.role (the main role field)
-    const hasRequiredRole = requiredRole.includes(state.user.role);
+    // Primary check on user.role and optional user.roles array
+    const roles: string[] = Array.isArray((state.user as any)?.roles)
+      ? (state.user as any).roles
+      : [state.user.role];
+    const hasRequiredRole = requiredRole.some(r => roles.includes(r));
     
     // Log only in development
     if ((import.meta as any)?.env?.MODE !== 'production') {

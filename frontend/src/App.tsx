@@ -737,8 +737,11 @@ function AppWithRouter() {
         if (restored) return;
         const current = location.pathname + (location.search || '');
         const last = localStorage.getItem('osrx_last_path') || '';
-        const ignore: RegExp[] = [/^\/auth(\/|$)?/, /^\/force-logout/, /^\/logout/];
-        if (last && last !== current && !ignore.some(rx => rx.test(last))) {
+        // Do not override when navigating to admin or debug routes
+        const ignore: RegExp[] = [/^\/auth(\/|$)?/, /^\/force-logout/, /^\/logout/, /^\/admin(\/|$)?/, /^\/debug/];
+        // Only restore if current is a neutral entry route (root or dashboard)
+        const isNeutral = /^\/$/.test(current) || /^\/dashboard(\/|$)?/.test(current);
+        if (isNeutral && last && last !== current && !ignore.some(rx => rx.test(last))) {
           navigate(last, { replace: true });
         }
         sessionStorage.setItem('osrx_restored', '1');

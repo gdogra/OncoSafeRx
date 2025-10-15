@@ -15,9 +15,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Build release notes from CHANGELOG
+        id: notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          echo "Building release notes for tag: $TAG"
+          if [[ -f CHANGELOG.md ]]; then
+            # Extract section starting at the matching version header until next version header
+            awk -v tag="$TAG" '
+              BEGIN{p=0}
+              /^##[[:space:]]+v/ {
+                if(p==1){ exit }
+              }
+              $0 ~ "^##[[:space:]]+" tag {
+                p=1
+              }
+              { if(p==1) print }
+            ' CHANGELOG.md > RELEASE_NOTES.md || true
+          fi
+          if [[ ! -s RELEASE_NOTES.md ]]; then
+            echo "## $TAG" > RELEASE_NOTES.md
+            echo >> RELEASE_NOTES.md
+            echo "Release notes not found in CHANGELOG.md. Auto-generated release." >> RELEASE_NOTES.md
+          fi
+          echo "Generated notes:" && sed -n '1,120p' RELEASE_NOTES.md
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          generate_release_notes: true
+          body_path: RELEASE_NOTES.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

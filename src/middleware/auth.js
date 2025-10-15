@@ -67,7 +67,8 @@ export function extractBearerToken(req) {
     }
   } catch {}
   // 5) Query param fallback (debug only)
-  if (process.env.ALLOW_QUERY_TOKEN === 'true' && req.query && req.query.token) {
+  const isProd = String(process.env.NODE_ENV || '').toLowerCase() === 'production';
+  if (!isProd && process.env.ALLOW_QUERY_TOKEN === 'true' && req.query && req.query.token) {
     return String(req.query.token);
   }
   return null;
@@ -97,7 +98,8 @@ export async function authenticateToken(req, res, next) {
     if (!supabaseAdmin) {
       // Optional unverified Supabase JWT fallback (for environments without service role)
       try {
-        if (String(process.env.ALLOW_SUPABASE_JWT_FALLBACK || '').toLowerCase() === 'true') {
+        const isProd = String(process.env.NODE_ENV || '').toLowerCase() === 'production';
+        if (!isProd && String(process.env.ALLOW_SUPABASE_JWT_FALLBACK || '').toLowerCase() === 'true') {
           const parts = token.split('.');
           if (parts.length === 3) {
             const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));

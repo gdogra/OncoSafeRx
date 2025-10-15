@@ -91,7 +91,11 @@ export const forceRefreshAndTest = async (): Promise<void> => {
   try {
     const testResponse = await fetch('/api/admin/dashboard', {
       headers: {
-        'Authorization': `Bearer ${JSON.parse(localStorage.getItem('osrx_backend_jwt')!).token}`
+        'Authorization': `Bearer ${JSON.parse(localStorage.getItem('osrx_backend_jwt')!).token}`,
+        'X-Forwarded-Authorization': `Bearer ${JSON.parse(localStorage.getItem('osrx_backend_jwt')!).token}`,
+        'X-Authorization': `Bearer ${JSON.parse(localStorage.getItem('osrx_backend_jwt')!).token}`,
+        'X-Client-Authorization': `Bearer ${JSON.parse(localStorage.getItem('osrx_backend_jwt')!).token}`,
+        'X-Supabase-Authorization': `Bearer ${JSON.parse(localStorage.getItem('osrx_backend_jwt')!).token}`,
       }
     });
     

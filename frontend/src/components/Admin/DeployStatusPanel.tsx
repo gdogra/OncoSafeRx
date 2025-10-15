@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { adminApi } from '../../utils/adminApi';
 
 type DeployState = {
   netlify: any;
@@ -15,10 +16,7 @@ const DeployStatusPanel: React.FC = () => {
     let cancelled = false;
     (async () => {
       try {
-        const token = getAccessToken();
-        const resp = await fetch('/api/admin/deploy/status', {
-          headers: token ? { Authorization: `Bearer ${token}` } : {}
-        });
+        const resp = await adminApi.get('/api/admin/deploy/status');
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
         const json = await resp.json();
         if (!cancelled) setData(json);
@@ -96,4 +94,3 @@ const DeployStatusPanel: React.FC = () => {
 };
 
 export default DeployStatusPanel;
-

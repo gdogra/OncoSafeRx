@@ -72,14 +72,17 @@ const AdminHome: React.FC = () => {
         if (backendRaw) { try { const t = JSON.parse(backendRaw).token; const p = JSON.parse(atob(t.split('.')[1])); info.backendRole = p.role; } catch {} }
         setTokenInfo(info);
       } catch {}
-      // If dashboard failed above, reflect unauthorized/error
+      // If dashboard failed above, reflect unauthorized/error by retrying via adminApi
       try {
-        const resp = await fetch('/api/admin/dashboard', { method: 'GET' });
+        const resp = await adminApi.get('/api/admin/dashboard');
         if (!resp.ok) {
           setAuthStatus({ status: resp.status === 401 || resp.status === 403 ? 'unauthorized' : 'error', detail: String(resp.status) });
+        } else {
+          setAuthStatus({ status: 'ok', detail: '200 OK' });
         }
-      } catch {
-        setAuthStatus({ status: 'error', detail: 'Network/Error' });
+      } catch (e: any) {
+        const st = e?.status;
+        setAuthStatus({ status: st === 401 || st === 403 ? 'unauthorized' : 'error', detail: st ? String(st) : 'Network/Error' });
       }
     };
     load();

@@ -72,12 +72,16 @@ const AuthTokenDebugger: React.FC = () => {
   const testAdminEndpoint = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/dashboard', {
-        headers: {
-          'Authorization': `Bearer ${debugInfo?.supabase?.token || debugInfo?.backend?.token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const token = debugInfo?.backend?.token || debugInfo?.supabase?.token;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        headers['X-Forwarded-Authorization'] = `Bearer ${token}`;
+        headers['X-Authorization'] = `Bearer ${token}`;
+        headers['X-Client-Authorization'] = `Bearer ${token}`;
+        headers['X-Supabase-Authorization'] = `Bearer ${token}`;
+      }
+      const response = await fetch('/api/admin/dashboard', { headers });
       
       console.log('Admin endpoint test:', {
         status: response.status,

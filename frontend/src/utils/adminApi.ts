@@ -24,6 +24,16 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
     }
   };
 
+  const readSupabaseSdkJwt = async (): Promise<string | null> => {
+    try {
+      const { supabase } = await import('../lib/supabase');
+      const { data: sess } = await supabase.auth.getSession();
+      return sess?.session?.access_token || null;
+    } catch {
+      return null;
+    }
+  };
+
   const ensureBackendJwt = async (): Promise<string | null> => {
     // Respect cached unsupported flag to avoid spamming 404s
     try {
@@ -32,7 +42,8 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
     } catch {}
     const existing = readBackendJwt();
     if (existing) return existing;
-    const supa = readSupabaseJwt();
+    let supa = readSupabaseJwt();
+    if (!supa) supa = await readSupabaseSdkJwt();
     if (!supa) return null;
     try {
       const resp = await fetch('/api/supabase-auth/exchange/backend-jwt', {
@@ -61,6 +72,7 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
   // Prefer Supabase JWT first to avoid 404 spam on older backends
   let token = readSupabaseJwt();
   if (!token) token = readBackendJwt();
+  if (!token) token = await readSupabaseSdkJwt();
   if (!token) token = await ensureBackendJwt();
   
   // Debug only in development

@@ -20,6 +20,7 @@ const Header: React.FC = () => {
   };
 
   const [curatedCount, setCuratedCount] = useState<number | null>(null);
+  const [adminAuthBadge, setAdminAuthBadge] = useState<{ text: string; color: string } | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -34,6 +35,19 @@ const Header: React.FC = () => {
       })
       .catch(() => {})
       .finally(() => {});
+    // Lightweight admin auth badge reading (from localStorage set by banner/actions)
+    try {
+      const raw = localStorage.getItem('osrx_admin_auth_status');
+      if (raw) {
+        const { status, at } = JSON.parse(raw);
+        const age = Date.now() - (at || 0);
+        if (status && age < 10 * 60 * 1000) {
+          if (status === 'ok') setAdminAuthBadge({ text: 'Admin OK', color: 'bg-green-100 text-green-700' });
+          else if (status === 'auto') setAdminAuthBadge({ text: 'Admin Auto‑Recovered', color: 'bg-yellow-100 text-yellow-800' });
+          else if (status === 'fail') setAdminAuthBadge({ text: 'Admin Auth Fail', color: 'bg-red-100 text-red-700' });
+        }
+      }
+    } catch {}
     return () => {
       mounted = false;
     };
@@ -155,6 +169,12 @@ const Header: React.FC = () => {
                         {String(state.user.role || 'user')}
                       </span>
                     </div>
+                    {adminAuthBadge && (
+                      <div className="px-3 py-2 text-xs border-b flex items-center justify-between">
+                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 ${adminAuthBadge.color}`}>{adminAuthBadge.text}</span>
+                        <Link to="/admin/auth-diagnostics" className="text-blue-600 hover:underline" onClick={() => setAccountOpen(false)}>Details</Link>
+                      </div>
+                    )}
                     <div className="px-3 py-2 text-xs text-gray-500 border-b">
                       {hasSupabaseSession ? (
                         <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Supabase session</span>

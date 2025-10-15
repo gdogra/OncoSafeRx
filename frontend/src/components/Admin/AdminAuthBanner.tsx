@@ -25,6 +25,7 @@ const AdminAuthBanner: React.FC = () => {
         if (ok) {
           const resp = await adminApi.get('/api/admin/dashboard');
           if (resp.ok) {
+            try { localStorage.setItem('osrx_admin_auth_status', JSON.stringify({ status: 'auto', at: Date.now() })); } catch {}
             showToast('success', 'Admin access restored (auto)', 3000);
             await load();
           }
@@ -98,10 +99,12 @@ const AdminAuthBanner: React.FC = () => {
                   // Try an authenticated admin call
                   const resp = await adminApi.get('/api/admin/dashboard');
                   if (resp.ok) {
+                    try { localStorage.setItem('osrx_admin_auth_status', JSON.stringify({ status: 'ok', at: Date.now() })); } catch {}
                     showToast('success','Admin access restored', 3000);
                     // Refresh diagnostics view
                     await load();
                   } else {
+                    try { localStorage.setItem('osrx_admin_auth_status', JSON.stringify({ status: 'fail', at: Date.now() })); } catch {}
                     showToast('warning', `Still unauthorized (${resp.status})`);
                   }
                 } catch (e: any) {

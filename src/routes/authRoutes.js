@@ -174,6 +174,7 @@ router.get('/diagnostics', asyncHandler(async (req, res) => {
       tokenPresent: !!token,
       backendJwtValid: false,
       supabaseIntrospectionConfigured: false,
+      supabaseHs256Configured: !!process.env.SUPABASE_JWT_SECRET,
       fallbackAllowed: String(process.env.ALLOW_SUPABASE_JWT_FALLBACK || '').toLowerCase() === 'true',
       allowQueryToken: String(process.env.ALLOW_QUERY_TOKEN || '').toLowerCase() === 'true',
       userHint: null,

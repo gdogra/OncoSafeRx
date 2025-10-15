@@ -470,6 +470,7 @@ Add a Netlify status badge to this README by replacing `YOUR-SITE-ID`:
   - `ALLOW_QUERY_TOKEN` (dev only; ignored in production)
   - `ADMIN_DEV_BYPASS` (dev only; bypass admin role checks for any authenticated user)
   - `ADMIN_SUPERADMINS` (comma-separated emails treated as `super_admin` at API)
+  - `SUPABASE_JWT_SECRET` (optional; enables HS256 verification of Supabase JWTs without service introspection)
   - `FHIR_BASE_URL` (optional; defaults to public HAPI)
   - `FHIR_AUTH_TOKEN` (optional; bearer token for secured FHIR servers)
 

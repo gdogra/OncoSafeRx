@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
+const SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET || null;
 
 // Optional Supabase admin client for token introspection (fallback)
 let supabaseAdmin = null;
@@ -138,10 +139,44 @@ export async function authenticateToken(req, res, next) {
           }
         }
       } catch {}
+      // HS256 verification path using SUPABASE_JWT_SECRET (production safe)
+      try {
+        if (SUPABASE_JWT_SECRET) {
+          const payload = jwt.verify(token, SUPABASE_JWT_SECRET);
+          req.user = elevateIfSuperAdmin({
+            id: payload.sub || payload.user_id || 'unknown',
+            email: payload.email,
+            role: payload.role || payload.user_metadata?.role || 'user'
+          });
+          try {
+            const profile = await supabaseService.getUserByEmail?.(req.user.email);
+            if (profile?.role) req.user.role = profile.role;
+            req.user = elevateIfSuperAdmin(req.user);
+          } catch {}
+          return next();
+        }
+      } catch {}
       return res.status(403).json({ error: 'Invalid or expired token' });
     }
     const { data, error } = await supabaseAdmin.auth.getUser(token);
     if (error || !data?.user) {
+      // Try HS256 verification as secondary path
+      try {
+        if (SUPABASE_JWT_SECRET) {
+          const payload = jwt.verify(token, SUPABASE_JWT_SECRET);
+          req.user = elevateIfSuperAdmin({
+            id: payload.sub || payload.user_id || 'unknown',
+            email: payload.email,
+            role: payload.role || payload.user_metadata?.role || 'user'
+          });
+          try {
+            const profile = await supabaseService.getUserByEmail?.(req.user.email);
+            if (profile?.role) req.user.role = profile.role;
+            req.user = elevateIfSuperAdmin(req.user);
+          } catch {}
+          return next();
+        }
+      } catch {}
       return res.status(403).json({ error: 'Invalid or expired token' });
     }
     const supa = data.user;

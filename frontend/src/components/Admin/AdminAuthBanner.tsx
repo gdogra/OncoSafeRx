@@ -14,12 +14,34 @@ const AdminAuthBanner: React.FC = () => {
   const [diag, setDiag] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(false);
 
+  const [attemptedRecovery, setAttemptedRecovery] = React.useState(false);
+
+  const tryAutoRecovery = async (body: any) => {
+    if (attemptedRecovery) return;
+    try {
+      if (body?.tokenPresent && body?.backendJwtValid === false) {
+        setAttemptedRecovery(true);
+        const ok = await refreshAdminTokens();
+        if (ok) {
+          const resp = await adminApi.get('/api/admin/dashboard');
+          if (resp.ok) {
+            showToast('success', 'Admin access restored (auto)', 3000);
+            await load();
+          }
+        }
+      }
+    } catch {}
+  };
+
   const load = async () => {
     setLoading(true);
     try {
       const resp = await fetch('/api/auth/diagnostics');
       const body = await resp.json().catch(() => null);
       setDiag({ status: resp.status, body });
+      if (resp.ok) {
+        await tryAutoRecovery(body);
+      }
     } catch (e: any) {
       setDiag({ error: e?.message || 'failed' });
     } finally {

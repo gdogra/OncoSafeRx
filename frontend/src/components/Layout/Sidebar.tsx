@@ -83,17 +83,28 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
   // Fetch small admin badges (users and audit totals) for admin/super_admin only
   useEffect(() => {
     let cancelled = false;
+    const attemptedRef = { current: false } as { current: boolean };
+    const hasAnyToken = () => {
+      try { return !!JSON.parse(localStorage.getItem('osrx_auth_tokens') || '{}').access_token; } catch { return false; }
+    };
     const load = async () => {
+      if (attemptedRef.current) return; // avoid repeated retries on re-renders
+      attemptedRef.current = true;
       try {
         if (!(user?.role === 'admin' || user?.role === 'super_admin')) return;
+        if (!hasAnyToken()) return;
         const d = await adminApi.get('/api/admin/dashboard');
         if (d.ok) {
           const body = await d.json();
           if (!cancelled) setAdminBadges(prev => ({ ...prev, users: { total: body?.stats?.users?.total || 0, active: body?.stats?.users?.active || 0 } }));
         }
-      } catch {}
+      } catch (e: any) {
+        // Reduce console noise; optionally enable query-token fallback automatically in dev
+        try { if ((import.meta as any)?.env?.MODE !== 'production') localStorage.setItem('osrx_allow_query_token','true'); } catch {}
+      }
       try {
         if (!(user?.role === 'admin' || user?.role === 'super_admin')) return;
+        if (!hasAnyToken()) return;
         const a = await adminApi.get('/api/admin/audit?page=1&limit=1');
         if (a.ok) {
           const body = await a.json();

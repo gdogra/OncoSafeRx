@@ -5,6 +5,7 @@ import { generateToken, authenticateToken, optionalAuth, requireAdmin } from '..
 import supabaseService from '../config/supabase.js';
 import { validate } from '../utils/validation.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
+import { extractBearerToken, verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -164,6 +165,52 @@ router.post('/login',
     }
   })
 );
+
+// Auth diagnostics: report token presence, verification path, and env flags
+router.get('/diagnostics', asyncHandler(async (req, res) => {
+  try {
+    const token = extractBearerToken(req);
+    const out = {
+      tokenPresent: !!token,
+      backendJwtValid: false,
+      supabaseIntrospectionConfigured: false,
+      fallbackAllowed: String(process.env.ALLOW_SUPABASE_JWT_FALLBACK || '').toLowerCase() === 'true',
+      allowQueryToken: String(process.env.ALLOW_QUERY_TOKEN || '').toLowerCase() === 'true',
+      userHint: null,
+      notes: []
+    };
+
+    if (token) {
+      try {
+        const dec = verifyToken(token);
+        if (dec) {
+          out.backendJwtValid = true;
+          out.userHint = { id: dec.id, email: dec.email, role: dec.role, path: 'backend_jwt' };
+        }
+      } catch {}
+
+      // If backend JWT didn't verify, try to decode Supabase payload (non-validating)
+      if (!out.backendJwtValid) {
+        try {
+          const parts = token.split('.');
+          if (parts.length === 3) {
+            const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+            out.userHint = { email: payload.email, role: payload.role || payload.user_metadata?.role, path: 'supabase_jwt_guess' };
+          }
+        } catch {}
+      }
+    } else {
+      out.notes.push('No Authorization or compatible headers detected');
+    }
+
+    // Whether service role introspection is possible
+    out.supabaseIntrospectionConfigured = !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+
+    return res.json(out);
+  } catch (e) {
+    return res.status(500).json({ error: 'diagnostics_failed', message: e?.message || String(e) });
+  }
+}));
 
 // Get current user profile
 router.get('/profile',

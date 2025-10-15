@@ -84,10 +84,8 @@ const FeedbackAdmin: React.FC = () => {
 
   const refreshSeedStatus = async () => {
     try {
-      const token = getAccessToken();
-      const resp = await fetch('/api/admin/rbac/seed-status', {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
-      });
+      const { adminApi } = await import('../utils/adminApi');
+      const resp = await adminApi.get('/api/admin/rbac/seed-status');
       if (resp.ok) {
         const json = await resp.json();
         setSeedStatus(json);

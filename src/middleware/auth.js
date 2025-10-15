@@ -35,6 +35,21 @@ export function verifyToken(token) {
   }
 }
 
+function elevateIfSuperAdmin(user) {
+  try {
+    if (!user || !user.email) return user;
+    const hardcoded = user.email === 'gdogra@gmail.com';
+    const envList = String(process.env.ADMIN_SUPERADMINS || '')
+      .split(',')
+      .map(s => s.trim().toLowerCase())
+      .filter(Boolean);
+    if (hardcoded || envList.includes(String(user.email).toLowerCase())) {
+      user.role = 'super_admin';
+    }
+  } catch {}
+  return user;
+}
+
 export function extractBearerToken(req) {
   // 1) Standard Authorization header
   const hAuth = req.headers['authorization'] || req.headers['Authorization'];
@@ -85,11 +100,12 @@ export async function authenticateToken(req, res, next) {
     // Try backend JWT first
     const decoded = verifyToken(token);
     if (decoded) {
-      req.user = decoded;
+      req.user = elevateIfSuperAdmin(decoded);
       // Hydrate role from profile if available
       try {
         const profile = await supabaseService.getUserByEmail?.(req.user.email);
         if (profile?.role) req.user.role = profile.role;
+        req.user = elevateIfSuperAdmin(req.user);
       } catch {}
       return next();
     }
@@ -106,15 +122,16 @@ export async function authenticateToken(req, res, next) {
             // Basic sanity checks: Supabase issuer hint and required fields
             const iss = String(payload.iss || '');
             if (iss.includes('supabase') && payload.email) {
-              req.user = {
+              req.user = elevateIfSuperAdmin({
                 id: payload.sub || payload.user_id || 'unknown',
                 email: payload.email,
                 role: payload.role || payload.user_metadata?.role || 'user'
-              };
+              });
               // Hydrate role from profile if available
               try {
                 const profile = await supabaseService.getUserByEmail?.(req.user.email);
                 if (profile?.role) req.user.role = profile.role;
+                req.user = elevateIfSuperAdmin(req.user);
               } catch {}
               return next();
             }
@@ -128,15 +145,16 @@ export async function authenticateToken(req, res, next) {
       return res.status(403).json({ error: 'Invalid or expired token' });
     }
     const supa = data.user;
-    req.user = {
+    req.user = elevateIfSuperAdmin({
       id: supa.id,
       email: supa.email,
       role: supa.user_metadata?.role || 'user'
-    };
+    });
     // Hydrate role from profile if available
     try {
       const profile = await supabaseService.getUserByEmail?.(req.user.email);
       if (profile?.role) req.user.role = profile.role;
+      req.user = elevateIfSuperAdmin(req.user);
     } catch {}
     return next();
   } catch (e) {

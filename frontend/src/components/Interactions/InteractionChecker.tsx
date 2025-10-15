@@ -404,7 +404,9 @@ const InteractionCheckerInner: React.FC = () => {
   }
 
   // Derive a single coherent patient display source to avoid mismatched fields
-  const displayPatient = getDisplayPatient(currentPatient, authState?.user);
+  // Prefer currently selected patient; otherwise fall back to the most recent saved patient
+  const fallbackPatient = currentPatient || (Array.isArray(recentPatients) ? recentPatients[0] : null);
+  const displayPatient = getDisplayPatient(fallbackPatient, authState?.user);
 
   const displayName = displayPatient ? `${displayPatient.firstName} ${displayPatient.lastName}`.trim() : '';
   const displayAge = calculateAgeFromDOB(displayPatient?.dateOfBirth);

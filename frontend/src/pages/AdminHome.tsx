@@ -4,6 +4,7 @@ import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { Link } from 'react-router-dom';
 import { Shield, Users, FileText, Activity, Settings as SettingsIcon, MessageSquare, BarChart3, Eye } from 'lucide-react';
 import { adminApi } from '../utils/adminApi';
+import AdminAuthBanner from '../components/Admin/AdminAuthBanner';
 
 type DashboardStats = {
   users: { total: number; active: number; inactive: number; byRole: Record<string, number> };
@@ -97,6 +98,7 @@ const AdminHome: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <AdminAuthBanner />
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin' }]} />
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Admin</h1>

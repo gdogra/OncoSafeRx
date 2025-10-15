@@ -182,6 +182,14 @@ export function requireRole(...roles) {
 
 // Admin only middleware
 export function requireAdmin(req, res, next) {
+  try {
+    const devBypass = String(process.env.ADMIN_DEV_BYPASS || '').toLowerCase() === 'true';
+    const isProd = String(process.env.NODE_ENV || '').toLowerCase() === 'production';
+    if (devBypass && !isProd) {
+      // In development, allow any authenticated user to pass admin checks for rapid iteration
+      if (req.user) return next();
+    }
+  } catch {}
   return requireRole('admin', 'super_admin')(req, res, next);
 }
 

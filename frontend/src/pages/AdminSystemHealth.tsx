@@ -6,6 +6,7 @@ import { useToast } from '../components/UI/Toast';
 import { adminApi } from '../utils/adminApi';
 import AccessDeniedBanner from '../components/Admin/AccessDeniedBanner';
 import { useNavigate } from 'react-router-dom';
+import AdminAuthBanner from '../components/Admin/AdminAuthBanner';
 
 type DashboardStats = {
   users: {
@@ -79,6 +80,7 @@ const AdminSystemHealth: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <AdminAuthBanner />
       {unauthorized && <AccessDeniedBanner />}
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin', href: '/admin/console' }, { label: 'System Health' }]} />
       <div className="flex items-center justify-between">

@@ -468,6 +468,7 @@ Add a Netlify status badge to this README by replacing `YOUR-SITE-ID`:
   - `METRICS_TOKEN` (optional; protect `/metrics`)
   - `ALLOW_SUPABASE_JWT_FALLBACK` (dev only; accept Supabase JWT without service introspection)
   - `ALLOW_QUERY_TOKEN` (dev only; allow `?token=<JWT>` for proxies that strip `Authorization`)
+  - `ADMIN_DEV_BYPASS` (dev only; bypass admin role checks for any authenticated user)
   - `FHIR_BASE_URL` (optional; defaults to public HAPI)
   - `FHIR_AUTH_TOKEN` (optional; bearer token for secured FHIR servers)
 

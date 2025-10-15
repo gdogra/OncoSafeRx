@@ -32,6 +32,7 @@ import { useRBAC, ROLES, PERMISSIONS } from '../../utils/rbac';
 import visitorTracking from '../../services/visitorTracking';
 import LogoutButton from './LogoutButton';
 import Breadcrumbs from '../UI/Breadcrumbs';
+import AdminAuthBanner from './AdminAuthBanner';
 import AccessDeniedBanner from './AccessDeniedBanner';
 import { adminApi } from '../../utils/adminApi';
 // useRBAC already imported above
@@ -257,6 +258,7 @@ const AdminConsole: React.FC = () => {
 
   const renderOverview = () => (
     <div className="space-y-6">
+      <AdminAuthBanner />
       {/* System Health Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg border border-gray-200 p-6">

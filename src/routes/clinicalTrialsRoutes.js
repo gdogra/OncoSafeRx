@@ -1,5 +1,6 @@
 import express from 'express';
 import clinicalTrialsService from '../services/clinicalTrialsService.js';
+import fhirPatientService from '../services/fhirPatientService.js';
 
 const router = express.Router();
 
@@ -103,13 +104,23 @@ router.get('/search-by-drug', async (req, res) => {
     // Get patient profile if provided
     let patientProfile = {};
     if (patientId) {
-      // TODO: Implement patient lookup when patient service is available
-      // For now, use query parameters
-      patientProfile = {
-        condition: req.query.condition,
-        age: req.query.age ? parseInt(req.query.age) : undefined,
-        gender: req.query.gender
-      };
+      try {
+        // Prefer looking up the patient via FHIR service
+        const patient = await fhirPatientService.getPatientById(patientId);
+        patientProfile = {
+          condition: patient?.conditions?.[0],
+          age: patient?.age,
+          gender: patient?.gender
+        };
+      } catch (lookupErr) {
+        // Fallback to query parameters if lookup fails
+        console.warn(`Patient lookup failed for ${patientId}:`, lookupErr.message);
+        patientProfile = {
+          condition: req.query.condition,
+          age: req.query.age ? parseInt(req.query.age) : undefined,
+          gender: req.query.gender
+        };
+      }
     }
 
     const results = await clinicalTrialsService.searchTrialsByDrug(drug, patientProfile);

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { apiBaseUrl } from '../utils/env';
 import { MapContainer, TileLayer, Marker, Popup, useMap, CircleMarker } from 'react-leaflet';
 import L from 'leaflet';
@@ -10,6 +10,7 @@ import Breadcrumbs from '../components/UI/Breadcrumbs';
 import AutoComplete, { AutoCompleteOption } from '../components/UI/AutoComplete';
 import { useSelection } from '../context/SelectionContext';
 import { inferBiomarkerForDrug } from '../utils/biomarkers';
+import { useToast } from '../components/UI/Toast';
 // Fix default marker icons in CRA
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -48,6 +49,29 @@ const Trials: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<Trial[] | null>(null);
   const [nearestCount, setNearestCount] = useState<string>('');
+  const navigate = useNavigate();
+  const { showToast } = useToast();
+  const [recentDrugs, setRecentDrugs] = useState<string[]>([]);
+  const RECENTS_KEY = 'osrx_recent_trial_drugs';
+  const loadRecents = () => {
+    try {
+      const raw = localStorage.getItem(RECENTS_KEY);
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr.filter((s: any) => typeof s === 'string') : [];
+    } catch { return []; }
+  };
+  const saveRecentDrug = (name: string) => {
+    const drug = String(name || '').trim();
+    if (!drug) return;
+    try {
+      const current = loadRecents();
+      const deduped = [drug, ...current.filter((d: string) => d.toLowerCase() !== drug.toLowerCase())];
+      const limited = deduped.slice(0, 7);
+      localStorage.setItem(RECENTS_KEY, JSON.stringify(limited));
+      setRecentDrugs(limited);
+    } catch {}
+  };
   const selection = useSelection();
   const staticConditionOptions = useMemo<AutoCompleteOption[]>(() => (
     [
@@ -162,6 +186,52 @@ const Trials: React.FC = () => {
     } finally { setLoading(false); }
   };
 
+  // Drug-based search using patient context (server clinical-trials API)
+  const searchByDrugWithPatient = async (drug: string, patientId: string) => {
+    setLoading(true); setError(null);
+    try {
+      const params = new URLSearchParams({ drug, patientId });
+      const resp = await fetch(`${apiBase}/clinical-trials/search-by-drug?${params.toString()}`);
+      if (!resp.ok) throw new Error(`API ${resp.status}`);
+      const body = await resp.json();
+      const studies = body?.data?.studies || [];
+      // Map to local Trial shape
+      const mapped: Trial[] = studies.map((s: any) => ({
+        nct_id: s.nctId,
+        title: s.title,
+        condition: s.condition || '',
+        phase: s.phase || '',
+        status: s.status || '',
+        line_of_therapy: undefined,
+        biomarkers: undefined,
+        // no geo info available in this endpoint; omit locations
+        locations: []
+      }));
+      setResults(mapped);
+      // Keep drug and patientId in URL for share
+      const p = new URLSearchParams(window.location.search);
+      p.set('drug', drug);
+      p.set('patientId', patientId);
+      const newUrl = `${window.location.pathname}?${p.toString()}`;
+      window.history.replaceState({}, '', newUrl);
+      saveRecentDrug(drug);
+      // Notify context and provide quick navigation to patient view
+      showToast(
+        'info',
+        `Showing trials for ${drug} using patient context`,
+        6000,
+        {
+          label: 'View patient',
+          onClick: () => navigate(`/fhir-patients?select=${encodeURIComponent(patientId)}`)
+        }
+      );
+    } catch (e: any) {
+      setError(e?.message || 'Drug-based search failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Parse filters from URL on mount and optionally auto-search
   useEffect(() => {
     try {
@@ -169,6 +239,7 @@ const Trials: React.FC = () => {
       const cond = p.get('condition') || '';
       const bio = p.get('biomarker') || '';
       const drug = p.get('drug') || '';
+      const patientId = p.get('patientId') || '';
       const ln = p.get('line') || '';
       const st = p.get('status') || '';
       const la = p.get('lat') || '';
@@ -184,7 +255,17 @@ const Trials: React.FC = () => {
         }
       }
       
-      if (cond || finalBiomarker || ln || st || la || lo || rad || drug) {
+      if (drug && patientId) {
+        // Perform server-side drug search with patient context
+        setCondition(cond);
+        setBiomarker(finalBiomarker);
+        setLine(ln);
+        setStatus(st);
+        setLat(la);
+        setLon(lo);
+        setRadius(rad);
+        setTimeout(() => { searchByDrugWithPatient(drug, patientId); }, 0);
+      } else if (cond || finalBiomarker || ln || st || la || lo || rad || drug) {
         setCondition(cond); 
         setBiomarker(finalBiomarker); 
         setLine(ln); 
@@ -198,6 +279,34 @@ const Trials: React.FC = () => {
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Load recent drugs on mount
+  useEffect(() => {
+    try { setRecentDrugs(loadRecents()); } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const useRecentDrug = async (drug: string) => {
+    const d = String(drug || '').trim();
+    if (!d) return;
+    // If current URL has patientId, prefer patient-aware search
+    const p = new URLSearchParams(window.location.search);
+    const pid = p.get('patientId') || '';
+    if (pid) {
+      await searchByDrugWithPatient(d, pid);
+      return;
+    }
+    // Otherwise infer biomarker and run regular search
+    const inferred = inferBiomarkerForDrug(d);
+    setBiomarker(inferred || '');
+    // Update URL with ?drug=...
+    const q = new URLSearchParams(window.location.search);
+    q.set('drug', d);
+    const newUrl = `${window.location.pathname}?${q.toString()}`;
+    window.history.replaceState({}, '', newUrl);
+    saveRecentDrug(d);
+    await search();
+  };
 
   // If a drug was selected elsewhere, prefill biomarker if empty
   useEffect(() => {
@@ -281,6 +390,26 @@ const Trials: React.FC = () => {
             />
           </div>
         </div>
+        {recentDrugs.length > 0 && (
+          <div className="mt-3 text-xs text-gray-700">
+            Recent Drugs: {recentDrugs.map((d) => (
+              <button
+                key={d}
+                onClick={() => useRecentDrug(d)}
+                className="inline-block bg-white border border-gray-300 rounded-full px-2 py-0.5 mr-1 mb-1 hover:bg-gray-50"
+                title="Search with this drug"
+              >
+                {d}
+              </button>
+            ))}
+            <button
+              onClick={() => { localStorage.removeItem(RECENTS_KEY); setRecentDrugs([]); }}
+              className="ml-2 text-[11px] underline"
+            >
+              clear
+            </button>
+          </div>
+        )}
       </Card>
       {error && <Alert type="error" title="Error">{error}</Alert>}
       {Array.isArray(results) && (

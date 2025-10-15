@@ -72,6 +72,13 @@ npm run sync:cpic
 curl http://localhost:3000/health
 ```
 
+### FHIR Health
+
+```bash
+GET /api/fhir/health
+# Response includes connection status, FHIR version, and implementation details.
+```
+
 ### User Feedback → Tasks
 
 - In‑app feedback widget is built in; submissions go to `/api/feedback/submit` and are auto‑classified.
@@ -246,11 +253,40 @@ POST /api/dosing/adjust
 }
 ```
 
+### FHIR Patients (MVP)
+
+```
+# Search patients by name/identifier/birthdate/gender
+GET /api/fhir/patients?name=emma
+GET /api/fhir/patients?identifier=MRN001234
+GET /api/fhir/patients?birthdate=1982-03-15
+GET /api/fhir/patients?gender=female
+
+# Get a patient by FHIR ID
+GET /api/fhir/patients/patient-1
+
+# Health check
+GET /api/fhir/health
+```
+
+Notes:
+- Honors `FHIR_BASE_URL` and optional `FHIR_AUTH_TOKEN`. Defaults to public HAPI if unset.
+- Falls back to local mock templates in `fhirPatientService` when FHIR is unreachable (dev-friendly).
+- Used by clinical trials drug search when `patientId` is provided.
+
 ### Trials (MVP)
 
 ```
 # Search trials by condition/biomarker/line/status/location radius
 GET /api/trials/search?condition=lung&biomarker=EGFR&line=1st&lat=37.77&lon=-122.42&radius_km=50
+```
+
+```
+# Drug-based trials search with patient linkage (uses FHIR when patientId present)
+GET /api/clinical-trials/search-by-drug?drug=imatinib&patientId=patient-1
+
+# Fallback with explicit patient context
+GET /api/clinical-trials/search-by-drug?drug=imatinib&condition=GIST&age=54&gender=female
 ```
 
 ### Prescribing & Exports (MVP)
@@ -430,6 +466,8 @@ Add a Netlify status badge to this README by replacing `YOUR-SITE-ID`:
   - `SUPABASE_SERVICE_ROLE_KEY` (optional; enables server-side profile utilities)
   - `AUTH_PROXY_ENABLED=false` (recommended unless required)
   - `METRICS_TOKEN` (optional; protect `/metrics`)
+  - `FHIR_BASE_URL` (optional; defaults to public HAPI)
+  - `FHIR_AUTH_TOKEN` (optional; bearer token for secured FHIR servers)
 
 - Frontend `frontend/.env.production` (or CI build env):
   - `VITE_SUPABASE_URL`

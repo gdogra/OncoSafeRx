@@ -333,6 +333,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             requiresPermission: null
           },
           { 
+            path: '/fhir-patients', 
+            label: 'FHIR Patients', 
+            icon: Users, 
+            description: 'Search via FHIR proxy (debug)',
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher'],
+            requiresPermission: null
+          },
+          { 
             path: '/clinical-communication', 
             label: 'Clinical Communication', 
             icon: MessageSquare, 

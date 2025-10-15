@@ -76,6 +76,7 @@ const FeedbackAdmin = lazy(() => import('./pages/FeedbackAdmin'));
 const AdminConsole = lazy(() => import('./components/Admin/AdminConsole'));
 const AdminHome = lazy(() => import('./pages/AdminHome'));
 const AdminAuthDiagnostics = lazy(() => import('./pages/AdminAuthDiagnostics'));
+const FHIRPatients = lazy(() => import('./pages/FHIRPatients'));
 const ArticleLabResults = lazy(() => import('./pages/ArticleLabResults'));
 const VideoSupportNetwork = lazy(() => import('./pages/VideoSupportNetwork'));
 
@@ -476,6 +477,14 @@ function AppWithAuth() {
                   <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
                     <Layout>
                       <EHRIntegration />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                {/* FHIR Patients Debug */}
+                <Route path="/fhir-patients" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
+                    <Layout>
+                      <FHIRPatients />
                     </Layout>
                   </ProtectedRoute>
                 } />

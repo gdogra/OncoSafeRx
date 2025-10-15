@@ -1,7 +1,9 @@
 import React from 'react';
-import { Shield, Settings, Link as LinkIcon } from 'lucide-react';
+import { Shield, Settings, Link as LinkIcon, RefreshCw } from 'lucide-react';
 import { useToast } from '../UI/Toast';
 import { Link } from 'react-router-dom';
+import { refreshAdminTokens } from '../../utils/tokenRefresh';
+import { adminApi } from '../../utils/adminApi';
 
 const Row: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
   <div className="flex items-center text-xs"><span className="w-48 text-gray-600">{label}</span><span className="text-gray-900">{value}</span></div>
@@ -66,6 +68,28 @@ const AdminAuthBanner: React.FC = () => {
             <button onClick={load} disabled={loading} className="px-3 py-1.5 rounded bg-gray-900 text-white text-xs disabled:opacity-50"><Settings className="w-3.5 h-3.5 inline mr-1" /> {loading ? 'Rechecking…' : 'Recheck'}</button>
             <button onClick={enableQueryToken} className="px-3 py-1.5 rounded bg-blue-600 text-white text-xs"><LinkIcon className="w-3.5 h-3.5 inline mr-1" /> Enable Query-Token</button>
             <Link to="/admin/auth-diagnostics" className="px-3 py-1.5 rounded border text-xs">Open Detailed Diagnostics</Link>
+            <button
+              onClick={async () => {
+                try {
+                  const ok = await refreshAdminTokens();
+                  if (!ok) { showToast('error','Token exchange failed'); return; }
+                  // Try an authenticated admin call
+                  const resp = await adminApi.get('/api/admin/dashboard');
+                  if (resp.ok) {
+                    showToast('success','Admin access restored', 3000);
+                    // Refresh diagnostics view
+                    await load();
+                  } else {
+                    showToast('warning', `Still unauthorized (${resp.status})`);
+                  }
+                } catch (e: any) {
+                  showToast('error', e?.message || 'Retry failed');
+                }
+              }}
+              className="px-3 py-1.5 rounded bg-green-600 text-white text-xs"
+            >
+              <RefreshCw className="w-3.5 h-3.5 inline mr-1" /> Retry With Token
+            </button>
           </div>
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1">
             <Row label="Token present" value={String(body.tokenPresent)} />
@@ -82,4 +106,3 @@ const AdminAuthBanner: React.FC = () => {
 };
 
 export default AdminAuthBanner;
-

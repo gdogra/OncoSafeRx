@@ -12,7 +12,7 @@
   CI = "false"
   BUILD_TIMEOUT = "15"
   # Force cache bust for production fix - 2025-10-07T09:15:00Z  
-  BUILD_TIMESTAMP = "2025-10-07T09:15:00Z"
+  BUILD_TIMESTAMP = "2025-10-15T00:00:00Z"
   # Backend base URL for non-Netlify custom domains fallback
   VITE_BACKEND_URL = "https://oncosaferx-backend.onrender.com"
   VITE_APP_VERSION = "20.0.0"

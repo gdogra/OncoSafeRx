@@ -18,6 +18,28 @@ try {
   }
 } catch {}
 
+// Handle chunk load errors by clearing caches and reloading
+try {
+  window.addEventListener(
+    'error',
+    (e: Event | any) => {
+      const msg = String((e && (e.message || e.reason)) || '');
+      const isChunkError = /Failed to fetch dynamically imported module|Importing a module script failed|Unexpected token '<'|Module script.*MIME/.test(msg);
+      const target = (e as any)?.target as HTMLElement | undefined;
+      const isScriptTag = target && target.tagName === 'SCRIPT';
+      if (isChunkError || isScriptTag) {
+        // Best-effort cache cleanup to resolve mismatched deploy assets
+        try { if ('caches' in window) caches.keys().then(keys => keys.forEach(k => caches.delete(k))); } catch {}
+        try { if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())); } catch {}
+        try { localStorage.removeItem('app_version'); } catch {}
+        // Force reload to pull fresh index + chunks
+        window.location.reload();
+      }
+    },
+    true
+  );
+} catch {}
+
 // Optional Sentry init (dynamic, safe if dependency absent)
 try {
   const dsn = import.meta.env.VITE_SENTRY_DSN as string | undefined

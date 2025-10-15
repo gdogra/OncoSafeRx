@@ -404,13 +404,19 @@ const InteractionCheckerInner: React.FC = () => {
   }
 
   // Derive a single coherent patient display source to avoid mismatched fields
-  // Prefer currently selected patient; otherwise fall back to the most recent saved patient
-  const fallbackPatient = currentPatient || (Array.isArray(recentPatients) ? recentPatients[0] : null);
+  const roles: string[] = Array.isArray((authState?.user as any)?.roles)
+    ? (authState?.user as any).roles
+    : ((authState?.user as any)?.role ? [(authState?.user as any).role] : []);
+  const isPatientLike = roles.includes('patient') || roles.includes('caregiver');
+  // If the user is a patient/caregiver, only show their own details (do not fall back to other patients)
+  const fallbackPatient = isPatientLike
+    ? null
+    : (currentPatient || (Array.isArray(recentPatients) ? recentPatients[0] : null));
   const displayPatient = getDisplayPatient(fallbackPatient, authState?.user);
 
   const displayName = displayPatient ? `${displayPatient.firstName} ${displayPatient.lastName}`.trim() : '';
   const displayAge = calculateAgeFromDOB(displayPatient?.dateOfBirth);
-  const displaySex = displayPatient?.sex || 'Unknown gender';
+  const displaySex = displayPatient?.sex;
   const conditionNames = getConditionNames(displayPatient?.conditions, 2);
 
   return (
@@ -432,10 +438,15 @@ const InteractionCheckerInner: React.FC = () => {
               Advanced interaction analysis for {displayName}
             </p>
             <div className="text-sm text-gray-600 mt-1">
-              {typeof displayAge === 'number' ? `${displayAge} years old` : 'Age unavailable'} • {displaySex}
-              {conditionNames.length > 0 && (
-                <> • Conditions: {conditionNames.join(', ')}{(displayPatient?.conditions?.length || 0) > conditionNames.length ? '…' : ''}</>
-              )}
+              {(() => {
+                const parts: string[] = [];
+                if (typeof displayAge === 'number') parts.push(`${displayAge} years old`);
+                if (displaySex) parts.push(String(displaySex));
+                if (conditionNames.length > 0) {
+                  parts.push(`Conditions: ${conditionNames.join(', ')}${(displayPatient?.conditions?.length || 0) > conditionNames.length ? '…' : ''}`);
+                }
+                return parts.length ? parts.join(' • ') : null;
+              })()}
             </div>
           </div>
         )}

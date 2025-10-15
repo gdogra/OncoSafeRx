@@ -128,6 +128,8 @@ function AppWithAuth() {
     );
   }
   
+  const isDev = (import.meta as any)?.env?.MODE !== 'production';
+
   return (
     <ToastProvider>
       {/* DEPLOYMENT TEST: Fixed styling and role restrictions - v2.1 */}
@@ -143,40 +145,40 @@ function AppWithAuth() {
                 <Route path="/signup" element={<AuthPage />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/logout" element={<Logout />} />
-                <Route path="/auth-debug" element={<AuthDebug />} />
+                {isDev && <Route path="/auth-debug" element={<AuthDebug />} />}
                 <Route path="/force-logout" element={<ForceLogout />} />
                 <Route path="/env-check" element={<EnvCheck />} />
                 
-                {/* Emergency debug route - no auth logic */}
-                <Route path="/emergency-debug" element={
-                  <div className="min-h-screen bg-red-50 flex items-center justify-center p-4">
-                    <div className="bg-white p-8 rounded-lg shadow-lg max-w-md text-center">
-                      <h1 className="text-2xl font-bold text-red-600 mb-4">🚨 Emergency Debug</h1>
-                      <p className="text-gray-600 mb-4">This route bypasses all authentication logic</p>
-                      <div className="space-y-2">
-                        <div className="text-sm"><strong>URL:</strong> {window.location.href}</div>
-                        <div className="text-sm"><strong>Path:</strong> {window.location.pathname}</div>
-                      </div>
-                      <div className="mt-4 space-y-2">
-                        <a href="/auth" className="block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Try /auth</a>
-                        <a href="/logout" className="block px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Try /logout</a>
+                {/* Emergency/debug routes only in development */}
+                {isDev && (
+                  <Route path="/emergency-debug" element={
+                    <div className="min-h-screen bg-red-50 flex items-center justify-center p-4">
+                      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md text-center">
+                        <h1 className="text-2xl font-bold text-red-600 mb-4">Emergency Debug</h1>
+                        <p className="text-gray-600 mb-4">Bypasses all authentication logic</p>
+                        <div className="space-y-2">
+                          <div className="text-sm"><strong>URL:</strong> {window.location.href}</div>
+                          <div className="text-sm"><strong>Path:</strong> {window.location.pathname}</div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                } />
+                  } />
+                )}
                 
                 
-                {/* Simple test route */}
-                <Route path="/test-admin" element={
-                  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                    <div className="bg-white p-8 rounded-lg shadow-lg">
-                      <h1 className="text-2xl font-bold text-gray-900 mb-4">Test Route Working!</h1>
-                      <p className="text-gray-600">This confirms routing is working.</p>
+                {/* Simple test route (dev only) */}
+                {isDev && (
+                  <Route path="/test-admin" element={
+                    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                      <div className="bg-white p-8 rounded-lg shadow-lg">
+                        <h1 className="text-2xl font-bold text-gray-900 mb-4">Test Route Working!</h1>
+                        <p className="text-gray-600">This confirms routing is working.</p>
+                      </div>
                     </div>
-                  </div>
-                } />
+                  } />
+                )}
                 
-                {/* Testing route - should appear BEFORE the dashboard route */}
+                {/* Visitor analytics is a real feature; keep gated by permission */}
                 <Route path="/visitor-analytics" element={
                   <ProtectedRoute requiredPermission="view_visitor_analytics">
                     <Layout>
@@ -185,21 +187,25 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 
-                <Route path="/debug-routing" element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <RoutingTest />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
+                {isDev && (
+                  <Route path="/debug-routing" element={
+                    <ProtectedRoute>
+                      <Layout>
+                        <RoutingTest />
+                      </Layout>
+                    </ProtectedRoute>
+                  } />
+                )}
                 
-                <Route path="/debug-tokens" element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <TokenDebug />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
+                {isDev && (
+                  <Route path="/debug-tokens" element={
+                    <ProtectedRoute>
+                      <Layout>
+                        <TokenDebug />
+                      </Layout>
+                    </ProtectedRoute>
+                  } />
+                )}
                 
 
                 {/* Protected routes */}

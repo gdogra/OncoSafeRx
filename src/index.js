@@ -165,8 +165,12 @@ app.use(morgan((tokens, req, res) => {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Rate limiting
-app.use(generalLimiter);
+// Rate limiting (skip in development)
+if (process.env.NODE_ENV !== 'development') {
+  app.use(generalLimiter);
+} else {
+  console.log('⚠️  Rate limiting disabled in development mode');
+}
 
 // Health check endpoint
 app.get('/health', (req, res) => {

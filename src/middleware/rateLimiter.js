@@ -21,8 +21,8 @@ export const createRateLimiter = (windowMs = 15 * 60 * 1000, max = 100) => {
 };
 
 // Different rate limits for different endpoints
-const RL_WINDOW = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '', 10) || 15 * 60 * 1000;
-const RL_MAX = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '', 10) || 100;
+const RL_WINDOW = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '', 10) || 5 * 60 * 1000; // 5 minutes instead of 15
+const RL_MAX = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '', 10) || 1000; // 1000 requests instead of 100
 
 // Search rate limiting (can be overridden with env vars)
 const SEARCH_WINDOW = parseInt(process.env.SEARCH_RATE_LIMIT_WINDOW_MS || '', 10) || 60 * 1000;

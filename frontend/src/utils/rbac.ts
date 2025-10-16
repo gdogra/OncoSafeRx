@@ -182,6 +182,26 @@ export const ROLES: Record<string, Role> = {
     hierarchy: 90,
     isSystemRole: true
   },
+  ADMIN: {
+    id: 'admin',
+    name: 'Administrator',
+    description: 'General administrator with system management access',
+    permissions: [
+      'admin_console_access',
+      'view_visitor_analytics',
+      'manage_analytics',
+      'view_realtime_analytics',
+      'manage_users',
+      'manage_roles',
+      'view_audit_logs',
+      'manage_system_settings',
+      'generate_reports',
+      'view_compliance_reports',
+      'manage_feedback'
+    ],
+    hierarchy: 85,
+    isSystemRole: true
+  },
   ANALYTICS_ADMIN: {
     id: 'analytics_admin',
     name: 'Analytics Administrator',

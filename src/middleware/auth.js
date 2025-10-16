@@ -100,7 +100,22 @@ export async function authenticateToken(req, res, next) {
   try {
     const token = extractBearerToken(req);
 
+    // Debug token extraction in production for admin routes
+    if (process.env.NODE_ENV === 'production' && req.path.includes('admin')) {
+      console.log('🔍 Auth token extraction:', {
+        path: req.path,
+        hasToken: !!token,
+        tokenLength: token?.length || 0,
+        headers: {
+          auth: !!req.headers['authorization'],
+          xAuth: !!(req.headers['x-authorization'] || req.headers['x-client-authorization']),
+          cookie: !!req.headers['cookie']
+        }
+      });
+    }
+
     if (!token) {
+      console.log('🚫 No token found for admin route:', req.path);
       return res.status(401).json({ error: 'Access token required' });
     }
 
@@ -114,6 +129,15 @@ export async function authenticateToken(req, res, next) {
         if (profile?.role) req.user.role = profile.role;
         req.user = elevateIfSuperAdmin(req.user);
       } catch {}
+      
+      // Debug successful JWT verification for admin routes
+      if (process.env.NODE_ENV === 'production' && req.path.includes('admin')) {
+        console.log('✅ Backend JWT verified:', {
+          email: req.user.email,
+          role: req.user.role,
+          id: req.user.id
+        });
+      }
       return next();
     }
 
@@ -226,10 +250,16 @@ export function optionalAuth(req, res, next) {
 export function requireRole(...roles) {
   return (req, res, next) => {
     if (!req.user) {
+      console.log('🚫 Role check failed: No user authenticated');
       return res.status(401).json({ error: 'Authentication required' });
     }
 
     if (!roles.includes(req.user.role)) {
+      console.log('🚫 Role check failed:', {
+        required: roles,
+        current: req.user.role,
+        email: req.user.email
+      });
       return res.status(403).json({ 
         error: 'Insufficient permissions',
         required: roles,
@@ -237,6 +267,7 @@ export function requireRole(...roles) {
       });
     }
 
+    console.log('✅ Role check passed:', { role: req.user.role, email: req.user.email });
     next();
   };
 }
@@ -246,6 +277,19 @@ export function requireAdmin(req, res, next) {
   try {
     const devBypass = String(process.env.ADMIN_DEV_BYPASS || '').toLowerCase() === 'true';
     const isProd = String(process.env.NODE_ENV || '').toLowerCase() === 'production';
+    
+    // Enhanced debugging for admin access issues
+    if (isProd) {
+      console.log('🔐 Admin access check:', {
+        hasUser: !!req.user,
+        email: req.user?.email,
+        role: req.user?.role,
+        isGdogra: req.user?.email === 'gdogra@gmail.com',
+        adminSuperadmins: process.env.ADMIN_SUPERADMINS,
+        authHeader: !!req.headers.authorization
+      });
+    }
+    
     if (devBypass && !isProd) {
       // In development, allow any authenticated user to pass admin checks for rapid iteration
       if (req.user) return next();

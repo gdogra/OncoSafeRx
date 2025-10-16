@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email VARCHAR(255) UNIQUE NOT NULL,
     full_name VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'physician', 'pharmacist', 'resident', 'nurse', 'user')),
+    role VARCHAR(50) NOT NULL DEFAULT 'patient' CHECK (role IN ('admin', 'oncologist', 'pharmacist', 'nurse', 'researcher', 'patient')),
     institution VARCHAR(255),
     specialty VARCHAR(255),
     license_number VARCHAR(100),

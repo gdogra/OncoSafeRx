@@ -247,7 +247,7 @@ router.post('/users', asyncHandler(async (req, res) => {
     }
 
     // Validate role
-    const validRoles = ['admin', 'oncologist', 'pharmacist', 'nurse', 'researcher', 'user'];
+    const validRoles = ['admin', 'oncologist', 'pharmacist', 'nurse', 'researcher', 'patient'];
     if (!validRoles.includes(role)) {
       return res.status(400).json({ 
         error: 'Invalid role',
@@ -320,7 +320,7 @@ router.put('/users/:userId', asyncHandler(async (req, res) => {
 
     // Validate role if provided
     if (role) {
-      const validRoles = ['admin', 'oncologist', 'pharmacist', 'nurse', 'researcher', 'user'];
+      const validRoles = ['admin', 'oncologist', 'pharmacist', 'nurse', 'researcher', 'patient'];
       if (!validRoles.includes(role)) {
         return res.status(400).json({ 
           error: 'Invalid role',

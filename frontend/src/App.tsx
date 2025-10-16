@@ -40,7 +40,6 @@ const AIRecommendations = lazy(() => import('./pages/AIRecommendations'));
 const AITreatmentPlanner = lazy(() => import('./pages/AITreatmentPlanner'));
 const EHRIntegration = lazy(() => import('./components/EHR/EHRIntegration'));
 const Help = lazy(() => import('./pages/Help'));
-const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const PatientProfilesDiagnostics = lazy(() => import('./pages/PatientProfilesDiagnostics'));
 const AuthDiagnostics = lazy(() => import('./pages/AuthDiagnostics'));
 const EnvCheck = lazy(() => import('./pages/EnvCheck'));

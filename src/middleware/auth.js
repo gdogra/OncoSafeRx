@@ -120,10 +120,45 @@ export async function authenticateToken(req, res, next) {
       return res.status(401).json({ error: 'Access token required' });
     }
 
-    // Try backend JWT first
-    const decoded = verifyToken(token);
-    if (decoded) {
-      req.user = elevateIfSuperAdmin(decoded);
+    // For admin routes, prioritize Supabase JWT verification since frontend sends Supabase tokens
+    let decodedUser = null;
+    
+    // Try Supabase JWT verification FIRST for admin routes
+    if (req.path && req.path.includes('admin') && SUPABASE_JWT_SECRET) {
+      try {
+        console.log('🔍 Admin route detected, trying Supabase JWT verification first');
+        const payload = jwt.verify(token, SUPABASE_JWT_SECRET);
+        decodedUser = elevateIfSuperAdmin({
+          id: payload.sub || payload.user_id || 'unknown',
+          email: payload.email,
+          role: payload.role || payload.user_metadata?.role || 'user'
+        });
+        console.log('✅ Supabase JWT verified for admin route:', {
+          email: decodedUser.email,
+          role: decodedUser.role,
+          id: decodedUser.id
+        });
+      } catch (supabaseJwtError) {
+        console.log('❌ Supabase JWT verification failed, trying backend JWT:', supabaseJwtError.message);
+      }
+    }
+    
+    // If Supabase JWT didn't work, try backend JWT
+    if (!decodedUser) {
+      const decoded = verifyToken(token);
+      if (decoded) {
+        decodedUser = elevateIfSuperAdmin(decoded);
+        console.log('✅ Backend JWT verified:', {
+          email: decodedUser.email,
+          role: decodedUser.role,
+          id: decodedUser.id
+        });
+      }
+    }
+    
+    // If we have a valid user from either JWT method
+    if (decodedUser) {
+      req.user = decodedUser;
       // Hydrate role from profile if available
       try {
         const profile = await supabaseService.getUserByEmail?.(req.user.email);
@@ -131,14 +166,6 @@ export async function authenticateToken(req, res, next) {
         req.user = elevateIfSuperAdmin(req.user);
       } catch {}
       
-      // Debug successful JWT verification for admin routes
-      if (req.path && req.path.includes('admin')) {
-        console.log('✅ Backend JWT verified:', {
-          email: req.user.email,
-          role: req.user.role,
-          id: req.user.id
-        });
-      }
       return next();
     }
 

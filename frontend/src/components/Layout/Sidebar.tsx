@@ -51,6 +51,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
   const location = useLocation();
   const { state: authState, actions, roleConfig } = useAuth();
   const { user } = authState;
+  
+  // Debug logging for admin permissions
+  console.log('🔍 Sidebar Debug - User object:', user);
+  console.log('🔍 Sidebar Debug - User role:', user?.role);
+  console.log('🔍 Sidebar Debug - User email:', user?.email);
+  console.log('🔍 Sidebar Debug - Is admin?', user?.role === 'admin' || user?.role === 'super_admin');
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const [focusedItem, setFocusedItem] = useState<string | null>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);

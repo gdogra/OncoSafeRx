@@ -108,6 +108,13 @@ export function extractBearerToken(req) {
 
 export async function authenticateToken(req, res, next) {
   try {
+    console.log('🚀 AUTHENTICATION MIDDLEWARE HIT:', {
+      path: req.path,
+      method: req.method,
+      hasAuth: !!req.headers.authorization,
+      timestamp: new Date().toISOString()
+    });
+    
     const token = extractBearerToken(req);
 
     // Debug token extraction for admin routes (force enable)
@@ -126,9 +133,20 @@ export async function authenticateToken(req, res, next) {
     }
 
     if (!token) {
-      console.log('🚫 No token found for admin route:', req.path);
+      console.log('🚫 NO TOKEN FOUND:', {
+        path: req.path,
+        method: req.method,
+        authHeader: req.headers.authorization,
+        allHeaders: Object.keys(req.headers)
+      });
       return res.status(401).json({ error: 'Access token required' });
     }
+    
+    console.log('✅ TOKEN EXTRACTED:', {
+      path: req.path,
+      tokenLength: token?.length || 0,
+      tokenStart: token?.substring(0, 20) + '...'
+    });
 
     // For admin routes, prioritize Supabase JWT verification since frontend sends Supabase tokens
     let decodedUser = null;

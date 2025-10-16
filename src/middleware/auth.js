@@ -100,12 +100,13 @@ export async function authenticateToken(req, res, next) {
   try {
     const token = extractBearerToken(req);
 
-    // Debug token extraction in production for admin routes
-    if (process.env.NODE_ENV === 'production' && req.path.includes('admin')) {
+    // Debug token extraction for admin routes (force enable)
+    if (req.path && req.path.includes('admin')) {
       console.log('🔍 Auth token extraction:', {
         path: req.path,
         hasToken: !!token,
         tokenLength: token?.length || 0,
+        nodeEnv: process.env.NODE_ENV,
         headers: {
           auth: !!req.headers['authorization'],
           xAuth: !!(req.headers['x-authorization'] || req.headers['x-client-authorization']),
@@ -131,7 +132,7 @@ export async function authenticateToken(req, res, next) {
       } catch {}
       
       // Debug successful JWT verification for admin routes
-      if (process.env.NODE_ENV === 'production' && req.path.includes('admin')) {
+      if (req.path && req.path.includes('admin')) {
         console.log('✅ Backend JWT verified:', {
           email: req.user.email,
           role: req.user.role,
@@ -279,16 +280,16 @@ export function requireAdmin(req, res, next) {
     const isProd = String(process.env.NODE_ENV || '').toLowerCase() === 'production';
     
     // Enhanced debugging for admin access issues
-    if (isProd) {
-      console.log('🔐 Admin access check:', {
-        hasUser: !!req.user,
-        email: req.user?.email,
-        role: req.user?.role,
-        isGdogra: req.user?.email === 'gdogra@gmail.com',
-        adminSuperadmins: process.env.ADMIN_SUPERADMINS,
-        authHeader: !!req.headers.authorization
-      });
-    }
+    console.log('🔐 Admin access check:', {
+      hasUser: !!req.user,
+      email: req.user?.email,
+      role: req.user?.role,
+      isGdogra: req.user?.email === 'gdogra@gmail.com',
+      adminSuperadmins: process.env.ADMIN_SUPERADMINS,
+      authHeader: !!req.headers.authorization,
+      nodeEnv: process.env.NODE_ENV,
+      isProd
+    });
     
     if (devBypass && !isProd) {
       // In development, allow any authenticated user to pass admin checks for rapid iteration

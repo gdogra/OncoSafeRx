@@ -5,7 +5,7 @@ import { getEnv, debugEnvVars } from '../utils/env.js';
 
 const JWT_SECRET = getEnv('JWT_SECRET', 'your-secret-key-change-in-production');
 const JWT_EXPIRES_IN = getEnv('JWT_EXPIRES_IN', '24h');
-const SUPABASE_JWT_SECRET = getEnv('SUPABASE_JWT_SECRET') || null;
+const SUPABASE_JWT_SECRET = getEnv('SUPABASE_JWT_SECRET');
 
 // Debug environment variables on startup
 debugEnvVars(['JWT_SECRET', 'SUPABASE_JWT_SECRET', 'ADMIN_SUPERADMINS', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);

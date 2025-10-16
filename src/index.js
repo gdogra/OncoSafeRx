@@ -289,6 +289,7 @@ app.get('/metrics', async (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/supabase-auth', supabaseAuthRoutes);
 app.use('/api/admin', adminRoutes);
+console.log('🚀 ADMIN ROUTES REGISTERED - Ready for authentication debugging');
 app.use('/api/drugs', drugRoutes);
 app.use('/api/drugs/enhanced', enhancedDrugRoutes);
 app.use('/api/interactions', interactionRoutes);

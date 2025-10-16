@@ -19,7 +19,7 @@ export default async (request: Request, context: Context) => {
 
   const backendBase = (context as any)?.env?.BACKEND_URL
     || (globalThis as any)?.BACKEND_URL
-    || 'https://oncosaferx.onrender.com';
+    || 'https://oncosaferx-backend.onrender.com';
   const backendUrl = `${backendBase.replace(/\/$/, '')}/api/${apiPath}${search}`;
 
   try {
@@ -33,12 +33,18 @@ export default async (request: Request, context: Context) => {
       'Accept': incoming.get('accept') || 'application/json',
       'Content-Type': incoming.get('content-type') || 'application/json',
       'User-Agent': incoming.get('user-agent') || 'Netlify-Edge-Function/1.0',
-      'Origin': incoming.get('origin') || '',
-      'Authorization': incoming.get('authorization') || '',
-      'Cookie': incoming.get('cookie') || '',
       'X-Forwarded-Host': url.host,
       'X-Forwarded-Proto': url.protocol.replace(':',''),
     };
+
+    // Only include non-empty headers
+    ['origin', 'authorization', 'x-forwarded-authorization', 'x-authorization', 'x-client-authorization', 'x-supabase-authorization', 'cookie'].forEach(headerName => {
+      const value = incoming.get(headerName);
+      if (value) {
+        const key = headerName.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('-');
+        forwardedHeaders[key] = value;
+      }
+    });
 
     const resp = await fetch(backendUrl, {
       method: request.method,

@@ -43,17 +43,19 @@ export default async (request: Request, context: Context) => {
       'Accept': incoming.get('accept') || 'application/json',
       'Content-Type': incoming.get('content-type') || 'application/json',
       'User-Agent': incoming.get('user-agent') || 'Netlify-Edge-Function/1.0',
-      'Origin': incoming.get('origin') || '',
-      'Authorization': incoming.get('authorization') || '',
-      'X-Forwarded-Authorization': incoming.get('x-forwarded-authorization') || '',
-      'X-Authorization': incoming.get('x-authorization') || '',
-      'X-Client-Authorization': incoming.get('x-client-authorization') || '',
-      'X-Supabase-Authorization': incoming.get('x-supabase-authorization') || '',
-      'Cookie': incoming.get('cookie') || '',
       'X-Forwarded-For': incoming.get('x-forwarded-for') || '',
       'X-Forwarded-Host': url.host,
       'X-Forwarded-Proto': url.protocol.replace(':',''),
     };
+
+    // Only include non-empty headers
+    ['origin', 'authorization', 'x-forwarded-authorization', 'x-authorization', 'x-client-authorization', 'x-supabase-authorization', 'cookie'].forEach(headerName => {
+      const value = incoming.get(headerName);
+      if (value) {
+        const key = headerName.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('-');
+        forwardedHeaders[key] = value;
+      }
+    });
 
     const response = await fetch(backendUrl, {
       method: request.method,

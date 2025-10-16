@@ -679,7 +679,15 @@ export class SupabaseAuthService {
     let role: string;
     let dbProfile: any = null;
     
-    if (user.email === 'gdogra@gmail.com') {
+    // Check for localStorage force flags (for debugging)
+    const forceAdmin = localStorage.getItem('osrx_force_admin') === 'true';
+    const forceRole = localStorage.getItem('osrx_force_role');
+    const forceUser = localStorage.getItem('osrx_force_user');
+    
+    if (forceAdmin && forceUser === user.email && forceRole) {
+      console.log(`🚀 FORCE OVERRIDE: Setting ${user.email} to ${forceRole} role via localStorage`);
+      role = forceRole;
+    } else if (user.email === 'gdogra@gmail.com') {
       console.log('🔧 MANUAL OVERRIDE: Setting gdogra@gmail.com to super_admin role');
       role = 'super_admin';
     } else {

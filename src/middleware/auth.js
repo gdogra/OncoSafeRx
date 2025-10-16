@@ -10,6 +10,16 @@ const SUPABASE_JWT_SECRET = getEnv('SUPABASE_JWT_SECRET') || null;
 // Debug environment variables on startup
 debugEnvVars(['JWT_SECRET', 'SUPABASE_JWT_SECRET', 'ADMIN_SUPERADMINS', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
 
+// Log the specific values for debugging auth issues
+console.log('🔧 AUTH DIAGNOSTICS:', {
+  hasJwtSecret: !!JWT_SECRET,
+  jwtSecretLength: JWT_SECRET?.length || 0,
+  hasSupabaseJwtSecret: !!SUPABASE_JWT_SECRET,
+  supabaseJwtSecretLength: SUPABASE_JWT_SECRET?.length || 0,
+  adminSuperadmins: process.env.ADMIN_SUPERADMINS,
+  nodeEnv: process.env.NODE_ENV
+});
+
 // Optional Supabase admin client for token introspection (fallback)
 let supabaseAdmin = null;
 try {
@@ -124,22 +134,55 @@ export async function authenticateToken(req, res, next) {
     let decodedUser = null;
     
     // Try Supabase JWT verification FIRST for admin routes
-    if (req.path && req.path.includes('admin') && SUPABASE_JWT_SECRET) {
-      try {
-        console.log('🔍 Admin route detected, trying Supabase JWT verification first');
-        const payload = jwt.verify(token, SUPABASE_JWT_SECRET);
-        decodedUser = elevateIfSuperAdmin({
-          id: payload.sub || payload.user_id || 'unknown',
-          email: payload.email,
-          role: payload.role || payload.user_metadata?.role || 'user'
-        });
-        console.log('✅ Supabase JWT verified for admin route:', {
-          email: decodedUser.email,
-          role: decodedUser.role,
-          id: decodedUser.id
-        });
-      } catch (supabaseJwtError) {
-        console.log('❌ Supabase JWT verification failed, trying backend JWT:', supabaseJwtError.message);
+    if (req.path && req.path.includes('admin')) {
+      console.log('🔍 Admin route detected, trying Supabase JWT verification first');
+      console.log('🔍 Environment check:', {
+        hasSupabaseJwtSecret: !!SUPABASE_JWT_SECRET,
+        hasSupabaseAdmin: !!supabaseAdmin,
+        tokenLength: token?.length || 0
+      });
+      
+      if (SUPABASE_JWT_SECRET) {
+        try {
+          console.log('🔍 Attempting SUPABASE_JWT_SECRET verification...');
+          const payload = jwt.verify(token, SUPABASE_JWT_SECRET);
+          decodedUser = elevateIfSuperAdmin({
+            id: payload.sub || payload.user_id || 'unknown',
+            email: payload.email,
+            role: payload.role || payload.user_metadata?.role || 'user'
+          });
+          console.log('✅ Supabase JWT verified for admin route (SUPABASE_JWT_SECRET):', {
+            email: decodedUser.email,
+            role: decodedUser.role,
+            id: decodedUser.id
+          });
+        } catch (supabaseJwtError) {
+          console.log('❌ Supabase JWT verification failed (SUPABASE_JWT_SECRET):', supabaseJwtError.message);
+        }
+      } else if (supabaseAdmin) {
+        try {
+          console.log('🔍 Attempting Supabase service role introspection...');
+          const { data, error } = await supabaseAdmin.auth.getUser(token);
+          if (!error && data?.user) {
+            const supa = data.user;
+            decodedUser = elevateIfSuperAdmin({
+              id: supa.id,
+              email: supa.email,
+              role: supa.user_metadata?.role || 'user'
+            });
+            console.log('✅ Supabase JWT verified for admin route (service role):', {
+              email: decodedUser.email,
+              role: decodedUser.role,
+              id: decodedUser.id
+            });
+          } else {
+            console.log('❌ Supabase service role introspection failed:', error?.message || 'Unknown error');
+          }
+        } catch (serviceRoleError) {
+          console.log('❌ Supabase service role error:', serviceRoleError.message);
+        }
+      } else {
+        console.log('⚠️ No Supabase verification method available (no SUPABASE_JWT_SECRET or service role)');
       }
     }
     

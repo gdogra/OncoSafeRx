@@ -1,16 +1,22 @@
 import jwt from 'jsonwebtoken';
 import supabaseService from '../config/supabase.js';
 import { createClient } from '@supabase/supabase-js';
+import { getEnv, debugEnvVars } from '../utils/env.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
-const SUPABASE_JWT_SECRET = process.env.SUPABASE_JWT_SECRET || null;
+const JWT_SECRET = getEnv('JWT_SECRET', 'your-secret-key-change-in-production');
+const JWT_EXPIRES_IN = getEnv('JWT_EXPIRES_IN', '24h');
+const SUPABASE_JWT_SECRET = getEnv('SUPABASE_JWT_SECRET') || null;
+
+// Debug environment variables on startup
+debugEnvVars(['JWT_SECRET', 'SUPABASE_JWT_SECRET', 'ADMIN_SUPERADMINS', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
 
 // Optional Supabase admin client for token introspection (fallback)
 let supabaseAdmin = null;
 try {
-  if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+  const supabaseUrl = getEnv('SUPABASE_URL');
+  const supabaseServiceKey = getEnv('SUPABASE_SERVICE_ROLE_KEY');
+  if (supabaseUrl && supabaseServiceKey) {
+    supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
   }
 } catch {}
 

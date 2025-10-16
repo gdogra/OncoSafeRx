@@ -3,19 +3,24 @@
 
 import dotenv from 'dotenv';
 import { randomUUID } from 'crypto';
+import { getEnv, getBoolEnv } from '../utils/env.js';
 dotenv.config();
 
 // Optional flag to force offline/no-op mode (useful in restricted network/dev)
-let supabaseDisabled = String(process.env.SUPABASE_DISABLED || process.env.SUPABASE_OFFLINE || '').toLowerCase() === 'true';
+let supabaseDisabled = getBoolEnv('SUPABASE_DISABLED') || getBoolEnv('SUPABASE_OFFLINE');
 
 // Check if Supabase credentials are available and not explicitly disabled
 // In production, prefer enabling Supabase if credentials are present, unless explicitly forced off
-const forceDisable = String(process.env.SUPABASE_FORCE_DISABLED || '').toLowerCase() === 'true';
-if ((process.env.NODE_ENV === 'production') && !forceDisable && (process.env.SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY))) {
+const forceDisable = getBoolEnv('SUPABASE_FORCE_DISABLED');
+const supabaseUrl = getEnv('SUPABASE_URL');
+const supabaseServiceKey = getEnv('SUPABASE_SERVICE_ROLE_KEY');
+const supabaseAnonKey = getEnv('SUPABASE_ANON_KEY');
+
+if ((process.env.NODE_ENV === 'production') && !forceDisable && (supabaseUrl && (supabaseServiceKey || supabaseAnonKey))) {
   supabaseDisabled = false;
 }
 
-const hasSupabaseCredentials = !supabaseDisabled && process.env.SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY);
+const hasSupabaseCredentials = !supabaseDisabled && supabaseUrl && (supabaseServiceKey || supabaseAnonKey);
 
 // No-op Supabase service for environments without Supabase
 export class NoOpSupabaseService {

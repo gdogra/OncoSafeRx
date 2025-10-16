@@ -51,6 +51,7 @@ const Profile = lazy(() => import('./pages/Profile'));
 const Testing = lazy(() => import('./pages/Testing'));
 const Pain = lazy(() => import('./pages/Pain'));
 const Logout = lazy(() => import('./pages/Logout'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const AuthDebug = lazy(() => import('./pages/AuthDebug'));
 const ForceLogout = lazy(() => import('./pages/ForceLogout'));
 

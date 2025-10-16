@@ -602,6 +602,10 @@ const AuthPage: React.FC = () => {
                   'Sign In'
                 )}
               </button>
+              
+              <div className="text-center">
+                <ForgotPasswordLink />
+              </div>
             </form>
           )}
 
@@ -962,6 +966,101 @@ const AuthPage: React.FC = () => {
           This platform is for healthcare professionals only.
         </p>
       </div>
+    </div>
+  );
+};
+
+// Forgot Password Component
+const ForgotPasswordLink: React.FC = () => {
+  const [showResetForm, setShowResetForm] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetStatus, setResetStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [resetMessage, setResetMessage] = useState('');
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!resetEmail || !resetEmail.includes('@')) {
+      setResetStatus('error');
+      setResetMessage('Please enter a valid email address.');
+      return;
+    }
+
+    setResetStatus('sending');
+    setResetMessage('');
+
+    try {
+      const { SupabaseAuthService } = await import('../services/authService');
+      await SupabaseAuthService.requestPasswordReset(resetEmail);
+      setResetStatus('sent');
+      setResetMessage('Password reset email sent! Check your inbox for instructions.');
+      setTimeout(() => {
+        setShowResetForm(false);
+        setResetStatus('idle');
+        setResetMessage('');
+        setResetEmail('');
+      }, 3000);
+    } catch (error: any) {
+      setResetStatus('error');
+      setResetMessage(error.message || 'Failed to send reset email. Please try again.');
+    }
+  };
+
+  if (!showResetForm) {
+    return (
+      <button
+        type="button"
+        onClick={() => setShowResetForm(true)}
+        className="text-sm text-primary-600 hover:text-primary-500 focus:outline-none focus:underline"
+      >
+        Forgot your password?
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-4 p-4 border border-gray-200 rounded-md bg-gray-50">
+      <h3 className="text-sm font-medium text-gray-900 mb-2">Reset Password</h3>
+      <form onSubmit={handleForgotPassword} className="space-y-3">
+        <div>
+          <input
+            type="email"
+            value={resetEmail}
+            onChange={(e) => setResetEmail(e.target.value)}
+            placeholder="Enter your email address"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+            required
+          />
+        </div>
+        
+        {resetMessage && (
+          <div className={`text-xs ${resetStatus === 'error' ? 'text-red-600' : 'text-green-600'}`}>
+            {resetMessage}
+          </div>
+        )}
+        
+        <div className="flex space-x-2">
+          <button
+            type="submit"
+            disabled={resetStatus === 'sending'}
+            className="flex-1 px-3 py-2 bg-primary-600 text-white text-sm rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
+          >
+            {resetStatus === 'sending' ? 'Sending...' : 'Send Reset Email'}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowResetForm(false);
+              setResetStatus('idle');
+              setResetMessage('');
+              setResetEmail('');
+            }}
+            className="px-3 py-2 border border-gray-300 text-gray-700 text-sm rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

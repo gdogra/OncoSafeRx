@@ -1,12 +1,13 @@
 import jwt from 'jsonwebtoken';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import { getEnv } from '../utils/env.js';
 
 dotenv.config();
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const supabaseJwtSecret = process.env.SUPABASE_JWT_SECRET;
+const supabaseUrl = getEnv('SUPABASE_URL');
+const supabaseServiceKey = getEnv('SUPABASE_SERVICE_ROLE_KEY');
+const supabaseJwtSecret = getEnv('SUPABASE_JWT_SECRET');
 
 let supabaseAdmin = null;
 

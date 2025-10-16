@@ -7,6 +7,7 @@ import { generateToken } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import fetch from 'node-fetch';
 import { createClient } from '@supabase/supabase-js';
+import { getEnv } from '../utils/env.js';
 
 const router = express.Router();
 
@@ -32,8 +33,8 @@ router.get('/profile',
       
       // Ensure an app-level users row exists for authenticated users (not for the default fallback)
       try {
-        if (!user.isDefault && user.id && process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-          const admin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+        if (!user.isDefault && user.id && getEnv('SUPABASE_URL') && getEnv('SUPABASE_SERVICE_ROLE_KEY')) {
+          const admin = createClient(getEnv('SUPABASE_URL'), getEnv('SUPABASE_SERVICE_ROLE_KEY'));
           const { data: existing, error: selErr } = await admin
             .from('users')
             .select('id')
@@ -60,8 +61,8 @@ router.get('/profile',
       // Optionally load profile fields from public.users to supplement auth metadata
       let dbRow = null;
       try {
-        if (!user.isDefault && process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-          const admin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+        if (!user.isDefault && getEnv('SUPABASE_URL') && getEnv('SUPABASE_SERVICE_ROLE_KEY')) {
+          const admin = createClient(getEnv('SUPABASE_URL'), getEnv('SUPABASE_SERVICE_ROLE_KEY'));
           const { data: row } = await admin
             .from('users')
             .select('first_name,last_name,role,specialty,institution,license_number,years_experience,preferences,persona')
@@ -186,8 +187,8 @@ router.put('/profile',
       console.log('🔄 Updates:', updates);
       
       // Create Supabase admin client for user metadata updates
-      const url = process.env.SUPABASE_URL;
-      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      const url = getEnv("SUPABASE_URL");
+      const serviceKey = getEnv("SUPABASE_SERVICE_ROLE_KEY");
       
       if (!url || !serviceKey) {
         return res.status(500).json({ error: 'Supabase service not configured' });
@@ -333,13 +334,13 @@ router.post('/demo/profile', asyncHandler(async (req, res) => {
   try {
     const devAllowed = ((process.env.NODE_ENV || 'development') === 'development') 
       || ((process.env.DEMO_PROFILE_ENABLED || '').toLowerCase() === 'true')
-      || !!process.env.SUPABASE_SERVICE_ROLE_KEY; // allow when server can securely write
+      || !!getEnv("SUPABASE_SERVICE_ROLE_KEY"); // allow when server can securely write
     if (!devAllowed) {
       return res.status(403).json({ error: 'Demo profile creation not allowed in this environment' });
     }
 
-    const url = process.env.SUPABASE_URL;
-    const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const url = getEnv("SUPABASE_URL");
+    const service = getEnv("SUPABASE_SERVICE_ROLE_KEY");
     if (!url || !service) {
       return res.status(500).json({ error: 'Supabase service not configured' });
     }
@@ -374,13 +375,13 @@ router.delete('/demo/profile/:id', asyncHandler(async (req, res) => {
   try {
     const devAllowed = ((process.env.NODE_ENV || 'development') === 'development') 
       || ((process.env.DEMO_PROFILE_ENABLED || '').toLowerCase() === 'true')
-      || !!process.env.SUPABASE_SERVICE_ROLE_KEY; // allow when server can securely write
+      || !!getEnv("SUPABASE_SERVICE_ROLE_KEY"); // allow when server can securely write
     if (!devAllowed) {
       return res.status(403).json({ error: 'Demo profile deletion not allowed in this environment' });
     }
 
-    const url = process.env.SUPABASE_URL;
-    const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const url = getEnv("SUPABASE_URL");
+    const service = getEnv("SUPABASE_SERVICE_ROLE_KEY");
     if (!url || !service) {
       return res.status(500).json({ error: 'Supabase service not configured' });
     }
@@ -404,13 +405,13 @@ router.post('/demo/reset', asyncHandler(async (req, res) => {
   try {
     const devAllowed = ((process.env.NODE_ENV || 'development') === 'development') 
       || ((process.env.DEMO_PROFILE_ENABLED || '').toLowerCase() === 'true')
-      || !!process.env.SUPABASE_SERVICE_ROLE_KEY; // allow when server can securely write
+      || !!getEnv("SUPABASE_SERVICE_ROLE_KEY"); // allow when server can securely write
     if (!devAllowed) {
       return res.status(403).json({ error: 'Demo profile reset not allowed in this environment' });
     }
 
-    const url = process.env.SUPABASE_URL;
-    const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const url = getEnv("SUPABASE_URL");
+    const service = getEnv("SUPABASE_SERVICE_ROLE_KEY");
     if (!url || !service) {
       return res.status(500).json({ error: 'Supabase service not configured' });
     }
@@ -546,8 +547,8 @@ router.post('/proxy/login', requireProxyEnabled, checkAllowedOrigin, proxyLimite
   const origin = req.headers.origin || req.headers.referer || '';
   console.log('[auth-proxy] login requested for', maskEmail(email), 'from origin', origin);
 
-  const url = process.env.SUPABASE_URL;
-  const anon = process.env.SUPABASE_ANON_KEY;
+  const url = getEnv("SUPABASE_URL");
+  const anon = getEnv("SUPABASE_ANON_KEY");
   if (!url || !anon) {
     proxyAuthCounter.inc({ endpoint: 'login', outcome: 'error' });
     return res.status(500).json({ error: 'Supabase not configured on server', code: 'not_configured' });
@@ -601,8 +602,8 @@ router.post('/proxy/login', requireProxyEnabled, checkAllowedOrigin, proxyLimite
 router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimiter, validateBody(signupSchema), asyncHandler(async (req, res) => {
   const { email, password, metadata = {} } = req.body || {};
 
-  const url = process.env.SUPABASE_URL;
-  const anon = process.env.SUPABASE_ANON_KEY;
+  const url = getEnv("SUPABASE_URL");
+  const anon = getEnv("SUPABASE_ANON_KEY");
   if (!url || !anon) {
     proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
     return res.status(500).json({ error: 'Supabase not configured on server', code: 'not_configured' });
@@ -644,8 +645,8 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
 router.post('/proxy/reset', requireProxyEnabled, checkAllowedOrigin, proxyLimiter, validateBody(resetSchema), asyncHandler(async (req, res) => {
   const { email, redirectTo } = req.body || {};
 
-  const url = process.env.SUPABASE_URL;
-  const anon = process.env.SUPABASE_ANON_KEY;
+  const url = getEnv("SUPABASE_URL");
+  const anon = getEnv("SUPABASE_ANON_KEY");
   if (!url || !anon) return res.status(500).json({ error: 'Supabase not configured on server', code: 'not_configured' });
 
   const endpoint = `${url}/auth/v1/recover`;
@@ -745,8 +746,8 @@ router.post('/demo/session', async (req, res) => {
  */
 router.post('/backfill/profiles', asyncHandler(async (req, res) => {
   try {
-    const url = process.env.SUPABASE_URL;
-    const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const url = getEnv("SUPABASE_URL");
+    const service = getEnv("SUPABASE_SERVICE_ROLE_KEY");
     const adminToken = process.env.BACKFILL_TOKEN || '';
     const provided = req.headers['x-admin-token'] || req.query.token;
     if (!url || !service) return res.status(500).json({ error: 'Supabase service not configured' });
@@ -829,8 +830,8 @@ router.post('/backfill/profiles', asyncHandler(async (req, res) => {
  * Body: { email: string, password?: string, metadata?: object }
  */
 router.post('/admin/create-user', asyncHandler(async (req, res) => {
-  const url = process.env.SUPABASE_URL;
-  const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = getEnv("SUPABASE_URL");
+  const service = getEnv("SUPABASE_SERVICE_ROLE_KEY");
   const adminToken = process.env.BACKFILL_TOKEN || '';
   if (!url || !service) return res.status(500).json({ error: 'Supabase service not configured' });
   const provided = req.headers['x-admin-token'] || req.query.token;
@@ -920,8 +921,8 @@ router.post('/admin/create-user', asyncHandler(async (req, res) => {
  * Body: { email: string }
  */
 router.post('/admin/link-user', asyncHandler(async (req, res) => {
-  const url = process.env.SUPABASE_URL;
-  const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = getEnv("SUPABASE_URL");
+  const service = getEnv("SUPABASE_SERVICE_ROLE_KEY");
   const adminToken = process.env.BACKFILL_TOKEN || '';
   if (!url || !service) return res.status(500).json({ error: 'Supabase service not configured' });
   const provided = req.headers['x-admin-token'] || req.query.token;

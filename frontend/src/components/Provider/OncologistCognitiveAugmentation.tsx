@@ -329,7 +329,7 @@ const OncologistCognitiveAugmentation: React.FC = () => {
           retrievalTime: Math.floor(Math.random() * 100) + 20,
           actionTaken: ['Applied to treatment', 'Flagged for review', 'Shared with team', 'Saved for later'][j % 4],
         })),
-        contextualInsights: Array.from({ length, 10 }, (_, j) => ({
+        contextualInsights: Array.from({ length: 10 }, (_, j) => ({
           patientContext: `Patient context ${j}`,
           insight: `Clinical insight ${j}`,
           evidenceStrength: 70 + Math.random() * 30,
@@ -340,7 +340,7 @@ const OncologistCognitiveAugmentation: React.FC = () => {
     };
 
     const generateMockOracles = (): RealTimeDecisionOracle[] => {
-      return Array.from({ length, 3 }, (_, i) => ({
+      return Array.from({ length: 3 }, (_, i) => ({
         id: `oracle-${i}`,
         patientId: `patient-${i}`,
         currentDilemma: {

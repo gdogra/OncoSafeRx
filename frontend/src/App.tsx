@@ -80,6 +80,21 @@ const FHIRPatients = lazy(() => import('./pages/FHIRPatients'));
 const ArticleLabResults = lazy(() => import('./pages/ArticleLabResults'));
 const VideoSupportNetwork = lazy(() => import('./pages/VideoSupportNetwork'));
 
+// Advanced Patient Portal Components
+const EnhancedPatientPortal = lazy(() => import('./components/Patient/EnhancedPatientPortal'));
+const GenomicJourneyTracker = lazy(() => import('./components/Genomics/GenomicJourneyTracker'));
+const SymptomIntelligencePlatform = lazy(() => import('./components/Symptoms/SymptomIntelligencePlatform'));
+const DigitalBiomarkersTracker = lazy(() => import('./components/Monitoring/DigitalBiomarkersTracker'));
+const GeneticTwinNetwork = lazy(() => import('./components/Community/GeneticTwinNetwork'));
+const TreatmentSimulationLab = lazy(() => import('./components/Treatment/TreatmentSimulationLab'));
+const MedicationIntelligenceEngine = lazy(() => import('./components/Medication/MedicationIntelligenceEngine'));
+const ResearchParticipationHub = lazy(() => import('./components/Research/ResearchParticipationHub'));
+
+// Advanced Care & Collaboration Components
+const CareCoordinationHub = lazy(() => import('./components/Care/CareCoordinationHub'));
+const RealTimeCollaborationPlatform = lazy(() => import('./components/Collaboration/RealTimeCollaborationPlatform'));
+const PredictiveAnalyticsDashboard = lazy(() => import('./components/Analytics/PredictiveAnalyticsDashboard'));
+
 // Feature flag to disable patient UI routes (build-time)
 const PATIENTS_DISABLED = String((import.meta as any)?.env?.VITE_PATIENTS_DISABLED || '').toLowerCase() === 'true';
 
@@ -694,6 +709,87 @@ function AppWithAuth() {
                   <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
                     <Layout>
                       <AdvancedWorkflowSystem />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                
+                {/* Advanced Patient Portal Routes */}
+                <Route path="/patient-portal" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <EnhancedPatientPortal />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/genomic-journey" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'researcher']}>
+                    <Layout>
+                      <GenomicJourneyTracker />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/symptom-intelligence" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <SymptomIntelligencePlatform />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/biomarkers-tracking" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <DigitalBiomarkersTracker />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/genetic-twins" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'researcher']}>
+                    <Layout>
+                      <GeneticTwinNetwork />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/treatment-simulation" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist']}>
+                    <Layout>
+                      <TreatmentSimulationLab />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/medication-intelligence" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse']}>
+                    <Layout>
+                      <MedicationIntelligenceEngine />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/research-participation" element={
+                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'researcher']}>
+                    <Layout>
+                      <ResearchParticipationHub />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                
+                {/* Advanced Care & Collaboration Routes */}
+                <Route path="/care-coordination" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
+                    <Layout>
+                      <CareCoordinationHub />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/collaboration-platform" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
+                    <Layout>
+                      <RealTimeCollaborationPlatform />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/predictive-analytics" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'researcher', 'admin']}>
+                    <Layout>
+                      <PredictiveAnalyticsDashboard />
                     </Layout>
                   </ProtectedRoute>
                 } />

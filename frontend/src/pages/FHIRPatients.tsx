@@ -118,8 +118,8 @@ const FHIRPatients: React.FC = () => {
           .map((m: any) => (typeof m?.name === 'string' ? m.name : null))
           .filter((n: any): n is string => !!n);
         const unique = Array.from(new Set(names));
-        setMedOptions(unique);
-        if (unique.length && !trialDrug) setTrialDrug(unique[0]);
+        setMedOptions(unique as string[]);
+        if (unique.length && !trialDrug) setTrialDrug(unique[0] as string);
       } catch {}
     } catch (e: any) {
       setError(e?.message || 'Failed to load patient');

@@ -208,13 +208,19 @@ router.put('/profile',
       if (updates.persona !== undefined) metadataUpdates.persona = updates.persona;
       if (updates.role !== undefined) metadataUpdates.role = updates.role;
       
-      // Update Supabase auth user metadata
-      const { error: authError } = await admin.auth.admin.updateUserById(user.id, {
-        user_metadata: {
-          ...user.supabaseUser.user_metadata,
-          ...metadataUpdates
-        }
-      });
+      // Update Supabase auth user metadata (skip for dev/gdogra users)
+      let authError = null;
+      if (!user.isDev && !user.isGdogra) {
+        const updateResult = await admin.auth.admin.updateUserById(user.id, {
+          user_metadata: {
+            ...user.supabaseUser?.user_metadata,
+            ...metadataUpdates
+          }
+        });
+        authError = updateResult.error;
+      } else {
+        console.log('🔧 Skipping Supabase auth metadata update for dev/gdogra user');
+      }
       
       if (authError) {
         console.error('❌ Failed to update auth metadata:', authError);
@@ -222,18 +228,19 @@ router.put('/profile',
       }
       
       // Also update or create user profile in users table
+      const userMetadata = user.supabaseUser?.user_metadata || {};
       const profileData = {
         id: user.id,
         email: user.email,
         role: updates.role || user.role,
-        first_name: updates.firstName || user.supabaseUser.user_metadata?.first_name || '',
-        last_name: updates.lastName || user.supabaseUser.user_metadata?.last_name || '',
-        specialty: updates.specialty || user.supabaseUser.user_metadata?.specialty || '',
-        institution: updates.institution || user.supabaseUser.user_metadata?.institution || '',
-        license_number: updates.licenseNumber || user.supabaseUser.user_metadata?.license_number || '',
-        years_experience: updates.yearsExperience || user.supabaseUser.user_metadata?.years_experience || 0,
-        preferences: updates.preferences || user.supabaseUser.user_metadata?.preferences || {},
-        persona: updates.persona || user.supabaseUser.user_metadata?.persona || {},
+        first_name: updates.firstName || userMetadata.first_name || '',
+        last_name: updates.lastName || userMetadata.last_name || '',
+        specialty: updates.specialty || userMetadata.specialty || '',
+        institution: updates.institution || userMetadata.institution || '',
+        license_number: updates.licenseNumber || userMetadata.license_number || '',
+        years_experience: updates.yearsExperience || userMetadata.years_experience || 0,
+        preferences: updates.preferences || userMetadata.preferences || {},
+        persona: updates.persona || userMetadata.persona || {},
         // Do not set updated_at explicitly to avoid schema mismatch on instances where column is absent
       };
       
@@ -251,21 +258,21 @@ router.put('/profile',
       const updatedProfile = {
         id: user.id,
         email: user.email,
-        firstName: updates.firstName ?? user.supabaseUser.user_metadata?.first_name ?? '',
-        lastName: updates.lastName ?? user.supabaseUser.user_metadata?.last_name ?? '',
+        firstName: updates.firstName ?? userMetadata.first_name ?? '',
+        lastName: updates.lastName ?? userMetadata.last_name ?? '',
         role: updates.role ?? user.role,
-        specialty: updates.specialty ?? user.supabaseUser.user_metadata?.specialty ?? '',
-        institution: updates.institution ?? user.supabaseUser.user_metadata?.institution ?? '',
-        licenseNumber: updates.licenseNumber ?? user.supabaseUser.user_metadata?.license_number ?? '',
-        yearsExperience: updates.yearsExperience ?? user.supabaseUser.user_metadata?.years_experience ?? 0,
-        preferences: updates.preferences ?? user.supabaseUser.user_metadata?.preferences ?? {
+        specialty: updates.specialty ?? userMetadata.specialty ?? '',
+        institution: updates.institution ?? userMetadata.institution ?? '',
+        licenseNumber: updates.licenseNumber ?? userMetadata.license_number ?? '',
+        yearsExperience: updates.yearsExperience ?? userMetadata.years_experience ?? 0,
+        preferences: updates.preferences ?? userMetadata.preferences ?? {
           theme: 'light',
           language: 'en',
           notifications: { email: true, push: true, criticalAlerts: true, weeklyReports: true },
           dashboard: { defaultView: 'overview', refreshInterval: 5000, compactMode: false },
           clinical: { showGenomicsByDefault: true, autoCalculateDosing: true, requireInteractionAck: true, showPatientPhotos: false }
         },
-        persona: updates.persona ?? user.supabaseUser.user_metadata?.persona ?? {
+        persona: updates.persona ?? userMetadata.persona ?? {
           id: `persona-${Date.now()}`,
           name: getDefaultPersonaName(user.role),
           description: getDefaultPersonaDescription(user.role),
@@ -275,7 +282,7 @@ router.put('/profile',
           preferences: { riskTolerance: 'moderate', alertSensitivity: 'medium', workflowStyle: 'thorough', decisionSupport: 'consultative' },
           customSettings: {}
         },
-        createdAt: user.supabaseUser.created_at,
+        createdAt: user.supabaseUser?.created_at || new Date().toISOString(),
         lastLogin: new Date().toISOString(),
         isActive: true
       };

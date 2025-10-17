@@ -333,6 +333,104 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         ]
       },
       {
+        title: 'Advanced Patient Care',
+        items: [
+          { 
+            path: '/patient-portal', 
+            label: 'Patient Portal', 
+            icon: Activity, 
+            description: 'AI-powered patient dashboard',
+            roles: ['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse'],
+            requiresPermission: null
+          },
+          { 
+            path: '/genomic-journey', 
+            label: 'Genomic Journey', 
+            icon: Dna, 
+            description: 'Interactive genomic analysis timeline',
+            roles: ['patient', 'caregiver', 'oncologist', 'pharmacist', 'researcher'],
+            requiresPermission: null
+          },
+          { 
+            path: '/symptom-intelligence', 
+            label: 'Symptom Intelligence', 
+            icon: Brain, 
+            description: 'AI-powered symptom tracking',
+            roles: ['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse'],
+            requiresPermission: null
+          },
+          { 
+            path: '/biomarkers-tracking', 
+            label: 'Digital Biomarkers', 
+            icon: Smartphone, 
+            description: 'Continuous health monitoring',
+            roles: ['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse'],
+            requiresPermission: null
+          },
+          { 
+            path: '/genetic-twins', 
+            label: 'Genetic Twins', 
+            icon: Users, 
+            description: 'Connect with genetic matches',
+            roles: ['patient', 'caregiver', 'researcher'],
+            requiresPermission: null
+          },
+          { 
+            path: '/treatment-simulation', 
+            label: 'Treatment Simulation', 
+            icon: Target, 
+            description: 'Simulate treatment scenarios',
+            roles: ['patient', 'caregiver', 'oncologist', 'pharmacist'],
+            requiresPermission: null
+          },
+          { 
+            path: '/medication-intelligence', 
+            label: 'Medication Intelligence', 
+            icon: Pill, 
+            description: 'Smart medication management',
+            roles: ['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse'],
+            requiresPermission: null
+          },
+          { 
+            path: '/research-participation', 
+            label: 'Research Hub', 
+            icon: TestTube, 
+            description: 'Find and join research studies',
+            roles: ['patient', 'caregiver', 'oncologist', 'researcher'],
+            requiresPermission: null
+          },
+        ]
+      },
+      {
+        title: 'Care Coordination & Analytics',
+        items: [
+          { 
+            path: '/care-coordination', 
+            label: 'Care Coordination', 
+            icon: Users, 
+            description: 'Streamline care team collaboration',
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher'],
+            requiresPermission: null
+          },
+          { 
+            path: '/collaboration-platform', 
+            label: 'Team Collaboration', 
+            icon: MessageSquare, 
+            description: 'Real-time communication platform',
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher'],
+            requiresPermission: null
+          },
+          { 
+            path: '/predictive-analytics', 
+            label: 'Predictive Analytics', 
+            icon: TrendingUp, 
+            description: 'AI-powered insights and forecasting',
+            roles: ['oncologist', 'pharmacist', 'researcher', 'admin'],
+            requiresPermission: null
+          },
+        ]
+      },
+      {
         title: 'Connected Health',
         items: [
           { 

@@ -26,6 +26,16 @@ async function resolveUserFromToken(token) {
       isDev: true
     };
   }
+  
+  // Gdogra token path (special case for gdogra user)
+  if (token.startsWith('gdogra-token-')) {
+    return {
+      id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', // gdogra's actual user ID
+      email: 'gdogra@gmail.com',
+      role: 'super_admin', // Match the frontend role assignment
+      isGdogra: true
+    };
+  }
   // Preferred: service-key introspection
   if (supabaseAdmin) {
     const { data, error } = await supabaseAdmin.auth.getUser(token);

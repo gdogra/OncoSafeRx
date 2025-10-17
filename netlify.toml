@@ -12,7 +12,7 @@
   CI = "false"
   BUILD_TIMEOUT = "15"
   # Force cache bust for production fix - 2025-10-07T09:15:00Z  
-  BUILD_TIMESTAMP = "2025-10-15T00:00:00Z"
+  BUILD_TIMESTAMP = "2025-10-17T01:55:00Z"
   # Backend base URL for non-Netlify custom domains fallback
   VITE_BACKEND_URL = "https://oncosaferx-backend.onrender.com"
   VITE_APP_VERSION = "20.0.0"
@@ -82,7 +82,7 @@
   VITE_EMERGENCY_APP_AUTH = "false"
   VITE_DISABLE_SAMPLE_PATIENTS = "true"
   # Switch to Edge Functions for API proxy
-  BUILD_ID = "restore-working-config-20251007-0915"
+  BUILD_ID = "advanced-features-deployment-20251017-0155"
 
 [context.deploy-preview.environment]
   VITE_API_URL = "https://your-preview-api.example.com/api"

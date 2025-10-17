@@ -113,11 +113,6 @@ export class NoOpSupabaseService {
     for (const user of this.users.values()) {
       if (user.email === email) {
         const userCopy = { ...user };
-        // Manual role override for specific users
-        if (email === 'gdogra@gmail.com') {
-          console.log('🔧 BACKEND MANUAL OVERRIDE: Setting gdogra@gmail.com to super_admin role');
-          userCopy.role = 'super_admin';
-        }
         return Promise.resolve(userCopy);
       }
     }

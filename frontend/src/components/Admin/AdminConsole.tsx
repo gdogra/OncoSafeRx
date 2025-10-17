@@ -28,9 +28,11 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as ReTooltip, Legend, LineChart, Line } from 'recharts';
 import { useRBAC, ROLES, PERMISSIONS } from '../../utils/rbac';
 import visitorTracking from '../../services/visitorTracking';
 import LogoutButton from './LogoutButton';
+import { useToast } from '../UI/Toast';
 import Breadcrumbs from '../UI/Breadcrumbs';
 import AdminAuthBanner from './AdminAuthBanner';
 import AccessDeniedBanner from './AccessDeniedBanner';
@@ -79,6 +81,23 @@ const AdminConsole: React.FC = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
+  // Integrations state
+  const [intHealth, setIntHealth] = useState<{ ok: boolean; tenants: Array<{ tenant: string; hasActive: boolean; hasNext: boolean; activeCount: number; nextCount: number }>; missingActive: string[] } | null>(null);
+  const [intUsage, setIntUsage] = useState<Record<string, { active: number; next: number; total: number; lastUsed?: string | null; lastPhase?: string | null }>>({});
+  const [intForm, setIntForm] = useState<{ tenant: string; nextKeys: string; promote: boolean; retireActive: boolean }>({ tenant: '', nextKeys: '', promote: false, retireActive: true });
+  const [intUpdate, setIntUpdate] = useState<{ tenant: string; phase: 'active' | 'next'; add: string; remove: string }>({ tenant: '', phase: 'active', add: '', remove: '' });
+  const [intBusyRotate, setIntBusyRotate] = useState(false);
+  const [intBusyUpdate, setIntBusyUpdate] = useState(false);
+  const [intForceDangerous, setIntForceDangerous] = useState(false);
+  const [rowForce, setRowForce] = useState<Record<string, boolean>>({});
+  const [issuesOnly, setIssuesOnly] = useState(false);
+  const [intSeries, setIntSeries] = useState<Record<string, Array<{ date: string; active: number; next: number; total: number }>>>({});
+  const [seriesDays, setSeriesDays] = useState(30);
+  const [seriesExpanded, setSeriesExpanded] = useState(false);
+  const [highlightZeros, setHighlightZeros] = useState(true);
+  const [hideNoActivity, setHideNoActivity] = useState(false);
+  const [seriesExportTenant, setSeriesExportTenant] = useState<string>('');
   
   // Audit log state
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
@@ -92,6 +111,8 @@ const AdminConsole: React.FC = () => {
       return;
     }
     loadAdminData();
+    // Preload integrations to show tab badge if needed
+    loadIntegrations();
   }, []);
 
   const loadAdminData = async () => {
@@ -176,6 +197,134 @@ const AdminConsole: React.FC = () => {
   const loadSchedules = async () => {
     try { const resp = await fetch('/api/push/schedules'); const body = await resp.json(); if (resp.ok) setSchedules(body?.schedules || []); } catch {}
   };
+
+  // Integrations: loaders and actions
+  const loadIntegrations = async () => {
+    try {
+      const h = await adminApi.get('/api/admin/integrations/keys/health');
+      const hb = await h.json();
+      setIntHealth(hb);
+    } catch (e) { setIntHealth(null as any); }
+    try {
+      const u = await adminApi.get('/api/admin/integrations/keys/usage');
+      const ub = await u.json();
+      setIntUsage(ub?.usage || {});
+    } catch (e) { setIntUsage({}); }
+    try {
+      const ts = await adminApi.get(`/api/admin/integrations/keys/usage/timeseries?days=${seriesDays}`);
+      const tb = await ts.json();
+      setIntSeries(tb?.series || {});
+    } catch (e) { setIntSeries({}); }
+  };
+
+  // CSV helpers
+  const downloadCsv = (filename: string, rows: string[][]) => {
+    const csv = rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+  const exportHealthCsv = () => {
+    if (!intHealth) return;
+    const rows: string[][] = [[ 'tenant','hasActive','hasNext','activeCount','nextCount' ]];
+    (intHealth.tenants || []).forEach(t => rows.push([t.tenant, String(t.hasActive), String(t.hasNext), String(t.activeCount), String(t.nextCount)]));
+    downloadCsv(`tenant_health_${new Date().toISOString().slice(0,10)}.csv`, rows);
+  };
+  const exportUsageCsv = () => {
+    const rows: string[][] = [[ 'tenant','active','next','total','active24h','next24h','total24h','lastUsed','lastPhase' ]];
+    Object.entries(intUsage).forEach(([tenant, v]: any) => rows.push([
+      tenant, String(v.active||0), String(v.next||0), String(v.total||0), String(v.active24h||0), String(v.next24h||0), String(v.total24h||0), v.lastUsed || '', v.lastPhase || ''
+    ]));
+    downloadCsv(`tenant_usage_${new Date().toISOString().slice(0,10)}.csv`, rows);
+  };
+  const exportSeriesCsvAll = () => {
+    const rows: string[][] = [[ 'tenant','date','active','next','total' ]];
+    Object.entries(intSeries).forEach(([tenant, arr]: any) => {
+      (arr || []).forEach((p: any) => rows.push([tenant, p.date, String(p.active||0), String(p.next||0), String(p.total||0)]));
+    });
+    downloadCsv(`tenant_timeseries_${seriesDays}d_${new Date().toISOString().slice(0,10)}.csv`, rows);
+  };
+  const exportSeriesCsvTenant = () => {
+    const t = seriesExportTenant || Object.keys(intSeries)[0];
+    if (!t) return;
+    const arr: any[] = (intSeries as any)[t] || [];
+    const rows: string[][] = [[ 'tenant','date','active','next','total' ]];
+    arr.forEach((p: any) => rows.push([t, p.date, String(p.active||0), String(p.next||0), String(p.total||0)]));
+    downloadCsv(`tenant_${t}_timeseries_${seriesDays}d_${new Date().toISOString().slice(0,10)}.csv`, rows);
+  };
+  const rotateKeys = async () => {
+    try {
+      const nextKeysArr = intForm.nextKeys.split(/\s|,|\n/).map(s => s.trim()).filter(Boolean);
+      if (!intForm.tenant) { showToast('error', 'Tenant is required'); return; }
+      if (!intForm.promote && nextKeysArr.length === 0) { showToast('error', 'Provide next keys or enable promote'); return; }
+      const body = {
+        tenant: intForm.tenant,
+        nextKeys: nextKeysArr,
+        promote: intForm.promote,
+        retireActive: intForm.retireActive
+      };
+      if (body.promote && body.retireActive) {
+        const ok = window.confirm('This will promote NEXT keys and retire current ACTIVE keys for this tenant. Existing clients using old keys will stop working. Continue?');
+        if (!ok) return;
+      }
+      setIntBusyRotate(true);
+      const resp = await adminApi.post('/api/admin/integrations/keys/rotate', body);
+      const data = await resp.json();
+      await loadIntegrations();
+      setIntForm({ tenant: '', nextKeys: '', promote: false, retireActive: true });
+      showToast('success', data?.promoted ? 'Keys promoted' : 'Next keys added');
+    } catch (e: any) {
+      showToast('error', e?.message || 'Rotation failed');
+    } finally {
+      setIntBusyRotate(false);
+    }
+  };
+  const updateKeys = async () => {
+    try {
+      const addArr = intUpdate.add.split(/\s|,|\n/).map(s => s.trim()).filter(Boolean);
+      const removeArr = intUpdate.remove.split(/\s|,|\n/).map(s => s.trim()).filter(Boolean);
+      if (!intUpdate.tenant) { showToast('error', 'Tenant is required'); return; }
+      if (addArr.length === 0 && removeArr.length === 0) { showToast('error', 'Provide keys to add or remove'); return; }
+      const body = {
+        tenant: intUpdate.tenant,
+        phase: intUpdate.phase,
+        add: addArr,
+        remove: removeArr,
+        force: intForceDangerous
+      };
+      setIntBusyUpdate(true);
+      const resp = await adminApi.post('/api/admin/integrations/keys/update', body);
+      const data = await resp.json();
+      await loadIntegrations();
+      setIntUpdate({ tenant: '', phase: 'active', add: '', remove: '' });
+      showToast('success', 'Keys updated');
+    } catch (e: any) {
+      showToast('error', e?.message || 'Update failed');
+    } finally {
+      setIntBusyUpdate(false);
+    }
+  };
+
+  const clearPhase = async (tenant: string, phase: 'active'|'next', forceOverride?: boolean) => {
+    try {
+      const danger = phase === 'active' ? 'This will remove all ACTIVE keys for this tenant and may lock out integrations if no NEXT keys are promoted. Continue?' : 'This will remove all NEXT keys for this tenant. Continue?'
+      const ok = window.confirm(danger)
+      if (!ok) return
+      const effectiveForce = typeof forceOverride === 'boolean' ? forceOverride : (rowForce[tenant] || intForceDangerous)
+      const resp = await adminApi.post('/api/admin/integrations/keys/clear', { tenant, phase, force: effectiveForce })
+      await resp.json()
+      await loadIntegrations()
+      showToast('success', `Cleared ${phase} keys for ${tenant}`)
+    } catch (e: any) {
+      showToast('error', e?.message || 'Clear failed')
+    }
+  }
   const createSchedule = async () => {
     try { const resp = await fetch('/api/push/schedules', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(schedForm) } as any); if (resp.ok) { setPushStatus('Schedule created'); setSchedForm({ title: '', body: '', url: '/', requireInteraction: false, scheduledAt: '', audience: 'all' }); loadSchedules(); } } catch {}
   };
@@ -186,6 +335,7 @@ const AdminConsole: React.FC = () => {
     if (activeTab === 'subscriptions') loadSubs();
     if (activeTab === 'schedules') loadSchedules();
     if (activeTab === 'role_management') loadRoleUsers();
+    if (activeTab === 'integrations') loadIntegrations();
   }, [activeTab]);
 
   const loadRoleUsers = async () => {
@@ -586,6 +736,7 @@ const AdminConsole: React.FC = () => {
             { id: 'users', label: 'Users', icon: Users, permission: 'manage_users' },
             { id: 'role_management', label: 'Role Management', icon: Users, permission: 'manage_roles' },
             { id: 'analytics', label: 'Analytics', icon: BarChart3, permission: 'view_visitor_analytics' },
+            { id: 'integrations', label: 'Integrations', icon: Globe, permission: 'manage_system_settings' },
             { id: 'system', label: 'System', icon: Settings, permission: 'manage_system_settings' },
             { id: 'audit', label: 'Audit Logs', icon: FileText, permission: 'view_audit_logs' },
             ...(PUSH_ADMIN_ENABLED ? [
@@ -606,7 +757,12 @@ const AdminConsole: React.FC = () => {
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                <span>{tab.label}</span>
+                <span className="relative inline-flex items-center">
+                  {tab.label}
+                  {tab.id === 'integrations' && intHealth && intHealth.missingActive && intHealth.missingActive.length > 0 && (
+                    <span className="ml-1 inline-flex h-2 w-2 rounded-full bg-red-500" aria-label="Attention required"></span>
+                  )}
+                </span>
               </button>
             );
           })}
@@ -617,6 +773,294 @@ const AdminConsole: React.FC = () => {
       {activeTab === 'overview' && renderOverview()}
       {activeTab === 'users' && renderUsers()}
       {activeTab === 'analytics' && renderAnalytics()}
+      {activeTab === 'integrations' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Tenant API Keys Health</h3>
+            {!intHealth ? (
+              <p className="text-sm text-gray-600">Loading…</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <div className="flex items-center justify-end mb-2">
+                  <label className="inline-flex items-center gap-2 text-xs text-gray-700">
+                    <input type="checkbox" checked={issuesOnly} onChange={e => setIssuesOnly(e.target.checked)} />
+                    Show only issues (missing active or 0 requests in 24h)
+                  </label>
+                  <button onClick={exportHealthCsv} className="ml-3 px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800">Export CSV</button>
+                </div>
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 text-left text-gray-600">
+                      <th className="px-3 py-2">Tenant</th>
+                      <th className="px-3 py-2">Active Keys</th>
+                      <th className="px-3 py-2">Next Keys</th>
+                      <th className="px-3 py-2">Last Used</th>
+                      <th className="px-3 py-2">Status</th>
+                      <th className="px-3 py-2">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(intHealth.tenants || []).filter(t => {
+                      if (!issuesOnly) return true;
+                      const u = intUsage[t.tenant] || {} as any;
+                      const zero24h = (u.total24h || 0) === 0;
+                      return !t.hasActive || zero24h;
+                    }).map(t => {
+                      const u = intUsage[t.tenant] || { lastUsed: null, lastPhase: null, active: 0, next: 0, total: 0 } as any
+                      const last = u.lastUsed ? formatLastLogin(u.lastUsed) : '—'
+                      return (
+                        <tr key={t.tenant} className="border-b">
+                          <td className="px-3 py-2">{t.tenant}</td>
+                          <td className="px-3 py-2">{t.activeCount}</td>
+                          <td className="px-3 py-2">{t.nextCount}</td>
+                          <td className="px-3 py-2">
+                            <span className="inline-flex items-center gap-1">
+                              {last} {u.lastPhase ? `(${u.lastPhase})` : ''}
+                              <Tooltip
+                                content={<div>
+                                  <div><strong>24h</strong></div>
+                                  <div>Active: {u.active24h || 0}</div>
+                                  <div>Next: {u.next24h || 0}</div>
+                                  <div>Total: {u.total24h || 0}</div>
+                                </div>}
+                                type="help"
+                                position="top"
+                                iconOnly
+                              />
+                            </span>
+                          </td>
+                          <td className="px-3 py-2">
+                            <span className={`px-2 py-0.5 rounded text-xs ${t.hasActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{t.hasActive ? 'OK' : 'Missing active'}</span>
+                          </td>
+                          <td className="px-3 py-2 space-x-2">
+                            <button
+                              disabled={!t.hasNext}
+                              onClick={async () => {
+                                const ok = window.confirm(`Promote NEXT keys to ACTIVE for ${t.tenant} and retire current ACTIVE keys?`)
+                                if (!ok) return
+                                try {
+                                  const resp = await adminApi.post('/api/admin/integrations/keys/rotate', { tenant: t.tenant, nextKeys: [], promote: true, retireActive: true })
+                                  await resp.json()
+                                  showToast('success', `Promoted NEXT→ACTIVE for ${t.tenant}`)
+                                  loadIntegrations()
+                                } catch (e: any) { showToast('error', e?.message || 'Promote failed') }
+                              }}
+                              className={`px-2 py-1 rounded text-xs text-white ${t.hasNext ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-300 cursor-not-allowed'}`}
+                            >Promote NEXT</button>
+                            <button
+                              disabled={!t.hasNext}
+                              onClick={async () => {
+                                const ok = window.confirm(`Merge NEXT keys into ACTIVE for ${t.tenant} (keep existing ACTIVE)?`)
+                                if (!ok) return
+                                try {
+                                  const resp = await adminApi.post('/api/admin/integrations/keys/rotate', { tenant: t.tenant, nextKeys: [], promote: true, retireActive: false })
+                                  await resp.json()
+                                  showToast('success', `Merged NEXT→ACTIVE for ${t.tenant}`)
+                                  loadIntegrations()
+                                } catch (e: any) { showToast('error', e?.message || 'Merge failed') }
+                              }}
+                              className={`px-2 py-1 rounded text-xs text-white ${t.hasNext ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-indigo-300 cursor-not-allowed'}`}
+                            >Promote (merge)</button>
+                            <button
+                              disabled={!t.hasActive}
+                              onClick={() => clearPhase(t.tenant, 'active', rowForce[t.tenant])}
+                              className={`px-2 py-1 rounded text-xs text-white ${t.hasActive ? 'bg-red-600 hover:bg-red-700' : 'bg-red-300 cursor-not-allowed'}`}
+                            >Retire ACTIVE</button>
+                            <button
+                              disabled={!t.hasNext}
+                              onClick={() => clearPhase(t.tenant, 'next', rowForce[t.tenant])}
+                              className={`px-2 py-1 rounded text-xs text-white ${t.hasNext ? 'bg-gray-600 hover:bg-gray-700' : 'bg-gray-300 cursor-not-allowed'}`}
+                            >Clear NEXT</button>
+                            <label className="inline-flex items-center gap-1 text-xs text-gray-700 ml-1 align-middle">
+                              <input type="checkbox" checked={!!rowForce[t.tenant]} onChange={e => setRowForce(prev => ({ ...prev, [t.tenant]: e.target.checked }))} />
+                              Force
+                            </label>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                    {intHealth.tenants.length === 0 && (
+                      <tr><td colSpan={4} className="px-3 py-4 text-center text-gray-600">No tenants configured</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white rounded border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Key Usage (phase)</h3>
+            <div className="overflow-x-auto">
+              <div className="flex items-center justify-end mb-2">
+                <button onClick={exportUsageCsv} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800">Export CSV</button>
+              </div>
+              <table className="min-w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50 text-left text-gray-600">
+                    <th className="px-3 py-2">Tenant</th>
+                    <th className="px-3 py-2">Active</th>
+                    <th className="px-3 py-2">Next</th>
+                    <th className="px-3 py-2">Total</th>
+                    <th className="px-3 py-2">Last 24h</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(intUsage).map(([tenant, v]: any) => (
+                    <tr key={tenant} className="border-b">
+                      <td className="px-3 py-2">{tenant}</td>
+                      <td className="px-3 py-2">{v.active}</td>
+                      <td className="px-3 py-2">{v.next}</td>
+                      <td className="px-3 py-2">{v.total}</td>
+                      <td className="px-3 py-2">{v.total24h || 0}</td>
+                    </tr>
+                  ))}
+                  {Object.keys(intUsage).length === 0 && (
+                    <tr><td colSpan={4} className="px-3 py-4 text-center text-gray-600">No usage recorded</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="bg-white rounded border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Requests in Last 24h</h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={Object.entries(intUsage).map(([tenant, v]: any) => ({ tenant, active24h: v.active24h || 0, next24h: v.next24h || 0 }))}>
+                  <XAxis dataKey="tenant" hide={Object.keys(intUsage).length > 12} interval={0} angle={-30} textAnchor="end" height={50} />
+                  <YAxis allowDecimals={false} />
+                  <ReTooltip />
+                  <Legend />
+                  <Bar dataKey="active24h" stackId="a" fill="#2563eb" name="Active 24h" />
+                  <Bar dataKey="next24h" stackId="a" fill="#9333ea" name="Next 24h" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="bg-white rounded border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold text-gray-900">Tenant Request Trends (last {seriesDays}d)</h3>
+              <div className="flex items-center gap-2">
+                <select value={seriesDays} onChange={e => { setSeriesDays(parseInt(e.target.value as any)); loadIntegrations(); }} className="text-sm border border-gray-300 rounded px-2 py-1">
+                  <option value={7}>7</option>
+                  <option value={14}>14</option>
+                  <option value={30}>30</option>
+                  <option value={60}>60</option>
+                </select>
+                <label className="inline-flex items-center gap-1 text-xs text-gray-700">
+                  <input type="checkbox" checked={highlightZeros} onChange={e => setHighlightZeros(e.target.checked)} />
+                  Highlight zeros
+                </label>
+                <label className="inline-flex items-center gap-1 text-xs text-gray-700">
+                  <input type="checkbox" checked={hideNoActivity} onChange={e => setHideNoActivity(e.target.checked)} />
+                  Hide no-activity tenants
+                </label>
+                <div className="hidden md:flex items-center gap-2">
+                  <select value={seriesExportTenant} onChange={e => setSeriesExportTenant(e.target.value)} className="text-xs border border-gray-300 rounded px-2 py-1 min-w-[8rem]">
+                    <option value="">Select tenant…</option>
+                    {Object.keys(intSeries).map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                  <button onClick={exportSeriesCsvTenant} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800">Export Tenant</button>
+                  <button onClick={exportSeriesCsvAll} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800">Export All</button>
+                </div>
+                <button onClick={() => setSeriesExpanded(!seriesExpanded)} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800">{seriesExpanded ? 'Collapse' : 'Expand'}</button>
+              </div>
+            </div>
+            <div className={`grid gap-4 ${seriesExpanded ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
+              {Object.entries(intSeries)
+                .filter(([tenant, data]: any) => {
+                  if (!hideNoActivity) return true;
+                  try { return (data as any[]).some(p => (p?.total || 0) > 0); } catch { return true; }
+                })
+                .slice(0, seriesExpanded ? undefined : 6)
+                .map(([tenant, data]: any) => {
+                const zero24h = (intUsage[tenant]?.total24h || 0) === 0;
+                const cardBorder = zero24h ? 'border-yellow-300' : 'border-gray-200';
+                return (
+                <div key={tenant} className={`border ${cardBorder} rounded p-3`}>
+                  <div className="text-sm font-medium text-gray-900 mb-1">{tenant}</div>
+                  <div className="h-24">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={data} margin={{ left: 4, right: 4, top: 4, bottom: 0 }}>
+                        <ReTooltip contentStyle={{ fontSize: '0.75rem' }} />
+                        <Line type="monotone" dataKey="active" stroke="#2563eb" strokeWidth={1.5}
+                          dot={(props: any) => (highlightZeros && props?.payload?.active === 0 ? <circle cx={props.cx} cy={props.cy} r={2} fill="#ef4444" /> : null)}
+                          name="Active" />
+                        <Line type="monotone" dataKey="next" stroke="#9333ea" strokeWidth={1.5}
+                          dot={(props: any) => (highlightZeros && props?.payload?.next === 0 ? <circle cx={props.cx} cy={props.cy} r={2} fill="#ef4444" /> : null)}
+                          name="Next" />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="mt-1 flex items-center gap-3 text-[10px] text-gray-600">
+                    <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-blue-600"></span> Active</span>
+                    <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-purple-600"></span> Next</span>
+                    {highlightZeros && (<span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-red-500"></span> Zero day</span>)}
+                  </div>
+                </div>
+              )})}
+              {Object.keys(intSeries).length === 0 && (
+                <div className="text-sm text-gray-600">No time series data</div>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-white rounded border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Rotate Keys</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input placeholder="Tenant ID" value={intForm.tenant} onChange={e => setIntForm({ ...intForm, tenant: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm" />
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input type="checkbox" checked={intForm.promote} onChange={e => setIntForm({ ...intForm, promote: e.target.checked })} /> Promote after adding
+              </label>
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input type="checkbox" checked={intForm.retireActive} onChange={e => setIntForm({ ...intForm, retireActive: e.target.checked })} /> Retire existing active (replace)
+              </label>
+              <textarea placeholder="Next keys (one per line or comma separated)" value={intForm.nextKeys} onChange={e => setIntForm({ ...intForm, nextKeys: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm md:col-span-2" rows={3} />
+            </div>
+            <div className="mt-3">
+              <button onClick={rotateKeys} disabled={intBusyRotate} className={`px-3 py-1.5 rounded text-sm text-white ${intBusyRotate ? 'bg-blue-400 opacity-70 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>{intBusyRotate ? 'Applying…' : 'Apply Rotation'}</button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Add/Remove Keys</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input placeholder="Tenant ID" value={intUpdate.tenant} onChange={e => setIntUpdate({ ...intUpdate, tenant: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm" />
+              <select value={intUpdate.phase} onChange={e => setIntUpdate({ ...intUpdate, phase: e.target.value as any })} className="border border-gray-300 rounded px-3 py-2 text-sm">
+                <option value="active">active</option>
+                <option value="next">next</option>
+              </select>
+              <textarea placeholder="Add keys (one per line or comma)" value={intUpdate.add} onChange={e => setIntUpdate({ ...intUpdate, add: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm" rows={3} />
+              <textarea placeholder="Remove keys (one per line or comma)" value={intUpdate.remove} onChange={e => setIntUpdate({ ...intUpdate, remove: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm" rows={3} />
+              <div className="md:col-span-2 flex items-center justify-between">
+                <label className="flex items-center gap-2 text-sm text-gray-700">
+                  <input type="checkbox" checked={intForceDangerous} onChange={e => setIntForceDangerous(e.target.checked)} />
+                  Force dangerous updates (allow removing all ACTIVE keys without NEXT)
+                </label>
+                <span className="text-xs text-gray-500">Use with caution</span>
+              </div>
+            </div>
+            <div className="mt-3">
+              <button onClick={updateKeys} disabled={intBusyUpdate} className={`px-3 py-1.5 rounded text-sm text-white ${intBusyUpdate ? 'bg-blue-400 opacity-70 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>{intBusyUpdate ? 'Updating…' : 'Update Keys'}</button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Current Config Snapshot</h3>
+            <p className="text-sm text-gray-600 mb-3">Summary of tenants, health and usage for debugging. Keys are not displayed.</p>
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs text-gray-500">Source: /api/admin/integrations/keys/health and /usage</div>
+              <button onClick={loadIntegrations} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800">Refresh</button>
+            </div>
+            <pre className="text-xs bg-gray-50 border border-gray-200 rounded p-3 overflow-auto max-h-80">
+{JSON.stringify({ health: intHealth, usage: intUsage }, null, 2)}
+            </pre>
+          </div>
+        </div>
+      )}
       {activeTab === 'role_management' && (
         <div className="space-y-6">
           <div className="bg-white rounded-lg border border-gray-200 p-6">

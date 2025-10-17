@@ -193,12 +193,15 @@ router.post('/submit', async (req, res) => {
       console.warn('GitHub auto-create failed:', e?.message || e);
     }
     
-    console.log('📝 Feedback submitted:', {
-      id: feedbackItem.id,
-      type: feedbackItem.type,
-      priority: feedbackItem.priority,
-      ticket: feedbackItem.metadata.ticketNumber
-    });
+    const APP_DEBUG = String(process.env.APP_DEBUG || '').toLowerCase() === 'true';
+    if (APP_DEBUG || String(process.env.FEEDBACK_DEBUG || '').toLowerCase() === 'true') {
+      console.log('📝 Feedback submitted:', {
+        id: feedbackItem.id,
+        type: feedbackItem.type,
+        priority: feedbackItem.priority,
+        ticket: feedbackItem.metadata.ticketNumber
+      });
+    }
     
     res.json({
       success: true,

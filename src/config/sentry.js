@@ -4,16 +4,14 @@ dotenv.config()
 let Sentry = null
 let sentryEnabled = false
 
-export function initSentry(app) {
+export async function initSentry(app) {
   try {
     const dsn = process.env.SENTRY_DSN
     if (!dsn) return { enabled: false }
 
-    // Lazy import so dev/test without deps does not fail
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    Sentry = require('@sentry/node')
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const Tracing = require('@sentry/tracing')
+    // Lazy ESM import so dev/test without deps does not fail
+    const mod = await import('@sentry/node')
+    Sentry = mod.default || mod
 
     Sentry.init({
       dsn,
@@ -23,7 +21,7 @@ export function initSentry(app) {
     })
 
     sentryEnabled = true
-    if (app) {
+    if (app && Sentry?.Handlers) {
       app.use(Sentry.Handlers.requestHandler())
       app.use(Sentry.Handlers.tracingHandler())
     }
@@ -35,9 +33,8 @@ export function initSentry(app) {
 }
 
 export function sentryErrorHandler() {
-  if (sentryEnabled && Sentry) {
+  if (sentryEnabled && Sentry?.Handlers) {
     return Sentry.Handlers.errorHandler()
   }
   return (_err, _req, _res, next) => next()
 }
-

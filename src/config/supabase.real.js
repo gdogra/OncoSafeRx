@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import { getEnv } from '../utils/env.js';
+import { randomUUID } from 'crypto';
 
 dotenv.config();
 
@@ -479,12 +480,6 @@ export class SupabaseService {
       
       if (error && error.code !== 'PGRST116') throw error;
       
-      // Manual role override for specific users
-      if (data && email === 'gdogra@gmail.com') {
-        console.log('🔧 BACKEND MANUAL OVERRIDE: Setting gdogra@gmail.com to super_admin role');
-        data.role = 'super_admin';
-      }
-      
       return data;
     } catch (error) {
       console.error('Error getting user by email:', error);
@@ -642,7 +637,7 @@ export class SupabaseService {
       // Ensure patient ID is a valid UUID
       let patientId = patient.id;
       if (patientId && !this.isValidUUID(patientId)) {
-        patientId = crypto.randomUUID();
+        patientId = randomUUID();
         console.log('🔄 Generated new UUID for invalid patient ID:', { old: patient.id, new: patientId });
       }
       

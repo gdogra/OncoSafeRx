@@ -2,23 +2,26 @@ import jwt from 'jsonwebtoken';
 import supabaseService from '../config/supabase.js';
 import { createClient } from '@supabase/supabase-js';
 import { getEnv, debugEnvVars } from '../utils/env.js';
+import { incAuthDenied } from '../utils/metrics.js';
 
 const JWT_SECRET = getEnv('JWT_SECRET', 'your-secret-key-change-in-production');
 const JWT_EXPIRES_IN = getEnv('JWT_EXPIRES_IN', '24h');
 const SUPABASE_JWT_SECRET = getEnv('SUPABASE_JWT_SECRET');
 
-// Debug environment variables on startup
+// Debug environment variables on startup (production-safe summary)
 debugEnvVars(['JWT_SECRET', 'SUPABASE_JWT_SECRET', 'ADMIN_SUPERADMINS', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
-
-// Log the specific values for debugging auth issues
-console.log('🔧 AUTH DIAGNOSTICS:', {
-  hasJwtSecret: !!JWT_SECRET,
-  jwtSecretLength: JWT_SECRET?.length || 0,
-  hasSupabaseJwtSecret: !!SUPABASE_JWT_SECRET,
-  supabaseJwtSecretLength: SUPABASE_JWT_SECRET?.length || 0,
-  adminSuperadmins: process.env.ADMIN_SUPERADMINS,
-  nodeEnv: process.env.NODE_ENV
-});
+const APP_DEBUG = String(process.env.APP_DEBUG || '').toLowerCase() === 'true';
+const AUTH_DEBUG = APP_DEBUG || String(process.env.AUTH_DEBUG || process.env.DEBUG_AUTH || '').toLowerCase() === 'true';
+if (AUTH_DEBUG) {
+  console.log('🔧 AUTH DIAGNOSTICS:', {
+    hasJwtSecret: !!JWT_SECRET,
+    jwtSecretLength: JWT_SECRET?.length || 0,
+    hasSupabaseJwtSecret: !!SUPABASE_JWT_SECRET,
+    supabaseJwtSecretLength: SUPABASE_JWT_SECRET?.length || 0,
+    adminSuperadmins: process.env.ADMIN_SUPERADMINS,
+    nodeEnv: process.env.NODE_ENV
+  });
+}
 
 // Optional Supabase admin client for token introspection (fallback)
 let supabaseAdmin = null;
@@ -55,12 +58,11 @@ export function verifyToken(token) {
 function elevateIfSuperAdmin(user) {
   try {
     if (!user || !user.email) return user;
-    const hardcoded = user.email === 'gdogra@gmail.com';
     const envList = String(process.env.ADMIN_SUPERADMINS || '')
       .split(',')
       .map(s => s.trim().toLowerCase())
       .filter(Boolean);
-    if (hardcoded || envList.includes(String(user.email).toLowerCase())) {
+    if (envList.includes(String(user.email).toLowerCase())) {
       user.role = 'super_admin';
     }
   } catch {}
@@ -108,18 +110,20 @@ export function extractBearerToken(req) {
 
 export async function authenticateToken(req, res, next) {
   try {
-    console.log('🚀 AUTHENTICATION MIDDLEWARE HIT:', {
-      path: req.path,
-      method: req.method,
-      hasAuth: !!req.headers.authorization,
-      timestamp: new Date().toISOString()
-    });
+    if (AUTH_DEBUG) {
+      console.log('🚀 AUTHENTICATION MIDDLEWARE HIT:', {
+        path: req.path,
+        method: req.method,
+        hasAuth: !!req.headers.authorization,
+        timestamp: new Date().toISOString()
+      });
+    }
     
     const token = extractBearerToken(req);
     let decodedUser = null;
 
     // Debug token extraction for admin routes (force enable)
-    if (req.path && req.path.includes('admin')) {
+    if (AUTH_DEBUG && req.path && req.path.includes('admin')) {
       console.log('🔍 Auth token extraction:', {
         path: req.path,
         hasToken: !!token,
@@ -134,26 +138,62 @@ export async function authenticateToken(req, res, next) {
     }
 
     if (!token) {
-      console.log('🚫 NO TOKEN FOUND:', {
-        path: req.path,
-        method: req.method,
-        authHeader: req.headers.authorization,
-        allHeaders: Object.keys(req.headers)
-      });
+      if (AUTH_DEBUG) {
+        console.log('🚫 NO TOKEN FOUND:', {
+          path: req.path,
+          method: req.method,
+          authHeader: !!req.headers.authorization,
+          allHeadersCount: Object.keys(req.headers).length
+        });
+      }
+      incAuthDenied('no_token', req.path || 'unknown')
       return res.status(401).json({ error: 'Access token required' });
     }
     
     // DEV MODE: Handle dev tokens from localhost
     if (process.env.NODE_ENV === 'development' && token.startsWith('dev-')) {
       console.log('🔧 DEV MODE: Processing dev token for localhost');
-      // Extract email from dev token or use default
+      
+      // Parse dev token format: dev-token-ROLE-email-parts
+      // Examples: dev-token-admin-12345, dev-token-patient-at-example-dot-com
       const tokenParts = token.split('-');
-      const email = tokenParts.length > 3 ? tokenParts.slice(3).join('-').replace(/-at-/g, '@').replace(/-dot-/g, '.') : 'admin@oncosaferx.com';
+      let role = 'oncologist'; // default
+      let email = 'user@oncosaferx.com'; // default
+      
+      if (tokenParts.length >= 3) {
+        const roleFromToken = tokenParts[2]; // e.g., 'admin', 'patient', 'oncologist'
+        
+        // Map token roles to actual roles
+        if (roleFromToken === 'admin') {
+          role = 'super_admin';
+          email = 'admin@oncosaferx.com';
+        } else if (roleFromToken === 'patient') {
+          role = 'patient';
+          email = 'patient@oncosaferx.com';
+        } else if (roleFromToken === 'oncologist') {
+          role = 'oncologist';
+          email = 'oncologist@oncosaferx.com';
+        } else if (roleFromToken === 'pharmacist') {
+          role = 'pharmacist';
+          email = 'pharmacist@oncosaferx.com';
+        } else if (roleFromToken === 'nurse') {
+          role = 'nurse';
+          email = 'nurse@oncosaferx.com';
+        }
+        
+        // If there are more parts, try to reconstruct email
+        if (tokenParts.length > 3) {
+          const emailParts = tokenParts.slice(3).join('-');
+          if (emailParts.includes('-at-') && emailParts.includes('-dot-')) {
+            email = emailParts.replace(/-at-/g, '@').replace(/-dot-/g, '.');
+          }
+        }
+      }
       
       decodedUser = elevateIfSuperAdmin({
         id: 'dev-user-' + Date.now(),
         email: email,
-        role: email.includes('admin') ? 'super_admin' : 'oncologist'
+        role: role
       });
       
       console.log('✅ DEV MODE: Created dev user:', {
@@ -166,42 +206,48 @@ export async function authenticateToken(req, res, next) {
       return next();
     }
     
-    console.log('✅ TOKEN EXTRACTED:', {
-      path: req.path,
-      tokenLength: token?.length || 0,
-      tokenStart: token?.substring(0, 20) + '...'
-    });
+    if (AUTH_DEBUG) {
+      console.log('✅ TOKEN EXTRACTED:', {
+        path: req.path,
+        tokenLength: token?.length || 0,
+        tokenStart: token?.substring(0, 20) + '...'
+      });
+    }
 
     // For admin routes, prioritize Supabase JWT verification since frontend sends Supabase tokens
     // Try Supabase JWT verification FIRST for admin routes
     if (req.path && req.path.includes('admin')) {
-      console.log('🔍 Admin route detected, trying Supabase JWT verification first');
-      console.log('🔍 Environment check:', {
-        hasSupabaseJwtSecret: !!SUPABASE_JWT_SECRET,
-        hasSupabaseAdmin: !!supabaseAdmin,
-        tokenLength: token?.length || 0
-      });
+      if (AUTH_DEBUG) {
+        console.log('🔍 Admin route detected, trying Supabase JWT verification first');
+        console.log('🔍 Environment check:', {
+          hasSupabaseJwtSecret: !!SUPABASE_JWT_SECRET,
+          hasSupabaseAdmin: !!supabaseAdmin,
+          tokenLength: token?.length || 0
+        });
+      }
       
       if (SUPABASE_JWT_SECRET) {
         try {
-          console.log('🔍 Attempting SUPABASE_JWT_SECRET verification...');
+          if (AUTH_DEBUG) console.log('🔍 Attempting SUPABASE_JWT_SECRET verification...');
           const payload = jwt.verify(token, SUPABASE_JWT_SECRET);
           decodedUser = elevateIfSuperAdmin({
             id: payload.sub || payload.user_id || 'unknown',
             email: payload.email,
             role: payload.role || payload.user_metadata?.role || 'user'
           });
-          console.log('✅ Supabase JWT verified for admin route (SUPABASE_JWT_SECRET):', {
-            email: decodedUser.email,
-            role: decodedUser.role,
-            id: decodedUser.id
-          });
+          if (AUTH_DEBUG) {
+            console.log('✅ Supabase JWT verified for admin route (SUPABASE_JWT_SECRET):', {
+              email: decodedUser.email,
+              role: decodedUser.role,
+              id: decodedUser.id
+            });
+          }
         } catch (supabaseJwtError) {
-          console.log('❌ Supabase JWT verification failed (SUPABASE_JWT_SECRET):', supabaseJwtError.message);
+          if (AUTH_DEBUG) console.log('❌ Supabase JWT verification failed (SUPABASE_JWT_SECRET):', supabaseJwtError.message);
         }
       } else if (supabaseAdmin) {
         try {
-          console.log('🔍 Attempting Supabase service role introspection...');
+          if (AUTH_DEBUG) console.log('🔍 Attempting Supabase service role introspection...');
           const { data, error } = await supabaseAdmin.auth.getUser(token);
           if (!error && data?.user) {
             const supa = data.user;
@@ -210,19 +256,21 @@ export async function authenticateToken(req, res, next) {
               email: supa.email,
               role: supa.user_metadata?.role || 'user'
             });
-            console.log('✅ Supabase JWT verified for admin route (service role):', {
-              email: decodedUser.email,
-              role: decodedUser.role,
-              id: decodedUser.id
-            });
+            if (AUTH_DEBUG) {
+              console.log('✅ Supabase JWT verified for admin route (service role):', {
+                email: decodedUser.email,
+                role: decodedUser.role,
+                id: decodedUser.id
+              });
+            }
           } else {
-            console.log('❌ Supabase service role introspection failed:', error?.message || 'Unknown error');
+            if (AUTH_DEBUG) console.log('❌ Supabase service role introspection failed:', error?.message || 'Unknown error');
           }
         } catch (serviceRoleError) {
-          console.log('❌ Supabase service role error:', serviceRoleError.message);
+          if (AUTH_DEBUG) console.log('❌ Supabase service role error:', serviceRoleError.message);
         }
       } else {
-        console.log('⚠️ No Supabase verification method available (no SUPABASE_JWT_SECRET or service role)');
+        if (AUTH_DEBUG) console.log('⚠️ No Supabase verification method available (no SUPABASE_JWT_SECRET or service role)');
       }
     }
     
@@ -231,11 +279,13 @@ export async function authenticateToken(req, res, next) {
       const decoded = verifyToken(token);
       if (decoded) {
         decodedUser = elevateIfSuperAdmin(decoded);
-        console.log('✅ Backend JWT verified:', {
-          email: decodedUser.email,
-          role: decodedUser.role,
-          id: decodedUser.id
-        });
+        if (AUTH_DEBUG) {
+          console.log('✅ Backend JWT verified:', {
+            email: decodedUser.email,
+            role: decodedUser.role,
+            id: decodedUser.id
+          });
+        }
       }
     }
     
@@ -297,6 +347,7 @@ export async function authenticateToken(req, res, next) {
           return next();
         }
       } catch {}
+      incAuthDenied('invalid_token', req.path || 'unknown')
       return res.status(403).json({ error: 'Invalid or expired token' });
     }
     const { data, error } = await supabaseAdmin.auth.getUser(token);
@@ -318,6 +369,7 @@ export async function authenticateToken(req, res, next) {
           return next();
         }
       } catch {}
+      incAuthDenied('invalid_token', req.path || 'unknown')
       return res.status(403).json({ error: 'Invalid or expired token' });
     }
     const supa = data.user;
@@ -334,10 +386,11 @@ export async function authenticateToken(req, res, next) {
     } catch {}
     return next();
   } catch (e) {
-    if (String(process.env.DEBUG_AUTH_HEADERS || '').toLowerCase() === 'true') {
+    if (AUTH_DEBUG || String(process.env.DEBUG_AUTH_HEADERS || '').toLowerCase() === 'true') {
       console.warn('Auth error:', e?.message);
-      console.warn('Headers seen:', Object.keys(req.headers));
+      console.warn('Headers seen (count):', Object.keys(req.headers).length);
     }
+    incAuthDenied('invalid_token', req.path || 'unknown')
     return res.status(403).json({ error: 'Invalid or expired token' });
   }
 }
@@ -390,16 +443,17 @@ export function requireAdmin(req, res, next) {
     const isProd = String(process.env.NODE_ENV || '').toLowerCase() === 'production';
     
     // Enhanced debugging for admin access issues
-    console.log('🔐 Admin access check:', {
-      hasUser: !!req.user,
-      email: req.user?.email,
-      role: req.user?.role,
-      isGdogra: req.user?.email === 'gdogra@gmail.com',
-      adminSuperadmins: process.env.ADMIN_SUPERADMINS,
-      authHeader: !!req.headers.authorization,
-      nodeEnv: process.env.NODE_ENV,
-      isProd
-    });
+    if (AUTH_DEBUG) {
+      console.log('🔐 Admin access check:', {
+        hasUser: !!req.user,
+        email: req.user?.email,
+        role: req.user?.role,
+        adminSuperadmins: process.env.ADMIN_SUPERADMINS,
+        authHeader: !!req.headers.authorization,
+        nodeEnv: process.env.NODE_ENV,
+        isProd
+      });
+    }
     
     if (devBypass && !isProd) {
       // In development, allow any authenticated user to pass admin checks for rapid iteration

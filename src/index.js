@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
 import client from 'prom-client';
+import { incHttpError, incHttpRequest } from './utils/metrics.js';
 import { v4 as uuidv4 } from 'uuid';
 import dotenv from 'dotenv';
 import { validateEnv, getBoolean } from './config/env.js';
@@ -65,12 +66,14 @@ import advancedWorkflowRoutes from './routes/advancedWorkflowRoutes.js';
 import diagnosticsRoutes from './routes/diagnosticsRoutes.js';
 import pushRoutes from './routes/pushRoutes.js';
 import fhirRoutes from './routes/fhirRoutes.js';
+import integrationRoutes from './routes/integrationRoutes.js';
+import { join as pathJoin } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-initSentry(app);
+await initSentry(app);
 const PORT = parseInt(process.env.PORT) || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const IS_PROD = NODE_ENV === 'production';
@@ -262,13 +265,51 @@ const httpRequestDuration = new client.Histogram({
   buckets: [0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 5]
 });
 
+// Normalize route labels to avoid high-cardinality metrics
+function normalizeRouteForMetrics(p) {
+  try {
+    const path = String(p || '').split('?')[0];
+    // Canonicalize common buckets to avoid query-dependent explosion
+    const aliases = [
+      { rx: /^\/api\/search(\/|$)/i, canonical: '/api/search' },
+      { rx: /^\/api\/analytics(\/|$)/i, canonical: '/api/analytics' },
+      { rx: /^\/api\/interactions(\/|$)/i, canonical: '/api/interactions' },
+      { rx: /^\/api\/drugs(\/|$)/i, canonical: '/api/drugs' },
+      { rx: /^\/api\/patients(\/|$)/i, canonical: '/api/patients' },
+      { rx: /^\/metrics$/i, canonical: '/metrics' },
+      { rx: /^\/health$/i, canonical: '/health' },
+    ];
+    for (const a of aliases) {
+      if (a.rx.test(path)) return a.canonical;
+    }
+    // Replace UUIDs, numeric IDs, long hex, and hashes with :id
+    const parts = path.split('/').map(seg => {
+      if (!seg) return seg;
+      if (/^[0-9]+$/.test(seg)) return ':id';
+      if (/^[0-9a-fA-F]{24,}$/.test(seg)) return ':id';
+      if (/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(seg)) return ':id';
+      if (seg.length > 64) return ':blob';
+      return seg;
+    });
+    // Collapse consecutive :id segments where sensible
+    return parts.join('/') || '/';
+  } catch {
+    return 'unknown';
+  }
+}
+
 app.use((req, res, next) => {
   const start = process.hrtime.bigint();
   res.on('finish', () => {
     const end = process.hrtime.bigint();
     const seconds = Number(end - start) / 1e9;
-    const route = req.route?.path || req.path || 'unknown';
+    // Prefer normalized path; req.route is often undefined here
+    const route = normalizeRouteForMetrics(req.path || 'unknown');
+    try { incHttpRequest(req.method, route); } catch {}
     httpRequestDuration.labels(req.method, route, String(res.statusCode)).observe(seconds);
+    if (res.statusCode >= 400) {
+      try { incHttpError(res.statusCode, route); } catch {}
+    }
   });
   next();
 });
@@ -289,11 +330,71 @@ app.get('/metrics', async (req, res) => {
   }
 });
 
+// Human-readable metrics summary (no scrape output)
+app.get('/metrics/help', (req, res) => {
+  try {
+    const metrics = [
+      {
+        name: 'http_request_duration_seconds',
+        type: 'histogram',
+        help: 'HTTP request duration in seconds',
+        labels: ['method', 'route', 'status'],
+        buckets: [0.05, 0.1, 0.2, 0.3, 0.5, 1, 2, 5]
+      },
+      {
+        name: 'http_requests_total',
+        type: 'counter',
+        help: 'Total HTTP requests by method and route',
+        labels: ['method', 'path']
+      },
+      {
+        name: 'http_errors_total',
+        type: 'counter',
+        help: 'Count of HTTP error responses',
+        labels: ['status', 'path']
+      },
+      {
+        name: 'auth_denied_total',
+        type: 'counter',
+        help: 'Count of denied auth attempts',
+        labels: ['reason', 'path']
+      },
+      {
+        name: 'rate_limit_hits_total',
+        type: 'counter',
+        help: 'Count of rate limit hits by scope',
+        labels: ['scope', 'path']
+      },
+      {
+        name: 'probe_requests_total',
+        type: 'counter',
+        help: 'Count of denied probe/scanner requests',
+        labels: ['path']
+      }
+    ];
+    const notes = [
+      'Route labels are normalized to reduce cardinality (UUIDs/IDs redacted).',
+      'Set METRICS_TOKEN to protect /metrics; pass via X-METRICS-TOKEN or ?token=.',
+      'Default Node metrics are also collected by prom-client.'
+    ];
+    res.json({
+      metrics,
+      auth: { tokenRequired: !!process.env.METRICS_TOKEN },
+      notes
+    });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to render metrics help' });
+  }
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/supabase-auth', supabaseAuthRoutes);
 app.use('/api/admin', adminRoutes);
-console.log('🚀 ADMIN ROUTES REGISTERED - Ready for authentication debugging');
+const APP_DEBUG = String(process.env.APP_DEBUG || '').toLowerCase() === 'true';
+if (APP_DEBUG || String(process.env.ADMIN_DEBUG || process.env.DEBUG_AUTH || '').toLowerCase() === 'true') {
+  console.log('🚀 ADMIN ROUTES REGISTERED - Ready for authentication debugging');
+}
 app.use('/api/drugs', drugRoutes);
 app.use('/api/drugs/enhanced', enhancedDrugRoutes);
 app.use('/api/interactions', interactionRoutes);
@@ -316,6 +417,17 @@ app.use('/api/advanced-workflow', advancedWorkflowRoutes);
 app.use('/api/diagnostics', diagnosticsRoutes);
 app.use('/api/push', pushRoutes);
 app.use('/api/fhir', fhirRoutes);
+app.use('/api/integrations', integrationRoutes);
+
+// Serve OpenAPI spec (static YAML)
+app.get(['/openapi.yaml','/api/openapi.yaml'], (req, res) => {
+  try {
+    res.type('text/yaml');
+    res.sendFile(join(__dirname, '../docs/openapi.yaml'));
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to serve spec' });
+  }
+});
 app.use('/api/export', exportRoutes);
 app.use('/api/export/epa', epaRoutes);
 app.use('/api/prescribe', prescribeRoutes);
@@ -463,22 +575,19 @@ app.get('/test-frontend', (req, res) => {
 });
 
 // Debug endpoint to check what env vars were built into the frontend
-app.get('/debug-frontend-env', (req, res) => {
+app.get('/debug-frontend-env', async (req, res) => {
   try {
-    const fs = require('fs');
-    const path = require('path');
+    const fs = await import('fs');
     const frontendDistPath = join(__dirname, '../frontend/dist');
-    
-    // Try to read the main JS file to see if env vars are embedded
+
     const indexPath = join(frontendDistPath, 'index.html');
     const indexExists = fs.existsSync(indexPath);
-    
-    // List all files in the dist directory
+
     let distFiles = [];
     if (fs.existsSync(frontendDistPath)) {
       distFiles = fs.readdirSync(frontendDistPath);
     }
-    
+
     res.json({
       frontendDistPath,
       indexExists,

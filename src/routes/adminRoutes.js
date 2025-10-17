@@ -3,7 +3,10 @@ import { authenticateToken, requireAdmin } from '../middleware/auth.js';
 import supabaseService from '../config/supabase.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 import enterpriseRBACService from '../services/enterpriseRBACService.js';
+import Joi from 'joi';
 import crypto from 'crypto';
+import { listTenantsConfigured, addTenantKeys, removeTenantKeys, promoteTenantKeys, summarizeTenants, clearTenantPhase } from '../middleware/apiKeys.js';
+import auditLogService from '../services/auditLogService.js';
 
 const router = express.Router();
 
@@ -722,6 +725,203 @@ router.get('/export/:type', asyncHandler(async (req, res) => {
 }));
 
 export default router;
+// Integrations: API key rotation usage report
+router.get('/integrations/keys/usage', asyncHandler(async (req, res) => {
+  try {
+    const logs = await auditLogService.searchLogs({ eventType: 'integration_access' });
+    const usage = {};
+    const last = {};
+    const now = Date.now();
+    const threshold = now - 24 * 60 * 60 * 1000; // 24h
+    for (const log of logs) {
+      try {
+        const userId = log?.user?.id || '';
+        const tenant = userId.startsWith('tenant:') ? userId.slice(7) : 'unknown';
+        const msg = String(log?.outcome?.message || '');
+        const phase = msg.includes('keyPhase=next') ? 'next' : 'active';
+        if (!usage[tenant]) usage[tenant] = { active: 0, next: 0, total: 0, active24h: 0, next24h: 0, total24h: 0 };
+        usage[tenant][phase]++;
+        usage[tenant].total++;
+        const ts = new Date(log.timestamp).getTime();
+        if (!last[tenant] || ts > last[tenant].ts) last[tenant] = { ts, phase };
+        if (ts >= threshold) {
+          if (phase === 'active') usage[tenant].active24h++;
+          else usage[tenant].next24h++;
+          usage[tenant].total24h++;
+        }
+      } catch {}
+    }
+    const detailed = Object.fromEntries(Object.entries(usage).map(([tenant, data]) => {
+      const l = last[tenant];
+      return [tenant, { ...data, lastUsed: l ? new Date(l.ts).toISOString() : null, lastPhase: l?.phase || null }];
+    }));
+    return res.json({ usage: detailed });
+  } catch (e) {
+    return res.status(500).json({ error: 'Failed to compute key usage' });
+  }
+}));
+
+// Integrations: time series of usage by day and phase
+router.get('/integrations/keys/usage/timeseries', asyncHandler(async (req, res) => {
+  try {
+    const days = Math.max(1, Math.min(180, parseInt(String(req.query.days || '30'), 10) || 30));
+    const now = new Date();
+    const start = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
+
+    // Load relevant audit logs
+    const logs = await auditLogService.searchLogs({ eventType: 'integration_access', dateFrom: start.toISOString(), dateTo: now.toISOString() });
+    // Build date buckets
+    const dates = [];
+    for (let i = 0; i < days; i++) {
+      const d = new Date(start.getTime() + i * 24 * 60 * 60 * 1000);
+      dates.push(d.toISOString().slice(0, 10));
+    }
+
+    // Aggregate per tenant per day
+    const series = {}; // tenant -> date -> {active,next,total}
+    for (const log of logs) {
+      try {
+        const userId = log?.user?.id || '';
+        const tenant = userId.startsWith('tenant:') ? userId.slice(7) : 'unknown';
+        const day = String(log.timestamp).slice(0, 10);
+        if (!dates.includes(day)) continue;
+        const msg = String(log?.outcome?.message || '');
+        const phase = msg.includes('keyPhase=next') ? 'next' : 'active';
+        if (!series[tenant]) series[tenant] = {};
+        if (!series[tenant][day]) series[tenant][day] = { active: 0, next: 0, total: 0 };
+        series[tenant][day][phase]++;
+        series[tenant][day].total++;
+      } catch {}
+    }
+    // Convert to arrays ordered by date
+    const out = {};
+    const tenants = Object.keys(series).sort();
+    for (const t of tenants) {
+      out[t] = dates.map((d) => ({ date: d, active: series[t][d]?.active || 0, next: series[t][d]?.next || 0, total: series[t][d]?.total || 0 }));
+    }
+    return res.json({ days, dates, series: out, tenants });
+  } catch (e) {
+    return res.status(500).json({ error: 'Failed to compute time series' });
+  }
+}));
+
+// Integrations: key health check (ensures each tenant has active keys)
+router.get('/integrations/keys/health', asyncHandler(async (req, res) => {
+  try {
+    const tenants = listTenantsConfigured();
+    const missingActive = tenants.filter(t => !t.hasActive).map(t => t.tenant);
+    const ok = missingActive.length === 0;
+    const payload = { ok, tenants, missingActive };
+    return res.status(ok ? 200 : 503).json(payload);
+  } catch (e) {
+    return res.status(500).json({ error: 'Failed to compute key health' });
+  }
+}));
+
+// Integrations: clear phase (dangerous)
+router.post('/integrations/keys/clear', asyncHandler(async (req, res) => {
+  try {
+    const { value, error: vErr } = Joi.object({
+      tenant: Joi.string().min(1).required(),
+      phase: Joi.string().valid('active','next').required(),
+      force: Joi.boolean().default(false),
+    }).validate(req.body || {}, { abortEarly: false });
+    if (vErr) return res.status(400).json({ error: 'validation_error', details: vErr.details.map(d => d.message) });
+    const { tenant, phase, force } = value;
+    if (!tenant || !phase) return res.status(400).json({ error: 'tenant and phase required' })
+    if (!['active','next'].includes(String(phase))) return res.status(400).json({ error: 'phase must be active or next' })
+    if (phase === 'active' && !force) {
+      const summary = summarizeTenants()
+      const t = summary.find((s) => s.tenant === tenant)
+      if (!t?.hasNext) {
+        try { await auditLogService.logEvent('api_keys_clear', { userId: req.user?.id || 'system', userEmail: req.user?.email, userRole: req.user?.role, resourceType: 'integration_keys', action: 'clear', endpoint: '/api/admin/integrations/keys/clear', outcome: 'blocked', statusCode: 400, message: 'attempt to clear ACTIVE with no NEXT keys (use force)' }) } catch {}
+        return res.status(400).json({ error: 'Cannot clear ACTIVE keys when no NEXT keys exist. Use force to override.' })
+      }
+    }
+    const result = await clearTenantPhase(tenant, phase)
+    try { await auditLogService.logEvent('api_keys_clear', { userId: req.user?.id || 'system', userEmail: req.user?.email, userRole: req.user?.role, resourceType: 'integration_keys', action: 'clear', endpoint: '/api/admin/integrations/keys/clear', outcome: 'success', statusCode: 200, message: JSON.stringify({ tenant, phase, force: !!force }) }) } catch {}
+    return res.json({ ok: true, result, summary: summarizeTenants() })
+  } catch (e) {
+    try { await auditLogService.logEvent('api_keys_clear', { userId: req.user?.id || 'system', userEmail: req.user?.email, userRole: req.user?.role, resourceType: 'integration_keys', action: 'clear', endpoint: '/api/admin/integrations/keys/clear', outcome: 'error', statusCode: 500, message: e?.message || 'clear_failed' }) } catch {}
+    return res.status(500).json({ error: 'clear_failed' })
+  }
+}));
+
+// Integrations: rotate keys (add next keys, optionally promote, optionally retire active)
+router.post('/integrations/keys/rotate', asyncHandler(async (req, res) => {
+  try {
+    const { value, error: vErr } = Joi.object({
+      tenant: Joi.string().min(1).required(),
+      nextKeys: Joi.array().items(Joi.string().min(1)).default([]),
+      promote: Joi.boolean().default(false),
+      retireActive: Joi.boolean().default(true),
+    }).validate(req.body || {}, { abortEarly: false });
+    if (vErr) return res.status(400).json({ error: 'validation_error', details: vErr.details.map(d => d.message) });
+    const { tenant, nextKeys, promote, retireActive } = value;
+    if (!tenant) return res.status(400).json({ error: 'tenant required' })
+    if (!Array.isArray(nextKeys)) return res.status(400).json({ error: 'nextKeys must be array' })
+
+    // Safety: if promoting and retiring active, ensure we will have active keys afterwards
+    if (promote && retireActive) {
+      const summary = summarizeTenants()
+      const t = summary.find((s) => s.tenant === tenant)
+      const nextTotal = (t?.nextCount || 0) + (nextKeys?.length || 0)
+      if (nextTotal <= 0) {
+        try { await auditLogService.logEvent('api_keys_rotate', { userId: req.user?.id || 'system', userEmail: req.user?.email, userRole: req.user?.role, resourceType: 'integration_keys', action: 'rotate', endpoint: '/api/admin/integrations/keys/rotate', outcome: 'blocked', statusCode: 400, message: 'promote+retireActive without next keys' }) } catch {}
+        return res.status(400).json({ error: 'Cannot promote+retire with no NEXT keys provided/present' })
+      }
+    }
+
+    const added = nextKeys.length ? await addTenantKeys(tenant, 'next', nextKeys) : null
+    let promoted = null
+    if (promote) {
+      promoted = await promoteTenantKeys(tenant, { retireActive: !!retireActive })
+    }
+    const payload = { ok: true, added, promoted, summary: summarizeTenants() }
+    try { await auditLogService.logEvent('api_keys_rotate', { userId: req.user?.id || 'system', userEmail: req.user?.email, userRole: req.user?.role, resourceType: 'integration_keys', action: 'rotate', endpoint: '/api/admin/integrations/keys/rotate', outcome: 'success', statusCode: 200, message: JSON.stringify({ tenant, added: nextKeys.length, promote, retireActive }) }) } catch {}
+    return res.json(payload)
+  } catch (e) {
+    try { await auditLogService.logEvent('api_keys_rotate', { userId: req.user?.id || 'system', userEmail: req.user?.email, userRole: req.user?.role, resourceType: 'integration_keys', action: 'rotate', endpoint: '/api/admin/integrations/keys/rotate', outcome: 'error', statusCode: 500, message: e?.message || 'rotate_failed' }) } catch {}
+    return res.status(500).json({ error: 'rotate_failed' })
+  }
+}));
+
+// Integrations: add/remove keys explicitly
+router.post('/integrations/keys/update', asyncHandler(async (req, res) => {
+  try {
+    const { value, error: vErr } = Joi.object({
+      tenant: Joi.string().min(1).required(),
+      phase: Joi.string().valid('active','next').default('active'),
+      add: Joi.array().items(Joi.string().min(1)).default([]),
+      remove: Joi.array().items(Joi.string().min(1)).default([]),
+      force: Joi.boolean().default(false),
+    }).validate(req.body || {}, { abortEarly: false });
+    if (vErr) return res.status(400).json({ error: 'validation_error', details: vErr.details.map(d => d.message) });
+    const { tenant, phase, add, remove, force } = value;
+    if (!tenant) return res.status(400).json({ error: 'tenant required' })
+    if (!Array.isArray(add) || !Array.isArray(remove)) return res.status(400).json({ error: 'add/remove must be arrays' })
+    // Safety: Prevent removing last ACTIVE keys if no NEXT and not forced
+    if (phase === 'active' && remove.length) {
+      const summary = summarizeTenants()
+      const t = summary.find((s) => s.tenant === tenant)
+      const remaining = Math.max(0, (t?.activeCount || 0) - remove.length)
+      const hasNext = !!t?.hasNext
+      if (remaining <= 0 && !hasNext && !force) {
+        try { await auditLogService.logEvent('api_keys_update', { userId: req.user?.id || 'system', userEmail: req.user?.email, userRole: req.user?.role, resourceType: 'integration_keys', action: 'update', endpoint: '/api/admin/integrations/keys/update', outcome: 'blocked', statusCode: 400, message: 'would remove last ACTIVE keys with no NEXT (use force)' }) } catch {}
+        return res.status(400).json({ error: 'Would remove last ACTIVE keys with no NEXT keys. Use force to override.' })
+      }
+    }
+    let added = null
+    let removed = null
+    if (add.length) added = await addTenantKeys(tenant, phase, add)
+    if (remove.length) removed = await removeTenantKeys(tenant, phase, remove)
+    try { await auditLogService.logEvent('api_keys_update', { userId: req.user?.id || 'system', userEmail: req.user?.email, userRole: req.user?.role, resourceType: 'integration_keys', action: 'update', endpoint: '/api/admin/integrations/keys/update', outcome: 'success', statusCode: 200, message: JSON.stringify({ tenant, phase, add: add.length, remove: remove.length, force: !!force }) }) } catch {}
+    return res.json({ ok: true, added, removed, summary: summarizeTenants() })
+  } catch (e) {
+    try { await auditLogService.logEvent('api_keys_update', { userId: req.user?.id || 'system', userEmail: req.user?.email, userRole: req.user?.role, resourceType: 'integration_keys', action: 'update', endpoint: '/api/admin/integrations/keys/update', outcome: 'error', statusCode: 500, message: e?.message || 'update_failed' }) } catch {}
+    return res.status(500).json({ error: 'update_failed' })
+  }
+}));
 // List admin audit logs with filters
 router.get('/audit', asyncHandler(async (req, res) => {
   try {

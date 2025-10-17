@@ -565,22 +565,32 @@ export class SupabaseService {
     if (!this.enabled) return { id: 'noop', ...logData };
     
     try {
-      const { data, error } = await this.client
+      // Prefer new schema (sync_type). If the table uses legacy column names (operation_type), retry with a mapped payload.
+      const base = {
+        status: logData.status,
+        records_processed: logData.records_processed,
+        errors: logData.errors,
+        started_at: logData.started_at || new Date().toISOString(),
+        completed_at: logData.completed_at,
+        triggered_by: logData.triggered_by || 'api'
+      };
+      const tryNew = async () => this.client
         .from('data_sync_log')
-        .insert({
-          sync_type: logData.sync_type,
-          status: logData.status,
-          records_processed: logData.records_processed,
-          errors: logData.errors,
-          started_at: logData.started_at || new Date().toISOString(),
-          completed_at: logData.completed_at,
-          triggered_by: logData.triggered_by || 'api'
-        })
+        .insert({ ...base, sync_type: logData.sync_type || logData.operation_type || logData.type, source: logData.source })
         .select()
         .single();
-      
-      if (error) throw error;
-      return data;
+      const tryLegacy = async () => this.client
+        .from('data_sync_log')
+        .insert({ ...base, operation_type: logData.sync_type || logData.operation_type || logData.type, source: logData.source })
+        .select()
+        .single();
+
+      let resp = await tryNew();
+      if (resp.error && (resp.error.code === '42703' || /column \"sync_type\"/i.test(resp.error.message))) {
+        resp = await tryLegacy();
+      }
+      if (resp.error) throw resp.error;
+      return resp.data;
     } catch (error) {
       console.error('Error logging sync activity:', error);
       return { id: 'error', ...logData };

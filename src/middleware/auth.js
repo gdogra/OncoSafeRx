@@ -100,11 +100,9 @@ export function extractBearerToken(req) {
       if (cookies['supabase-access-token']) return cookies['supabase-access-token'];
     }
   } catch {}
-  // 5) Query param fallback (debug only)
+  // SECURITY FIX: Removed insecure query token authentication
+  // Tokens in query parameters expose credentials in logs and browser history
   const isProd = String(process.env.NODE_ENV || '').toLowerCase() === 'production';
-  if (!isProd && process.env.ALLOW_QUERY_TOKEN === 'true' && req.query && req.query.token) {
-    return String(req.query.token);
-  }
   return null;
 }
 
@@ -455,10 +453,8 @@ export function requireAdmin(req, res, next) {
       });
     }
     
-    if (devBypass && !isProd) {
-      // In development, allow any authenticated user to pass admin checks for rapid iteration
-      if (req.user) return next();
-    }
+    // SECURITY FIX: Removed admin bypass mechanism for security compliance
+    // All admin access must go through proper role-based authentication
   } catch {}
   return requireRole('admin', 'super_admin')(req, res, next);
 }

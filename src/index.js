@@ -78,7 +78,8 @@ const PORT = parseInt(process.env.PORT) || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const IS_PROD = NODE_ENV === 'production';
 const logInfo = (...args) => { if (!IS_PROD) console.log(...args); };
-const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
+// SECURITY FIX: Remove wildcard CORS default
+const CORS_ORIGIN = process.env.CORS_ORIGIN || 'https://oncosaferx.com,https://www.oncosaferx.com,http://localhost:3000';
 
 logInfo(`Starting server on PORT=${PORT}`);
 logInfo(`Environment: ${NODE_ENV}`);

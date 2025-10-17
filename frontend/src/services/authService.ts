@@ -644,23 +644,54 @@ export class SupabaseAuthService {
    * Create development user for localhost
    */
   private static createDevUser(email: string): UserProfile {
+    // Determine role based on email for better dev experience
+    let role = 'oncologist'; // default
+    let specialty = 'Medical Oncology';
+    let permissions = ['read', 'write', 'analyze'];
+    
+    if (email.includes('admin@') || email.includes('gdogra@')) {
+      role = 'super_admin';
+      specialty = 'Administration';
+      permissions = ['read', 'write', 'analyze', 'manage_users', 'manage_system_settings', 'view_audit_logs', 'view_visitor_analytics'];
+    } else if (email.includes('pharmacist@')) {
+      role = 'pharmacist';
+      specialty = 'Clinical Pharmacy';
+      permissions = ['read', 'write', 'dispense', 'analyze'];
+    } else if (email.includes('nurse@')) {
+      role = 'nurse';
+      specialty = 'Oncology Nursing';
+      permissions = ['read', 'write', 'administer'];
+    } else if (email.includes('researcher@')) {
+      role = 'researcher';
+      specialty = 'Clinical Research';
+      permissions = ['read', 'analyze', 'export'];
+    } else if (email.includes('patient@')) {
+      role = 'patient';
+      specialty = '';
+      permissions = ['read_own', 'update_own'];
+    } else if (email.includes('caregiver@')) {
+      role = 'caregiver';
+      specialty = '';
+      permissions = ['read_limited', 'support'];
+    }
+    
     return {
       id: 'dev-' + email.replace('@', '-at-').replace('.', '-dot-'),
       email: email,
       firstName: email.split('@')[0] || 'Dev',
       lastName: 'User',
-      role: 'oncologist',
-      specialty: 'Medical Oncology',
+      role: role as UserProfile['role'],
+      specialty: specialty,
       institution: 'Development Hospital',
-      licenseNumber: 'DEV123456',
-      yearsExperience: 5,
-      preferences: this.getDefaultPreferences('oncologist'),
-      persona: this.createDefaultPersona('oncologist'),
+      licenseNumber: role === 'patient' || role === 'caregiver' ? '' : 'DEV123456',
+      yearsExperience: role === 'patient' || role === 'caregiver' ? 0 : 5,
+      preferences: this.getDefaultPreferences(role),
+      persona: this.createDefaultPersona(role),
       createdAt: new Date().toISOString(),
       lastLogin: new Date().toISOString(),
       isActive: true,
-      roles: ['oncologist'],
-      permissions: ['read', 'write', 'analyze']
+      roles: [role],
+      permissions: permissions
     }
   }
 
@@ -845,6 +876,8 @@ export class SupabaseAuthService {
    */
   private static getRolePermissions(role: string): string[] {
     const permissions = {
+      super_admin: ['read', 'write', 'analyze', 'manage_users', 'manage_system_settings', 'view_audit_logs', 'view_visitor_analytics', 'manage_roles'],
+      admin: ['read', 'write', 'analyze', 'manage_users', 'view_audit_logs'],
       oncologist: ['read', 'write', 'prescribe', 'analyze'],
       pharmacist: ['read', 'write', 'dispense', 'analyze'],
       nurse: ['read', 'write', 'administer'],

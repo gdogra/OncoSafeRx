@@ -146,16 +146,52 @@ router.get('/metrics', authenticateToken, requireAdmin, async (req, res) => {
         userRoles.push({ role, count });
       });
       
+      // Calculate device types from actual data
+      const deviceTypes = [];
+      const deviceGroups = {};
+      events.forEach(event => {
+        const deviceType = event.device_type || 'Unknown';
+        deviceGroups[deviceType] = (deviceGroups[deviceType] || 0) + 1;
+      });
+      
+      Object.entries(deviceGroups).forEach(([type, count]) => {
+        deviceTypes.push({ type, count });
+      });
+      
+      // Calculate geographic distribution from actual data
+      const geographicDistribution = [];
+      const countryGroups = {};
+      events.forEach(event => {
+        const location = event.country_code || 'Unknown';
+        countryGroups[location] = (countryGroups[location] || 0) + 1;
+      });
+      
+      Object.entries(countryGroups).forEach(([location, count]) => {
+        geographicDistribution.push({ location, count });
+      });
+      
+      // Calculate average session duration
+      const sessionDurations = events
+        .filter(e => e.visit_duration && e.visit_duration > 0)
+        .map(e => e.visit_duration);
+      const avgSessionDuration = sessionDurations.length > 0 
+        ? Math.round(sessionDurations.reduce((sum, dur) => sum + dur, 0) / sessionDurations.length)
+        : 0;
+      
+      // Calculate bounce rate
+      const bounceEvents = events.filter(e => e.bounce === true).length;
+      const bounceRate = events.length > 0 ? Math.round((bounceEvents / events.length) * 100) : 0;
+      
       res.json({
         totalVisitors: uniqueUsers.size,
         uniqueVisitors: uniqueUsers.size,
         pageViews,
-        averageSessionDuration: 0, // Would need session duration calculation
-        bounceRate: 0, // Would need bounce rate calculation
+        averageSessionDuration: avgSessionDuration,
+        bounceRate,
         topPages,
         userRoles,
-        deviceTypes: [{ type: 'Unknown', count: sessions }],
-        geographicDistribution: [{ location: 'Unknown', count: sessions }]
+        deviceTypes,
+        geographicDistribution
       });
       
     } catch (dbError) {

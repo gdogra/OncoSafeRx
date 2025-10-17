@@ -116,6 +116,7 @@ export async function authenticateToken(req, res, next) {
     });
     
     const token = extractBearerToken(req);
+    let decodedUser = null;
 
     // Debug token extraction for admin routes (force enable)
     if (req.path && req.path.includes('admin')) {
@@ -142,6 +143,29 @@ export async function authenticateToken(req, res, next) {
       return res.status(401).json({ error: 'Access token required' });
     }
     
+    // DEV MODE: Handle dev tokens from localhost
+    if (process.env.NODE_ENV === 'development' && token.startsWith('dev-')) {
+      console.log('🔧 DEV MODE: Processing dev token for localhost');
+      // Extract email from dev token or use default
+      const tokenParts = token.split('-');
+      const email = tokenParts.length > 3 ? tokenParts.slice(3).join('-').replace(/-at-/g, '@').replace(/-dot-/g, '.') : 'admin@oncosaferx.com';
+      
+      decodedUser = elevateIfSuperAdmin({
+        id: 'dev-user-' + Date.now(),
+        email: email,
+        role: email.includes('admin') ? 'super_admin' : 'oncologist'
+      });
+      
+      console.log('✅ DEV MODE: Created dev user:', {
+        email: decodedUser.email,
+        role: decodedUser.role,
+        id: decodedUser.id
+      });
+      
+      req.user = decodedUser;
+      return next();
+    }
+    
     console.log('✅ TOKEN EXTRACTED:', {
       path: req.path,
       tokenLength: token?.length || 0,
@@ -149,8 +173,6 @@ export async function authenticateToken(req, res, next) {
     });
 
     // For admin routes, prioritize Supabase JWT verification since frontend sends Supabase tokens
-    let decodedUser = null;
-    
     // Try Supabase JWT verification FIRST for admin routes
     if (req.path && req.path.includes('admin')) {
       console.log('🔍 Admin route detected, trying Supabase JWT verification first');

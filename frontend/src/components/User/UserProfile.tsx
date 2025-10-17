@@ -582,6 +582,8 @@ const UserProfile: React.FC = () => {
                       disabled={!isEditing}
                       className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
                     >
+                      <option value="super_admin">Super Administrator</option>
+                      <option value="admin">Administrator</option>
                       <option value="oncologist">Oncologist</option>
                       <option value="pharmacist">Pharmacist</option>
                       <option value="nurse">Nurse</option>

@@ -67,6 +67,8 @@ import diagnosticsRoutes from './routes/diagnosticsRoutes.js';
 import pushRoutes from './routes/pushRoutes.js';
 import fhirRoutes from './routes/fhirRoutes.js';
 import integrationRoutes from './routes/integrationRoutes.js';
+import multiPlatformRoutes from './routes/multiPlatformRoutes.js';
+import acquisitionEnhancementRoutes from './routes/acquisitionEnhancementRoutes.js';
 import { join as pathJoin } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -419,6 +421,8 @@ app.use('/api/diagnostics', diagnosticsRoutes);
 app.use('/api/push', pushRoutes);
 app.use('/api/fhir', fhirRoutes);
 app.use('/api/integrations', integrationRoutes);
+app.use('/api/multi-platform', multiPlatformRoutes);
+app.use('/api/acquisition', acquisitionEnhancementRoutes);
 
 // Serve OpenAPI spec (static YAML)
 app.get(['/openapi.yaml','/api/openapi.yaml'], (req, res) => {

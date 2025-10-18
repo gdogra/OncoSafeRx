@@ -359,7 +359,38 @@ Could you be more specific about what you'd like help with? You can ask question
     setInputValue('');
     setIsLoading(true);
 
-    // Simulate AI processing time
+    // Handle release notes / new features intent via API
+    try {
+      const q = inputValue.toLowerCase();
+      const wantsWhatsNew = /what'?s new|new features|release notes|integrations|auth diagnostics|api keys|openapi/.test(q);
+      if (wantsWhatsNew) {
+        const resp = await fetch('/api/release-notes');
+        let body: any = null;
+        try { body = await resp.json(); } catch {}
+        let content = '';
+        if (resp.ok && body?.version) {
+          content += `Here are the latest OncoSafeRx updates (${body.version} on ${body.date}):\n\n`;
+          if (body.added) content += `Added:\n${body.added}\n\n`;
+          if (body.changed) content += `Changed:\n${body.changed}\n\n`;
+          if (body.fixed) content += `Fixed:\n${body.fixed}\n\n`;
+          content += `You can find the OpenAPI spec at ${body.openapi}.`;
+        } else {
+          content = 'I could not load release notes right now. Please try again from the Admin Console → System/Integrations.';
+        }
+        const aiMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          type: 'ai',
+          content,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, aiMessage]);
+        saveMessageToPatient(aiMessage);
+        setIsLoading(false);
+        return;
+      }
+    } catch {}
+
+    // Default scripted response path
     setTimeout(() => {
       const aiResponse = generateAIResponse(inputValue);
       const aiMessage: ChatMessage = {
@@ -369,14 +400,10 @@ Could you be more specific about what you'd like help with? You can ask question
         timestamp: new Date(),
         relatedArticles: aiResponse.relatedArticles,
       };
-
       setMessages(prev => [...prev, aiMessage]);
-      
-      // Save AI message to patient context
       saveMessageToPatient(aiMessage);
-      
       setIsLoading(false);
-    }, 1000 + Math.random() * 1000); // 1-2 second delay
+    }, 800 + Math.random() * 800);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

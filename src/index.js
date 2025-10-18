@@ -67,6 +67,7 @@ import diagnosticsRoutes from './routes/diagnosticsRoutes.js';
 import pushRoutes from './routes/pushRoutes.js';
 import fhirRoutes from './routes/fhirRoutes.js';
 import integrationRoutes from './routes/integrationRoutes.js';
+import releaseRoutes from './routes/releaseRoutes.js';
 import multiPlatformRoutes from './routes/multiPlatformRoutes.js';
 import acquisitionEnhancementRoutes from './routes/acquisitionEnhancementRoutes.js';
 import { join as pathJoin } from 'path';
@@ -421,6 +422,7 @@ app.use('/api/diagnostics', diagnosticsRoutes);
 app.use('/api/push', pushRoutes);
 app.use('/api/fhir', fhirRoutes);
 app.use('/api/integrations', integrationRoutes);
+app.use('/api', releaseRoutes);
 app.use('/api/multi-platform', multiPlatformRoutes);
 app.use('/api/acquisition', acquisitionEnhancementRoutes);
 

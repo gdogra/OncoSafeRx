@@ -100,6 +100,8 @@ const TreatmentSimulationLab: React.FC = () => {
   const [bodySystems, setBodySystems] = useState<BodySystem[]>([]);
   const [predictiveModels, setPredictiveModels] = useState<PredictiveModel[]>([]);
   const [selectedTreatment, setSelectedTreatment] = useState<DrugPathway | null>(null);
+  const [selectedTarget, setSelectedTarget] = useState<string | null>(null);
+  const [selectedEnzyme, setSelectedEnzyme] = useState<string | null>(null);
 
   useEffect(() => {
     // Mock data initialization
@@ -529,17 +531,43 @@ const TreatmentSimulationLab: React.FC = () => {
                 </h3>
                 <div className="space-y-3">
                   {selectedScenario?.treatments[0]?.targetProteins.map((protein, idx) => (
-                    <div key={idx} className="flex items-center space-x-3 p-3 bg-white rounded-lg shadow-sm">
+                    <button
+                      type="button"
+                      key={idx}
+                      onClick={() => setSelectedTarget(protein)}
+                      className="w-full text-left flex items-center space-x-3 p-3 bg-white rounded-lg shadow-sm hover:bg-blue-50 focus:outline-none border"
+                    >
                       <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                         <Target className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">{protein}</p>
-                        <p className="text-sm text-gray-600">Target protein</p>
+                        <p className="text-sm text-gray-600">Tap to view details and pathway links</p>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
+                {selectedTarget && (
+                  <div className="mt-4 p-4 border rounded-lg bg-white shadow-sm">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="text-sm text-gray-500">Molecular Target</div>
+                        <div className="text-lg font-semibold text-gray-900">{selectedTarget}</div>
+                      </div>
+                      <button onClick={() => setSelectedTarget(null)} className="text-xs border rounded px-2 py-1">Close</button>
+                    </div>
+                    <div className="mt-2 text-sm text-gray-700 whitespace-pre-wrap">
+                      {(selectedScenario?.treatments?.[0]?.name || 'The selected drug')} binds to {selectedTarget} to modulate its activity.
+                      This interaction can change downstream signaling responsible for efficacy and side effects.
+                    </div>
+                    <div className="mt-3 text-xs text-gray-600">Explore:</div>
+                    <div className="mt-1 flex flex-wrap gap-2">
+                      <a href={`https://www.uniprot.org/uniprotkb?query=${encodeURIComponent(selectedTarget)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100">UniProt</a>
+                      <a href={`https://reactome.org/content/query?q=${encodeURIComponent(selectedTarget)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100">Reactome</a>
+                      <a href={`https://www.ncbi.nlm.nih.gov/gene/?term=${encodeURIComponent(selectedTarget)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100">NCBI Gene</a>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="bg-gradient-to-br from-green-50 to-teal-50 p-6 rounded-lg">
@@ -549,17 +577,42 @@ const TreatmentSimulationLab: React.FC = () => {
                 </h3>
                 <div className="space-y-3">
                   {selectedScenario?.treatments[0]?.metabolismPathway.map((enzyme, idx) => (
-                    <div key={idx} className="flex items-center space-x-3 p-3 bg-white rounded-lg shadow-sm">
+                    <button
+                      type="button"
+                      key={idx}
+                      onClick={() => setSelectedEnzyme(enzyme)}
+                      className="w-full text-left flex items-center space-x-3 p-3 bg-white rounded-lg shadow-sm hover:bg-green-50 focus:outline-none border"
+                    >
                       <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                         <Zap className="w-5 h-5 text-green-600" />
                       </div>
                       <div>
                         <p className="font-medium text-gray-900">{enzyme}</p>
-                        <p className="text-sm text-gray-600">Metabolizing enzyme</p>
+                        <p className="text-sm text-gray-600">Tap to view role in metabolism</p>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
+                {selectedEnzyme && (
+                  <div className="mt-4 p-4 border rounded-lg bg-white shadow-sm">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="text-sm text-gray-500">Metabolizing Enzyme</div>
+                        <div className="text-lg font-semibold text-gray-900">{selectedEnzyme}</div>
+                      </div>
+                      <button onClick={() => setSelectedEnzyme(null)} className="text-xs border rounded px-2 py-1">Close</button>
+                    </div>
+                    <div className="mt-2 text-sm text-gray-700 whitespace-pre-wrap">
+                      {selectedEnzyme} participates in the metabolism of {(selectedScenario?.treatments?.[0]?.name || 'the drug')}. Changes in {selectedEnzyme} activity (e.g., inhibitors/inducers or PGx) can alter exposure, efficacy, and toxicity.
+                    </div>
+                    <div className="mt-3 text-xs text-gray-600">Explore:</div>
+                    <div className="mt-1 flex flex-wrap gap-2">
+                      <a href={`https://go.drugbank.com/unearth/q?searcher=targets&query=${encodeURIComponent(selectedEnzyme)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100">DrugBank</a>
+                      <a href={`https://www.reactome.org/content/query?q=${encodeURIComponent(selectedEnzyme)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100">Reactome</a>
+                      <a href={`https://www.genecards.org/Search/Keyword?queryString=${encodeURIComponent(selectedEnzyme)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100">GeneCards</a>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </Card>

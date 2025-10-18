@@ -951,6 +951,76 @@ router.get('/audit', asyncHandler(async (req, res) => {
   }
 }));
 
+// Backfill richer profile fields on users (first/last/full_name, preferences, persona)
+router.post('/users/backfill-profile-fields', asyncHandler(async (req, res) => {
+  try {
+    if (!supabaseService.enabled || !supabaseService.client) {
+      return res.status(503).json({ error: 'database_unavailable' });
+    }
+
+    // Fetch all users via service role (bypasses RLS)
+    const list = await supabaseService.getAllUsers();
+    let scanned = 0;
+    let updated = 0;
+    const changes = { names: 0, fullName: 0, preferences: 0, persona: 0 };
+    const updatedIds = [];
+
+    function deriveFirstLastFromFull(full) {
+      if (!full) return { first: null, last: null };
+      const parts = String(full).trim().split(/\s+/);
+      const first = parts[0] || '';
+      const last = parts.slice(1).join(' ') || '';
+      return { first, last };
+    }
+
+    function deriveFullFromFirstLast(first, last) {
+      const fn = (first || '').trim();
+      const ln = (last || '').trim();
+      const full = [fn, ln].filter(Boolean).join(' ');
+      return full || null;
+    }
+
+    for (const u of (list || [])) {
+      scanned++;
+      const update = {};
+      // Normalize strings
+      const full_name = (u.full_name || '').trim() || null;
+      const first_name = (u.first_name || '').trim() || null;
+      const last_name = (u.last_name || '').trim() || null;
+
+      // Names backfill
+      if ((!first_name || !last_name) && full_name) {
+        const d = deriveFirstLastFromFull(full_name);
+        if (!first_name && d.first) update.first_name = d.first;
+        if (!last_name && (d.last !== null && d.last !== undefined)) update.last_name = d.last;
+        if (update.first_name || update.last_name) changes.names++;
+      }
+      if (!full_name && (first_name || last_name)) {
+        const full = deriveFullFromFirstLast(first_name, last_name);
+        if (full) { update.full_name = full; changes.fullName++; }
+      }
+
+      // JSON fields backfill
+      if (u.preferences == null || typeof u.preferences !== 'object') { update.preferences = {}; changes.preferences++; }
+      if (u.persona == null || typeof u.persona !== 'object') { update.persona = {}; changes.persona++; }
+
+      if (Object.keys(update).length) {
+        try {
+          await supabaseService.updateUser(u.id, update);
+          updated++;
+          updatedIds.push(u.id);
+        } catch (e) {
+          // continue scanning even if single row fails
+        }
+      }
+    }
+
+    return res.json({ ok: true, scanned, updated, changes, sample: updatedIds.slice(0, 10) });
+  } catch (e) {
+    return res.status(500).json({ error: 'backfill_failed', message: e?.message || String(e) });
+  }
+}));
+
 // Backfill roles based on auth metadata role when DB role is missing
 router.post('/users/backfill-roles', asyncHandler(async (req, res) => {
   try {

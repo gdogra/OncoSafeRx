@@ -1236,9 +1236,26 @@ const ServerPatients: React.FC = () => {
                 );
               })}
               {patients.length === 0 && !loading && (
-                <tr>
-                  <td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-500">No patients found</td>
-                </tr>
+                <>
+                  <tr>
+                    <td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-500">No patients found</td>
+                  </tr>
+                  <tr>
+                    <td colSpan={4} className="px-4 py-4">
+                      <div className="mx-auto max-w-2xl p-3 border rounded bg-yellow-50 border-yellow-200 text-yellow-900 text-sm">
+                        <div className="font-medium mb-1">Why is the list empty?</div>
+                        <ul className="list-disc pl-5 space-y-1">
+                          <li>Ensure you are logged in (role: oncologist/clinical).</li>
+                          <li>Backend must verify Supabase tokens. Set <code>SUPABASE_JWT_SECRET</code> or <code>SUPABASE_URL</code> + <code>SUPABASE_SERVICE_ROLE_KEY</code> and restart.</li>
+                          <li>Frontend must be built with <code>VITE_ENABLE_PATIENT_API=true</code> to call the server.</li>
+                        </ul>
+                        <div className="mt-2 text-sm">
+                          Go to <a href="/admin/console" className="text-blue-700 underline">Admin Console</a> → Auth tab to view diagnostics and run a live verification.
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </>
               )}
               {loading && (
                 <tr>

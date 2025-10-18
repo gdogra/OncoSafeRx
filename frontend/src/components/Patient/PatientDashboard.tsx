@@ -122,15 +122,12 @@ const PatientDashboard: React.FC = () => {
               onClick: async () => {
                 actions.setCurrentPatient(deleted);
                 try {
-                  const { data: sess } = await supabase.auth.getSession();
-                  const token = sess?.session?.access_token;
-                  if (token) {
-                    await fetch('/api/patients', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                      body: JSON.stringify({ patient: deleted })
-                    });
-                  }
+                  const { authedFetch } = await import('../../utils/authedFetch');
+                  await authedFetch('/api/patients', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ patient: deleted })
+                  });
                 } catch {}
               }
             });

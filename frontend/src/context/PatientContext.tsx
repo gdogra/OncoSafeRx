@@ -622,10 +622,9 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
       // Try to hydrate from server if available (flag-controlled)
       (async () => {
         try {
-          const { data: sess } = await supabase.auth.getSession();
-          const token = sess?.session?.access_token;
-          if (!token || !ENABLE_PATIENT_API) return; // skip if no session or disabled
-          const resp = await fetch('/api/patients', { headers: { Authorization: `Bearer ${token}` } } as any);
+          if (!ENABLE_PATIENT_API) return;
+          const { authedFetch } = await import('../utils/authedFetch');
+          const resp = await authedFetch('/api/patients');
           if (!resp.ok) return;
           const body = await resp.json();
           if (Array.isArray(body?.patients) && body.patients.length) {
@@ -649,17 +648,14 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
       localStorage.setItem(lsKey('current_patient'), JSON.stringify(state.currentPatient));
       (async () => {
         try {
-          const { data: sess } = await supabase.auth.getSession();
-          const token = sess?.session?.access_token;
-          const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-          if (token) headers.Authorization = `Bearer ${token}`;
           if (!ENABLE_PATIENT_API) {
             dispatch({ type: 'SET_OFFLINE_SAVE', payload: { offline: true, note: 'Working in offline mode' } });
             return;
           }
-          const resp = await fetch('/api/patients', {
+          const { authedFetch } = await import('../utils/authedFetch');
+          const resp = await authedFetch('/api/patients', {
             method: 'POST',
-            headers,
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ patient: state.currentPatient })
           } as any);
           try {
@@ -756,24 +752,19 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
     removePatient: async (id: string) => {
       try {
         dispatch({ type: 'REMOVE_PATIENT', payload: { id } });
-        const { data: sess } = await supabase.auth.getSession();
-        const token = sess?.session?.access_token;
-        if (!token || !ENABLE_PATIENT_API) return;
-        await fetch(`/api/patients/${encodeURIComponent(id)}`, {
+        if (!ENABLE_PATIENT_API) return;
+        const { authedFetch } = await import('../utils/authedFetch');
+        await authedFetch(`/api/patients/${encodeURIComponent(id)}`, {
           method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` },
         } as any);
       } catch (_) {}
     },
 
     syncFromServer: async () => {
       try {
-        const { data: sess } = await supabase.auth.getSession();
-        const token = sess?.session?.access_token;
-        const headers: Record<string, string> = {};
-        if (token) headers.Authorization = `Bearer ${token}`;
         if (!ENABLE_PATIENT_API) return;
-        const resp = await fetch('/api/patients', { headers } as any);
+        const { authedFetch } = await import('../utils/authedFetch');
+        const resp = await authedFetch('/api/patients');
         if (!resp.ok) return;
         const body = await resp.json();
         if (Array.isArray(body?.patients)) {

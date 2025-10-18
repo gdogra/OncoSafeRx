@@ -727,11 +727,28 @@ export class SupabaseAuthService {
       
       // Query Supabase users table for the canonical role and profile fields
       try {
-        const { data: userData, error } = await supabase
-          .from('users')
-          .select('id,email,first_name,last_name,role,specialty,institution,license_number,years_experience,preferences,persona')
-          .eq('id', user.id)
-          .maybeSingle();
+        // Prefer richer profile fields if available; gracefully fall back to minimal selection
+        let userData: any = null;
+        let error: any = null;
+        try {
+          const full = await supabase
+            .from('users')
+            .select('id,email,role,full_name,first_name,last_name,specialty,institution,license_number,years_experience,preferences,persona,created_at,updated_at')
+            .eq('id', user.id)
+            .maybeSingle();
+          userData = full.data; error = full.error;
+          if (error && /column/i.test(error.message)) {
+            // Column mismatch, fall back to minimal selection
+            const minimal = await supabase
+              .from('users')
+              .select('id,email,role,full_name')
+              .eq('id', user.id)
+              .maybeSingle();
+            userData = minimal.data; error = minimal.error;
+          }
+        } catch (e: any) {
+          error = e;
+        }
         if (!error && userData) {
           dbProfile = userData;
           if (!role && userData.role) role = userData.role;
@@ -766,15 +783,15 @@ export class SupabaseAuthService {
     const profile = {
       id: user.id,
       email: user.email || fallbackData?.email || '',
-      firstName: dbProfile?.first_name || derivedFirst || 'User',
-      lastName: dbProfile?.last_name || derivedLast || '',
+      firstName: (dbProfile?.first_name) || (dbProfile?.full_name ? String(dbProfile.full_name).split(' ')[0] : null) || derivedFirst || 'User',
+      lastName: (dbProfile?.last_name) || (dbProfile?.full_name ? String(dbProfile.full_name).split(' ').slice(1).join(' ') : null) || derivedLast || '',
       role: finalRole as UserProfile['role'],
       specialty: dbProfile?.specialty || user.user_metadata?.specialty || fallbackData?.specialty || '',
       institution: dbProfile?.institution || user.user_metadata?.institution || fallbackData?.institution || '',
       licenseNumber: dbProfile?.license_number || user.user_metadata?.license_number || fallbackData?.licenseNumber || '',
-      yearsExperience: dbProfile?.years_experience || user.user_metadata?.years_experience || fallbackData?.yearsExperience || 0,
-      preferences: dbProfile?.preferences || user.user_metadata?.preferences || this.getDefaultPreferences(role),
-      persona: dbProfile?.persona || user.user_metadata?.persona || this.createDefaultPersona(role),
+      yearsExperience: (typeof dbProfile?.years_experience === 'number' ? dbProfile.years_experience : undefined) || user.user_metadata?.years_experience || fallbackData?.yearsExperience || 0,
+      preferences: (dbProfile?.preferences && typeof dbProfile.preferences === 'object') ? dbProfile.preferences : (user.user_metadata?.preferences || this.getDefaultPreferences(role)),
+      persona: (dbProfile?.persona && typeof dbProfile.persona === 'object') ? dbProfile.persona : (user.user_metadata?.persona || this.createDefaultPersona(role)),
       createdAt: user.created_at || new Date().toISOString(),
       lastLogin: new Date().toISOString(),
       isActive: true,

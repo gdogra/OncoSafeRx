@@ -98,6 +98,9 @@ const AdminConsole: React.FC = () => {
   const [highlightZeros, setHighlightZeros] = useState(true);
   const [hideNoActivity, setHideNoActivity] = useState(false);
   const [seriesExportTenant, setSeriesExportTenant] = useState<string>('');
+  // System tools state
+  const [backfillBusy, setBackfillBusy] = useState(false);
+  const [backfillResult, setBackfillResult] = useState<any | null>(null);
   
   // Audit log state
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
@@ -386,6 +389,22 @@ const AdminConsole: React.FC = () => {
 
   const getStatusColor = (isActive: boolean) => {
     return isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+  };
+
+  // Auth diagnostics loader (placed near other loaders)
+  const loadAuthDiagnostics = async () => {
+    try {
+      setAuthDiagLoading(true);
+      setAuthDiagError(null);
+      const resp = await adminApi.get('/api/auth/diagnostics');
+      const body = await resp.json();
+      setAuthDiag(body);
+    } catch (e: any) {
+      setAuthDiag(null);
+      setAuthDiagError(e?.message || 'Failed to load diagnostics');
+    } finally {
+      setAuthDiagLoading(false);
+    }
   };
 
   const getRoleDisplayName = (roleId: string) => {
@@ -773,6 +792,51 @@ const AdminConsole: React.FC = () => {
       {activeTab === 'overview' && renderOverview()}
       {activeTab === 'users' && renderUsers()}
       {activeTab === 'analytics' && renderAnalytics()}
+      {activeTab === 'auth' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold text-gray-900">Auth Diagnostics</h3>
+              <button onClick={loadAuthDiagnostics} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800">Refresh</button>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">Checks token presence and backend verification paths for Supabase and backend JWTs.</p>
+            {authDiagLoading && (<div className="text-sm text-gray-600">Loading…</div>)}
+            {authDiagError && (<div className="text-sm text-red-600">{authDiagError}</div>)}
+            {authDiag && (
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="p-3 border rounded">
+                    <div className="text-sm font-medium text-gray-900 mb-1">Incoming Request</div>
+                    <ul className="text-sm text-gray-700 space-y-1">
+                      <li>Token present: <span className={authDiag.tokenPresent ? 'text-green-600' : 'text-red-600'}>{String(!!authDiag.tokenPresent)}</span></li>
+                      <li>Backend JWT valid: <span className={authDiag.backendJwtValid ? 'text-green-600' : 'text-red-600'}>{String(!!authDiag.backendJwtValid)}</span></li>
+                      <li>User hint: <span className="text-gray-800">{authDiag.userHint ? `${authDiag.userHint.email || authDiag.userHint.id} (${authDiag.userHint.role || authDiag.userHint.path})` : 'n/a'}</span></li>
+                    </ul>
+                  </div>
+                  <div className="p-3 border rounded">
+                    <div className="text-sm font-medium text-gray-900 mb-1">Server Config</div>
+                    <ul className="text-sm text-gray-700 space-y-1">
+                      <li>Supabase HS256 configured: <span className={authDiag.supabaseHs256Configured ? 'text-green-600' : 'text-red-600'}>{String(!!authDiag.supabaseHs256Configured)}</span></li>
+                      <li>Service-role introspection: <span className={authDiag.supabaseIntrospectionConfigured ? 'text-green-600' : 'text-red-600'}>{String(!!authDiag.supabaseIntrospectionConfigured)}</span></li>
+                      <li>Fallback allowed (dev): <span className="text-gray-800">{String(!!authDiag.fallbackAllowed)}</span></li>
+                      <li>Query token allowed (dev): <span className="text-gray-800">{String(!!authDiag.allowQueryToken)}</span></li>
+                    </ul>
+                  </div>
+                </div>
+                {(!authDiag.supabaseHs256Configured && !authDiag.supabaseIntrospectionConfigured) && (
+                  <div className="p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-900 text-sm">
+                    No Supabase verification configured. Set SUPABASE_JWT_SECRET or SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY on the backend.
+                  </div>
+                )}
+                <div>
+                  <div className="text-sm font-medium text-gray-900 mb-1">Raw Diagnostics</div>
+                  <pre className="text-xs bg-gray-50 border border-gray-200 rounded p-3 overflow-auto max-h-64">{JSON.stringify(authDiag, null, 2)}</pre>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       {activeTab === 'integrations' && (
         <div className="space-y-6">
           <div className="bg-white rounded border border-gray-200 p-6">
@@ -1103,10 +1167,43 @@ const AdminConsole: React.FC = () => {
         </div>
       )}
       {activeTab === 'system' && (
-        <div className="text-center py-12">
-          <Settings className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">System Settings</h3>
-          <p className="text-gray-600">System configuration and settings management.</p>
+        <div className="space-y-6">
+          <div className="text-center py-6">
+            <Settings className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+            <h3 className="text-lg font-medium text-gray-900">System Tools</h3>
+            <p className="text-gray-600">Administrative utilities and maintenance tasks.</p>
+          </div>
+
+          <div className="bg-white rounded border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-md font-semibold text-gray-900">Backfill User Profile Fields</h4>
+              <button
+                onClick={async () => {
+                  try {
+                    setBackfillBusy(true);
+                    setBackfillResult(null);
+                    const resp = await adminApi.post('/api/admin/users/backfill-profile-fields', {});
+                    const body = await resp.json();
+                    setBackfillResult(body);
+                    showToast('success', `Backfill complete: updated ${body.updated}/${body.scanned}`);
+                  } catch (e: any) {
+                    setBackfillResult({ error: e?.message || 'failed' });
+                    showToast('error', e?.message || 'Backfill failed');
+                  } finally {
+                    setBackfillBusy(false);
+                  }
+                }}
+                disabled={backfillBusy}
+                className={`px-3 py-1.5 rounded text-sm text-white ${backfillBusy ? 'bg-blue-400 opacity-70 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+              >
+                {backfillBusy ? 'Running…' : 'Run Backfill'}
+              </button>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">Ensures first/last/full_name are consistent; initializes preferences/persona JSON as needed.</p>
+            {backfillResult && (
+              <pre className="text-xs bg-gray-50 border border-gray-200 rounded p-3 overflow-auto max-h-64">{JSON.stringify(backfillResult, null, 2)}</pre>
+            )}
+          </div>
         </div>
       )}
       {activeTab === 'audit' && (

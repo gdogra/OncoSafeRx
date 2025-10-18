@@ -26,6 +26,11 @@ export class PatientService {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
       };
+      const token = this.getAuthToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+        headers['X-Forwarded-Authorization'] = `Bearer ${token}`;
+      }
       
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
@@ -75,6 +80,8 @@ export class PatientService {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
+      const token = this.getAuthToken();
+      if (token) headers['Authorization'] = `Bearer ${token}`;
       const response = await fetch(`${this.API_BASE_URL}/${id}`, {
         headers,
         signal: controller.signal
@@ -108,6 +115,8 @@ export class PatientService {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
       };
+      const token = this.getAuthToken();
+      if (token) headers['Authorization'] = `Bearer ${token}`;
       
       // Transform flat Patient structure to nested backend format
       const backendPatient = {
@@ -233,6 +242,8 @@ export class PatientService {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
+      const token = this.getAuthToken();
+      if (token) headers['Authorization'] = `Bearer ${token}`;
       const response = await fetch(`${this.API_BASE_URL}/${id}`, {
         method: 'DELETE',
         headers,

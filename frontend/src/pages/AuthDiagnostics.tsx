@@ -78,12 +78,13 @@ const AuthDiagnostics: React.FC = () => {
       setProfileError(null);
       if (session?.user?.id) {
         try {
-          const query = supabase
-            .from('users')
-            .select('id,email,first_name,last_name,role,created_at')
-            .eq('id', session.user.id)
-            .maybeSingle() as unknown as Promise<any>;
-          const result: any = await withTimeout(query, 4000);
+          // Prefer richer selection; fall back to minimal if columns missing
+          let q: any = supabase.from('users').select('id,email,role,full_name,first_name,last_name,specialty,institution,license_number,years_experience,preferences,persona,created_at,updated_at').eq('id', session.user.id).maybeSingle();
+          let result: any = await withTimeout(q, 4000);
+          if (result?.error && /column/i.test(result.error.message)) {
+            q = supabase.from('users').select('id,email,role,full_name').eq('id', session.user.id).maybeSingle();
+            result = await withTimeout(q, 4000);
+          }
           if (result?.error) {
             setProfileError(result.error.message || 'Profile query error');
           }

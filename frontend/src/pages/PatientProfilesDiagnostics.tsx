@@ -17,7 +17,8 @@ const PatientProfilesDiagnostics: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const resp = await fetch('/api/patients/with-profiles');
+        const { authedFetch } = await import('../utils/authedFetch');
+        const resp = await authedFetch('/api/patients/with-profiles');
         if (!resp.ok) throw new Error(await resp.text());
         const body = await resp.json();
         if (!cancelled) setItems(Array.isArray(body?.items) ? body.items : []);
@@ -37,7 +38,8 @@ const PatientProfilesDiagnostics: React.FC = () => {
   const refreshOne = async (id: string) => {
     setSyncing((s) => ({ ...s, [id]: true }));
     try {
-      const resp = await fetch(`/api/patients/${encodeURIComponent(id)}/with-profile`);
+      const { authedFetch } = await import('../utils/authedFetch');
+      const resp = await authedFetch(`/api/patients/${encodeURIComponent(id)}/with-profile`);
       if (!resp.ok) throw new Error(await resp.text());
       const body = await resp.json();
       setItems((prev) => prev.map((it) => (it.id === id ? { id, patient: body.patient, profile: body.profile } : it)));
@@ -53,7 +55,8 @@ const PatientProfilesDiagnostics: React.FC = () => {
   const rebuildOne = async (id: string) => {
     setRebuilding((s) => ({ ...s, [id]: true }));
     try {
-      const resp = await fetch(`/api/patients/${encodeURIComponent(id)}/sync-profile`, { method: 'POST' });
+      const { authedFetch } = await import('../utils/authedFetch');
+      const resp = await authedFetch(`/api/patients/${encodeURIComponent(id)}/sync-profile`, { method: 'POST' });
       if (!resp.ok) throw new Error(await resp.text());
       const body = await resp.json();
       setItems((prev) => prev.map((it) => (it.id === id ? { id, patient: it.patient, profile: body.profile } : it)));

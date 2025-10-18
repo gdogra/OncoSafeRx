@@ -101,6 +101,28 @@ const AdminConsole: React.FC = () => {
   // System tools state
   const [backfillBusy, setBackfillBusy] = useState(false);
   const [backfillResult, setBackfillResult] = useState<any | null>(null);
+  // What's New drawer
+  const [whatsNewOpen, setWhatsNewOpen] = useState(false);
+  const [whatsNewLoading, setWhatsNewLoading] = useState(false);
+  const [whatsNewError, setWhatsNewError] = useState<string | null>(null);
+  const [whatsNew, setWhatsNew] = useState<any | null>(null);
+
+  const openWhatsNew = async () => {
+    try {
+      setWhatsNewOpen(true);
+      setWhatsNewLoading(true);
+      setWhatsNewError(null);
+      const resp = await fetch('/api/release-notes');
+      const body = await resp.json().catch(() => null);
+      if (!resp.ok) throw new Error(body?.error || `HTTP ${resp.status}`);
+      setWhatsNew(body);
+    } catch (e: any) {
+      setWhatsNew(null);
+      setWhatsNewError(e?.message || 'Failed to load release notes');
+    } finally {
+      setWhatsNewLoading(false);
+    }
+  };
   
   // Audit log state
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
@@ -720,9 +742,16 @@ const AdminConsole: React.FC = () => {
           <div className="p-2 bg-red-100 rounded-lg">
             <Shield className="w-6 h-6 text-red-600" />
           </div>
-          <div>
+          <div className="flex items-center gap-3">
             <h1 className="text-2xl font-bold text-gray-900">Admin Console</h1>
             <p className="text-gray-600">System administration and visitor analytics management</p>
+            <button
+              onClick={openWhatsNew}
+              className="ml-2 inline-flex items-center px-2 py-1 text-xs bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded hover:opacity-90"
+              title="What's New"
+            >
+              What's New
+            </button>
           </div>
         </div>
         {!PUSH_ADMIN_ENABLED && (
@@ -731,6 +760,53 @@ const AdminConsole: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* What's New Drawer */}
+      {whatsNewOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="fixed inset-0 bg-black/40" onClick={() => setWhatsNewOpen(false)}></div>
+          <div className="relative ml-auto h-full w-full max-w-xl bg-white shadow-xl border-l border-gray-200">
+            <div className="p-4 border-b flex items-center justify-between">
+              <div>
+                <div className="text-sm text-gray-500">Release Notes</div>
+                <div className="text-lg font-semibold text-gray-900">{whatsNew?.version || 'Latest'} {whatsNew?.date ? `• ${whatsNew.date}` : ''}</div>
+              </div>
+              <button onClick={() => setWhatsNewOpen(false)} className="px-2 py-1 text-sm border rounded">Close</button>
+            </div>
+            <div className="p-4 space-y-4 overflow-y-auto h-[calc(100%-56px)]">
+              {whatsNewLoading && <div className="text-sm text-gray-600">Loading release notes…</div>}
+              {whatsNewError && <div className="text-sm text-red-600">{whatsNewError}</div>}
+              {whatsNew && (
+                <>
+                  {whatsNew.added && (
+                    <div>
+                      <div className="text-sm font-medium text-gray-900 mb-1">Added</div>
+                      <pre className="text-sm bg-gray-50 border border-gray-200 rounded p-3 whitespace-pre-wrap">{whatsNew.added}</pre>
+                    </div>
+                  )}
+                  {whatsNew.changed && (
+                    <div>
+                      <div className="text-sm font-medium text-gray-900 mb-1">Changed</div>
+                      <pre className="text-sm bg-gray-50 border border-gray-200 rounded p-3 whitespace-pre-wrap">{whatsNew.changed}</pre>
+                    </div>
+                  )}
+                  {whatsNew.fixed && (
+                    <div>
+                      <div className="text-sm font-medium text-gray-900 mb-1">Fixed</div>
+                      <pre className="text-sm bg-gray-50 border border-gray-200 rounded p-3 whitespace-pre-wrap">{whatsNew.fixed}</pre>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <a href="/openapi.yaml" className="inline-flex items-center px-2 py-1 text-xs bg-gray-100 border rounded hover:bg-gray-200">View OpenAPI</a>
+                    <button onClick={() => setActiveTab('auth')} className="inline-flex items-center px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700">Go to Auth</button>
+                    <button onClick={() => setActiveTab('integrations')} className="inline-flex items-center px-2 py-1 text-xs bg-purple-600 text-white rounded hover:bg-purple-700">Go to Integrations</button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Admin Info Bar */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">

@@ -1,0 +1,26 @@
+{
+  "summary": {
+    "totalInterviews": 23,
+    "averageSatisfaction": 4.3,
+    "willingnessToRecommend": "87%",
+    "willingnessToPayPerMonth": "$250-400"
+  },
+  "keyFeedback": [
+    "This would have taken me 45 minutes to research - OncoSafeRx gave me the answer in 2 minutes",
+    "Finally, an AI tool that understands oncology workflow",
+    "The evidence citations give me confidence in the recommendations",
+    "Much better than IBM Watson - actually integrates with how I work"
+  ],
+  "requestedFeatures": [
+    "EHR integration with Epic",
+    "Mobile app for on-the-go access", 
+    "Drug dosing calculator",
+    "Clinical trial matching"
+  ],
+  "concernsAddressed": [
+    "Data security and HIPAA compliance",
+    "AI accuracy and reliability",
+    "Workflow disruption minimization",
+    "Cost justification to administration"
+  ]
+}

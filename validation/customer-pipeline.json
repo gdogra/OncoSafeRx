@@ -1,0 +1,33 @@
+{
+  "activePilots": {
+    "count": 5,
+    "sites": [
+      {
+        "name": "Regional Cancer Center",
+        "physicians": 12,
+        "patients": 89,
+        "satisfaction": 4.5,
+        "status": "converting to paid"
+      },
+      {
+        "name": "Academic Medical Center",
+        "physicians": 8,
+        "patients": 67,
+        "satisfaction": 4.2,
+        "status": "extending pilot"
+      }
+    ]
+  },
+  "pipeline": {
+    "qualified": 15,
+    "evaluating": 8,
+    "negotiating": 3,
+    "estimatedQ1Revenue": "$125K"
+  },
+  "targetCustomers": [
+    "Mayo Clinic (evaluation phase)",
+    "MD Anderson (initial contact)",
+    "Cleveland Clinic (pilot discussion)",
+    "Kaiser Permanente (partnership interest)"
+  ]
+}

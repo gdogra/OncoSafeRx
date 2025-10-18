@@ -1,0 +1,228 @@
+openapi: 3.0.3
+info:
+  title: OncoSafeRx API
+  version: 20.0.0
+  description: Core REST API for OncoSafeRx, including admin and integration endpoints.
+servers:
+  - url: / 
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+
+  /metrics:
+    get:
+      summary: Prometheus metrics (protected with optional token)
+      parameters:
+        - in: header
+          name: X-Metrics-Token
+          schema: { type: string }
+        - in: query
+          name: token
+          schema: { type: string }
+      responses:
+        '200': { description: Prometheus metrics text }
+        '403': { description: Forbidden }
+
+  /metrics/help:
+    get:
+      summary: Metrics help (human-readable)
+      responses:
+        '200':
+          description: Summary JSON
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metrics:
+                    type: array
+                    items:
+                      type: object
+                  notes:
+                    type: array
+                    items: { type: string }
+
+  /api/integrations/ping:
+    get:
+      summary: Integration ping
+      security: [ { apiKeyAuth: [] } ]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  tenant: { type: string }
+                  keyPhase: { type: string, enum: [active, next] }
+                  time: { type: string, format: date-time }
+        '401': { description: Missing credentials }
+        '403': { description: Invalid API key }
+
+  /api/integrations/patients/lookup:
+    get:
+      summary: Lookup patient by MRN
+      security: [ { apiKeyAuth: [] } ]
+      parameters:
+        - in: query
+          name: mrn
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of matched patients (may be empty)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patients:
+                    type: array
+                    items: { $ref: '#/components/schemas/Patient' }
+        '400': { description: MRN required }
+
+  /api/admin/integrations/keys/usage:
+    get:
+      summary: Per-tenant key usage summary
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200':
+          description: Usage map
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  usage:
+                    type: object
+
+  /api/admin/integrations/keys/health:
+    get:
+      summary: Per-tenant key health
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200':
+          description: Health summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  tenants:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tenant: { type: string }
+                        hasActive: { type: boolean }
+                        hasNext: { type: boolean }
+                        activeCount: { type: integer }
+                        nextCount: { type: integer }
+
+  /api/admin/integrations/keys/rotate:
+    post:
+      summary: Rotate tenant API keys
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tenant: { type: string }
+                nextKeys:
+                  type: array
+                  items: { type: string }
+                promote: { type: boolean }
+                retireActive: { type: boolean }
+              required: [ tenant ]
+      responses:
+        '200': { description: OK }
+        '400': { description: Validation error }
+
+  /api/admin/integrations/keys/update:
+    post:
+      summary: Add/remove keys in a phase
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tenant: { type: string }
+                phase: { type: string, enum: [active, next] }
+                add:
+                  type: array
+                  items: { type: string }
+                remove:
+                  type: array
+                  items: { type: string }
+                force: { type: boolean }
+              required: [ tenant, phase ]
+      responses:
+        '200': { description: OK }
+        '400': { description: Validation error }
+
+  /api/admin/integrations/keys/clear:
+    post:
+      summary: Clear all keys in a phase
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tenant: { type: string }
+                phase: { type: string, enum: [active, next] }
+                force: { type: boolean }
+              required: [ tenant, phase ]
+      responses:
+        '200': { description: OK }
+        '400': { description: Validation error }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  schemas:
+    Health:
+      type: object
+      properties:
+        status: { type: string }
+        timestamp: { type: string, format: date-time }
+        version: { type: string }
+    Patient:
+      type: object
+      properties:
+        id: { type: string }
+        user_id: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        demographics:
+          type: object
+        medications:
+          type: array
+          items: { type: object }
+

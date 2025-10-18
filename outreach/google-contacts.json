@@ -1,0 +1,31 @@
+{
+  "primaryTargets": [
+    {
+      "name": "Aashima Gupta",
+      "title": "Director, Google Cloud Healthcare",
+      "strategy": "Healthcare infrastructure synergy angle",
+      "linkedinUrl": "https://linkedin.com/in/aashimagupta",
+      "priority": "High"
+    },
+    {
+      "name": "Karen DeSalvo",
+      "title": "Chief Health Officer, Google",
+      "strategy": "Clinical leadership and physician adoption",
+      "linkedinUrl": "https://linkedin.com/in/karendesalvo",
+      "priority": "High"
+    },
+    {
+      "name": "Rajen Sheth", 
+      "title": "Director, Product Management, Vertex AI",
+      "strategy": "AI/ML integration and showcase value",
+      "linkedinUrl": "https://linkedin.com/in/rajensheth",
+      "priority": "Medium"
+    }
+  ],
+  "outreachStrategy": {
+    "approach": "Healthcare AI partnership discussion",
+    "valueProposition": "Ready-to-deploy clinical AI for Google Cloud Healthcare",
+    "timeline": "30-day outreach campaign",
+    "followUpCadence": "Weekly touchpoints"
+  }
+}

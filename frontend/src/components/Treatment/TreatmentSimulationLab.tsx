@@ -31,6 +31,7 @@ import {
   Timer
 } from 'lucide-react';
 import Card from '../UI/Card';
+import PathwayDiagram from './PathwayDiagram';
 
 interface DrugPathway {
   drugName: string;
@@ -614,6 +615,19 @@ const TreatmentSimulationLab: React.FC = () => {
                   </div>
                 )}
               </div>
+            </div>
+            {/* Simple static pathway diagram with highlighting */}
+            <div className="mt-6">
+              <PathwayDiagram
+                drugName={selectedScenario?.treatments?.[0]?.drugName || selectedScenario?.treatments?.[0]?.name || 'Drug'}
+                targets={selectedScenario?.treatments?.[0]?.targetProteins || []}
+                enzymes={selectedScenario?.treatments?.[0]?.metabolismPathway || []}
+                selectedTarget={selectedTarget}
+                selectedEnzyme={selectedEnzyme}
+                onSelectTarget={(t) => setSelectedTarget(t)}
+                onSelectEnzyme={(e) => setSelectedEnzyme(e)}
+                className="border rounded-lg"
+              />
             </div>
           </Card>
         </div>

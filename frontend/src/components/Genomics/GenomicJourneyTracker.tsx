@@ -207,6 +207,102 @@ const GenomicJourneyTracker: React.FC = () => {
     ]);
   }, []);
 
+  const handleShareWithProvider = () => {
+    const reportData = {
+      patientId: 'patient-123', // This would come from context
+      genomicMarkers,
+      treatmentDecisions,
+      familyRisk,
+      researchOpportunities,
+      generatedAt: new Date().toISOString(),
+      reportType: 'genomic-journey'
+    };
+
+    // Create shareable link or email
+    const shareUrl = `${window.location.origin}/shared-report/${btoa(JSON.stringify(reportData))}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'Genomic Journey Report',
+        text: 'My personalized genomic analysis and treatment journey',
+        url: shareUrl
+      });
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert('Share link copied to clipboard!');
+      });
+    }
+  };
+
+  const handleExportReport = () => {
+    const reportData = {
+      title: 'Your Genomic Journey Report',
+      patientName: 'Patient Name', // This would come from context
+      generatedAt: new Date().toISOString(),
+      genomicMarkers,
+      treatmentDecisions,
+      familyRisk,
+      researchOpportunities,
+      scenarios
+    };
+
+    // Create PDF-style report content
+    const reportContent = `
+# Your Genomic Journey Report
+Generated: ${new Date().toLocaleDateString()}
+
+## Genetic Variants
+${genomicMarkers.map(marker => `
+### ${marker.gene} - ${marker.variant}
+- **Significance:** ${marker.significance}
+- **Impact:** ${marker.impact}
+- **Clinical Relevance:** ${marker.clinicalRelevance}
+- **Drug Response:** ${marker.drugResponse || 'N/A'}
+- **Discovered:** ${marker.discoveryDate.toLocaleDateString()}
+`).join('')}
+
+## Treatment Decisions
+${treatmentDecisions.map(decision => `
+### ${decision.decision}
+- **Date:** ${decision.date.toLocaleDateString()}
+- **Genomic Basis:** ${decision.genomicBasis.join(', ')}
+- **Efficacy Prediction:** ${decision.efficacyPrediction}%
+- **Outcome:** ${decision.outcome || 'Ongoing'}
+- **Notes:** ${decision.notes || 'N/A'}
+`).join('')}
+
+## Family Risk Profile
+Overall Family Risk: ${familyRisk?.overallFamilyRisk}%
+${familyRisk?.relatives.map(rel => `
+### ${rel.relationship}
+- **Risk Level:** ${rel.riskLevel}
+- **Recommended Screening:** ${rel.recommendedScreening.join(', ')}
+- **Shared Variants:** ${rel.sharedVariants.join(', ')}
+`).join('') || ''}
+
+## Research Opportunities
+${researchOpportunities.map(study => `
+### ${study.studyTitle}
+- **Institution:** ${study.institution}
+- **Status:** ${study.participationStatus}
+- **Relevant Genes:** ${study.relevantGenes.join(', ')}
+- **Impact:** ${study.potentialImpact}
+`).join('')}
+    `.trim();
+
+    // Create and download file
+    const blob = new Blob([reportContent], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `genomic-journey-report-${new Date().toISOString().split('T')[0]}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const getSignificanceColor = (significance: string) => {
     switch (significance) {
       case 'pathogenic': return 'text-red-600 bg-red-50';
@@ -241,11 +337,17 @@ const GenomicJourneyTracker: React.FC = () => {
           </p>
         </div>
         <div className="flex space-x-3">
-          <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <button 
+            onClick={() => handleShareWithProvider()}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
             <Share2 className="w-4 h-4" />
             <span>Share with Provider</span>
           </button>
-          <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+          <button 
+            onClick={() => handleExportReport()}
+            className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+          >
             <Download className="w-4 h-4" />
             <span>Export Report</span>
           </button>

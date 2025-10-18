@@ -229,7 +229,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: 'Drug Search', 
             icon: Search, 
             description: 'Search medications',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'student'],
+            roles: ['oncologist', 'pharmacist', 'nurse', 'student', 'patient', 'caregiver'],
             requiresPermission: null
           },
           { 
@@ -245,7 +245,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: 'Pain Management', 
             icon: Pill, 
             description: 'Opioid MME + safety',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'student'],
+            roles: ['oncologist', 'pharmacist', 'nurse', 'student', 'patient', 'caregiver'],
             requiresPermission: null
           },
           { 
@@ -261,7 +261,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: 'Drug Database', 
             icon: BookOpen, 
             description: 'Comprehensive drug information',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver'],
             requiresPermission: null
           },
         ]

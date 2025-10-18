@@ -467,6 +467,57 @@ const PatientDashboard: React.FC = () => {
                 )}
               </Card>
 
+              {/* Quick Drug Search */}
+              <Card>
+                <div className="flex items-center space-x-2 mb-4">
+                  <Search className="w-5 h-5 text-blue-500" />
+                  <h3 className="text-lg font-semibold text-gray-900">Quick Drug Search</h3>
+                  <Tooltip content="Search for drug information and interactions">
+                    <Info className="w-4 h-4 text-gray-400" />
+                  </Tooltip>
+                </div>
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    placeholder="Search medications..."
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const searchTerm = (e.target as HTMLInputElement).value;
+                        if (searchTerm.trim()) {
+                          navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+                        }
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={() => {
+                      const searchInput = document.querySelector('input[placeholder="Search medications..."]') as HTMLInputElement;
+                      const searchTerm = searchInput?.value;
+                      if (searchTerm?.trim()) {
+                        navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+                      } else {
+                        navigate('/search');
+                      }
+                    }}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Search className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {['Olaparib', 'Tamoxifen', 'Cisplatin', 'Pembrolizumab'].map((drug) => (
+                    <button
+                      key={drug}
+                      onClick={() => navigate(`/search?q=${encodeURIComponent(drug)}`)}
+                      className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors"
+                    >
+                      {drug}
+                    </button>
+                  ))}
+                </div>
+              </Card>
+
               {/* AI & Advanced Features Quick Access */}
               <Card>
                 <div className="flex items-center space-x-2 mb-6">

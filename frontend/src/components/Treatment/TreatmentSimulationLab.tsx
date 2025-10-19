@@ -305,6 +305,22 @@ const TreatmentSimulationLab: React.FC = () => {
     }
   };
 
+  // Simple knowledge base for key enzymes (inhibitors/inducers)
+  const enzymeKB: Record<string, { inhibitors: string[]; inducers: string[] }> = {
+    CYP3A4: {
+      inhibitors: ['Ketoconazole', 'Itraconazole', 'Clarithromycin', 'Grapefruit juice'],
+      inducers: ['Rifampin', 'Carbamazepine', 'Phenytoin', 'St. John’s Wort']
+    },
+    CYP2D6: {
+      inhibitors: ['Fluoxetine', 'Paroxetine', 'Quinidine', 'Bupropion'],
+      inducers: []
+    },
+    UGT1A1: {
+      inhibitors: ['Atazanavir', 'Indinavir'],
+      inducers: ['Rifampin']
+    }
+  };
+
   const getImpactColor = (impact: string) => {
     switch (impact) {
       case 'low': return 'text-green-600';
@@ -601,10 +617,34 @@ const TreatmentSimulationLab: React.FC = () => {
                         <div className="text-sm text-gray-500">Metabolizing Enzyme</div>
                         <div className="text-lg font-semibold text-gray-900">{selectedEnzyme}</div>
                       </div>
-                      <button onClick={() => setSelectedEnzyme(null)} className="text-xs border rounded px-2 py-1">Close</button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={async () => {
+                            try {
+                              const drug = selectedScenario?.treatments?.[0]?.name || selectedScenario?.treatments?.[0]?.drugName || 'Drug';
+                              const info = enzymeKB[selectedEnzyme] || { inhibitors: [], inducers: [] };
+                              const text = `Enzyme: ${selectedEnzyme}\nDrug: ${drug}\n\nRole: Participates in metabolism that affects exposure, efficacy and toxicity.\n\nInhibitors: ${info.inhibitors.join(', ') || '—'}\nInducers: ${info.inducers.join(', ') || '—'}`;
+                              await navigator.clipboard.writeText(text);
+                            } catch {}
+                          }}
+                          className="text-xs border rounded px-2 py-1 bg-gray-50 hover:bg-gray-100"
+                          title="Copy summary"
+                        >Copy</button>
+                        <button onClick={() => setSelectedEnzyme(null)} className="text-xs border rounded px-2 py-1">Close</button>
+                      </div>
                     </div>
                     <div className="mt-2 text-sm text-gray-700 whitespace-pre-wrap">
                       {selectedEnzyme} participates in the metabolism of {(selectedScenario?.treatments?.[0]?.name || 'the drug')}. Changes in {selectedEnzyme} activity (e.g., inhibitors/inducers or PGx) can alter exposure, efficacy, and toxicity.
+                    </div>
+                    <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="border rounded p-2">
+                        <div className="text-xs font-medium text-gray-900 mb-1">Common Inhibitors</div>
+                        <div className="text-xs text-gray-700">{(enzymeKB[selectedEnzyme]?.inhibitors || []).join(', ') || '—'}</div>
+                      </div>
+                      <div className="border rounded p-2">
+                        <div className="text-xs font-medium text-gray-900 mb-1">Common Inducers</div>
+                        <div className="text-xs text-gray-700">{(enzymeKB[selectedEnzyme]?.inducers || []).join(', ') || '—'}</div>
+                      </div>
                     </div>
                     <div className="mt-3 text-xs text-gray-600">Explore:</div>
                     <div className="mt-1 flex flex-wrap gap-2">

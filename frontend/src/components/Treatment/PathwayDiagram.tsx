@@ -57,18 +57,30 @@ const PathwayDiagram: React.FC<Props> = ({
           {leftNodes.map(ln => (
             rightNodes.map(rn => {
               const isEmph = (selectedTarget && ln.name === selectedTarget) || (selectedEnzyme && rn.name === selectedEnzyme);
+              const id = `${ln.name}->${rn.name}`;
               return (
-                <line
-                  key={`${ln.name}->${rn.name}`}
-                  x1={ln.x + 30}
-                  y1={ln.y}
-                  x2={rn.x - 30}
-                  y2={rn.y}
-                  stroke={isEmph ? '#93c5fd' : '#e5e7eb'}
-                  strokeWidth={isEmph ? 2 : 1}
-                  strokeDasharray={isEmph ? '0' : '3 3'}
-                  opacity={isEmph ? 0.9 : 0.7}
-                />
+                <g key={id}>
+                  <defs>
+                    <marker id={`arrow-${id}`} markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                      <polygon points="0 0, 6 3, 0 6" fill={isEmph ? '#60a5fa' : '#e5e7eb'} />
+                    </marker>
+                  </defs>
+                  <line
+                    x1={ln.x + 30}
+                    y1={ln.y}
+                    x2={rn.x - 30}
+                    y2={rn.y}
+                    stroke={isEmph ? '#93c5fd' : '#e5e7eb'}
+                    strokeWidth={isEmph ? 2 : 1}
+                    strokeDasharray={isEmph ? '6 3' : '3 3'}
+                    opacity={isEmph ? 0.95 : 0.7}
+                    markerEnd={`url(#arrow-${id})`}
+                  >
+                    {isEmph && (
+                      <animate attributeName="stroke-dashoffset" from="0" to="-18" dur="1.2s" repeatCount="indefinite" />
+                    )}
+                  </line>
+                </g>
               );
             })
           ))}
@@ -115,4 +127,3 @@ const PathwayDiagram: React.FC<Props> = ({
 };
 
 export default PathwayDiagram;
-

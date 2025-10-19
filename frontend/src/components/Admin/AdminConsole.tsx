@@ -37,6 +37,7 @@ import Breadcrumbs from '../UI/Breadcrumbs';
 import AdminAuthBanner from './AdminAuthBanner';
 import AccessDeniedBanner from './AccessDeniedBanner';
 import { adminApi } from '../../utils/adminApi';
+import FeatureTour from '../UI/FeatureTour';
 // useRBAC already imported above
 
 interface AdminUser {
@@ -123,6 +124,66 @@ const AdminConsole: React.FC = () => {
       setWhatsNewLoading(false);
     }
   };
+
+  // Feature tour (v20.2.0)
+  const TOUR_KEY = 'osrx_tour_v20_2_0_dismissed';
+  const [tourOpen, setTourOpen] = useState(false);
+  const [tourIndex, setTourIndex] = useState(0);
+  const tourSteps = [
+    {
+      title: 'Welcome to v20.2.0',
+      body: (
+        <>
+          <p>New in this release: Integrations dashboards and key rotation, Auth diagnostics, and a “What’s New” drawer summarizing changes.</p>
+          <p>Use this short tour to jump to the highlights.</p>
+        </>
+      )
+    },
+    {
+      title: 'Auth Diagnostics',
+      body: (
+        <>
+          <p>Visit the <b>Auth</b> tab to confirm tokens are present and that the backend is configured to verify Supabase JWTs (HS256 or service-role).</p>
+          <p>Use “Verify Auth” to test <code>/api/patients</code> with your current session.</p>
+        </>
+      ),
+      ctaLabel: 'Go to Auth',
+      onCta: () => setActiveTab('auth')
+    },
+    {
+      title: 'Integrations & API Keys',
+      body: (
+        <>
+          <p>The <b>Integrations</b> tab shows tenant key health, usage, CSV exports, and trends. You can add/rotate keys safely with built-in guardrails.</p>
+          <p>Use the “Promote NEXT” or “Promote (merge)” buttons to switch keys during rotation.</p>
+        </>
+      ),
+      ctaLabel: 'Go to Integrations',
+      onCta: () => setActiveTab('integrations')
+    },
+    {
+      title: 'What’s New & OpenAPI',
+      body: (
+        <>
+          <p>Click <b>What’s New</b> in the header to read the latest release notes. The OpenAPI spec is available at <code>/openapi.yaml</code> for integrations.</p>
+          <p>The in-app assistant can answer “What’s new?” using these notes.</p>
+        </>
+      ),
+      ctaLabel: 'Open What’s New',
+      onCta: () => openWhatsNew()
+    }
+  ];
+
+  useEffect(() => {
+    try {
+      const dismissed = localStorage.getItem(TOUR_KEY) === 'true';
+      // Auto-open for users who can manage system settings
+      if (!dismissed && rbac.hasPermission('manage_system_settings')) {
+        setTimeout(() => setTourOpen(true), 400);
+      }
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   
   // Audit log state
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
@@ -742,7 +803,7 @@ const AdminConsole: React.FC = () => {
           <div className="p-2 bg-red-100 rounded-lg">
             <Shield className="w-6 h-6 text-red-600" />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold text-gray-900">Admin Console</h1>
             <p className="text-gray-600">System administration and visitor analytics management</p>
             <button
@@ -751,6 +812,13 @@ const AdminConsole: React.FC = () => {
               title="What's New"
             >
               What's New
+            </button>
+            <button
+              onClick={() => { setTourIndex(0); setTourOpen(true); }}
+              className="inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded border hover:bg-gray-200"
+              title="Start Tour"
+            >
+              Start Tour
             </button>
           </div>
         </div>
@@ -1448,6 +1516,23 @@ const AdminConsole: React.FC = () => {
           </div>
         </div>
       )}
+      <FeatureTour
+        open={tourOpen}
+        steps={tourSteps}
+        index={tourIndex}
+        onClose={() => { setTourOpen(false); try { localStorage.setItem(TOUR_KEY, 'true'); } catch {} }}
+        onPrev={() => setTourIndex((i) => Math.max(0, i - 1))}
+        onNext={() => {
+          setTourIndex((i) => {
+            const next = Math.min(tourSteps.length - 1, i + 1);
+            if (next === tourSteps.length - 1) {
+              try { localStorage.setItem(TOUR_KEY, 'true'); } catch {}
+              setTimeout(() => setTourOpen(false), 100);
+            }
+            return next;
+          });
+        }}
+      />
     </div>
   );
 };

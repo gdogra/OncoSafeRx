@@ -107,8 +107,16 @@ const MemoryCognitiveProtection: React.FC = () => {
   const [resilienceData, setResilienceData] = useState<CognitiveResilience[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Generate mock data
+  // Populate demo data only when demo mode is enabled
   useEffect(() => {
+    const { isDemoMode } = require('../../utils/demoMode');
+    if (!isDemoMode()) {
+      setCognitiveData([]);
+      setProtocols([]);
+      setMemoryData([]);
+      setResilienceData([]);
+      return;
+    }
     const generateMockCognitive = (): CognitiveAssessment[] => {
       return Array.from({ length: 10 }, (_, i) => ({
         id: `cog-${i}`,

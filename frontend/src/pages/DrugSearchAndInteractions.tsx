@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Drug, InteractionCheckResult } from '../types';
 import { drugService, interactionService } from '../services/api';
 import AutocompleteSearch from '../components/DrugSearch/AutocompleteSearch';
@@ -66,6 +66,8 @@ const DrugSearchAndInteractionsInner: React.FC = () => {
   const [interactionError, setInteractionError] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [activeDrug, setActiveDrug] = useState<any>(null);
+  const resultsRef = useRef<HTMLDivElement | null>(null);
+  const [pendingScrollToResults, setPendingScrollToResults] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -97,7 +99,8 @@ const DrugSearchAndInteractionsInner: React.FC = () => {
   // Auto-check interactions when drugs change
   useEffect(() => {
     if (selectedDrugs.length >= 2) {
-      checkInteractions();
+      // Auto-check when drug list changes
+      checkInteractions(false);
     } else {
       setInteractionResults(null);
       setInteractionError(null);
@@ -131,11 +134,12 @@ const DrugSearchAndInteractionsInner: React.FC = () => {
     selection.removeDrug(rxcui);
   };
 
-  const checkInteractions = async () => {
+  const checkInteractions = async (manual: boolean = true) => {
     if (selectedDrugs.length < 2) return;
 
     setInteractionLoading(true);
     setInteractionError(null);
+    if (manual) setPendingScrollToResults(true);
 
     try {
       const drugs = selectedDrugs.map(d => ({ rxcui: d.rxcui, name: d.name }));
@@ -147,6 +151,16 @@ const DrugSearchAndInteractionsInner: React.FC = () => {
       setInteractionLoading(false);
     }
   };
+
+  // Scroll results into view after a manual check completes
+  useEffect(() => {
+    if (pendingScrollToResults && interactionResults && resultsRef.current) {
+      try {
+        resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch {}
+      setPendingScrollToResults(false);
+    }
+  }, [pendingScrollToResults, interactionResults]);
 
   const getSeverityColor = (severity: string) => {
     switch (severity?.toLowerCase()) {
@@ -392,7 +406,7 @@ const DrugSearchAndInteractionsInner: React.FC = () => {
             )}
 
             {summary && !interactionLoading && (
-              <div>
+              <div ref={resultsRef}>
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                   <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">

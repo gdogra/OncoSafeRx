@@ -339,6 +339,10 @@ const AuthPage: React.FC = () => {
     
     try {
       await actions.signup(signupData);
+      try {
+        const params = new URLSearchParams({ email: signupData.email });
+        navigate(`/auth/check-email?${params.toString()}`);
+      } catch {}
     } catch (error) {
       console.error('❌ Signup failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Signup failed. Please try again.';
@@ -576,6 +580,32 @@ const AuthPage: React.FC = () => {
                 </div>
               )}
 
+              {/* Helpful nudge when the account needs email confirmation */}
+              {mode === 'signin' && (errors.submit || state.error) && /confirm|verify|verification|not.*confirm|email.*confirm/i.test(String(errors.submit || state.error)) && (
+                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-900 text-sm">
+                  <div className="flex items-center justify-between flex-col sm:flex-row gap-2">
+                    <div>
+                      It looks like your email isn’t verified yet. Please confirm your email to sign in.
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={`/auth/check-email${loginData.email ? `?email=${encodeURIComponent(loginData.email)}` : ''}`}
+                        className="px-3 py-1.5 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+                      >
+                        Instructions
+                      </a>
+                      <button
+                        type="button"
+                        onClick={handleResendConfirmation}
+                        className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded hover:bg-gray-200"
+                      >
+                        Resend
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {showOtp && (
                 <div className="space-y-2 p-3 border border-violet-200 rounded-md bg-violet-50">
                   <label htmlFor="otp-code" className="block text-sm font-medium text-gray-700">Enter verification code</label>
@@ -602,6 +632,18 @@ const AuthPage: React.FC = () => {
                   'Sign In'
                 )}
               </button>
+
+              {/* Help users find the confirmation email */}
+              <div className="text-center text-xs text-gray-600">
+                Didn’t receive a confirmation email?{' '}
+                <a
+                  href={`/auth/check-email${loginData.email ? `?email=${encodeURIComponent(loginData.email)}` : ''}`}
+                  className="text-primary-600 hover:text-primary-700 underline"
+                >
+                  Check email instructions
+                </a>
+                .
+              </div>
               
               <div className="text-center">
                 <ForgotPasswordLink />

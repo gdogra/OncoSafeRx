@@ -96,6 +96,7 @@ const AdminHome: React.FC = () => {
     { path: '/admin/settings', label: 'Admin Settings', desc: 'Maintenance and utilities', icon: SettingsIcon, color: 'text-gray-700', bg: 'bg-gray-100', badge: null as React.ReactNode },
     { path: '/admin/feedback', label: 'Feedback Admin', desc: 'Triage feedback and integrations', icon: MessageSquare, color: 'text-indigo-600', bg: 'bg-indigo-50', badge: null as React.ReactNode },
     { path: '/visitor-analytics', label: 'Visitor Analytics', desc: 'Tracking metrics and top pages', icon: BarChart3, color: 'text-teal-600', bg: 'bg-teal-50', badge: analytics ? String(analytics.uniqueVisitors) : null },
+    { path: '/admin/onboarding', label: 'Onboarding Analytics', desc: 'Tour usage and step engagement (local)', icon: Eye, color: 'text-violet-600', bg: 'bg-violet-50', badge: null as React.ReactNode },
     { path: '/admin/auth-diagnostics', label: 'Auth Status', desc: `Admin API ${authStatus.detail}`, icon: Shield, color: authStatus.status==='ok'?'text-green-600':authStatus.status==='unauthorized'?'text-red-600':'text-yellow-600', bg: authStatus.status==='ok'?'bg-green-50':authStatus.status==='unauthorized'?'bg-red-50':'bg-yellow-50', badge: tokenInfo.backendRole || tokenInfo.supaRole || null },
   ];
 

@@ -182,6 +182,99 @@ router.post('/known', requireAdminToken, asyncHandler(async (req, res) => {
   res.status(201).json({ added: 1, item });
 }));
 
+// Persist curated interaction to database (Supabase) using RXCUIs
+router.post('/known/db', requireAdminToken, asyncHandler(async (req, res) => {
+  const { drugA, drugB, severity, mechanism, effect, management, evidence_level, sources } = req.body || {};
+  if ((!drugA || !drugB) || !(typeof drugA === 'string') || !(typeof drugB === 'string')) {
+    return res.status(400).json({ error: 'drugA and drugB are required (name or RXCUI)' });
+  }
+
+  // Resolve inputs to RXCUIs if names provided
+  const resolveToRxcui = async (value) => {
+    const key = String(value).toLowerCase();
+    if (/^\d+$/.test(key)) return key; // already RXCUI
+    let rxcui = RXCUI_MAP[key] || rxcuiCache.get(key) || null;
+    if (!rxcui) {
+      try {
+        const found = await rxnormService.searchDrugs(String(value));
+        const byTty = (tty) => found.find(f => (f.tty || '').toUpperCase() === tty);
+        const preferred = byTty('IN') || byTty('BN') || byTty('SCD') || found[0];
+        rxcui = preferred?.rxcui || null;
+        if (rxcui) rxcuiCache.set(key, rxcui);
+      } catch {}
+    }
+    return rxcui;
+  };
+
+  const a = await resolveToRxcui(drugA);
+  const b = await resolveToRxcui(drugB);
+  if (!a || !b) {
+    return res.status(400).json({ error: 'Unable to resolve RXCUIs for provided drugs' });
+  }
+
+  try {
+    const inserted = await supabaseService.insertDrugInteraction({
+      drug1_rxcui: a,
+      drug2_rxcui: b,
+      severity: (severity || '').toLowerCase(),
+      mechanism: mechanism || '',
+      effect: effect || '',
+      management: management || '',
+      evidence_level: evidence_level || '',
+      sources: Array.isArray(sources) ? sources : (sources ? [sources] : [])
+    });
+    return res.status(201).json({ ok: true, interaction: inserted });
+  } catch (e) {
+    return res.status(500).json({ error: 'Failed to persist curated interaction', details: e?.message || String(e) });
+  }
+}));
+
+// Query curated interactions stored in DB (admin)
+router.get('/known/db', requireAdminToken, asyncHandler(async (req, res) => {
+  const { drugA, drugB } = req.query || {};
+
+  const normalizeSeverity = (s) => {
+    const v = String(s || '').toLowerCase();
+    if (v === 'high') return 'major';
+    if (v === 'low') return 'minor';
+    return v || 'unknown';
+  };
+
+  const toArray = (x) => Array.isArray(x) ? x : (x ? [x] : []);
+  const resolveIfNeeded = async (val) => {
+    if (!val) return null;
+    const s = String(val);
+    if (/^\d+$/.test(s)) return s;
+    const key = s.toLowerCase();
+    let rxcui = RXCUI_MAP[key] || rxcuiCache.get(key) || null;
+    if (!rxcui) {
+      try {
+        const found = await rxnormService.searchDrugs(s);
+        const byTty = (tty) => found.find(f => (f.tty || '').toUpperCase() === tty);
+        const preferred = byTty('IN') || byTty('BN') || byTty('SCD') || found[0];
+        rxcui = preferred?.rxcui || null;
+        if (rxcui) rxcuiCache.set(key, rxcui);
+      } catch {}
+    }
+    return rxcui;
+  };
+
+  const a = await resolveIfNeeded(drugA);
+  const b = await resolveIfNeeded(drugB);
+
+  if (a && b) {
+    const list = await supabaseService.checkMultipleInteractions([a, b]);
+    return res.json({ count: list.length, interactions: list.map(i => ({ ...i, severity: normalizeSeverity(i.severity) })) });
+  }
+
+  if (a && !b) {
+    const list = await supabaseService.getDrugInteractions(a);
+    return res.json({ count: list.length, interactions: list.map(i => ({ ...i, severity: normalizeSeverity(i.severity) })) });
+  }
+
+  return res.json({ count: 0, interactions: [] });
+}));
+
 router.get('/known/overlay', (req, res) => {
   res.json({ count: CURATED_OVERLAY.length, interactions: CURATED_OVERLAY });
 });
@@ -266,6 +359,13 @@ router.post('/check',
       }
     }
 
+    const normalizeSeverity = (s) => {
+      const v = String(s || '').toLowerCase();
+      if (v === 'high') return 'major';
+      if (v === 'low') return 'minor';
+      return v || 'unknown';
+    };
+
     res.json({
       inputDrugs: drugs,
       foundDrugs: drugDetails.map(d => ({ rxcui: d.rxcui, name: d.name })),
@@ -277,11 +377,13 @@ router.post('/check',
       interactions: {
         stored: interactions.map(interaction => ({
           ...interaction,
-          riskLevel: assessRiskLevel(interaction.severity)
+          severity: normalizeSeverity(interaction.severity),
+          riskLevel: assessRiskLevel(normalizeSeverity(interaction.severity))
         })),
         external: externalInteractions.map(interaction => ({
           ...interaction,
-          riskLevel: assessRiskLevel(interaction.severity)
+          severity: normalizeSeverity(interaction.severity),
+          riskLevel: assessRiskLevel(normalizeSeverity(interaction.severity))
         }))
       }
     });

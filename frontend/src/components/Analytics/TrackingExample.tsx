@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTracking, trackClinicalWorkflow, trackFeatureUsage, trackErrors } from '../../utils/trackingHelpers';
 import { Search, Download, AlertTriangle, CheckCircle } from 'lucide-react';
+import { drugService } from '../../services/api';
 
 // Example component showing how to implement tracking
 const TrackingExample: React.FC = () => {
@@ -20,21 +21,15 @@ const TrackingExample: React.FC = () => {
         hasFilters: false
       });
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Mock search results
-      const mockResults = [
-        { id: 1, name: 'Acetaminophen', category: 'Analgesic' },
-        { id: 2, name: 'Ibuprofen', category: 'NSAID' },
-        { id: 3, name: 'Aspirin', category: 'Antiplatelet' }
-      ];
-      
-      setSearchResults(mockResults);
+      // Real drug search via API
+      const resp = await drugService.searchDrugs(searchQuery.trim());
+      const results = Array.isArray(resp?.results) ? resp.results : [];
+      const mapped = results.slice(0, 10).map((d: any, i: number) => ({ id: d.rxcui || i, name: d.name || d.synonym || 'Unknown', category: d.tty || 'Drug' }));
+      setSearchResults(mapped);
       
       // Track successful search with timing
       trackTiming('search_completed', timer, {
-        resultCount: mockResults.length,
+        resultCount: mapped.length,
         query: searchQuery.substring(0, 20) // Limit for privacy
       });
 
@@ -42,7 +37,7 @@ const TrackingExample: React.FC = () => {
       trackFeatureUsage.searchPerformed(
         'drug_search',
         searchQuery,
-        mockResults.length,
+        mapped.length,
         Date.now() - timer
       );
 
@@ -73,21 +68,17 @@ const TrackingExample: React.FC = () => {
 
   const handleReportGeneration = () => {
     const timer = startTimer();
-    
-    // Simulate report generation
-    setTimeout(() => {
-      trackFeatureUsage.reportGenerated(
-        'interaction_report',
-        searchResults.length,
-        Date.now() - timer,
-        'pdf'
-      );
+    trackFeatureUsage.reportGenerated(
+      'interaction_report',
+      searchResults.length,
+      Date.now() - timer,
+      'pdf'
+    );
 
-      trackAction('report_generated', {
-        reportType: 'interaction_summary',
-        dataPoints: searchResults.length
-      });
-    }, 1000);
+    trackAction('report_generated', {
+      reportType: 'interaction_summary',
+      dataPoints: searchResults.length
+    });
   };
 
   const handleProtocolAccess = () => {

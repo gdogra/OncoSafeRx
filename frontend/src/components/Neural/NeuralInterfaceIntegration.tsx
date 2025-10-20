@@ -140,7 +140,15 @@ const NeuralInterfaceIntegration: React.FC = () => {
   const signalCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    generateMockNeuralData();
+    const { isDemoMode } = require('../../utils/demoMode');
+    if (isDemoMode()) {
+      generateMockNeuralData();
+    } else {
+      setNeuralSignals([]);
+      setBrainMapping([]);
+      setStimulationData([]);
+      setCognitiveData([]);
+    }
     if (brainCanvasRef.current) {
       drawBrainVisualization();
     }

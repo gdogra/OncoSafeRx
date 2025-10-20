@@ -78,173 +78,10 @@ const InteroperabilityManager: React.FC = () => {
   const loadInteroperabilityData = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockIntegrations: SystemIntegration[] = [
-        {
-          id: '1',
-          name: 'Epic EHR System',
-          type: 'EHR',
-          status: 'connected',
-          protocol: 'FHIR',
-          endpoint: 'https://api.epic.com/fhir/R4',
-          lastSync: '2024-01-15T14:30:00Z',
-          dataTypes: ['Patient Data', 'Medications', 'Lab Results', 'Allergies'],
-          volume: 15420,
-          latency: 245,
-          errorRate: 0.02,
-          uptime: 99.95,
-          version: 'R4',
-          authentication: 'OAuth2',
-          encryptionLevel: 'TLS 1.3'
-        },
-        {
-          id: '2',
-          name: 'Cerner PowerChart',
-          type: 'EHR',
-          status: 'connected',
-          protocol: 'FHIR',
-          endpoint: 'https://fhir.cerner.com/r4',
-          lastSync: '2024-01-15T14:25:00Z',
-          dataTypes: ['Patient Data', 'Orders', 'Results'],
-          volume: 8930,
-          latency: 312,
-          errorRate: 0.05,
-          uptime: 99.87,
-          version: 'R4',
-          authentication: 'OAuth2',
-          encryptionLevel: 'TLS 1.3'
-        },
-        {
-          id: '3',
-          name: 'Hospital Pharmacy System',
-          type: 'Pharmacy',
-          status: 'connected',
-          protocol: 'HL7',
-          endpoint: 'hl7.hospital.local:8080',
-          lastSync: '2024-01-15T14:28:00Z',
-          dataTypes: ['Dispensing Records', 'Inventory', 'Drug Interactions'],
-          volume: 5240,
-          latency: 189,
-          errorRate: 0.01,
-          uptime: 99.99,
-          version: 'v2.8',
-          authentication: 'Certificate',
-          encryptionLevel: 'TLS 1.2'
-        },
-        {
-          id: '4',
-          name: 'Laboratory Information System',
-          type: 'LIMS',
-          status: 'error',
-          protocol: 'REST',
-          endpoint: 'https://api.labcorp.com/v2',
-          lastSync: '2024-01-15T10:15:00Z',
-          dataTypes: ['Lab Results', 'Test Orders', 'Reference Ranges'],
-          volume: 3450,
-          latency: 456,
-          errorRate: 2.3,
-          uptime: 97.2,
-          authentication: 'API Key',
-          encryptionLevel: 'TLS 1.2'
-        },
-        {
-          id: '5',
-          name: 'Clinical Trials Database',
-          type: 'Database',
-          status: 'pending',
-          protocol: 'GraphQL',
-          endpoint: 'https://trials.nih.gov/graphql',
-          lastSync: '2024-01-14T22:00:00Z',
-          dataTypes: ['Trial Data', 'Eligibility Criteria', 'Outcomes'],
-          volume: 1250,
-          latency: 567,
-          errorRate: 0.15,
-          uptime: 98.5,
-          authentication: 'API Key',
-          encryptionLevel: 'TLS 1.3'
-        }
-      ];
-
-      const mockDataFlows: DataFlow[] = [
-        {
-          id: '1',
-          source: 'Epic EHR System',
-          destination: 'OncoSafeRx Database',
-          dataType: 'Patient Demographics',
-          volume: 1250,
-          frequency: 'Real-time',
-          lastTransfer: '2024-01-15T14:30:00Z',
-          status: 'active',
-          transformations: ['Data Mapping', 'Validation', 'Encryption']
-        },
-        {
-          id: '2',
-          source: 'OncoSafeRx Database',
-          destination: 'Hospital Pharmacy System',
-          dataType: 'Drug Interaction Alerts',
-          volume: 340,
-          frequency: 'Real-time',
-          lastTransfer: '2024-01-15T14:28:00Z',
-          status: 'active',
-          transformations: ['Alert Formatting', 'Priority Assignment']
-        },
-        {
-          id: '3',
-          source: 'Laboratory Information System',
-          destination: 'OncoSafeRx Database',
-          dataType: 'Lab Results',
-          volume: 890,
-          frequency: 'Every 15 minutes',
-          lastTransfer: '2024-01-15T14:15:00Z',
-          status: 'error',
-          transformations: ['Unit Conversion', 'Reference Range Mapping']
-        }
-      ];
-
-      const mockCompliance: ComplianceMetric[] = [
-        {
-          standard: 'HIPAA',
-          status: 'compliant',
-          score: 98,
-          requirements: [
-            { name: 'Data Encryption', met: true, description: 'All data encrypted in transit and at rest' },
-            { name: 'Access Controls', met: true, description: 'Role-based access implemented' },
-            { name: 'Audit Logs', met: true, description: 'Comprehensive audit logging active' },
-            { name: 'Data Minimization', met: false, description: 'Some unnecessary data collection identified' }
-          ],
-          lastAudit: '2024-01-01'
-        },
-        {
-          standard: 'FHIR R4',
-          status: 'compliant',
-          score: 95,
-          requirements: [
-            { name: 'Resource Conformance', met: true, description: 'All resources conform to FHIR R4 spec' },
-            { name: 'Security Implementation', met: true, description: 'OAuth2 and SMART on FHIR implemented' },
-            { name: 'Terminology Binding', met: true, description: 'Standard terminologies used' },
-            { name: 'Capability Statement', met: true, description: 'Accurate capability statement published' }
-          ],
-          lastAudit: '2024-01-10'
-        },
-        {
-          standard: 'HL7 v2.8',
-          status: 'partial',
-          score: 82,
-          requirements: [
-            { name: 'Message Structure', met: true, description: 'Proper HL7 message formatting' },
-            { name: 'Acknowledgments', met: true, description: 'ACK/NACK handling implemented' },
-            { name: 'Error Handling', met: false, description: 'Enhanced error reporting needed' },
-            { name: 'Encoding Standards', met: true, description: 'UTF-8 encoding properly implemented' }
-          ],
-          lastAudit: '2024-01-05'
-        }
-      ];
-
-      setIntegrations(mockIntegrations);
-      setDataFlows(mockDataFlows);
-      setComplianceMetrics(mockCompliance);
+      // No real API available for interoperability yet; show empty state
+      setIntegrations([]);
+      setDataFlows([]);
+      setComplianceMetrics([]);
     } catch (error) {
       console.error('Error loading interoperability data:', error);
     } finally {
@@ -312,6 +149,11 @@ const InteroperabilityManager: React.FC = () => {
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+      {integrations.length === 0 && dataFlows.length === 0 && complianceMetrics.length === 0 && (
+        <div className="m-6 p-4 bg-blue-50 border border-blue-200 text-blue-800 rounded">
+          No interoperability integrations configured. Connect EHR/LIS/Pharmacy systems to populate this view.
+        </div>
+      )}
       {/* Header */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">

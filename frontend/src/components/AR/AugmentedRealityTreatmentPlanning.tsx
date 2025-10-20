@@ -185,7 +185,14 @@ const AugmentedRealityTreatmentPlanning: React.FC = () => {
   const planningCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    generateMockARData();
+    const { isDemoMode } = require('../../utils/demoMode');
+    if (isDemoMode()) {
+      generateMockARData();
+    } else {
+      setTreatmentPlans([]);
+      setArSession(null);
+      setSurgicalGuidance(null);
+    }
     if (arCanvasRef.current) {
       renderARScene();
     }

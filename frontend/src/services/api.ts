@@ -201,8 +201,22 @@ export const interactionService = {
 
   checkInteractions: async (drugs: { rxcui: string; name: string }[]) => {
     try {
-      const response = await api.post('/interactions/check', { drugs });
-      return response.data;
+      // Backend expects an array of RXCUI strings
+      const rxcuis = (drugs || []).map(d => String(d.rxcui)).filter(Boolean);
+      const response = await api.post('/interactions/check', { drugs: rxcuis });
+      // Normalize severities for consistent UI grouping
+      const data = response.data || { interactions: { stored: [], external: [] } };
+      const normalize = (s?: string) => {
+        const v = String(s || '').toLowerCase();
+        if (v === 'high') return 'major';
+        if (v === 'low') return 'minor';
+        return v || 'unknown';
+      };
+      if (data?.interactions) {
+        data.interactions.stored = (data.interactions.stored || []).map((i: any) => ({ ...i, severity: normalize(i.severity) }));
+        data.interactions.external = (data.interactions.external || []).map((i: any) => ({ ...i, severity: normalize(i.severity) }));
+      }
+      return data;
     } catch (error: any) {
       // Handle 502 Bad Gateway errors from Netlify proxy
       if (error.response?.status === 502) {
@@ -210,58 +224,52 @@ export const interactionService = {
       }
       console.log('API Error:', error.response?.status, error.message);
       if (error.response?.status === 404 || error.response?.status === 400) {
-        console.log('Using mock interactions for development');
-        // Return mock interactions for development
-        const mockInteractions = [];
-        
-        // Generate some mock interactions if we have multiple drugs
-        if (drugs.length >= 2) {
-          for (let i = 0; i < drugs.length - 1; i++) {
+        // Fallback to curated known interactions by drug name pairs
+        try {
+          const pairs: Array<{ a: string; b: string }> = [];
+          for (let i = 0; i < drugs.length; i++) {
             for (let j = i + 1; j < drugs.length; j++) {
-              const severities = ['major', 'moderate', 'minor'];
-              const severity = severities[Math.floor(Math.random() * severities.length)];
-              
-              mockInteractions.push({
-                id: `${drugs[i].rxcui}-${drugs[j].rxcui}`,
-                drug1_rxcui: drugs[i].rxcui,
-                drug2_rxcui: drugs[j].rxcui,
-                drug1: { rxcui: drugs[i].rxcui, name: drugs[i].name },
-                drug2: { rxcui: drugs[j].rxcui, name: drugs[j].name },
-                severity,
-                effect: `Potential ${severity} interaction between ${drugs[i].name} and ${drugs[j].name}`,
-                mechanism: 'Drug metabolism pathway interaction',
-                management: `Consider dose adjustment or alternative therapy if clinically indicated`,
-                evidence_level: ['A', 'B', 'C'][Math.floor(Math.random() * 3)],
-                sources: ['DrugBank', 'Clinical Studies'],
-                riskLevel: severity.toUpperCase(),
-                documentation: 'Theoretical',
-                onset: 'Delayed'
-              });
+              const a = drugs[i].name;
+              const b = drugs[j].name;
+              if (a && b) pairs.push({ a, b });
             }
           }
+          const collected: any[] = [];
+          for (const p of pairs) {
+            const sp = new URLSearchParams();
+            sp.append('drugA', p.a);
+            sp.append('drugB', p.b);
+            sp.append('resolveRx', 'true');
+            const knownResp = await api.get(`/interactions/known?${sp.toString()}`);
+            const known = knownResp.data;
+            if (Array.isArray(known?.interactions) && known.interactions.length > 0) {
+              collected.push(
+                ...known.interactions.map((it: any) => ({
+                  ...it,
+                  severity: (it.severity || '').toLowerCase() === 'high' ? 'major' : (it.severity || '').toLowerCase() === 'low' ? 'minor' : (it.severity || 'unknown'),
+                }))
+              );
+            }
+          }
+          return {
+            interactions: { stored: collected, external: [] },
+            sources: { stored: collected.length, external: 0 },
+            summary: {
+              totalInteractions: collected.length,
+              majorCount: collected.filter(i => i.severity === 'major').length,
+              moderateCount: collected.filter(i => i.severity === 'moderate').length,
+              minorCount: collected.filter(i => i.severity === 'minor').length,
+            },
+          };
+        } catch (e) {
+          console.warn('Curated fallback failed:', (e as any)?.message || e);
         }
-        
-        return {
-          interactions: {
-            stored: mockInteractions,
-            external: []
-          },
-          summary: {
-            totalInteractions: mockInteractions.length,
-            majorCount: mockInteractions.filter(i => i.severity === 'major').length,
-            moderateCount: mockInteractions.filter(i => i.severity === 'moderate').length,
-            minorCount: mockInteractions.filter(i => i.severity === 'minor').length
-          },
-          drugs: drugs,
-          timestamp: new Date().toISOString()
-        };
       }
-      
-      console.warn('Interaction check API not available');
-      return { 
-        interactions: { stored: [], external: [] }, 
+      // Final fallback: empty results with message
+      return {
+        interactions: { stored: [], external: [] },
         summary: { totalInteractions: 0, majorCount: 0, moderateCount: 0, minorCount: 0 },
-        message: 'Interaction checking service is currently unavailable' 
+        message: 'Interaction checking service is currently unavailable'
       };
     }
   },

@@ -40,6 +40,10 @@ const CuratedInteractions: React.FC = () => {
   const canEdit = typeof window !== 'undefined' && (localStorage.getItem('allow_curated_editor') === '1');
   const [showEditor, setShowEditor] = useState(false);
   const [form, setForm] = useState({ a: '', b: '', severity: 'moderate', mechanism: '', effect: '', management: '', evidence_level: '', sources: '' });
+  // Admin: DB interactions query state
+  const [dbQuery, setDbQuery] = useState<{ a: string; b: string }>({ a: '', b: '' });
+  const [dbLoading, setDbLoading] = useState(false);
+  const [dbResults, setDbResults] = useState<any[] | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -192,6 +196,80 @@ const CuratedInteractions: React.FC = () => {
       {error && <Alert type="error" title="Error">{error}</Alert>}
       {loading && <div className="py-8 flex justify-center"><LoadingSpinner /></div>}
 
+      {canEdit && (
+        <Card>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">Database Interactions (Admin)</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Drug A (name or RXCUI)</label>
+              <input value={dbQuery.a} onChange={e => setDbQuery({ ...dbQuery, a: e.target.value })} className="w-full border rounded px-2 py-1 text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Drug B (optional)</label>
+              <input value={dbQuery.b} onChange={e => setDbQuery({ ...dbQuery, b: e.target.value })} className="w-full border rounded px-2 py-1 text-sm" />
+            </div>
+            <div className="flex items-end">
+              <button
+                onClick={async () => {
+                  const token = localStorage.getItem('curated_admin_token') || String((import.meta as any)?.env?.VITE_CURATED_EDITOR_TOKEN || '');
+                  if (!token) { alert('Missing admin token. Set localStorage.curated_admin_token or VITE_CURATED_EDITOR_TOKEN.'); return; }
+                  const sp = new URLSearchParams();
+                  if (dbQuery.a) sp.set('drugA', dbQuery.a);
+                  if (dbQuery.b) sp.set('drugB', dbQuery.b);
+                  setDbLoading(true);
+                  setDbResults(null);
+                  try {
+                    const resp = await fetch(`/api/interactions/known/db?${sp.toString()}`, { headers: { 'x-admin-token': token } });
+                    if (!resp.ok) { const msg = await resp.text(); throw new Error(`${resp.status} ${msg}`); }
+                    const data = await resp.json();
+                    setDbResults(Array.isArray(data?.interactions) ? data.interactions : []);
+                  } catch (e) {
+                    alert('Failed to load DB interactions');
+                    setDbResults([]);
+                  } finally {
+                    setDbLoading(false);
+                  }
+                }}
+                className="px-3 py-2 bg-blue-600 text-white rounded-md"
+              >Load DB Interactions</button>
+            </div>
+          </div>
+          {dbLoading && <div className="py-4"><LoadingSpinner /></div>}
+          {dbResults && (
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm">
+                <thead>
+                  <tr className="text-left text-gray-600">
+                    <th className="py-2 pr-4">Drug 1</th>
+                    <th className="py-2 pr-4">Drug 2</th>
+                    <th className="py-2 pr-4">Severity</th>
+                    <th className="py-2 pr-4">Mechanism</th>
+                    <th className="py-2 pr-4">Effect</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dbResults.map((r, idx) => (
+                    <tr key={idx} className="border-t">
+                      <td className="py-2 pr-4">{r.drug1?.name || r.drug1_rxcui}</td>
+                      <td className="py-2 pr-4">{r.drug2?.name || r.drug2_rxcui}</td>
+                      <td className="py-2 pr-4">{r.severity}</td>
+                      <td className="py-2 pr-4">{r.mechanism}</td>
+                      <td className="py-2 pr-4">{r.effect}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {dbResults.length === 0 && (
+                <div className="text-gray-500 text-sm">No DB interactions found for the given filters.</div>
+              )}
+            </div>
+          )}
+        </Card>
+      )}
+
+
       {/* Editor Modal */}
       {showEditor && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
@@ -267,9 +345,105 @@ const CuratedInteractions: React.FC = () => {
                 }}
                 className="px-3 py-1.5 text-sm bg-emerald-600 text-white rounded"
               >Save</button>
+              <button
+                onClick={async () => {
+                  try {
+                    const token = localStorage.getItem('curated_admin_token') || String((import.meta as any)?.env?.VITE_CURATED_EDITOR_TOKEN || '');
+                    if (!token) { alert('Missing admin token. Set localStorage.curated_admin_token or VITE_CURATED_EDITOR_TOKEN.'); return; }
+                    const payload = {
+                      drugA: form.a,
+                      drugB: form.b,
+                      severity: form.severity,
+                      mechanism: form.mechanism,
+                      effect: form.effect,
+                      management: form.management,
+                      evidence_level: form.evidence_level,
+                      sources: form.sources.split(',').map(s => s.trim()).filter(Boolean)
+                    };
+                    const resp = await fetch(`/api/interactions/known/db`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-token': token }, body: JSON.stringify(payload) });
+                    if (!resp.ok) {
+                      const msg = await resp.text();
+                      throw new Error(`Failed: ${resp.status} ${msg}`);
+                    }
+                    alert('Saved to DB');
+                  } catch (e) {
+                    alert('Failed to save curated interaction to DB');
+                  }
+                }}
+                className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded"
+              >Save to DB</button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Admin DB Tools */}
+      {canEdit && (
+        <Card>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold">Database Interactions (Admin)</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Drug A (name or RXCUI)</label>
+              <input value={drugA} onChange={e => setDrugA(e.target.value)} className="w-full border rounded px-2 py-1 text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Drug B (optional)</label>
+              <input value={drugB} onChange={e => setDrugB(e.target.value)} className="w-full border rounded px-2 py-1 text-sm" />
+            </div>
+            <div className="flex items-end">
+              <button
+                onClick={async () => {
+                  const token = localStorage.getItem('curated_admin_token') || String((import.meta as any)?.env?.VITE_CURATED_EDITOR_TOKEN || '');
+                  if (!token) { alert('Missing admin token. Set localStorage.curated_admin_token or VITE_CURATED_EDITOR_TOKEN.'); return; }
+                  const sp = new URLSearchParams();
+                  if (drugA) sp.set('drugA', drugA);
+                  if (drugB) sp.set('drugB', drugB);
+                  const resp = await fetch(`/api/interactions/known/db?${sp.toString()}`, { headers: { 'x-admin-token': token } });
+                  if (!resp.ok) { alert('Failed to load DB interactions'); return; }
+                  const data = await resp.json();
+                  setExpanded({});
+                  setResults(prev => prev); // keep curated results
+                  (window as any).__osrx_db_interactions__ = data?.interactions || [];
+                  const el = document.getElementById('db-interactions');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="px-3 py-2 bg-blue-600 text-white rounded-md"
+              >Load DB Interactions</button>
+            </div>
+          </div>
+          <div id="db-interactions" className="text-sm text-gray-700">
+            {(window as any).__osrx_db_interactions__ && Array.isArray((window as any).__osrx_db_interactions__) && ((window as any).__osrx_db_interactions__).length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-gray-600">
+                      <th className="py-2 pr-4">Drug 1</th>
+                      <th className="py-2 pr-4">Drug 2</th>
+                      <th className="py-2 pr-4">Severity</th>
+                      <th className="py-2 pr-4">Mechanism</th>
+                      <th className="py-2 pr-4">Effect</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {((window as any).__osrx_db_interactions__ as any[]).map((r, idx) => (
+                      <tr key={idx} className="border-t">
+                        <td className="py-2 pr-4">{r.drug1?.name || r.drug1_rxcui}</td>
+                        <td className="py-2 pr-4">{r.drug2?.name || r.drug2_rxcui}</td>
+                        <td className="py-2 pr-4">{r.severity}</td>
+                        <td className="py-2 pr-4">{r.mechanism}</td>
+                        <td className="py-2 pr-4">{r.effect}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-gray-500">No DB interactions loaded yet.</div>
+            )}
+          </div>
+        </Card>
       )}
 
       {!loading && results && (

@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import { Shield } from 'lucide-react';
 import AdminModeBanner from '../Admin/AdminModeBanner';
 import AdminApiStatus from '../Admin/AdminApiStatus';
+import LoginWizard from '../Onboarding/LoginWizard';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -146,6 +147,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </>
                 )}
                 <ThemeToggle />
+                <button
+                  onClick={() => {
+                    try {
+                      const user: any = state.user || {};
+                      const uid = user?.id || user?.uid || 'anon';
+                      const role = user?.role || 'any';
+                      localStorage.removeItem(`osrx_wizard_seen:${uid}:${role}`);
+                      localStorage.setItem('osrx_wizard_suppressed', '0');
+                      window.dispatchEvent(new Event('focus'));
+                      alert('Onboarding tour will open shortly.');
+                    } catch {}
+                  }}
+                  className="px-2.5 py-1 border border-gray-300 rounded-md text-xs bg-white hover:bg-gray-50"
+                  title="Open onboarding tour"
+                >
+                  Tour
+                </button>
                 <ConnectivityStatus />
               </div>
             )}
@@ -154,6 +172,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {/* System health banner (auto-hides when healthy) */}
             <HealthBanner className="mb-4" />
             {children}
+            {/* Onboarding wizard (shows on first login unless dismissed) */}
+            <LoginWizard />
           </div>
         </main>
 

@@ -221,8 +221,9 @@ const SymbioticAICancerCompanion: React.FC = () => {
   const [symbioticHealth, setSymbioticHealth] = useState<SymbioticHealth[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Generate mock data
+  // Populate demo data only when demo mode is enabled
   useEffect(() => {
+    const { isDemoMode } = require('../../utils/demoMode');
     const generateMockCompanions = (): CompanionPersonality[] => {
       const companionNames = ['Luna', 'Sage', 'Phoenix', 'Aurora', 'Zen'];
       
@@ -456,12 +457,21 @@ const SymbioticAICancerCompanion: React.FC = () => {
       }));
     };
 
-    setCompanions(generateMockCompanions());
-    setCoEvolution(generateMockCoEvolution());
-    setPredictiveEmpathy(generateMockPredictiveEmpathy());
-    setEvolution(generateMockEvolution());
-    setInteractions(generateMockInteractions());
-    setSymbioticHealth(generateMockSymbioticHealth());
+    if (isDemoMode()) {
+      setCompanions(generateMockCompanions());
+      setCoEvolution(generateMockCoEvolution());
+      setPredictiveEmpathy(generateMockPredictiveEmpathy());
+      setEvolution(generateMockEvolution());
+      setInteractions(generateMockInteractions());
+      setSymbioticHealth(generateMockSymbioticHealth());
+    } else {
+      setCompanions([]);
+      setCoEvolution([]);
+      setPredictiveEmpathy([]);
+      setEvolution([]);
+      setInteractions([]);
+      setSymbioticHealth([]);
+    }
   }, []);
 
   // Canvas visualization for symbiotic connection

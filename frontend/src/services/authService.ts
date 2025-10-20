@@ -8,13 +8,33 @@ import { visitorTracking } from './visitorTracking'
 export class SupabaseAuthService {
   // Optional API used in some views; provide safe fallbacks
   static async requestMagicLink(email: string): Promise<void> {
-    throw new Error('Magic link not enabled');
+    const redirectTo = (() => {
+      try { return `${window.location.origin}/auth`; } catch { return undefined as any }
+    })();
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: redirectTo }
+    });
+    if (error) throw new Error(error.message);
   }
   static async verifyEmailOtp(email: string, token: string): Promise<void> {
-    throw new Error('Email OTP not enabled');
+    const { error } = await supabase.auth.verifyOtp({
+      type: 'email',
+      email,
+      token
+    } as any);
+    if (error) throw new Error(error.message);
   }
   static async resendConfirmation(email: string): Promise<void> {
-    throw new Error('Resend confirmation not enabled');
+    const redirectTo = (() => {
+      try { return `${window.location.origin}/auth/confirm`; } catch { return undefined as any }
+    })();
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: { emailRedirectTo: redirectTo }
+    } as any);
+    if (error) throw error;
   }
   
   /**
@@ -362,10 +382,14 @@ export class SupabaseAuthService {
     console.log('📝 Signup attempt for:', data.email)
 
     try {
+      const redirectTo = (() => {
+        try { return `${window.location.origin}/auth/confirm`; } catch { return undefined as any }
+      })();
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
+          emailRedirectTo: redirectTo,
           data: {
             first_name: data.firstName,
             last_name: data.lastName,

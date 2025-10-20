@@ -63,14 +63,11 @@ const ClinicalDecisionEngine: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedPriority, setSelectedPriority] = useState<string>('all');
 
-  // Simulate AI analysis with realistic clinical decision logic
+  // Placeholder AI analysis with deterministic clinical decision logic
   const performAIAnalysis = async () => {
     if (!currentPatient) return;
 
     setIsAnalyzing(true);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Generate realistic recommendations based on patient data
     const generatedRecommendations: ClinicalRecommendation[] = [];

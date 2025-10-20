@@ -227,7 +227,15 @@ const PersonalizedCancerAvatarSystem: React.FC = () => {
   const simulationCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    generateMockAvatarData();
+    const { isDemoMode } = require('../../utils/demoMode');
+    if (isDemoMode()) {
+      generateMockAvatarData();
+    } else {
+      setAvatars([]);
+      setAvatarPredictions([]);
+      setAvatarComparisons([]);
+      setAvatarLearning([]);
+    }
     if (avatarCanvasRef.current) {
       renderAvatarVisualization();
     }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Drug, InteractionCheckResult } from '../../types';
 import { interactionService, drugService } from '../../services/api';
@@ -35,6 +35,8 @@ const InteractionCheckerInner: React.FC = () => {
   const [altAllResults, setAltAllResults] = useState<any[] | null>(null);
   const [onlyCovered, setOnlyCovered] = useState(false);
   const [onlyBest, setOnlyBest] = useState(false);
+  const resultsRef = useRef<HTMLDivElement | null>(null);
+  const [pendingScrollToResults, setPendingScrollToResults] = useState(false);
 
   const applyAltFilters = (list: any[] | null, covered: boolean, best: boolean) => {
     if (!Array.isArray(list)) return list;
@@ -233,6 +235,7 @@ const InteractionCheckerInner: React.FC = () => {
 
     setLoading(true);
     setError(null);
+    setPendingScrollToResults(true);
 
     const isDev = (import.meta as any)?.env?.MODE !== 'production';
     try {
@@ -380,6 +383,16 @@ const InteractionCheckerInner: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // Ensure results are scrolled into view after a successful check
+  useEffect(() => {
+    if (pendingScrollToResults && results && resultsRef.current) {
+      try {
+        resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch {}
+      setPendingScrollToResults(false);
+    }
+  }, [pendingScrollToResults, results]);
 
   const getTotalInteractions = () => {
     if (!results) return 0;
@@ -561,7 +574,7 @@ const InteractionCheckerInner: React.FC = () => {
 
       {/* Results Summary */}
       {results && !loading && (
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div ref={resultsRef} className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <h2 className="text-xl font-semibold text-gray-900">Interaction Analysis</h2>

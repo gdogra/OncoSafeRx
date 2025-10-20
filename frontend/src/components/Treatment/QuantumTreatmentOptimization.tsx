@@ -31,6 +31,7 @@ import {
   Crosshair,
   Molecule
 } from 'lucide-react';
+import { interactionService } from '../../services/api';
 
 interface QuantumState {
   id: string;
@@ -98,13 +99,13 @@ const QuantumTreatmentOptimization: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    generateMockQuantumData();
+    generateQuantumData();
     if (canvasRef.current) {
       drawQuantumVisualization();
     }
   }, []);
 
-  const generateMockQuantumData = () => {
+  const generateQuantumData = async () => {
     const mockStates: QuantumState[] = [
       {
         id: 'qs001',
@@ -150,36 +151,38 @@ const QuantumTreatmentOptimization: React.FC = () => {
       }
     ];
 
-    const mockInteractions: DrugInteraction[] = [
-      {
-        id: 'di001',
-        drug1: 'Pembrolizumab',
-        drug2: 'Carboplatin',
-        quantumEffect: 'constructive',
-        interferencePattern: [0.2, 0.8, 0.6, 0.9, 0.7],
-        synergyScore: 0.85,
-        riskLevel: 'minimal',
+    // Fetch real interactions for a known pair to populate the demo visuals
+    let computedInteractions: DrugInteraction[] = [];
+    try {
+      const result = await interactionService.checkInteractions([
+        { rxcui: '11289', name: 'Warfarin' },
+        { rxcui: '1191', name: 'Aspirin' }
+      ]);
+      const all = [
+        ...(result?.interactions?.stored || []),
+        ...(result?.interactions?.external || [])
+      ];
+      computedInteractions = all.slice(0, 2).map((i: any, idx: number) => ({
+        id: i.id || `${i.drug1_rxcui || ''}-${i.drug2_rxcui || ''}-${idx}`,
+        drug1: i.drug1?.name || `Drug ${i.drug1_rxcui}`,
+        drug2: i.drug2?.name || `Drug ${i.drug2_rxcui}`,
+        quantumEffect: (String(i.severity || '').toLowerCase() === 'major') ? 'destructive'
+                     : (String(i.severity || '').toLowerCase() === 'minor') ? 'constructive'
+                     : 'neutral',
+        interferencePattern: [0.2, 0.7, 0.5, 0.9, 0.6].map(v => Math.max(0.1, Math.min(0.95, v + (Math.random() - 0.5) * 0.2))),
+        synergyScore: Math.max(0.1, Math.min(0.95, (i.severity === 'minor' ? 0.75 : i.severity === 'major' ? 0.35 : 0.55) + (Math.random() - 0.5) * 0.1)),
+        riskLevel: (String(i.severity || '').toLowerCase() === 'major') ? 'critical'
+                 : (String(i.severity || '').toLowerCase() === 'moderate') ? 'high'
+                 : 'minimal',
         molecularResonance: {
-          frequency: 432.7,
-          amplitude: 0.8,
-          phase: 1.2
+          frequency: 300 + Math.random() * 200,
+          amplitude: Math.max(0.2, Math.min(0.95, 0.5 + (Math.random() - 0.5))),
+          phase: Math.random() * Math.PI
         }
-      },
-      {
-        id: 'di002',
-        drug1: 'Nivolumab',
-        drug2: 'Bevacizumab',
-        quantumEffect: 'destructive',
-        interferencePattern: [0.9, 0.3, 0.7, 0.1, 0.5],
-        synergyScore: 0.34,
-        riskLevel: 'high',
-        molecularResonance: {
-          frequency: 287.4,
-          amplitude: 0.4,
-          phase: 2.8
-        }
-      }
-    ];
+      }));
+    } catch (e) {
+      computedInteractions = [];
+    }
 
     const mockSimulations: TreatmentSimulation[] = [
       {
@@ -215,7 +218,7 @@ const QuantumTreatmentOptimization: React.FC = () => {
     ];
 
     setQuantumStates(mockStates);
-    setDrugInteractions(mockInteractions);
+    setDrugInteractions(computedInteractions);
     setSimulations(mockSimulations);
   };
 

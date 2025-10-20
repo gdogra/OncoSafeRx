@@ -69,6 +69,9 @@ async function bootstrap() {
           ;(window as any).__OSRX_SUPABASE_URL__ = String(cfg.supabaseUrl)
           ;(window as any).__OSRX_SUPABASE_KEY__ = String(cfg.supabaseAnonKey)
         }
+        if (cfg?.features) {
+          ;(window as any).__OSRX_FEATURES__ = cfg.features
+        }
       }
     }
   } catch {}

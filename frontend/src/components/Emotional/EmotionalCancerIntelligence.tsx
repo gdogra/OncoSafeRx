@@ -244,7 +244,15 @@ const EmotionalCancerIntelligence: React.FC = () => {
   const biometricCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    generateMockEmotionalData();
+    const { isDemoMode } = require('../../utils/demoMode');
+    if (isDemoMode()) {
+      generateMockEmotionalData();
+    } else {
+      setEmotionalStates([]);
+      setEmotionalAnalyses([]);
+      setSupportInterventions([]);
+      setEmotionalBiomarkers([]);
+    }
     if (emotionCanvasRef.current) {
       renderEmotionVisualization();
     }

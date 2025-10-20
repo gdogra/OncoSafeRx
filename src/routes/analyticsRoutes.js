@@ -181,6 +181,44 @@ router.get('/metrics', authenticateToken, requireAdmin, async (req, res) => {
       // Calculate bounce rate
       const bounceEvents = events.filter(e => e.bounce === true).length;
       const bounceRate = events.length > 0 ? Math.round((bounceEvents / events.length) * 100) : 0;
+
+      // Onboarding funnel aggregation
+      const onboardingRows = events.filter(e => e.event_type === 'onboarding');
+      const funnelByRole = {};
+      const steps = {};
+      const timeseries = {};
+      const timeseriesByRole = {};
+      const startsByRole = {};
+      onboardingRows.forEach(row => {
+        const d = row.data || {};
+        const event = d.event || row.data?.event || null;
+        const payload = d.data || {};
+        const role = row.user_role || row.userRole || row.data?.role || 'unknown';
+        const idx = typeof payload.index === 'number' ? payload.index : null;
+        if (!funnelByRole[role]) funnelByRole[role] = { next: 0, cta: 0, skip: 0, close: 0, completed: 0 };
+        if (event === 'onboarding_next') funnelByRole[role].next += 1;
+        if (event === 'onboarding_cta') funnelByRole[role].cta += 1;
+        if (event === 'onboarding_skip') funnelByRole[role].skip += 1;
+        if (event === 'onboarding_close') funnelByRole[role].close += 1;
+        // Explicit completion
+        if (event === 'onboarding_complete') funnelByRole[role].completed += 1;
+        // Heuristic fallback: if close happens on last steps, infer completion
+        if (event === 'onboarding_close' && typeof idx === 'number' && idx >= 4) funnelByRole[role].completed += 1;
+        if (typeof idx === 'number') {
+          steps[idx] = (steps[idx] || 0) + 1;
+        }
+        // Timeseries for completion per day
+        if (event === 'onboarding_complete') {
+          const day = new Date(row.created_at || row.timestamp || Date.now()).toISOString().slice(0, 10);
+          timeseries[day] = (timeseries[day] || 0) + 1;
+          if (!timeseriesByRole[role]) timeseriesByRole[role] = {};
+          timeseriesByRole[role][day] = (timeseriesByRole[role][day] || 0) + 1;
+        }
+        // Starts by role (index 0 is considered tour start)
+        if (event === 'onboarding_next' && idx === 0) {
+          startsByRole[role] = (startsByRole[role] || 0) + 1;
+        }
+      });
       
       res.json({
         totalVisitors: uniqueUsers.size,
@@ -191,7 +229,8 @@ router.get('/metrics', authenticateToken, requireAdmin, async (req, res) => {
         topPages,
         userRoles,
         deviceTypes,
-        geographicDistribution
+        geographicDistribution,
+        onboarding: { funnelByRole, steps, timeseries, timeseriesByRole, startsByRole }
       });
       
     } catch (dbError) {
@@ -206,7 +245,8 @@ router.get('/metrics', authenticateToken, requireAdmin, async (req, res) => {
         topPages: [],
         userRoles: [],
         deviceTypes: [],
-        geographicDistribution: []
+        geographicDistribution: [],
+        onboarding: { funnelByRole: {}, steps: {}, timeseries: {}, timeseriesByRole: {}, startsByRole: {} }
       });
     }
     

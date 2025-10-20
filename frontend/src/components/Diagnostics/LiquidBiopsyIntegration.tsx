@@ -121,7 +121,14 @@ const LiquidBiopsyIntegration: React.FC = () => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    generateMockBiopsyData();
+    const { isDemoMode } = require('../../utils/demoMode');
+    if (isDemoMode()) {
+      generateMockBiopsyData();
+    } else {
+      setBiopsyResults([]);
+      setRealTimeAlerts([]);
+      setProcessingRate(0);
+    }
     if (canvasRef.current) {
       drawCTCVisualization();
     }

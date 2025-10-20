@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, ScatterChart, Scatter } from 'recharts';
 import { TrendingUp, Users, Activity, AlertTriangle, Brain, Database, Filter, Download, RefreshCw, Shield } from 'lucide-react';
 import Card from '../UI/Card';
+import axios from 'axios';
 
 interface AnalyticsData {
   drugUsage: Array<{
@@ -65,99 +66,50 @@ const RealWorldAnalytics: React.FC<RealWorldAnalyticsProps> = ({
     biomarker: 'all'
   });
 
-  // Mock data generation
-  const generateMockData = (): AnalyticsData => {
-    return {
-      drugUsage: [
-        { drug: 'Pembrolizumab', prescriptions: 1245, efficacy: 87, safety: 92, cost: 15000 },
-        { drug: 'Nivolumab', prescriptions: 1089, efficacy: 84, safety: 89, cost: 14500 },
-        { drug: 'Atezolizumab', prescriptions: 892, efficacy: 81, safety: 91, cost: 13800 },
-        { drug: 'Ipilimumab', prescriptions: 675, efficacy: 78, safety: 85, cost: 16200 },
-        { drug: 'Durvalumab', prescriptions: 543, efficacy: 83, safety: 88, cost: 13200 },
-        { drug: 'Trastuzumab', prescriptions: 2145, efficacy: 89, safety: 94, cost: 8500 },
-        { drug: 'Bevacizumab', prescriptions: 1876, efficacy: 76, safety: 87, cost: 7800 },
-        { drug: 'Rituximab', prescriptions: 1654, efficacy: 85, safety: 92, cost: 6200 }
-      ],
-      patientOutcomes: [
-        { month: 'Jan', responseRate: 68, survivalRate: 92, qualityOfLife: 74 },
-        { month: 'Feb', responseRate: 71, survivalRate: 91, qualityOfLife: 76 },
-        { month: 'Mar', responseRate: 73, survivalRate: 93, qualityOfLife: 78 },
-        { month: 'Apr', responseRate: 75, survivalRate: 94, qualityOfLife: 79 },
-        { month: 'May', responseRate: 77, survivalRate: 95, qualityOfLife: 81 },
-        { month: 'Jun', responseRate: 79, survivalRate: 96, qualityOfLife: 83 }
-      ],
-      interactionTrends: [
-        { severity: 'Major', count: 145, trend: -12 },
-        { severity: 'Moderate', count: 342, trend: -8 },
-        { severity: 'Minor', count: 567, trend: 5 },
-        { severity: 'Contraindicated', count: 23, trend: -15 }
-      ],
-      demographicInsights: [
-        { 
-          ageGroup: '18-40', 
-          totalPatients: 1245, 
-          averageResponse: 78, 
-          commonSideEffects: ['Fatigue', 'Nausea', 'Skin rash'] 
-        },
-        { 
-          ageGroup: '41-60', 
-          totalPatients: 2876, 
-          averageResponse: 82, 
-          commonSideEffects: ['Fatigue', 'Diarrhea', 'Hypertension'] 
-        },
-        { 
-          ageGroup: '61-80', 
-          totalPatients: 3421, 
-          averageResponse: 75, 
-          commonSideEffects: ['Fatigue', 'Neutropenia', 'Cardiotoxicity'] 
-        },
-        { 
-          ageGroup: '80+', 
-          totalPatients: 892, 
-          averageResponse: 68, 
-          commonSideEffects: ['Fatigue', 'Confusion', 'Falls'] 
+  // Attempt to load real analytics; fall back to empty
+  const fetchAnalytics = async (): Promise<AnalyticsData> => {
+    try {
+      const base = (typeof window !== 'undefined' && window.location.hostname === 'localhost') ? 'http://localhost:3000/api' : '/api';
+      const [dashboard, drugs, clinical] = await Promise.all([
+        axios.get(`${base}/analytics/dashboard`).then(r => r.data).catch(() => null),
+        axios.get(`${base}/analytics/drugs`).then(r => r.data).catch(() => null),
+        axios.get(`${base}/analytics/clinical`).then(r => r.data).catch(() => null)
+      ]);
+      const drugUsage = Array.isArray(drugs?.mostSearched)
+        ? drugs.mostSearched.slice(0, 8).map((d: any) => ({ drug: d.name || d.drug || 'Unknown', prescriptions: d.count || d.searches || 0, efficacy: 0, safety: 0, cost: 0 }))
+        : [];
+      // Build interaction trend summary by severity
+      const interactionTrends = Array.isArray(drugs?.interactionAlerts) ? (() => {
+        const groups: Record<string, number> = {};
+        for (const a of drugs.interactionAlerts) {
+          const s = String(a.severity || 'unknown').toLowerCase();
+          groups[s] = (groups[s] || 0) + (a.frequency || 0);
         }
-      ],
-      genomicCorrelations: [
-        { biomarker: 'PD-L1 High', responseRate: 89, patientCount: 1234, significance: 0.001 },
-        { biomarker: 'HER2+', responseRate: 91, patientCount: 2145, significance: 0.0001 },
-        { biomarker: 'BRCA1/2', responseRate: 87, patientCount: 567, significance: 0.002 },
-        { biomarker: 'KRAS G12C', responseRate: 73, patientCount: 342, significance: 0.01 },
-        { biomarker: 'EGFR T790M', responseRate: 68, patientCount: 789, significance: 0.005 },
-        { biomarker: 'MSI-High', responseRate: 94, patientCount: 234, significance: 0.0001 }
-      ],
-      realWorldEvidence: [
-        { 
-          study: 'Real-world Pembrolizumab Outcomes', 
-          population: 5432, 
-          primaryEndpoint: 'Overall Response Rate', 
-          result: 31.2, 
-          confidence: 95 
-        },
-        { 
-          study: 'Trastuzumab Effectiveness Study', 
-          population: 8765, 
-          primaryEndpoint: 'Progression-free Survival', 
-          result: 18.7, 
-          confidence: 98 
-        },
-        { 
-          study: 'Checkpoint Inhibitor Safety Analysis', 
-          population: 12543, 
-          primaryEndpoint: 'Grade 3+ Adverse Events', 
-          result: 24.8, 
-          confidence: 99 
-        }
-      ]
-    };
+        return Object.entries(groups).map(([severity, count]) => ({ severity, count, trend: 0 }));
+      })() : [];
+      // Map clinical outcomes to a simple outcomes series (if available)
+      const patientOutcomes = clinical?.protocolAdherence ? [
+        { month: 'Adherence', responseRate: Math.round(clinical.protocolAdherence.overall || 0), survivalRate: 0, qualityOfLife: 0 }
+      ] : [];
+      // Minimal viable structure; other charts remain empty until real data is available
+      return {
+        drugUsage,
+        patientOutcomes,
+        interactionTrends,
+        demographicInsights: [],
+        genomicCorrelations: [],
+        realWorldEvidence: []
+      };
+    } catch {
+      return { drugUsage: [], patientOutcomes: [], interactionTrends: [], demographicInsights: [], genomicCorrelations: [], realWorldEvidence: [] };
+    }
   };
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setData(generateMockData());
+      const loaded = await fetchAnalytics();
+      setData(loaded);
       setLoading(false);
     };
     loadData();
@@ -213,7 +165,7 @@ const RealWorldAnalytics: React.FC<RealWorldAnalyticsProps> = ({
           </div>
           <div className="flex items-center space-x-3">
             <button
-              onClick={() => setData(generateMockData())}
+              onClick={async () => { setLoading(true); setData(await fetchAnalytics()); setLoading(false); }}
               className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
             >
               <RefreshCw className="w-4 h-4" />

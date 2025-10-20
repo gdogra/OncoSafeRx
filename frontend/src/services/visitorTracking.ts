@@ -70,7 +70,7 @@ class VisitorTrackingService {
   private currentPageView: PageView | null = null;
   private isTrackingEnabled: boolean = false; // Will be enabled based on environment
   private apiEndpoint: string = '/api/analytics';
-  private enableServerAnalytics: boolean = false; // Server analytics disabled - no backend available
+  private enableServerAnalytics: boolean = false; // Controlled by server flag
   private serverAvailable: boolean | null = null; // Track if analytics server is available
 
   constructor() {
@@ -124,6 +124,17 @@ class VisitorTrackingService {
       this.startSession();
       this.setupEventListeners();
       
+      // Determine server analytics behavior from server-provided features or local override
+      try {
+        const features = (window as any).__OSRX_FEATURES__ || {};
+        const localOverride = localStorage.getItem('analytics_server_enabled');
+        if (typeof features.analyticsEndpoint === 'string') this.apiEndpoint = features.analyticsEndpoint;
+        if (localOverride === 'true') this.enableServerAnalytics = true;
+        else if (localOverride === 'false') this.enableServerAnalytics = false;
+        else this.enableServerAnalytics = Boolean(features.analyticsServerEnabled);
+        console.log('📡 Server analytics config', { enableServerAnalytics: this.enableServerAnalytics, endpoint: this.apiEndpoint });
+      } catch {}
+
       // Test tracking with a startup event
       setTimeout(() => {
         this.trackCustomEvent('tracking_test', { 
@@ -406,6 +417,16 @@ class VisitorTrackingService {
     if (!this.isTrackingEnabled) return;
 
     this.trackInteraction('click', null, JSON.stringify({ event: eventName, data: eventData }));
+    try {
+      if (this.enableServerAnalytics && eventName && String(eventName).startsWith('onboarding_')) {
+        this.sendToServer('onboarding', {
+          event: eventName,
+          data: eventData,
+          role: this.currentSession?.userRole,
+          ts: new Date().toISOString()
+        });
+      }
+    } catch {}
   }
 
   public trackSearch(query: string, resultsCount: number): void {
@@ -435,7 +456,6 @@ class VisitorTrackingService {
   }
 
   private async sendToServer(eventType: string, data: any): Promise<void> {
-    // ALWAYS return early - server analytics completely disabled
     if (!this.enableServerAnalytics) return;
     if (!this.isTrackingEnabled) return;
 

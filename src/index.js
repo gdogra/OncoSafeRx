@@ -215,6 +215,15 @@ app.get('/api/frontend/config', (req, res) => {
       supabaseUrl: process.env.SUPABASE_URL || null,
       supabaseAnonKey: process.env.SUPABASE_ANON_KEY || null,
       apiBaseUrl: process.env.API_BASE_URL || '/api',
+      features: {
+        demoMode: String(process.env.FRONTEND_DEMO_MODE || '').toLowerCase() === 'true',
+        onboardingTour: String(process.env.FRONTEND_ONBOARDING_TOUR || 'true').toLowerCase() !== 'false',
+        analyticsServerEnabled: String(process.env.FRONTEND_SERVER_ANALYTICS || '').toLowerCase() === 'true',
+        analyticsEndpoint: '/api/analytics'
+      },
+      env: {
+        mode: process.env.NODE_ENV || 'development'
+      }
     };
     return res.json(cfg);
   } catch (e) {

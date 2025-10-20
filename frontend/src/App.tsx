@@ -53,6 +53,8 @@ const Logout = lazy(() => import('./pages/Logout'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const AuthDebug = lazy(() => import('./pages/AuthDebug'));
 const ForceLogout = lazy(() => import('./pages/ForceLogout'));
+const AuthEmailConfirm = lazy(() => import('./pages/AuthEmailConfirm'));
+const AuthCheckEmail = lazy(() => import('./pages/AuthCheckEmail'));
 
 // Patient-specific components
 const MyMedications = lazy(() => import('./pages/MyMedications'));
@@ -76,6 +78,7 @@ const FeedbackAdmin = lazy(() => import('./pages/FeedbackAdmin'));
 const AdminConsole = lazy(() => import('./components/Admin/AdminConsole'));
 const AdminHome = lazy(() => import('./pages/AdminHome'));
 const AdminAuthDiagnostics = lazy(() => import('./pages/AdminAuthDiagnostics'));
+const AdminOnboardingAnalytics = lazy(() => import('./pages/AdminOnboardingAnalytics'));
 const FHIRPatients = lazy(() => import('./pages/FHIRPatients'));
 const ArticleLabResults = lazy(() => import('./pages/ArticleLabResults'));
 const VideoSupportNetwork = lazy(() => import('./pages/VideoSupportNetwork'));
@@ -160,6 +163,8 @@ function AppWithAuth() {
                 <Route path="/login" element={<AuthPage />} />
                 <Route path="/signup" element={<AuthPage />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/auth/confirm" element={<AuthEmailConfirm />} />
+                <Route path="/auth/check-email" element={<AuthCheckEmail />} />
                 <Route path="/logout" element={<Logout />} />
                 {isDev && <Route path="/auth-debug" element={<AuthDebug />} />}
                 <Route path="/force-logout" element={<ForceLogout />} />
@@ -348,6 +353,13 @@ function AppWithAuth() {
                   <ProtectedRoute requiredPermission="manage_feedback">
                     <Layout>
                       <FeedbackAdmin />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/onboarding" element={
+                  <ProtectedRoute requiredPermission="view_visitor_analytics">
+                    <Layout>
+                      <AdminOnboardingAnalytics />
                     </Layout>
                   </ProtectedRoute>
                 } />

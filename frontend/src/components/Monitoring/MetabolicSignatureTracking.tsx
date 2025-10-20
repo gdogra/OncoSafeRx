@@ -132,7 +132,14 @@ const MetabolicSignatureTracking: React.FC = () => {
   const pathwayCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    generateMockMetabolicData();
+    const { isDemoMode } = require('../../utils/demoMode');
+    if (isDemoMode()) {
+      generateMockMetabolicData();
+    } else {
+      setMetabolicProfiles([]);
+      setMetabolicShifts([]);
+      setAlerts([]);
+    }
     if (canvasRef.current) {
       drawMetabolicVisualization();
     }

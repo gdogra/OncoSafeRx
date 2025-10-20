@@ -804,6 +804,52 @@ const UserProfile: React.FC = () => {
                 </div>
               </div>
 
+              {/* Onboarding Tour */}
+              <div className="mb-6">
+                <h3 className="text-md font-medium text-gray-900 mb-3 flex items-center">
+                  <Users className="w-4 h-4 mr-2" />
+                  Onboarding Tour
+                </h3>
+                <p className="text-sm text-gray-700 mb-3">
+                  Get a quick tour of features tailored to your role.
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      try {
+                        const uid = (user as any)?.id || (user as any)?.uid || 'anon';
+                        const role = (user as any)?.role || 'any';
+                        localStorage.removeItem(`osrx_wizard_seen:${uid}:${role}`);
+                        localStorage.setItem('osrx_wizard_suppressed', '0');
+                        // Nudge wizard to open
+                        (window as any).dispatchEvent(new Event('focus'));
+                        (window as any).scrollTo(0, 0);
+                        alert('The onboarding tour will appear on this page.');
+                      } catch {
+                        alert('Unable to trigger tour. Try refreshing the page.');
+                      }
+                    }}
+                    className="px-3 py-1.5 bg-primary-600 text-white rounded hover:bg-primary-700 text-sm"
+                  >
+                    Run tour now
+                  </button>
+                  <button
+                    onClick={() => {
+                      try {
+                        const uid = (user as any)?.id || (user as any)?.uid || 'anon';
+                        const role = (user as any)?.role || 'any';
+                        localStorage.setItem(`osrx_wizard_seen:${uid}:${role}`, '1');
+                        localStorage.setItem('osrx_wizard_suppressed', '1');
+                        alert('Onboarding tour will not show again.');
+                      } catch {}
+                    }}
+                    className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded hover:bg-gray-200 text-sm"
+                  >
+                    Don’t show again
+                  </button>
+                </div>
+              </div>
+
               <button
                 onClick={handleSavePreferences}
                 className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"

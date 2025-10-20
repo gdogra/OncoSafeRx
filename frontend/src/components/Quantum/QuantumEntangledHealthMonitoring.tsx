@@ -169,8 +169,17 @@ const QuantumEntangledHealthMonitoring: React.FC = () => {
   const [quantumML, setQuantumML] = useState<QuantumML[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Generate mock data
+  // Populate data (demo mode only); otherwise show empty state
   useEffect(() => {
+    const { isDemoMode } = require('../../utils/demoMode');
+    if (!isDemoMode()) {
+      setEntanglements([]);
+      setSensors([]);
+      setTeleportations([]);
+      setNetworking([]);
+      setQuantumML([]);
+      return;
+    }
     const generateMockEntanglements = (): QuantumEntanglement[] => {
       return Array.from({ length: 6 }, (_, i) => ({
         id: `entanglement-${i}`,

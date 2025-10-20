@@ -223,7 +223,15 @@ const AutonomousTreatmentAdjustment: React.FC = () => {
   const decisionCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    generateMockAutonomousData();
+    const { isDemoMode } = require('../../utils/demoMode');
+    if (isDemoMode()) {
+      generateMockAutonomousData();
+    } else {
+      setAgents([]);
+      setTreatmentAdjustments([]);
+      setAutonomousDecisions([]);
+      setLearningMetrics([]);
+    }
     if (systemCanvasRef.current) {
       renderSystemVisualization();
     }

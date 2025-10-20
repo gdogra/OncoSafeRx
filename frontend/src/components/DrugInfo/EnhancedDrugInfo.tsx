@@ -465,7 +465,7 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
             </div>
 
             {/* Display clinical data from the enhanced API */}
-            {(drug.clinicalInsights || drug.realWorldEvidence || drug.riskProfile || drug.monitoringRequirements || drug.clinicalDecisionSupport || drug.costEffectiveness) && (
+            {(drug.clinicalInsights || drug.realWorldEvidence || drug.riskProfile || drug.monitoringRequirements || (drug as any)?.clinicalData?.clinicalDecisionSupport || drug.costEffectiveness) && (
               <div className="space-y-6">
                 {/* Clinical Insights */}
                 {drug.clinicalInsights && (
@@ -634,14 +634,14 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                 )}
 
                 {/* Real World Evidence */}
-                {drug.clinicalData.realWorldEvidence && (
+                {(drug as any)?.clinicalData?.realWorldEvidence && (
                   <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
                     <h4 className="font-semibold text-purple-900 mb-4 flex items-center">
                       <BarChart3 className="w-5 h-5 mr-2" />
                       Real-World Evidence
                     </h4>
 
-                    {drug.clinicalData.realWorldEvidence.costEffectiveness && (
+                    {(drug as any)?.clinicalData?.realWorldEvidence?.costEffectiveness && (
                       <div className="mb-4">
                         <p className="text-sm font-medium text-purple-800 mb-2">Cost Effectiveness:</p>
                         <div className="bg-white p-3 rounded border">
@@ -649,19 +649,19 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                             <div>
                               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Annual Cost</p>
                               <p className="text-lg font-semibold text-gray-900">
-                                ${drug.clinicalData.realWorldEvidence.costEffectiveness.annualCost?.toLocaleString() || 'N/A'}
+                              ${((drug as any)?.clinicalData?.realWorldEvidence?.costEffectiveness?.annualCost)?.toLocaleString?.() || ((drug as any)?.clinicalData?.realWorldEvidence?.costEffectiveness?.annualCost ?? 'N/A')}
                               </p>
                             </div>
                             <div>
                               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Cost per QALY</p>
                               <p className="text-lg font-semibold text-gray-900">
-                                ${drug.clinicalData.realWorldEvidence.costEffectiveness.costPerQALY?.toLocaleString() || 'N/A'}
+                              ${((drug as any)?.clinicalData?.realWorldEvidence?.costEffectiveness?.costPerQALY)?.toLocaleString?.() || ((drug as any)?.clinicalData?.realWorldEvidence?.costEffectiveness?.costPerQALY ?? 'N/A')}
                               </p>
                             </div>
                             <div>
                               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Tier Status</p>
                               <p className="text-lg font-semibold text-gray-900">
-                                {drug.clinicalData.realWorldEvidence.costEffectiveness.tierStatus || 'N/A'}
+                                {((drug as any)?.clinicalData?.realWorldEvidence?.costEffectiveness?.tierStatus) || 'N/A'}
                               </p>
                             </div>
                           </div>
@@ -669,11 +669,11 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                       </div>
                     )}
 
-                    {drug.clinicalData.realWorldEvidence.outcomes && (
+                    {(drug as any)?.clinicalData?.realWorldEvidence?.outcomes && (
                       <div>
                         <p className="text-sm font-medium text-purple-800 mb-2">Real-World Outcomes:</p>
                         <div className="space-y-2">
-                          {Object.entries(drug.clinicalData.realWorldEvidence.outcomes).map(([key, value]: [string, any]) => (
+                          {Object.entries(((drug as any)?.clinicalData?.realWorldEvidence?.outcomes) || {}).map(([key, value]: [string, any]) => (
                             <div key={key} className="bg-white p-3 rounded border">
                               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                                 {key.replace(/([A-Z])/g, ' $1').trim()}

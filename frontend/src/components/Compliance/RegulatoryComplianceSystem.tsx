@@ -260,8 +260,8 @@ const RegulatoryComplianceSystem: React.FC = () => {
         }
       ]);
 
-      setLoading(false);
-    }, 1000);
+    setLoading(false);
+  }, 0);
   };
 
   const getComplianceScore = () => {
@@ -273,15 +273,13 @@ const RegulatoryComplianceSystem: React.FC = () => {
   };
 
   const generateAuditReport = (type: string) => {
-    // Simulate report generation
+    // Placeholder for real report generation hook
     console.log(`Generating ${type} audit report...`);
-    alert(`${type.toUpperCase()} audit report generation initiated. Report will be available in the Reports tab.`);
   };
 
   const exportComplianceData = (format: string) => {
-    // Simulate data export
+    // Placeholder for real export hook
     console.log(`Exporting compliance data as ${format}...`);
-    alert(`Compliance data export as ${format} initiated.`);
   };
 
   const renderDashboard = () => (

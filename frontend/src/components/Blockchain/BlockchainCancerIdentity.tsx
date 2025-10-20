@@ -134,8 +134,17 @@ const BlockchainCancerIdentity: React.FC = () => {
   const [integrityData, setIntegrityData] = useState<DataIntegrity[]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Generate mock data
+  // Populate demo data only when demo mode is enabled
   useEffect(() => {
+    const { isDemoMode } = require('../../utils/demoMode');
+    if (!isDemoMode()) {
+      setIdentities([]);
+      setTransactions([]);
+      setContracts([]);
+      setConsents([]);
+      setIntegrityData([]);
+      return;
+    }
     const generateMockIdentities = (): BlockchainIdentity[] => {
       return Array.from({ length: 5 }, (_, i) => ({
         id: `identity-${i}`,

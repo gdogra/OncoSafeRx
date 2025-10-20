@@ -125,19 +125,8 @@ const Protocols: React.FC = () => {
   // Search protocols function
   const handleSearchProtocols = async () => {
     setSearchLoading(true);
-    
-    // Simulate API call with loading delay
-    setTimeout(() => {
-      setSearchLoading(false);
-      
-      // Show a notification that search was performed
-      alert(`Search performed with filters:
-Cancer Type: ${cancerTypeFilter || 'All'}
-Stage: ${stageFilter || 'All'}
-Source: ${sourceFilter || 'All'}
-
-Found ${filteredProtocols.length} matching protocols.`);
-    }, 1000);
+    // Use current filters to update view immediately (no mock delay)
+    setSearchLoading(false);
   };
 
   // View protocol details

@@ -47,6 +47,8 @@
     "type-check:core": "tsc --noEmit -p tsconfig.core.json",
     "preview": "vite preview",
     "test": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "lint": "eslint src --ext js,jsx --ignore-pattern '**/*.{ts,tsx}'",
@@ -84,6 +86,7 @@
     "jsdom": "^27.0.0",
     "prettier": "^3.6.2",
     "vite": "^7.1.6",
+    "@playwright/test": "^1.48.2",
     "vitest": "^3.2.4",
     "webpack-dev-server": "^5.2.2"
   },

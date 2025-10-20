@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { AlertTriangle, Shield, Brain, Activity, Clock, Users, FileText, ExternalLink, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
 import Card from '../UI/Card';
 import { Drug } from '../../types';
+import { interactionService } from '../../services/api';
 
 interface DrugInteraction {
   id: string;
@@ -54,72 +55,49 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
   const [selectedSeverity, setSelectedSeverity] = useState<string>('all');
   const [selectedEvidence, setSelectedEvidence] = useState<string>('all');
 
-  // Mock interaction data - in real app, this would come from API
-  const mockInteractions: DrugInteraction[] = [
-    {
-      id: '1',
-      drug1: 'Warfarin',
-      drug2: 'Fluorouracil',
-      severity: 'major',
-      mechanism: 'CYP2C9 inhibition',
-      clinicalEffect: 'Increased anticoagulant effect, risk of bleeding',
-      recommendation: 'Monitor INR closely, consider dose reduction',
-      evidence: 'established',
-      references: ['PMID: 12345678', 'PMID: 87654321'],
-      alternatives: ['Apixaban', 'Rivaroxaban'],
-      monitoring: ['INR weekly for 2 weeks', 'CBC weekly', 'Signs of bleeding'],
-      doseAdjustment: 'Reduce warfarin dose by 25-50%',
-      onsetTime: '2-5 days',
-      duration: 'Throughout treatment',
-      prevalence: 85
-    },
-    {
-      id: '2',
-      drug1: 'Metformin',
-      drug2: 'Iodinated contrast',
-      severity: 'moderate',
-      mechanism: 'Impaired renal clearance',
-      clinicalEffect: 'Risk of lactic acidosis',
-      recommendation: 'Hold metformin 48h before and after contrast',
-      evidence: 'probable',
-      references: ['PMID: 11111111'],
-      monitoring: ['Renal function', 'Lactate levels'],
-      onsetTime: 'Immediate',
-      duration: '48-72 hours',
-      prevalence: 60
-    },
-    {
-      id: '3',
-      drug1: 'Simvastatin',
-      drug2: 'Clarithromycin',
-      severity: 'major',
-      mechanism: 'CYP3A4 inhibition',
-      clinicalEffect: 'Increased risk of rhabdomyolysis',
-      recommendation: 'Avoid combination or use lowest statin dose',
-      evidence: 'established',
-      references: ['PMID: 22222222'],
-      alternatives: ['Pravastatin', 'Rosuvastatin'],
-      monitoring: ['CK levels', 'Muscle symptoms'],
-      contraindicated: true,
-      onsetTime: '1-7 days',
-      duration: 'Throughout treatment',
-      prevalence: 75
-    }
-  ];
-
   useEffect(() => {
-    if (selectedDrugs.length >= 2) {
+    const run = async () => {
+      if (selectedDrugs.length < 2) {
+        setInteractions([]);
+        setRecommendations([]);
+        return;
+      }
       setLoading(true);
-      // Simulate API call
-      setTimeout(() => {
-        setInteractions(mockInteractions);
-        generateRecommendations(mockInteractions);
+      try {
+        const payload = selectedDrugs.map(d => ({ rxcui: d.rxcui, name: d.name }));
+        const result = await interactionService.checkInteractions(payload);
+        const all = [
+          ...(result?.interactions?.stored || []),
+          ...(result?.interactions?.external || [])
+        ];
+        const mapped: DrugInteraction[] = all.map((i: any, idx: number) => ({
+          id: i.id || `${i.drug1_rxcui || ''}-${i.drug2_rxcui || ''}-${idx}`,
+          drug1: i.drug1?.name || `Drug ${i.drug1_rxcui}`,
+          drug2: i.drug2?.name || `Drug ${i.drug2_rxcui}`,
+          severity: (String(i.severity || 'unknown').toLowerCase() === 'high') ? 'major'
+                   : (String(i.severity || 'unknown').toLowerCase() === 'low') ? 'minor'
+                   : (String(i.severity || 'unknown').toLowerCase() as any),
+          mechanism: i.mechanism || i.description || '—',
+          clinicalEffect: i.effect || i.description || '—',
+          recommendation: i.management || '—',
+          evidence: ((i.evidence_level || '').toLowerCase() === 'a' ? 'established'
+                   : (i.evidence_level || '').toLowerCase() === 'b' ? 'probable'
+                   : (i.evidence_level || '').toLowerCase() === 'c' ? 'possible'
+                   : 'theoretical') as any,
+          references: Array.isArray(i.sources) ? i.sources : (i.sources ? [i.sources] : []),
+          contraindicated: false,
+        }));
+        setInteractions(mapped);
+        generateRecommendations(mapped);
+      } catch (e) {
+        console.warn('AdvancedInteractionChecker fetch failed:', (e as any)?.message || e);
+        setInteractions([]);
+        setRecommendations([]);
+      } finally {
         setLoading(false);
-      }, 1000);
-    } else {
-      setInteractions([]);
-      setRecommendations([]);
-    }
+      }
+    };
+    run();
   }, [selectedDrugs]);
 
   const generateRecommendations = (interactions: DrugInteraction[]) => {

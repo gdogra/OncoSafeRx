@@ -71,6 +71,7 @@ import releaseRoutes from './routes/releaseRoutes.js';
 import multiPlatformRoutes from './routes/multiPlatformRoutes.js';
 import acquisitionEnhancementRoutes from './routes/acquisitionEnhancementRoutes.js';
 import ddiMiningRoutes from './routes/ddiMiningRoutes.js';
+import { addScientistModeHeaders, scientistModeFilter } from './middleware/scientistMode.js';
 import { join as pathJoin } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -142,6 +143,9 @@ if (getBoolean('ENABLE_HSTS', false)) {
 }
 app.use(cors({ origin: CORS_ORIGIN === '*' ? true : CORS_ORIGIN.split(',').map(s => s.trim()), credentials: true }));
 app.use(compression());
+
+// Scientist mode headers
+app.use(addScientistModeHeaders);
 
 // Request ID middleware
 app.use((req, res, next) => {
@@ -420,7 +424,7 @@ app.use('/api/alternatives', alternativesRoutes);
 app.use('/api/regimens', regimenRoutes);
 app.use('/api/protocols', protocolRoutes);
 app.use('/api/collaboration', collaborationRoutes);
-app.use('/api/analytics', analyticsRoutes);
+app.use('/api/analytics', scientistModeFilter('analytics'), analyticsRoutes);
 app.use('/api/trials', trialRoutes);
 app.use('/api/clinical-trials', clinicalTrialsRoutes);
 app.use('/api/drug-alternatives', drugAlternativesRoutes);
@@ -466,7 +470,7 @@ if (PATIENTS_DISABLED) {
 } else {
   app.use('/api/patients', patientRoutes);
 }
-app.use('/api/feedback', feedbackRoutes);
+app.use('/api/feedback', scientistModeFilter('feedback'), feedbackRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/overrides', overrideRoutes);

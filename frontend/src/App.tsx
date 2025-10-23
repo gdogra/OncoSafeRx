@@ -10,6 +10,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import EnvDiagnosticsBanner from './components/System/EnvDiagnosticsBanner';
 import SessionRestorer from './components/System/SessionRestorer';
 import { ToastProvider } from './components/UI/Toast';
+import ScientificTheme from './components/Scientific/ScientificTheme';
 import SecurityManager from './utils/security';
 import PerformanceMonitor from './utils/performance';
 import PWAManager from './utils/pwa';
@@ -150,11 +151,12 @@ function AppWithAuth() {
   const isDev = (import.meta as any)?.env?.MODE !== 'production';
 
   return (
-    <ToastProvider>
-      {/* DEPLOYMENT TEST: Fixed styling and role restrictions - v2.1 */}
-      <PatientProvider>
-        <SelectionProvider>
-          <ComparisonProvider>
+    <ScientificTheme>
+      <ToastProvider>
+        {/* DEPLOYMENT TEST: Fixed styling and role restrictions - v2.1 */}
+        <PatientProvider>
+          <SelectionProvider>
+            <ComparisonProvider>
             <Suspense fallback={<div className="p-4 text-sm text-gray-500">Loading…</div>}>
               <Routes>
                 {/* Public routes */}
@@ -823,10 +825,11 @@ function AppWithAuth() {
                 } />
               </Routes>
             </Suspense>
-          </ComparisonProvider>
-        </SelectionProvider>
-      </PatientProvider>
-    </ToastProvider>
+            </ComparisonProvider>
+          </SelectionProvider>
+        </PatientProvider>
+      </ToastProvider>
+    </ScientificTheme>
   );
 }
 

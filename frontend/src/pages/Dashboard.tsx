@@ -2,11 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { hasPermission, getRoleConfig } from '../utils/roleConfig';
+import { isScientistMode } from '../utils/scientistMode';
 import Card from '../components/UI/Card';
 import Tooltip from '../components/UI/Tooltip';
+import ScientificDashboard from './ScientificDashboard';
 import { Activity, Search, AlertTriangle, Dna, FileText, Users, TrendingUp, Shield, Brain, Target, Calendar, DollarSign, Zap, Heart, FlaskConical, Database, ShieldAlert, BookOpen, Stethoscope, MessageSquare } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
+  // Return scientific dashboard if scientist mode is enabled
+  if (isScientistMode()) {
+    return <ScientificDashboard />;
+  }
+
   const { state } = useAuth();
   const { user } = state;
   const userRole = user?.role || 'student';

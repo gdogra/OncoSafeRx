@@ -70,6 +70,7 @@ import integrationRoutes from './routes/integrationRoutes.js';
 import releaseRoutes from './routes/releaseRoutes.js';
 import multiPlatformRoutes from './routes/multiPlatformRoutes.js';
 import acquisitionEnhancementRoutes from './routes/acquisitionEnhancementRoutes.js';
+import ddiMiningRoutes from './routes/ddiMiningRoutes.js';
 import { join as pathJoin } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -434,6 +435,7 @@ app.use('/api/integrations', integrationRoutes);
 app.use('/api', releaseRoutes);
 app.use('/api/multi-platform', multiPlatformRoutes);
 app.use('/api/acquisition', acquisitionEnhancementRoutes);
+app.use('/api/ddi-mining', ddiMiningRoutes);
 
 // Serve OpenAPI spec (static YAML)
 app.get(['/openapi.yaml','/api/openapi.yaml'], (req, res) => {

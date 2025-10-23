@@ -75,7 +75,7 @@ export function useGlobalKeyboardShortcuts() {
     {
       key: 'd',
       modifiers: { alt: true },
-      action: () => navigate('/drug-database'),
+      action: () => navigate('/database'),
       description: 'Go to drug database'
     },
 

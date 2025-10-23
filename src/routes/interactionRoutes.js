@@ -289,6 +289,7 @@ router.post('/check',
   interactionLimiter,
   validate(schemas.interactionCheck, 'body'),
   asyncHandler(async (req, res) => {
+    console.log('🔍 DDI Check Request:', req.body);
     const { drugs } = req.body;
 
     const interactions = [];

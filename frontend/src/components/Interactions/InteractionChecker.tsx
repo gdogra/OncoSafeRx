@@ -220,6 +220,7 @@ const InteractionCheckerInner: React.FC = () => {
 
   const handleRemoveDrug = (rxcui: string) => {
     setSelectedDrugs(selectedDrugs.filter(drug => drug.rxcui !== rxcui));
+    selection.removeDrug(rxcui); // Remove from global selection too
     setResults(null); // Clear previous results when drugs change
     setAltResults(null);
     setAltAllResults(null);

@@ -15,7 +15,7 @@
   BUILD_TIMESTAMP = "2025-10-23T17:40:00Z"
   # Backend base URL for non-Netlify custom domains fallback
   VITE_BACKEND_URL = "https://oncosaferx-backend.onrender.com"
-  VITE_APP_VERSION = "20.0.0"
+  VITE_APP_VERSION = "20.1.0"
 
 # Use Edge Function to proxy API so we can preserve auth headers + cookies
 [[edge_functions]]
@@ -81,7 +81,7 @@
   # Supabase configuration for frontend
   VITE_SUPABASE_URL = "https://emfrwckxctyarphjvfeu.supabase.co"
   VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c"
-  VITE_APP_VERSION = "20.0.0"
+  VITE_APP_VERSION = "20.1.0"
   # Disable proxy-first by default (can enable via localStorage)
   VITE_SUPABASE_AUTH_VIA_PROXY = "false"
   # Do not force proxy-first in production by default

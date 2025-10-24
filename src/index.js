@@ -72,6 +72,7 @@ import multiPlatformRoutes from './routes/multiPlatformRoutes.js';
 import acquisitionEnhancementRoutes from './routes/acquisitionEnhancementRoutes.js';
 import ddiMiningRoutes from './routes/ddiMiningRoutes.js';
 import migrationRoutes from './routes/migrationRoutes.js';
+import dataIntegrationRoutes from './routes/dataIntegration.js';
 import { addScientistModeHeaders, scientistModeFilter } from './middleware/scientistMode.js';
 import { join as pathJoin } from 'path';
 
@@ -442,6 +443,7 @@ app.use('/api/multi-platform', multiPlatformRoutes);
 app.use('/api/acquisition', acquisitionEnhancementRoutes);
 app.use('/api/ddi-mining', ddiMiningRoutes);
 app.use('/api/migrations', migrationRoutes);
+app.use('/api/external', dataIntegrationRoutes);
 
 // Serve OpenAPI spec (static YAML)
 app.get(['/openapi.yaml','/api/openapi.yaml'], (req, res) => {

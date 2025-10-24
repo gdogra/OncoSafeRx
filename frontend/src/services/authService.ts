@@ -757,7 +757,7 @@ export class SupabaseAuthService {
         try {
           const full = await supabase
             .from('users')
-            .select('id,email,role,full_name,first_name,last_name,specialty,institution,license_number,years_experience,preferences,persona,created_at,updated_at')
+            .select('id,email,role,full_name,specialty,institution,license_number,preferences,created_at,updated_at')
             .eq('id', user.id)
             .maybeSingle();
           userData = full.data; error = full.error;

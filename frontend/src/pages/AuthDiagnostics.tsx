@@ -79,7 +79,7 @@ const AuthDiagnostics: React.FC = () => {
       if (session?.user?.id) {
         try {
           // Prefer richer selection; fall back to minimal if columns missing
-          let q: any = supabase.from('users').select('id,email,role,full_name,first_name,last_name,specialty,institution,license_number,years_experience,preferences,persona,created_at,updated_at').eq('id', session.user.id).maybeSingle();
+          let q: any = supabase.from('users').select('id,email,role,full_name,specialty,institution,license_number,preferences,created_at,updated_at').eq('id', session.user.id).maybeSingle();
           let result: any = await withTimeout(q, 4000);
           if (result?.error && /column/i.test(result.error.message)) {
             q = supabase.from('users').select('id,email,role,full_name').eq('id', session.user.id).maybeSingle();

@@ -1,8 +1,8 @@
 export interface UserProfile {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   avatarUrl?: string;
   avatarThumbUrl?: string;
   role: 'oncologist' | 'pharmacist' | 'nurse' | 'researcher' | 'student' | 'patient' | 'caregiver' | 'admin' | 'super_admin';
@@ -11,7 +11,7 @@ export interface UserProfile {
   licenseNumber?: string;
   yearsExperience?: number;
   preferences: UserPreferences;
-  persona: UserPersona;
+  persona?: UserPersona;
   createdAt: string;
   lastLogin: string;
   isActive: boolean;

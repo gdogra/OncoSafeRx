@@ -757,7 +757,7 @@ export class SupabaseAuthService {
         try {
           const full = await supabase
             .from('users')
-            .select('id,email,role,full_name,specialty,institution,license_number,preferences,created_at,updated_at')
+            .select('id,email,role,first_name,last_name,specialty,institution,license_number,preferences,created_at')
             .eq('id', user.id)
             .maybeSingle();
           userData = full.data; error = full.error;
@@ -765,7 +765,7 @@ export class SupabaseAuthService {
             // Column mismatch, fall back to minimal selection
             const minimal = await supabase
               .from('users')
-              .select('id,email,role,full_name')
+              .select('id,email,role,first_name,last_name')
               .eq('id', user.id)
               .maybeSingle();
             userData = minimal.data; error = minimal.error;

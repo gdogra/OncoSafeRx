@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase'
+import authedFetch from '../utils/authedFetch'
 import { UserProfile, LoginData, SignupData, UserPersona, UserPreferences } from '../types/user'
 import { visitorTracking } from './visitorTracking'
 
@@ -746,9 +747,33 @@ export class SupabaseAuthService {
       console.log('🔧 MANUAL OVERRIDE: Setting gdogra@gmail.com to super_admin role');
       role = 'super_admin';
     } else {
-      // Resolve role with clear priority: metadata -> DB -> fallback -> patient
+      // Resolve role with clear priority: metadata -> backend profile -> DB -> fallback -> patient
       role = user.user_metadata?.role || fallbackData?.role;
       
+      // Prefer backend profile (service role; robust against RLS/column drift)
+      try {
+        const resp = await authedFetch('/api/supabase-auth/profile');
+        if (resp.ok) {
+          const body = await resp.json().catch(() => ({} as any));
+          const u = body?.user;
+          if (u) {
+            // Normalize server user shape to DB-like fields
+            dbProfile = {
+              role: u.role,
+              first_name: u.firstName,
+              last_name: u.lastName,
+              specialty: u.specialty,
+              institution: u.institution,
+              license_number: u.licenseNumber,
+              years_experience: typeof u.yearsExperience === 'number' ? u.yearsExperience : undefined,
+              preferences: u.preferences,
+              persona: u.persona,
+            };
+            if (!role && u.role) role = u.role;
+          }
+        }
+      } catch {}
+
       // Query Supabase users table for the canonical role and profile fields
       try {
         // Prefer richer profile fields if available; gracefully fall back to minimal selection
@@ -773,7 +798,8 @@ export class SupabaseAuthService {
         } catch (e: any) {
           error = e;
         }
-        if (!error && userData) {
+        if (!error && userData && !dbProfile) {
+          // Only take DB row if backend profile wasn’t already set
           dbProfile = userData;
           if (!role && userData.role) role = userData.role;
         }

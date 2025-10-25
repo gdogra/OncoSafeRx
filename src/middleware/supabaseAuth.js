@@ -86,11 +86,13 @@ async function resolveUserFromToken(token) {
  */
 export const authenticateSupabase = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Accept Authorization from common proxy-forwarded headers too
+    const rawAuth = req.headers.authorization || req.headers['x-forwarded-authorization'] || req.headers['x-authorization'];
+    const authHeader = Array.isArray(rawAuth) ? rawAuth[0] : rawAuth;
+    if (!authHeader || !String(authHeader).startsWith('Bearer ')) {
       return res.status(401).json({ error: 'No token provided' });
     }
-    const token = authHeader.substring(7);
+    const token = String(authHeader).substring(7);
     const user = await resolveUserFromToken(token);
     req.user = user;
     return next();
@@ -106,11 +108,12 @@ export const authenticateSupabase = async (req, res, next) => {
  */
 export const optionalSupabaseAuth = async (req, _res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const rawAuth = req.headers.authorization || req.headers['x-forwarded-authorization'] || req.headers['x-authorization'];
+    const authHeader = Array.isArray(rawAuth) ? rawAuth[0] : rawAuth;
+    if (!authHeader || !String(authHeader).startsWith('Bearer ')) {
       return next();
     }
-    const token = authHeader.substring(7);
+    const token = String(authHeader).substring(7);
     try {
       const user = await resolveUserFromToken(token);
       req.user = user;

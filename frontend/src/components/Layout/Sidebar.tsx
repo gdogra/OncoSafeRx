@@ -296,6 +296,51 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         ]
       },
       {
+        title: 'Drug Information',
+        items: [
+          { 
+            path: '/database', 
+            label: 'Drug Database', 
+            icon: Search, 
+            description: 'Comprehensive drug information & search',
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            requiresPermission: null
+          },
+          { 
+            path: '/evidence-analysis', 
+            label: 'Evidence Analysis', 
+            icon: FileText, 
+            description: 'Real-time clinical evidence synthesis',
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            requiresPermission: null
+          },
+          { 
+            path: '/drug-intelligence', 
+            label: 'Drug Intelligence', 
+            icon: Brain, 
+            description: 'Multi-source drug intelligence integration',
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            requiresPermission: null
+          },
+          { 
+            path: '/multi-database-search', 
+            label: 'Multi-Database Search', 
+            icon: BarChart3, 
+            description: 'Search across multiple medical databases',
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            requiresPermission: null
+          },
+          { 
+            path: '/biostatistics', 
+            label: 'Biostatistics', 
+            icon: Calculator, 
+            description: 'Statistical analysis tools for clinical data',
+            roles: ['oncologist', 'pharmacist', 'researcher', 'student'],
+            requiresPermission: null
+          },
+        ]
+      },
+      {
         title: 'AI & Advanced Analytics',
         items: [
           { 

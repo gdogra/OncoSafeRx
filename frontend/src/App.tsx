@@ -702,13 +702,6 @@ function AppWithAuth() {
                     </Layout>
                   </ProtectedRoute>
                 } />
-                <Route path="/evidence-analysis" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <EvidenceBasedProtocolsSystem />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
                 <Route path="/patient-journey" element={
                   <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
                     <Layout>

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import Card from '../UI/Card';
+import Card from './UI/Card';
 import { Loader2, Search, AlertTriangle, Info, ExternalLink } from 'lucide-react';
 import { dataIntegrationService } from '../services/dataIntegrationService';
 

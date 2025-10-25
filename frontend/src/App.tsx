@@ -120,6 +120,10 @@ const VisitorAnalyticsDashboard = lazy(() => import('./components/Analytics/Visi
 const PatientJourney = lazy(() => import('./pages/PatientJourney'));
 const RoutingTest = lazy(() => import('./components/Debug/RoutingTest'));
 const TokenDebug = lazy(() => import('./pages/TokenDebug'));
+const Biostatistics = lazy(() => import('./pages/Biostatistics'));
+const MultiDatabaseSearch = lazy(() => import('./pages/MultiDatabaseSearch'));
+const EvidenceAnalysis = lazy(() => import('./pages/EvidenceAnalysis'));
+const DrugIntelligenceIntegrator = lazy(() => import('./components/DrugIntelligenceIntegrator'));
 
 // Component that handles initialization inside AuthProvider
 function AppWithAuth() {
@@ -723,6 +727,34 @@ function AppWithAuth() {
                   <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
                     <Layout>
                       <AdvancedWorkflowSystem />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/biostatistics" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'researcher', 'student']}>
+                    <Layout>
+                      <Biostatistics />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/multi-database-search" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
+                    <Layout>
+                      <MultiDatabaseSearch />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/evidence-analysis" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
+                    <Layout>
+                      <EvidenceAnalysis />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/drug-intelligence" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
+                    <Layout>
+                      <DrugIntelligenceIntegrator />
                     </Layout>
                   </ProtectedRoute>
                 } />

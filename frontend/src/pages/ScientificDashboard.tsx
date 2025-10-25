@@ -93,6 +93,26 @@ const ScientificDashboard: React.FC = () => {
       dataSource: 'De-identified EHR data',
       lastUpdated: 'Monthly',
       evidenceLevel: 'Real-World Evidence'
+    },
+    {
+      icon: BarChart3,
+      title: 'Evidence Analysis Engine',
+      description: 'Real-time evidence synthesis with AI-powered analysis and predictive modeling',
+      link: '/evidence-analysis',
+      methodology: 'Continuous AI-powered synthesis of global clinical evidence',
+      dataSource: 'ClinicalTrials.gov, FDA, PubMed, Real-world data',
+      lastUpdated: 'Real-time',
+      evidenceLevel: 'AI-Augmented Evidence'
+    },
+    {
+      icon: Database,
+      title: 'Drug Intelligence Integrator',
+      description: 'Real-time access to DailyMed, OpenFDA, ClinicalTrials.gov, PubMed, and RxNorm APIs',
+      link: '/drug-intelligence',
+      methodology: 'Direct API integration with external biomedical databases',
+      dataSource: 'Live API feeds from major biomedical repositories',
+      lastUpdated: 'Real-time',
+      evidenceLevel: 'Primary Source'
     }
   ];
 
@@ -101,7 +121,7 @@ const ScientificDashboard: React.FC = () => {
       icon: Search,
       title: 'Multi-Database Search',
       description: 'Federated search across multiple oncology databases and literature repositories',
-      link: '/search',
+      link: '/multi-database-search',
       methodology: 'Boolean logic with MeSH term mapping and citation indexing',
       dataSource: 'PubMed, Embase, Cochrane',
       lastUpdated: 'Real-time',

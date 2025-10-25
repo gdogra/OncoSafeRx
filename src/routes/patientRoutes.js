@@ -4,6 +4,17 @@ import Joi from 'joi';
 import { optionalSupabaseAuth, authenticateSupabase } from '../middleware/supabaseAuth.js';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
+const allowDefaultUserEnv = String(process.env.ALLOW_DEFAULT_USER || '').toLowerCase() === 'true';
+function maybeAttachDefaultUser(req, reason = '') {
+  try {
+    const guestHeader = String(req.headers['x-osrx-guest'] || req.headers['x-guest'] || '').trim();
+    const allowGuest = isDevelopment || allowDefaultUserEnv || guestHeader === '1';
+    if (!req.user && allowGuest) {
+      req.user = { id: 'dev-user', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
+      if (PATIENT_DEBUG) console.log('🔄 Using default user', { reason: reason || 'allowed', headerGuest: guestHeader });
+    }
+  } catch {}
+}
 const APP_DEBUG = String(process.env.APP_DEBUG || '').toLowerCase() === 'true';
 const PATIENT_DEBUG = APP_DEBUG || String(process.env.PATIENT_DEBUG || process.env.DEBUG_PATIENTS || '').toLowerCase() === 'true';
 
@@ -24,11 +35,9 @@ function withTimeout(promise, ms) {
 router.get('/', optionalSupabaseAuth, async (req, res) => {
   try {
     const forceOffline = String(req.query.offline || '') === '1';
-    // Require auth in production; allow fallback only in development
-    if (!req.user && isDevelopment) {
-      req.user = { id: 'dev-user', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
-      console.log('🔄 Using dev default user for unauthenticated request');
-    } else if (!req.user) {
+    // Attach default user if allowed via env or header
+    maybeAttachDefaultUser(req, 'GET /patients');
+    if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
     
@@ -142,10 +151,8 @@ async function ensureUserRow(client, user) {
 router.post('/', optionalSupabaseAuth, async (req, res) => {
   try {
     const forceOffline = String(req.query.offline || '') === '1';
-    if (!req.user && isDevelopment) {
-      req.user = { id: 'dev-user', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
-      console.log('🔄 Using dev default user for patient creation');
-    } else if (!req.user) {
+    maybeAttachDefaultUser(req, 'POST /patients');
+    if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
     
@@ -212,10 +219,8 @@ router.post('/', optionalSupabaseAuth, async (req, res) => {
 // Diagnostic: list patients with profiles (joined result)
 router.get('/with-profiles', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user && isDevelopment) {
-      req.user = { id: 'dev-user', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
-      console.log('🔄 Using dev default user for patients+profiles');
-    } else if (!req.user) {
+    maybeAttachDefaultUser(req, 'GET /patients/with-profiles');
+    if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
@@ -261,10 +266,8 @@ router.get('/with-profiles', optionalSupabaseAuth, async (req, res) => {
 
 router.get('/:id', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user && isDevelopment) {
-      req.user = { id: 'dev-user', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
-      console.log('🔄 Using dev default user for patient retrieval');
-    } else if (!req.user) {
+    maybeAttachDefaultUser(req, 'GET /patients/:id');
+    if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
     
@@ -291,10 +294,8 @@ router.get('/:id', optionalSupabaseAuth, async (req, res) => {
 
 router.delete('/:id', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user && isDevelopment) {
-      req.user = { id: 'dev-user', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
-      console.log('🔄 Using dev default user for patient deletion');
-    } else if (!req.user) {
+    maybeAttachDefaultUser(req, 'DELETE /patients/:id');
+    if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
     
@@ -314,10 +315,8 @@ router.delete('/:id', optionalSupabaseAuth, async (req, res) => {
 // Diagnostic: single patient with profile
 router.get('/:id/with-profile', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user && isDevelopment) {
-      req.user = { id: 'dev-user', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
-      console.log('🔄 Using dev default user for patient+profile');
-    } else if (!req.user) {
+    maybeAttachDefaultUser(req, 'GET /patients/:id/with-profile');
+    if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
@@ -353,15 +352,8 @@ router.get('/:id/with-profile', optionalSupabaseAuth, async (req, res) => {
 // Admin/diagnostic: force rebuild patient_profiles row from patients data
 router.post('/:id/sync-profile', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user) {
-      req.user = {
-        id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a',
-        email: 'gdogra@gmail.com',
-        role: 'oncologist',
-        isDefault: true
-      };
-      console.log('🔄 Using default user (Gautam) for patient profile sync');
-    }
+    maybeAttachDefaultUser(req, 'POST /patients/:id/sync-profile');
+    if (!req.user) return res.status(401).json({ error: 'Authentication required' });
 
     if (!supabaseService.enabled) {
       return res.status(503).json({ error: 'Database service unavailable' });

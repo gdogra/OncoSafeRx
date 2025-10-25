@@ -28,9 +28,11 @@ export async function authedFetch(input: RequestInfo, init: RequestInit = {}): P
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
     headers['X-Forwarded-Authorization'] = `Bearer ${token}`;
+  } else {
+    // Signal backend to allow default user fallback when explicitly enabled
+    headers['X-OSRX-GUEST'] = '1';
   }
   return fetch(input, { ...init, headers, credentials: 'same-origin' });
 }
 
 export default authedFetch;
-

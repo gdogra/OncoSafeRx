@@ -113,6 +113,9 @@ const ServerPatients: React.FC = () => {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) {
         headers.Authorization = `Bearer ${token}`;
+        headers['X-Forwarded-Authorization'] = `Bearer ${token}`;
+      } else {
+        headers['X-OSRX-GUEST'] = '1';
       }
       
       // Make DELETE request to API
@@ -409,7 +412,9 @@ const ServerPatients: React.FC = () => {
       let resp: Response | null = null;
       try {
         resp = await fetch(`/api/patients?${params.toString()}`, { 
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          headers: token 
+            ? { Authorization: `Bearer ${token}`, 'X-Forwarded-Authorization': `Bearer ${token}` }
+            : { 'X-OSRX-GUEST': '1' },
           signal: AbortSignal.timeout(15000) // Increased timeout to 15 seconds for production
         });
       } catch (e: any) {
@@ -603,9 +608,12 @@ const ServerPatients: React.FC = () => {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) {
         headers.Authorization = `Bearer ${token}`;
-        console.log('🏥 Added Authorization header with token');
+        headers['X-Forwarded-Authorization'] = `Bearer ${token}`;
+        console.log('🏥 Added Authorization and X-Forwarded-Authorization');
       } else {
-        console.log('🏥 ⚠️ No token available - proceeding without auth');
+        // Signal backend to allow default user fallback (header opt-in)
+        headers['X-OSRX-GUEST'] = '1';
+        console.log('🏥 ⚠️ No token; adding X-OSRX-GUEST=1 for guest fallback');
       }
       console.log('🏥 Request headers:', Object.keys(headers));
 
@@ -978,6 +986,9 @@ const ServerPatients: React.FC = () => {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) {
         headers.Authorization = `Bearer ${token}`;
+        headers['X-Forwarded-Authorization'] = `Bearer ${token}`;
+      } else {
+        headers['X-OSRX-GUEST'] = '1';
       }
       const resp = await fetch('/api/patients', {
         method: 'POST',

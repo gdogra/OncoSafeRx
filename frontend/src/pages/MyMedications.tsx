@@ -44,8 +44,11 @@ const MyMedications: React.FC = () => {
       if (!ENABLE_PATIENT_API) return null;
       const { data: sess } = await supabase.auth.getSession();
       const token = sess?.session?.access_token;
-      if (!token) return null;
-      return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+      if (token) {
+        return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, 'X-Forwarded-Authorization': `Bearer ${token}` };
+      }
+      // No token: allow backend guest fallback via header
+      return { 'Content-Type': 'application/json', 'X-OSRX-GUEST': '1' };
     } catch { return null; }
   };
 

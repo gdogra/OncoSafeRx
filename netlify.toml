@@ -11,6 +11,8 @@
   GENERATE_SOURCEMAP = "false"
   CI = "false"
   BUILD_TIMEOUT = "15"
+  # Enable read-only public access for non-auth routes
+  VITE_ALLOW_PUBLIC_READ = "true"
   # Force cache bust for scientist mode - 2025-10-23T17:40:00Z  
   BUILD_TIMESTAMP = "2025-10-23T17:40:00Z"
   # Backend base URL for non-Netlify custom domains fallback
@@ -68,6 +70,7 @@
   VITE_API_URL = "/api"
   REACT_APP_API_URL = "/api"
   VITE_ENABLE_SERVER_ANALYTICS = "false"
+  VITE_ALLOW_PUBLIC_READ = "true"
   # Scientist Mode Configuration
   VITE_SCIENTIST_MODE = "true"
   VITE_ENABLE_MARKETING = "false"

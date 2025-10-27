@@ -15,6 +15,29 @@ if (supabaseUrl && supabaseServiceKey) {
   supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 }
 
+// Extract Supabase JWT from common locations (headers or cookies)
+function extractSupabaseToken(req) {
+  try {
+    // Standard and forwarded headers
+    const rawAuth = req.headers.authorization || req.headers['x-forwarded-authorization'] || req.headers['x-authorization'] || req.headers['x-client-authorization'] || req.headers['x-supabase-authorization'];
+    const h = Array.isArray(rawAuth) ? rawAuth[0] : rawAuth;
+    if (h && String(h).toLowerCase().startsWith('bearer ')) {
+      return String(h).substring(7);
+    }
+    if (h && !String(h).includes(' ')) {
+      return String(h);
+    }
+    // Cookies: Supabase often sets sb-access-token
+    const rawCookie = req.headers['cookie'];
+    if (rawCookie) {
+      const cookieMap = Object.fromEntries(String(rawCookie).split(';').map(p => p.trim().split('=')));
+      if (cookieMap['sb-access-token']) return cookieMap['sb-access-token'];
+      if (cookieMap['supabase-access-token']) return cookieMap['supabase-access-token'];
+    }
+  } catch {}
+  return null;
+}
+
 // Helper: resolve user from a Supabase token. Throws on failure.
 async function resolveUserFromToken(token) {
   // Dev token path
@@ -86,13 +109,8 @@ async function resolveUserFromToken(token) {
  */
 export const authenticateSupabase = async (req, res, next) => {
   try {
-    // Accept Authorization from common proxy-forwarded headers too
-    const rawAuth = req.headers.authorization || req.headers['x-forwarded-authorization'] || req.headers['x-authorization'];
-    const authHeader = Array.isArray(rawAuth) ? rawAuth[0] : rawAuth;
-    if (!authHeader || !String(authHeader).startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'No token provided' });
-    }
-    const token = String(authHeader).substring(7);
+    const token = extractSupabaseToken(req);
+    if (!token) return res.status(401).json({ error: 'No token provided' });
     const user = await resolveUserFromToken(token);
     req.user = user;
     return next();
@@ -108,12 +126,8 @@ export const authenticateSupabase = async (req, res, next) => {
  */
 export const optionalSupabaseAuth = async (req, _res, next) => {
   try {
-    const rawAuth = req.headers.authorization || req.headers['x-forwarded-authorization'] || req.headers['x-authorization'];
-    const authHeader = Array.isArray(rawAuth) ? rawAuth[0] : rawAuth;
-    if (!authHeader || !String(authHeader).startsWith('Bearer ')) {
-      return next();
-    }
-    const token = String(authHeader).substring(7);
+    const token = extractSupabaseToken(req);
+    if (!token) return next();
     try {
       const user = await resolveUserFromToken(token);
       req.user = user;

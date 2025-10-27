@@ -7,11 +7,12 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 const allowDefaultUserEnv = String(process.env.ALLOW_DEFAULT_USER || '').toLowerCase() === 'true';
 function maybeAttachDefaultUser(req, reason = '') {
   try {
-    const guestHeader = String(req.headers['x-osrx-guest'] || req.headers['x-guest'] || '').trim();
-    const allowGuest = isDevelopment || allowDefaultUserEnv || guestHeader === '1';
+    const guestHeader = String(req.headers['x-osrx-guest'] || req.headers['x-guest'] || '').trim().toLowerCase();
+    const allowGuestHeader = guestHeader === '1' || guestHeader === 'true' || guestHeader === 'yes';
+    const allowGuest = isDevelopment || allowDefaultUserEnv || allowGuestHeader;
     if (!req.user && allowGuest) {
       req.user = { id: 'dev-user', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
-      if (PATIENT_DEBUG) console.log('🔄 Using default user', { reason: reason || 'allowed', headerGuest: guestHeader });
+      if (PATIENT_DEBUG) console.log('🔄 Using default user', { reason: reason || 'allowed', headerGuest: guestHeader, allowDefaultUserEnv });
     }
   } catch {}
 }

@@ -187,6 +187,30 @@ if (process.env.NODE_ENV !== 'development') {
   console.log('⚠️  Rate limiting disabled in development mode');
 }
 
+// Demo/read-only bypass for Evidence Analysis Tools
+// Ensure public GET access and stable req.user for evidence routes
+app.use((req, _res, next) => {
+  try {
+    if (req.method !== 'GET') return next();
+    const p = String(req.path || '');
+    const evidencePaths = [
+      /^\/api\/interactions(\/|$)/i,
+      /^\/api\/drugs\/enhanced\/search(\/|$)/i,
+      /^\/api\/clinical-trials(\/|$)/i,
+      /^\/api\/genomics(\/|$)/i,
+    ];
+    if (evidencePaths.some(rx => rx.test(p)) && !req.user) {
+      req.user = {
+        id: 'evidence-guest',
+        email: 'guest@oncosaferx.com',
+        role: 'researcher',
+        isDefault: true
+      };
+    }
+  } catch {}
+  return next();
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ 

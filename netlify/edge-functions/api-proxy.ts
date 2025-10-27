@@ -49,7 +49,7 @@ export default async (request: Request, context: Context) => {
     };
 
     // Only include non-empty headers
-    ['origin', 'authorization', 'x-forwarded-authorization', 'x-authorization', 'x-client-authorization', 'x-supabase-authorization', 'cookie'].forEach(headerName => {
+    ['origin', 'authorization', 'x-forwarded-authorization', 'x-authorization', 'x-client-authorization', 'x-supabase-authorization', 'x-osrx-guest', 'cookie'].forEach(headerName => {
       const value = incoming.get(headerName);
       if (value) {
         const key = headerName.split('-').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('-');

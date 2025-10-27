@@ -65,7 +65,9 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
       const token = sess?.session?.access_token;
       if (token) {
         const params = new URLSearchParams({ q: query, page: '1', pageSize: '10' });
-        const resp = await fetch(`/api/patients?${params.toString()}`, { headers: { Authorization: `Bearer ${token}` } });
+                        // Prefer authedFetch to ensure proxy/guest headers
+                        const { default: authedFetch } = await import('../../utils/authedFetch');
+                        const resp = await authedFetch(`/api/patients?${params.toString()}`);
         if (resp.ok) {
           const body = await resp.json();
           const list = Array.isArray(body?.patients) ? body.patients : [];

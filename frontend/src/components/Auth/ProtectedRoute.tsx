@@ -21,6 +21,27 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const rbac = useRBAC(state.user);
   const location = useLocation();
   
+  const allowPublicRead = (() => {
+    try {
+      const env = String((import.meta as any)?.env?.VITE_ALLOW_PUBLIC_READ || '').toLowerCase() === 'true';
+      const ls = localStorage.getItem('osrx_allow_public_read') === 'true';
+      return env || ls;
+    } catch { return false; }
+  })();
+  const publicRoute = (() => {
+    const p = location.pathname || '';
+    const rx = [
+      /^\/search(\/|$)?/,
+      /^\/interactions(\/|$)?/,
+      /^\/database(\/|$)?/,
+      /^\/evidence-analysis(\/|$)?/,
+      /^\/drug-intelligence(\/|$)?/,
+      /^\/multi-database-search(\/|$)?/,
+      /^\/biostatistics(\/|$)?/,
+    ];
+    return rx.some(r => r.test(p));
+  })();
+  
 
   if (state.isLoading) {
     return (
@@ -34,6 +55,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (!state.isAuthenticated || !state.user) {
+    // Allow public read for whitelisted routes (read-only pages)
+    if (allowPublicRead && publicRoute) {
+      return <>{children}</>;
+    }
     // Log only in development
     if ((import.meta as any)?.env?.MODE !== 'production') {
       console.error('ProtectedRoute: Authentication failed', {

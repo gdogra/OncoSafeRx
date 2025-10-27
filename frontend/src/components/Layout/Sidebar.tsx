@@ -722,20 +722,30 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     return groups;
   };
 
+  const allowPublicRead = (() => {
+    try {
+      const env = String((import.meta as any)?.env?.VITE_ALLOW_PUBLIC_READ || '').toLowerCase() === 'true';
+      const ls = localStorage.getItem('osrx_allow_public_read') === 'true';
+      return env || ls;
+    } catch { return false; }
+  })();
+
   const getFilteredGroups = () => {
-    if (!user) return [];
+    // In public-read mode, show read-only nav for student role
+    const effUser = user || (allowPublicRead ? ({ role: 'student' } as any) : null);
+    if (!effUser) return [];
     
     return getGroupedNavItems().map(group => ({
       ...group,
       items: group.items.filter(item => {
         // Check if item is available for user's role
-        if (!item.roles.includes(user.role)) return false;
+        if (!item.roles.includes(effUser.role)) return false;
         
         // Check permission if required
-        if (item.requiresPermission && !hasPermission(user.role, item.requiresPermission as keyof RolePermissions)) {
+        if (item.requiresPermission && !hasPermission(effUser.role, item.requiresPermission as keyof RolePermissions)) {
           return false;
         }
-        
+
         return true;
       })
     })).filter(group => group.items.length > 0); // Only show groups with items

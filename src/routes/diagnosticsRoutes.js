@@ -1,6 +1,7 @@
 import express from 'express';
 import supabaseService from '../config/supabase.js';
 import { optionalSupabaseAuth } from '../middleware/supabaseAuth.js';
+import fetch from 'node-fetch';
 
 const router = express.Router();
 
@@ -102,3 +103,32 @@ router.post('/patients/create-test', optionalSupabaseAuth, async (req, res) => {
 
 export default router;
 
+// Evidence tools diagnostics: sanity-check core analysis endpoints
+router.get('/evidence-tools', async (req, res) => {
+  const base = `${req.protocol}://${req.get('host')}`;
+  const withTimeout = async (p, ms) => Promise.race([
+    p,
+    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))
+  ]);
+  const results = {};
+  async function probe(name, path, init = {}) {
+    try {
+      const r = await withTimeout(fetch(base + path, { ...init, headers: { 'Accept': 'application/json', ...(init.headers || {}) } }), 4000);
+      const status = r.status;
+      let body = null;
+      try { body = await r.json(); } catch {}
+      results[name] = { ok: r.ok, status, sample: body && (body.count || body.total || body.data?.length || body.results?.length || null) };
+    } catch (e) {
+      results[name] = { ok: false, error: e.message };
+    }
+  }
+  await Promise.all([
+    probe('interactions_known', '/api/interactions/known?limit=1'),
+    probe('enhanced_drug_search', '/api/drugs/enhanced/search?q=aspirin'),
+    probe('clinical_trials_condition', '/api/clinical-trials/search?condition=breast%20cancer&pageSize=5'),
+    probe('ddi_engine', '/api/interactions?drugA=aspirin&drugB=ibuprofen'),
+    probe('genomics_panel', '/api/genomics/panel'),
+    probe('genomics_versions', '/api/genomics/versions'),
+  ]);
+  return res.json({ ok: true, base, results });
+});

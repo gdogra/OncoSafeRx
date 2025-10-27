@@ -9,7 +9,16 @@ export default async (request: Request, context: Context) => {
         // Echo back the Origin for credentialed requests
         'Access-Control-Allow-Origin': request.headers.get('origin') || '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+        'Access-Control-Allow-Headers': [
+          'Content-Type',
+          'Authorization',
+          'X-Requested-With',
+          'X-Forwarded-Authorization',
+          'X-OSRX-GUEST',
+          'X-Authorization',
+          'X-Client-Authorization',
+          'X-Supabase-Authorization',
+        ].join(', '),
         'Access-Control-Max-Age': '86400',
       }
     });
@@ -72,7 +81,16 @@ export default async (request: Request, context: Context) => {
         // Echo back request Origin when available for proper CORS
         'Access-Control-Allow-Origin': incoming.get('origin') || url.origin,
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+        'Access-Control-Allow-Headers': [
+          'Content-Type',
+          'Authorization',
+          'X-Requested-With',
+          'X-Forwarded-Authorization',
+          'X-OSRX-GUEST',
+          'X-Authorization',
+          'X-Client-Authorization',
+          'X-Supabase-Authorization',
+        ].join(', '),
         'Access-Control-Allow-Credentials': 'true'
       }
     });

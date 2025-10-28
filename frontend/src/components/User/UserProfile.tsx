@@ -827,6 +827,7 @@ const UserProfile: React.FC = () => {
                           localStorage.removeItem(`osrx_wizard_seen:${ver}:${uid}:${role}`);
                         } catch {}
                         localStorage.setItem('osrx_wizard_suppressed', '0');
+                        localStorage.removeItem('osrx_wizard_suppressed_version');
                         // Nudge wizard to open
                         (window as any).dispatchEvent(new Event('focus'));
                         (window as any).scrollTo(0, 0);
@@ -849,6 +850,7 @@ const UserProfile: React.FC = () => {
                         try {
                           const ver = (require?.('../../utils/env')?.appVersion?.() as string) || (window as any)?.__APP_VERSION__ || 'dev';
                           localStorage.setItem(`osrx_wizard_seen:${ver}:${uid}:${role}`, '1');
+                          localStorage.setItem('osrx_wizard_suppressed_version', ver);
                         } catch {}
                         localStorage.setItem('osrx_wizard_suppressed', '1');
                         alert('Onboarding tour will not show again.');

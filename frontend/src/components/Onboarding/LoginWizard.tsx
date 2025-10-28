@@ -56,8 +56,17 @@ const LoginWizard: React.FC = () => {
       : `osrx_wizard_seen:${ver}:anon:${role || 'any'}`;
   }, [userId, role]);
 
+  // Permit wizard in public-read mode even if not authenticated
+  const allowPublicRead = (() => {
+    try {
+      const env = String((import.meta as any)?.env?.VITE_ALLOW_PUBLIC_READ || '').toLowerCase() === 'true';
+      const ls = localStorage.getItem('osrx_allow_public_read') === 'true';
+      return env || ls;
+    } catch { return false; }
+  })();
+
   useEffect(() => {
-    if (!state?.isAuthenticated) return;
+    if (!state?.isAuthenticated && !allowPublicRead) return;
     try {
       const features = (window as any).__OSRX_FEATURES__ || {};
       if (features.onboardingTour === false) return;
@@ -65,12 +74,15 @@ const LoginWizard: React.FC = () => {
       // Backward compatibility: ignore legacy seen flag on new versions so tour can relaunch
       // (We intentionally do NOT suppress based on legacy keys here.)
       const suppressed = localStorage.getItem('osrx_wizard_suppressed') === '1';
+      const suppressedVersion = localStorage.getItem('osrx_wizard_suppressed_version') || '';
+      const ver = appVersion() || 'dev';
+      const isSuppressedEffective = suppressed && suppressedVersion === ver;
       
       // Check for manual tour restart via URL param or window flag
       const urlParams = new URLSearchParams(window.location.search);
       const forceRestart = urlParams.get('restart_tour') === 'true' || (window as any).__RESTART_TOUR__;
       
-      if (forceRestart || (!seen && !suppressed)) {
+      if (forceRestart || (!seen && !isSuppressedEffective)) {
         setOpen(true);
         if (forceRestart) {
           // Clear the restart flag
@@ -83,7 +95,7 @@ const LoginWizard: React.FC = () => {
         }
       }
     } catch { setOpen(true); }
-  }, [state?.isAuthenticated, storageKey]);
+  }, [state?.isAuthenticated, storageKey, allowPublicRead]);
 
   const stepsForRole = (r: string): Step[] => {
     const commonTail: Step = { id: 'profile', title: 'Profile & Alerts', description: 'Update your profile and notification preferences any time.', cta: { label: 'Open Profile', to: '/profile' }, icon: <User className="w-6 h-6 text-gray-700" /> };
@@ -376,7 +388,11 @@ const LoginWizard: React.FC = () => {
     setOpen(false);
     try {
       if (remember) localStorage.setItem(storageKey, '1');
-      if (hidePermanently) localStorage.setItem('osrx_wizard_suppressed', '1');
+      if (hidePermanently) {
+        const ver = appVersion() || 'dev';
+        localStorage.setItem('osrx_wizard_suppressed', '1');
+        localStorage.setItem('osrx_wizard_suppressed_version', ver);
+      }
     } catch {}
   };
 

@@ -160,6 +160,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       const ver = appVersion() || 'dev';
                       localStorage.removeItem(`osrx_wizard_seen:${ver}:${uid}:${role}`);
                       localStorage.setItem('osrx_wizard_suppressed', '0');
+                      localStorage.removeItem('osrx_wizard_suppressed_version');
                       window.dispatchEvent(new Event('focus'));
                       alert('Onboarding tour will open shortly.');
                     } catch {}

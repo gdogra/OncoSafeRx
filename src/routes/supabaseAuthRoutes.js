@@ -531,6 +531,10 @@ const resetSchema = Joi.object({
   redirectTo: Joi.string().uri().optional(),
 });
 
+const refreshSchema = Joi.object({
+  refresh_token: Joi.string().min(20).required(),
+});
+
 // Metrics
 const proxyAuthCounter = new client.Counter({
   name: 'auth_proxy_requests_total',
@@ -677,6 +681,55 @@ router.post('/proxy/reset', requireProxyEnabled, checkAllowedOrigin, proxyLimite
   }
   proxyAuthCounter.inc({ endpoint: 'reset', outcome: 'success' });
   return res.json({ ok: true });
+}));
+
+/**
+ * Server-side proxy refresh to Supabase
+ * Body: { refresh_token }
+ */
+router.post('/proxy/refresh', requireProxyEnabled, checkAllowedOrigin, proxyLimiter, validateBody(refreshSchema), asyncHandler(async (req, res) => {
+  const { refresh_token } = req.body || {};
+
+  const url = getEnv("SUPABASE_URL");
+  const anon = getEnv("SUPABASE_ANON_KEY");
+  if (!url || !anon) {
+    proxyAuthCounter.inc({ endpoint: 'refresh', outcome: 'error' });
+    return res.status(500).json({ error: 'Supabase not configured on server', code: 'not_configured' });
+  }
+
+  const endpoint = `${url}/auth/v1/token?grant_type=refresh_token`;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
+  let resp;
+  try {
+    resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': anon,
+        'Authorization': `Bearer ${anon}`
+      },
+      body: JSON.stringify({ refresh_token }),
+      signal: ctrl.signal
+    });
+  } catch (e) {
+    clearTimeout(timer);
+    console.warn('Proxy refresh upstream error:', e?.name || e?.message || e);
+    proxyAuthCounter.inc({ endpoint: 'refresh', outcome: 'error' });
+    return res.status(504).json({ error: 'Upstream Supabase auth timeout', code: 'upstream_timeout' });
+  } finally {
+    clearTimeout(timer);
+  }
+
+  const body = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    console.warn('Proxy refresh failed', resp.status, body?.error || body?.error_description);
+    proxyAuthCounter.inc({ endpoint: 'refresh', outcome: 'error' });
+    return res.status(resp.status).json({ error: body?.error_description || body?.error || 'Refresh failed', code: 'supabase_error' });
+  }
+
+  proxyAuthCounter.inc({ endpoint: 'refresh', outcome: 'success' });
+  return res.json(body);
 }));
 
 // Helper functions for default persona data

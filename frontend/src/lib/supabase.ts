@@ -58,15 +58,43 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
     },
-    fetch: (url, options = {}) => {
+    fetch: async (url, options = {}) => {
       // Add timeout and better error handling
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
-      
-      return fetch(url, {
-        ...options,
-        signal: controller.signal,
-      }).finally(() => clearTimeout(timeoutId))
+      const doFetch = async () => fetch(url as any, { ...(options as any), signal: controller.signal })
+      try {
+        return await doFetch()
+      } catch (e: any) {
+        // Fallback: if refresh token call fails (DNS or network), use server proxy
+        try {
+          const u = String(url || '')
+          const isRefresh = /\/auth\/v1\/token\?grant_type=refresh_token/.test(u)
+          if (!isRefresh) throw e
+          // Attempt to extract refresh_token from request body
+          let token: string | null = null
+          const body: any = (options as any)?.body
+          if (typeof body === 'string') {
+            const m = body.match(/(?:^|&)refresh_token=([^&]+)/)
+            if (m && m[1]) token = decodeURIComponent(m[1])
+          } else if (body && typeof URLSearchParams !== 'undefined' && body instanceof URLSearchParams) {
+            token = body.get('refresh_token')
+          } else if (body && typeof body === 'object' && body.refresh_token) {
+            token = body.refresh_token
+          }
+          if (!token) throw e
+          const resp = await fetch('/api/supabase-auth/proxy/refresh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: token })
+          })
+          return resp as any
+        } catch (fallbackErr) {
+          throw e
+        }
+      } finally {
+        clearTimeout(timeoutId)
+      }
     }
   },
   realtime: {

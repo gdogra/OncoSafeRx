@@ -54,11 +54,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
+  // Allow public read for whitelisted routes (read-only pages), regardless of auth state
+  if (allowPublicRead && publicRoute) {
+    return <>{children}</>;
+  }
+
   if (!state.isAuthenticated || !state.user) {
-    // Allow public read for whitelisted routes (read-only pages)
-    if (allowPublicRead && publicRoute) {
-      return <>{children}</>;
-    }
     // Log only in development
     if ((import.meta as any)?.env?.MODE !== 'production') {
       console.error('ProtectedRoute: Authentication failed', {

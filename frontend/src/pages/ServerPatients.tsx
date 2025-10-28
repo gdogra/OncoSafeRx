@@ -1037,6 +1037,7 @@ const ServerPatients: React.FC = () => {
           id="create-patient-btn-all"
           onClick={() => setShowCreateForm(true)}
           className="px-3 py-2 bg-green-600 text-white rounded text-sm flex items-center gap-1"
+          data-tour="patients-create-button"
         >
           <Plus className="w-4 h-4" /> Create Patient
         </button>
@@ -1053,7 +1054,7 @@ const ServerPatients: React.FC = () => {
               <strong>No Patients Found:</strong> You haven't created any patients yet.
             </p>
             <div className="mt-2 flex items-center gap-2">
-              <button onClick={() => setShowCreateForm(true)} className="px-3 py-1.5 bg-green-600 text-white rounded text-xs flex items-center gap-1">
+            <button onClick={() => setShowCreateForm(true)} className="px-3 py-1.5 bg-green-600 text-white rounded text-xs flex items-center gap-1" data-tour="patients-create-inline">
                 <Plus className="w-3.5 h-3.5" /> Create Patient
               </button>
               <span className="text-xs text-blue-700">Tip: press <kbd className="px-1 py-0.5 border rounded bg-white">C</kbd> to create</span>
@@ -1091,7 +1092,7 @@ const ServerPatients: React.FC = () => {
             <button onClick={() => fetchPatients()} className="px-3 py-2 bg-white border rounded text-sm flex items-center gap-1">
               <RefreshCw className="w-4 h-4" /> Refresh
             </button>
-            <button onClick={() => setShowCreateForm(true)} className="px-3 py-2 bg-green-600 text-white rounded text-sm flex items-center gap-1">
+            <button onClick={() => setShowCreateForm(true)} className="px-3 py-2 bg-green-600 text-white rounded text-sm flex items-center gap-1" data-tour="patients-create-secondary">
               <Plus className="w-4 h-4" /> Create Patient
             </button>
           </div>

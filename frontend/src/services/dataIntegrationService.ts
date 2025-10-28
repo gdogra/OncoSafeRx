@@ -110,7 +110,18 @@ class DataIntegrationService {
       search: searchTerm,
       limit: limit.toString()
     });
-    return this.makeRequest(`/openfda/drug/event?${params}`);
+    try {
+      return await this.makeRequest(`/openfda/drug/event?${params}`);
+    } catch (e: any) {
+      // Gracefully handle 404/not found by returning empty results
+      return {
+        source: 'OpenFDA',
+        timestamp: new Date().toISOString(),
+        query: searchTerm,
+        data: { results: [] },
+        error: e?.message || 'No results'
+      } as ApiResponse<{ results: OpenFDAEvent[] }>;
+    }
   }
 
   async searchFDALabels(searchTerm: string, limit: number = 10): Promise<ApiResponse<{ results: any[] }>> {
@@ -118,7 +129,17 @@ class DataIntegrationService {
       search: searchTerm,
       limit: limit.toString()
     });
-    return this.makeRequest(`/openfda/drug/label?${params}`);
+    try {
+      return await this.makeRequest(`/openfda/drug/label?${params}`);
+    } catch (e: any) {
+      return {
+        source: 'OpenFDA Labels',
+        timestamp: new Date().toISOString(),
+        query: searchTerm,
+        data: { results: [] },
+        error: e?.message || 'No labels found'
+      } as ApiResponse<{ results: any[] }>;
+    }
   }
 
   // ClinicalTrials.gov API Methods

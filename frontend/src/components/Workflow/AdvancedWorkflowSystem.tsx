@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import regimenTemplates from '../../data/regimenTemplates';
 import Alert from '../UI/Alert';
 import { useToast } from '../UI/Toast';
 import { 
@@ -395,7 +396,9 @@ const AdvancedWorkflowSystem: React.FC = () => {
               ]
             }
           ]
-        }
+        },
+        // Append curated regimen templates
+        ...regimenTemplates as any,
       ]);
 
       setWorkflowInstances([
@@ -829,6 +832,10 @@ const AdvancedWorkflowSystem: React.FC = () => {
             <option value="treatment-planning">Treatment Planning</option>
             <option value="quality-assurance">Quality Assurance</option>
             <option value="research">Research</option>
+            <option value="chemotherapy">Chemotherapy</option>
+            <option value="immunotherapy">Immunotherapy</option>
+            <option value="targeted-therapy">Targeted Therapy</option>
+            <option value="supportive-care">Supportive Care</option>
           </select>
         </div>
       </div>
@@ -1081,6 +1088,11 @@ const AdvancedWorkflowSystem: React.FC = () => {
                 ))}
               </ol>
             </div>
+
+            {/* Dose Guidance (beta) */}
+            {selectedTemplate.doseRules && (
+              <DoseGuidancePanel template={selectedTemplate as any} />
+            )}
             <div className="mt-6 flex items-center justify-end space-x-2">
               <button onClick={() => setSelectedTemplate(null)} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg">Close</button>
               <button onClick={() => { startWorkflow(selectedTemplate); setSelectedTemplate(null); }} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">Start Workflow</button>
@@ -1093,3 +1105,176 @@ const AdvancedWorkflowSystem: React.FC = () => {
 };
 
 export default AdvancedWorkflowSystem;
+
+// Inline subcomponent: Dose Guidance Panel
+const DoseGuidancePanel: React.FC<{ template: any }> = ({ template }) => {
+  const [anc, setAnc] = React.useState<string>('');
+  const [platelets, setPlatelets] = React.useState<string>('');
+  const [bili, setBili] = React.useState<string>('');
+  const [crcl, setCrcl] = React.useState<string>('');
+  const [neuropathy, setNeuropathy] = React.useState<string>('');
+  const [diarrhea, setDiarrhea] = React.useState<string>('');
+
+  // Prefill from current patient if available
+  let currentPatient: any = null;
+  try {
+    const { usePatient } = require('../../context/PatientContext');
+    const pc = usePatient();
+    currentPatient = pc?.state?.currentPatient || null;
+  } catch {}
+
+  React.useEffect(() => {
+    try {
+      if (!currentPatient) return;
+      const labs = Array.isArray(currentPatient.labValues) ? currentPatient.labValues : [];
+      // Normalize lab types to canonical keys
+      const canonicalMap: Record<string, string> = {
+        // ANC
+        'anc': 'anc',
+        'absolute neutrophil count': 'anc',
+        'neutrophils absolute': 'anc',
+        'neutrophil absolute count': 'anc',
+        'neutrophils': 'anc',
+        // Platelets
+        'platelets': 'platelets',
+        'plt': 'platelets',
+        'platelet count': 'platelets',
+        // Bilirubin
+        'bilirubin': 'bilirubin',
+        'tbili': 'bilirubin',
+        't.bili': 'bilirubin',
+        'total bilirubin': 'bilirubin',
+        'bilirubin total': 'bilirubin',
+        // Creatinine
+        'creatinine': 'creatinine',
+        'serum creatinine': 'creatinine',
+        'scr': 'creatinine',
+        'creatinine serum': 'creatinine',
+      };
+      const normalizeType = (s: any) => canonicalMap[String(s || '').toLowerCase().trim()] || null;
+      // Build latest map by canonical type
+      const latest: Record<string, any> = {};
+      labs.forEach((lab: any) => {
+        const key = normalizeType(lab.labType);
+        if (!key) return;
+        // Prefer the latest by timestamp if present
+        if (!latest[key]) latest[key] = lab;
+        else {
+          const curTs = new Date(latest[key]?.timestamp || 0).getTime();
+          const newTs = new Date(lab?.timestamp || 0).getTime();
+          if (newTs > curTs) latest[key] = lab;
+        }
+      });
+      const ancLab = latest['anc'];
+      const pltLab = latest['platelets'];
+      const biliLab = latest['bilirubin'];
+      const crLab = latest['creatinine'];
+      if (ancLab?.value != null) setAnc(String(ancLab.value));
+      if (pltLab?.value != null) setPlatelets(String(pltLab.value));
+      if (biliLab?.value != null) setBili(String(biliLab.value));
+      // Rough CrCl estimate if weight/age/sex available; otherwise leave CrCl blank
+      if (crLab?.value != null && currentPatient.demographics) {
+        const weightKg = Number(currentPatient.demographics.weightKg) || 70;
+        const age = (() => {
+          const dob = currentPatient.demographics.dateOfBirth;
+          if (!dob) return 60;
+          try { return new Date().getFullYear() - new Date(dob).getFullYear(); } catch { return 60; }
+        })();
+        const sex = String(currentPatient.demographics.sex || 'other').toLowerCase();
+        const scr = Number(crLab.value);
+        const crclEstimate = isFinite(scr) && scr > 0
+          ? Math.round(((140 - age) * weightKg * (sex === 'female' ? 0.85 : 1)) / (72 * scr))
+          : undefined;
+        if (crclEstimate) setCrcl(String(crclEstimate));
+      }
+    } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!currentPatient]);
+
+  const t = template?.doseRules?.thresholds || {};
+
+  const toNum = (v: string) => {
+    const n = Number(v);
+    return isFinite(n) ? n : undefined;
+  };
+
+  const suggestions = React.useMemo(() => {
+    const recs: string[] = [];
+    const ancV = toNum(anc); const pltV = toNum(platelets); const biliV = toNum(bili); const crV = toNum(crcl);
+    const neuG = toNum(neuropathy); const diaG = toNum(diarrhea);
+    if (t.ancMin && ancV !== undefined && ancV < t.ancMin) recs.push('ANC below threshold: hold treatment and repeat CBC; consider G‑CSF based on risk.');
+    if (t.plateletsMin && pltV !== undefined && pltV < t.plateletsMin) recs.push('Platelets below threshold: delay treatment until recovery.');
+    if (t.totalBilirubinMax && biliV !== undefined && biliV > t.totalBilirubinMax) recs.push('Elevated bilirubin: consider dose adjustment/hold per protocol.');
+    if (t.crclMin && crV !== undefined && crV < t.crclMin) recs.push('Low CrCl: adjust renally cleared agents or delay per protocol.');
+    if (t.neuropathyGradeHold && neuG !== undefined && neuG >= t.neuropathyGradeHold) recs.push('Neuropathy grade high: hold neurotoxic agent (e.g., oxaliplatin) and resume reduced or omit.');
+    if (t.diarrheaGradeHold && diaG !== undefined && diaG >= t.diarrheaGradeHold) recs.push('Diarrhea grade high: hold offending agent (e.g., irinotecan) and manage with antidiarrheals; resume reduced.');
+    return recs;
+  }, [anc, platelets, bili, crcl, neuropathy, diarrhea, t]);
+
+  return (
+    <div className="mt-6 p-4 border border-amber-200 bg-amber-50 rounded-lg">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-semibold text-amber-900">Dose Guidance (beta)</h4>
+        <span className="text-[11px] text-amber-700">Experimental — verify with institutional policy</span>
+      </div>
+      <div className="grid grid-cols-2 gap-3 text-sm">
+        {t.ancMin !== undefined && (
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">ANC (cells/µL) • min {t.ancMin}</label>
+            <input value={anc} onChange={(e) => setAnc(e.target.value)} className="w-full border rounded px-2 py-1" placeholder="e.g., 1800" />
+          </div>
+        )}
+        {t.plateletsMin !== undefined && (
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">Platelets (cells/µL) • min {t.plateletsMin}</label>
+            <input value={platelets} onChange={(e) => setPlatelets(e.target.value)} className="w-full border rounded px-2 py-1" placeholder="e.g., 120000" />
+          </div>
+        )}
+        {t.totalBilirubinMax !== undefined && (
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">Total Bilirubin (mg/dL) • max {t.totalBilirubinMax}</label>
+            <input value={bili} onChange={(e) => setBili(e.target.value)} className="w-full border rounded px-2 py-1" placeholder="e.g., 1.2" />
+          </div>
+        )}
+        {t.crclMin !== undefined && (
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">CrCl (mL/min) • min {t.crclMin}</label>
+            <input value={crcl} onChange={(e) => setCrcl(e.target.value)} className="w-full border rounded px-2 py-1" placeholder="e.g., 60" />
+          </div>
+        )}
+        {t.neuropathyGradeHold !== undefined && (
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">Neuropathy Grade (0–4) • hold ≥ {t.neuropathyGradeHold}</label>
+            <input value={neuropathy} onChange={(e) => setNeuropathy(e.target.value)} className="w-full border rounded px-2 py-1" placeholder="e.g., 1" />
+          </div>
+        )}
+        {t.diarrheaGradeHold !== undefined && (
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">Diarrhea Grade (0–4) • hold ≥ {t.diarrheaGradeHold}</label>
+            <input value={diarrhea} onChange={(e) => setDiarrhea(e.target.value)} className="w-full border rounded px-2 py-1" placeholder="e.g., 0" />
+          </div>
+        )}
+      </div>
+      <div className="mt-3 text-sm">
+        <div className="text-xs text-gray-600 mb-1">Recommendations</div>
+        {suggestions.length === 0 ? (
+          <div className="text-gray-600">No automatic holds suggested based on entered values. Verify per regimen policy.</div>
+        ) : (
+          <ul className="list-disc ml-5 space-y-1 text-gray-800">
+            {suggestions.map((s, i) => (<li key={i}>{s}</li>))}
+          </ul>
+        )}
+        {template?.doseRules?.adjustments?.length > 0 && (
+          <div className="mt-2 text-xs text-gray-600">
+            <div className="font-medium text-gray-700 mb-1">Additional guidance:</div>
+            <ul className="list-disc ml-5 space-y-1">
+              {template.doseRules.adjustments.map((a: any, i: number) => (
+                <li key={i}><span className="text-gray-700">{a.condition}:</span> {a.recommendation}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

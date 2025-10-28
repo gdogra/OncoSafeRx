@@ -497,7 +497,9 @@ const InteractionCheckerInner: React.FC = () => {
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Select Medications</h2>
         
-        <DrugSelector onDrugSelect={handleAddDrug} />
+        <div data-tour="interactions-add-drug">
+          <DrugSelector onDrugSelect={handleAddDrug} />
+        </div>
         
         {/* Selected Drugs List */}
         {selectedDrugs.length > 0 && (
@@ -536,6 +538,7 @@ const InteractionCheckerInner: React.FC = () => {
             onClick={handleCheckInteractions}
             disabled={selectedDrugs.length < 2 || loading}
             className="flex items-center justify-center space-x-2 px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            data-tour="interactions-check-button"
           >
             {loading ? (
               <>

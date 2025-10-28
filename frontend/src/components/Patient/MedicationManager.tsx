@@ -193,6 +193,7 @@ const MedicationManager: React.FC<MedicationManagerProps> = ({ patientId }) => {
           <button
             onClick={() => setShowAddForm(true)}
             className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+            data-tour="patients-add-medication"
           >
             <Plus className="w-4 h-4" />
             <span>Add Medication</span>

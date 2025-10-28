@@ -1247,6 +1247,7 @@ const AdvancedTrials: React.FC = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by trial title, condition, or intervention..."
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
+                  data-tour="trials-search-input"
                 />
                 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

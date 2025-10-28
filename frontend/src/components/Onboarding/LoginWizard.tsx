@@ -25,7 +25,8 @@ const LoginWizard: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [hidePermanently, setHidePermanently] = useState(false);
   const [stepIndex, setStepIndex] = useState(0);
-  const [mode, setMode] = useState<'menu' | 'tour'>('tour');
+  // Open to menu by default so the new wizard UX is visible immediately
+  const [mode, setMode] = useState<'menu' | 'tour'>('menu');
   const [area, setArea] = useState<TourArea>('role_sidebar');
   const [visited, setVisited] = useState<Set<string>>(() => {
     try {

@@ -10,6 +10,7 @@ interface ChatMessage {
   content: string;
   timestamp: Date;
   relatedArticles?: string[];
+  source?: 'kb' | 'openai' | 'script';
 }
 
 interface AIChatProps {
@@ -95,7 +96,7 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, className = '' }) => {
     }
   }, [isOpen, isMinimized]);
 
-  const generateAIResponse = (userMessage: string): { content: string; relatedArticles?: string[] } => {
+  const generateAIResponse = (userMessage: string): { content: string; relatedArticles?: string[]; source: 'kb' | 'script' } => {
     const message = userMessage.toLowerCase();
     
     // Search knowledge base for relevant articles
@@ -119,7 +120,8 @@ The system will show:
 - Management strategies
 
 Would you like me to explain any specific aspect of drug interactions?`,
-        relatedArticles
+        relatedArticles,
+        source: 'kb'
       };
     }
     
@@ -139,7 +141,8 @@ Would you like me to explain any specific aspect of drug interactions?`,
 - Recent searches are saved for quick access
 
 What specific medication are you looking for?`,
-        relatedArticles
+        relatedArticles,
+        source: 'kb'
       };
     }
     
@@ -160,7 +163,8 @@ What specific medication are you looking for?`,
 - **UGT1A1**: Important for irinotecan
 
 Would you like to know more about a specific gene or drug?`,
-        relatedArticles
+        relatedArticles,
+        source: 'kb'
       };
     }
     
@@ -186,7 +190,8 @@ Would you like to know more about a specific gene or drug?`,
 - 🟢 **Minor**: Limited clinical impact
 
 What specific safety concern can I help you with?`,
-        relatedArticles
+        relatedArticles,
+        source: 'kb'
       };
     }
     
@@ -220,7 +225,8 @@ What specific safety concern can I help you with?`,
 - Performance optimization
 
 Just ask me about any specific topic!`,
-        relatedArticles
+        relatedArticles,
+        source: 'kb'
       };
     }
     
@@ -247,7 +253,8 @@ Just ask me about any specific topic!`,
 - Long-term toxicity monitoring
 
 Which aspect of oncology drug management interests you most?`,
-        relatedArticles
+        relatedArticles,
+        source: 'kb'
       };
     }
     
@@ -273,7 +280,8 @@ Which aspect of oncology drug management interests you most?`,
 - Cookies allowed
 
 What specific error are you experiencing?`,
-        relatedArticles
+        relatedArticles,
+        source: 'kb'
       };
     }
     
@@ -300,7 +308,8 @@ What specific error are you experiencing?`,
 - Document clinical decisions
 
 Which specific CPIC guideline would you like to learn about?`,
-        relatedArticles
+        relatedArticles,
+        source: 'kb'
       };
     }
     
@@ -320,7 +329,8 @@ Could you be more specific about what you'd like help with? You can ask question
 - "What does this interaction mean?"
 - "How do I search for a medication?"
 - "What is pharmacogenomics?"`,
-      relatedArticles
+      relatedArticles,
+      source: 'script'
     };
   };
 
@@ -390,20 +400,52 @@ Could you be more specific about what you'd like help with? You can ask question
       }
     } catch {}
 
-    // Default scripted response path
+    // Optional AI chat endpoint if enabled
+    try {
+      const enableAI = String((import.meta as any)?.env?.VITE_ENABLE_AI_CHAT || '').toLowerCase() === 'true';
+      const endpoint = (import.meta as any)?.env?.VITE_AI_CHAT_ENDPOINT || '/api/ai/chat';
+      if (enableAI) {
+        const resp = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: userMessage.content, page: window.location.pathname })
+        });
+        if (resp.ok) {
+          const body = await resp.json().catch(() => ({}));
+          const text = body?.answer || body?.content || (typeof body === 'string' ? body : '');
+          if (text) {
+            const aiMessage: ChatMessage = {
+              id: (Date.now() + 1).toString(),
+              type: 'ai',
+              content: text,
+              timestamp: new Date(),
+              relatedArticles: undefined,
+              source: 'openai'
+            };
+            setMessages(prev => [...prev, aiMessage]);
+            saveMessageToPatient(aiMessage);
+            setIsLoading(false);
+            return;
+          }
+        }
+      }
+    } catch {}
+
+    // Fallback to KB/scripted response
     setTimeout(() => {
-      const aiResponse = generateAIResponse(inputValue);
+      const aiResponse = generateAIResponse(userMessage.content);
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
         content: aiResponse.content,
         timestamp: new Date(),
         relatedArticles: aiResponse.relatedArticles,
+        source: aiResponse.source
       };
       setMessages(prev => [...prev, aiMessage]);
       saveMessageToPatient(aiMessage);
       setIsLoading(false);
-    }, 800 + Math.random() * 800);
+    }, 700 + Math.random() * 600);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -466,8 +508,15 @@ Could you be more specific about what you'd like help with? You can ask question
                       : 'bg-gray-100 text-gray-900'
                   }`}>
                     <div className="text-sm whitespace-pre-wrap">{message.content}</div>
-                    <div className="text-xs mt-1 opacity-70">
-                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <div className="text-xs mt-1 opacity-70 flex items-center gap-2">
+                      <span>{message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      {message.type === 'ai' && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border border-gray-300 bg-white text-gray-700">
+                          {message.source === 'kb' && 'Source: Knowledge Base'}
+                          {message.source === 'openai' && 'Source: AI (OpenAI)'}
+                          {message.source === 'script' && 'Source: Assistant'}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

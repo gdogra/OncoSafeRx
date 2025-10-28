@@ -56,7 +56,23 @@ const LoginWizard: React.FC = () => {
       if (features.onboardingTour === false) return;
       const seen = localStorage.getItem(storageKey) === '1';
       const suppressed = localStorage.getItem('osrx_wizard_suppressed') === '1';
-      if (!seen && !suppressed) setOpen(true);
+      
+      // Check for manual tour restart via URL param or window flag
+      const urlParams = new URLSearchParams(window.location.search);
+      const forceRestart = urlParams.get('restart_tour') === 'true' || (window as any).__RESTART_TOUR__;
+      
+      if (forceRestart || (!seen && !suppressed)) {
+        setOpen(true);
+        if (forceRestart) {
+          // Clear the restart flag
+          delete (window as any).__RESTART_TOUR__;
+          // Remove the URL param
+          if (urlParams.get('restart_tour')) {
+            urlParams.delete('restart_tour');
+            window.history.replaceState({}, '', `${window.location.pathname}${urlParams.toString() ? '?' + urlParams.toString() : ''}`);
+          }
+        }
+      }
     } catch { setOpen(true); }
   }, [state?.isAuthenticated, storageKey]);
 
@@ -226,7 +242,7 @@ const LoginWizard: React.FC = () => {
 
   const close = (remember = true) => {
     try {
-      visitorTracking.trackCustomEvent('onboarding_close', { step: step.id, index: stepIndex, role });
+      visitorTracking.trackCustomEvent('onboarding_close', { step: step?.id || 'menu', index: stepIndex, role });
     } catch {}
     setOpen(false);
     try {
@@ -236,7 +252,7 @@ const LoginWizard: React.FC = () => {
   };
 
   const next = () => {
-    try { visitorTracking.trackCustomEvent('onboarding_next', { step: step.id, index: stepIndex, role }); } catch {}
+    try { visitorTracking.trackCustomEvent('onboarding_next', { step: step?.id || 'menu', index: stepIndex, role }); } catch {}
     if (stepIndex < steps.length - 1) {
       setStepIndex(stepIndex + 1);
     } else {
@@ -248,10 +264,10 @@ const LoginWizard: React.FC = () => {
     }
   };
 
-  const skip = () => { try { visitorTracking.trackCustomEvent('onboarding_skip', { step: step.id, index: stepIndex, role }); } catch {}; close(false); };
+  const skip = () => { try { visitorTracking.trackCustomEvent('onboarding_skip', { step: step?.id || 'menu', index: stepIndex, role }); } catch {}; close(false); };
 
   const go = (to: string) => {
-    try { visitorTracking.trackCustomEvent('onboarding_cta', { step: step.id, index: stepIndex, role, to }); } catch {}
+    try { visitorTracking.trackCustomEvent('onboarding_cta', { step: step?.id || 'menu', index: stepIndex, role, to }); } catch {}
     navigate(to);
     markVisited(to);
     next();

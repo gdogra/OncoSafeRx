@@ -290,7 +290,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: 'Clinical Trials', 
             icon: TestTube, 
             description: 'Find relevant trials',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver'],
             requiresPermission: null
           },
         ]

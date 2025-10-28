@@ -15,6 +15,7 @@ import { Shield, FlaskConical } from 'lucide-react';
 import AdminModeBanner from '../Admin/AdminModeBanner';
 import AdminApiStatus from '../Admin/AdminApiStatus';
 import LoginWizard from '../Onboarding/LoginWizard';
+import { appVersion } from '../../utils/env';
 import { isScientistMode, shouldShowComponent } from '../../utils/scientistMode';
 
 interface LayoutProps {
@@ -154,7 +155,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       const user: any = state.user || {};
                       const uid = user?.id || user?.uid || 'anon';
                       const role = user?.role || 'any';
+                      // Clear both legacy and versioned seen flags
                       localStorage.removeItem(`osrx_wizard_seen:${uid}:${role}`);
+                      const ver = appVersion() || 'dev';
+                      localStorage.removeItem(`osrx_wizard_seen:${ver}:${uid}:${role}`);
                       localStorage.setItem('osrx_wizard_suppressed', '0');
                       window.dispatchEvent(new Event('focus'));
                       alert('Onboarding tour will open shortly.');

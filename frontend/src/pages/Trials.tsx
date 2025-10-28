@@ -340,6 +340,8 @@ const Trials: React.FC = () => {
       <h1 className="text-2xl font-bold text-gray-900">Clinical Trials (MVP)</h1>
       <Card>
         <div className="grid md:grid-cols-6 gap-3">
+          {/* Anchor for onboarding/tour to highlight trials search */}
+          <div data-tour="trials-search-input">
           <AutoComplete
             options={conditionOptions}
             value={condition}
@@ -349,6 +351,7 @@ const Trials: React.FC = () => {
             allowCustom
             className=""
           />
+          </div>
           <AutoComplete
             options={biomarkerOptions}
             value={biomarker}

@@ -819,7 +819,13 @@ const UserProfile: React.FC = () => {
                       try {
                         const uid = (user as any)?.id || (user as any)?.uid || 'anon';
                         const role = (user as any)?.role || 'any';
+                        // Clear both legacy and versioned seen flags
                         localStorage.removeItem(`osrx_wizard_seen:${uid}:${role}`);
+                        try {
+                          // Lazy import to avoid circular deps; fallback quietly if unavailable
+                          const ver = (require?.('../../utils/env')?.appVersion?.() as string) || (window as any)?.__APP_VERSION__ || 'dev';
+                          localStorage.removeItem(`osrx_wizard_seen:${ver}:${uid}:${role}`);
+                        } catch {}
                         localStorage.setItem('osrx_wizard_suppressed', '0');
                         // Nudge wizard to open
                         (window as any).dispatchEvent(new Event('focus'));
@@ -838,7 +844,12 @@ const UserProfile: React.FC = () => {
                       try {
                         const uid = (user as any)?.id || (user as any)?.uid || 'anon';
                         const role = (user as any)?.role || 'any';
+                        // Set both legacy and versioned seen flags
                         localStorage.setItem(`osrx_wizard_seen:${uid}:${role}`, '1');
+                        try {
+                          const ver = (require?.('../../utils/env')?.appVersion?.() as string) || (window as any)?.__APP_VERSION__ || 'dev';
+                          localStorage.setItem(`osrx_wizard_seen:${ver}:${uid}:${role}`, '1');
+                        } catch {}
                         localStorage.setItem('osrx_wizard_suppressed', '1');
                         alert('Onboarding tour will not show again.');
                       } catch {}

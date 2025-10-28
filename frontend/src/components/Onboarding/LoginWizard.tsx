@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { X, ArrowRight, Search, ShieldAlert, Beaker, User, Bell, Database, Stethoscope, Dna, TestTube, BarChart3, Layers, Home, ChevronLeft } from 'lucide-react';
 import TourOverlay from './TourOverlay';
 import { visitorTracking } from '../../services/visitorTracking';
+import { appVersion } from '../../utils/env';
 
 type Step = {
   id: string;
@@ -47,7 +48,13 @@ const LoginWizard: React.FC = () => {
     } catch {}
   };
 
-  const storageKey = useMemo(() => userId ? `osrx_wizard_seen:${userId}:${role || 'any'}` : `osrx_wizard_seen:anon:${role || 'any'}`, [userId, role]);
+  // Version the wizard key so new releases can relaunch the tour for users
+  const storageKey = useMemo(() => {
+    const ver = appVersion() || 'dev';
+    return userId
+      ? `osrx_wizard_seen:${ver}:${userId}:${role || 'any'}`
+      : `osrx_wizard_seen:${ver}:anon:${role || 'any'}`;
+  }, [userId, role]);
 
   useEffect(() => {
     if (!state?.isAuthenticated) return;
@@ -55,6 +62,8 @@ const LoginWizard: React.FC = () => {
       const features = (window as any).__OSRX_FEATURES__ || {};
       if (features.onboardingTour === false) return;
       const seen = localStorage.getItem(storageKey) === '1';
+      // Backward compatibility: ignore legacy seen flag on new versions so tour can relaunch
+      // (We intentionally do NOT suppress based on legacy keys here.)
       const suppressed = localStorage.getItem('osrx_wizard_suppressed') === '1';
       
       // Check for manual tour restart via URL param or window flag

@@ -272,7 +272,7 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 <Route path="/trials" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver']}>
                     <Layout>
                       <Trials />
                     </Layout>

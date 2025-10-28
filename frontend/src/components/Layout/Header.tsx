@@ -73,6 +73,13 @@ const Header: React.FC = () => {
       return roles.includes('patient') || roles.includes('caregiver');
     } catch { return false; }
   })();
+  const isCaregiver = (() => {
+    try {
+      const u = state.user as any;
+      const roles: string[] = Array.isArray(u?.roles) ? u.roles : (u?.role ? [u.role] : []);
+      return roles.includes('caregiver');
+    } catch { return false; }
+  })();
 
   const navItems = isPatientRole
     ? [
@@ -83,6 +90,8 @@ const Header: React.FC = () => {
         { path: '/my-medications', label: 'Medications', icon: Stethoscope },
         { path: '/my-appointments', label: 'Appointments', icon: Calendar },
         { path: '/interactions', label: 'Interactions', icon: AlertTriangle },
+        // Show Trials in top‑nav for both patients and caregivers
+        { path: '/trials', label: 'Trials', icon: FileText },
         { path: '/help', label: 'Help', icon: HelpCircle },
       ]
     : [

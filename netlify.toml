@@ -13,6 +13,9 @@
   BUILD_TIMEOUT = "15"
   # Enable read-only public access for non-auth routes
   VITE_ALLOW_PUBLIC_READ = "true"
+  # Route auth through server proxy by default
+  VITE_SUPABASE_AUTH_VIA_PROXY = "true"
+  VITE_FORCE_PROXY_AUTH = "true"
   # Force cache bust for scientist mode - 2025-10-23T17:40:00Z  
   BUILD_TIMESTAMP = "2025-10-23T17:40:00Z"
   # Backend base URL for non-Netlify custom domains fallback
@@ -71,6 +74,8 @@
   REACT_APP_API_URL = "/api"
   VITE_ENABLE_SERVER_ANALYTICS = "false"
   VITE_ALLOW_PUBLIC_READ = "true"
+  VITE_SUPABASE_AUTH_VIA_PROXY = "true"
+  VITE_FORCE_PROXY_AUTH = "true"
   # Scientist Mode Configuration
   VITE_SCIENTIST_MODE = "true"
   VITE_ENABLE_MARKETING = "false"

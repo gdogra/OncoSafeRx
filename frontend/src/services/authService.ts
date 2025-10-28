@@ -405,6 +405,63 @@ export class SupabaseAuthService {
 
       if (error) {
         console.log('❌ Signup error:', error.message)
+        // Optional fallback: try server-side proxy if enabled
+        const envProxy = (import.meta as any).env?.VITE_SUPABASE_AUTH_VIA_PROXY === 'true'
+        const lsProxy = (() => { try { return localStorage.getItem('osrx_use_auth_proxy') === 'true' } catch { return false } })()
+        const useProxy = envProxy || lsProxy
+        if (useProxy) {
+          try {
+            const resp = await fetch('/api/supabase-auth/proxy/signup', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: data.email, password: data.password, metadata: {
+                first_name: data.firstName,
+                last_name: data.lastName,
+                role: data.role,
+                specialty: data.specialty || '',
+                institution: data.institution || '',
+                license_number: data.licenseNumber || '',
+                years_experience: data.yearsExperience || 0
+              } })
+            });
+            if (resp.ok) {
+              const body = await resp.json();
+              // If tokens are present, establish session; else proceed with confirmation flow
+              if (body?.access_token && body?.refresh_token) {
+                const { data: setData, error: setErr } = await supabase.auth.setSession({
+                  access_token: body.access_token,
+                  refresh_token: body.refresh_token,
+                } as any)
+                if (setErr) throw setErr
+                if (!setData?.session?.user) throw new Error('Failed to establish session (signup proxy)')
+                const userProfile = await this.buildUserProfile(setData.session.user)
+                try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'proxy-signup', at: Date.now() })) } catch {}
+                return userProfile
+              }
+              // No tokens: require email confirmation; build minimal profile
+              return {
+                id: 'pending-' + Date.now(),
+                email: data.email,
+                firstName: data.firstName || '',
+                lastName: data.lastName || '',
+                role: (data.role || 'patient') as any,
+                specialty: data.specialty || '',
+                institution: data.institution || '',
+                licenseNumber: data.licenseNumber || '',
+                yearsExperience: data.yearsExperience || 0,
+                preferences: this.getDefaultPreferences(data.role || 'patient'),
+                persona: this.createDefaultPersona(data.role || 'patient'),
+                createdAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+                isActive: true,
+                roles: [(data.role || 'patient') as any],
+                permissions: this.getRolePermissions(data.role || 'patient')
+              }
+            }
+          } catch (proxyErr) {
+            console.warn('Signup proxy fallback failed:', proxyErr)
+          }
+        }
         throw new Error(error.message)
       }
 

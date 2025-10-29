@@ -171,7 +171,7 @@ const Protocols: React.FC = () => {
 
       {/* Search and Filters */}
       <Card>
-        <div className="space-y-4">
+        <div className="space-y-4" data-tour="protocols-filters">
           <h2 className="text-xl font-semibold text-gray-900">Search Protocols</h2>
           <div className="grid md:grid-cols-3 gap-4">
             <div>
@@ -242,7 +242,7 @@ const Protocols: React.FC = () => {
       <div className="space-y-6">
         <h2 className="text-2xl font-bold text-gray-900">Oncology Treatment Protocols</h2>
         
-        <div className="grid gap-6">
+        <div className="grid gap-6" data-tour="protocols-list">
           {filteredProtocols.map((protocol, index) => (
             <Card key={index} className="hover:shadow-md transition-shadow">
               <div className="space-y-4">

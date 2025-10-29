@@ -163,7 +163,7 @@ const DrugIntelligenceIntegrator: React.FC = () => {
               <Card>
                 <div className="p-6">
                   <h3 className="text-lg font-medium mb-4">Drug Information Search</h3>
-                  <div className="flex gap-2 mb-4">
+                  <div className="flex gap-2 mb-4" data-tour="drug-intel-search">
                     <input
                       type="text"
                       placeholder="Enter drug name (e.g., aspirin, ibuprofen)"
@@ -202,7 +202,7 @@ const DrugIntelligenceIntegrator: React.FC = () => {
               <Card>
                 <div className="p-6">
                   <h3 className="text-lg font-medium mb-4">Drug Interaction Search</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4" data-tour="drug-intel-interactions">
                     <input
                       type="text"
                       placeholder="First drug"

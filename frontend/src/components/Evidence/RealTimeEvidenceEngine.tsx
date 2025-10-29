@@ -398,7 +398,7 @@ const RealTimeEvidenceEngine: React.FC = () => {
       </div>
 
       {/* Controls */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border">
+      <div className="bg-white p-4 rounded-lg shadow-sm border" data-tour="evidence-filters">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex-1 min-w-64">
             <div className="relative">
@@ -450,7 +450,7 @@ const RealTimeEvidenceEngine: React.FC = () => {
       </div>
 
       {/* Tab Navigation */}
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm border overflow-hidden" data-tour="evidence-tabs">
         <div className="border-b border-gray-200">
           <nav className="flex">
             {[

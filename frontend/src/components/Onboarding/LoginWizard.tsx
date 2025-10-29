@@ -49,12 +49,18 @@ const LoginWizard: React.FC = () => {
     } catch {}
   };
 
-  // Version the wizard key so new releases can relaunch the tour for users
+  // Version the wizard key so new releases and guidance resets can relaunch
   const storageKey = useMemo(() => {
     const ver = appVersion() || 'dev';
+    const gv = (() => {
+      try { const v = (window as any)?.__OSRX_FEATURES__?.guidanceVersion; if (v != null) return String(v); } catch {}
+      try { const v = (import.meta as any)?.env?.VITE_GUIDANCE_VERSION; if (v != null) return String(v); } catch {}
+      return '0';
+    })();
+    const versionKey = `${ver}_${gv}`;
     return userId
-      ? `osrx_wizard_seen:${ver}:${userId}:${role || 'any'}`
-      : `osrx_wizard_seen:${ver}:anon:${role || 'any'}`;
+      ? `osrx_wizard_seen:${versionKey}:${userId}:${role || 'any'}`
+      : `osrx_wizard_seen:${versionKey}:anon:${role || 'any'}`;
   }, [userId, role]);
 
   // Permit wizard in public-read mode even if not authenticated
@@ -77,7 +83,13 @@ const LoginWizard: React.FC = () => {
       const suppressed = localStorage.getItem('osrx_wizard_suppressed') === '1';
       const suppressedVersion = localStorage.getItem('osrx_wizard_suppressed_version') || '';
       const ver = appVersion() || 'dev';
-      const isSuppressedEffective = suppressed && suppressedVersion === ver;
+      const gv = (() => {
+        try { const v = (window as any)?.__OSRX_FEATURES__?.guidanceVersion; if (v != null) return String(v); } catch {}
+        try { const v = (import.meta as any)?.env?.VITE_GUIDANCE_VERSION; if (v != null) return String(v); } catch {}
+        return '0';
+      })();
+      const versionKey = `${ver}_${gv}`;
+      const isSuppressedEffective = suppressed && suppressedVersion === versionKey;
       
       // Check for manual tour restart via URL param or window flag
       const urlParams = new URLSearchParams(window.location.search);
@@ -416,8 +428,14 @@ const LoginWizard: React.FC = () => {
       if (remember) localStorage.setItem(storageKey, '1');
       if (hidePermanently) {
         const ver = appVersion() || 'dev';
+        const gv = (() => {
+          try { const v = (window as any)?.__OSRX_FEATURES__?.guidanceVersion; if (v != null) return String(v); } catch {}
+          try { const v = (import.meta as any)?.env?.VITE_GUIDANCE_VERSION; if (v != null) return String(v); } catch {}
+          return '0';
+        })();
+        const versionKey = `${ver}_${gv}`;
         localStorage.setItem('osrx_wizard_suppressed', '1');
-        localStorage.setItem('osrx_wizard_suppressed_version', ver);
+        localStorage.setItem('osrx_wizard_suppressed_version', versionKey);
       }
     } catch {}
   };

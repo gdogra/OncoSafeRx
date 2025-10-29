@@ -2,7 +2,7 @@ import React from 'react';
 import Card from '../components/UI/Card';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { adminApi } from '../utils/adminApi';
-import { Download } from 'lucide-react';
+import { Download, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useToast } from '../components/UI/Toast';
 import AccessDeniedBanner from '../components/Admin/AccessDeniedBanner';
 import { useNavigate } from 'react-router-dom';
@@ -33,6 +33,34 @@ const AdminSettings: React.FC = () => {
     }
   };
 
+  const bumpGuidanceVersion = async () => {
+    try {
+      const resp = await adminApi.post('/api/admin/guidance-version/bump', {});
+      const body = await resp.json().catch(() => ({} as any));
+      const v = body?.guidanceVersion ?? 'updated';
+      showToast('success', `Guidance version bumped (${v}). New sessions will see tips/tours.`);
+    } catch (e: any) {
+      console.error(e);
+      showToast('error', 'Backend does not support global guidance reset. You can set VITE_GUIDANCE_VERSION and redeploy as a fallback.');
+    }
+  };
+
+  const clientOnlyReset = () => {
+    try {
+      const toRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i) || '';
+        if (k.startsWith('osrx_tip_dismissed:')) toRemove.push(k);
+        if (k.startsWith('osrx_wizard_seen:')) toRemove.push(k);
+        if (k === 'osrx_wizard_suppressed' || k === 'osrx_wizard_suppressed_version') toRemove.push(k);
+      }
+      toRemove.forEach(k => localStorage.removeItem(k));
+      showToast('success', 'Client-only guidance reset complete for this browser.');
+    } catch (e: any) {
+      showToast('error', e?.message || 'Failed to reset client guidance');
+    }
+  };
+
   return (
     <div className="space-y-6">
       {unauthorized && <AccessDeniedBanner />}
@@ -53,6 +81,32 @@ const AdminSettings: React.FC = () => {
           <button onClick={() => exportFile('stats')} className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
             <Download size={16} /> Export Stats
           </button>
+        </div>
+      </Card>
+
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Guidance & Tours</h3>
+        <p className="text-sm text-gray-600 mb-4">Reset in‑app tips and onboarding tours globally or for this browser only.</p>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={bumpGuidanceVersion}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            title="Requires backend support"
+          >
+            <RefreshCw size={16} /> Global Reset (all users)
+          </button>
+          <button
+            onClick={clientOnlyReset}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200"
+          >
+            <RefreshCw size={16} /> Client‑only Reset (this browser)
+          </button>
+        </div>
+        <div className="mt-3 text-xs text-gray-600 flex items-start gap-2">
+          <AlertTriangle className="w-4 h-4 text-yellow-600 mt-0.5" />
+          <span>
+            If the global reset endpoint is not available, set <code>VITE_GUIDANCE_VERSION</code> and redeploy to force a reset for all users.
+          </span>
         </div>
       </Card>
     </div>

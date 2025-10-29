@@ -9,7 +9,20 @@ type TipCardProps = {
 };
 
 const TipCard: React.FC<TipCardProps> = ({ id, title = 'Quick Tip', children, className = '' }) => {
-  const storageKey = `osrx_tip_dismissed:${id}`;
+  const guidanceVersion = (() => {
+    try {
+      // Prefer dynamic features if available
+      const v = (window as any)?.__OSRX_FEATURES__?.guidanceVersion;
+      if (v != null) return String(v);
+    } catch {}
+    try {
+      // Fallback to env var
+      const v = (import.meta as any)?.env?.VITE_GUIDANCE_VERSION;
+      if (v != null) return String(v);
+    } catch {}
+    return '0';
+  })();
+  const storageKey = `osrx_tip_dismissed:${id}:${guidanceVersion}`;
   const [visible, setVisible] = useState<boolean>(true);
   const [dontShow, setDontShow] = useState<boolean>(false);
 
@@ -57,4 +70,3 @@ const TipCard: React.FC<TipCardProps> = ({ id, title = 'Quick Tip', children, cl
 };
 
 export default TipCard;
-

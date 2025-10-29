@@ -75,7 +75,10 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, className = '' }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [showTip, setShowTip] = useState<boolean>(() => {
-    try { return localStorage.getItem('osrx_tip_dismissed:ai-chat') !== '1'; } catch { return true; }
+    try {
+      const gv = (window as any)?.__OSRX_FEATURES__?.guidanceVersion ?? (import.meta as any)?.env?.VITE_GUIDANCE_VERSION ?? '0';
+      return localStorage.getItem(`osrx_tip_dismissed:ai-chat:${gv}`) !== '1';
+    } catch { return true; }
   });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -499,7 +502,10 @@ Could you be more specific about what you'd like help with? You can ask question
                 <button
                   className="text-xs text-blue-700 hover:text-blue-900"
                   onClick={() => {
-                    try { localStorage.setItem('osrx_tip_dismissed:ai-chat','1'); } catch {}
+                    try {
+                      const gv = (window as any)?.__OSRX_FEATURES__?.guidanceVersion ?? (import.meta as any)?.env?.VITE_GUIDANCE_VERSION ?? '0';
+                      localStorage.setItem(`osrx_tip_dismissed:ai-chat:${gv}`,'1');
+                    } catch {}
                     setShowTip(false);
                   }}
                 >

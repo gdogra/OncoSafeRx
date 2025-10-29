@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import NoAuthSidebar from './NoAuthSidebar';
+import AIChat from '../Help/AIChat';
 import { useIsMobile } from '../../hooks/useResponsive';
 
 interface NoAuthLayoutProps {
@@ -10,6 +11,7 @@ const NoAuthLayout: React.FC<NoAuthLayoutProps> = ({ children }) => {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false);
 
   // Close sidebar on mobile when route changes
   useEffect(() => {
@@ -64,10 +66,23 @@ const NoAuthLayout: React.FC<NoAuthLayoutProps> = ({ children }) => {
         <main className="flex-1">
           <div className="h-full p-6">
             {children}
+            {/* Global AI Chat for public/Evidence Explorer */}
+            <AIChat isOpen={chatOpen} onClose={() => setChatOpen(false)} />
           </div>
         </main>
       </div>
     </div>
+    {/* Floating Chat Button (NoAuth) */}
+    {!chatOpen && (
+      <button
+        onClick={() => setChatOpen(true)}
+        className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700"
+        title="Chat with AI Assistant"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M7.5 8.25h9m-9 3h6m4.5 2.25a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <span className="text-sm">Chat</span>
+      </button>
+    )}
   );
 };
 

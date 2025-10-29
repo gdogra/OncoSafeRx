@@ -5,6 +5,7 @@ import Alert from '../components/UI/Alert';
 import ProtocolDetailModal from '../components/Protocols/ProtocolDetailModal';
 import { FileText, ExternalLink, Search, Calendar, Users, TrendingUp } from 'lucide-react';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
+import TipCard from '../components/UI/TipCard';
 
 const Protocols: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -151,6 +152,9 @@ const Protocols: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      <TipCard id="tip-protocols">
+        Use the filters to narrow protocols by cancer type, stage, and source. Click a protocol card to view drugs, evidence, and details. Scroll down to see related clinical trials and open them on ClinicalTrials.gov.
+      </TipCard>
       {/* Header */}
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">

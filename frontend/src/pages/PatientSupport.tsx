@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import { MessageSquare, Phone, Mail, Users, Heart, Clock, Calendar, MapPin, ExternalLink, Shield, Bell, Info, Star, User, Video, HeadphonesIcon } from 'lucide-react';
+import TipCard from '../components/UI/TipCard';
 
 interface SupportResource {
   id: string;
@@ -193,6 +194,9 @@ const PatientSupport: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <TipCard id="tip-support">
+        Quick Actions connect you to emergency numbers, secure messaging, and support lines. Browse tabs to reach your Care Team, resources, emergency contacts, and community groups.
+      </TipCard>
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Support & Communication</h1>

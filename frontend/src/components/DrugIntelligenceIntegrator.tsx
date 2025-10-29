@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import Card from './UI/Card';
 import { Loader2, Search, AlertTriangle, Info, ExternalLink } from 'lucide-react';
 import { dataIntegrationService } from '../services/dataIntegrationService';
+import TipCard from './UI/TipCard';
 
 interface DrugData {
   dailyMed: any;
@@ -115,6 +116,9 @@ const DrugIntelligenceIntegrator: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <TipCard id="tip-drug-intel">
+        Enter a drug to fetch information from RxNorm, DailyMed, FDA, PubMed, and ClinicalTrials. Compare sources side‑by‑side, then switch to the Interactions tab to check a drug pair.
+      </TipCard>
       <div className="border-b pb-4">
         <h2 className="text-2xl font-bold text-gray-900">Drug Intelligence Integrator</h2>
         <p className="text-gray-600 mt-1">

@@ -5,6 +5,7 @@ import Card from '../components/UI/Card';
 import { BookOpen, Play, Download, ExternalLink, Search, Heart, Pill, Shield, Users, ArrowRight, Star, Clock, User } from 'lucide-react';
 import Modal from '../components/UI/Modal';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
+import TipCard from '../components/UI/TipCard';
 
 interface EducationalResource {
   id: string;
@@ -164,6 +165,9 @@ const PatientEducation: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <TipCard id="tip-education">
+        Search for topics or filter by category to find articles, videos, and guides. Open items to view details or jump to in‑depth pages for core resources.
+      </TipCard>
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Educational Resources' }]} />
 
       {/* Header */}

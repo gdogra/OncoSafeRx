@@ -16,6 +16,7 @@ import {
   Activity
 } from 'lucide-react';
 import { dataIntegrationService } from '../services/dataIntegrationService';
+import TipCard from '../components/UI/TipCard';
 
 interface SearchResult {
   id: string;
@@ -248,6 +249,9 @@ const MultiDatabaseSearch: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <TipCard id="tip-multi-db-search">
+        Build a query with Boolean operators (AND/OR/NOT) and phrases in quotes, select databases, set filters (date, type, evidence level), then review ranked results with links to sources.
+      </TipCard>
       <div className="border-b pb-4">
         <h1 className="text-3xl font-bold text-gray-900">Multi-Database Search</h1>
         <p className="text-gray-600 mt-2">

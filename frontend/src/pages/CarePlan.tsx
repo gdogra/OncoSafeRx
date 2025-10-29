@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import { FileText, Calendar, User, Target, CheckCircle, Clock, Activity, Heart, Pill, Stethoscope, AlertTriangle, Download, Edit } from 'lucide-react';
+import TipCard from '../components/UI/TipCard';
 
 interface CarePlanGoal {
   id: string;
@@ -160,6 +161,9 @@ const CarePlan: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <TipCard id="tip-care-plan">
+        Use the tabs to review your overall plan, goals, timeline, and resources. Track progress on goals and use “Request Update” for care team adjustments.
+      </TipCard>
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'My Care Plan' }]} />
 
       {/* Header */}

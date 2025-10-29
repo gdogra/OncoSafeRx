@@ -239,7 +239,7 @@ const CarePlan: React.FC = () => {
       {/* Tabs */}
       <div className="bg-white rounded-lg border border-gray-200">
         <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+          <nav className="-mb-px flex space-x-8" aria-label="Tabs" data-tour="care-plan-tabs">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (

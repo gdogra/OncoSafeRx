@@ -200,7 +200,7 @@ const PatientSupport: React.FC = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4" data-tour="support-quick-actions">
         <Card className="bg-red-50 border-red-200">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">

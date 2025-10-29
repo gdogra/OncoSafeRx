@@ -374,10 +374,10 @@ const LoginWizard: React.FC = () => {
       case 'patients':
         return [
           { id: '/patients', title: tourRegistry['/patients'].title, description: 'Create patients and manage demographics and history. How to use: click New Patient, fill in details, and save.', cta: { label: 'Open Patients', to: '/patients' }, target: '[data-tour="patients-create-button"]' },
-          { id: '/my-medications', title: 'My Medications', description: 'Track medications and check interactions. How to use: add drugs, set doses, then use Interactions to assess safety.', cta: { label: 'Open My Medications', to: '/my-medications' }, target: 'nav a[href="/my-medications"]' },
-          { id: '/care-plan', title: 'Care Plan', description: 'View and manage the treatment plan. How to use: open Care Plan, review steps, and track progress.', cta: { label: 'Open Care Plan', to: '/care-plan' }, target: 'nav a[href="/care-plan"]' },
-          { id: '/education', title: 'Education', description: 'Educational resources for patients and caregivers. How to use: browse topics and share links.', cta: { label: 'Open Education', to: '/education' }, target: 'nav a[href="/education"]' },
-          { id: '/support', title: 'Support', description: 'Support resources and communication. How to use: access hotlines, groups, and contact options.', cta: { label: 'Open Support', to: '/support' }, target: 'nav a[href="/support"]' },
+      { id: '/my-medications', title: 'My Medications', description: 'Track medications and check interactions. How to use: add drugs, set doses, then use Interactions to assess safety.', cta: { label: 'Open My Medications', to: '/my-medications' }, target: '[data-tour="patients-add-medication"]' },
+          { id: '/care-plan', title: 'Care Plan', description: 'View and manage the treatment plan. How to use: open Care Plan, review tabs (Overview, Goals, Timeline, Resources), and track progress.', cta: { label: 'Open Care Plan', to: '/care-plan' }, target: '[data-tour="care-plan-tabs"]' },
+          { id: '/education', title: 'Education', description: 'Educational resources for patients and caregivers. How to use: search by keyword or filter by category, then open an article/video.', cta: { label: 'Open Education', to: '/education' }, target: '[data-tour="education-search"]' },
+          { id: '/support', title: 'Support', description: 'Support resources and communication. How to use: use Quick Actions or browse tabs for Care Team, Resources, Emergency, and Community.', cta: { label: 'Open Support', to: '/support' }, target: '[data-tour="support-quick-actions"]' },
           { id: 'tour-complete', title: 'All Set', description: 'You’re ready to explore. Tip: use the Chat button anytime for help; answers show if they’re from the Knowledge Base or AI.', cta: { label: 'Finish', to: '/' } }
         ];
       case 'genomics':

@@ -13,6 +13,7 @@ import FeatureErrorBoundary from '../components/ErrorBoundary/FeatureErrorBounda
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
+import TipCard from '../components/UI/TipCard';
 // Using existing UI components instead of shadcn
 import { 
   Search, History, Star, Database, Filter, X, Brain, Zap, Target, 
@@ -302,6 +303,9 @@ const DrugSearchInner: React.FC = () => {
   if (selectedDrug) {
   return (
     <div className="space-y-6">
+      <TipCard id="tip-drug-search-selected">
+        You selected a drug. Use the action cards to jump to Interactions, Genomics, Protocols, or Trials for deeper analysis.
+      </TipCard>
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Drug Search' }]} />
         {/* Success Banner */}
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -389,6 +393,9 @@ const DrugSearchInner: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      <TipCard id="tip-drug-search">
+        Start typing to find medications. Select a result, then use the action cards (Interactions, Genomics, Protocols, Trials) to continue your workflow.
+      </TipCard>
       {/* RxNorm Offline Toast (one-time) */}
       {rxnormOfflineToast && !rxnormToastDismissed && (
         <div className="p-3 border border-amber-200 bg-amber-50 text-amber-800 rounded flex items-start justify-between">

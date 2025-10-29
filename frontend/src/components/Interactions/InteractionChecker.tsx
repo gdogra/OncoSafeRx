@@ -10,6 +10,7 @@ import DrugSelector from './DrugSelector';
 import AdvancedInteractionChecker from './AdvancedInteractionChecker';
 import FeatureErrorBoundary from '../ErrorBoundary/FeatureErrorBoundary';
 import { AlertTriangle, X, Info } from 'lucide-react';
+import TipCard from '../UI/TipCard';
 import Breadcrumbs from '../UI/Breadcrumbs';
 import { useSelection } from '../../context/SelectionContext';
 import { usePatient } from '../../context/PatientContext';
@@ -435,6 +436,9 @@ const InteractionCheckerInner: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <TipCard id="tip-interactions">
+        Add two or more medications, then click “Check Interactions” to analyze severity and get clinical guidance. Use the filters to focus on covered or best options.
+      </TipCard>
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Interactions' }]} />
       {/* Header */}
       <div className="text-center">

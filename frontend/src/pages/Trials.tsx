@@ -7,6 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
+import TipCard from '../components/UI/TipCard';
 import AutoComplete, { AutoCompleteOption } from '../components/UI/AutoComplete';
 import { useSelection } from '../context/SelectionContext';
 import { inferBiomarkerForDrug } from '../utils/biomarkers';
@@ -336,6 +337,9 @@ const Trials: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <TipCard id="tip-trials">
+        Enter a condition and optional biomarker, set line/status and location, then Search. Use the map to view nearby sites and open Google Maps for directions.
+      </TipCard>
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Clinical Trials' }]} />
       <h1 className="text-2xl font-bold text-gray-900">Clinical Trials (MVP)</h1>
       <Card>

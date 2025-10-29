@@ -15,6 +15,7 @@ import { Shield, FlaskConical } from 'lucide-react';
 import AdminModeBanner from '../Admin/AdminModeBanner';
 import AdminApiStatus from '../Admin/AdminApiStatus';
 import LoginWizard from '../Onboarding/LoginWizard';
+import AIChat from '../Help/AIChat';
 import { appVersion } from '../../utils/env';
 import { isScientistMode, shouldShowComponent } from '../../utils/scientistMode';
 
@@ -29,6 +30,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const envLabel = (import.meta as any)?.env?.VITE_ENV_LABEL as string | undefined;
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false);
 
   // Close sidebar on mobile when route changes
   useEffect(() => {
@@ -180,6 +182,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {children}
             {/* Onboarding wizard (shows on first login unless dismissed) */}
             <LoginWizard />
+            {/* Global AI Chat */}
+            <AIChat isOpen={chatOpen} onClose={() => setChatOpen(false)} />
           </div>
         </main>
 
@@ -219,6 +223,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       
       {/* Drug Comparison Tray */}
       <ComparisonTray />
+
+      {/* Floating Chat Button */}
+      {!chatOpen && (
+        <button
+          onClick={() => setChatOpen(true)}
+          className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700"
+          title="Chat with AI Assistant"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M7.5 8.25h9m-9 3h6m4.5 2.25a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <span className="text-sm">Chat</span>
+        </button>
+      )}
 
       {/* Auth path indicator (dev/debug) */}
       {String((import.meta as any)?.env?.VITE_SHOW_AUTH_PATH || '') === 'true' && (

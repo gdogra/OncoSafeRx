@@ -157,7 +157,8 @@ const LoginWizard: React.FC = () => {
   };
 
   // Menu entries for tours
-  const menu: Array<{ id: TourArea; title: string; desc: string; icon: React.ReactNode }> = [
+  const menu: Array<{ id: TourArea | 'comprehensive'; title: string; desc: string; icon: React.ReactNode }> = [
+    { id: 'comprehensive', title: 'Full Product Tour', desc: 'Guided walkthrough of each major section with tips', icon: <Layers className="w-6 h-6 text-indigo-600" /> },
     { id: 'overview', title: 'Overview', desc: 'High-level walkthrough of key features', icon: <Home className="w-6 h-6 text-gray-700" /> },
     { id: 'role_sidebar', title: 'Full Sidebar Tour', desc: 'Walk through all features available to your role', icon: <Layers className="w-6 h-6 text-gray-600" /> },
     { id: 'drug_info', title: 'Drug Information', desc: 'Search, labels, evidence synthesis', icon: <Database className="w-6 h-6 text-blue-600" /> },
@@ -325,7 +326,25 @@ const LoginWizard: React.FC = () => {
   };
 
   // Steps for a selected tour area
-  const stepsForArea = (a: TourArea): Step[] => {
+  const stepsForArea = (a: TourArea | 'comprehensive'): Step[] => {
+    if (a === 'comprehensive') {
+      const steps: Step[] = [
+        { id: '/', title: 'Dashboard', description: 'Your launchpad with quick links and status. How to use: scan featured tiles, then jump into Search or Interactions based on your task.', cta: { label: 'Open Dashboard', to: '/' }, target: 'nav a[href="/"]' },
+        { id: '/search', title: 'Drug Search', description: 'Find drug details fast. How to use: start typing in the search bar, pick a result, then use action cards (interactions, genomics, protocols).', cta: { label: 'Open Drug Search', to: '/search' }, target: '[data-tour="drug-search-input"]' },
+        { id: '/interactions', title: 'Interaction Checker', description: 'Analyze multi-drug interactions with severity and guidance. How to use: add 2+ drugs, then click Check Interactions to review recommendations.', cta: { label: 'Open Interactions', to: '/interactions' }, target: '[data-tour="interactions-add-drug"]' },
+        { id: '/genomics', title: 'Pharmacogenomics', description: 'Genomic biomarkers and CPIC guidance. How to use: search for a gene or drug, review guideline cards and dosing recommendations.', cta: { label: 'Open Genomics', to: '/genomics' }, target: '[data-tour="genomics-guidelines-search"]' },
+        { id: '/database', title: 'Regulatory Labels', description: 'FDA labels and prescribing info. How to use: search by drug name to view sections like Indications, Dosage, and Interactions.', cta: { label: 'Open Labels', to: '/database' }, target: '[data-tour="drug-database-search"]' },
+        { id: '/trials', title: 'Clinical Trials', description: 'Find relevant trials by condition/biomarker. How to use: enter a condition and (optional) biomarker, then search and view sites on the map.', cta: { label: 'Browse Trials', to: '/trials' }, target: '[data-tour="trials-search-input"]' },
+        { id: '/evidence-analysis', title: 'Evidence Analysis', description: 'Synthesize evidence across sources. How to use: explore aggregated evidence and filters to focus on high-quality findings.', cta: { label: 'Open Evidence Analysis', to: '/evidence-analysis' }, target: 'nav a[href="/evidence-analysis"]' },
+        { id: '/drug-intelligence', title: 'Drug Intelligence', description: 'Live integrations (DailyMed, OpenFDA, ClinicalTrials.gov). How to use: query endpoints and compare results across sources.', cta: { label: 'Open Drug Intelligence', to: '/drug-intelligence' }, target: 'nav a[href="/drug-intelligence"]' },
+        { id: '/multi-database-search', title: 'Multi‑Database Search', description: 'Federated literature/database search. How to use: craft a query, apply filters, and review linked sources.', cta: { label: 'Open Multi‑DB Search', to: '/multi-database-search' }, target: 'nav a[href="/multi-database-search"]' },
+        { id: '/protocols', title: 'Protocols', description: 'Evidence‑based treatment protocols. How to use: browse by disease area, open a protocol, and review dosing and monitoring.', cta: { label: 'Open Protocols', to: '/protocols' }, target: 'nav a[href="/protocols"]' },
+        { id: '/ai-treatment-planner', title: 'AI Treatment Planner', description: 'AI‑assisted planning with real‑world evidence. How to use: follow the wizard steps to input context and review recommendations.', cta: { label: 'Open Treatment Planner', to: '/ai-treatment-planner' }, target: 'nav a[href="/ai-treatment-planner"]' },
+        { id: '/analytics', title: 'Analytics', description: 'Usage and evidence analytics (permissioned). How to use: open dashboards, filter by timeframe, and export insights.', cta: { label: 'Open Analytics', to: '/analytics' }, target: 'nav a[href="/analytics"]' },
+        { id: '/help', title: 'Help & AI Chat', description: 'Knowledge base and assistant. How to use: browse articles or ask the AI; answers are labeled by source (KB or AI).', cta: { label: 'Open Help', to: '/help' }, target: 'nav a[href="/help"]' }
+      ];
+      return steps;
+    }
     switch (a) {
       case 'overview':
         return [

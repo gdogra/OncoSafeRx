@@ -276,9 +276,9 @@ const MultiDatabaseSearch: React.FC = () => {
           <TabsTrigger value="sources">Data Sources</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="search" className="mt-6">
+        <TabsContent value="search" className="mt-6" data-tour="multi-search-tabs">
           <div className="space-y-6">
-            <Card>
+            <Card data-tour="multi-search-query">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Search className="h-5 w-5" />
@@ -315,7 +315,7 @@ const MultiDatabaseSearch: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card data-tour="multi-search-databases">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Database className="h-5 w-5" />
@@ -352,7 +352,7 @@ const MultiDatabaseSearch: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card data-tour="multi-search-filters">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Filter className="h-5 w-5" />
@@ -406,7 +406,7 @@ const MultiDatabaseSearch: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="results" className="mt-6">
+        <TabsContent value="results" className="mt-6" data-tour="multi-search-results">
           <div className="space-y-4">
             {isSearching && (
               <Card>

@@ -241,6 +241,17 @@ app.get('/api/health', (req, res) => {
 // (Diagnostics endpoint removed after stabilization)
 
 // Public frontend config (anon/public values only)
+// In-memory guidance version with optional file persistence
+import fs from 'fs';
+import path from 'path';
+const guidanceStorePath = path.join(process.cwd(), 'data', 'guidance.json');
+let guidanceVersion = Number(process.env.GUIDANCE_VERSION || process.env.VITE_GUIDANCE_VERSION || 0) || 0;
+try {
+  const raw = fs.readFileSync(guidanceStorePath, 'utf8');
+  const parsed = JSON.parse(raw);
+  if (typeof parsed.guidanceVersion === 'number') guidanceVersion = parsed.guidanceVersion;
+} catch {}
+
 app.get('/api/frontend/config', (req, res) => {
   try {
     const cfg = {
@@ -251,7 +262,8 @@ app.get('/api/frontend/config', (req, res) => {
         demoMode: String(process.env.FRONTEND_DEMO_MODE || '').toLowerCase() === 'true',
         onboardingTour: String(process.env.FRONTEND_ONBOARDING_TOUR || 'true').toLowerCase() !== 'false',
         analyticsServerEnabled: String(process.env.FRONTEND_SERVER_ANALYTICS || '').toLowerCase() === 'true',
-        analyticsEndpoint: '/api/analytics'
+        analyticsEndpoint: '/api/analytics',
+        guidanceVersion
       },
       env: {
         mode: process.env.NODE_ENV || 'development'

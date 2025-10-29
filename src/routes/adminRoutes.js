@@ -7,6 +7,8 @@ import Joi from 'joi';
 import crypto from 'crypto';
 import { listTenantsConfigured, addTenantKeys, removeTenantKeys, promoteTenantKeys, summarizeTenants, clearTenantPhase } from '../middleware/apiKeys.js';
 import auditLogService from '../services/auditLogService.js';
+import fs from 'fs';
+import path from 'path';
 
 const router = express.Router();
 
@@ -1067,5 +1069,29 @@ router.post('/users/backfill-roles', asyncHandler(async (req, res) => {
     return res.json({ ok: true, scanned, updated, dryRun });
   } catch (e) {
     return res.status(500).json({ error: 'Backfill failed' });
+  }
+}));
+// Guidance version bump (global reset for tours/tips)
+router.post('/guidance-version/bump', asyncHandler(async (req, res) => {
+  try {
+    // Read current from frontend config wiring in index.js module
+    // Avoid circular import; re-read from file with in-memory fallback
+    const storePath = path.join(process.cwd(), 'data', 'guidance.json');
+    let current = 0;
+    try {
+      const raw = fs.readFileSync(storePath, 'utf8');
+      const parsed = JSON.parse(raw);
+      if (typeof parsed.guidanceVersion === 'number') current = parsed.guidanceVersion;
+    } catch {}
+    const next = current + 1;
+    try {
+      fs.mkdirSync(path.dirname(storePath), { recursive: true });
+      fs.writeFileSync(storePath, JSON.stringify({ guidanceVersion: next, updatedAt: new Date().toISOString() }, null, 2));
+    } catch {}
+    // Respond with new version; /api/frontend/config will read this on next request
+    return res.json({ ok: true, guidanceVersion: next });
+  } catch (e) {
+    console.error('Guidance bump error:', e);
+    return res.status(500).json({ error: 'Failed to bump guidance version' });
   }
 }));

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Minimize2, Maximize2, X, Loader } from 'lucide-react';
+import { Send, Bot, User, Minimize2, Maximize2, X, Loader, Info } from 'lucide-react';
 import { searchKnowledgeBase } from '../../data/knowledgeBase';
 import { usePatient } from '../../context/PatientContext';
 import { useAuth } from '../../context/AuthContext';
@@ -74,6 +74,9 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, className = '' }) => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [showTip, setShowTip] = useState<boolean>(() => {
+    try { return localStorage.getItem('osrx_tip_dismissed:ai-chat') !== '1'; } catch { return true; }
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -486,6 +489,25 @@ Could you be more specific about what you'd like help with? You can ask question
       {/* Chat Body */}
       {!isMinimized && (
         <>
+          {showTip && (
+            <div className="px-4 pt-3">
+              <div className="flex items-start gap-2 bg-blue-50 border border-blue-200 rounded p-3">
+                <Info className="w-4 h-4 text-blue-600 mt-0.5" />
+                <div className="flex-1 text-xs text-blue-800">
+                  Tips: Answers indicate their source (Knowledge Base vs AI). You can also find help articles in the Help center.
+                </div>
+                <button
+                  className="text-xs text-blue-700 hover:text-blue-900"
+                  onClick={() => {
+                    try { localStorage.setItem('osrx_tip_dismissed:ai-chat','1'); } catch {}
+                    setShowTip(false);
+                  }}
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          )}
           <div className="h-96 overflow-y-auto p-4 space-y-4">
             {messages.map((message) => (
               <div

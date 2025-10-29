@@ -863,6 +863,44 @@ const UserProfile: React.FC = () => {
                 </div>
               </div>
 
+              {/* Help & Tips */}
+              <div className="mb-6">
+                <h3 className="text-md font-medium text-gray-900 mb-3">Help & Tips</h3>
+                <p className="text-sm text-gray-700 mb-3">Reset first‑visit tips and guidance if you want to see them again.</p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={() => {
+                      try {
+                        const toRemove: string[] = [];
+                        for (let i = 0; i < localStorage.length; i++) {
+                          const k = localStorage.key(i) || '';
+                          if (k.startsWith('osrx_tip_dismissed:')) toRemove.push(k);
+                        }
+                        toRemove.forEach(k => localStorage.removeItem(k));
+                        alert('All in‑app tips have been reset.');
+                      } catch {
+                        alert('Could not reset tips.');
+                      }
+                    }}
+                    className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded hover:bg-gray-200 text-sm"
+                  >
+                    Reset all tips
+                  </button>
+                  <button
+                    onClick={() => {
+                      try {
+                        // Also reset AI Chat tip
+                        localStorage.removeItem('osrx_tip_dismissed:ai-chat');
+                        alert('AI Chat tip has been reset.');
+                      } catch {}
+                    }}
+                    className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded hover:bg-gray-200 text-sm"
+                  >
+                    Reset AI Chat tip
+                  </button>
+                </div>
+              </div>
+
               <button
                 onClick={handleSavePreferences}
                 className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700"

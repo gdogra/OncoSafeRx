@@ -43,13 +43,25 @@ class ClinicalTrialsService {
       // Handle mixed study types
       const finalStudyType = studyType === 'INTERVENTIONAL,OBSERVATIONAL' ? undefined : studyType;
 
+      // For broad searches without specific criteria, use general oncology terms
+      const defaultCondition = condition || (!intervention ? 'cancer' : undefined);
+      const defaultIntervention = intervention || (!condition ? 'drug' : undefined);
+
       const baseParams = {
-        'query.cond': condition,
-        'query.intr': intervention,
-        'query.locn': location,
         'pageSize': Math.min(maxResults || pageSize, 100), // ClinicalTrials.gov max is 100
         'format': 'json'
       };
+
+      // Only add search terms if they exist (don't add undefined values)
+      if (defaultCondition) {
+        baseParams['query.cond'] = defaultCondition;
+      }
+      if (defaultIntervention) {
+        baseParams['query.intr'] = defaultIntervention;
+      }
+      if (location) {
+        baseParams['query.locn'] = location;
+      }
 
       // Only add studyType if it's a single type (API doesn't support comma-separated)
       if (finalStudyType) {
@@ -64,10 +76,22 @@ class ClinicalTrialsService {
         baseParams['pageToken'] = pageToken;
       }
 
+      console.log('🔍 CLINICAL TRIALS SERVICE SEARCH:', {
+        originalCondition: condition,
+        originalIntervention: intervention,
+        defaultCondition,
+        defaultIntervention,
+        finalStudyType,
+        statusList,
+        pageSize: baseParams.pageSize
+      });
+
       let allStudies = [];
       const studyTypesToSearch = studyType === 'INTERVENTIONAL,OBSERVATIONAL' 
         ? ['INTERVENTIONAL', 'OBSERVATIONAL'] 
         : [finalStudyType || 'INTERVENTIONAL'];
+
+      console.log('🔍 Will search for study types:', studyTypesToSearch, 'with statuses:', statusList);
 
       // Make API calls for each combination of status and study type
       for (const status of statusList) {
@@ -123,6 +147,13 @@ class ClinicalTrialsService {
         totalCount: uniqueStudies.length,
         nextPageToken: null
       };
+      
+      console.log('🔍 CLINICAL TRIALS SEARCH RESULT:', {
+        totalApiCalls: statusList.length * studyTypesToSearch.length,
+        rawStudies: allStudies.length,
+        uniqueStudies: uniqueStudies.length,
+        finalCount: combinedResponse.totalCount
+      });
       
       var processedData = this.processTrialsResponse(combinedResponse, { age, gender, condition, intervention });
       

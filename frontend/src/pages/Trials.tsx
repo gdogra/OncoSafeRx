@@ -219,8 +219,14 @@ const Trials: React.FC = () => {
         params.set('pageSize', '100'); // Use reasonable page size since API makes multiple calls
         params.set('studyType', includeObservational ? 'INTERVENTIONAL,OBSERVATIONAL' : 'INTERVENTIONAL');
         params.set('includeExpanded', expandedStatuses.toString());
+        console.log('🔍 Default search params:', params.toString());
         const resp = await fetch(`${apiBase}/clinical-trials/search?${params.toString()}`);
-        if (!resp.ok) throw new Error(`API ${resp.status}`);
+        console.log('🔍 Default search response:', resp.status, resp.ok);
+        if (!resp.ok) {
+          const errorText = await resp.text();
+          console.error('🔍 Default search failed:', resp.status, errorText);
+          throw new Error(`API ${resp.status}: ${errorText}`);
+        }
         const data = await resp.json();
         const studies = data?.data?.studies || [];
         const mapped = studies.map((s: any) => ({

@@ -833,34 +833,54 @@ export class SupabaseAuthService {
 
       // Query Supabase users table for the canonical role and profile fields
       try {
-        // Prefer richer profile fields if available; gracefully fall back to minimal selection
-        let userData: any = null;
-        let error: any = null;
-        try {
-          const full = await supabase
-            .from('users')
-            .select('id,email,role,first_name,last_name,specialty,institution,license_number,preferences,created_at')
-            .eq('id', user.id)
-            .maybeSingle();
-          userData = full.data; error = full.error;
-          if (error && /column/i.test(error.message)) {
-            // Column mismatch, fall back to minimal selection
-            const minimal = await supabase
+        // Ensure we have a valid session before querying users table
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session?.access_token) {
+          console.log('🔍 Valid session found, querying users table...');
+          
+          // Prefer richer profile fields if available; gracefully fall back to minimal selection
+          let userData: any = null;
+          let error: any = null;
+          try {
+            const full = await supabase
               .from('users')
-              .select('id,email,role,first_name,last_name')
+              .select('id,email,role,first_name,last_name,specialty,institution,license_number,preferences,created_at')
               .eq('id', user.id)
               .maybeSingle();
-            userData = minimal.data; error = minimal.error;
+            userData = full.data; error = full.error;
+            
+            if (error) {
+              console.warn('🔍 Full user query failed:', error.message);
+              if (/column/i.test(error.message)) {
+                // Column mismatch, fall back to minimal selection
+                console.log('🔄 Falling back to minimal user selection...');
+                const minimal = await supabase
+                  .from('users')
+                  .select('id,email,role,first_name,last_name')
+                  .eq('id', user.id)
+                  .maybeSingle();
+                userData = minimal.data; error = minimal.error;
+              }
+            }
+          } catch (e: any) {
+            console.warn('🔍 User table query failed:', e.message);
+            error = e;
           }
-        } catch (e: any) {
-          error = e;
+          
+          if (!error && userData && !dbProfile) {
+            console.log('✅ Successfully loaded user data from database');
+            // Only take DB row if backend profile wasn't already set
+            dbProfile = userData;
+            if (!role && userData.role) role = userData.role;
+          } else if (error) {
+            console.warn('⚠️ Could not load user from database, using auth metadata only:', error.message);
+          }
+        } else {
+          console.log('⚠️ No valid session found, skipping users table query');
         }
-        if (!error && userData && !dbProfile) {
-          // Only take DB row if backend profile wasn’t already set
-          dbProfile = userData;
-          if (!role && userData.role) role = userData.role;
-        }
-      } catch {}
+      } catch (sessionError) {
+        console.warn('⚠️ Session check failed, skipping users table query:', sessionError);
+      }
       
       // Final fallback
       if (!role) role = 'patient';

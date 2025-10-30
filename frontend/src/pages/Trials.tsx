@@ -50,6 +50,7 @@ const Trials: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<Trial[] | null>(null);
   const [nearestCount, setNearestCount] = useState<string>('');
+  const [liveTotal, setLiveTotal] = useState<number | null>(null);
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [recentDrugs, setRecentDrugs] = useState<string[]>([]);
@@ -354,6 +355,9 @@ const Trials: React.FC = () => {
           if (conditions.length || biomarkers.length) {
             setDynamicConditionOptions(conditions.map((c: string) => ({ value: c, label: c })));
             setDynamicBiomarkerOptions(biomarkers.map((m: string) => ({ value: m, label: m })));
+            if (typeof data?.data?.totalStudies === 'number') {
+              setLiveTotal(data.data.totalStudies);
+            }
             return;
           }
         }
@@ -380,6 +384,9 @@ const Trials: React.FC = () => {
       </TipCard>
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Clinical Trials' }]} />
       <h1 className="text-2xl font-bold text-gray-900">Clinical Trials (MVP)</h1>
+      {liveTotal !== null && (
+        <div className="text-xs text-gray-600">Live recruiting interventional studies available now: {liveTotal.toLocaleString()}</div>
+      )}
       <Card>
         <div className="grid md:grid-cols-6 gap-3">
           {/* Anchor for onboarding/tour to highlight trials search */}

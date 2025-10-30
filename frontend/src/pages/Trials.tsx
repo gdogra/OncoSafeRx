@@ -51,6 +51,7 @@ const Trials: React.FC = () => {
   const [results, setResults] = useState<Trial[] | null>(null);
   const [nearestCount, setNearestCount] = useState<string>('');
   const [liveTotal, setLiveTotal] = useState<number | null>(null);
+  const [liveUpdatedAt, setLiveUpdatedAt] = useState<string | null>(null);
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [recentDrugs, setRecentDrugs] = useState<string[]>([]);
@@ -358,6 +359,9 @@ const Trials: React.FC = () => {
             if (typeof data?.data?.totalStudies === 'number') {
               setLiveTotal(data.data.totalStudies);
             }
+            if (typeof data?.data?.updatedAt === 'string') {
+              setLiveUpdatedAt(data.data.updatedAt);
+            }
             return;
           }
         }
@@ -385,7 +389,12 @@ const Trials: React.FC = () => {
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Clinical Trials' }]} />
       <h1 className="text-2xl font-bold text-gray-900">Clinical Trials (MVP)</h1>
       {liveTotal !== null && (
-        <div className="text-xs text-gray-600">Live recruiting interventional studies available now: {liveTotal.toLocaleString()}</div>
+        <div className="text-xs text-gray-600">
+          Live recruiting interventional studies available now: {liveTotal.toLocaleString()}
+          {liveUpdatedAt && (
+            <span> • Last updated {new Date(liveUpdatedAt).toLocaleString()}</span>
+          )}
+        </div>
       )}
       <Card>
         <div className="grid md:grid-cols-6 gap-3">

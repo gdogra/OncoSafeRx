@@ -339,7 +339,8 @@ router.get('/filters/options', async (req, res) => {
         biomarkers,
         totalStudies: studies.length,
         recruitmentStatus,
-        studyType
+        studyType,
+        updatedAt: new Date().toISOString()
       }
     });
   } catch (error) {

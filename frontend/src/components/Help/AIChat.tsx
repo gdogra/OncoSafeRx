@@ -176,6 +176,91 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, className = '' }) => {
     // Search knowledge base for relevant articles
     const relatedArticles = searchKnowledgeBase(userMessage).slice(0, 3).map(article => article.id);
 
+    // Normalize whitespace for simple routing intents
+    const normalized = message.replace(/\s+/g, ' ').trim();
+
+    // Fast-path routing for common sections (respond with CTA immediately)
+    if (/(^|\b)(clinical\s*)?trials?(\b|$)/.test(normalized)) {
+      return {
+        content: 'Opening the Clinical Trials tools.',
+        relatedArticles,
+        source: 'script',
+        cta: { label: 'Open Clinical Trials', to: '/trials' }
+      };
+    }
+    if (/(^|\b)interactions?(\b|$)|interaction\s*checker/.test(normalized)) {
+      return {
+        content: 'Opening the Interaction Checker.',
+        relatedArticles,
+        source: 'script',
+        cta: { label: 'Open Interactions', to: '/interactions' }
+      };
+    }
+    if (/(^|\b)genomics?(\b|$)|pharmacogenomics|pgx/.test(normalized)) {
+      return {
+        content: 'Opening Genomics.',
+        relatedArticles,
+        source: 'script',
+        cta: { label: 'Open Genomics', to: '/genomics' }
+      };
+    }
+    if (/(^|\b)protocols?(\b|$)|regimens?/.test(normalized)) {
+      return {
+        content: 'Opening Protocols.',
+        relatedArticles,
+        source: 'script',
+        cta: { label: 'Open Protocols', to: '/protocols' }
+      };
+    }
+    if (/(^|\b)drug\s*database(\b|$)|labels?|label\s*database|dailymed/.test(normalized)) {
+      return {
+        content: 'Opening Drug Database.',
+        relatedArticles,
+        source: 'script',
+        cta: { label: 'Open Drug Database', to: '/database' }
+      };
+    }
+    if (/(^|\b)drug\s*intelligence(\b|$)|intelligence\s*integrator/.test(normalized)) {
+      return {
+        content: 'Opening Drug Intelligence Integrator.',
+        relatedArticles,
+        source: 'script',
+        cta: { label: 'Open Drug Intelligence', to: '/drug-intelligence' }
+      };
+    }
+    if (/(^|\b)multi(\-|\s*)database(\b|$)|federated\s*search/.test(normalized)) {
+      return {
+        content: 'Opening Multi‑Database Search.',
+        relatedArticles,
+        source: 'script',
+        cta: { label: 'Open Multi‑DB Search', to: '/multi-database-search' }
+      };
+    }
+    if (/(^|\b)analytics?(\b|$)/.test(normalized)) {
+      return {
+        content: 'Opening Analytics.',
+        relatedArticles,
+        source: 'script',
+        cta: { label: 'Open Analytics', to: '/analytics' }
+      };
+    }
+    if (/(^|\b)help(\b|$)|support\s*center/.test(normalized)) {
+      return {
+        content: 'Opening Help Center.',
+        relatedArticles,
+        source: 'script',
+        cta: { label: 'Open Help', to: '/help' }
+      };
+    }
+    if (/(^|\b)admin(\b|$)|admin\s*console/.test(normalized)) {
+      return {
+        content: 'Opening Admin Console.',
+        relatedArticles,
+        source: 'script',
+        cta: { label: 'Open Admin', to: '/admin' }
+      };
+    }
+
     // Genetic Twins concept
     if (message.includes('genetic twin')) {
       return {

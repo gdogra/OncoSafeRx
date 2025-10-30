@@ -168,16 +168,39 @@ const Trials: React.FC = () => {
   const search = async () => {
     setLoading(true); setError(null);
     try {
-      const params = new URLSearchParams();
-      if (condition) params.set('condition', condition);
-      if (biomarker) params.set('biomarker', biomarker);
-      if (line) params.set('line', line);
-      if (status) params.set('status', status);
-      if (lat && lon && radius) { params.set('lat', lat); params.set('lon', lon); params.set('radius_km', radius); }
-      const resp = await fetch(`${apiBase}/trials/search?${params.toString()}`);
-      if (!resp.ok) throw new Error(`API ${resp.status}`);
-      const data = await resp.json();
-      setResults(data.trials || []);
+      const hasLocalFilters = !!(condition || biomarker || line || status || (lat && lon));
+      if (hasLocalFilters) {
+        const params = new URLSearchParams();
+        if (condition) params.set('condition', condition);
+        if (biomarker) params.set('biomarker', biomarker);
+        if (line) params.set('line', line);
+        if (status) params.set('status', status);
+        if (lat && lon && radius) { params.set('lat', lat); params.set('lon', lon); params.set('radius_km', radius); }
+        const resp = await fetch(`${apiBase}/trials/search?${params.toString()}`);
+        if (!resp.ok) throw new Error(`API ${resp.status}`);
+        const data = await resp.json();
+        setResults(data.trials || []);
+      } else {
+        // Broad default search from ClinicalTrials.gov (recruiting interventional), larger set
+        const params = new URLSearchParams();
+        params.set('recruitmentStatus', 'RECRUITING');
+        params.set('pageSize', '50');
+        const resp = await fetch(`${apiBase}/clinical-trials/search?${params.toString()}`);
+        if (!resp.ok) throw new Error(`API ${resp.status}`);
+        const data = await resp.json();
+        const studies = data?.data?.studies || [];
+        const mapped = studies.map((s: any) => ({
+          nct_id: s.nctId,
+          title: s.title,
+          condition: s.condition || '',
+          phase: s.phase || '',
+          status: s.status || '',
+          line_of_therapy: undefined,
+          biomarkers: undefined,
+          locations: []
+        }));
+        setResults(mapped);
+      }
       // Persist filters to URL for share/reload
       const qs = buildParams();
       const newUrl = `${window.location.pathname}${qs ? `?${qs}` : ''}`;

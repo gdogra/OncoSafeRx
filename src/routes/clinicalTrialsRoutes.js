@@ -21,11 +21,7 @@ router.get('/search', async (req, res) => {
       pageToken
     } = req.query;
 
-    if (!condition && !intervention) {
-      return res.status(400).json({
-        error: 'Either condition or intervention parameter is required'
-      });
-    }
+    // Allow broad unfiltered search (e.g., default recruiting studies) by omitting condition/intervention
 
     const results = await clinicalTrialsService.searchTrials({
       condition,

@@ -21,8 +21,9 @@ const Dashboard: React.FC = () => {
     // Alternatively: return <Navigate to="/admin" replace />;
   }
 
-  // Return scientific dashboard if scientist mode is enabled for non-admins
-  if (isScientistMode()) {
+  // Evidence Explorer (Scientific) default only for research roles
+  const scientificEligible = ['researcher', 'student'];
+  if (isScientistMode() && scientificEligible.includes(userRole)) {
     return <ScientificDashboard />;
   }
 

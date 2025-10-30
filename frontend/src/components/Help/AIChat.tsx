@@ -13,6 +13,7 @@ interface ChatMessage {
   relatedArticles?: string[];
   source?: 'kb' | 'openai' | 'script';
   cta?: { label: string; to: string };
+  suggestion?: { label: string; to: string };
 }
 
 interface AIChatProps {
@@ -106,7 +107,7 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, className = '' }) => {
     }
   }, [isOpen, isMinimized]);
 
-  const generateAIResponse = (userMessage: string): { content: string; relatedArticles?: string[]; source: 'kb' | 'script'; cta?: { label: string; to: string } } => {
+  const generateAIResponse = (userMessage: string): { content: string; relatedArticles?: string[]; source: 'kb' | 'script'; cta?: { label: string; to: string }; suggestion?: { label: string; to: string } } => {
     const message = userMessage.toLowerCase();
     
     // Search knowledge base for relevant articles
@@ -311,11 +312,18 @@ It helps select therapy intensity and trial eligibility (most trials require ECO
       message.includes('trial match') ||
       message.includes('trial matching')
     ) {
+      const bioMatch = message.match(/egfr|alk|ros1|braf|kras|ntrk|ret|brca|pd-?l1|msi|tmb|her2/);
+      let bioLabel: string | null = null;
+      if (bioMatch) {
+        const raw = bioMatch[0];
+        bioLabel = raw.toUpperCase().replace('PD-?L1','PD-L1');
+      }
       return {
         content: 'Use Clinical Trials to search by condition/biomarker, set line/status/location, then review nearby sites.',
         relatedArticles,
         source: 'kb',
-        cta: { label: 'Open Clinical Trials', to: '/trials' }
+        cta: { label: 'Open Clinical Trials', to: '/trials' },
+        suggestion: bioLabel ? { label: `Trials for ${bioLabel}`, to: `/trials?biomarker=${encodeURIComponent(bioLabel)}` } : undefined
       };
     }
 
@@ -325,11 +333,13 @@ It helps select therapy intensity and trial eligibility (most trials require ECO
       message.includes('interaction checker') ||
       (message.includes('check') && message.includes('interaction'))
     ) {
+      const token = (userMessage.match(/[A-Za-z][A-Za-z0-9\-]{3,}/g) || [])[0];
       return {
         content: 'Open Interactions, add two or more meds, then run the check to see severity and management guidance.',
         relatedArticles,
         source: 'kb',
-        cta: { label: 'Open Interactions', to: '/interactions' }
+        cta: { label: 'Open Interactions', to: '/interactions' },
+        suggestion: token ? { label: `Check interactions for ${token}`, to: `/interactions?drug=${encodeURIComponent(token)}` } : undefined
       };
     }
 
@@ -340,21 +350,25 @@ It helps select therapy intensity and trial eligibility (most trials require ECO
       message.includes('dailymed') || message.includes('daily med') ||
       message.includes('openfda') || message.includes('rxnorm') || message.includes('pubmed')
     ) {
+      const token = (userMessage.match(/[A-Za-z][A-Za-z0-9\-]{3,}/g) || [])[0];
       return {
         content: 'Use the Drug Intelligence Integrator to fetch and compare RxNorm, DailyMed, OpenFDA, PubMed, and ClinicalTrials for a drug.',
         relatedArticles,
         source: 'kb',
-        cta: { label: 'Open Drug Intelligence', to: '/drug-intelligence' }
+        cta: { label: 'Open Drug Intelligence', to: '/drug-intelligence' },
+        suggestion: token ? { label: `Search ${token}`, to: `/drug-intelligence?q=${encodeURIComponent(token)}` } : undefined
       };
     }
 
     // Protocols (concise + CTA)
     if (message.includes('protocol') || message.includes('regimen') || message.includes('guideline')) {
+      const token = (userMessage.match(/[A-Za-z][A-Za-z0-9\-]{3,}/g) || [])[0];
       return {
         content: 'Open Protocols to browse evidence‑based regimens, dosing, and monitoring by disease area.',
         relatedArticles,
         source: 'kb',
-        cta: { label: 'Open Protocols', to: '/protocols' }
+        cta: { label: 'Open Protocols', to: '/protocols' },
+        suggestion: token ? { label: `Find protocols for ${token}`, to: `/protocols?drug=${encodeURIComponent(token)}` } : undefined
       };
     }
 
@@ -367,7 +381,8 @@ It helps select therapy intensity and trial eligibility (most trials require ECO
         content: 'Use Multi‑Database Search to query PubMed/trials/labels together, then filter and review linked results.',
         relatedArticles,
         source: 'kb',
-        cta: { label: 'Open Multi‑DB Search', to: '/multi-database-search' }
+        cta: { label: 'Open Multi‑DB Search', to: '/multi-database-search' },
+        suggestion: { label: 'Search this query', to: `/multi-database-search?q=${encodeURIComponent(userMessage)}` }
       };
     }
 
@@ -622,6 +637,44 @@ Which specific CPIC guideline would you like to learn about?`,
     // Save user message to patient context
     saveMessageToPatient(userMessage);
     
+    // Intercept simple confirmations typed by the user (handles "yes", "no thanks", etc.)
+    if (pendingConfirmId) {
+      const text = inputValue.trim().toLowerCase();
+      const isNo = /^(no|no\s+thanks|nope|nah|not\s+really|didn['’]t|did\s+not)/.test(text);
+      const isYes = /^(yes|yep|yeah|sure|ok|okay|that\s+helps|makes\s+sense|got\s+it)/.test(text);
+      setInputValue('');
+      if (isNo) {
+        // Ask for details; do not generate a new answer
+        setPendingConfirmId(null);
+        const follow: ChatMessage = {
+          id: (Date.now() + 2).toString(),
+          type: 'ai',
+          content: 'Thanks — what details are you looking for so I can refine the answer?',
+          timestamp: new Date(),
+          source: 'script'
+        };
+        setMessages(prev => [...prev, follow]);
+        saveMessageToPatient(follow);
+        setIsLoading(false);
+        return;
+      } else if (isYes) {
+        // Acknowledge and exit; do not generate a new answer
+        setPendingConfirmId(null);
+        const follow: ChatMessage = {
+          id: (Date.now() + 2).toString(),
+          type: 'ai',
+          content: 'Great — anything else I can help with?',
+          timestamp: new Date(),
+          source: 'script'
+        };
+        setMessages(prev => [...prev, follow]);
+        saveMessageToPatient(follow);
+        setIsLoading(false);
+        return;
+      }
+      // If it's neither clear yes nor no, continue to normal flow
+    }
+
     setInputValue('');
     setIsLoading(true);
 
@@ -811,6 +864,18 @@ Which specific CPIC guideline would you like to learn about?`,
                             }}
                           >
                             {message.cta.label}
+                          </button>
+                        )}
+                        {message.suggestion && (
+                          <button
+                            className="px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 border border-indigo-200 hover:bg-indigo-200"
+                            onClick={() => {
+                              try { (window as any).scrollTo(0,0); } catch {}
+                              try { (window as any).location && navigate(message.suggestion!.to); } catch {}
+                              setPendingConfirmId(null);
+                            }}
+                          >
+                            {message.suggestion.label}
                           </button>
                         )}
                         <button

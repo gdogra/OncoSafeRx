@@ -198,6 +198,36 @@ ALTER TABLE data_sync_log ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Public read access for drugs" ON drugs FOR SELECT USING (true);
 CREATE POLICY "Public read access for drug_interactions" ON drug_interactions FOR SELECT USING (true);
 CREATE POLICY "Public read access for genes" ON genes FOR SELECT USING (true);
+
+-- Trial analytics tables (agent outputs)
+create table if not exists public.trial_analytics (
+  drug text primary key,
+  total int not null default 0,
+  oncologyTotal int not null default 0,
+  phaseCounts jsonb not null default '{}'::jsonb,
+  ddiSignals int not null default 0,
+  updatedAt timestamptz not null default now()
+);
+
+create table if not exists public.trial_analytics_runs (
+  id uuid primary key default uuid_generate_v4(),
+  processed int not null default 0,
+  duration_ms int not null default 0,
+  started_at timestamptz not null default now(),
+  finished_at timestamptz not null default now()
+);
+
+-- RLS and policies
+alter table public.trial_analytics enable row level security;
+alter table public.trial_analytics_runs enable row level security;
+
+-- For now, allow read access (adjust to role-based if needed)
+create policy "Public read access for trial_analytics" on public.trial_analytics for select using (true);
+create policy "Public read access for trial_analytics_runs" on public.trial_analytics_runs for select using (true);
+
+-- Helpful indexes
+create index if not exists idx_trial_analytics_updated on public.trial_analytics(updatedAt desc);
+create index if not exists idx_trial_analytics_runs_finished on public.trial_analytics_runs(finished_at desc);
 CREATE POLICY "Public read access for gene_drug_interactions" ON gene_drug_interactions FOR SELECT USING (true);
 CREATE POLICY "Public read access for oncology_protocols" ON oncology_protocols FOR SELECT USING (true);
 CREATE POLICY "Public read access for clinical_trials" ON clinical_trials FOR SELECT USING (true);

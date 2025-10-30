@@ -155,6 +155,7 @@ export const main = async (req: Request): Promise<Response> => {
   const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_ANON_KEY")!;
   const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } });
 
+  const t0 = Date.now();
   const drugs = await listMarketedDrugs(supabase, limit);
 
   const results: any[] = [];
@@ -180,7 +181,18 @@ export const main = async (req: Request): Promise<Response> => {
     }
   }
 
-  return new Response(JSON.stringify({ ok: true, processed: results.length, results }), {
+  const durationMs = Date.now() - t0;
+  // Best-effort run log (ignore if table not present)
+  try {
+    await supabase.from('trial_analytics_runs').insert({
+      processed: results.length,
+      duration_ms: durationMs,
+      started_at: new Date(t0).toISOString(),
+      finished_at: new Date().toISOString()
+    });
+  } catch (_) {}
+
+  return new Response(JSON.stringify({ ok: true, processed: results.length, durationMs, results }), {
     headers: { "Content-Type": "application/json" },
     status: 200,
   });

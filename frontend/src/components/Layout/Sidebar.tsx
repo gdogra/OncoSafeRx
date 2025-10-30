@@ -569,6 +569,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             requiresPermission: null
           },
           { 
+            path: '/admin/trial-analytics', 
+            label: 'Trial Analytics', 
+            icon: BarChart3, 
+            description: 'Per-drug trials overview & DDI signals',
+            roles: ['admin','super_admin'],
+            requiresPermission: null
+          },
+          { 
             path: '/regulatory-compliance', 
             label: 'Regulatory Compliance', 
             icon: Shield, 

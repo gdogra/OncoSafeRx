@@ -75,6 +75,7 @@ const UserAdmin = lazy(() => import('./pages/UserAdmin'));
 const AuditLogViewer = lazy(() => import('./pages/AuditLogViewer'));
 const AdminSystemHealth = lazy(() => import('./pages/AdminSystemHealth'));
 const AdminSettings = lazy(() => import('./pages/AdminSettings'));
+const AdminTrialAnalytics = lazy(() => import('./pages/AdminTrialAnalytics'));
 const FeedbackAdmin = lazy(() => import('./pages/FeedbackAdmin'));
 const AdminConsole = lazy(() => import('./components/Admin/AdminConsole'));
 const AdminHome = lazy(() => import('./pages/AdminHome'));
@@ -352,6 +353,13 @@ function AppWithAuth() {
                   <ProtectedRoute requiredPermission="manage_system_settings">
                     <Layout>
                       <AdminSettings />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/trial-analytics" element={
+                  <ProtectedRoute requiredPermission="admin_console_access">
+                    <Layout>
+                      <AdminTrialAnalytics />
                     </Layout>
                   </ProtectedRoute>
                 } />

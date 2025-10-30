@@ -6,17 +6,27 @@ import { isScientistMode } from '../utils/scientistMode';
 import Card from '../components/UI/Card';
 import Tooltip from '../components/UI/Tooltip';
 import ScientificDashboard from './ScientificDashboard';
+import AdminHome from './AdminHome';
+import { Navigate } from 'react-router-dom';
 import { Activity, Search, AlertTriangle, Dna, FileText, Users, TrendingUp, Shield, Brain, Target, Calendar, DollarSign, Zap, Heart, FlaskConical, Database, ShieldAlert, BookOpen, Stethoscope, MessageSquare } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
-  // Return scientific dashboard if scientist mode is enabled
+  const { state } = useAuth();
+  const { user } = state;
+  const userRole = user?.role || 'student';
+
+  // Admins: prefer Admin Home as the default dashboard
+  if (userRole === 'admin' || userRole === 'super_admin') {
+    return <AdminHome />;
+    // Alternatively: return <Navigate to="/admin" replace />;
+  }
+
+  // Return scientific dashboard if scientist mode is enabled for non-admins
   if (isScientistMode()) {
     return <ScientificDashboard />;
   }
 
-  const { state } = useAuth();
-  const { user } = state;
-  const userRole = user?.role || 'student';
+  // state, userRole declared above
   
   // Remove console debug in production
   if ((import.meta as any)?.env?.MODE !== 'production') {

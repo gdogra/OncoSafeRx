@@ -90,12 +90,19 @@ const LoginWizard: React.FC = () => {
       })();
       const versionKey = `${ver}_${gv}`;
       const isSuppressedEffective = suppressed && suppressedVersion === versionKey;
-      
+
       // Check for manual tour restart via URL param or window flag
       const urlParams = new URLSearchParams(window.location.search);
       const forceRestart = urlParams.get('restart_tour') === 'true' || (window as any).__RESTART_TOUR__;
-      
-      if (forceRestart || (!seen && !isSuppressedEffective)) {
+
+      // Auto-open gating: only auto-open on dashboard route and not within admin routes,
+      // and only once per session to avoid opening during navigation clicks.
+      const path = window.location.pathname || '/';
+      const isDashboard = path === '/' || path === '/dashboard';
+      const isAdminPath = /^\/admin(\/|$)/.test(path);
+      const openedThisSession = sessionStorage.getItem('osrx_wizard_opened') === '1';
+
+      if (forceRestart || (!seen && !isSuppressedEffective && isDashboard && !isAdminPath && !openedThisSession)) {
         setOpen(true);
         if (forceRestart) {
           // Clear the restart flag
@@ -106,6 +113,7 @@ const LoginWizard: React.FC = () => {
             window.history.replaceState({}, '', `${window.location.pathname}${urlParams.toString() ? '?' + urlParams.toString() : ''}`);
           }
         }
+        try { sessionStorage.setItem('osrx_wizard_opened', '1'); } catch {}
       }
     } catch { setOpen(true); }
   }, [state?.isAuthenticated, storageKey, allowPublicRead]);

@@ -4,6 +4,7 @@ import { searchKnowledgeBase } from '../../data/knowledgeBase';
 import { usePatient } from '../../context/PatientContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../UI/Toast';
 
 interface ChatMessage {
   id: string;
@@ -24,6 +25,7 @@ interface AIChatProps {
 
 const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, className = '' }) => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const { state: patientState, actions: patientActions } = usePatient();
   const { state: authState } = useAuth();
   const { currentPatient } = patientState;
@@ -87,6 +89,48 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, className = '' }) => {
   });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const copyToClipboard = async (text: string) => {
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+    } catch {}
+  };
+
+  // Helpers for confirmation follow-ups
+  const confirmYes = () => {
+    setPendingConfirmId(null);
+    const follow: ChatMessage = {
+      id: (Date.now() + 2).toString(),
+      type: 'ai',
+      content: 'Great — anything else I can help with?',
+      timestamp: new Date(),
+      source: 'script'
+    };
+    setMessages(prev => [...prev, follow]);
+    saveMessageToPatient(follow);
+    setIsLoading(false);
+  };
+  const confirmNo = () => {
+    setPendingConfirmId(null);
+    const follow: ChatMessage = {
+      id: (Date.now() + 2).toString(),
+      type: 'ai',
+      content: 'Thanks — what details are you looking for so I can refine the answer?',
+      timestamp: new Date(),
+      source: 'script'
+    };
+    setMessages(prev => [...prev, follow]);
+    saveMessageToPatient(follow);
+    setIsLoading(false);
+  };
 
   // Update messages when current patient changes
   useEffect(() => {
@@ -106,6 +150,25 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, className = '' }) => {
       inputRef.current?.focus();
     }
   }, [isOpen, isMinimized]);
+
+  // Keyboard shortcuts for pending confirmation: Y/Enter = Yes, N/Esc = No
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!pendingConfirmId) return;
+      const tag = (document.activeElement?.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea') return;
+      const k = e.key.toLowerCase();
+      if (k === 'y' || e.key === 'Enter') {
+        e.preventDefault();
+        confirmYes();
+      } else if (k === 'n' || e.key === 'Escape') {
+        e.preventDefault();
+        confirmNo();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [pendingConfirmId]);
 
   const generateAIResponse = (userMessage: string): { content: string; relatedArticles?: string[]; source: 'kb' | 'script'; cta?: { label: string; to: string }; suggestion?: { label: string; to: string } } => {
     const message = userMessage.toLowerCase();
@@ -852,7 +915,7 @@ Which specific CPIC guideline would you like to learn about?`,
                       )}
                     </div>
                     {message.type === 'ai' && pendingConfirmId === message.id && (
-                      <div className="mt-2 flex items-center gap-2 text-xs">
+                      <div className="mt-2 flex items-center gap-2 text-xs group">
                         <span className="text-gray-700">Did that answer your question?</span>
                         {message.cta && (
                           <button
@@ -864,6 +927,19 @@ Which specific CPIC guideline would you like to learn about?`,
                             }}
                           >
                             {message.cta.label}
+                          </button>
+                        )}
+                        {message.cta && (
+                          <button
+                            className="px-2 py-0.5 rounded border text-gray-700 hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Copy link"
+                            onClick={() => {
+                              const href = new URL(message.cta!.to, window.location.origin).toString();
+                              copyToClipboard(href);
+                              try { showToast('success', 'Link copied'); } catch {}
+                            }}
+                          >
+                            Copy link
                           </button>
                         )}
                         {message.suggestion && (
@@ -903,6 +979,19 @@ Which specific CPIC guideline would you like to learn about?`,
                             }}
                           >
                             {message.suggestion.label}
+                          </button>
+                        )}
+                        {message.suggestion && (
+                          <button
+                            className="px-2 py-0.5 rounded border text-gray-700 hover:bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity"
+                            title="Copy link"
+                            onClick={() => {
+                              const href = new URL(message.suggestion!.to, window.location.origin).toString();
+                              copyToClipboard(href);
+                              try { showToast('success', 'Link copied'); } catch {}
+                            }}
+                          >
+                            Copy link
                           </button>
                         )}
                         <button

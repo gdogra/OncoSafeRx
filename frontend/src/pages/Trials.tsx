@@ -52,6 +52,7 @@ const Trials: React.FC = () => {
   const [nearestCount, setNearestCount] = useState<string>('');
   const [liveTotal, setLiveTotal] = useState<number | null>(null);
   const [liveUpdatedAt, setLiveUpdatedAt] = useState<string | null>(null);
+  const [liveRefreshTick, setLiveRefreshTick] = useState<number>(0);
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [recentDrugs, setRecentDrugs] = useState<string[]>([]);
@@ -378,8 +379,8 @@ const Trials: React.FC = () => {
         setDynamicBiomarkerOptions(biomarkers2.map((m: string) => ({ value: m, label: m })));
       } catch {}
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiBase]);
+    // Re-run when apiBase or refresh tick changes
+  }, [apiBase, liveRefreshTick]);
 
   return (
     <div className="space-y-6">
@@ -389,11 +390,20 @@ const Trials: React.FC = () => {
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Clinical Trials' }]} />
       <h1 className="text-2xl font-bold text-gray-900">Clinical Trials (MVP)</h1>
       {liveTotal !== null && (
-        <div className="text-xs text-gray-600">
-          Live recruiting interventional studies available now: {liveTotal.toLocaleString()}
-          {liveUpdatedAt && (
-            <span> • Last updated {new Date(liveUpdatedAt).toLocaleString()}</span>
-          )}
+        <div className="flex items-center gap-3 text-xs text-gray-600">
+          <div>
+            Live recruiting interventional studies available now: {liveTotal.toLocaleString()}
+            {liveUpdatedAt && (
+              <span> • Last updated {new Date(liveUpdatedAt).toLocaleString()}</span>
+            )}
+          </div>
+          <button
+            onClick={async () => { setLiveRefreshTick(t => t + 1); await search(); }}
+            className="px-2 py-1 rounded border bg-white hover:bg-gray-50 text-gray-700"
+            title="Refresh live data"
+          >
+            Refresh
+          </button>
         </div>
       )}
       <Card>

@@ -380,7 +380,7 @@ const DrugSearchInner: React.FC = () => {
             <h3 className="font-medium text-gray-900 mb-1">Clinical Trials</h3>
             <p className="text-sm text-gray-600 mb-3">Find relevant studies</p>
             <button 
-              onClick={() => setTimeout(() => navigate(`/protocols?drug=${selectedDrug.name}`), 100)}
+              onClick={() => setTimeout(() => navigate(`/trials?drug=${encodeURIComponent(selectedDrug.name)}`), 100)}
               className="text-sm text-green-600 hover:text-green-700 font-medium"
             >
               View Trials →

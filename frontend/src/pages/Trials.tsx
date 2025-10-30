@@ -49,6 +49,7 @@ const Trials: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<Trial[] | null>(null);
+  const [usedFallback, setUsedFallback] = useState<boolean>(false);
   const [nearestCount, setNearestCount] = useState<string>('');
   const [liveTotal, setLiveTotal] = useState<number | null>(null);
   const [liveUpdatedAt, setLiveUpdatedAt] = useState<string | null>(null);
@@ -177,38 +178,53 @@ const Trials: React.FC = () => {
     try {
       const hasLocalFilters = !!(condition || biomarker || line || status || (lat && lon));
       if (hasLocalFilters) {
-        // Progressive search with radius expansion
-        let currentRadius = initialRadius || radius || '50';
-        let trials: any[] = [];
-        const maxAttempts = autoExpandRadius ? 3 : 1;
-        const radiusSteps = ['50', '100', '500'];
-        
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
-          const params = new URLSearchParams();
-          if (condition) params.set('condition', condition);
-          if (biomarker) params.set('biomarker', biomarker);
-          if (line) params.set('line', line);
-          if (status) params.set('status', status);
-          if (lat && lon) { 
-            params.set('lat', lat); 
-            params.set('lon', lon); 
-            params.set('radius_km', radiusSteps[attempt] || currentRadius); 
-          }
-          
-          const resp = await fetch(`${apiBase}/trials/search?${params.toString()}`);
-          if (!resp.ok) throw new Error(`API ${resp.status}`);
-          const data = await resp.json();
-          trials = data.trials || [];
-          
-          // If we have enough results or it's the last attempt, break
-          if (trials.length >= 10 || attempt === maxAttempts - 1) {
-            if (autoExpandRadius && attempt > 0) {
-              showToast('info', `Expanded search radius to ${radiusSteps[attempt]}km, found ${trials.length} trials`);
+        // Use live ClinicalTrials.gov for filtered searches
+        const params = new URLSearchParams();
+        if (condition) params.set('condition', condition);
+        // Map biomarker to intervention to broaden search on ct.gov
+        if (biomarker) params.set('intervention', biomarker);
+        const recruitmentStatuses = expandedStatuses 
+          ? 'RECRUITING,NOT_YET_RECRUITING,ACTIVE_NOT_RECRUITING,ENROLLING_BY_INVITATION'
+          : 'RECRUITING';
+        params.set('recruitmentStatus', recruitmentStatuses);
+        params.set('pageSize', '100');
+        params.set('studyType', includeObservational ? 'INTERVENTIONAL,OBSERVATIONAL' : 'INTERVENTIONAL');
+        params.set('includeExpanded', expandedStatuses.toString());
+
+        const resp = await fetch(`${apiBase}/clinical-trials/search?${params.toString()}`);
+        if (!resp.ok) throw new Error(`API ${resp.status}`);
+        const data = await resp.json();
+        const studies = data?.data?.studies || [];
+        const mapped = studies.map((s: any) => ({
+          nct_id: s.nctId,
+          title: s.title,
+          condition: s.condition || '',
+          phase: s.phase || '',
+          status: s.status || '',
+          line_of_therapy: undefined,
+          biomarkers: undefined,
+          locations: []
+        }));
+        if (mapped.length === 0 && data?.data?.fallback) {
+          // Try local dataset as last resort
+          try {
+            const fallbackResp = await fetch(`${apiBase}/trials/search?condition=${encodeURIComponent(condition || '')}`);
+            if (fallbackResp.ok) {
+              const fb = await fallbackResp.json();
+              setResults(fb.trials || []);
+              setUsedFallback(true);
+            } else {
+              setResults(mapped);
+              setUsedFallback(false);
             }
-            break;
+          } catch {
+            setResults(mapped);
+            setUsedFallback(false);
           }
+        } else {
+          setResults(mapped);
+          setUsedFallback(false);
         }
-        setResults(trials);
       } else {
         // Broad default search from ClinicalTrials.gov (comprehensive options)
         const params = new URLSearchParams();
@@ -239,7 +255,30 @@ const Trials: React.FC = () => {
           biomarkers: undefined,
           locations: []
         }));
-        setResults(mapped);
+
+        // If live API returned nothing or signaled fallback, use local sample as a safety net
+        const shouldFallback = (Array.isArray(mapped) && mapped.length === 0) || data?.data?.fallback;
+        if (shouldFallback) {
+          try {
+            const fallbackResp = await fetch(`${apiBase}/trials/search`);
+            if (fallbackResp.ok) {
+              const fb = await fallbackResp.json();
+              const trials = fb.trials || [];
+              setResults(trials);
+              showToast('warning', 'Showing sample trials (live data unavailable)');
+              setUsedFallback(true);
+            } else {
+              setResults(mapped);
+              setUsedFallback(false);
+            }
+          } catch {
+            setResults(mapped);
+            setUsedFallback(false);
+          }
+        } else {
+          setResults(mapped);
+          setUsedFallback(false);
+        }
       }
       // Persist filters to URL for share/reload
       const qs = buildParams();
@@ -342,6 +381,9 @@ const Trials: React.FC = () => {
         setRadius(rad);
         // defer search after state updates
         setTimeout(() => { search(); }, 0);
+      } else {
+        // No params provided — auto-run default search to show results immediately
+        setTimeout(() => { search(); }, 0);
       }
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -427,6 +469,19 @@ const Trials: React.FC = () => {
       <TipCard id="tip-trials">
         Enter a condition and optional biomarker, set line/status and location, then Search. Use the map to view nearby sites and open Google Maps for directions.
       </TipCard>
+      {usedFallback && (
+        <Alert type="warning" title="ClinicalTrials.gov data temporarily unavailable">
+          <div className="flex items-center justify-between gap-4">
+            <span>Showing sample trials from local dataset. Try again shortly or refine your filters.</span>
+            <button
+              onClick={() => search()}
+              className="px-2 py-1 rounded border bg-white hover:bg-gray-50 text-gray-700"
+            >
+              Retry live data
+            </button>
+          </div>
+        </Alert>
+      )}
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Clinical Trials' }]} />
       <h1 className="text-2xl font-bold text-gray-900">Clinical Trials (MVP)</h1>
       {liveTotal !== null && (

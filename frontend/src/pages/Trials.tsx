@@ -341,18 +341,33 @@ const Trials: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Load conditions/biomarkers from trial data to power auto-complete
+  // Load conditions/biomarkers (prefer live ClinicalTrials.gov summary; fallback to local sample)
   useEffect(() => {
     (async () => {
       try {
-        const resp = await fetch(`${apiBase}/trials/search`);
-        if (!resp.ok) return;
-        const data = await resp.json();
-        const trials: any[] = data.trials || [];
-        const conditions = Array.from(new Set(trials.map(t => t.condition).filter(Boolean)));
-        const biomarkers = Array.from(new Set(trials.flatMap(t => t.biomarkers || []).filter(Boolean)));
-        setDynamicConditionOptions(conditions.map((c: string) => ({ value: c, label: c })));
-        setDynamicBiomarkerOptions(biomarkers.map((m: string) => ({ value: m, label: m })));
+        // Prefer live summary
+        const resp = await fetch(`${apiBase}/clinical-trials/filters/options?recruitmentStatus=RECRUITING&studyType=INTERVENTIONAL&pageSize=200`);
+        if (resp.ok) {
+          const data = await resp.json();
+          const conditions = (data?.data?.conditions || []) as string[];
+          const biomarkers = (data?.data?.biomarkers || []) as string[];
+          if (conditions.length || biomarkers.length) {
+            setDynamicConditionOptions(conditions.map((c: string) => ({ value: c, label: c })));
+            setDynamicBiomarkerOptions(biomarkers.map((m: string) => ({ value: m, label: m })));
+            return;
+          }
+        }
+      } catch {}
+      // Fallback to local trials dataset
+      try {
+        const resp2 = await fetch(`${apiBase}/trials/search`);
+        if (!resp2.ok) return;
+        const data2 = await resp2.json();
+        const trials: any[] = data2.trials || [];
+        const conditions2 = Array.from(new Set(trials.map(t => t.condition).filter(Boolean)));
+        const biomarkers2 = Array.from(new Set(trials.flatMap(t => t.biomarkers || []).filter(Boolean)));
+        setDynamicConditionOptions(conditions2.map((c: string) => ({ value: c, label: c })));
+        setDynamicBiomarkerOptions(biomarkers2.map((m: string) => ({ value: m, label: m })));
       } catch {}
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps

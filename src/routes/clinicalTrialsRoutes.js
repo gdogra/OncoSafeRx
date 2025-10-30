@@ -14,7 +14,7 @@ router.get('/search', async (req, res) => {
       intervention,
       age,
       gender,
-      recruitmentStatus = 'RECRUITING',
+      recruitmentStatus = 'RECRUITING,NOT_YET_RECRUITING,ACTIVE_NOT_RECRUITING',
       phase,
       location,
       pageSize = 100,

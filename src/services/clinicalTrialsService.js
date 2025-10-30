@@ -36,53 +36,59 @@ class ClinicalTrialsService {
       }
 
       // Handle expanded statuses for comprehensive search
-      const finalRecruitmentStatus = includeExpanded 
-        ? 'RECRUITING,NOT_YET_RECRUITING,ACTIVE_NOT_RECRUITING,ENROLLING_BY_INVITATION,COMPLETED'
-        : recruitmentStatus;
+      const statusList = includeExpanded 
+        ? ['RECRUITING', 'NOT_YET_RECRUITING', 'ACTIVE_NOT_RECRUITING', 'ENROLLING_BY_INVITATION']
+        : recruitmentStatus.split(',').map(s => s.trim());
       
       // Handle mixed study types
       const finalStudyType = studyType === 'INTERVENTIONAL,OBSERVATIONAL' ? undefined : studyType;
 
-      const params = {
+      const baseParams = {
         'query.cond': condition,
         'query.intr': intervention,
         'query.locn': location,
-        'filter.overallStatus': finalRecruitmentStatus,
-        'pageSize': maxResults || pageSize,
+        'pageSize': Math.min(maxResults || pageSize, 100), // ClinicalTrials.gov max is 100
         'format': 'json'
       };
 
       // Only add studyType if it's a single type (API doesn't support comma-separated)
       if (finalStudyType) {
-        params['filter.studyType'] = finalStudyType;
+        baseParams['filter.studyType'] = finalStudyType;
       }
 
       if (phase) {
-        params['filter.phase'] = phase;
+        baseParams['filter.phase'] = phase;
       }
 
       if (pageToken) {
-        params['pageToken'] = pageToken;
+        baseParams['pageToken'] = pageToken;
       }
 
-      // Remove undefined/null values
-      Object.keys(params).forEach(key => {
-        if (params[key] === undefined || params[key] === null) {
-          delete params[key];
-        }
-      });
-
       let allStudies = [];
-      
-      // If studyType includes both INTERVENTIONAL and OBSERVATIONAL, make separate calls
-      if (studyType === 'INTERVENTIONAL,OBSERVATIONAL') {
-        const studyTypes = ['INTERVENTIONAL', 'OBSERVATIONAL'];
-        
-        for (const type of studyTypes) {
-          const typeParams = { ...params, 'filter.studyType': type };
+      const studyTypesToSearch = studyType === 'INTERVENTIONAL,OBSERVATIONAL' 
+        ? ['INTERVENTIONAL', 'OBSERVATIONAL'] 
+        : [finalStudyType || 'INTERVENTIONAL'];
+
+      // Make API calls for each combination of status and study type
+      for (const status of statusList) {
+        for (const type of studyTypesToSearch) {
+          const params = {
+            ...baseParams,
+            'filter.overallStatus': status,
+            'filter.studyType': type
+          };
+
+          // Remove undefined/null values
+          Object.keys(params).forEach(key => {
+            if (params[key] === undefined || params[key] === null) {
+              delete params[key];
+            }
+          });
+
           try {
+            console.log(`Fetching ${type} studies with ${status} status:`, params);
             const response = await axios.get(this.baseUrl, {
-              params: typeParams,
+              params,
               timeout: 15000,
               headers: {
                 'User-Agent': 'OncoSafeRx/1.0 Clinical Decision Support System'
@@ -90,33 +96,35 @@ class ClinicalTrialsService {
             });
             
             if (response.data?.studies) {
+              console.log(`Found ${response.data.studies.length} ${type} studies with ${status} status`);
               allStudies.push(...response.data.studies);
             }
           } catch (err) {
-            console.warn(`Failed to fetch ${type} studies:`, err.message);
+            console.warn(`Failed to fetch ${type} studies with ${status} status:`, err.message);
+            console.warn('Error details:', err.response?.data || err.response || err);
           }
         }
-        
-        // Create combined response structure
-        const combinedResponse = {
-          studies: allStudies,
-          totalCount: allStudies.length,
-          nextPageToken: null
-        };
-        
-        const processedData = this.processTrialsResponse(combinedResponse, { age, gender, condition, intervention });
-      } else {
-        // Single study type - original logic
-        const response = await axios.get(this.baseUrl, {
-          params,
-          timeout: 15000,
-          headers: {
-            'User-Agent': 'OncoSafeRx/1.0 Clinical Decision Support System'
-          }
-        });
-
-        var processedData = this.processTrialsResponse(response.data, { age, gender, condition, intervention });
       }
+      
+      // Deduplicate studies by nctId
+      const uniqueStudies = [];
+      const seenIds = new Set();
+      for (const study of allStudies) {
+        const nctId = study.protocolSection?.identificationModule?.nctId;
+        if (nctId && !seenIds.has(nctId)) {
+          seenIds.add(nctId);
+          uniqueStudies.push(study);
+        }
+      }
+      
+      // Create combined response structure
+      const combinedResponse = {
+        studies: uniqueStudies,
+        totalCount: uniqueStudies.length,
+        nextPageToken: null
+      };
+      
+      var processedData = this.processTrialsResponse(combinedResponse, { age, gender, condition, intervention });
       
       // Cache the result
       this.cache.set(cacheKey, {
@@ -128,6 +136,7 @@ class ClinicalTrialsService {
 
     } catch (error) {
       console.error('Error fetching clinical trials:', error.message);
+      console.error('Error details:', error.response?.data || error.response || error);
       
       // Return fallback data structure
       return {

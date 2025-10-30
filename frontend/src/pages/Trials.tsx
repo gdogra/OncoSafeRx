@@ -216,12 +216,9 @@ const Trials: React.FC = () => {
           ? 'RECRUITING,NOT_YET_RECRUITING,ACTIVE_NOT_RECRUITING,ENROLLING_BY_INVITATION'
           : 'RECRUITING';
         params.set('recruitmentStatus', recruitmentStatuses);
-        params.set('pageSize', showAllAvailable ? '1000' : '200');
+        params.set('pageSize', '100'); // Use reasonable page size since API makes multiple calls
         params.set('studyType', includeObservational ? 'INTERVENTIONAL,OBSERVATIONAL' : 'INTERVENTIONAL');
         params.set('includeExpanded', expandedStatuses.toString());
-        if (showAllAvailable) {
-          params.set('maxResults', '1000');
-        }
         const resp = await fetch(`${apiBase}/clinical-trials/search?${params.toString()}`);
         if (!resp.ok) throw new Error(`API ${resp.status}`);
         const data = await resp.json();

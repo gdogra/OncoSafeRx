@@ -303,6 +303,74 @@ It helps select therapy intensity and trial eligibility (most trials require ECO
       };
     }
 
+    // Clinical trials navigator (concise + CTA)
+    if (
+      message.includes('clinical trial') ||
+      message.includes('clinical trials') ||
+      message.includes('find trial') ||
+      message.includes('trial match') ||
+      message.includes('trial matching')
+    ) {
+      return {
+        content: 'Use Clinical Trials to search by condition/biomarker, set line/status/location, then review nearby sites.',
+        relatedArticles,
+        source: 'kb',
+        cta: { label: 'Open Clinical Trials', to: '/trials' }
+      };
+    }
+
+    // Interaction checker (concise + CTA)
+    if (
+      message.includes('interactions') ||
+      message.includes('interaction checker') ||
+      (message.includes('check') && message.includes('interaction'))
+    ) {
+      return {
+        content: 'Open Interactions, add two or more meds, then run the check to see severity and management guidance.',
+        relatedArticles,
+        source: 'kb',
+        cta: { label: 'Open Interactions', to: '/interactions' }
+      };
+    }
+
+    // Drug Intelligence Integrator (concise + CTA)
+    if (
+      message.includes('drug intelligence') ||
+      message.includes('intelligence integrator') ||
+      message.includes('dailymed') || message.includes('daily med') ||
+      message.includes('openfda') || message.includes('rxnorm') || message.includes('pubmed')
+    ) {
+      return {
+        content: 'Use the Drug Intelligence Integrator to fetch and compare RxNorm, DailyMed, OpenFDA, PubMed, and ClinicalTrials for a drug.',
+        relatedArticles,
+        source: 'kb',
+        cta: { label: 'Open Drug Intelligence', to: '/drug-intelligence' }
+      };
+    }
+
+    // Protocols (concise + CTA)
+    if (message.includes('protocol') || message.includes('regimen') || message.includes('guideline')) {
+      return {
+        content: 'Open Protocols to browse evidence‑based regimens, dosing, and monitoring by disease area.',
+        relatedArticles,
+        source: 'kb',
+        cta: { label: 'Open Protocols', to: '/protocols' }
+      };
+    }
+
+    // Multi‑Database Search (concise + CTA)
+    if (
+      message.includes('multi database') || message.includes('multidatabase') ||
+      message.includes('federated search') || message.includes('pubmed search')
+    ) {
+      return {
+        content: 'Use Multi‑Database Search to query PubMed/trials/labels together, then filter and review linked results.',
+        relatedArticles,
+        source: 'kb',
+        cta: { label: 'Open Multi‑DB Search', to: '/multi-database-search' }
+      };
+    }
+
     // Pattern matching for common queries
     if (message.includes('drug interaction') || message.includes('interaction check')) {
       return {

@@ -222,6 +222,34 @@ const Trials: React.FC = () => {
             setUsedFallback(false);
           }
         } else if (mapped.length === 0) {
+          // Try alternate proxy endpoint to ClinicalTrials.gov (external integrator)
+          try {
+            const extParams = new URLSearchParams();
+            if (condition) extParams.set('condition', condition);
+            extParams.set('status', expandedStatuses ? 'RECRUITING' : 'RECRUITING');
+            extParams.set('pageSize', '100');
+            const extResp = await fetch(`${apiBase}/external/clinicaltrials/studies?${extParams.toString()}`);
+            if (extResp.ok) {
+              const extData = await extResp.json();
+              const extStudies = extData?.data?.studies || [];
+              const extMapped = extStudies.map((s: any) => ({
+                nct_id: s.protocolSection?.identificationModule?.nctId,
+                title: s.protocolSection?.identificationModule?.briefTitle,
+                condition: s.protocolSection?.conditionsModule?.conditions?.[0] || '',
+                phase: s.protocolSection?.designModule?.phases?.[0] || '',
+                status: s.protocolSection?.statusModule?.overallStatus || '',
+                line_of_therapy: undefined,
+                biomarkers: undefined,
+                locations: []
+              })).filter((t: any) => !!t.nct_id && !!t.title);
+              if (extMapped.length > 0) {
+                setResults(extMapped);
+                setUsedFallback(false);
+                showToast('info', 'Using alternate trials source (direct proxy)');
+                return;
+              }
+            }
+          } catch {}
           // No matches from live API for these filters; broaden search automatically
           try {
             const broadParams = new URLSearchParams();
@@ -248,6 +276,30 @@ const Trials: React.FC = () => {
                 setUsedFallback(false);
                 showToast('info', 'No exact matches; showing general recruiting trials');
               } else {
+                // Try alternate proxy broad search
+                try {
+                  const extResp2 = await fetch(`${apiBase}/external/clinicaltrials/studies?status=RECRUITING&pageSize=100`);
+                  if (extResp2.ok) {
+                    const extData2 = await extResp2.json();
+                    const extStudies2 = extData2?.data?.studies || [];
+                    const extMapped2 = extStudies2.map((s: any) => ({
+                      nct_id: s.protocolSection?.identificationModule?.nctId,
+                      title: s.protocolSection?.identificationModule?.briefTitle,
+                      condition: s.protocolSection?.conditionsModule?.conditions?.[0] || '',
+                      phase: s.protocolSection?.designModule?.phases?.[0] || '',
+                      status: s.protocolSection?.statusModule?.overallStatus || '',
+                      line_of_therapy: undefined,
+                      biomarkers: undefined,
+                      locations: []
+                    })).filter((t: any) => !!t.nct_id && !!t.title);
+                    if (extMapped2.length > 0) {
+                      setResults(extMapped2);
+                      setUsedFallback(false);
+                      showToast('info', 'Using alternate trials source (direct proxy)');
+                      return;
+                    }
+                  }
+                } catch {}
                 // As a last resort, show local sample unfiltered
                 const sampleResp = await fetch(`${apiBase}/trials/search`);
                 if (sampleResp.ok) {

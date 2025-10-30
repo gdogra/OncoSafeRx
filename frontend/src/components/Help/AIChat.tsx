@@ -3,6 +3,7 @@ import { Send, Bot, User, Minimize2, Maximize2, X, Loader, Info } from 'lucide-r
 import { searchKnowledgeBase } from '../../data/knowledgeBase';
 import { usePatient } from '../../context/PatientContext';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface ChatMessage {
   id: string;
@@ -11,6 +12,7 @@ interface ChatMessage {
   timestamp: Date;
   relatedArticles?: string[];
   source?: 'kb' | 'openai' | 'script';
+  cta?: { label: string; to: string };
 }
 
 interface AIChatProps {
@@ -20,6 +22,7 @@ interface AIChatProps {
 }
 
 const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, className = '' }) => {
+  const navigate = useNavigate();
   const { state: patientState, actions: patientActions } = usePatient();
   const { state: authState } = useAuth();
   const { currentPatient } = patientState;
@@ -74,6 +77,7 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, className = '' }) => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [pendingConfirmId, setPendingConfirmId] = useState<string | null>(null);
   const [showTip, setShowTip] = useState<boolean>(() => {
     try {
       const gv = (window as any)?.__OSRX_FEATURES__?.guidanceVersion ?? (import.meta as any)?.env?.VITE_GUIDANCE_VERSION ?? '0';
@@ -102,12 +106,203 @@ const AIChat: React.FC<AIChatProps> = ({ isOpen, onClose, className = '' }) => {
     }
   }, [isOpen, isMinimized]);
 
-  const generateAIResponse = (userMessage: string): { content: string; relatedArticles?: string[]; source: 'kb' | 'script' } => {
+  const generateAIResponse = (userMessage: string): { content: string; relatedArticles?: string[]; source: 'kb' | 'script'; cta?: { label: string; to: string } } => {
     const message = userMessage.toLowerCase();
     
     // Search knowledge base for relevant articles
     const relatedArticles = searchKnowledgeBase(userMessage).slice(0, 3).map(article => article.id);
-    
+
+    // Genetic Twins concept
+    if (message.includes('genetic twin')) {
+      return {
+        content: `Genetic twins are patients whose genomic biomarkers and clinical context closely match yours, enabling evidence sharing and peer comparison.
+
+How OncoSafeRx uses genetic twins:
+- Match on tumor type/stage and key biomarkers (e.g., EGFR, ALK, BRCA, PD‑L1, MSI)
+- Incorporate clinical factors (age, performance status) where available
+- Surface real‑world outcomes, relevant trials, and protocols used in similar cases
+- Preserve privacy: results are de‑identified aggregates; no personal data is exposed
+
+How to use it:
+- Open the Genetic Twin Network (sidebar → "Genetic Twins" or go to /genetic-twins)
+- Filter by condition and biomarkers to explore your cohort
+- Review suggested trials, protocols, and outcomes from similar profiles
+
+Tip: You can also ask me to help pick biomarkers to start matching.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // ECOG performance status
+    if (message.includes('ecog') || message.includes('performance status')) {
+      return {
+        content: `ECOG performance status is a 0–5 scale describing how illness affects daily living and activity.
+
+0: Fully active • 1: Restricted in strenuous activity • 2: Ambulatory, <50% daytime in bed • 3: Limited self‑care, >50% in bed • 4: Completely disabled • 5: Deceased.
+
+It helps select therapy intensity and trial eligibility (most trials require ECOG 0–1, sometimes 2).`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // CPIC
+    if (message.includes('cpic')) {
+      return {
+        content: `CPIC (Clinical Pharmacogenetics Implementation Consortium) publishes peer‑reviewed guidelines that translate a patient’s genotype into actionable prescribing—dose changes, alternative drugs, and monitoring. Levels A/B indicate strong/moderate evidence for using genetic results in care.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // MSI-H / microsatellite instability
+    if (message.includes('msi-h') || message.includes('microsatellite instability') || message.includes('dmmr')) {
+      return {
+        content: `MSI‑H (high microsatellite instability) or dMMR tumors have defective DNA mismatch repair, leading to high mutation rates. Clinically, MSI‑H predicts benefit from immune checkpoint inhibitors (e.g., pembrolizumab) and informs Lynch syndrome evaluation in appropriate settings.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // PD-L1
+    if (message.includes('pd-l1') || message.includes('pdl1')) {
+      return {
+        content: `PD‑L1 is a protein on tumor/immune cells measured by IHC (e.g., TPS or CPS). Higher PD‑L1 expression can predict greater likelihood of response to PD‑1/PD‑L1 inhibitors in several cancers (context‑specific cutoffs apply, e.g., TPS ≥50% in NSCLC).`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // TMB
+    if (message.includes('tmb') || message.includes('tumor mutational burden')) {
+      return {
+        content: `Tumor mutational burden (TMB) is the number of somatic mutations per megabase. High TMB can correlate with benefit from immunotherapy in some settings, but utility and thresholds are tumor‑type‑specific and assay‑dependent.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // BRCA
+    if (message.includes('brca')) {
+      return {
+        content: `BRCA1/2 are DNA repair genes; pathogenic variants increase risk for breast/ovarian and other cancers. In tumors with BRCA alterations (germline or somatic), PARP inhibitors may be effective; consider genetic counseling and cascade testing where appropriate.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // EGFR (oncology context)
+    if (message.includes('egfr')) {
+      return {
+        content: `EGFR mutations (e.g., exon 19 deletions, L858R) in NSCLC predict sensitivity to EGFR TKIs (e.g., osimertinib). Resistance mechanisms (e.g., T790M, MET amplification) may guide subsequent therapy. Testing method and tumor type guide interpretation.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // ALK
+    if (message.includes('alk')) {
+      return {
+        content: `ALK rearrangements (e.g., EML4‑ALK) are actionable drivers in NSCLC and select tumors. ALK inhibitors (e.g., alectinib, lorlatinib) are standard; CNS activity and resistance profiles inform agent selection.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // HER2 and HER2-low
+    if (message.includes('her2-low') || message.includes('her2 low') || message.includes('her2low')) {
+      return {
+        content: `HER2‑low describes tumors with low HER2 expression (IHC 1+ or 2+ with negative ISH) that are not HER2‑positive, but may benefit from certain antibody–drug conjugates (e.g., trastuzumab deruxtecan) in select settings.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+    if (message.includes('her2')) {
+      return {
+        content: `HER2 (ERBB2) amplification/overexpression drives some breast and gastric cancers. HER2‑positive tumors can respond to HER2‑targeted agents (e.g., trastuzumab, pertuzumab, T‑DM1, tucatinib); testing by IHC/ISH confirms status.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // KRAS G12C
+    if ((message.includes('kras') && message.includes('g12c')) || message.includes('kras g12c')) {
+      return {
+        content: `KRAS G12C is a specific KRAS mutation seen in NSCLC and other tumors. G12C inhibitors (e.g., sotorasib, adagrasib) target this alteration; co‑mutations and resistance mechanisms influence benefit.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // BRAF V600E
+    if ((message.includes('braf') && message.includes('v600e')) || message.includes('braf v600e')) {
+      return {
+        content: `BRAF V600E is an activating mutation common in melanoma and present in colorectal and other cancers. BRAF/MEK combinations (e.g., dabrafenib/trametinib) are standard in melanoma; colorectal tumors often need EGFR blockade added.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // RET fusions
+    if (message.includes('ret') && (message.includes('fusion') || message.includes('rearrange'))) {
+      return {
+        content: `RET fusions are actionable oncogenic drivers in NSCLC and thyroid cancers. Selective RET inhibitors (e.g., selpercatinib, pralsetinib) show high response rates with CNS activity.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // NTRK fusions
+    if (message.includes('ntrk') || message.includes('trk fusion')) {
+      return {
+        content: `NTRK gene fusions (NTRK1/2/3) are rare but highly actionable across tumor types. TRK inhibitors (larotrectinib, entrectinib) produce durable responses regardless of histology.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // HRD
+    if (message.includes('hrd') || message.includes('homologous recombination deficiency')) {
+      return {
+        content: `HRD (homologous recombination deficiency) indicates impaired DNA repair (e.g., BRCA1/2, PALB2). HRD tumors may be sensitive to platinum chemotherapy and PARP inhibitors; scoring methods vary by assay.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // CPS vs TPS (PD-L1 scoring)
+    if (message.includes('cps') || message.includes('tps')) {
+      return {
+        content: `PD‑L1 TPS is the % of tumor cells staining; CPS counts PD‑L1–positive tumor and immune cells over total viable tumor cells × 100. Tumor type and trial define which score and cutoff apply.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
+    // ORR / PFS / OS
+    if (message.includes('orr') || message.includes('objective response rate')) {
+      return {
+        content: `ORR (objective response rate) is the % of patients with a predefined tumor shrinkage (CR+PR) by criteria such as RECIST.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+    if (message.includes('pfs') || message.includes('progression-free survival')) {
+      return {
+        content: `PFS (progression‑free survival) is time from start of treatment (or randomization) to disease progression or death.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+    if (message.includes('overall survival') || (message.includes(' os ') || message.endsWith(' os') || message.startsWith('os '))) {
+      return {
+        content: `OS (overall survival) is time from start of treatment (or randomization) to death from any cause; it’s the most definitive survival endpoint.`,
+        relatedArticles,
+        source: 'kb'
+      };
+    }
+
     // Pattern matching for common queries
     if (message.includes('drug interaction') || message.includes('interaction check')) {
       return {
@@ -319,22 +514,9 @@ Which specific CPIC guideline would you like to learn about?`,
       };
     }
     
-    // Default response for unmatched queries
+    // Default response for unmatched queries (concise, answer-style prompt for clarification)
     return {
-      content: `I'd be happy to help! I can assist you with:
-
-• **Drug Interactions** - How to check and interpret results
-• **Drug Search** - Finding medications and their details  
-• **Pharmacogenomics** - Genetic factors affecting drug response
-• **Safety Monitoring** - Toxicity management and protocols
-• **Navigation** - Using OncoSafeRx features effectively
-• **Troubleshooting** - Solving common technical issues
-
-Could you be more specific about what you'd like help with? You can ask questions like:
-- "How do I check drug interactions?"
-- "What does this interaction mean?"
-- "How do I search for a medication?"
-- "What is pharmacogenomics?"`,
+      content: 'Could you share a few more details so I can give a focused answer?',
       relatedArticles,
       source: 'script'
     };
@@ -430,6 +612,7 @@ Could you be more specific about what you'd like help with? You can ask question
             };
             setMessages(prev => [...prev, aiMessage]);
             saveMessageToPatient(aiMessage);
+            setPendingConfirmId(aiMessage.id);
             setIsLoading(false);
             return;
           }
@@ -450,6 +633,7 @@ Could you be more specific about what you'd like help with? You can ask question
       };
       setMessages(prev => [...prev, aiMessage]);
       saveMessageToPatient(aiMessage);
+      setPendingConfirmId(aiMessage.id);
       setIsLoading(false);
     }, 700 + Math.random() * 600);
   };
@@ -546,6 +730,57 @@ Could you be more specific about what you'd like help with? You can ask question
                         </span>
                       )}
                     </div>
+                    {message.type === 'ai' && pendingConfirmId === message.id && (
+                      <div className="mt-2 flex items-center gap-2 text-xs">
+                        <span className="text-gray-700">Did that answer your question?</span>
+                        {message.cta && (
+                          <button
+                            className="px-2 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200 hover:bg-blue-200"
+                            onClick={() => {
+                              try { (window as any).scrollTo(0,0); } catch {}
+                              try { (window as any).location && navigate(message.cta!.to); } catch {}
+                              setPendingConfirmId(null);
+                            }}
+                          >
+                            {message.cta.label}
+                          </button>
+                        )}
+                        <button
+                          className="px-2 py-0.5 rounded bg-green-100 text-green-700 border border-green-200 hover:bg-green-200"
+                          onClick={() => {
+                            setPendingConfirmId(null);
+                            const follow: ChatMessage = {
+                              id: (Date.now() + 2).toString(),
+                              type: 'ai',
+                              content: 'Great — anything else I can help with?',
+                              timestamp: new Date(),
+                              source: 'script'
+                            };
+                            setMessages(prev => [...prev, follow]);
+                            saveMessageToPatient(follow);
+                          }}
+                        >
+                          Yes
+                        </button>
+                        <button
+                          className="px-2 py-0.5 rounded bg-red-100 text-red-700 border border-red-200 hover:bg-red-200"
+                          onClick={() => {
+                            setPendingConfirmId(null);
+                            const follow: ChatMessage = {
+                              id: (Date.now() + 2).toString(),
+                              type: 'ai',
+                              content: 'Thanks — what details are you looking for so I can refine the answer?',
+                              timestamp: new Date(),
+                              source: 'script'
+                            };
+                            setMessages(prev => [...prev, follow]);
+                            saveMessageToPatient(follow);
+                          }}
+                        >
+                          No
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

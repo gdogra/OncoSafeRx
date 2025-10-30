@@ -283,4 +283,69 @@ router.post('/clear-cache', async (req, res) => {
   }
 });
 
+/**
+ * Summarize filter options (conditions/biomarkers) from ClinicalTrials.gov
+ * Rather than using the local sample file, this endpoint queries the live API
+ * with a broad recruiting interventional filter and derives options.
+ */
+router.get('/filters/options', async (req, res) => {
+  try {
+    const {
+      recruitmentStatus = 'RECRUITING',
+      studyType = 'INTERVENTIONAL',
+      pageSize = 200,
+    } = req.query;
+
+    const results = await clinicalTrialsService.searchTrials({
+      recruitmentStatus,
+      studyType,
+      pageSize: parseInt(pageSize)
+    });
+
+    const studies = results?.studies || [];
+
+    const conditionsSet = new Set();
+    const biomarkersSet = new Set();
+
+    // Known oncology biomarkers to detect in titles/descriptions
+    const biomarkerTerms = [
+      'EGFR','ALK','ROS1','BRAF','KRAS','NTRK','RET','BRCA','PD-L1','PDL1','MSI','dMMR','TMB','HER2','ERBB2'
+    ];
+
+    studies.forEach((s) => {
+      if (s.condition) conditionsSet.add(String(s.condition));
+      const hay = [s.title, s.description, s.detailedDescription, s.intervention]
+        .filter(Boolean)
+        .join(' ') || '';
+      const upper = hay.toUpperCase();
+      biomarkerTerms.forEach(term => {
+        if (upper.includes(term.toUpperCase())) {
+          // Normalize PDL1 -> PD-L1, ERBB2 -> HER2
+          let norm = term.toUpperCase();
+          if (norm === 'PDL1') norm = 'PD-L1';
+          if (norm === 'ERBB2') norm = 'HER2';
+          biomarkersSet.add(norm);
+        }
+      });
+    });
+
+    const conditions = Array.from(conditionsSet).sort((a,b) => a.localeCompare(b));
+    const biomarkers = Array.from(biomarkersSet).sort((a,b) => a.localeCompare(b));
+
+    return res.json({
+      success: true,
+      data: {
+        conditions,
+        biomarkers,
+        totalStudies: studies.length,
+        recruitmentStatus,
+        studyType
+      }
+    });
+  } catch (error) {
+    console.error('ClinicalTrials filters/options error:', error);
+    res.status(500).json({ error: 'Failed to derive filter options' });
+  }
+});
+
 export default router;

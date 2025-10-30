@@ -17,8 +17,11 @@ router.get('/search', async (req, res) => {
       recruitmentStatus = 'RECRUITING',
       phase,
       location,
-      pageSize = 20,
-      pageToken
+      pageSize = 100,
+      pageToken,
+      studyType,
+      maxResults,
+      includeExpanded
     } = req.query;
 
     // Allow broad unfiltered search (e.g., default recruiting studies) by omitting condition/intervention
@@ -32,7 +35,10 @@ router.get('/search', async (req, res) => {
       phase,
       location,
       pageSize: parseInt(pageSize),
-      pageToken
+      pageToken,
+      studyType,
+      maxResults: maxResults ? parseInt(maxResults) : null,
+      includeExpanded: includeExpanded === 'true'
     });
 
     res.json({
@@ -291,9 +297,9 @@ router.post('/clear-cache', async (req, res) => {
 router.get('/filters/options', async (req, res) => {
   try {
     const {
-      recruitmentStatus = 'RECRUITING',
-      studyType = 'INTERVENTIONAL',
-      pageSize = 200,
+      recruitmentStatus = 'RECRUITING,NOT_YET_RECRUITING,ACTIVE_NOT_RECRUITING',
+      studyType = 'INTERVENTIONAL,OBSERVATIONAL',
+      pageSize = 500,
     } = req.query;
 
     const results = await clinicalTrialsService.searchTrials({

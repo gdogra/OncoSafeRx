@@ -53,6 +53,10 @@ const Trials: React.FC = () => {
   const [liveTotal, setLiveTotal] = useState<number | null>(null);
   const [liveUpdatedAt, setLiveUpdatedAt] = useState<string | null>(null);
   const [liveRefreshTick, setLiveRefreshTick] = useState<number>(0);
+  const [showAllAvailable, setShowAllAvailable] = useState<boolean>(false);
+  const [includeObservational, setIncludeObservational] = useState<boolean>(false);
+  const [expandedStatuses, setExpandedStatuses] = useState<boolean>(true);
+  const [autoExpandRadius, setAutoExpandRadius] = useState<boolean>(true);
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [recentDrugs, setRecentDrugs] = useState<string[]>([]);
@@ -168,26 +172,56 @@ const Trials: React.FC = () => {
     });
   };
 
-  const search = async () => {
+  const searchProgressive = async (initialRadius?: string) => {
     setLoading(true); setError(null);
     try {
       const hasLocalFilters = !!(condition || biomarker || line || status || (lat && lon));
       if (hasLocalFilters) {
-        const params = new URLSearchParams();
-        if (condition) params.set('condition', condition);
-        if (biomarker) params.set('biomarker', biomarker);
-        if (line) params.set('line', line);
-        if (status) params.set('status', status);
-        if (lat && lon && radius) { params.set('lat', lat); params.set('lon', lon); params.set('radius_km', radius); }
-        const resp = await fetch(`${apiBase}/trials/search?${params.toString()}`);
-        if (!resp.ok) throw new Error(`API ${resp.status}`);
-        const data = await resp.json();
-        setResults(data.trials || []);
+        // Progressive search with radius expansion
+        let currentRadius = initialRadius || radius || '50';
+        let trials: any[] = [];
+        const maxAttempts = autoExpandRadius ? 3 : 1;
+        const radiusSteps = ['50', '100', '500'];
+        
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          const params = new URLSearchParams();
+          if (condition) params.set('condition', condition);
+          if (biomarker) params.set('biomarker', biomarker);
+          if (line) params.set('line', line);
+          if (status) params.set('status', status);
+          if (lat && lon) { 
+            params.set('lat', lat); 
+            params.set('lon', lon); 
+            params.set('radius_km', radiusSteps[attempt] || currentRadius); 
+          }
+          
+          const resp = await fetch(`${apiBase}/trials/search?${params.toString()}`);
+          if (!resp.ok) throw new Error(`API ${resp.status}`);
+          const data = await resp.json();
+          trials = data.trials || [];
+          
+          // If we have enough results or it's the last attempt, break
+          if (trials.length >= 10 || attempt === maxAttempts - 1) {
+            if (autoExpandRadius && attempt > 0) {
+              showToast('info', `Expanded search radius to ${radiusSteps[attempt]}km, found ${trials.length} trials`);
+            }
+            break;
+          }
+        }
+        setResults(trials);
       } else {
-        // Broad default search from ClinicalTrials.gov (recruiting interventional), larger set
+        // Broad default search from ClinicalTrials.gov (comprehensive options)
         const params = new URLSearchParams();
-        params.set('recruitmentStatus', 'RECRUITING');
-        params.set('pageSize', '50');
+        const recruitmentStatuses = expandedStatuses 
+          ? 'RECRUITING,NOT_YET_RECRUITING,ACTIVE_NOT_RECRUITING,ENROLLING_BY_INVITATION'
+          : 'RECRUITING';
+        params.set('recruitmentStatus', recruitmentStatuses);
+        params.set('pageSize', showAllAvailable ? '1000' : '200');
+        params.set('studyType', includeObservational ? 'INTERVENTIONAL,OBSERVATIONAL' : 'INTERVENTIONAL');
+        params.set('includeExpanded', expandedStatuses.toString());
+        if (showAllAvailable) {
+          params.set('maxResults', '1000');
+        }
         const resp = await fetch(`${apiBase}/clinical-trials/search?${params.toString()}`);
         if (!resp.ok) throw new Error(`API ${resp.status}`);
         const data = await resp.json();
@@ -212,6 +246,9 @@ const Trials: React.FC = () => {
       setError(e?.message || 'Search failed');
     } finally { setLoading(false); }
   };
+
+  // Alias for backward compatibility
+  const search = () => searchProgressive();
 
   // Drug-based search using patient context (server clinical-trials API)
   const searchByDrugWithPatient = async (drug: string, patientId: string) => {
@@ -349,7 +386,7 @@ const Trials: React.FC = () => {
     (async () => {
       try {
         // Prefer live summary
-        const resp = await fetch(`${apiBase}/clinical-trials/filters/options?recruitmentStatus=RECRUITING&studyType=INTERVENTIONAL&pageSize=200`);
+        const resp = await fetch(`${apiBase}/clinical-trials/filters/options?recruitmentStatus=RECRUITING,NOT_YET_RECRUITING,ACTIVE_NOT_RECRUITING&studyType=INTERVENTIONAL,OBSERVATIONAL&pageSize=500`);
         if (resp.ok) {
           const data = await resp.json();
           const conditions = (data?.data?.conditions || []) as string[];
@@ -481,6 +518,49 @@ const Trials: React.FC = () => {
             </button>
           </div>
         )}
+        
+        {/* Comprehensive Search Options */}
+        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+          <div className="text-sm font-medium text-gray-700 mb-2">Search Options</div>
+          <div className="grid md:grid-cols-4 gap-3 text-sm">
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={showAllAvailable}
+                onChange={(e) => setShowAllAvailable(e.target.checked)}
+                className="rounded"
+              />
+              <span>Show All Available (up to 1000)</span>
+            </label>
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={includeObservational}
+                onChange={(e) => setIncludeObservational(e.target.checked)}
+                className="rounded"
+              />
+              <span>Include Observational Studies</span>
+            </label>
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={expandedStatuses}
+                onChange={(e) => setExpandedStatuses(e.target.checked)}
+                className="rounded"
+              />
+              <span>Expanded Status (Not Yet Recruiting, etc.)</span>
+            </label>
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={autoExpandRadius}
+                onChange={(e) => setAutoExpandRadius(e.target.checked)}
+                className="rounded"
+              />
+              <span>Auto-expand Search Radius</span>
+            </label>
+          </div>
+        </div>
       </Card>
       {error && <Alert type="error" title="Error">{error}</Alert>}
       {Array.isArray(results) && (

@@ -15,12 +15,14 @@ class ClinicalTrialsService {
     intervention,
     age,
     gender,
-    recruitmentStatus = 'RECRUITING',
+    recruitmentStatus = 'RECRUITING,NOT_YET_RECRUITING,ACTIVE_NOT_RECRUITING',
     phase,
     studyType = 'INTERVENTIONAL',
     location,
-    pageSize = 50,
-    pageToken
+    pageSize = 100,
+    pageToken,
+    maxResults = null,
+    includeExpanded = false
   }) {
     try {
       const cacheKey = JSON.stringify(arguments[0]);
@@ -33,15 +35,27 @@ class ClinicalTrialsService {
         }
       }
 
+      // Handle expanded statuses for comprehensive search
+      const finalRecruitmentStatus = includeExpanded 
+        ? 'RECRUITING,NOT_YET_RECRUITING,ACTIVE_NOT_RECRUITING,ENROLLING_BY_INVITATION,COMPLETED'
+        : recruitmentStatus;
+      
+      // Handle mixed study types
+      const finalStudyType = studyType === 'INTERVENTIONAL,OBSERVATIONAL' ? undefined : studyType;
+
       const params = {
         'query.cond': condition,
         'query.intr': intervention,
         'query.locn': location,
-        'filter.overallStatus': recruitmentStatus,
-        'filter.studyType': studyType,
-        'pageSize': pageSize,
+        'filter.overallStatus': finalRecruitmentStatus,
+        'pageSize': maxResults || pageSize,
         'format': 'json'
       };
+
+      // Only add studyType if it's a single type (API doesn't support comma-separated)
+      if (finalStudyType) {
+        params['filter.studyType'] = finalStudyType;
+      }
 
       if (phase) {
         params['filter.phase'] = phase;
@@ -58,15 +72,51 @@ class ClinicalTrialsService {
         }
       });
 
-      const response = await axios.get(this.baseUrl, {
-        params,
-        timeout: 15000,
-        headers: {
-          'User-Agent': 'OncoSafeRx/1.0 Clinical Decision Support System'
+      let allStudies = [];
+      
+      // If studyType includes both INTERVENTIONAL and OBSERVATIONAL, make separate calls
+      if (studyType === 'INTERVENTIONAL,OBSERVATIONAL') {
+        const studyTypes = ['INTERVENTIONAL', 'OBSERVATIONAL'];
+        
+        for (const type of studyTypes) {
+          const typeParams = { ...params, 'filter.studyType': type };
+          try {
+            const response = await axios.get(this.baseUrl, {
+              params: typeParams,
+              timeout: 15000,
+              headers: {
+                'User-Agent': 'OncoSafeRx/1.0 Clinical Decision Support System'
+              }
+            });
+            
+            if (response.data?.studies) {
+              allStudies.push(...response.data.studies);
+            }
+          } catch (err) {
+            console.warn(`Failed to fetch ${type} studies:`, err.message);
+          }
         }
-      });
+        
+        // Create combined response structure
+        const combinedResponse = {
+          studies: allStudies,
+          totalCount: allStudies.length,
+          nextPageToken: null
+        };
+        
+        const processedData = this.processTrialsResponse(combinedResponse, { age, gender, condition, intervention });
+      } else {
+        // Single study type - original logic
+        const response = await axios.get(this.baseUrl, {
+          params,
+          timeout: 15000,
+          headers: {
+            'User-Agent': 'OncoSafeRx/1.0 Clinical Decision Support System'
+          }
+        });
 
-      const processedData = this.processTrialsResponse(response.data, { age, gender, condition, intervention });
+        var processedData = this.processTrialsResponse(response.data, { age, gender, condition, intervention });
+      }
       
       // Cache the result
       this.cache.set(cacheKey, {
@@ -326,8 +376,9 @@ class ClinicalTrialsService {
       condition: patientProfile.condition,
       age: patientProfile.age,
       gender: patientProfile.gender,
-      recruitmentStatus: 'RECRUITING,NOT_YET_RECRUITING',
-      pageSize: 25
+      recruitmentStatus: 'RECRUITING,NOT_YET_RECRUITING,ACTIVE_NOT_RECRUITING,ENROLLING_BY_INVITATION',
+      pageSize: 100,
+      includeExpanded: true
     });
   }
 
@@ -353,8 +404,10 @@ class ClinicalTrialsService {
       intervention: searchTerms,
       age: patientProfile.age,
       gender: patientProfile.gender,
-      recruitmentStatus: 'RECRUITING,NOT_YET_RECRUITING',
-      pageSize: 30
+      recruitmentStatus: 'RECRUITING,NOT_YET_RECRUITING,ACTIVE_NOT_RECRUITING,ENROLLING_BY_INVITATION',
+      pageSize: 100,
+      studyType: 'INTERVENTIONAL,OBSERVATIONAL',
+      includeExpanded: true
     });
   }
 

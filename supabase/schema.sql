@@ -228,6 +228,115 @@ create policy "Public read access for trial_analytics_runs" on public.trial_anal
 -- Helpful indexes
 create index if not exists idx_trial_analytics_updated on public.trial_analytics(updatedAt desc);
 create index if not exists idx_trial_analytics_runs_finished on public.trial_analytics_runs(finished_at desc);
+
+-- Users table for extended user profiles
+create table if not exists public.users (
+  id uuid primary key references auth.users on delete cascade,
+  email text unique not null,
+  role text default 'user' check (role in ('user', 'oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'admin', 'super_admin')),
+  first_name text,
+  last_name text,
+  full_name text,
+  specialty text,
+  institution text,
+  license_number text,
+  years_experience integer default 0,
+  preferences jsonb default '{
+    "theme": "light",
+    "language": "en",
+    "notifications": {
+      "email": true,
+      "push": true,
+      "criticalAlerts": true,
+      "weeklyReports": true
+    },
+    "dashboard": {
+      "defaultView": "overview",
+      "refreshInterval": 5000,
+      "compactMode": false
+    },
+    "clinical": {
+      "showGenomicsByDefault": true,
+      "autoCalculateDosing": true,
+      "requireInteractionAck": true,
+      "showPatientPhotos": false
+    }
+  }'::jsonb,
+  persona jsonb default '{}'::jsonb,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  last_login timestamptz,
+  is_active boolean default true
+);
+
+-- Users table indexes
+create index if not exists idx_users_email on public.users(email);
+create index if not exists idx_users_role on public.users(role);
+create index if not exists idx_users_active on public.users(is_active);
+
+-- Enable RLS for users table
+alter table public.users enable row level security;
+
+-- Helper function to check if user is admin
+create or replace function public.is_admin()
+returns boolean language sql stable security definer as $$
+  select coalesce((
+    select role in ('admin', 'super_admin') 
+    from public.users 
+    where id = auth.uid()
+  ), false);
+$$;
+
+-- RLS policies for users table
+create policy "users_select_policy" on public.users
+  for select using (
+    auth.uid() = id or public.is_admin()
+  );
+
+create policy "users_insert_policy" on public.users
+  for insert with check (
+    auth.uid() = id or public.is_admin()
+  );
+
+create policy "users_update_policy" on public.users
+  for update using (
+    auth.uid() = id or public.is_admin()
+  ) with check (
+    auth.uid() = id or public.is_admin()
+  );
+
+-- Trigger function to handle new user creation
+create or replace function public.handle_new_user()
+returns trigger language plpgsql security definer as $$
+begin
+  insert into public.users (id, email, first_name, last_name, role, full_name)
+  values (
+    new.id,
+    new.email,
+    coalesce(new.raw_user_meta_data->>'first_name', ''),
+    coalesce(new.raw_user_meta_data->>'last_name', ''),
+    coalesce(new.raw_user_meta_data->>'role', 'user'),
+    concat(
+      coalesce(new.raw_user_meta_data->>'first_name', ''),
+      ' ',
+      coalesce(new.raw_user_meta_data->>'last_name', '')
+    )
+  );
+  return new;
+end;
+$$;
+
+-- Trigger to automatically create user profile on signup
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+
+-- Trigger to update updated_at timestamp
+create trigger trg_users_updated_at
+  before update on public.users
+  for each row execute function update_updated_at_column();
+
 CREATE POLICY "Public read access for gene_drug_interactions" ON gene_drug_interactions FOR SELECT USING (true);
 CREATE POLICY "Public read access for oncology_protocols" ON oncology_protocols FOR SELECT USING (true);
 CREATE POLICY "Public read access for clinical_trials" ON clinical_trials FOR SELECT USING (true);

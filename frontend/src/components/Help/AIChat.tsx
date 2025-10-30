@@ -402,7 +402,7 @@ It helps select therapy intensity and trial eligibility (most trials require ECO
         relatedArticles,
         source: 'kb',
         cta: { label: 'Open Interactions', to: '/interactions' },
-        suggestion: token ? { label: f'Check interactions for {token}', to: f'/interactions?drug={token}', type: 'interactions', query: token } : undefined
+        suggestion: token ? { label: `Check interactions for ${token}`, to: `/interactions?drug=${encodeURIComponent(token)}`, type: 'interactions', query: token } : undefined
       };
     }
 
@@ -419,7 +419,7 @@ It helps select therapy intensity and trial eligibility (most trials require ECO
         relatedArticles,
         source: 'kb',
         cta: { label: 'Open Drug Intelligence', to: '/drug-intelligence' },
-        suggestion: token ? { label: f'Search {token}', to: f'/drug-intelligence?q={token}', type: 'drug-intel', query: token } : undefined
+        suggestion: token ? { label: `Search ${token}`, to: `/drug-intelligence?q=${encodeURIComponent(token)}`, type: 'drug-intel', query: token } : undefined
       };
     }
 
@@ -431,7 +431,7 @@ It helps select therapy intensity and trial eligibility (most trials require ECO
         relatedArticles,
         source: 'kb',
         cta: { label: 'Open Protocols', to: '/protocols' },
-        suggestion: token ? { label: f'Find protocols for {token}', to: f'/protocols?drug={token}', type: 'protocols', query: token } : undefined
+        suggestion: token ? { label: `Find protocols for ${token}`, to: `/protocols?drug=${encodeURIComponent(token)}`, type: 'protocols', query: token } : undefined
       };
     }
 

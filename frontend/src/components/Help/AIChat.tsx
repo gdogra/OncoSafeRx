@@ -13,7 +13,7 @@ interface ChatMessage {
   relatedArticles?: string[];
   source?: 'kb' | 'openai' | 'script';
   cta?: { label: string; to: string };
-  suggestion?: { label: string; to: string };
+  suggestion?: { label: string; to: string; type?: 'interactions' | 'drug-intel' | 'protocols' | 'genomics' | 'trials'; query?: string };
 }
 
 interface AIChatProps {
@@ -339,7 +339,7 @@ It helps select therapy intensity and trial eligibility (most trials require ECO
         relatedArticles,
         source: 'kb',
         cta: { label: 'Open Interactions', to: '/interactions' },
-        suggestion: token ? { label: `Check interactions for ${token}`, to: `/interactions?drug=${encodeURIComponent(token)}` } : undefined
+        suggestion: token ? { label: f'Check interactions for {token}', to: f'/interactions?drug={token}', type: 'interactions', query: token } : undefined
       };
     }
 
@@ -356,7 +356,7 @@ It helps select therapy intensity and trial eligibility (most trials require ECO
         relatedArticles,
         source: 'kb',
         cta: { label: 'Open Drug Intelligence', to: '/drug-intelligence' },
-        suggestion: token ? { label: `Search ${token}`, to: `/drug-intelligence?q=${encodeURIComponent(token)}` } : undefined
+        suggestion: token ? { label: f'Search {token}', to: f'/drug-intelligence?q={token}', type: 'drug-intel', query: token } : undefined
       };
     }
 
@@ -368,7 +368,7 @@ It helps select therapy intensity and trial eligibility (most trials require ECO
         relatedArticles,
         source: 'kb',
         cta: { label: 'Open Protocols', to: '/protocols' },
-        suggestion: token ? { label: `Find protocols for ${token}`, to: `/protocols?drug=${encodeURIComponent(token)}` } : undefined
+        suggestion: token ? { label: f'Find protocols for {token}', to: f'/protocols?drug={token}', type: 'protocols', query: token } : undefined
       };
     }
 
@@ -869,9 +869,36 @@ Which specific CPIC guideline would you like to learn about?`,
                         {message.suggestion && (
                           <button
                             className="px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 border border-indigo-200 hover:bg-indigo-200"
-                            onClick={() => {
+                            onClick={async () => {
                               try { (window as any).scrollTo(0,0); } catch {}
-                              try { (window as any).location && navigate(message.suggestion!.to); } catch {}
+                              const sug = message.suggestion!;
+                              const q = (sug.query || '').trim();
+                              if (q && (sug.type === 'interactions' || sug.type === 'drug-intel' || sug.type === 'protocols')) {
+                                try {
+                                  const resp = await fetch(`/api/drugs/search?q=${encodeURIComponent(q)}`);
+                                  if (resp.ok) {
+                                    const data = await resp.json();
+                                    const hit = (data.results || [])[0];
+                                    if (hit) {
+                                      if (sug.type === 'interactions') {
+                                        const to = `/interactions?drug=${encodeURIComponent(hit.rxcui || hit.name || q)}`;
+                                        navigate(to);
+                                      } else if (sug.type === 'drug-intel') {
+                                        const to = `/drug-intelligence?q=${encodeURIComponent(hit.name || q)}`;
+                                        navigate(to);
+                                      } else if (sug.type === 'protocols') {
+                                        const to = `/protocols?drug=${encodeURIComponent(hit.name || q)}`;
+                                        navigate(to);
+                                      } else {
+                                        navigate(sug.to);
+                                      }
+                                      setPendingConfirmId(null);
+                                      return;
+                                    }
+                                  }
+                                } catch {}
+                              }
+                              navigate(sug.to);
                               setPendingConfirmId(null);
                             }}
                           >

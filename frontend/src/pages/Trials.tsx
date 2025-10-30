@@ -221,6 +221,49 @@ const Trials: React.FC = () => {
             setResults(mapped);
             setUsedFallback(false);
           }
+        } else if (mapped.length === 0) {
+          // No matches from live API for these filters; broaden search automatically
+          try {
+            const broadParams = new URLSearchParams();
+            broadParams.set('recruitmentStatus', recruitmentStatuses);
+            broadParams.set('pageSize', '100');
+            broadParams.set('studyType', includeObservational ? 'INTERVENTIONAL,OBSERVATIONAL' : 'INTERVENTIONAL');
+            broadParams.set('includeExpanded', expandedStatuses.toString());
+            const broadResp = await fetch(`${apiBase}/clinical-trials/search?${broadParams.toString()}`);
+            if (broadResp.ok) {
+              const broadData = await broadResp.json();
+              const broadStudies = broadData?.data?.studies || [];
+              const broadMapped = broadStudies.map((s: any) => ({
+                nct_id: s.nctId,
+                title: s.title,
+                condition: s.condition || '',
+                phase: s.phase || '',
+                status: s.status || '',
+                line_of_therapy: undefined,
+                biomarkers: undefined,
+                locations: []
+              }));
+              if (broadMapped.length > 0) {
+                setResults(broadMapped);
+                setUsedFallback(false);
+                showToast('info', 'No exact matches; showing general recruiting trials');
+              } else {
+                // As a last resort, show local sample unfiltered
+                const sampleResp = await fetch(`${apiBase}/trials/search`);
+                if (sampleResp.ok) {
+                  const sample = await sampleResp.json();
+                  setResults(sample.trials || []);
+                  setUsedFallback(true);
+                } else {
+                  setResults([]);
+                }
+              }
+            } else {
+              setResults(mapped);
+            }
+          } catch {
+            setResults(mapped);
+          }
         } else {
           setResults(mapped);
           setUsedFallback(false);

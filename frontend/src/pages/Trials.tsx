@@ -437,9 +437,69 @@ const Trials: React.FC = () => {
           locations: []
         }));
 
-        // If live API returned nothing or signaled fallback, use local sample as a safety net
+        // If live API returned nothing or signaled fallback, try alternates before local sample
         const shouldFallback = (Array.isArray(mapped) && mapped.length === 0) || data?.data?.fallback;
         if (shouldFallback) {
+          // 1) Alternate proxy (server)
+          try {
+            const extParams = new URLSearchParams();
+            extParams.set('status', recruitmentStatuses.split(',')[0] || 'RECRUITING');
+            extParams.set('pageSize', '100');
+            const extResp = await fetch(`${apiBase}/external/clinicaltrials/studies?${extParams.toString()}`);
+            if (extResp.ok) {
+              const extData = await extResp.json();
+              const extStudies = extData?.data?.studies || [];
+              const extMapped = extStudies.map((s: any) => ({
+                nct_id: s.protocolSection?.identificationModule?.nctId,
+                title: s.protocolSection?.identificationModule?.briefTitle,
+                condition: s.protocolSection?.conditionsModule?.conditions?.[0] || '',
+                phase: s.protocolSection?.designModule?.phases?.[0] || '',
+                status: s.protocolSection?.statusModule?.overallStatus || '',
+                line_of_therapy: undefined,
+                biomarkers: undefined,
+                locations: []
+              })).filter((t: any) => !!t.nct_id && !!t.title);
+              if (extMapped.length > 0) {
+                setResults(extMapped);
+                setUsedFallback(false);
+                setDataSource('external-broad');
+                setDiagMsg('Default primary empty; alternate proxy used');
+                return;
+              }
+            }
+          } catch {}
+
+          // 2) Direct client-side ct.gov
+          try {
+            const dParams = new URLSearchParams();
+            dParams.set('filter.overallStatus', recruitmentStatuses.split(',')[0] || 'RECRUITING');
+            dParams.set('pageSize', '100');
+            dParams.set('format', 'json');
+            const dResp = await fetch(`https://clinicaltrials.gov/api/v2/studies?${dParams.toString()}`);
+            if (dResp.ok) {
+              const dData = await dResp.json();
+              const dStudies = dData?.studies || [];
+              const dMapped = dStudies.map((s: any) => ({
+                nct_id: s.protocolSection?.identificationModule?.nctId,
+                title: s.protocolSection?.identificationModule?.briefTitle,
+                condition: s.protocolSection?.conditionsModule?.conditions?.[0] || '',
+                phase: s.protocolSection?.designModule?.phases?.[0] || '',
+                status: s.protocolSection?.statusModule?.overallStatus || '',
+                line_of_therapy: undefined,
+                biomarkers: undefined,
+                locations: []
+              })).filter((t: any) => !!t.nct_id && !!t.title);
+              if (dMapped.length > 0) {
+                setResults(dMapped);
+                setUsedFallback(false);
+                setDataSource('direct-broad');
+                setDiagMsg('Default primary empty; using ct.gov direct');
+                return;
+              }
+            }
+          } catch {}
+
+          // 3) Local sample safety net
           try {
             const fallbackResp = await fetch(`${apiBase}/trials/search`);
             if (fallbackResp.ok) {
@@ -449,7 +509,7 @@ const Trials: React.FC = () => {
               showToast('warning', 'Showing sample trials (live data unavailable)');
               setUsedFallback(true);
               setDataSource('sample');
-              setDiagMsg('Primary default empty; using sample');
+              setDiagMsg('Default primary empty; using sample');
             } else {
               setResults(mapped);
               setUsedFallback(false);

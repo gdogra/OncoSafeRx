@@ -171,8 +171,8 @@ const QuantumEntangledHealthMonitoring: React.FC = () => {
 
   // Populate data (demo mode only); otherwise show empty state
   useEffect(() => {
-    const { isDemoMode } = require('../../utils/demoMode');
-    if (!isDemoMode()) {
+    const isDemoMode = false; // Demo mode removed for production
+    if (!isDemoMode) {
       setEntanglements([]);
       setSensors([]);
       setTeleportations([]);

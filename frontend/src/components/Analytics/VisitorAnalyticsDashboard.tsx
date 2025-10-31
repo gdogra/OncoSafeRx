@@ -27,7 +27,6 @@ import {
 } from 'lucide-react';
 import visitorTracking, { AnalyticsMetrics, VisitorSession } from '../../services/visitorTracking';
 import RealTimeTracker from './RealTimeTracker';
-import TrackingExample from './TrackingExample';
 
 interface AnalyticsPeriod {
   label: string;
@@ -41,7 +40,7 @@ const VisitorAnalyticsDashboard: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('7d');
   const [currentSession, setCurrentSession] = useState<VisitorSession | null>(null);
   const [showPrivacySettings, setShowPrivacySettings] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'realtime' | 'privacy' | 'implementation'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'realtime' | 'privacy'>('overview');
 
   const periods: AnalyticsPeriod[] = [
     { label: 'Last 24 Hours', value: '1d', days: 1 },
@@ -487,7 +486,6 @@ const VisitorAnalyticsDashboard: React.FC = () => {
           {[
             { id: 'overview', label: 'Analytics Overview', icon: BarChart3 },
             { id: 'realtime', label: 'Real-Time Tracking', icon: Activity },
-            { id: 'implementation', label: 'Implementation Guide', icon: Settings },
             { id: 'privacy', label: 'Privacy & Settings', icon: Shield }
           ].map(tab => {
             const Icon = tab.icon;
@@ -580,10 +578,6 @@ const VisitorAnalyticsDashboard: React.FC = () => {
 
       {activeTab === 'realtime' && (
         <RealTimeTracker />
-      )}
-
-      {activeTab === 'implementation' && (
-        <TrackingExample />
       )}
 
       {activeTab === 'privacy' && renderPrivacySettings()}

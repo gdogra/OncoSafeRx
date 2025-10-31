@@ -185,8 +185,8 @@ const AugmentedRealityTreatmentPlanning: React.FC = () => {
   const planningCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const { isDemoMode } = require('../../utils/demoMode');
-    if (isDemoMode()) {
+    const isDemoMode = false; // Demo mode removed for production
+    if (isDemoMode) {
       generateMockARData();
     } else {
       setTreatmentPlans([]);

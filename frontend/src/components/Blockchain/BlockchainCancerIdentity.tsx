@@ -136,8 +136,8 @@ const BlockchainCancerIdentity: React.FC = () => {
 
   // Populate demo data only when demo mode is enabled
   useEffect(() => {
-    const { isDemoMode } = require('../../utils/demoMode');
-    if (!isDemoMode()) {
+    const isDemoMode = false; // Demo mode removed for production
+    if (!isDemoMode) {
       setIdentities([]);
       setTransactions([]);
       setContracts([]);

@@ -223,7 +223,7 @@ const SymbioticAICancerCompanion: React.FC = () => {
 
   // Populate demo data only when demo mode is enabled
   useEffect(() => {
-    const { isDemoMode } = require('../../utils/demoMode');
+    const isDemoMode = false; // Demo mode removed for production
     const generateMockCompanions = (): CompanionPersonality[] => {
       const companionNames = ['Luna', 'Sage', 'Phoenix', 'Aurora', 'Zen'];
       
@@ -457,7 +457,7 @@ const SymbioticAICancerCompanion: React.FC = () => {
       }));
     };
 
-    if (isDemoMode()) {
+    if (isDemoMode) {
       setCompanions(generateMockCompanions());
       setCoEvolution(generateMockCoEvolution());
       setPredictiveEmpathy(generateMockPredictiveEmpathy());

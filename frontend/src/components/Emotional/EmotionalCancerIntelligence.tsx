@@ -244,8 +244,8 @@ const EmotionalCancerIntelligence: React.FC = () => {
   const biometricCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const { isDemoMode } = require('../../utils/demoMode');
-    if (isDemoMode()) {
+    const isDemoMode = false; // Demo mode removed for production
+    if (isDemoMode) {
       generateMockEmotionalData();
     } else {
       setEmotionalStates([]);

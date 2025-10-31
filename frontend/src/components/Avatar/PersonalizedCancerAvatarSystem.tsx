@@ -227,8 +227,8 @@ const PersonalizedCancerAvatarSystem: React.FC = () => {
   const simulationCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const { isDemoMode } = require('../../utils/demoMode');
-    if (isDemoMode()) {
+    const isDemoMode = false; // Demo mode removed for production
+    if (isDemoMode) {
       generateMockAvatarData();
     } else {
       setAvatars([]);

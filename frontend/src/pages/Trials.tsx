@@ -52,6 +52,18 @@ const Trials: React.FC = () => {
   const [searchAddress, setSearchAddress] = useState<string>('');
   const [addressSuggestions, setAddressSuggestions] = useState<Array<{ display_name: string; lat: string; lon: string }>>([]);
   const [addrSuggestOpen, setAddrSuggestOpen] = useState<boolean>(false);
+  const [distanceUnit, setDistanceUnit] = useState<'km' | 'mi'>(() => {
+    try {
+      const u = localStorage.getItem('osrx_trials_distance_unit');
+      if (u === 'mi' || u === 'km') return u;
+      const lang = (navigator?.language || '').toLowerCase();
+      return lang.includes('en-us') ? 'mi' : 'km';
+    } catch { return 'km'; }
+  });
+  const saveDistanceUnit = (u: 'km' | 'mi') => {
+    try { localStorage.setItem('osrx_trials_distance_unit', u); } catch {}
+    setDistanceUnit(u);
+  };
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<Trial[] | null>(null);
@@ -91,7 +103,8 @@ const Trials: React.FC = () => {
       return { ...t, distance_km: Number.isFinite(minD) ? minD : null } as Trial;
     });
     withD.sort((a, b) => (a.distance_km ?? Infinity) - (b.distance_km ?? Infinity));
-    const r = parseFloat(radius);
+    const rRaw = parseFloat(radius);
+    const r = Number.isNaN(rRaw) ? NaN : (distanceUnit === 'mi' ? rRaw * 1.60934 : rRaw);
     if (!Number.isNaN(r) && r > 0) {
       return withD.filter(t => (t.distance_km ?? Infinity) <= r);
     }
@@ -216,6 +229,9 @@ const Trials: React.FC = () => {
     navigator.geolocation.getCurrentPosition((pos) => {
       setLat(String(pos.coords.latitude.toFixed(5)));
       setLon(String(pos.coords.longitude.toFixed(5)));
+      setActivePos([pos.coords.latitude, pos.coords.longitude]);
+      setActiveZoom(10);
+      setTimeout(() => { search(); }, 0);
     });
   };
 
@@ -240,6 +256,7 @@ const Trials: React.FC = () => {
         setActivePos([lt, ln]);
         setActiveZoom(10);
         showToast('success', `Location set: ${hit.display_name?.split(',').slice(0,3).join(', ') || 'Selected'}`);
+        setTimeout(() => { search(); }, 0);
       } else {
         showToast('error', 'Invalid coordinates from geocoder');
       }
@@ -975,7 +992,7 @@ const Trials: React.FC = () => {
           <div className="flex space-x-2">
             <input className="border rounded px-2 py-1 w-full" placeholder="Lat" value={lat} onChange={e => setLat(e.target.value)} />
             <input className="border rounded px-2 py-1 w-full" placeholder="Lon" value={lon} onChange={e => setLon(e.target.value)} />
-            <input className="border rounded px-2 py-1 w-full" placeholder="Radius km" value={radius} onChange={e => setRadius(e.target.value)} />
+            <input className="border rounded px-2 py-1 w-full" placeholder={`Radius ${distanceUnit}`} value={radius} onChange={e => setRadius(e.target.value)} />
           </div>
           <div className="flex space-x-2">
             <input className="border rounded px-2 py-1 w-full" placeholder="City or address" value={searchAddress} onChange={e => setSearchAddress(e.target.value)} />
@@ -1039,11 +1056,22 @@ const Trials: React.FC = () => {
             </button>
           </div>
         )}
-        
+
         {/* Comprehensive Search Options */}
         <div className="mt-4 p-3 bg-gray-50 rounded-lg">
           <div className="text-sm font-medium text-gray-700 mb-2">Search Options</div>
           <div className="grid md:grid-cols-4 gap-3 text-sm">
+            <label className="flex items-center space-x-2">
+              <span>Units:</span>
+              <select
+                className="border rounded px-2 py-1"
+                value={distanceUnit}
+                onChange={(e) => saveDistanceUnit(e.target.value as 'km' | 'mi')}
+              >
+                <option value="km">Kilometers</option>
+                <option value="mi">Miles</option>
+              </select>
+            </label>
             <label className="flex items-center space-x-2">
               <input
                 type="checkbox"
@@ -1187,7 +1215,11 @@ const Trials: React.FC = () => {
                 <div className="text-sm text-gray-600 flex items-center space-x-2">
                   <span>{t.nct_id} • {t.phase} • {t.status}</span>
                   {('distance_km' in (t as any) && (t as any).distance_km !== null) && (
-                    <span>• {(t as any).distance_km!.toFixed(1)} km</span>
+                    <span>• {(() => {
+                      const km = (t as any).distance_km as number;
+                      const val = distanceUnit === 'mi' ? (km / 1.60934) : km;
+                      return `${val.toFixed(1)} ${distanceUnit}`;
+                    })()}</span>
                   )}
                   {i === 0 && ('distance_km' in (t as any) && (t as any).distance_km !== null) && (
                     <span className="inline-block bg-green-100 text-green-700 px-2 py-0.5 text-xs rounded">Nearest</span>

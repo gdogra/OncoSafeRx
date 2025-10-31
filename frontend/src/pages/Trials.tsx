@@ -49,6 +49,7 @@ const Trials: React.FC = () => {
   const [lat, setLat] = useState<string>('');
   const [lon, setLon] = useState<string>('');
   const [radius, setRadius] = useState<string>('');
+  const [searchAddress, setSearchAddress] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<Trial[] | null>(null);
@@ -209,6 +210,34 @@ const Trials: React.FC = () => {
       setLat(String(pos.coords.latitude.toFixed(5)));
       setLon(String(pos.coords.longitude.toFixed(5)));
     });
+  };
+
+  const geocodeAddress = async () => {
+    const q = String(searchAddress || '').trim();
+    if (!q) { showToast('warning', 'Enter a city or address'); return; }
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`;
+      const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      if (!resp.ok) throw new Error(`Geocode ${resp.status}`);
+      const data = await resp.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        showToast('error', 'No matching location found');
+        return;
+      }
+      const hit = data[0];
+      const lt = parseFloat(hit.lat);
+      const ln = parseFloat(hit.lon);
+      if (Number.isFinite(lt) && Number.isFinite(ln)) {
+        setLat(String(lt.toFixed(5)));
+        setLon(String(ln.toFixed(5)));
+        setActivePos([lt, ln]);
+        showToast('success', `Location set: ${hit.display_name?.split(',').slice(0,3).join(', ') || 'Selected'}`);
+      } else {
+        showToast('error', 'Invalid coordinates from geocoder');
+      }
+    } catch (e: any) {
+      showToast('error', e?.message || 'Failed to geocode');
+    }
   };
 
   const searchProgressive = async (initialRadius?: string) => {
@@ -911,6 +940,10 @@ const Trials: React.FC = () => {
             <input className="border rounded px-2 py-1 w-full" placeholder="Lat" value={lat} onChange={e => setLat(e.target.value)} />
             <input className="border rounded px-2 py-1 w-full" placeholder="Lon" value={lon} onChange={e => setLon(e.target.value)} />
             <input className="border rounded px-2 py-1 w-full" placeholder="Radius km" value={radius} onChange={e => setRadius(e.target.value)} />
+          </div>
+          <div className="flex space-x-2">
+            <input className="border rounded px-2 py-1 w-full" placeholder="City or address" value={searchAddress} onChange={e => setSearchAddress(e.target.value)} />
+            <button onClick={geocodeAddress} className="px-3 py-2 bg-gray-100 rounded">Set Location</button>
           </div>
           <div className="flex space-x-2">
             <button onClick={search} className="px-3 py-2 bg-primary-600 text-white rounded">{loading ? 'Searching…' : 'Search'}</button>

@@ -21,91 +21,6 @@ class FHIRPatientService {
       this.fhirClient.defaults.headers['Authorization'] = `Bearer ${process.env.FHIR_AUTH_TOKEN}`;
     }
 
-    // Mock patient templates for development/demo when FHIR is not available
-    this.mockPatientTemplates = [
-      {
-        id: 'patient-1',
-        firstName: 'Emma',
-        lastName: 'Rodriguez',
-        age: 42,
-        gender: 'female',
-        dateOfBirth: '1982-03-15',
-        mrn: 'MRN001234',
-        conditions: ['Breast Cancer', 'Hypertension'],
-        stage: 'Stage IIIA',
-        medications: [
-          { name: 'Tamoxifen', dosage: '20mg daily', route: 'oral' },
-          { name: 'Lisinopril', dosage: '10mg daily', route: 'oral' }
-        ],
-        allergies: ['Penicillin'],
-        demographics: {
-          race: 'Hispanic',
-          ethnicity: 'Hispanic or Latino',
-          language: 'English',
-          address: {
-            street: '123 Main St',
-            city: 'Austin',
-            state: 'TX',
-            zip: '78701'
-          },
-          phone: '(555) 123-4567',
-          email: 'emma.rodriguez@email.com'
-        },
-        insurance: {
-          provider: 'Blue Cross Blue Shield',
-          plan: 'PPO Gold',
-          memberId: 'BC123456789'
-        },
-        ecogPerformanceStatus: 1,
-        lastVisit: '2024-01-15',
-        nextAppointment: '2024-02-15',
-        careTeam: [
-          { name: 'Dr. Sarah Johnson', role: 'Oncologist' },
-          { name: 'Nurse Emily Wilson', role: 'Oncology Nurse' }
-        ]
-      },
-      {
-        id: 'patient-2',
-        firstName: 'Michael',
-        lastName: 'Chen',
-        age: 58,
-        gender: 'male',
-        dateOfBirth: '1966-07-22',
-        mrn: 'MRN005678',
-        conditions: ['Lung Cancer', 'Diabetes Type 2'],
-        stage: 'Stage II',
-        medications: [
-          { name: 'Carboplatin', dosage: 'AUC 5', route: 'IV' },
-          { name: 'Metformin', dosage: '500mg twice daily', route: 'oral' }
-        ],
-        allergies: ['Sulfa drugs'],
-        demographics: {
-          race: 'Asian',
-          ethnicity: 'Not Hispanic or Latino',
-          language: 'English',
-          address: {
-            street: '456 Oak Ave',
-            city: 'San Francisco',
-            state: 'CA',
-            zip: '94102'
-          },
-          phone: '(555) 987-6543',
-          email: 'michael.chen@email.com'
-        },
-        insurance: {
-          provider: 'Kaiser Permanente',
-          plan: 'HMO',
-          memberId: 'KP987654321'
-        },
-        ecogPerformanceStatus: 0,
-        lastVisit: '2024-01-20',
-        nextAppointment: '2024-02-20',
-        careTeam: [
-          { name: 'Dr. Robert Kim', role: 'Oncologist' },
-          { name: 'Nurse Jennifer Lee', role: 'Oncology Nurse' }
-        ]
-      }
-    ];
   }
 
   /**
@@ -125,15 +40,8 @@ class FHIRPatientService {
 
       let patients = [];
 
-      try {
-        // Try FHIR search first
-        patients = await this.searchPatientsFHIR(searchCriteria);
-      } catch (fhirError) {
-        console.warn('FHIR search failed, using mock data:', fhirError.message);
-        
-        // Fallback to mock data for development
-        patients = this.searchMockPatients(searchCriteria);
-      }
+      // Search patients using FHIR
+      patients = await this.searchPatientsFHIR(searchCriteria);
 
       // Cache results
       this.cache.set(cacheKey, {
@@ -186,30 +94,6 @@ class FHIRPatientService {
     return [];
   }
 
-  /**
-   * Search mock patients for development
-   */
-  searchMockPatients(criteria) {
-    let filtered = [...this.mockPatientTemplates];
-    
-    if (criteria.name) {
-      const searchName = criteria.name.toLowerCase();
-      filtered = filtered.filter(p => 
-        p.firstName.toLowerCase().includes(searchName) ||
-        p.lastName.toLowerCase().includes(searchName)
-      );
-    }
-    
-    if (criteria.identifier) {
-      filtered = filtered.filter(p => p.mrn === criteria.identifier);
-    }
-    
-    if (criteria.gender) {
-      filtered = filtered.filter(p => p.gender === criteria.gender.toLowerCase());
-    }
-    
-    return filtered;
-  }
 
   /**
    * Get patient by ID
@@ -228,19 +112,8 @@ class FHIRPatientService {
 
       let patient = null;
 
-      try {
-        // Try FHIR first
-        patient = await this.getPatientByIdFHIR(patientId);
-      } catch (fhirError) {
-        console.warn('FHIR get patient failed, using mock data:', fhirError.message);
-        
-        // Fallback to mock data
-        patient = this.mockPatientTemplates.find(p => p.id === patientId);
-        
-        if (!patient) {
-          throw new Error('Patient not found');
-        }
-      }
+      // Get patient using FHIR
+      patient = await this.getPatientByIdFHIR(patientId);
 
       // Cache result
       this.cache.set(cacheKey, {
@@ -496,19 +369,8 @@ class FHIRPatientService {
     try {
       const fhirPatient = this.transformToFHIR(patientData);
       
-      try {
-        const response = await this.fhirClient.post('/Patient', fhirPatient);
-        return this.transformFHIRPatient(response.data);
-      } catch (fhirError) {
-        console.warn('FHIR create patient failed:', fhirError.message);
-        
-        // For development, just return the data with a generated ID
-        return {
-          ...patientData,
-          id: `mock-${Date.now()}`,
-          source: 'mock'
-        };
-      }
+      const response = await this.fhirClient.post('/Patient', fhirPatient);
+      return this.transformFHIRPatient(response.data);
     } catch (error) {
       console.error('Error creating patient:', error);
       throw new Error('Failed to create patient');
@@ -578,7 +440,6 @@ class FHIRPatientService {
       return {
         status: 'disconnected',
         error: error.message,
-        fallback: 'Using mock data',
         timestamp: new Date().toISOString()
       };
     }

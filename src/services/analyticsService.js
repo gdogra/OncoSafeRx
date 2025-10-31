@@ -9,12 +9,12 @@ export class AnalyticsService {
   async getDrugInteractionTrends(timeframe = '30d') {
     try {
       if (!this.enabled) {
-        return this.getMockInteractionTrends();
+        return [];
       }
 
-      // In real implementation, query interaction check logs
-      // For now, return structured mock data
-      return this.getMockInteractionTrends();
+      // Query interaction check logs from database
+      // Implementation would go here based on actual data structure
+      return [];
     } catch (error) {
       console.error('Error getting interaction trends:', error);
       return [];
@@ -23,54 +23,19 @@ export class AnalyticsService {
 
   async getPharmacogenomicInsights() {
     try {
-      const insights = {
-        topGenes: [
-          {
-            gene: 'CYP2D6',
-            frequency: 85,
-            clinicalImpact: 'High',
-            affectedDrugs: ['Codeine', 'Tramadol', 'Metoprolol', 'Risperidone'],
-            recommendations: [
-              'Consider alternative analgesics for poor metabolizers',
-              'Monitor for reduced efficacy in ultrarapid metabolizers'
-            ]
-          },
-          {
-            gene: 'CYP2C19',
-            frequency: 72,
-            clinicalImpact: 'High',
-            affectedDrugs: ['Clopidogrel', 'Omeprazole', 'Voriconazole'],
-            recommendations: [
-              'Use prasugrel or ticagrelor for poor metabolizers',
-              'Consider dose adjustments for proton pump inhibitors'
-            ]
-          },
-          {
-            gene: 'TPMT',
-            frequency: 45,
-            clinicalImpact: 'Critical',
-            affectedDrugs: ['Azathioprine', '6-Mercaptopurine', 'Thioguanine'],
-            recommendations: [
-              'Start with 10% of standard dose for poor metabolizers',
-              'Monitor CBC weekly for first month'
-            ]
-          }
-        ],
+      if (!this.enabled) {
+        return null;
+      }
+
+      // Implementation would query gene-drug interaction database
+      // and calculate actual population statistics
+      return {
+        topGenes: [],
         populationStats: {
-          commonVariants: {
-            'CYP2D6*4': { frequency: '25%', ethnicity: 'Caucasian', impact: 'Reduced function' },
-            'CYP2C19*2': { frequency: '15%', ethnicity: 'All populations', impact: 'No function' },
-            'TPMT*3A': { frequency: '5%', ethnicity: 'Caucasian', impact: 'No function' }
-          },
-          riskFactors: [
-            'Polypharmacy increases interaction risk by 340%',
-            'Age >65 correlates with 2.3x higher adverse events',
-            'Oncology patients have 4.1x higher PGx relevance'
-          ]
+          commonVariants: {},
+          riskFactors: []
         }
       };
-
-      return insights;
     } catch (error) {
       console.error('Error getting pharmacogenomic insights:', error);
       return null;
@@ -307,43 +272,13 @@ export class AnalyticsService {
     );
   }
 
-  getMockInteractionTrends() {
-    return [
-      {
-        period: 'Last 30 days',
-        totalChecks: 2847,
-        significantInteractions: 156,
-        topInteractions: [
-          {
-            drugs: ['Warfarin', 'Amiodarone'],
-            frequency: 23,
-            severity: 'high',
-            trend: '+15%'
-          },
-          {
-            drugs: ['Methotrexate', 'Trimethoprim'],
-            frequency: 18,
-            severity: 'high',
-            trend: '+8%'
-          },
-          {
-            drugs: ['Pembrolizumab', 'Corticosteroids'],
-            frequency: 14,
-            severity: 'moderate',
-            trend: '+45%'
-          }
-        ]
-      }
-    ];
-  }
-
   async getUserPatterns(userId) {
-    // Mock user pattern analysis
+    // Implementation would query actual user analytics data
     return {
-      mostQueriedDrugs: ['Pembrolizumab', 'Carboplatin', 'Paclitaxel'],
-      preferredWorkflows: ['interaction_check', 'genomic_analysis'],
-      peakUsageTime: '2-4 PM',
-      specialties: ['Oncology', 'Hematology']
+      mostQueriedDrugs: [],
+      preferredWorkflows: [],
+      peakUsageTime: null,
+      specialties: []
     };
   }
 }

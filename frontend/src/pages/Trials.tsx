@@ -250,6 +250,35 @@ const Trials: React.FC = () => {
               }
             }
           } catch {}
+          // Try direct client-side fetch to ClinicalTrials.gov (CORS-enabled)
+          try {
+            const directParams = new URLSearchParams();
+            if (condition) directParams.set('query.cond', condition);
+            directParams.set('filter.overallStatus', 'RECRUITING');
+            directParams.set('pageSize', '100');
+            directParams.set('format', 'json');
+            const directResp = await fetch(`https://clinicaltrials.gov/api/v2/studies?${directParams.toString()}`);
+            if (directResp.ok) {
+              const directData = await directResp.json();
+              const dStudies = directData?.studies || [];
+              const dMapped = dStudies.map((s: any) => ({
+                nct_id: s.protocolSection?.identificationModule?.nctId,
+                title: s.protocolSection?.identificationModule?.briefTitle,
+                condition: s.protocolSection?.conditionsModule?.conditions?.[0] || '',
+                phase: s.protocolSection?.designModule?.phases?.[0] || '',
+                status: s.protocolSection?.statusModule?.overallStatus || '',
+                line_of_therapy: undefined,
+                biomarkers: undefined,
+                locations: []
+              })).filter((t: any) => !!t.nct_id && !!t.title);
+              if (dMapped.length > 0) {
+                setResults(dMapped);
+                setUsedFallback(false);
+                showToast('info', 'Using ClinicalTrials.gov directly');
+                return;
+              }
+            }
+          } catch {}
           // No matches from live API for these filters; broaden search automatically
           try {
             const broadParams = new URLSearchParams();
@@ -296,6 +325,34 @@ const Trials: React.FC = () => {
                       setResults(extMapped2);
                       setUsedFallback(false);
                       showToast('info', 'Using alternate trials source (direct proxy)');
+                      return;
+                    }
+                  }
+                } catch {}
+                // Try direct broad client-side fetch
+                try {
+                  const dParams2 = new URLSearchParams();
+                  dParams2.set('filter.overallStatus', 'RECRUITING');
+                  dParams2.set('pageSize', '100');
+                  dParams2.set('format', 'json');
+                  const dResp2 = await fetch(`https://clinicaltrials.gov/api/v2/studies?${dParams2.toString()}`);
+                  if (dResp2.ok) {
+                    const dData2 = await dResp2.json();
+                    const dStudies2 = dData2?.studies || [];
+                    const dMapped2 = dStudies2.map((s: any) => ({
+                      nct_id: s.protocolSection?.identificationModule?.nctId,
+                      title: s.protocolSection?.identificationModule?.briefTitle,
+                      condition: s.protocolSection?.conditionsModule?.conditions?.[0] || '',
+                      phase: s.protocolSection?.designModule?.phases?.[0] || '',
+                      status: s.protocolSection?.statusModule?.overallStatus || '',
+                      line_of_therapy: undefined,
+                      biomarkers: undefined,
+                      locations: []
+                    })).filter((t: any) => !!t.nct_id && !!t.title);
+                    if (dMapped2.length > 0) {
+                      setResults(dMapped2);
+                      setUsedFallback(false);
+                      showToast('info', 'Using ClinicalTrials.gov directly');
                       return;
                     }
                   }

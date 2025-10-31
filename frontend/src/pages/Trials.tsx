@@ -28,6 +28,7 @@ L.Icon.Default.mergeOptions({
 type Trial = {
   nct_id: string;
   title: string;
+  title_native?: string;
   condition: string;
   biomarkers?: string[];
   phase?: string;
@@ -36,6 +37,9 @@ type Trial = {
   locations?: { name?: string; facility?: string; lat?: number; lon?: number }[];
   url?: string;
   distance_km?: number | null;
+  origin?: string;
+  origins?: string[];
+  registration_ids?: string[];
 };
 
 const Trials: React.FC = () => {
@@ -80,6 +84,10 @@ const Trials: React.FC = () => {
   const [diagMsg, setDiagMsg] = useState<string>('');
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(20);
+  const [includeIntl, setIncludeIntl] = useState<boolean>(true);
+  const [languagePref, setLanguagePref] = useState<'en' | 'native'>('en');
+  const [includePreprints, setIncludePreprints] = useState<boolean>(false);
+  const [preprints, setPreprints] = useState<Array<{ title: string; url: string }>>([]);
 
   // Compute distance and sort by nearest when user location is available
   const computeDistanceSorted = (arr: Trial[]): Trial[] => {
@@ -243,15 +251,16 @@ const Trials: React.FC = () => {
     const q = String(searchAddress || '').trim();
     if (!q) { showToast('warning', 'Enter a city or address'); return; }
     try {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`;
+      const url = `${apiBase}/geocode/search?q=${encodeURIComponent(q)}&limit=1`;
       const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
       if (!resp.ok) throw new Error(`Geocode ${resp.status}`);
       const data = await resp.json();
-      if (!Array.isArray(data) || data.length === 0) {
+      const arr = Array.isArray(data?.data) ? data.data : [];
+      if (arr.length === 0) {
         showToast('error', 'No matching location found');
         return;
       }
-      const hit = data[0];
+      const hit = arr[0];
       const lt = parseFloat(hit.lat);
       const ln = parseFloat(hit.lon);
       if (Number.isFinite(lt) && Number.isFinite(ln)) {
@@ -276,18 +285,19 @@ const Trials: React.FC = () => {
     const ctl = new AbortController();
     const t = setTimeout(async () => {
       try {
-        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&addressdetails=1&limit=5`;
+        const url = `${apiBase}/geocode/search?q=${encodeURIComponent(q)}&addressdetails=1&limit=5`;
         const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: ctl.signal });
         if (!resp.ok) return;
         const data = await resp.json();
-        if (Array.isArray(data)) {
-          setAddressSuggestions(data.map((d: any) => ({ display_name: d.display_name, lat: d.lat, lon: d.lon })));
+        const arr = Array.isArray(data?.data) ? data.data : [];
+        if (Array.isArray(arr)) {
+          setAddressSuggestions(arr.map((d: any) => ({ display_name: d.display_name, lat: d.lat, lon: d.lon })));
           setAddrSuggestOpen(true);
         }
       } catch { /* ignore */ }
     }, 350);
     return () => { clearTimeout(t); ctl.abort(); };
-  }, [searchAddress]);
+  }, [searchAddress, apiBase]);
 
   // Resort existing results when lat/lon changes
   useEffect(() => {
@@ -331,6 +341,8 @@ const Trials: React.FC = () => {
           line_of_therapy: undefined,
           biomarkers: undefined,
           url: s.url || (s.nctId ? `https://clinicaltrials.gov/study/${s.nctId}` : undefined),
+          origin: 'ClinicalTrials.gov',
+          registration_ids: s.nctId ? [s.nctId] : [],
           locations: Array.isArray(s.locations) ? s.locations.map((loc: any) => ({
             name: loc.facility || loc.name,
             facility: loc.facility,
@@ -361,6 +373,7 @@ const Trials: React.FC = () => {
                 line_of_therapy: undefined,
                 biomarkers: undefined,
                 url: s.url || '',
+                registration_ids: Array.isArray(s.registrationIds) ? s.registrationIds : (s.nctId ? [s.nctId] : []),
                 locations: (s.locations || []).map((loc: any) => ({
                   name: loc.facility || loc.name,
                   facility: loc.facility,
@@ -370,8 +383,14 @@ const Trials: React.FC = () => {
               }));
               const key = (t: Trial) => `${(t.title || '').toUpperCase()}|${(t.condition||'').toUpperCase()}|${(((t.locations||[])[0]?.facility)||'').toUpperCase()}`;
               const map = new Map<string, Trial>();
-              [...merged, ...imapped].forEach((t) => { const k = key(t); if (!map.has(k)) map.set(k, t); });
-              merged = Array.from(map.values());
+              const origins = new Map<string, Set<string>>();
+              [...merged, ...imapped].forEach((t) => {
+                const k = key(t);
+                const o = (t.origin || 'Unknown');
+                if (!map.has(k)) { map.set(k, { ...t }); origins.set(k, new Set([o])); }
+                else { origins.get(k)!.add(o); }
+              });
+              merged = Array.from(map.entries()).map(([k, t]) => ({ ...t, origins: Array.from(origins.get(k) || new Set()) }));
             }
           } catch {}
         }
@@ -385,12 +404,26 @@ const Trials: React.FC = () => {
               setUsedFallback(true);
               setDataSource('sample');
               setDiagMsg('Primary API returned fallback; using sample');
-            } else {
-              setResults(computeDistanceSorted(merged));
-              setUsedFallback(false);
-              setDataSource('primary');
-              setDiagMsg('');
+        } else {
+          setResults(computeDistanceSorted(merged));
+          setUsedFallback(false);
+          setDataSource('primary');
+          setDiagMsg('');
+          try {
+            setPreprints([]);
+            if (includePreprints) {
+              const q = [condition, biomarker].filter(Boolean).join(' ');
+              if (q) {
+                const pr = await fetch(`${apiBase}/clinical-trials/preprints/search?q=${encodeURIComponent(q)}&limit=5`);
+                if (pr.ok) {
+                  const body = await pr.json();
+                  const list = Array.isArray(body?.data) ? body.data : [];
+                  setPreprints(list);
+                }
+              }
             }
+          } catch {}
+        }
           } catch {
             setResults(computeDistanceSorted(merged));
             setUsedFallback(false);
@@ -1128,6 +1161,15 @@ const Trials: React.FC = () => {
             <label className="flex items-center space-x-2">
               <input
                 type="checkbox"
+                checked={includePreprints}
+                onChange={(e) => setIncludePreprints(e.target.checked)}
+                className="rounded"
+              />
+              <span>Include Preprints (beta)</span>
+            </label>
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
                 checked={showAllAvailable}
                 onChange={(e) => setShowAllAvailable(e.target.checked)}
                 className="rounded"
@@ -1210,8 +1252,8 @@ const Trials: React.FC = () => {
               <div className="text-xs text-gray-600 mt-1">Legend: ◉ You • ⬤ Trial Site</div>
             </div>
           )}
-          {/* Pagination controls */}
-          {Array.isArray(results) && (
+          {/* Pagination controls (hidden when using virtualization) */}
+          {Array.isArray(results) && !((results as Trial[]).length > 400) && (
             <div className="flex items-center justify-between my-2 text-sm text-gray-700">
               <div className="flex items-center gap-2">
                 <span>Rows:</span>
@@ -1247,6 +1289,59 @@ const Trials: React.FC = () => {
             </div>
           )}
 
+          {/* Virtualized list for large result sets */}
+          {Array.isArray(results) && (results as Trial[]).length > 400 ? (
+            (() => {
+              const lim = parseInt(nearestCount, 10);
+              const base = results as Trial[];
+              const effective = (!lat || !lon || Number.isNaN(lim) || lim <= 0)
+                ? base
+                : base.slice(0, lim);
+              const rowHeight = 88; // px per row estimate
+              const [scrollTop, setScrollTop] = React.useState(0);
+              const viewportRef = React.useRef<HTMLDivElement | null>(null);
+              const onScroll = (e: React.UIEvent<HTMLDivElement>) => setScrollTop((e.target as HTMLDivElement).scrollTop);
+              const viewportHeight = 560; // ~70vh fallback
+              const total = effective.length;
+              const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - 10);
+              const endIndex = Math.min(total, startIndex + Math.ceil(viewportHeight / rowHeight) + 20);
+              const topPad = startIndex * rowHeight;
+              const bottomPad = Math.max(0, (total - endIndex) * rowHeight);
+              const slice = effective.slice(startIndex, endIndex);
+              return (
+                <div ref={viewportRef} onScroll={onScroll} style={{ maxHeight: '70vh' }} className="overflow-auto divide-y mt-3">
+                  <div style={{ height: topPad }} />
+                  {slice.map((t: any, i: number) => (
+                    <div key={`${t.nct_id}-${startIndex + i}`} className="py-3">
+                      <div className="font-medium">
+                        <a href={t.url || `https://clinicaltrials.gov/study/${t.nct_id}`}
+                           className="text-primary-700 hover:underline" target="_blank" rel="noreferrer">
+                          {languagePref === 'native' ? (t.title_native || t.title) : t.title}
+                        </a>
+                      </div>
+                      <div className="text-sm text-gray-600 flex items-center space-x-2">
+                        <span>{t.nct_id} • {t.phase} • {t.status}</span>
+                        {('distance_km' in (t as any) && (t as any).distance_km !== null) && (
+                          <span>• {(() => {
+                            const km = (t as any).distance_km as number;
+                            const val = distanceUnit === 'mi' ? (km / 1.60934) : km;
+                            return `${val.toFixed(1)} ${distanceUnit}`;
+                          })()}</span>
+                        )}
+                        {(Array.isArray(t.origins) && t.origins.length > 0) && (
+                          <span>• Sources: {t.origins.map((o: string, idx: number) => (
+                            <span key={idx} className="inline-block text-[10px] px-1 py-0.5 rounded bg-gray-200 text-gray-800 ml-1">{o}</span>
+                          ))}</span>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-600">{t.condition} {t.biomarkers && t.biomarkers.length ? `• Biomarkers: ${t.biomarkers.join(', ')}` : ''}</div>
+                    </div>
+                  ))}
+                  <div style={{ height: bottomPad }} />
+                </div>
+              );
+            })()
+          ) : (
           <div className="divide-y mt-3">
             {(Array.isArray(results) ? ((): Trial[] => {
               const lim = parseInt(nearestCount, 10);
@@ -1276,6 +1371,15 @@ const Trials: React.FC = () => {
                       return `${val.toFixed(1)} ${distanceUnit}`;
                     })()}</span>
                   )}
+                  {(Array.isArray(t.origins) && t.origins.length > 0) && (
+                    <span className="inline-flex items-center gap-1">• Sources:
+                      {t.origins.map((o: string, idx: number) => (
+                        <span key={idx} className="inline-flex items-center text-[10px] px-1 py-0.5 rounded bg-gray-200 text-gray-800 ml-1">
+                          {o}
+                        </span>
+                      ))}
+                    </span>
+                  )}
                   {i === 0 && ('distance_km' in (t as any) && (t as any).distance_km !== null) && (
                     <span className="inline-block bg-green-100 text-green-700 px-2 py-0.5 text-xs rounded">Nearest</span>
                   )}
@@ -1299,6 +1403,19 @@ const Trials: React.FC = () => {
               </div>
             ))}
           </div>
+          )}
+        </Card>
+      )}
+      {includePreprints && preprints.length > 0 && (
+        <Card>
+          <div className="text-sm font-medium text-gray-800 mb-2">Related Preprints</div>
+          <ul className="list-disc pl-5 text-sm text-gray-700">
+            {preprints.map((p, i) => (
+              <li key={i} className="mb-1">
+                <a href={p.url} target="_blank" rel="noreferrer" className="text-blue-700 hover:underline">{p.title}</a>
+              </li>
+            ))}
+          </ul>
         </Card>
       )}
     </div>

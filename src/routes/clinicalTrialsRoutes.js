@@ -2,6 +2,7 @@ import express from 'express';
 import clinicalTrialsService from '../services/clinicalTrialsService.js';
 import fhirPatientService from '../services/fhirPatientService.js';
 import internationalRegistries from '../services/internationalRegistriesService.js';
+import fetch from 'node-fetch';
 
 const router = express.Router();
 
@@ -361,6 +362,26 @@ router.get('/filters/options', async (req, res) => {
   } catch (error) {
     console.error('ClinicalTrials filters/options error:', error);
     res.status(500).json({ error: 'Failed to derive filter options' });
+  }
+});
+
+// Preprints enrichment (optional provider). Expects PREPRINTS_SEARCH_URL env returning { data: [{ title, url }] }
+router.get('/preprints/search', async (req, res) => {
+  try {
+    const { q = '', limit = 5 } = req.query;
+    const base = process.env.PREPRINTS_SEARCH_URL;
+    if (!base || !q) return res.json({ success: true, data: [] });
+    const url = new URL(base);
+    url.searchParams.set('q', q);
+    url.searchParams.set('limit', String(limit));
+    const r = await fetch(url.toString());
+    if (!r.ok) return res.json({ success: true, data: [] });
+    let body = null; try { body = await r.json(); } catch { body = null; }
+    const items = Array.isArray(body?.data) ? body.data : [];
+    const mapped = items.slice(0, Math.max(1, Math.min(parseInt(limit), 20)));
+    res.json({ success: true, data: mapped });
+  } catch (e) {
+    res.json({ success: true, data: [] });
   }
 });
 

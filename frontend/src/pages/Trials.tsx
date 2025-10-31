@@ -198,7 +198,11 @@ const Trials: React.FC = () => {
       const lt = parseFloat(lat); const ln = parseFloat(lon);
       if (!Number.isNaN(lt) && !Number.isNaN(ln)) pts.push([lt, ln]);
     }
-    (results || []).forEach(t => (t.locations || []).forEach(loc => pts.push([loc.lat, loc.lon])));
+    (results || []).forEach(t => (t.locations || []).forEach(loc => {
+      const lt = typeof (loc as any)?.lat === 'number' ? (loc as any).lat : NaN;
+      const ln = typeof (loc as any)?.lon === 'number' ? (loc as any).lon : NaN;
+      if (!Number.isNaN(lt) && !Number.isNaN(ln)) pts.push([lt, ln]);
+    }));
     return pts.length ? L.latLngBounds(pts) : null;
   }, [lat, lon, results]);
 
@@ -320,6 +324,7 @@ const Trials: React.FC = () => {
         const mapped = studies.map((s: any) => ({
           nct_id: s.nctId,
           title: s.title,
+          title_native: s.titleOriginal || s.title,
           condition: s.condition || '',
           phase: s.phase || '',
           status: s.status || '',
@@ -333,7 +338,44 @@ const Trials: React.FC = () => {
             lon: typeof loc.lon === 'number' ? loc.lon : undefined,
           })) : []
         }));
-        if (mapped.length === 0 && data?.data?.fallback) {
+        // Merge international registries when enabled
+        let merged = mapped;
+        if (includeIntl) {
+          const ip = new URLSearchParams();
+          if (condition) ip.set('condition', condition);
+          if (country) ip.set('country', country);
+          if (biomarker) ip.set('drug', biomarker);
+          ip.set('maxResults', showAllAvailable ? '500' : '200');
+          try {
+            const iresp = await fetch(`${apiBase}/clinical-trials/international/search?${ip.toString()}`);
+            if (iresp.ok) {
+              const ibody = await iresp.json();
+              const istudies = ibody?.data?.studies || [];
+              const imapped: Trial[] = istudies.map((s: any) => ({
+                nct_id: s.nctId || (Array.isArray(s.registrationIds) ? s.registrationIds[0] : ''),
+                title: s.title || s.titleOriginal,
+                title_native: s.titleOriginal || s.title,
+                condition: s.condition || s.conditionOriginal || '',
+                phase: s.phase || '',
+                status: s.status || '',
+                line_of_therapy: undefined,
+                biomarkers: undefined,
+                url: s.url || '',
+                locations: (s.locations || []).map((loc: any) => ({
+                  name: loc.facility || loc.name,
+                  facility: loc.facility,
+                  lat: typeof loc.lat === 'number' ? loc.lat : undefined,
+                  lon: typeof loc.lon === 'number' ? loc.lon : undefined,
+                }))
+              }));
+              const key = (t: Trial) => `${(t.title || '').toUpperCase()}|${(t.condition||'').toUpperCase()}|${(((t.locations||[])[0]?.facility)||'').toUpperCase()}`;
+              const map = new Map<string, Trial>();
+              [...merged, ...imapped].forEach((t) => { const k = key(t); if (!map.has(k)) map.set(k, t); });
+              merged = Array.from(map.values());
+            }
+          } catch {}
+        }
+        if (merged.length === 0 && data?.data?.fallback) {
           // Try local dataset as last resort
           try {
             const fallbackResp = await fetch(`${apiBase}/trials/search?condition=${encodeURIComponent(condition || '')}`);
@@ -344,18 +386,18 @@ const Trials: React.FC = () => {
               setDataSource('sample');
               setDiagMsg('Primary API returned fallback; using sample');
             } else {
-              setResults(computeDistanceSorted(mapped));
+              setResults(computeDistanceSorted(merged));
               setUsedFallback(false);
               setDataSource('primary');
               setDiagMsg('');
             }
           } catch {
-            setResults(computeDistanceSorted(mapped));
+            setResults(computeDistanceSorted(merged));
             setUsedFallback(false);
             setDataSource('primary');
             setDiagMsg('');
           }
-        } else if (mapped.length === 0) {
+        } else if (merged.length === 0) {
           // Try alternate proxy endpoint to ClinicalTrials.gov (external integrator)
           try {
             const extParams = new URLSearchParams();
@@ -925,6 +967,17 @@ const Trials: React.FC = () => {
         >
           Retry live fetch
         </button>
+        <div className="ml-4 flex items-center gap-2">
+          <span>Language:</span>
+          <select className="border rounded px-2 py-1" value={languagePref} onChange={(e) => setLanguagePref(e.target.value as any)}>
+            <option value="en">English</option>
+            <option value="native">Native</option>
+          </select>
+          <label className="ml-3 inline-flex items-center gap-1">
+            <input type="checkbox" className="rounded" checked={includeIntl} onChange={(e) => setIncludeIntl(e.target.checked)} />
+            <span>International registries</span>
+          </label>
+        </div>
       </div>
       {liveTotal !== null && (
         <div className="flex items-center gap-3 text-xs text-gray-600">
@@ -1138,12 +1191,14 @@ const Trials: React.FC = () => {
                     </Popup>
                   </Marker>
                 )}
-                {results.flatMap((t) => (t.locations || []).map((loc, i) => (
-                  <Marker key={`${t.nct_id}-${i}`} position={[loc.lat, loc.lon]}>
+                {results.flatMap((t) => (t.locations || [])
+                  .filter((loc) => typeof (loc as any)?.lat === 'number' && typeof (loc as any)?.lon === 'number')
+                  .map((loc, i) => (
+                  <Marker key={`${t.nct_id}-${i}`} position={[(loc as any).lat, (loc as any).lon]}>
                     <Popup>
                       <div className="text-sm">
                         <div className="font-medium">{t.title}</div>
-                        <div>{loc.name}</div>
+                        <div>{(loc as any).name || (loc as any).facility || 'Trial site'}</div>
                       </div>
                     </Popup>
                   </Marker>
@@ -1209,7 +1264,7 @@ const Trials: React.FC = () => {
                 <div className="font-medium">
                   <a href={t.url || `https://clinicaltrials.gov/study/${t.nct_id}`}
                      className="text-primary-700 hover:underline" target="_blank" rel="noreferrer">
-                    {t.title}
+                    {languagePref === 'native' ? (t.title_native || t.title) : t.title}
                   </a>
                 </div>
                 <div className="text-sm text-gray-600 flex items-center space-x-2">

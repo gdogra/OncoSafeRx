@@ -1,6 +1,7 @@
 import express from 'express';
 import clinicalTrialsService from '../services/clinicalTrialsService.js';
 import fhirPatientService from '../services/fhirPatientService.js';
+import internationalRegistries from '../services/internationalRegistriesService.js';
 
 const router = express.Router();
 
@@ -360,6 +361,24 @@ router.get('/filters/options', async (req, res) => {
   } catch (error) {
     console.error('ClinicalTrials filters/options error:', error);
     res.status(500).json({ error: 'Failed to derive filter options' });
+  }
+});
+
+/**
+ * International registries search (CTRI, ChiCTR, JPRN)
+ */
+router.get('/international/search', async (req, res) => {
+  try {
+    const { drug, condition, country, maxResults = 200 } = req.query;
+    const results = await internationalRegistries.search({
+      drug,
+      condition,
+      country,
+      maxResults: parseInt(maxResults)
+    });
+    res.json({ success: true, data: { studies: results, totalCount: results.length } });
+  } catch (e) {
+    res.status(500).json({ error: 'international_search_failed' });
   }
 });
 

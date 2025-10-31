@@ -260,6 +260,19 @@ class ClinicalTrialsService {
       // Calculate eligibility score based on patient criteria
       const eligibilityScore = this.calculateEligibilityScore(study, patientCriteria);
       
+      // Map locations with geo if available
+      const mappedLocations = (contactsModule.locations || []).slice(0, 20).map(loc => ({
+        facility: loc.facility || 'Unknown',
+        city: loc.city || '',
+        state: loc.state || '',
+        country: loc.country || '',
+        zip: loc.zip,
+        lat: (loc.geoPoint && (loc.geoPoint.lat || loc.geoPoint.latitude)) || undefined,
+        lon: (loc.geoPoint && (loc.geoPoint.lon || loc.geoPoint.longitude)) || undefined,
+        status: loc.status || '',
+        contact: (loc.contacts && loc.contacts[0]) || undefined
+      }));
+
       return {
         nctId: identification.nctId || 'N/A',
         title: identification.briefTitle || 'No title available',
@@ -268,9 +281,7 @@ class ClinicalTrialsService {
         condition: protocolSection.conditionsModule?.conditions?.[0] || 'Not specified',
         intervention: protocolSection.armsInterventionsModule?.interventions?.[0]?.name || 'Not specified',
         sponsor: protocolSection.sponsorCollaboratorsModule?.leadSponsor?.name || 'Not specified',
-        locations: contactsModule.locations?.slice(0, 3).map(loc => 
-          `${loc.facility || 'Unknown'}, ${loc.city || ''} ${loc.state || ''}`
-        ) || [],
+        locations: mappedLocations,
         eligibilityScore,
         matchScore: eligibilityScore, // Alias for compatibility
         estimatedEnrollment: designModule.enrollmentInfo?.count || 0,

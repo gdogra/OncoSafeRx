@@ -33,7 +33,9 @@ type Trial = {
   phase?: string;
   status?: string;
   line_of_therapy?: string;
-  locations?: { name: string; lat: number; lon: number }[];
+  locations?: { name?: string; facility?: string; lat?: number; lon?: number }[];
+  url?: string;
+  distance_km?: number | null;
 };
 
 const Trials: React.FC = () => {
@@ -43,6 +45,7 @@ const Trials: React.FC = () => {
   const [biomarker, setBiomarker] = useState('');
   const [line, setLine] = useState('');
   const [status, setStatus] = useState('');
+  const [country, setCountry] = useState('');
   const [lat, setLat] = useState<string>('');
   const [lon, setLon] = useState<string>('');
   const [radius, setRadius] = useState<string>('');
@@ -60,6 +63,37 @@ const Trials: React.FC = () => {
   const [autoExpandRadius, setAutoExpandRadius] = useState<boolean>(true);
   const [dataSource, setDataSource] = useState<'unknown' | 'primary' | 'external' | 'direct' | 'primary-broad' | 'external-broad' | 'direct-broad' | 'sample'>('unknown');
   const [diagMsg, setDiagMsg] = useState<string>('');
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(20);
+
+  // Compute distance and sort by nearest when user location is available
+  const computeDistanceSorted = (arr: Trial[]): Trial[] => {
+    const alat = parseFloat(lat);
+    const alon = parseFloat(lon);
+    if (!lat || !lon || Number.isNaN(alat) || Number.isNaN(alon)) return arr;
+    const toRad = (x: number) => (x * Math.PI) / 180;
+    const hav = (a: number, b: number, c: number, d: number) => {
+      const R = 6371;
+      const dLat = toRad(c - a);
+      const dLon = toRad(d - b);
+      const s1 = Math.sin(dLat / 2) ** 2;
+      const s2 = Math.cos(toRad(a)) * Math.cos(toRad(c)) * Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.atan2(Math.sqrt(s1 + s2), Math.sqrt(1 - (s1 + s2)));
+    };
+    const withD = arr.map((t) => {
+      const ds = (t.locations || []).map((l: any) =>
+        typeof l?.lat === 'number' && typeof l?.lon === 'number' ? hav(alat, alon, l.lat, l.lon) : Infinity
+      );
+      const minD = ds.length ? Math.min(...ds) : Infinity;
+      return { ...t, distance_km: Number.isFinite(minD) ? minD : null } as Trial;
+    });
+    withD.sort((a, b) => (a.distance_km ?? Infinity) - (b.distance_km ?? Infinity));
+    const r = parseFloat(radius);
+    if (!Number.isNaN(r) && r > 0) {
+      return withD.filter(t => (t.distance_km ?? Infinity) <= r);
+    }
+    return withD;
+  };
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [recentDrugs, setRecentDrugs] = useState<string[]>([]);
@@ -97,6 +131,7 @@ const Trials: React.FC = () => {
   ), []);
   const [dynamicConditionOptions, setDynamicConditionOptions] = useState<AutoCompleteOption[]>([]);
   const [dynamicBiomarkerOptions, setDynamicBiomarkerOptions] = useState<AutoCompleteOption[]>([]);
+  const [dynamicCountryOptions, setDynamicCountryOptions] = useState<AutoCompleteOption[]>([]);
   const conditionOptions = useMemo<AutoCompleteOption[]>(() => {
     const map = new Map<string, AutoCompleteOption>();
     [...dynamicConditionOptions, ...staticConditionOptions].forEach(o => map.set(o.label.toLowerCase(), o));
@@ -120,6 +155,7 @@ const Trials: React.FC = () => {
     if (biomarker) p.set('biomarker', biomarker);
     if (line) p.set('line', line);
     if (status) p.set('status', status);
+    if (country) p.set('country', country);
     if (lat && lon) { p.set('lat', lat); p.set('lon', lon); }
     if (radius) p.set('radius_km', radius);
     return p.toString();
@@ -185,6 +221,7 @@ const Trials: React.FC = () => {
         if (condition) params.set('condition', condition);
         // Map biomarker to intervention to broaden search on ct.gov
         if (biomarker) params.set('intervention', biomarker);
+        if (country) params.set('location', country);
         const recruitmentStatuses = expandedStatuses 
           ? 'RECRUITING,NOT_YET_RECRUITING,ACTIVE_NOT_RECRUITING,ENROLLING_BY_INVITATION'
           : 'RECRUITING';
@@ -206,7 +243,13 @@ const Trials: React.FC = () => {
           status: s.status || '',
           line_of_therapy: undefined,
           biomarkers: undefined,
-          locations: []
+          url: s.url || (s.nctId ? `https://clinicaltrials.gov/study/${s.nctId}` : undefined),
+          locations: Array.isArray(s.locations) ? s.locations.map((loc: any) => ({
+            name: loc.facility || loc.name,
+            facility: loc.facility,
+            lat: typeof loc.lat === 'number' ? loc.lat : undefined,
+            lon: typeof loc.lon === 'number' ? loc.lon : undefined,
+          })) : []
         }));
         if (mapped.length === 0 && data?.data?.fallback) {
           // Try local dataset as last resort
@@ -214,18 +257,18 @@ const Trials: React.FC = () => {
             const fallbackResp = await fetch(`${apiBase}/trials/search?condition=${encodeURIComponent(condition || '')}`);
             if (fallbackResp.ok) {
               const fb = await fallbackResp.json();
-              setResults(fb.trials || []);
+              setResults(computeDistanceSorted(fb.trials || []));
               setUsedFallback(true);
               setDataSource('sample');
               setDiagMsg('Primary API returned fallback; using sample');
             } else {
-              setResults(mapped);
+              setResults(computeDistanceSorted(mapped));
               setUsedFallback(false);
               setDataSource('primary');
               setDiagMsg('');
             }
           } catch {
-            setResults(mapped);
+            setResults(computeDistanceSorted(mapped));
             setUsedFallback(false);
             setDataSource('primary');
             setDiagMsg('');
@@ -249,10 +292,16 @@ const Trials: React.FC = () => {
                 status: s.protocolSection?.statusModule?.overallStatus || '',
                 line_of_therapy: undefined,
                 biomarkers: undefined,
-                locations: []
+                url: s.protocolSection?.identificationModule?.nctId ? `https://clinicaltrials.gov/study/${s.protocolSection?.identificationModule?.nctId}` : undefined,
+                locations: (s.protocolSection?.contactsLocationsModule?.locations || []).slice(0, 20).map((loc: any) => ({
+                  name: loc.facility,
+                  facility: loc.facility,
+                  lat: loc?.geoPoint?.lat ?? loc?.geoPoint?.latitude,
+                  lon: loc?.geoPoint?.lon ?? loc?.geoPoint?.longitude,
+                }))
               })).filter((t: any) => !!t.nct_id && !!t.title);
               if (extMapped.length > 0) {
-                setResults(extMapped);
+                setResults(computeDistanceSorted(extMapped));
                 setUsedFallback(false);
                 showToast('info', 'Using alternate trials source (direct proxy)');
                 setDataSource('external');
@@ -280,10 +329,16 @@ const Trials: React.FC = () => {
                 status: s.protocolSection?.statusModule?.overallStatus || '',
                 line_of_therapy: undefined,
                 biomarkers: undefined,
-                locations: []
+                url: s.protocolSection?.identificationModule?.nctId ? `https://clinicaltrials.gov/study/${s.protocolSection?.identificationModule?.nctId}` : undefined,
+                locations: (s.protocolSection?.contactsLocationsModule?.locations || []).slice(0, 20).map((loc: any) => ({
+                  name: loc.facility,
+                  facility: loc.facility,
+                  lat: loc?.geoPoint?.lat ?? loc?.geoPoint?.latitude,
+                  lon: loc?.geoPoint?.lon ?? loc?.geoPoint?.longitude,
+                }))
               })).filter((t: any) => !!t.nct_id && !!t.title);
               if (dMapped.length > 0) {
-                setResults(dMapped);
+                setResults(computeDistanceSorted(dMapped));
                 setUsedFallback(false);
                 showToast('info', 'Using ClinicalTrials.gov directly');
                 setDataSource('direct');
@@ -311,10 +366,16 @@ const Trials: React.FC = () => {
                 status: s.status || '',
                 line_of_therapy: undefined,
                 biomarkers: undefined,
-                locations: []
+                url: s.url || (s.nctId ? `https://clinicaltrials.gov/study/${s.nctId}` : undefined),
+                locations: Array.isArray(s.locations) ? s.locations.map((loc: any) => ({
+                  name: loc.facility || loc.name,
+                  facility: loc.facility,
+                  lat: typeof loc.lat === 'number' ? loc.lat : (typeof loc.latitude === 'number' ? loc.latitude : undefined),
+                  lon: typeof loc.lon === 'number' ? loc.lon : (typeof loc.longitude === 'number' ? loc.longitude : undefined),
+                })) : []
               }));
               if (broadMapped.length > 0) {
-                setResults(broadMapped);
+                setResults(computeDistanceSorted(broadMapped));
                 setUsedFallback(false);
                 showToast('info', 'No exact matches; showing general recruiting trials');
                 setDataSource('primary-broad');
@@ -334,10 +395,16 @@ const Trials: React.FC = () => {
                       status: s.protocolSection?.statusModule?.overallStatus || '',
                       line_of_therapy: undefined,
                       biomarkers: undefined,
-                      locations: []
+                      url: s.protocolSection?.identificationModule?.nctId ? `https://clinicaltrials.gov/study/${s.protocolSection?.identificationModule?.nctId}` : undefined,
+                      locations: (s.protocolSection?.contactsLocationsModule?.locations || []).slice(0, 20).map((loc: any) => ({
+                        name: loc.facility,
+                        facility: loc.facility,
+                        lat: loc?.geoPoint?.lat ?? loc?.geoPoint?.latitude,
+                        lon: loc?.geoPoint?.lon ?? loc?.geoPoint?.longitude,
+                      }))
                     })).filter((t: any) => !!t.nct_id && !!t.title);
                     if (extMapped2.length > 0) {
-                      setResults(extMapped2);
+                      setResults(computeDistanceSorted(extMapped2));
                       setUsedFallback(false);
                       showToast('info', 'Using alternate trials source (direct proxy)');
                       setDataSource('external-broad');
@@ -364,10 +431,16 @@ const Trials: React.FC = () => {
                       status: s.protocolSection?.statusModule?.overallStatus || '',
                       line_of_therapy: undefined,
                       biomarkers: undefined,
-                      locations: []
+                      url: s.protocolSection?.identificationModule?.nctId ? `https://clinicaltrials.gov/study/${s.protocolSection?.identificationModule?.nctId}` : undefined,
+                      locations: (s.protocolSection?.contactsLocationsModule?.locations || []).slice(0, 20).map((loc: any) => ({
+                        name: loc.facility,
+                        facility: loc.facility,
+                        lat: loc?.geoPoint?.lat ?? loc?.geoPoint?.latitude,
+                        lon: loc?.geoPoint?.lon ?? loc?.geoPoint?.longitude,
+                      }))
                     })).filter((t: any) => !!t.nct_id && !!t.title);
                     if (dMapped2.length > 0) {
-                      setResults(dMapped2);
+                      setResults(computeDistanceSorted(dMapped2));
                       setUsedFallback(false);
                       showToast('info', 'Using ClinicalTrials.gov directly');
                       setDataSource('direct-broad');
@@ -416,6 +489,7 @@ const Trials: React.FC = () => {
         params.set('pageSize', '100'); // Base per-page size
         if (showAllAvailable) params.set('maxResults', '1000');
         params.set('studyType', includeObservational ? 'INTERVENTIONAL,OBSERVATIONAL' : 'INTERVENTIONAL');
+        if (country) params.set('location', country);
         params.set('includeExpanded', expandedStatuses.toString());
         console.log('🔍 Default search params:', params.toString());
         const resp = await fetch(`${apiBase}/clinical-trials/search?${params.toString()}`);
@@ -436,7 +510,13 @@ const Trials: React.FC = () => {
           status: s.status || '',
           line_of_therapy: undefined,
           biomarkers: undefined,
-          locations: []
+          url: s.url || (s.nctId ? `https://clinicaltrials.gov/study/${s.nctId}` : undefined),
+          locations: Array.isArray(s.locations) ? s.locations.map((loc: any) => ({
+            name: loc.facility || loc.name,
+            facility: loc.facility,
+            lat: typeof loc.lat === 'number' ? loc.lat : (typeof loc.latitude === 'number' ? loc.latitude : undefined),
+            lon: typeof loc.lon === 'number' ? loc.lon : (typeof loc.longitude === 'number' ? loc.longitude : undefined),
+          })) : []
         }));
 
         // If live API returned nothing or signaled fallback, try alternates before local sample
@@ -599,6 +679,7 @@ const Trials: React.FC = () => {
       const patientId = p.get('patientId') || '';
       const ln = p.get('line') || '';
       const st = p.get('status') || '';
+      const co = p.get('country') || '';
       const la = p.get('lat') || '';
       const lo = p.get('lon') || '';
       const rad = p.get('radius_km') || '';
@@ -618,6 +699,7 @@ const Trials: React.FC = () => {
         setBiomarker(finalBiomarker);
         setLine(ln);
         setStatus(st);
+        setCountry(co);
         setLat(la);
         setLon(lo);
         setRadius(rad);
@@ -687,9 +769,11 @@ const Trials: React.FC = () => {
           const data = await resp.json();
           const conditions = (data?.data?.conditions || []) as string[];
           const biomarkers = (data?.data?.biomarkers || []) as string[];
+          const countries = (data?.data?.countries || []) as string[];
           if (conditions.length || biomarkers.length) {
             setDynamicConditionOptions(conditions.map((c: string) => ({ value: c, label: c })));
             setDynamicBiomarkerOptions(biomarkers.map((m: string) => ({ value: m, label: m })));
+            setDynamicCountryOptions(countries.map((c: string) => ({ value: c, label: c })));
             if (typeof data?.data?.totalStudies === 'number') {
               setLiveTotal(data.data.totalStudies);
             }
@@ -710,6 +794,8 @@ const Trials: React.FC = () => {
         const biomarkers2 = Array.from(new Set(trials.flatMap(t => t.biomarkers || []).filter(Boolean)));
         setDynamicConditionOptions(conditions2.map((c: string) => ({ value: c, label: c })));
         setDynamicBiomarkerOptions(biomarkers2.map((m: string) => ({ value: m, label: m })));
+        const countries2 = Array.from(new Set(trials.map((t:any) => t.country).filter(Boolean)));
+        setDynamicCountryOptions(countries2.map((c: string) => ({ value: c, label: c })));
       } catch {}
     })();
     // Re-run when apiBase or refresh tick changes
@@ -811,6 +897,14 @@ const Trials: React.FC = () => {
             placeholder="Status (e.g., Recruiting)"
             onSelect={(opt) => setStatus(opt.label)}
             onChange={(v) => setStatus(v)}
+            allowCustom
+          />
+          <AutoComplete
+            options={dynamicCountryOptions}
+            value={country}
+            placeholder="Country (optional)"
+            onSelect={(opt) => setCountry(opt.label)}
+            onChange={(v) => setCountry(v)}
             allowCustom
           />
           <div className="flex space-x-2">
@@ -938,17 +1032,63 @@ const Trials: React.FC = () => {
               <div className="text-xs text-gray-600 mt-1">Legend: ◉ You • ⬤ Trial Site</div>
             </div>
           )}
+          {/* Pagination controls */}
+          {Array.isArray(results) && (
+            <div className="flex items-center justify-between my-2 text-sm text-gray-700">
+              <div className="flex items-center gap-2">
+                <span>Rows:</span>
+                <select
+                  className="border rounded px-1 py-0.5"
+                  value={pageSize}
+                  onChange={(e) => { setPage(1); setPageSize(parseInt(e.target.value, 10)); }}
+                >
+                  {[10,20,50,100].map(n => <option key={n} value={n}>{n}</option>)}
+                </select>
+                {nearestCount && parseInt(nearestCount,10)>0 && (
+                  <span className="text-xs text-gray-500">Nearest limit active: showing top {nearestCount}</span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  className="px-2 py-1 border rounded disabled:opacity-50"
+                  onClick={() => setPage(p => Math.max(1, p-1))}
+                  disabled={page <= 1}
+                >Prev</button>
+                <span>Page {page}</span>
+                <button
+                  className="px-2 py-1 border rounded disabled:opacity-50"
+                  onClick={() => setPage(p => p+1)}
+                  disabled={(() => {
+                    const lim = parseInt(nearestCount, 10);
+                    const arr = results as Trial[];
+                    const effective = (!lat || !lon || Number.isNaN(lim) || lim <= 0) ? arr.length : Math.min(arr.length, lim);
+                    return page * pageSize >= effective;
+                  })()}
+                >Next</button>
+              </div>
+            </div>
+          )}
+
           <div className="divide-y mt-3">
             {(Array.isArray(results) ? ((): Trial[] => {
               const lim = parseInt(nearestCount, 10);
-              if (!lat || !lon || Number.isNaN(lim) || lim <= 0) return results as Trial[];
-              // take top N when distance present
-              return (results as any[]).slice(0, lim);
+              const base = results as Trial[];
+              const effective = (!lat || !lon || Number.isNaN(lim) || lim <= 0)
+                ? base
+                : base.slice(0, lim);
+              const start = (page - 1) * pageSize;
+              const end = start + pageSize;
+              return effective.slice(start, end);
             })() : []).map((t: any, i: number) => (
               <div key={t.nct_id} className="py-3" onMouseEnter={() => {
                 if (t.locations && t.locations[0]) setActivePos([t.locations[0].lat, t.locations[0].lon]);
               }}>
-                <div className="font-medium">{t.title}</div>
+                <div className="font-medium">
+                  <a href={t.url || `https://clinicaltrials.gov/study/${t.nct_id}`}
+                     className="text-primary-700 hover:underline" target="_blank" rel="noreferrer">
+                    {t.title}
+                  </a>
+                </div>
                 <div className="text-sm text-gray-600 flex items-center space-x-2">
                   <span>{t.nct_id} • {t.phase} • {t.status}</span>
                   {('distance_km' in (t as any) && (t as any).distance_km !== null) && (

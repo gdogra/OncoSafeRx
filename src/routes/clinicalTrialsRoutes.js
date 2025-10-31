@@ -312,6 +312,7 @@ router.get('/filters/options', async (req, res) => {
 
     const conditionsSet = new Set();
     const biomarkersSet = new Set();
+    const countriesSet = new Set();
 
     // Known oncology biomarkers to detect in titles/descriptions
     const biomarkerTerms = [
@@ -333,16 +334,23 @@ router.get('/filters/options', async (req, res) => {
           biomarkersSet.add(norm);
         }
       });
+      // Derive countries from locations if available
+      (s.locations || []).forEach((loc) => {
+        const c = loc?.country || loc?.Country || null;
+        if (c && typeof c === 'string') countriesSet.add(c);
+      });
     });
 
     const conditions = Array.from(conditionsSet).sort((a,b) => a.localeCompare(b));
     const biomarkers = Array.from(biomarkersSet).sort((a,b) => a.localeCompare(b));
+    const countries = Array.from(countriesSet).sort((a,b) => a.localeCompare(b));
 
     return res.json({
       success: true,
       data: {
         conditions,
         biomarkers,
+        countries,
         totalStudies: studies.length,
         recruitmentStatus,
         studyType,

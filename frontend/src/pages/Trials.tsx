@@ -50,6 +50,8 @@ const Trials: React.FC = () => {
   const [lon, setLon] = useState<string>('');
   const [radius, setRadius] = useState<string>('');
   const [searchAddress, setSearchAddress] = useState<string>('');
+  const [addressSuggestions, setAddressSuggestions] = useState<Array<{ display_name: string; lat: string; lon: string }>>([]);
+  const [addrSuggestOpen, setAddrSuggestOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<Trial[] | null>(null);
@@ -196,10 +198,15 @@ const Trials: React.FC = () => {
   };
 
   const [activePos, setActivePos] = useState<[number, number] | null>(null);
+  const [activeZoom, setActiveZoom] = useState<number | null>(null);
   const PanTo: React.FC = () => {
     const map = useMap();
     if (activePos) {
-      map.panTo(activePos);
+      if (activeZoom !== null) {
+        map.setView(activePos, activeZoom);
+      } else {
+        map.panTo(activePos);
+      }
     }
     return null;
   };
@@ -231,6 +238,7 @@ const Trials: React.FC = () => {
         setLat(String(lt.toFixed(5)));
         setLon(String(ln.toFixed(5)));
         setActivePos([lt, ln]);
+        setActiveZoom(10);
         showToast('success', `Location set: ${hit.display_name?.split(',').slice(0,3).join(', ') || 'Selected'}`);
       } else {
         showToast('error', 'Invalid coordinates from geocoder');
@@ -239,6 +247,34 @@ const Trials: React.FC = () => {
       showToast('error', e?.message || 'Failed to geocode');
     }
   };
+
+  // Debounced address suggestions (Nominatim)
+  useEffect(() => {
+    const q = String(searchAddress || '').trim();
+    if (q.length < 3) { setAddressSuggestions([]); setAddrSuggestOpen(false); return; }
+    const ctl = new AbortController();
+    const t = setTimeout(async () => {
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&addressdetails=1&limit=5`;
+        const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: ctl.signal });
+        if (!resp.ok) return;
+        const data = await resp.json();
+        if (Array.isArray(data)) {
+          setAddressSuggestions(data.map((d: any) => ({ display_name: d.display_name, lat: d.lat, lon: d.lon })));
+          setAddrSuggestOpen(true);
+        }
+      } catch { /* ignore */ }
+    }, 350);
+    return () => { clearTimeout(t); ctl.abort(); };
+  }, [searchAddress]);
+
+  // Resort existing results when lat/lon changes
+  useEffect(() => {
+    if (Array.isArray(results)) {
+      setResults(computeDistanceSorted(results));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lat, lon]);
 
   const searchProgressive = async (initialRadius?: string) => {
     setLoading(true); setError(null);
@@ -945,6 +981,32 @@ const Trials: React.FC = () => {
             <input className="border rounded px-2 py-1 w-full" placeholder="City or address" value={searchAddress} onChange={e => setSearchAddress(e.target.value)} />
             <button onClick={geocodeAddress} className="px-3 py-2 bg-gray-100 rounded">Set Location</button>
           </div>
+          {addrSuggestOpen && addressSuggestions.length > 0 && (
+            <div className="col-span-3 md:col-span-6 relative">
+              <div className="absolute z-20 mt-1 w-full max-w-md bg-white border border-gray-200 rounded shadow">
+                {addressSuggestions.map((sug, idx) => (
+                  <button
+                    key={idx}
+                    className="block w-full text-left px-3 py-2 hover:bg-gray-50 text-sm"
+                    onClick={() => {
+                      setSearchAddress(sug.display_name);
+                      const lt = parseFloat(sug.lat); const ln = parseFloat(sug.lon);
+                      if (Number.isFinite(lt) && Number.isFinite(ln)) {
+                        setLat(String(lt.toFixed(5)));
+                        setLon(String(ln.toFixed(5)));
+                        setActivePos([lt, ln]);
+                        setActiveZoom(10);
+                        setAddrSuggestOpen(false);
+                        setAddressSuggestions([]);
+                      }
+                    }}
+                  >
+                    {sug.display_name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="flex space-x-2">
             <button onClick={search} className="px-3 py-2 bg-primary-600 text-white rounded">{loading ? 'Searching…' : 'Search'}</button>
             <button onClick={useMyLocation} className="px-3 py-2 bg-gray-100 rounded">Use My Location</button>

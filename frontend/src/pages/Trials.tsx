@@ -58,6 +58,8 @@ const Trials: React.FC = () => {
   const [includeObservational, setIncludeObservational] = useState<boolean>(false);
   const [expandedStatuses, setExpandedStatuses] = useState<boolean>(true);
   const [autoExpandRadius, setAutoExpandRadius] = useState<boolean>(true);
+  const [dataSource, setDataSource] = useState<'unknown' | 'primary' | 'external' | 'direct' | 'primary-broad' | 'external-broad' | 'direct-broad' | 'sample'>('unknown');
+  const [diagMsg, setDiagMsg] = useState<string>('');
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [recentDrugs, setRecentDrugs] = useState<string[]>([]);
@@ -213,13 +215,19 @@ const Trials: React.FC = () => {
               const fb = await fallbackResp.json();
               setResults(fb.trials || []);
               setUsedFallback(true);
+              setDataSource('sample');
+              setDiagMsg('Primary API returned fallback; using sample');
             } else {
               setResults(mapped);
               setUsedFallback(false);
+              setDataSource('primary');
+              setDiagMsg('');
             }
           } catch {
             setResults(mapped);
             setUsedFallback(false);
+            setDataSource('primary');
+            setDiagMsg('');
           }
         } else if (mapped.length === 0) {
           // Try alternate proxy endpoint to ClinicalTrials.gov (external integrator)
@@ -246,6 +254,8 @@ const Trials: React.FC = () => {
                 setResults(extMapped);
                 setUsedFallback(false);
                 showToast('info', 'Using alternate trials source (direct proxy)');
+                setDataSource('external');
+                setDiagMsg('Primary returned 0; alternate proxy used');
                 return;
               }
             }
@@ -275,6 +285,8 @@ const Trials: React.FC = () => {
                 setResults(dMapped);
                 setUsedFallback(false);
                 showToast('info', 'Using ClinicalTrials.gov directly');
+                setDataSource('direct');
+                setDiagMsg('Primary returned 0; direct ct.gov used');
                 return;
               }
             }
@@ -304,6 +316,8 @@ const Trials: React.FC = () => {
                 setResults(broadMapped);
                 setUsedFallback(false);
                 showToast('info', 'No exact matches; showing general recruiting trials');
+                setDataSource('primary-broad');
+                setDiagMsg('Broadened search (primary)');
               } else {
                 // Try alternate proxy broad search
                 try {
@@ -325,6 +339,8 @@ const Trials: React.FC = () => {
                       setResults(extMapped2);
                       setUsedFallback(false);
                       showToast('info', 'Using alternate trials source (direct proxy)');
+                      setDataSource('external-broad');
+                      setDiagMsg('Broadened search (alternate proxy)');
                       return;
                     }
                   }
@@ -353,6 +369,8 @@ const Trials: React.FC = () => {
                       setResults(dMapped2);
                       setUsedFallback(false);
                       showToast('info', 'Using ClinicalTrials.gov directly');
+                      setDataSource('direct-broad');
+                      setDiagMsg('Broadened search (direct ct.gov)');
                       return;
                     }
                   }
@@ -363,19 +381,29 @@ const Trials: React.FC = () => {
                   const sample = await sampleResp.json();
                   setResults(sample.trials || []);
                   setUsedFallback(true);
+                  setDataSource('sample');
+                  setDiagMsg('All live paths empty; using sample');
                 } else {
                   setResults([]);
+                  setDataSource('unknown');
+                  setDiagMsg('No data available');
                 }
               }
             } else {
               setResults(mapped);
+              setDataSource('primary');
+              setDiagMsg('');
             }
           } catch {
             setResults(mapped);
+            setDataSource('primary');
+            setDiagMsg('');
           }
         } else {
           setResults(mapped);
           setUsedFallback(false);
+          setDataSource('primary');
+          setDiagMsg('');
         }
       } else {
         // Broad default search from ClinicalTrials.gov (comprehensive options)
@@ -393,6 +421,7 @@ const Trials: React.FC = () => {
         if (!resp.ok) {
           const errorText = await resp.text();
           console.error('🔍 Default search failed:', resp.status, errorText);
+          setDiagMsg(`primary ${resp.status}`);
           throw new Error(`API ${resp.status}: ${errorText}`);
         }
         const data = await resp.json();
@@ -419,17 +448,25 @@ const Trials: React.FC = () => {
               setResults(trials);
               showToast('warning', 'Showing sample trials (live data unavailable)');
               setUsedFallback(true);
+              setDataSource('sample');
+              setDiagMsg('Primary default empty; using sample');
             } else {
               setResults(mapped);
               setUsedFallback(false);
+              setDataSource('primary');
+              setDiagMsg('');
             }
           } catch {
             setResults(mapped);
             setUsedFallback(false);
+            setDataSource('primary');
+            setDiagMsg('');
           }
         } else {
           setResults(mapped);
           setUsedFallback(false);
+          setDataSource('primary');
+          setDiagMsg('');
         }
       }
       // Persist filters to URL for share/reload
@@ -636,6 +673,29 @@ const Trials: React.FC = () => {
       )}
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Clinical Trials' }]} />
       <h1 className="text-2xl font-bold text-gray-900">Clinical Trials (MVP)</h1>
+      <div className="flex items-center gap-3 text-xs text-gray-600">
+        <span>
+          Data source: {(
+            {
+              unknown: 'unknown',
+              primary: 'primary (server)',
+              external: 'alternate proxy (server)',
+              direct: 'ct.gov (browser)',
+              'primary-broad': 'primary (broad)',
+              'external-broad': 'alternate proxy (broad)',
+              'direct-broad': 'ct.gov (browser, broad)',
+              sample: 'local sample'
+            } as any
+          )[dataSource] || dataSource}
+        </span>
+        {diagMsg && <span>• {diagMsg}</span>}
+        <button
+          onClick={() => { setUsedFallback(false); setDiagMsg(''); setDataSource('unknown'); search(); }}
+          className="px-2 py-1 rounded border bg-white hover:bg-gray-50 text-gray-700"
+        >
+          Retry live fetch
+        </button>
+      </div>
       {liveTotal !== null && (
         <div className="flex items-center gap-3 text-xs text-gray-600">
           <div>

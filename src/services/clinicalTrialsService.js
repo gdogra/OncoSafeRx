@@ -94,39 +94,62 @@ class ClinicalTrialsService {
       console.log('🔍 Will search for study types:', studyTypesToSearch, 'with statuses:', statusList);
 
       // Make API calls for each combination of status and study type
+      const targetMax = Math.min(Math.max(parseInt(maxResults || pageSize) || pageSize, pageSize), 2000);
       for (const status of statusList) {
         for (const type of studyTypesToSearch) {
-          const params = {
-            ...baseParams,
-            'filter.overallStatus': status,
-            'filter.studyType': type
-          };
+          let token = pageToken || null;
+          let pagesFetched = 0;
+          while (true) {
+            const params = {
+              ...baseParams,
+              'filter.overallStatus': status,
+              'filter.studyType': type,
+              ...(token ? { 'pageToken': token } : {})
+            };
 
-          // Remove undefined/null values
-          Object.keys(params).forEach(key => {
-            if (params[key] === undefined || params[key] === null) {
-              delete params[key];
-            }
-          });
-
-          try {
-            console.log(`Fetching ${type} studies with ${status} status:`, params);
-            const response = await axios.get(this.baseUrl, {
-              params,
-              timeout: 15000,
-              headers: {
-                'User-Agent': 'OncoSafeRx/1.0 Clinical Decision Support System'
+            // Remove undefined/null values
+            Object.keys(params).forEach(key => {
+              if (params[key] === undefined || params[key] === null) {
+                delete params[key];
               }
             });
-            
-            if (response.data?.studies) {
-              console.log(`Found ${response.data.studies.length} ${type} studies with ${status} status`);
-              allStudies.push(...response.data.studies);
+
+            try {
+              console.log(`Fetching ${type} studies with ${status} status (page ${pagesFetched + 1}):`, params);
+              const response = await axios.get(this.baseUrl, {
+                params,
+                timeout: 20000,
+                headers: {
+                  'User-Agent': 'OncoSafeRx/1.0 Clinical Decision Support System'
+                }
+              });
+
+              const rdata = response.data || {};
+              const studiesPage = Array.isArray(rdata.studies) ? rdata.studies : [];
+              if (studiesPage.length) {
+                allStudies.push(...studiesPage);
+              }
+              const next = rdata.nextPageToken || null;
+              pagesFetched += 1;
+
+              // Stop conditions: no next page, reached targetMax, or safety page cap
+              if (!next || allStudies.length >= targetMax || pagesFetched >= 20) {
+                break;
+              }
+              token = next;
+            } catch (err) {
+              console.warn(`Failed to fetch ${type} studies with ${status} status (page ${pagesFetched + 1}):`, err.message);
+              console.warn('Error details:', err.response?.data || err.response || err);
+              break;
             }
-          } catch (err) {
-            console.warn(`Failed to fetch ${type} studies with ${status} status:`, err.message);
-            console.warn('Error details:', err.response?.data || err.response || err);
           }
+          // If we already have enough across combinations, stop early
+          if (allStudies.length >= targetMax) {
+            break;
+          }
+        }
+        if (allStudies.length >= targetMax) {
+          break;
         }
       }
       

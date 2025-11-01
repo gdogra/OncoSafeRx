@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import Joi from 'joi';
 import { generateToken, authenticateToken, optionalAuth, requireAdmin } from '../middleware/auth.js';
+import { patientProfileSchema } from '../middleware/validation.js';
 import supabaseService from '../config/supabase.js';
 import { validate } from '../utils/validation.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
@@ -24,7 +25,7 @@ const registerSchema = Joi.object({
     'string.max': 'Full name cannot exceed 255 characters',
     'any.required': 'Full name is required'
   }),
-  role: Joi.string().valid('user', 'physician', 'pharmacist', 'resident', 'nurse', 'admin').default('user').messages({
+  role: Joi.string().valid('user', 'patient', 'physician', 'pharmacist', 'resident', 'nurse', 'admin').default('user').messages({
     'any.only': 'Role must be one of: user, physician, pharmacist, resident, nurse, admin'
   }),
   institution: Joi.string().max(255).optional().messages({
@@ -35,7 +36,9 @@ const registerSchema = Joi.object({
   }),
   license_number: Joi.string().max(100).optional().messages({
     'string.max': 'License number cannot exceed 100 characters'
-  })
+  }),
+  // Optional rich patient profile (all fields optional; user can skip)
+  patient_profile: patientProfileSchema.optional()
 });
 
 // Login schema
@@ -54,7 +57,7 @@ const loginSchema = Joi.object({
 router.post('/register', 
   validate(registerSchema, 'body'),
   asyncHandler(async (req, res) => {
-    const { email, password, full_name, role = 'user', institution, specialty, license_number } = req.body;
+    const { email, password, full_name, role = 'user', institution, specialty, license_number, patient_profile } = req.body;
 
     // Check if user already exists (only enforce when real Supabase is enabled)
     const existingUser = await supabaseService.getUserByEmail(email);
@@ -75,7 +78,7 @@ router.post('/register',
           const authUser = await supabaseService.createAuthUser({
             email,
             password,
-            metadata: { full_name, role, institution, specialty, license_number },
+            metadata: { full_name, role, institution, specialty, license_number, patient_profile },
             email_confirm: autoConfirm
           });
           authUserId = authUser?.id || null;
@@ -94,6 +97,7 @@ router.post('/register',
         institution,
         specialty,
         license_number,
+        patient_profile: patient_profile || undefined,
         is_active: true
       };
 
@@ -239,28 +243,46 @@ router.get('/profile',
 );
 
 // Update user profile
+// Deep merge helper for nested updates
+function deepMerge(target = {}, source = {}) {
+  const out = { ...target };
+  for (const [k, v] of Object.entries(source)) {
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      out[k] = deepMerge(target?.[k] || {}, v);
+    } else {
+      out[k] = v;
+    }
+  }
+  return out;
+}
+
 router.put('/profile',
   authenticateToken,
   asyncHandler(async (req, res) => {
-    const { full_name, institution, specialty, license_number, preferences } = req.body;
+    const { full_name, institution, specialty, license_number, preferences, patient_profile } = req.body || {};
 
     try {
+      const current = await supabaseService.getUserByEmail(req.user.email);
       const updates = {};
       if (full_name) updates.full_name = full_name;
       if (institution) updates.institution = institution;
       if (specialty) updates.specialty = specialty;
       if (license_number) updates.license_number = license_number;
-      if (preferences) updates.preferences = preferences;
+      if (preferences) updates.preferences = deepMerge(current?.preferences || {}, preferences);
+
+      if (patient_profile) {
+        // Validate shape but do not require fields (skip ok)
+        const { error, value } = patientProfileSchema.validate(patient_profile, { abortEarly: false, stripUnknown: true });
+        if (error) {
+          return res.status(400).json({ error: 'Invalid patient_profile', details: error.details.map(d => d.message) });
+        }
+        updates.patient_profile = deepMerge(current?.patient_profile || {}, value);
+      }
 
       const updatedUser = await supabaseService.updateUser(req.user.id, updates);
-      
-      // Return updated user info (without password)
+
       const { password_hash, ...userResponse } = updatedUser;
-      
-      res.json({
-        message: 'Profile updated successfully',
-        user: userResponse
-      });
+      return res.json({ message: 'Profile updated successfully', user: userResponse });
 
     } catch (error) {
       console.error('Profile update error:', error);

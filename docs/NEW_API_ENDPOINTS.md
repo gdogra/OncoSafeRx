@@ -79,3 +79,23 @@ Validation
 
 Notes
 - Many services currently return structured placeholders with `analysisType`/`version` metadata to aid clients during integration.
+
+Auth and Profiles (patient)
+- POST `/auth/register`
+  - Accepts `patient_profile` (optional). Patients can skip and fill later.
+  - Example request:
+    {
+      "email": "pat@example.com",
+      "password": "StrongPass123",
+      "full_name": "Pat Example",
+      "role": "patient",
+      "patient_profile": {
+        "demographics": { "firstName": "Pat", "dateOfBirth": "1980-04-12" },
+        "cancer": { "cancerType": "breast", "cancerStage": "II" }
+      }
+    }
+
+- GET `/auth/profile`
+- PUT `/auth/profile`
+  - Accepts partial updates and deep-merges nested objects.
+  - Validates against patient profile schema; all fields optional.

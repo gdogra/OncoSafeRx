@@ -207,6 +207,70 @@ export const prescriptionSchema = Joi.object({
   timestamp: Joi.date().iso().optional()
 });
 
+// Patient profile (rich, all-optional to allow skip)
+export const patientProfileSchema = Joi.object({
+  demographics: Joi.object({
+    firstName: Joi.string().max(100).optional(),
+    lastName: Joi.string().max(100).optional(),
+    middleName: Joi.string().max(100).optional(),
+    dateOfBirth: Joi.date().iso().optional(),
+    sex: Joi.string().valid('male', 'female', 'other', 'unknown').optional(),
+    ethnicity: Joi.string().max(100).optional(),
+    race: Joi.string().max(100).optional(),
+    phone: Joi.string().max(50).optional(),
+    email: Joi.string().email().optional(),
+    address: Joi.object({
+      line1: Joi.string().max(200).optional(),
+      line2: Joi.string().max(200).optional(),
+      city: Joi.string().max(100).optional(),
+      state: Joi.string().max(100).optional(),
+      postalCode: Joi.string().max(20).optional(),
+      country: Joi.string().max(100).optional()
+    }).optional()
+  }).optional(),
+  cancer: Joi.object({
+    cancerType: Joi.string().optional(),
+    cancerStage: Joi.string().optional(),
+    histology: Joi.string().optional(),
+    diagnosisDate: Joi.date().iso().optional(),
+    treatingCenter: Joi.string().optional(),
+    treatingPhysician: Joi.string().optional()
+  }).optional(),
+  medicalHistory: Joi.object({
+    conditions: Joi.array().items(Joi.string()).optional(),
+    surgeries: Joi.array().items(Joi.string()).optional(),
+    allergies: Joi.array().items(Joi.object({
+      allergen: Joi.string().required(),
+      reaction: Joi.string().optional(),
+      severity: Joi.string().valid('mild', 'moderate', 'severe').optional()
+    })).optional(),
+    familyHistory: Joi.array().items(Joi.string()).optional()
+  }).optional(),
+  medications: Joi.array().items(medicationSchema).optional(),
+  biomarkers: Joi.object({
+    her2: Joi.string().valid('positive', 'negative', 'unknown').optional(),
+    er: Joi.string().valid('positive', 'negative', 'unknown').optional(),
+    pr: Joi.string().valid('positive', 'negative', 'unknown').optional(),
+    pdl1: Joi.number().min(0).max(100).optional(),
+    msi: Joi.string().valid('high', 'stable', 'unknown').optional()
+  }).optional(),
+  genomics: geneticDataSchema.optional(),
+  insurance: Joi.object({
+    provider: Joi.string().optional(),
+    memberId: Joi.string().optional(),
+    groupNumber: Joi.string().optional()
+  }).optional(),
+  emergencyContact: Joi.object({
+    name: Joi.string().optional(),
+    relationship: Joi.string().optional(),
+    phone: Joi.string().optional()
+  }).optional(),
+  consents: Joi.object({
+    shareDeidentifiedData: Joi.boolean().optional(),
+    researchContactOk: Joi.boolean().optional()
+  }).optional()
+});
+
 // Analysis request validation
 export const analysisRequestSchema = Joi.object({
   sessionId: Joi.string().optional(),

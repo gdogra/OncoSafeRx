@@ -494,3 +494,51 @@ paths:
                 includeVisualization: { type: boolean }
       responses:
         '200': { description: Explanation payload }
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, full_name]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                full_name: { type: string }
+                role: { type: string, enum: [user, patient, physician, pharmacist, resident, nurse, admin] }
+                institution: { type: string }
+                specialty: { type: string }
+                license_number: { type: string }
+                patient_profile:
+                  $ref: '#/components/schemas/PatientContext'
+      responses:
+        '201': { description: Registered }
+  /auth/profile:
+    get:
+      tags: [Auth]
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Current user profile }
+    put:
+      tags: [Auth]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name: { type: string }
+                institution: { type: string }
+                specialty: { type: string }
+                license_number: { type: string }
+                preferences: { type: object }
+                patient_profile:
+                  $ref: '#/components/schemas/PatientContext'
+      responses:
+        '200': { description: Updated profile }

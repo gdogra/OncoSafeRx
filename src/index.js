@@ -75,6 +75,9 @@ import acquisitionEnhancementRoutes from './routes/acquisitionEnhancementRoutes.
 import ddiMiningRoutes from './routes/ddiMiningRoutes.js';
 import migrationRoutes from './routes/migrationRoutes.js';
 import dataIntegrationRoutes from './routes/dataIntegration.js';
+import enhancedClinicalRoutes from './routes/enhancedClinicalRoutes.js';
+import genomicProfilingRoutes from './routes/genomicProfilingRoutes.js';
+import aiTreatmentRoutes from './routes/aiTreatmentRoutes.js';
 import { addScientistModeHeaders, scientistModeFilter } from './middleware/scientistMode.js';
 import { join as pathJoin } from 'path';
 
@@ -228,6 +231,10 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     version: process.env.APP_VERSION || '20.0.0',
     api: 'oncosaferx',
+    docs: {
+      ui: '/docs',
+      openapi: '/docs/openapi.yaml'
+    },
     supabase: {
       enabled: !!supabaseService?.enabled
     },
@@ -334,6 +341,9 @@ function normalizeRouteForMetrics(p) {
       { rx: /^\/api\/interactions(\/|$)/i, canonical: '/api/interactions' },
       { rx: /^\/api\/drugs(\/|$)/i, canonical: '/api/drugs' },
       { rx: /^\/api\/patients(\/|$)/i, canonical: '/api/patients' },
+      { rx: /^\/api\/clinical(\/|$)/i, canonical: '/api/clinical' },
+      { rx: /^\/api\/genomics\/profiling(\/|$)/i, canonical: '/api/genomics/profiling' },
+      { rx: /^\/api\/ai\/treatment(\/|$)/i, canonical: '/api/ai/treatment' },
       { rx: /^\/metrics$/i, canonical: '/metrics' },
       { rx: /^\/health$/i, canonical: '/health' },
     ];
@@ -445,6 +455,28 @@ app.get('/metrics/help', (req, res) => {
   }
 });
 
+// API docs pointer (JSON)
+app.get('/api/docs', (req, res) => {
+  res.json({
+    docsUrl: '/docs',
+    openapiUrl: '/docs/openapi.yaml',
+    note: 'Open in a browser to view Swagger UI'
+  });
+});
+
+// Developer Docs: serve OpenAPI and Swagger UI (CDN-based)
+try {
+  const docsPath = join(__dirname, '../docs');
+  app.use('/docs', express.static(docsPath));
+  app.get('/docs', (req, res) => {
+    res.setHeader('Cache-Control', 'no-cache');
+    res.sendFile(join(docsPath, 'swagger.html'));
+  });
+  logInfo('API docs available at /docs');
+} catch (e) {
+  console.warn('Docs setup error:', e?.message || e);
+}
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/supabase-auth', supabaseAuthRoutes);
@@ -467,6 +499,9 @@ app.use('/api/collaboration', collaborationRoutes);
 app.use('/api/analytics', scientistModeFilter('analytics'), analyticsRoutes);
 app.use('/api/trials', trialRoutes);
 app.use('/api/clinical-trials', clinicalTrialsRoutes);
+app.use('/api/clinical', enhancedClinicalRoutes);
+app.use('/api/genomics/profiling', genomicProfilingRoutes);
+app.use('/api/ai/treatment', aiTreatmentRoutes);
 app.use('/api/geocode', geocodeRoutes);
 app.use('/api/drug-alternatives', drugAlternativesRoutes);
 app.use('/api/audit', auditRoutes);

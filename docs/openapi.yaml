@@ -1,228 +1,496 @@
 openapi: 3.0.3
 info:
-  title: OncoSafeRx API
-  version: 20.0.0
-  description: Core REST API for OncoSafeRx, including admin and integration endpoints.
+  title: OncoSafeRx API (New Clinical/Genomic/AI Endpoints)
+  version: 1.0.0
 servers:
-  - url: / 
-paths:
-  /health:
-    get:
-      summary: Health check
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Health'
-
-  /metrics:
-    get:
-      summary: Prometheus metrics (protected with optional token)
-      parameters:
-        - in: header
-          name: X-Metrics-Token
-          schema: { type: string }
-        - in: query
-          name: token
-          schema: { type: string }
-      responses:
-        '200': { description: Prometheus metrics text }
-        '403': { description: Forbidden }
-
-  /metrics/help:
-    get:
-      summary: Metrics help (human-readable)
-      responses:
-        '200':
-          description: Summary JSON
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  metrics:
-                    type: array
-                    items:
-                      type: object
-                  notes:
-                    type: array
-                    items: { type: string }
-
-  /api/integrations/ping:
-    get:
-      summary: Integration ping
-      security: [ { apiKeyAuth: [] } ]
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ok: { type: boolean }
-                  tenant: { type: string }
-                  keyPhase: { type: string, enum: [active, next] }
-                  time: { type: string, format: date-time }
-        '401': { description: Missing credentials }
-        '403': { description: Invalid API key }
-
-  /api/integrations/patients/lookup:
-    get:
-      summary: Lookup patient by MRN
-      security: [ { apiKeyAuth: [] } ]
-      parameters:
-        - in: query
-          name: mrn
-          required: true
-          schema: { type: string }
-      responses:
-        '200':
-          description: List of matched patients (may be empty)
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  patients:
-                    type: array
-                    items: { $ref: '#/components/schemas/Patient' }
-        '400': { description: MRN required }
-
-  /api/admin/integrations/keys/usage:
-    get:
-      summary: Per-tenant key usage summary
-      security: [ { bearerAuth: [] } ]
-      responses:
-        '200':
-          description: Usage map
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  usage:
-                    type: object
-
-  /api/admin/integrations/keys/health:
-    get:
-      summary: Per-tenant key health
-      security: [ { bearerAuth: [] } ]
-      responses:
-        '200':
-          description: Health summary
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  ok: { type: boolean }
-                  tenants:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        tenant: { type: string }
-                        hasActive: { type: boolean }
-                        hasNext: { type: boolean }
-                        activeCount: { type: integer }
-                        nextCount: { type: integer }
-
-  /api/admin/integrations/keys/rotate:
-    post:
-      summary: Rotate tenant API keys
-      security: [ { bearerAuth: [] } ]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                tenant: { type: string }
-                nextKeys:
-                  type: array
-                  items: { type: string }
-                promote: { type: boolean }
-                retireActive: { type: boolean }
-              required: [ tenant ]
-      responses:
-        '200': { description: OK }
-        '400': { description: Validation error }
-
-  /api/admin/integrations/keys/update:
-    post:
-      summary: Add/remove keys in a phase
-      security: [ { bearerAuth: [] } ]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                tenant: { type: string }
-                phase: { type: string, enum: [active, next] }
-                add:
-                  type: array
-                  items: { type: string }
-                remove:
-                  type: array
-                  items: { type: string }
-                force: { type: boolean }
-              required: [ tenant, phase ]
-      responses:
-        '200': { description: OK }
-        '400': { description: Validation error }
-
-  /api/admin/integrations/keys/clear:
-    post:
-      summary: Clear all keys in a phase
-      security: [ { bearerAuth: [] } ]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                tenant: { type: string }
-                phase: { type: string, enum: [active, next] }
-                force: { type: boolean }
-              required: [ tenant, phase ]
-      responses:
-        '200': { description: OK }
-        '400': { description: Validation error }
-
+  - url: /api
+security:
+  - bearerAuth: []
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-    apiKeyAuth:
-      type: apiKey
-      in: header
-      name: X-API-Key
   schemas:
-    Health:
+    Medication:
+      type: object
+      required: [name]
+      properties:
+        rxcui:
+          type: string
+          description: RxNorm RXCUI
+        name:
+          type: string
+        generic_name:
+          type: string
+        brand_names:
+          type: array
+          items: { type: string }
+        dose:
+          type: string
+        frequency:
+          type: string
+        route:
+          type: string
+          enum: [oral, IV, IM, SC, topical, inhalation, rectal, other]
+    PatientContext:
       type: object
       properties:
-        status: { type: string }
-        timestamp: { type: string, format: date-time }
-        version: { type: string }
-    Patient:
-      type: object
-      properties:
-        id: { type: string }
-        user_id: { type: string }
-        created_at: { type: string, format: date-time }
-        updated_at: { type: string, format: date-time }
-        demographics:
+        patientId: { type: string }
+        age: { type: integer, minimum: 0, maximum: 120 }
+        weight: { type: number }
+        height: { type: number }
+        sex: { type: string, enum: [male, female, other, unknown] }
+        comorbidities:
+          type: array
+          items: { type: string }
+        allergies:
+          type: array
+          items:
+            type: object
+            properties:
+              allergen: { type: string }
+              reaction: { type: string }
+              severity: { type: string, enum: [mild, moderate, severe] }
+        kidneyFunction: { type: number, description: eGFR }
+        liverFunction:
           type: object
+          properties:
+            alt: { type: number }
+            ast: { type: number }
+            bilirubin: { type: number }
+            albumin: { type: number }
+        cancerType: { type: string }
+        cancerStage: { type: string }
+        performanceStatus: { type: integer, minimum: 0, maximum: 4 }
+        priorTherapies:
+          type: array
+          items:
+            type: object
+            properties:
+              therapy: { type: string }
+              startDate: { type: string, format: date-time }
+              endDate: { type: string, format: date-time }
+              response: { type: string }
+        biomarkers:
+          type: object
+          additionalProperties: true
+        genetics:
+          type: object
+          additionalProperties: true
+        laboratoryValues:
+          type: object
+          additionalProperties: true
+    Prescription:
+      type: object
+      required: [medications]
+      properties:
         medications:
           type: array
+          items: { $ref: '#/components/schemas/Medication' }
+        patientContext:
+          $ref: '#/components/schemas/PatientContext'
+    Variant:
+      type: object
+      required: [gene]
+      properties:
+        gene: { type: string }
+        alteration: { type: string }
+        type: { type: string, enum: [snv, indel, cnv, fusion, structural] }
+        impact: { type: string, enum: [high, moderate, low, modifier] }
+        clinicalSignificance: { type: string }
+        alleleFrequency: { type: number }
+    GenomicData:
+      type: object
+      required: [sampleId]
+      properties:
+        sampleId: { type: string }
+        cancerType: { type: string }
+        sampleType: { type: string, enum: [tumor, normal, liquid_biopsy] }
+        sequencingPlatform: { type: string }
+        panelType: { type: string }
+        variants:
+          type: array
+          items: { $ref: '#/components/schemas/Variant' }
+        structuralVariants:
+          type: array
           items: { type: object }
+        copyNumberVariations:
+          type: array
+          items: { type: object }
+    Treatment:
+      type: object
+      required: [regimen]
+      properties:
+        regimen: { type: string }
+        type: { type: string, enum: [chemotherapy, immunotherapy, targeted, combination, radiation, surgery] }
+        agents: { type: array, items: { type: string } }
+        dosing: { type: object }
+        schedule: { type: string }
+        duration: { type: number }
+        evidence: { type: string, enum: [A, B, C, D] }
+        approvalStatus: { type: string }
+    PatientData:
+      type: object
+      required: [age, sex, cancerType, cancerStage, performanceStatus]
+      properties:
+        patientId: { type: string }
+        age: { type: integer }
+        sex: { type: string, enum: [male, female, other] }
+        cancerType: { type: string }
+        cancerStage: { type: string }
+        histology: { type: string }
+        performanceStatus: { type: integer, minimum: 0, maximum: 4 }
+        comorbidities: { type: array, items: { type: string } }
+        biomarkers: { type: object, additionalProperties: true }
+        genomics: { type: object, additionalProperties: true }
+        priorTreatments:
+          type: array
+          items:
+            type: object
+            properties:
+              regimen: { type: string }
+              response: { type: string }
+              duration: { type: number }
+              endReason: { type: string }
+        laboratoryValues: { type: object, additionalProperties: true }
+        kidneyFunction: { type: number }
+        liverFunction: { type: object, additionalProperties: true }
+        cardiacFunction: { type: object, additionalProperties: true }
+        metastaticSites: { type: array, items: { type: string } }
 
+paths:
+  /clinical/analyze-interactions:
+    post:
+      tags: [Clinical]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [medications]
+              properties:
+                medications:
+                  type: array
+                  minItems: 2
+                  items: { $ref: '#/components/schemas/Medication' }
+                patientContext:
+                  $ref: '#/components/schemas/PatientContext'
+      responses:
+        '200':
+          description: Interaction analysis
+  /clinical/decision-support:
+    post:
+      tags: [Clinical]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Prescription' }
+      responses:
+        '200': { description: Clinical decision support }
+  /clinical/pharmacogenomics:
+    post:
+      tags: [Clinical]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [medications, genetics]
+              properties:
+                medications:
+                  type: array
+                  items: { $ref: '#/components/schemas/Medication' }
+                genetics:
+                  type: object
+                  additionalProperties: true
+                patientContext:
+                  $ref: '#/components/schemas/PatientContext'
+      responses:
+        '200': { description: Pharmacogenomic analysis }
+  /clinical/comprehensive-analysis:
+    post:
+      tags: [Clinical]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [medications]
+              properties:
+                medications:
+                  type: array
+                  items: { $ref: '#/components/schemas/Medication' }
+                patientContext:
+                  $ref: '#/components/schemas/PatientContext'
+                includePharmacogenomics: { type: boolean }
+                includeInteractions: { type: boolean }
+                includeDecisionSupport: { type: boolean }
+      responses:
+        '200': { description: Combined clinical analysis }
+  /clinical/drug-info/{rxcui}:
+    get:
+      tags: [Clinical]
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: rxcui
+          required: true
+          schema: { type: string }
+        - in: query
+          name: patientContext
+          schema: { type: string, description: JSON-encoded PatientContext }
+      responses:
+        '200': { description: Drug information with context }
+        '400': { description: Invalid patientContext JSON }
+
+  /genomics/profiling/analyze-profile:
+    post:
+      tags: [Genomics]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [genomicData]
+              properties:
+                genomicData: { $ref: '#/components/schemas/GenomicData' }
+                patientContext: { $ref: '#/components/schemas/PatientContext' }
+                analysisOptions: { type: object }
+      responses:
+        '200': { description: Genomic profile analysis }
+  /genomics/profiling/interpret-variants:
+    post:
+      tags: [Genomics]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [variants]
+              properties:
+                variants:
+                  type: array
+                  items: { $ref: '#/components/schemas/Variant' }
+                cancerType: { type: string }
+                includeTherapeuticImplications: { type: boolean }
+                includePrognosticImplications: { type: boolean }
+                includeResistanceImplications: { type: boolean }
+      responses:
+        '200': { description: Variant interpretation }
+  /genomics/profiling/analyze-tmb:
+    post:
+      tags: [Genomics]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [variants]
+              properties:
+                variants:
+                  type: array
+                  items: { $ref: '#/components/schemas/Variant' }
+                cancerType: { type: string }
+                sequencingInfo: { type: object }
+      responses:
+        '200': { description: TMB analysis }
+  /genomics/profiling/analyze-msi:
+    post:
+      tags: [Genomics]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                msiMarkers: { type: object }
+                variants:
+                  type: array
+                  items: { $ref: '#/components/schemas/Variant' }
+                cancerType: { type: string }
+      responses:
+        '200': { description: MSI analysis }
+  /genomics/profiling/analyze-hrd:
+    post:
+      tags: [Genomics]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [variants]
+              properties:
+                variants:
+                  type: array
+                  items: { $ref: '#/components/schemas/Variant' }
+                structuralVariants: { type: array, items: { type: object } }
+                cancerType: { type: string }
+      responses:
+        '200': { description: HRD analysis }
+  /genomics/profiling/identify-targets:
+    post:
+      tags: [Genomics]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                variants:
+                  type: array
+                  items: { $ref: '#/components/schemas/Variant' }
+                cancerType: { type: string }
+                evidenceLevels: { type: array, items: { type: string } }
+                includeClinicalTrials: { type: boolean }
+      responses:
+        '200': { description: Therapeutic targets }
+
+  /ai/treatment/predict-treatment:
+    post:
+      tags: [AI]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [patientData, availableTreatments]
+              properties:
+                patientData: { $ref: '#/components/schemas/PatientData' }
+                availableTreatments:
+                  type: array
+                  minItems: 1
+                  items: { $ref: '#/components/schemas/Treatment' }
+                predictionOptions: { type: object }
+      responses:
+        '200': { description: AI treatment prediction }
+  /ai/treatment/predict-response:
+    post:
+      tags: [AI]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [patientData, treatment]
+              properties:
+                patientData: { $ref: '#/components/schemas/PatientData' }
+                treatment: { $ref: '#/components/schemas/Treatment' }
+                responseMetrics:
+                  type: array
+                  items: { type: string, enum: [ORR, DCR, PFS, OS, duration] }
+      responses:
+        '200': { description: Response prediction }
+  /ai/treatment/predict-survival:
+    post:
+      tags: [AI]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [patientData, treatments]
+              properties:
+                patientData: { $ref: '#/components/schemas/PatientData' }
+                treatments:
+                  type: array
+                  items: { $ref: '#/components/schemas/Treatment' }
+                survivalMetrics:
+                  type: array
+                  items: { type: string, enum: [OS, PFS, DFS, RFS] }
+                timePoints:
+                  type: array
+                  items: { type: integer }
+      responses:
+        '200': { description: Survival prediction }
+  /ai/treatment/predict-toxicity:
+    post:
+      tags: [AI]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [patientData, treatment]
+              properties:
+                patientData: { $ref: '#/components/schemas/PatientData' }
+                treatment: { $ref: '#/components/schemas/Treatment' }
+                toxicityTypes:
+                  type: array
+                  items:
+                    type: string
+                    enum: [hematologic, gastrointestinal, neurologic, cardiac, hepatic, renal, dermatologic]
+                severityLevels:
+                  type: array
+                  items:
+                    type: string
+                    enum: [grade1, grade2, grade3, grade4, grade5]
+      responses:
+        '200': { description: Toxicity prediction }
+  /ai/treatment/compare-treatments:
+    post:
+      tags: [AI]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [patientData, treatments]
+              properties:
+                patientData: { $ref: '#/components/schemas/PatientData' }
+                treatments:
+                  type: array
+                  minItems: 2
+                  items: { $ref: '#/components/schemas/Treatment' }
+                comparisonCriteria: { type: object }
+                includeEconomicAnalysis: { type: boolean }
+      responses:
+        '200': { description: Comparison and ranking }
+  /ai/treatment/explain-prediction:
+    post:
+      tags: [AI]
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [predictionId]
+              properties:
+                predictionId: { type: string }
+                explanationType: { type: string, enum: [detailed, summary, patient_friendly] }
+                includeVisualization: { type: boolean }
+      responses:
+        '200': { description: Explanation payload }

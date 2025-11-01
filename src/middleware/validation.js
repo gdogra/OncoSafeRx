@@ -208,6 +208,20 @@ export const prescriptionSchema = Joi.object({
 });
 
 // Patient profile (rich, all-optional to allow skip)
+// Genetic data validation (moved up so it can be referenced by patientProfileSchema)
+export const geneticDataSchema = Joi.object().pattern(
+  Joi.string(), // gene name
+  Joi.object({
+    variants: Joi.array().items(Joi.string()).optional(),
+    phenotype: Joi.string().optional(),
+    diplotype: Joi.string().optional(),
+    activityScore: Joi.number().optional(),
+    confidence: Joi.string().valid('high', 'moderate', 'low').optional(),
+    testDate: Joi.date().iso().optional(),
+    laboratory: Joi.string().optional()
+  })
+);
+
 export const patientProfileSchema = Joi.object({
   demographics: Joi.object({
     firstName: Joi.string().max(100).optional(),
@@ -284,19 +298,7 @@ export const analysisRequestSchema = Joi.object({
   includeAlternatives: Joi.boolean().default(false)
 });
 
-// Genetic data validation
-export const geneticDataSchema = Joi.object().pattern(
-  Joi.string(), // gene name
-  Joi.object({
-    variants: Joi.array().items(Joi.string()).optional(),
-    phenotype: Joi.string().optional(),
-    diplotype: Joi.string().optional(),
-    activityScore: Joi.number().optional(),
-    confidence: Joi.string().valid('high', 'moderate', 'low').optional(),
-    testDate: Joi.date().iso().optional(),
-    laboratory: Joi.string().optional()
-  })
-);
+// (moved geneticDataSchema above)
 
 /**
  * Clinical-specific validation functions

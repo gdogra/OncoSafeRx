@@ -642,7 +642,27 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
         user_metadata: metadata,
       });
       if (createErr) {
-        return { error: createErr.message || String(createErr), stage: 'admin_create' };
+        // If create failed, the user may already exist. Try password grant anyway.
+        try {
+          const tokenEndpoint = `${url}/auth/v1/token?grant_type=password`;
+          const tokenResp = await fetch(tokenEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': anon, 'Authorization': `Bearer ${anon}` },
+            body: JSON.stringify({ email, password })
+          });
+          const tokenBody = await tokenResp.json().catch(() => ({}));
+          if (tokenResp.ok) {
+            return {
+              access_token: tokenBody.access_token,
+              refresh_token: tokenBody.refresh_token,
+              expires_in: tokenBody.expires_in,
+              token_type: tokenBody.token_type,
+              user: tokenBody.user,
+              stage: 'grant_after_existing'
+            };
+          }
+        } catch (_) {}
+        return { error: (createErr.message || String(createErr)), stage: 'admin_create', status: createErr.status };
       }
       // Obtain tokens via password grant
       const tokenEndpoint = `${url}/auth/v1/token?grant_type=password`;

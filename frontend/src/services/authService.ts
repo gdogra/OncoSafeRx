@@ -571,9 +571,14 @@ export class SupabaseAuthService {
               throw new Error(`Database error saving new user: ${detail?.details || 'Failed to create user profile'}`)
             }
             
+            // If upstream Supabase failed, surface its message clearly
+            if (code === 'supabase_error') {
+              const message = (detail?.error_description || detail?.error || '').toString() || 'Supabase signup failed';
+              throw new Error(message)
+            }
             // Include server error details if available
             if (detail?.error) {
-              throw new Error(`Database error saving new user`)
+              throw new Error(String(detail.error))
             }
             
             throw new Error(`Signup failed with server error: ${resp.status}`)

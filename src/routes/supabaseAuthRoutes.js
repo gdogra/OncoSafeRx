@@ -615,6 +615,7 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
 
   const url = getEnv("SUPABASE_URL");
   const anon = getEnv("SUPABASE_ANON_KEY");
+  const service = getEnv("SUPABASE_SERVICE_ROLE_KEY");
   if (!url || !anon) {
     proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
     return res.status(500).json({ error: 'Supabase not configured on server', code: 'not_configured' });
@@ -636,6 +637,150 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
     console.warn('Proxy signup failed for', maskEmail(email), resp.status, body?.error || body?.error_description);
     proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
     return res.status(resp.status).json({ error: body?.error_description || body?.error || 'Signup failed', code: 'supabase_error' });
+  }
+
+  // Enhanced error handling for profile creation during signup
+  // Create public.users row for new user since auth trigger is disabled
+  try {
+    if (service && body?.user?.id) {
+      const admin = createClient(url, service);
+      const um = body.user.user_metadata || {};
+      const first = um.first_name || (email.split('@')[0]);
+      const last = um.last_name || 'User';
+      const role = um.role || 'oncologist';
+      
+      // First check if user already exists to avoid conflicts
+      const { data: existingUser } = await admin
+        .from('users')
+        .select('id')
+        .eq('id', body.user.id)
+        .maybeSingle();
+      
+      if (!existingUser) {
+        const payload = {
+          id: body.user.id,
+          email,
+          role,
+          first_name: first,
+          last_name: last,
+          specialty: um.specialty || '',
+          institution: um.institution || '',
+          license_number: um.license_number || '',
+          years_experience: um.years_experience || 0,
+          preferences: um.preferences || {},
+          persona: um.persona || {},
+          created_at: new Date().toISOString()
+        };
+        
+        // Handle potential schema mismatches
+        try {
+          // First check what columns exist in the users table
+          const { data: schemaCheck } = await admin
+            .from('users')
+            .select('*')
+            .limit(1);
+            
+          // If there's a user_role column instead of role, use that
+          if (schemaCheck && schemaCheck.length === 0) {
+            // Empty table, try to determine schema by attempting insert
+            console.log('[auth-proxy] Attempting user profile creation...');
+          }
+        } catch (schemaError) {
+          console.warn('[auth-proxy] Schema check failed, proceeding with standard payload:', schemaError.message);
+        }
+        
+        let upErr = null;
+        
+        try {
+          const { error } = await admin
+            .from('users')
+            .insert(payload);
+          upErr = error;
+        } catch (insertError) {
+          upErr = insertError;
+        }
+        
+        // If there's an error, try to handle common schema mismatches
+        if (upErr) {
+          console.warn('[auth-proxy] Initial insert failed, trying alternate schema:', upErr.message);
+          
+          // Try with user_role instead of role
+          if (upErr.message?.includes('user_role')) {
+            try {
+              const altPayload = { ...payload };
+              altPayload.user_role = altPayload.role;
+              delete altPayload.role;
+              
+              const { error: altErr } = await admin
+                .from('users')
+                .insert(altPayload);
+                
+              if (!altErr) {
+                console.log('[auth-proxy] Successfully created user profile with user_role column for:', email);
+                upErr = null; // Clear the error
+              } else {
+                upErr = altErr;
+              }
+            } catch (altError) {
+              upErr = altError;
+            }
+          }
+          
+          // If still failing, try without optional fields
+          if (upErr) {
+            try {
+              const minimalPayload = {
+                id: body.user.id,
+                email,
+                role, // or user_role if that's what the schema expects
+                first_name: first,
+                last_name: last,
+                created_at: new Date().toISOString()
+              };
+              
+              const { error: minErr } = await admin
+                .from('users')
+                .insert(minimalPayload);
+                
+              if (!minErr) {
+                console.log('[auth-proxy] Successfully created minimal user profile for:', email);
+                upErr = null;
+              } else {
+                upErr = minErr;
+              }
+            } catch (minError) {
+              upErr = minError;
+            }
+          }
+        }
+        
+        if (upErr) {
+          console.error('[auth-proxy] Critical: Failed to create user profile after all attempts:', upErr.message);
+          return res.status(500).json({ 
+            error: 'Database error saving new user', 
+            code: 'profile_creation_failed',
+            details: upErr.message 
+          });
+        } else {
+          console.log('[auth-proxy] Successfully created user profile for:', email);
+        }
+      } else {
+        console.log('[auth-proxy] User profile already exists for:', email);
+      }
+    } else {
+      console.error('[auth-proxy] Missing service role key or user ID for profile creation');
+      return res.status(500).json({ 
+        error: 'Database error saving new user', 
+        code: 'missing_service_config' 
+      });
+    }
+  } catch (e) {
+    console.error('[auth-proxy] Exception during profile creation:', e?.message || e);
+    return res.status(500).json({ 
+      error: 'Database error saving new user', 
+      code: 'profile_creation_exception',
+      details: e?.message || 'Unknown error'
+    });
   }
 
   proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'success' });

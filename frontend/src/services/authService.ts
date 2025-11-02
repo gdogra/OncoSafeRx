@@ -477,17 +477,18 @@ export class SupabaseAuthService {
       })
 
       if (error) {
-        console.log('❌ Signup error:', error.message)
-        // Optional fallback: try server-side proxy if enabled
-        const envProxy = (import.meta as any).env?.VITE_SUPABASE_AUTH_VIA_PROXY === 'true'
-        const lsProxy = (() => { try { return localStorage.getItem('osrx_use_auth_proxy') === 'true' } catch { return false } })()
-        const useProxy = envProxy || lsProxy
-        if (useProxy) {
-          try {
-            const resp = await fetch('/api/supabase-auth/proxy/signup', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: data.email, password: data.password, metadata: {
+        console.log('❌ Direct Supabase signup error:', error.message)
+        
+        // Always attempt server-side proxy as primary method since direct signup failed
+        console.log('🔄 Attempting signup via server proxy...')
+        try {
+          const resp = await fetch('/api/supabase-auth/proxy/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              email: data.email, 
+              password: data.password, 
+              metadata: {
                 first_name: data.firstName,
                 last_name: data.lastName,
                 role: data.role,
@@ -495,47 +496,97 @@ export class SupabaseAuthService {
                 institution: data.institution || '',
                 license_number: data.licenseNumber || '',
                 years_experience: data.yearsExperience || 0
-              } })
-            });
-            if (resp.ok) {
-              const body = await resp.json();
-              // If tokens are present, establish session; else proceed with confirmation flow
-              if (body?.access_token && body?.refresh_token) {
-                const { data: setData, error: setErr } = await supabase.auth.setSession({
-                  access_token: body.access_token,
-                  refresh_token: body.refresh_token,
-                } as any)
-                if (setErr) throw setErr
-                if (!setData?.session?.user) throw new Error('Failed to establish session (signup proxy)')
-                const userProfile = await this.buildUserProfile(setData.session.user)
-                try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'proxy-signup', at: Date.now() })) } catch {}
-                return userProfile
+              } 
+            })
+          });
+          
+          console.log('🔍 Proxy signup response:', resp.status, resp.statusText)
+          
+          if (resp.ok) {
+            const body = await resp.json();
+            console.log('✅ Proxy signup successful, processing response...')
+            
+            // If tokens are present, establish session; else proceed with confirmation flow
+            if (body?.access_token && body?.refresh_token) {
+              console.log('🔐 Setting up session with returned tokens...')
+              const { data: setData, error: setErr } = await supabase.auth.setSession({
+                access_token: body.access_token,
+                refresh_token: body.refresh_token,
+              } as any)
+              if (setErr) {
+                console.error('❌ Failed to set session:', setErr)
+                throw setErr
               }
-              // No tokens: require email confirmation; build minimal profile
-              return {
-                id: 'pending-' + Date.now(),
-                email: data.email,
-                firstName: data.firstName || '',
-                lastName: data.lastName || '',
-                role: (data.role || 'patient') as any,
-                specialty: data.specialty || '',
-                institution: data.institution || '',
-                licenseNumber: data.licenseNumber || '',
-                yearsExperience: data.yearsExperience || 0,
-                preferences: this.getDefaultPreferences(data.role || 'patient'),
-                persona: this.createDefaultPersona(data.role || 'patient'),
-                createdAt: new Date().toISOString(),
-                lastLogin: new Date().toISOString(),
-                isActive: true,
-                roles: [(data.role || 'patient') as any],
-                permissions: this.getRolePermissions(data.role || 'patient')
+              if (!setData?.session?.user) {
+                console.error('❌ No user in session after signup')
+                throw new Error('Failed to establish session (signup proxy)')
               }
+              
+              console.log('✅ Session established, building user profile...')
+              const userProfile = await this.buildUserProfile(setData.session.user)
+              try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'proxy-signup', at: Date.now() })) } catch {}
+              return userProfile
             }
-          } catch (proxyErr) {
-            console.warn('Signup proxy fallback failed:', proxyErr)
+            
+            // No tokens: require email confirmation; build minimal profile
+            console.log('📧 No tokens in response, user needs email confirmation')
+            return {
+              id: 'pending-' + Date.now(),
+              email: data.email,
+              firstName: data.firstName || '',
+              lastName: data.lastName || '',
+              role: (data.role || 'patient') as any,
+              specialty: data.specialty || '',
+              institution: data.institution || '',
+              licenseNumber: data.licenseNumber || '',
+              yearsExperience: data.yearsExperience || 0,
+              preferences: this.getDefaultPreferences(data.role || 'patient'),
+              persona: this.createDefaultPersona(data.role || 'patient'),
+              createdAt: new Date().toISOString(),
+              lastLogin: new Date().toISOString(),
+              isActive: true,
+              roles: [(data.role || 'patient') as any],
+              permissions: this.getRolePermissions(data.role || 'patient')
+            }
+          } else {
+            // Get detailed error from server
+            let detail: any = null
+            try { 
+              detail = await resp.json() 
+              console.error('❌ Proxy signup error details:', detail)
+            } catch { 
+              const txt = await resp.text().catch(() => '')
+              console.error('❌ Proxy signup error text:', txt)
+              detail = { error: txt || 'Unknown error' }
+            }
+            
+            const code = detail?.code || ''
+            if (resp.status === 404 && code === 'proxy_disabled') {
+              throw new Error('Signup temporarily unavailable: server auth proxy is disabled. Please enable AUTH_PROXY_ENABLED and PROXY_ALLOWED_ORIGINS on the API server.')
+            }
+            if (resp.status === 403 && code === 'forbidden_origin') {
+              throw new Error('Signup blocked: this origin is not allowed for the auth proxy. Add your site URL to PROXY_ALLOWED_ORIGINS on the API server.')
+            }
+            if (resp.status === 500 && code === 'profile_creation_failed') {
+              throw new Error(`Database error saving new user: ${detail?.details || 'Failed to create user profile'}`)
+            }
+            
+            // Include server error details if available
+            if (detail?.error) {
+              throw new Error(`Database error saving new user`)
+            }
+            
+            throw new Error(`Signup failed with server error: ${resp.status}`)
           }
+        } catch (proxyErr: any) {
+          console.error('❌ Signup proxy exception:', proxyErr)
+          // If the proxy error has a useful message, throw that
+          if (proxyErr?.message && !proxyErr.message.includes('fetch')) {
+            throw proxyErr
+          }
+          // Otherwise, throw the original error
+          throw new Error(`Database error saving new user`)
         }
-        throw new Error(error.message)
       }
 
       if (!authData.user) {

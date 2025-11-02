@@ -475,6 +475,7 @@ router.post('/demo/reset', asyncHandler(async (req, res) => {
 
 // --- Security middlewares for proxy endpoints ---
 const AUTH_PROXY_ENABLED = (process.env.AUTH_PROXY_ENABLED || '').toLowerCase() === 'true';
+const AUTH_PROXY_FORCE_ADMIN_SIGNUP = (process.env.AUTH_PROXY_FORCE_ADMIN_SIGNUP || '').toLowerCase() === 'true';
 
 const proxyLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -627,6 +628,56 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
   const upstreamBody = { email, password, data: metadata };
   if (redirect_to) Object.assign(upstreamBody, { redirect_to });
 
+  // Helper: admin create + password grant flow
+  async function adminCreateAndGrant() {
+    if (!service) {
+      return { error: 'missing SUPABASE_SERVICE_ROLE_KEY', stage: 'missing_service_key' };
+    }
+    try {
+      const admin = createClient(url, service);
+      const { data: created, error: createErr } = await admin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: metadata,
+      });
+      if (createErr) {
+        return { error: createErr.message || String(createErr), stage: 'admin_create' };
+      }
+      // Obtain tokens via password grant
+      const tokenEndpoint = `${url}/auth/v1/token?grant_type=password`;
+      const tokenResp = await fetch(tokenEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': anon, 'Authorization': `Bearer ${anon}` },
+        body: JSON.stringify({ email, password })
+      });
+      const tokenBody = await tokenResp.json().catch(() => ({}));
+      if (!tokenResp.ok) {
+        return { user: created?.user, stage: 'password_grant_failed', details: tokenBody?.error || tokenBody?.error_description };
+      }
+      return {
+        access_token: tokenBody.access_token,
+        refresh_token: tokenBody.refresh_token,
+        expires_in: tokenBody.expires_in,
+        token_type: tokenBody.token_type,
+        user: tokenBody.user || created?.user,
+        stage: 'admin_grant_success'
+      };
+    } catch (e) {
+      return { error: e?.message || 'unknown', stage: 'fallback_exception' };
+    }
+  }
+
+  // Optional forced admin path (env-controlled) to bypass upstream failures entirely
+  if (AUTH_PROXY_FORCE_ADMIN_SIGNUP) {
+    const adminResult = await adminCreateAndGrant();
+    if ((adminResult as any).error) {
+      proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
+      return res.status(500).json({ error: 'Signup failed', code: 'supabase_error', details: (adminResult as any).error, stage: (adminResult as any).stage });
+    }
+    // Continue with profile creation below using `body` shape
+    var body = adminResult as any; // eslint-disable-line
+  } else {
   const endpoint = `${url}/auth/v1/signup`;
   let resp;
   try {
@@ -647,74 +698,14 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
   let body = resp ? await resp.json().catch(() => ({})) : {};
   if (!resp || !resp.ok) {
     // Fallback: create user via admin with email_confirm=true (bypass email send failures)
-    if (service) {
-      try {
-        const admin = createClient(url, service);
-        const { data: created, error: createErr } = await admin.auth.admin.createUser({
-          email,
-          password,
-          email_confirm: true,
-          user_metadata: metadata,
-        });
-        if (createErr) {
-          console.warn('[auth-proxy] Admin createUser failed:', createErr.message || createErr);
-          proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
-          const status = resp?.status || 500;
-          return res.status(status).json({ 
-            error: body?.error_description || body?.error || 'Signup failed', 
-            code: 'supabase_error', 
-            details: createErr.message || String(createErr),
-            stage: 'admin_create'
-          });
-        }
-
-        // Obtain tokens via password grant now that user is confirmed
-        const tokenEndpoint = `${url}/auth/v1/token?grant_type=password`;
-        const tokenResp = await fetch(tokenEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': anon,
-            'Authorization': `Bearer ${anon}`
-          },
-          body: JSON.stringify({ email, password })
-        });
-        const tokenBody = await tokenResp.json().catch(() => ({}));
-        if (!tokenResp.ok) {
-          console.warn('[auth-proxy] Password grant after admin createUser failed:', tokenBody?.error || tokenBody?.error_description);
-          // Return minimal success requiring client to log in manually
-          body = { user: created?.user };
-        } else {
-          body = {
-            access_token: tokenBody.access_token,
-            refresh_token: tokenBody.refresh_token,
-            expires_in: tokenBody.expires_in,
-            token_type: tokenBody.token_type,
-            user: tokenBody.user || created?.user,
-          };
-        }
-      } catch (fallbackErr) {
-        console.error('[auth-proxy] Fallback admin signup exception:', fallbackErr?.message || fallbackErr);
-        proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
-        const status = resp?.status || 500;
-        return res.status(status).json({ 
-          error: body?.error_description || body?.error || 'Signup failed', 
-          code: 'supabase_error', 
-          details: fallbackErr?.message || 'unknown',
-          stage: 'fallback_exception'
-        });
-      }
-    } else {
-      console.warn('[auth-proxy] No service key available; cannot fallback to admin.createUser');
+    const adminResult = await adminCreateAndGrant();
+    if ((adminResult as any).error) {
       proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
-      const status = resp?.status || 502;
-      return res.status(status).json({ 
-        error: body?.error_description || body?.error || 'Signup failed', 
-        code: 'supabase_error',
-        details: 'missing SUPABASE_SERVICE_ROLE_KEY',
-        stage: 'missing_service_key'
-      });
+      const status = resp?.status || 500;
+      return res.status(status).json({ error: 'Signup failed', code: 'supabase_error', details: (adminResult as any).error, stage: (adminResult as any).stage });
     }
+    body = adminResult as any;
+  }
   }
 
   // Try to create public.users row, but do NOT fail signup if this part errors.

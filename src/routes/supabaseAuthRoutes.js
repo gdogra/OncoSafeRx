@@ -660,7 +660,12 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
           console.warn('[auth-proxy] Admin createUser failed:', createErr.message || createErr);
           proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
           const status = resp?.status || 500;
-          return res.status(status).json({ error: body?.error_description || body?.error || 'Signup failed', code: 'supabase_error' });
+          return res.status(status).json({ 
+            error: body?.error_description || body?.error || 'Signup failed', 
+            code: 'supabase_error', 
+            details: createErr.message || String(createErr),
+            stage: 'admin_create'
+          });
         }
 
         // Obtain tokens via password grant now that user is confirmed
@@ -692,13 +697,23 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
         console.error('[auth-proxy] Fallback admin signup exception:', fallbackErr?.message || fallbackErr);
         proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
         const status = resp?.status || 500;
-        return res.status(status).json({ error: body?.error_description || body?.error || 'Signup failed', code: 'supabase_error' });
+        return res.status(status).json({ 
+          error: body?.error_description || body?.error || 'Signup failed', 
+          code: 'supabase_error', 
+          details: fallbackErr?.message || 'unknown',
+          stage: 'fallback_exception'
+        });
       }
     } else {
       console.warn('[auth-proxy] No service key available; cannot fallback to admin.createUser');
       proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
       const status = resp?.status || 502;
-      return res.status(status).json({ error: body?.error_description || body?.error || 'Signup failed', code: 'supabase_error' });
+      return res.status(status).json({ 
+        error: body?.error_description || body?.error || 'Signup failed', 
+        code: 'supabase_error',
+        details: 'missing SUPABASE_SERVICE_ROLE_KEY',
+        stage: 'missing_service_key'
+      });
     }
   }
 

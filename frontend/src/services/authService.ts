@@ -573,8 +573,9 @@ export class SupabaseAuthService {
             
             // If upstream Supabase failed, surface its message clearly
             if (code === 'supabase_error') {
-              const message = (detail?.error_description || detail?.error || '').toString() || 'Supabase signup failed';
-              throw new Error(message)
+              const base = (detail?.error_description || detail?.error || '').toString() || 'Supabase signup failed';
+              const extra = detail?.details ? ` (${String(detail.details)})` : ''
+              throw new Error(base + extra)
             }
             // Include server error details if available
             if (detail?.error) {

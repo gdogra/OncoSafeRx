@@ -39,6 +39,7 @@ const DrugDatabase = lazy(() => import('./pages/DrugDatabase'));
 const Analytics = lazy(() => import('./pages/Analytics'));
 const AIRecommendations = lazy(() => import('./pages/AIRecommendations'));
 const AITreatmentPlanner = lazy(() => import('./pages/AITreatmentPlanner'));
+const AdvancedAIDashboard = lazy(() => import('./pages/AdvancedAIDashboard'));
 const EHRIntegration = lazy(() => import('./components/EHR/EHRIntegration'));
 const Help = lazy(() => import('./pages/Help'));
 const PatientProfilesDiagnostics = lazy(() => import('./pages/PatientProfilesDiagnostics'));
@@ -373,6 +374,15 @@ function AppWithAuth() {
                     </Layout>
                   </ProtectedRoute>
                 } />
+
+                <Route path="/advanced-ai" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <AdvancedAIDashboard />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+
                 <Route path="/admin/feedback" element={
                   <ProtectedRoute requiredPermission="manage_feedback">
                     <Layout>

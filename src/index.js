@@ -78,6 +78,10 @@ import dataIntegrationRoutes from './routes/dataIntegration.js';
 import enhancedClinicalRoutes from './routes/enhancedClinicalRoutes.js';
 import genomicProfilingRoutes from './routes/genomicProfilingRoutes.js';
 import aiTreatmentRoutes from './routes/aiTreatmentRoutes.js';
+import advancedAIRoutes from './routes/advancedAIRoutes.js';
+import voiceDocumentationRoutes from './routes/voiceDocumentationRoutes.js';
+import medicalLLMRoutes from './routes/medicalLLMRoutes.js';
+import clinicalChatbotRoutes from './routes/clinicalChatbotRoutes.js';
 import { addScientistModeHeaders, scientistModeFilter } from './middleware/scientistMode.js';
 import { join as pathJoin } from 'path';
 
@@ -551,6 +555,10 @@ if (PATIENTS_DISABLED) {
 }
 app.use('/api/feedback', scientistModeFilter('feedback'), feedbackRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/advanced-ai', advancedAIRoutes);
+app.use('/api/voice-documentation', voiceDocumentationRoutes);
+app.use('/api/medical-llm', medicalLLMRoutes);
+app.use('/api/clinical-chatbot', clinicalChatbotRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/overrides', overrideRoutes);
 app.use('/', cdsHooksRoutes);

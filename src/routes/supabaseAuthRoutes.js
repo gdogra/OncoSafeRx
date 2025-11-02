@@ -1072,6 +1072,31 @@ router.post('/backfill/profiles', asyncHandler(async (req, res) => {
 }));
 
 /**
+ * Admin health check: validate service role key by listing users (read-only)
+ * Protection: X-Admin-Token must match BACKFILL_TOKEN
+ */
+router.get('/admin/health', asyncHandler(async (req, res) => {
+  try {
+    const url = getEnv("SUPABASE_URL");
+    const service = getEnv("SUPABASE_SERVICE_ROLE_KEY");
+    const adminToken = process.env.BACKFILL_TOKEN || '';
+    const provided = req.headers['x-admin-token'] || req.query.token;
+    if (!url || !service) return res.status(500).json({ ok: false, error: 'Supabase service not configured' });
+    if (!adminToken || String(provided) !== adminToken) return res.status(403).json({ ok: false, error: 'Forbidden' });
+
+    const admin = createClient(url, service);
+    const start = Date.now();
+    const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 1 });
+    const ms = Date.now() - start;
+    if (error) return res.status(500).json({ ok: false, stage: 'list_users', error: error.message, ms });
+    const count = (data?.users || []).length;
+    return res.json({ ok: true, stage: 'list_users', users_seen: count, ms });
+  } catch (e) {
+    return res.status(500).json({ ok: false, error: e?.message || 'Unknown error' });
+  }
+}));
+
+/**
  * Admin: Create a Supabase Auth user (if missing) and upsert public.users profile.
  * Protect with BACKFILL_TOKEN via x-admin-token header.
  * Body: { email: string, password?: string, metadata?: object }

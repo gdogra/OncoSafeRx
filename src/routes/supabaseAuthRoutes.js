@@ -671,12 +671,12 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
   // Optional forced admin path (env-controlled) to bypass upstream failures entirely
   if (AUTH_PROXY_FORCE_ADMIN_SIGNUP) {
     const adminResult = await adminCreateAndGrant();
-    if ((adminResult as any).error) {
+    if (adminResult && adminResult.error) {
       proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
-      return res.status(500).json({ error: 'Signup failed', code: 'supabase_error', details: (adminResult as any).error, stage: (adminResult as any).stage });
+      return res.status(500).json({ error: 'Signup failed', code: 'supabase_error', details: adminResult.error, stage: adminResult.stage });
     }
     // Continue with profile creation below using `body` shape
-    var body = adminResult as any; // eslint-disable-line
+    var body = adminResult; // eslint-disable-line
   } else {
   const endpoint = `${url}/auth/v1/signup`;
   let resp;
@@ -699,12 +699,12 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
   if (!resp || !resp.ok) {
     // Fallback: create user via admin with email_confirm=true (bypass email send failures)
     const adminResult = await adminCreateAndGrant();
-    if ((adminResult as any).error) {
+    if (adminResult && adminResult.error) {
       proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
       const status = resp?.status || 500;
-      return res.status(status).json({ error: 'Signup failed', code: 'supabase_error', details: (adminResult as any).error, stage: (adminResult as any).stage });
+      return res.status(status).json({ error: 'Signup failed', code: 'supabase_error', details: adminResult.error, stage: adminResult.stage });
     }
-    body = adminResult as any;
+    body = adminResult;
   }
   }
 

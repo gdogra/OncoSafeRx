@@ -712,7 +712,7 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
         if (upErr) {
           // Try minimal payload
           try {
-            const minimalPayload: any = {
+            const minimalPayload = {
               id: body.user.id,
               email,
               first_name: first,

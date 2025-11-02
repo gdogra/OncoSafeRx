@@ -641,15 +641,65 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
     });
   } catch (e) {
     console.warn('Proxy signup upstream fetch error:', e?.name || e?.message || e);
-    proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
-    return res.status(502).json({ error: 'Upstream Supabase auth error', code: 'upstream_error' });
+    resp = null;
   }
 
-  const body = await resp.json().catch(() => ({}));
-  if (!resp.ok) {
-    console.warn('Proxy signup failed for', maskEmail(email), resp.status, body?.error || body?.error_description);
-    proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
-    return res.status(resp.status).json({ error: body?.error_description || body?.error || 'Signup failed', code: 'supabase_error' });
+  let body = resp ? await resp.json().catch(() => ({})) : {};
+  if (!resp || !resp.ok) {
+    // Fallback: create user via admin with email_confirm=true (bypass email send failures)
+    if (service) {
+      try {
+        const admin = createClient(url, service);
+        const { data: created, error: createErr } = await admin.auth.admin.createUser({
+          email,
+          password,
+          email_confirm: true,
+          user_metadata: metadata,
+        });
+        if (createErr) {
+          console.warn('[auth-proxy] Admin createUser failed:', createErr.message || createErr);
+          proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
+          const status = resp?.status || 500;
+          return res.status(status).json({ error: body?.error_description || body?.error || 'Signup failed', code: 'supabase_error' });
+        }
+
+        // Obtain tokens via password grant now that user is confirmed
+        const tokenEndpoint = `${url}/auth/v1/token?grant_type=password`;
+        const tokenResp = await fetch(tokenEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': anon,
+            'Authorization': `Bearer ${anon}`
+          },
+          body: JSON.stringify({ email, password })
+        });
+        const tokenBody = await tokenResp.json().catch(() => ({}));
+        if (!tokenResp.ok) {
+          console.warn('[auth-proxy] Password grant after admin createUser failed:', tokenBody?.error || tokenBody?.error_description);
+          // Return minimal success requiring client to log in manually
+          body = { user: created?.user };
+        } else {
+          body = {
+            access_token: tokenBody.access_token,
+            refresh_token: tokenBody.refresh_token,
+            expires_in: tokenBody.expires_in,
+            token_type: tokenBody.token_type,
+            user: tokenBody.user || created?.user,
+          };
+        }
+      } catch (fallbackErr) {
+        console.error('[auth-proxy] Fallback admin signup exception:', fallbackErr?.message || fallbackErr);
+        proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
+        const status = resp?.status || 500;
+        return res.status(status).json({ error: body?.error_description || body?.error || 'Signup failed', code: 'supabase_error' });
+      }
+    } else {
+      console.warn('[auth-proxy] No service key available; cannot fallback to admin.createUser');
+      proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
+      const status = resp?.status || 502;
+      return res.status(status).json({ error: body?.error_description || body?.error || 'Signup failed', code: 'supabase_error' });
+    }
   }
 
   // Try to create public.users row, but do NOT fail signup if this part errors.

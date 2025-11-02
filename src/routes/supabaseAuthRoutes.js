@@ -625,7 +625,7 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
   const origin = req.headers.origin || req.headers.referer || '';
   const redirect_to = origin ? `${origin.replace(/\/$/, '')}/auth/confirm` : undefined;
   const upstreamBody = { email, password, data: metadata };
-  if (redirect_to) Object.assign(upstreamBody as any, { redirect_to });
+  if (redirect_to) Object.assign(upstreamBody, { redirect_to });
 
   const endpoint = `${url}/auth/v1/signup`;
   let resp;
@@ -697,7 +697,7 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
           // Try alternate schema name for role
           if (String(upErr.message || '').includes('user_role')) {
             try {
-              const altPayload = { ...payload } as any;
+              const altPayload = { ...payload };
               altPayload.user_role = altPayload.role;
               delete altPayload.role;
               const { error: altErr } = await admin.from('users').insert(altPayload);

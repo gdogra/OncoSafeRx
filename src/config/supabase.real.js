@@ -560,6 +560,108 @@ export class SupabaseService {
     }
   }
 
+  /**
+   * Hard delete user - completely removes user from database and auth
+   * This allows the user to register again with the same email
+   */
+  async hardDeleteUser(userId) {
+    if (!this.enabled) return { success: true, id: userId };
+    
+    try {
+      console.log(`🗑️ Starting hard delete for user: ${userId}`);
+      
+      // First, get user data before deletion for logging
+      const { data: userData, error: getUserError } = await this.client
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (getUserError && getUserError.code !== 'PGRST116') {
+        console.error('Error fetching user for hard delete:', getUserError);
+        throw getUserError;
+      }
+      
+      // Delete related data first (in dependency order)
+      const deleteOperations = [];
+      
+      // Delete patient profiles
+      deleteOperations.push(
+        this.client.from('patient_profiles').delete().eq('patient_id', userId)
+      );
+      
+      // Delete patients owned by this user
+      deleteOperations.push(
+        this.client.from('patients').delete().eq('user_id', userId)
+      );
+      
+      // Delete admin audit logs where this user is the actor or target
+      deleteOperations.push(
+        this.client.from('admin_audit').delete().eq('actor_id', userId)
+      );
+      deleteOperations.push(
+        this.client.from('admin_audit').delete().eq('target_user_id', userId)
+      );
+      
+      // Delete feedback submitted by this user (if feedback table has user_id)
+      // Note: Only if the feedback table has a user_id column
+      try {
+        deleteOperations.push(
+          this.client.from('feedback').delete().eq('user_id', userId)
+        );
+      } catch (e) {
+        // Table might not have user_id column, ignore error
+      }
+      
+      // Execute all delete operations
+      console.log(`🧹 Deleting related data for user: ${userId}`);
+      const deleteResults = await Promise.allSettled(deleteOperations);
+      
+      // Log any failures but don't stop the process
+      deleteResults.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          console.warn(`⚠️ Related data deletion ${index} failed:`, result.reason);
+        }
+      });
+      
+      // Delete from users table (hard delete)
+      console.log(`🗑️ Hard deleting user from users table: ${userId}`);
+      const { error: userDeleteError } = await this.client
+        .from('users')
+        .delete()
+        .eq('id', userId);
+      
+      if (userDeleteError) {
+        console.error('Hard delete from users table failed:', userDeleteError);
+        throw userDeleteError;
+      }
+      
+      // Delete from Supabase auth (hard delete)
+      console.log(`🔒 Deleting user from auth: ${userId}`);
+      if (this.client?.auth?.admin) {
+        const { error: authError } = await this.client.auth.admin.deleteUser(userId);
+        if (authError) {
+          console.error('Auth user deletion failed:', authError);
+          // Log but don't throw - database deletion was successful
+        } else {
+          console.log(`✅ User successfully deleted from auth: ${userId}`);
+        }
+      }
+      
+      console.log(`✅ Hard delete completed for user: ${userId}`);
+      return { 
+        success: true, 
+        id: userId, 
+        user: userData,
+        type: 'hard_delete',
+        message: 'User completely removed from system. Can register again with same email.'
+      };
+    } catch (error) {
+      console.error('Error in hard delete user:', error);
+      throw error;
+    }
+  }
+
   // Data sync logging
   async logSyncActivity(logData) {
     if (!this.enabled) return { id: 'noop', ...logData };

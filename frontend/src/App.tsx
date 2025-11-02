@@ -56,6 +56,7 @@ const AuthDebug = lazy(() => import('./pages/AuthDebug'));
 const ForceLogout = lazy(() => import('./pages/ForceLogout'));
 const AuthEmailConfirm = lazy(() => import('./pages/AuthEmailConfirm'));
 const AuthCheckEmail = lazy(() => import('./pages/AuthCheckEmail'));
+const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 
 // Patient-specific components
 const MyMedications = lazy(() => import('./pages/MyMedications'));
@@ -76,6 +77,7 @@ const AuditLogViewer = lazy(() => import('./pages/AuditLogViewer'));
 const AdminSystemHealth = lazy(() => import('./pages/AdminSystemHealth'));
 const AdminSettings = lazy(() => import('./pages/AdminSettings'));
 const AdminTrialAnalytics = lazy(() => import('./pages/AdminTrialAnalytics'));
+const EnterpriseAIDashboard = lazy(() => import('./pages/EnterpriseAIDashboard'));
 const FeedbackAdmin = lazy(() => import('./pages/FeedbackAdmin'));
 const AdminConsole = lazy(() => import('./components/Admin/AdminConsole'));
 const AdminHome = lazy(() => import('./pages/AdminHome'));
@@ -172,6 +174,7 @@ function AppWithAuth() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/auth/confirm" element={<AuthEmailConfirm />} />
                 <Route path="/auth/check-email" element={<AuthCheckEmail />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/logout" element={<Logout />} />
                 {isDev && <Route path="/auth-debug" element={<AuthDebug />} />}
                 <Route path="/force-logout" element={<ForceLogout />} />
@@ -360,6 +363,13 @@ function AppWithAuth() {
                   <ProtectedRoute requiredPermission="admin_console_access">
                     <Layout>
                       <AdminTrialAnalytics />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/enterprise/ai-dashboard" element={
+                  <ProtectedRoute requiredPermission="admin_console_access">
+                    <Layout>
+                      <EnterpriseAIDashboard />
                     </Layout>
                   </ProtectedRoute>
                 } />

@@ -6,6 +6,7 @@ import { SupabaseAuthService } from '../services/authService';
 interface AuthActions {
   login: (data: LoginData) => Promise<void>;
   signup: (data: SignupData) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   logout: () => void;
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
   switchPersona: (persona: UserPersona) => Promise<void>;
@@ -131,6 +132,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('AuthContext: Signup failed:', error);
         dispatch({ type: 'AUTH_FAILURE', payload: error instanceof Error ? error.message : 'Signup failed' });
         throw error; // Re-throw so the component can handle it
+      }
+    },
+
+    signInWithGoogle: async () => {
+      console.log('AuthContext: Starting Google OAuth sign-in');
+      dispatch({ type: 'AUTH_START' });
+      try {
+        await SupabaseAuthService.signInWithGoogle();
+        // Note: OAuth redirects to callback page, so we don't dispatch success here
+        // The success will be handled after the OAuth redirect in handleOAuthCallback
+      } catch (error) {
+        console.error('AuthContext: Google OAuth failed:', error);
+        dispatch({ type: 'AUTH_FAILURE', payload: error instanceof Error ? error.message : 'Google sign-in failed' });
+        throw error;
       }
     },
 

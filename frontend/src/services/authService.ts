@@ -26,6 +26,79 @@ export class SupabaseAuthService {
     } as any);
     if (error) throw new Error(error.message);
   }
+
+  /**
+   * Sign in with Google OAuth
+   */
+  static async signInWithGoogle(): Promise<void> {
+    const redirectTo = (() => {
+      try { 
+        return `${window.location.origin}/auth/callback`; 
+      } catch { 
+        return undefined as any 
+      }
+    })();
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      }
+    });
+
+    if (error) {
+      console.error('Google OAuth error:', error);
+      throw new Error(error.message);
+    }
+  }
+
+  /**
+   * Handle OAuth callback and build user profile
+   */
+  static async handleOAuthCallback(): Promise<UserProfile | null> {
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('OAuth callback error:', error);
+        throw new Error(error.message);
+      }
+
+      if (data.session?.user) {
+        console.log('✅ OAuth session established', { 
+          userId: data.session.user.id, 
+          email: data.session.user.email,
+          provider: data.session.user.app_metadata?.provider 
+        });
+        
+        const userProfile = await this.buildUserProfile(data.session.user);
+        
+        try { 
+          localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'oauth', at: Date.now() }));
+          localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile));
+        } catch {}
+        
+        // Track user login for analytics
+        try {
+          visitorTracking.setUser(userProfile.id, userProfile.role);
+          console.log('📊 OAuth user login tracked for analytics');
+        } catch (trackingError) {
+          console.warn('⚠️ Failed to track OAuth user login:', trackingError);
+        }
+        
+        return userProfile;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error handling OAuth callback:', error);
+      throw error;
+    }
+  }
   static async resendConfirmation(email: string): Promise<void> {
     const redirectTo = (() => {
       try { return `${window.location.origin}/auth/confirm`; } catch { return undefined as any }

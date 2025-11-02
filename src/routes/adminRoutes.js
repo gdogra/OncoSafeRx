@@ -137,12 +137,22 @@ router.post('/users/bulk', asyncHandler(async (req, res) => {
     if (!Array.isArray(ids) || ids.length === 0) {
       return res.status(400).json({ error: 'No user IDs provided' });
     }
-    const allowed = new Set(['activate','deactivate','delete','role']);
+    const allowed = new Set(['activate','deactivate','delete','role','hard_delete']);
     if (!allowed.has(action)) {
       return res.status(400).json({ error: 'Invalid action', allowed: Array.from(allowed) });
     }
     if (action === 'role' && !role) {
       return res.status(400).json({ error: 'Role is required for role change' });
+    }
+    
+    // Special validation for hard delete
+    if (action === 'hard_delete') {
+      const confirmation = req.body?.confirmation;
+      if (confirmation !== 'CONFIRM_BULK_HARD_DELETE') {
+        return res.status(400).json({ 
+          error: 'Bulk hard delete requires explicit confirmation. Send confirmation: "CONFIRM_BULK_HARD_DELETE" in request body.' 
+        });
+      }
     }
 
     // Guard: do not allow removing/deactivating the last active admin
@@ -152,6 +162,8 @@ router.post('/users/bulk', asyncHandler(async (req, res) => {
     if (action === 'deactivate') {
       impact = ids.filter(id => activeAdminIds.has(id)).length;
     } else if (action === 'delete') {
+      impact = ids.filter(id => activeAdminIds.has(id)).length;
+    } else if (action === 'hard_delete') {
       impact = ids.filter(id => activeAdminIds.has(id)).length;
     } else if (action === 'role' && role !== 'admin') {
       impact = ids.filter(id => activeAdminIds.has(id)).length;
@@ -169,6 +181,10 @@ router.post('/users/bulk', asyncHandler(async (req, res) => {
           await supabaseService.updateUser(id, { is_active: false });
         } else if (action === 'delete') {
           await supabaseService.deleteUser(id);
+        } else if (action === 'hard_delete') {
+          // Log the hard delete attempt
+          console.log(`🚨 BULK HARD DELETE initiated by ${req.user?.email} for user ${id}`);
+          await supabaseService.hardDeleteUser(id);
         } else if (action === 'role') {
           const beforeList = await supabaseService.getAllUsers();
           const before = beforeList.find(u => u.id === id)?.role;
@@ -434,7 +450,7 @@ router.put('/users/:userId', asyncHandler(async (req, res) => {
   }
 }));
 
-// User management - delete user
+// User management - delete user (soft delete)
 router.delete('/users/:userId', asyncHandler(async (req, res) => {
   try {
     const { userId } = req.params;
@@ -469,6 +485,84 @@ router.delete('/users/:userId', asyncHandler(async (req, res) => {
   } catch (error) {
     console.error('Delete user error:', error);
     res.status(500).json({ error: 'Failed to delete user' });
+  }
+}));
+
+// User management - hard delete user (SUPER ADMIN ONLY)
+router.delete('/users/:userId/hard', asyncHandler(async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Additional super admin check - only super admin can hard delete
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Super admin access required for hard delete' });
+    }
+
+    // Check if user exists
+    const users = await supabaseService.getAllUsers();
+    const existingUser = users.find(u => u.id === userId);
+    if (!existingUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Prevent admin from hard deleting themselves
+    if (req.user && req.user.id === userId) {
+      return res.status(400).json({ error: 'Cannot hard delete your own account' });
+    }
+
+    // Prevent hard deleting the last admin
+    const adminUsers = users.filter(u => u.role === 'admin' && u.is_active && u.id !== userId);
+    if (existingUser.role === 'admin' && adminUsers.length === 0) {
+      return res.status(400).json({ 
+        error: 'Cannot hard delete the last admin user. Promote another user to admin first.' 
+      });
+    }
+
+    // Add confirmation check - require explicit confirmation
+    const confirmation = req.body?.confirmation || req.query?.confirmation;
+    if (confirmation !== 'CONFIRM_HARD_DELETE') {
+      return res.status(400).json({ 
+        error: 'Hard delete requires explicit confirmation. Send confirmation: "CONFIRM_HARD_DELETE" in request body or query parameter.' 
+      });
+    }
+
+    console.log(`🚨 HARD DELETE initiated by ${req.user.email} for user ${existingUser.email} (${userId})`);
+    
+    // Log audit trail for hard delete
+    try {
+      if (supabaseService.enabled && supabaseService.client) {
+        await supabaseService.client.from('admin_audit').insert({
+          id: (await import('crypto')).randomUUID(),
+          actor_id: req.user.id,
+          target_user_id: userId,
+          action: 'hard_delete_user',
+          details: { 
+            target_email: existingUser.email,
+            target_role: existingUser.role,
+            reason: 'admin_hard_delete',
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
+    } catch (auditError) {
+      console.warn('Failed to log hard delete audit:', auditError);
+    }
+
+    const result = await supabaseService.hardDeleteUser(userId);
+    
+    console.log(`✅ HARD DELETE completed for user ${existingUser.email} (${userId})`);
+    
+    res.json({ 
+      message: 'User permanently deleted from system. User can now register again with the same email.',
+      type: 'hard_delete',
+      user: result.user,
+      deletedBy: req.user.email,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Hard delete user error:', error);
+    res.status(500).json({ error: 'Failed to permanently delete user' });
   }
 }));
 

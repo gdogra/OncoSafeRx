@@ -11,7 +11,8 @@ import {
   CheckCircle,
   XCircle,
   AlertTriangle,
-  RefreshCw
+  RefreshCw,
+  Skull
 } from 'lucide-react';
 import Card from '../components/UI/Card';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
@@ -184,16 +185,49 @@ const UserAdmin: React.FC = () => {
     }
   };
 
-  const runBulk = async (action: 'activate'|'deactivate'|'delete'|'role') => {
+  const runBulk = async (action: 'activate'|'deactivate'|'delete'|'role'|'hard_delete') => {
     if (selectedIds.size === 0) return;
+    
     if (action === 'delete' && !confirm(`Delete ${selectedIds.size} users? This cannot be undone.`)) return;
+    
+    if (action === 'hard_delete') {
+      // Special confirmation for hard delete
+      const confirmation1 = confirm(
+        `⚠️ BULK HARD DELETE WARNING ⚠️\n\n` +
+        `This will PERMANENTLY remove ${selectedIds.size} users from the system.\n\n` +
+        `• All user data will be deleted\n` +
+        `• Users can register again with same emails\n` +
+        `• This action CANNOT be undone\n\n` +
+        `Are you absolutely sure you want to proceed?`
+      );
+
+      if (!confirmation1) return;
+
+      const confirmation2 = prompt(
+        `Type "CONFIRM_BULK_HARD_DELETE" to proceed with permanent deletion of ${selectedIds.size} users:`
+      );
+
+      if (confirmation2 !== 'CONFIRM_BULK_HARD_DELETE') {
+        showToast('info', 'Bulk hard delete cancelled - confirmation did not match');
+        return;
+      }
+    }
+    
     try {
       const body: any = { action, ids: Array.from(selectedIds) };
       if (action === 'role') body.role = bulkRole;
+      if (action === 'hard_delete') body.confirmation = 'CONFIRM_BULK_HARD_DELETE';
+      
       const resp = await adminApi.post('/api/admin/users/bulk', body);
       if (!resp.ok) throw new Error('Bulk operation failed');
       const res = await resp.json();
-      showToast('success', `Bulk ${action}: ${res.updated}/${res.count}`);
+      
+      if (action === 'hard_delete') {
+        showToast('success', `Bulk hard delete completed: ${res.updated}/${res.count} users permanently removed`);
+      } else {
+        showToast('success', `Bulk ${action}: ${res.updated}/${res.count}`);
+      }
+      
       loadUsers();
     } catch (e: any) {
       showToast('error', e?.message || 'Bulk action failed');
@@ -265,6 +299,51 @@ const UserAdmin: React.FC = () => {
       loadUsers();
     } catch (error: any) {
       if (error?.status === 401 || error?.status === 403) { setUnauthorized(true); navigate('/'); }
+      showToast('error', error.message);
+    }
+  };
+
+  const hardDeleteUser = async (user: User) => {
+    // Multi-step confirmation for hard delete
+    const confirmation1 = confirm(
+      `⚠️ HARD DELETE WARNING ⚠️\n\n` +
+      `This will PERMANENTLY remove "${user.full_name}" (${user.email}) from the system.\n\n` +
+      `• All user data will be deleted\n` +
+      `• User can register again with same email\n` +
+      `• This action CANNOT be undone\n\n` +
+      `Are you absolutely sure you want to proceed?`
+    );
+
+    if (!confirmation1) return;
+
+    const confirmation2 = prompt(
+      `Type "CONFIRM_HARD_DELETE" to proceed with permanent deletion of ${user.email}:`
+    );
+
+    if (confirmation2 !== 'CONFIRM_HARD_DELETE') {
+      showToast('info', 'Hard delete cancelled - confirmation did not match');
+      return;
+    }
+
+    try {
+      const response = await adminApi.post(`/api/admin/users/${user.id}/hard`, {
+        confirmation: 'CONFIRM_HARD_DELETE'
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to hard delete user');
+      }
+
+      const result = await response.json();
+      showToast('success', `User permanently deleted: ${user.email}. They can now register again.`);
+      console.log('Hard delete completed:', result);
+      loadUsers();
+    } catch (error: any) {
+      if (error?.status === 401 || error?.status === 403) { 
+        setUnauthorized(true); 
+        navigate('/'); 
+      }
       showToast('error', error.message);
     }
   };
@@ -524,6 +603,14 @@ const UserAdmin: React.FC = () => {
             <button onClick={() => runBulk('activate')} disabled={selectedIds.size === 0} className="px-3 py-1 bg-green-600 text-white rounded disabled:opacity-50">Activate</button>
             <button onClick={() => runBulk('deactivate')} disabled={selectedIds.size === 0} className="px-3 py-1 bg-yellow-600 text-white rounded disabled:opacity-50">Deactivate</button>
             <button onClick={() => runBulk('delete')} disabled={selectedIds.size === 0} className="px-3 py-1 bg-red-600 text-white rounded disabled:opacity-50">Delete</button>
+            <button 
+              onClick={() => runBulk('hard_delete')} 
+              disabled={selectedIds.size === 0} 
+              className="px-3 py-1 bg-red-800 text-white rounded disabled:opacity-50 font-bold"
+              title="HARD DELETE - Permanently remove selected users"
+            >
+              Hard Delete
+            </button>
             <div className="w-px h-5 bg-gray-300" />
             <span>Change role:</span>
             <select value={bulkRole} onChange={(e) => setBulkRole(e.target.value)} className="px-2 py-1 border rounded">
@@ -631,10 +718,19 @@ const UserAdmin: React.FC = () => {
                         <button
                           onClick={() => deleteUser(user)}
                           className="text-red-600 hover:text-red-900"
-                          title="Delete user"
+                          title="Delete user (soft delete)"
                         >
                           <Trash2 size={16} />
                         </button>
+                        {user.id === state.user?.id ? null : (
+                          <button
+                            onClick={() => hardDeleteUser(user)}
+                            className="text-red-800 hover:text-red-950 bg-red-50 hover:bg-red-100 p-1 rounded"
+                            title="HARD DELETE - Permanently remove user from system (allows re-registration)"
+                          >
+                            <Skull size={14} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

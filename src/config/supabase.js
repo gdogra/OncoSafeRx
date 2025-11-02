@@ -140,6 +140,11 @@ export class NoOpSupabaseService {
     return Promise.resolve({ success: false, id: userId, error: 'User not found' });
   }
 
+  hardDeleteUser(userId) {
+    // In no-op mode, hard delete is the same as regular delete
+    return this.deleteUser(userId);
+  }
+
   // Data sync logging (no-op)
   logSyncActivity(logData) {
     return Promise.resolve({ id: 'noop', ...logData });

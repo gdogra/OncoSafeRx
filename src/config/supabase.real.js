@@ -582,47 +582,94 @@ export class SupabaseService {
         throw getUserError;
       }
       
-      // Delete related data first (in dependency order)
-      const deleteOperations = [];
+      // Delete related data first (in proper dependency order)
+      console.log(`🧹 Deleting related data for user: ${userId}`);
       
-      // Delete patient profiles
-      deleteOperations.push(
-        this.client.from('patient_profiles').delete().eq('patient_id', userId)
-      );
-      
-      // Delete patients owned by this user
-      deleteOperations.push(
-        this.client.from('patients').delete().eq('user_id', userId)
-      );
-      
-      // Delete admin audit logs where this user is the actor or target
-      deleteOperations.push(
-        this.client.from('admin_audit').delete().eq('actor_id', userId)
-      );
-      deleteOperations.push(
-        this.client.from('admin_audit').delete().eq('target_user_id', userId)
-      );
-      
-      // Delete feedback submitted by this user (if feedback table has user_id)
-      // Note: Only if the feedback table has a user_id column
+      // Step 1: Get all patients for this user first
+      let patientIds = [];
       try {
-        deleteOperations.push(
-          this.client.from('feedback').delete().eq('user_id', userId)
-        );
+        const { data: userPatients, error: getUserPatientsError } = await this.client
+          .from('patients')
+          .select('id')
+          .eq('user_id', userId);
+        
+        if (getUserPatientsError) {
+          console.warn('⚠️ Could not fetch user patients:', getUserPatientsError.message);
+        } else {
+          patientIds = userPatients.map(p => p.id);
+          console.log(`📋 Found ${patientIds.length} patients to delete`);
+        }
       } catch (e) {
-        // Table might not have user_id column, ignore error
+        console.warn('⚠️ Error fetching patients:', e.message);
       }
       
-      // Execute all delete operations
-      console.log(`🧹 Deleting related data for user: ${userId}`);
-      const deleteResults = await Promise.allSettled(deleteOperations);
-      
-      // Log any failures but don't stop the process
-      deleteResults.forEach((result, index) => {
-        if (result.status === 'rejected') {
-          console.warn(`⚠️ Related data deletion ${index} failed:`, result.reason);
+      // Step 2: Delete patient profiles (references patients.id)
+      if (patientIds.length > 0) {
+        try {
+          const { data: deletedProfiles, error: profilesError } = await this.client
+            .from('patient_profiles')
+            .delete()
+            .in('patient_id', patientIds)
+            .select('patient_id');
+          
+          if (profilesError) {
+            console.warn('⚠️ Patient profiles deletion failed:', profilesError.message);
+          } else {
+            console.log(`✅ Deleted ${deletedProfiles?.length || 0} patient profiles`);
+          }
+        } catch (e) {
+          console.warn('⚠️ Patient profiles table might not exist');
         }
-      });
+      }
+      
+      // Step 3: Delete patients owned by this user (now safe since profiles are gone)
+      try {
+        const { data: deletedPatients, error: patientsError } = await this.client
+          .from('patients')
+          .delete()
+          .eq('user_id', userId)
+          .select('id');
+        if (patientsError) {
+          console.warn('⚠️ Patients deletion failed:', patientsError.message);
+        } else {
+          console.log(`✅ Deleted ${deletedPatients?.length || 0} patients`);
+        }
+      } catch (e) {
+        console.warn('⚠️ Patients deletion error:', e.message);
+      }
+      
+      // Step 4: Delete admin audit logs
+      try {
+        const { error: auditError } = await this.client
+          .from('admin_audit')
+          .delete()
+          .or(`actor_id.eq.${userId},target_user_id.eq.${userId}`);
+        if (auditError) {
+          console.warn('⚠️ Admin audit deletion failed:', auditError.message);
+        } else {
+          console.log('✅ Deleted admin audit records');
+        }
+      } catch (e) {
+        console.warn('⚠️ Admin audit table might not exist');
+      }
+      
+      // Step 5: Delete feedback submitted by this user
+      try {
+        const { error: feedbackError } = await this.client
+          .from('feedback')
+          .delete()
+          .eq('user_id', userId);
+        if (feedbackError) {
+          console.warn('⚠️ Feedback deletion failed:', feedbackError.message);
+        } else {
+          console.log('✅ Deleted feedback records');
+        }
+      } catch (e) {
+        console.warn('⚠️ Feedback table might not have user_id column');
+      }
+      
+      // Wait a moment for database operations to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       // Delete from users table (hard delete)
       console.log(`🗑️ Hard deleting user from users table: ${userId}`);
@@ -642,10 +689,24 @@ export class SupabaseService {
         const { error: authError } = await this.client.auth.admin.deleteUser(userId);
         if (authError) {
           console.error('Auth user deletion failed:', authError);
-          // Log but don't throw - database deletion was successful
+          
+          // Check if user exists in auth before considering this a failure
+          try {
+            const { data: authUser, error: getUserError } = await this.client.auth.admin.getUserById(userId);
+            if (getUserError && getUserError.status === 404) {
+              console.log('✅ User not found in auth (may have been deleted already)');
+            } else if (!getUserError && authUser) {
+              console.warn('⚠️ User still exists in auth despite deletion error');
+              // For now, log but don't fail the entire operation
+            }
+          } catch (checkError) {
+            console.warn('⚠️ Could not verify auth user status:', checkError);
+          }
         } else {
           console.log(`✅ User successfully deleted from auth: ${userId}`);
         }
+      } else {
+        console.warn('⚠️ Auth admin not available');
       }
       
       console.log(`✅ Hard delete completed for user: ${userId}`);

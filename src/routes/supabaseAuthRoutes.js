@@ -621,16 +621,29 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
     return res.status(500).json({ error: 'Supabase not configured on server', code: 'not_configured' });
   }
 
+  // Build upstream signup payload, adding redirect if we can infer it
+  const origin = req.headers.origin || req.headers.referer || '';
+  const redirect_to = origin ? `${origin.replace(/\/$/, '')}/auth/confirm` : undefined;
+  const upstreamBody = { email, password, data: metadata };
+  if (redirect_to) Object.assign(upstreamBody as any, { redirect_to });
+
   const endpoint = `${url}/auth/v1/signup`;
-  const resp = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': anon,
-      'Authorization': `Bearer ${anon}`
-    },
-    body: JSON.stringify({ email, password, data: metadata })
-  });
+  let resp;
+  try {
+    resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': anon,
+        'Authorization': `Bearer ${anon}`
+      },
+      body: JSON.stringify(upstreamBody)
+    });
+  } catch (e) {
+    console.warn('Proxy signup upstream fetch error:', e?.name || e?.message || e);
+    proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'error' });
+    return res.status(502).json({ error: 'Upstream Supabase auth error', code: 'upstream_error' });
+  }
 
   const body = await resp.json().catch(() => ({}));
   if (!resp.ok) {
@@ -639,8 +652,9 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
     return res.status(resp.status).json({ error: body?.error_description || body?.error || 'Signup failed', code: 'supabase_error' });
   }
 
-  // Enhanced error handling for profile creation during signup
-  // Create public.users row for new user since auth trigger is disabled
+  // Try to create public.users row, but do NOT fail signup if this part errors.
+  let profileCreated = false;
+  let profileError = null;
   try {
     if (service && body?.user?.id) {
       const admin = createClient(url, service);
@@ -648,14 +662,13 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
       const first = um.first_name || (email.split('@')[0]);
       const last = um.last_name || 'User';
       const role = um.role || 'oncologist';
-      
-      // First check if user already exists to avoid conflicts
+
       const { data: existingUser } = await admin
         .from('users')
         .select('id')
         .eq('id', body.user.id)
         .maybeSingle();
-      
+
       if (!existingUser) {
         const payload = {
           id: body.user.id,
@@ -671,116 +684,67 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
           persona: um.persona || {},
           created_at: new Date().toISOString()
         };
-        
-        // Handle potential schema mismatches
-        try {
-          // First check what columns exist in the users table
-          const { data: schemaCheck } = await admin
-            .from('users')
-            .select('*')
-            .limit(1);
-            
-          // If there's a user_role column instead of role, use that
-          if (schemaCheck && schemaCheck.length === 0) {
-            // Empty table, try to determine schema by attempting insert
-            console.log('[auth-proxy] Attempting user profile creation...');
-          }
-        } catch (schemaError) {
-          console.warn('[auth-proxy] Schema check failed, proceeding with standard payload:', schemaError.message);
-        }
-        
+
         let upErr = null;
-        
         try {
-          const { error } = await admin
-            .from('users')
-            .insert(payload);
-          upErr = error;
+          const { error } = await admin.from('users').insert(payload);
+          upErr = error || null;
         } catch (insertError) {
           upErr = insertError;
         }
-        
-        // If there's an error, try to handle common schema mismatches
+
         if (upErr) {
-          console.warn('[auth-proxy] Initial insert failed, trying alternate schema:', upErr.message);
-          
-          // Try with user_role instead of role
-          if (upErr.message?.includes('user_role')) {
+          // Try alternate schema name for role
+          if (String(upErr.message || '').includes('user_role')) {
             try {
-              const altPayload = { ...payload };
+              const altPayload = { ...payload } as any;
               altPayload.user_role = altPayload.role;
               delete altPayload.role;
-              
-              const { error: altErr } = await admin
-                .from('users')
-                .insert(altPayload);
-                
-              if (!altErr) {
-                console.log('[auth-proxy] Successfully created user profile with user_role column for:', email);
-                upErr = null; // Clear the error
-              } else {
-                upErr = altErr;
-              }
+              const { error: altErr } = await admin.from('users').insert(altPayload);
+              if (!altErr) upErr = null;
+              else upErr = altErr;
             } catch (altError) {
               upErr = altError;
             }
           }
-          
-          // If still failing, try without optional fields
-          if (upErr) {
-            try {
-              const minimalPayload = {
-                id: body.user.id,
-                email,
-                role, // or user_role if that's what the schema expects
-                first_name: first,
-                last_name: last,
-                created_at: new Date().toISOString()
-              };
-              
-              const { error: minErr } = await admin
-                .from('users')
-                .insert(minimalPayload);
-                
-              if (!minErr) {
-                console.log('[auth-proxy] Successfully created minimal user profile for:', email);
-                upErr = null;
-              } else {
-                upErr = minErr;
-              }
-            } catch (minError) {
-              upErr = minError;
-            }
+        }
+
+        if (upErr) {
+          // Try minimal payload
+          try {
+            const minimalPayload: any = {
+              id: body.user.id,
+              email,
+              first_name: first,
+              last_name: last,
+              created_at: new Date().toISOString()
+            };
+            const { error: minErr } = await admin.from('users').insert(minimalPayload);
+            if (!minErr) upErr = null;
+            else upErr = minErr;
+          } catch (minError) {
+            upErr = minError;
           }
         }
-        
+
         if (upErr) {
-          console.error('[auth-proxy] Critical: Failed to create user profile after all attempts:', upErr.message);
-          return res.status(500).json({ 
-            error: 'Database error saving new user', 
-            code: 'profile_creation_failed',
-            details: upErr.message 
-          });
+          console.error('[auth-proxy] Failed to create user profile:', upErr?.message || upErr);
+          profileError = upErr?.message || 'Unknown profile creation error';
         } else {
+          profileCreated = true;
           console.log('[auth-proxy] Successfully created user profile for:', email);
         }
       } else {
+        profileCreated = true;
         console.log('[auth-proxy] User profile already exists for:', email);
       }
     } else {
-      console.error('[auth-proxy] Missing service role key or user ID for profile creation');
-      return res.status(500).json({ 
-        error: 'Database error saving new user', 
-        code: 'missing_service_config' 
-      });
+      if (!service) console.warn('[auth-proxy] Skipping profile creation: missing service role key');
+      if (!body?.user?.id) console.warn('[auth-proxy] Skipping profile creation: missing user id from upstream response');
     }
   } catch (e) {
     console.error('[auth-proxy] Exception during profile creation:', e?.message || e);
-    return res.status(500).json({ 
-      error: 'Database error saving new user', 
-      code: 'profile_creation_exception',
-      details: e?.message || 'Unknown error'
-    });
+    profileError = e?.message || 'Unknown exception';
   }
 
   proxyAuthCounter.inc({ endpoint: 'signup', outcome: 'success' });
@@ -790,7 +754,9 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
     expires_in: body.expires_in,
     token_type: body.token_type,
     user: body.user,
-    needs_confirmation: !body.access_token
+    needs_confirmation: !body.access_token,
+    profile_created: profileCreated,
+    ...(profileError ? { profile_error: profileError } : {})
   });
 }));
 

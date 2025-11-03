@@ -5,7 +5,7 @@ import client from 'prom-client';
 import { authenticateSupabase, optionalSupabaseAuth } from '../middleware/supabaseAuth.js';
 import { generateToken } from '../middleware/auth.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
-import fetch from 'node-fetch';
+// import fetch from 'node-fetch'; // Using built-in fetch in Node.js 18+
 import { createClient } from '@supabase/supabase-js';
 import { getEnv } from '../utils/env.js';
 
@@ -604,6 +604,26 @@ router.post('/proxy/login', requireProxyEnabled, checkAllowedOrigin, proxyLimite
     expires_in: body.expires_in,
     token_type: body.token_type,
     user: body.user
+  });
+}));
+
+// Simple test signup route - GET version for debugging
+router.get('/signup-test', asyncHandler(async (req, res) => {
+  res.json({ message: 'GET signup test route working' });
+}));
+
+// Simple working signup route
+router.post('/signup', asyncHandler(async (req, res) => {
+  const { email, password, firstName, lastName, role = 'patient' } = req.body || {};
+  
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password required' });
+  }
+  
+  // For now, just test the route works
+  return res.json({
+    message: 'Signup route working with data',
+    received: { email, firstName, lastName, role }
   });
 }));
 

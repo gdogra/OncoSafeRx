@@ -1012,7 +1012,7 @@ export class SupabaseAuthService {
         console.warn('⚠️ Session check failed, skipping users table query:', sessionError);
       }
       
-      // Final fallback
+      // Final fallback - ensure new users get patient role unless specified
       if (!role) role = 'patient';
     }
     

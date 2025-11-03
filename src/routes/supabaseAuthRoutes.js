@@ -737,7 +737,9 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
       const um = body.user.user_metadata || {};
       const first = um.first_name || (email.split('@')[0]);
       const last = um.last_name || 'User';
-      const role = um.role || 'oncologist';
+      const role = um.role || 'patient'; // Use role from signup form metadata
+      
+      console.log('[auth-proxy] User metadata role:', um.role, 'Final role:', role, 'All metadata:', um);
 
       const { data: existingUser } = await admin
         .from('users')
@@ -808,7 +810,7 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
           profileError = upErr?.message || 'Unknown profile creation error';
         } else {
           profileCreated = true;
-          console.log('[auth-proxy] Successfully created user profile for:', email);
+          console.log('[auth-proxy] Successfully created user profile for:', email, 'with role:', role);
         }
       } else {
         profileCreated = true;

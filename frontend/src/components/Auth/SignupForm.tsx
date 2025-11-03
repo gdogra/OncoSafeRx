@@ -12,7 +12,7 @@ const SignupForm: React.FC = () => {
     password: '',
     firstName: '',
     lastName: '',
-    role: 'oncologist',
+    role: 'patient',
     specialty: '',
     institution: '',
     licenseNumber: '',
@@ -126,6 +126,7 @@ const SignupForm: React.FC = () => {
   };
 
   const roleOptions = [
+    { value: 'patient', label: 'Patient', description: 'Cancer patient or caregiver' },
     { value: 'oncologist', label: 'Oncologist', description: 'Medical doctor specializing in cancer treatment' },
     { value: 'pharmacist', label: 'Pharmacist', description: 'Medication therapy expert' },
     { value: 'nurse', label: 'Nurse', description: 'Patient care and treatment coordination' },

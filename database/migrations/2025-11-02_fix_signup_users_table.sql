@@ -8,7 +8,7 @@ create extension if not exists "uuid-ossp";
 create table if not exists public.users (
   id uuid primary key,
   email text unique,
-  role text default 'oncologist',
+  role text default 'patient',
   first_name text,
   last_name text,
   specialty text,
@@ -23,7 +23,7 @@ create table if not exists public.users (
 
 -- Add missing columns if table already exists
 alter table public.users add column if not exists email text;
-alter table public.users add column if not exists role text default 'oncologist';
+alter table public.users add column if not exists role text default 'patient';
 alter table public.users add column if not exists first_name text;
 alter table public.users add column if not exists last_name text;
 alter table public.users add column if not exists specialty text;

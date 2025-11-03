@@ -669,11 +669,11 @@ const AdminConsole: React.FC = () => {
 
             {rbac.hasPermission('view_visitor_analytics') && (
               <button 
-                onClick={() => setActiveTab('analytics')}
+                onClick={() => navigate('/admin/trial-analytics')}
                 className="flex items-center space-x-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
               >
                 <BarChart3 className="w-6 h-6 text-green-600" />
-                <span className="font-medium text-green-900">View Analytics</span>
+                <span className="font-medium text-green-900">Trial Analytics</span>
               </button>
             )}
 
@@ -689,11 +689,11 @@ const AdminConsole: React.FC = () => {
 
             {rbac.hasPermission('manage_system_settings') && (
               <button 
-                onClick={() => setActiveTab('system')}
+                onClick={() => navigate('/admin/health')}
                 className="flex items-center space-x-3 p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-colors"
               >
                 <Settings className="w-6 h-6 text-orange-600" />
-                <span className="font-medium text-orange-900">System Settings</span>
+                <span className="font-medium text-orange-900">System Health</span>
               </button>
             )}
           </div>

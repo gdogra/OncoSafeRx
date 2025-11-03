@@ -457,6 +457,63 @@ export class SupabaseAuthService {
   static async signup(data: SignupData): Promise<UserProfile> {
     console.log('📝 Signup attempt for:', data.email)
 
+    // Use auth proxy as PRIMARY method for signup to handle email confirmation properly
+    console.log('🔄 Using auth proxy for signup...')
+    try {
+      const resp = await fetch('/api/supabase-auth/proxy/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: data.email, 
+          password: data.password, 
+          metadata: {
+            first_name: data.firstName,
+            last_name: data.lastName,
+            role: data.role,
+            specialty: data.specialty || '',
+            institution: data.institution || '',
+            license_number: data.licenseNumber || '',
+            years_experience: data.yearsExperience || 0
+          } 
+        })
+      });
+      
+      console.log('🔍 Proxy signup response:', resp.status, resp.statusText)
+      
+      if (resp.ok) {
+        const body = await resp.json();
+        console.log('✅ Proxy signup successful:', body.message)
+        
+        // Build minimal profile for email confirmation flow
+        return {
+          id: 'pending-' + Date.now(),
+          email: data.email,
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          role: (data.role || 'patient') as any,
+          specialty: data.specialty || '',
+          institution: data.institution || '',
+          licenseNumber: data.licenseNumber || '',
+          yearsExperience: data.yearsExperience || 0,
+          preferences: this.getDefaultPreferences(data.role || 'patient'),
+          persona: this.createDefaultPersona(data.role || 'patient'),
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+          isActive: true,
+          roles: [(data.role || 'patient') as any],
+          permissions: this.getRolePermissions(data.role || 'patient')
+        }
+      } else {
+        const detail = await resp.json().catch(() => ({}));
+        console.error('❌ Proxy signup failed:', detail)
+        throw new Error(detail?.error || `Signup failed (${resp.status})`)
+      }
+    } catch (proxyError) {
+      console.log('❌ Auth proxy failed, falling back to direct Supabase:', proxyError)
+      // Fall through to original direct Supabase method below
+    }
+
+    // Original direct Supabase method as fallback
     try {
       const redirectTo = (() => {
         try { return `${window.location.origin}/auth/confirm`; } catch { return undefined as any }

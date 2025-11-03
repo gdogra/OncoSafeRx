@@ -11,7 +11,7 @@ function maybeAttachDefaultUser(req, reason = '') {
     const allowGuestHeader = guestHeader === '1' || guestHeader === 'true' || guestHeader === 'yes';
     const allowGuest = isDevelopment || allowDefaultUserEnv || allowGuestHeader;
     if (!req.user && allowGuest) {
-      req.user = { id: 'dev-user', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
+      req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
       if (PATIENT_DEBUG) console.log('🔄 Using default user', { reason: reason || 'allowed', headerGuest: guestHeader, allowDefaultUserEnv });
     }
   } catch {}
@@ -472,7 +472,7 @@ const updateMedicationSchema = medicationBaseSchema; // partial allowed
 router.get('/:id/medications', optionalSupabaseAuth, async (req, res) => {
   try {
     if (!req.user && isDevelopment) {
-      req.user = { id: 'dev-user', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
+      req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
       console.log('🔄 Using dev default user for medications list');
     } else if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
@@ -490,7 +490,7 @@ router.get('/:id/medications', optionalSupabaseAuth, async (req, res) => {
 router.post('/:id/medications', optionalSupabaseAuth, async (req, res) => {
   try {
     if (!req.user && isDevelopment) {
-      req.user = { id: 'dev-user', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
+      req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
       console.log('🔄 Using dev default user for medication create');
     } else if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
@@ -518,7 +518,7 @@ router.post('/:id/medications', optionalSupabaseAuth, async (req, res) => {
 router.put('/:id/medications/:medId', optionalSupabaseAuth, async (req, res) => {
   try {
     if (!req.user && isDevelopment) {
-      req.user = { id: 'dev-user', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
+      req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
       console.log('🔄 Using dev default user for medication update');
     } else if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
@@ -547,7 +547,7 @@ router.put('/:id/medications/:medId', optionalSupabaseAuth, async (req, res) => 
 router.delete('/:id/medications/:medId', optionalSupabaseAuth, async (req, res) => {
   try {
     if (!req.user && isDevelopment) {
-      req.user = { id: 'dev-user', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
+      req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
       console.log('🔄 Using dev default user for medication delete');
     } else if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });

@@ -157,8 +157,10 @@ export class SupabaseAuthService {
         const profile = this.createDevUser(email)
         
         // Create mock JWT tokens for dev mode API calls
+        // Use role from profile for proper backend authentication
+        const roleForToken = profile.role === 'super_admin' ? 'admin' : profile.role;
         const mockTokens = {
-          access_token: `dev-token-${Date.now()}`,
+          access_token: `dev-token-${roleForToken}-${Date.now()}`,
           refresh_token: `dev-refresh-${Date.now()}`,
           expires_at: Date.now() + (24 * 60 * 60 * 1000), // 24 hours from now
           stored_at: Date.now()
@@ -737,8 +739,10 @@ export class SupabaseAuthService {
         // Create/refresh dev tokens if needed
         if (!storedTokens || !storedTokens.access_token || storedTokens.expires_at <= Date.now()) {
           console.log('🔄 Creating fresh dev tokens for session restoration')
+          const devUser = storedDevUser || this.createDevUser(defaultEmail);
+          const roleForToken = devUser.role === 'super_admin' ? 'admin' : devUser.role;
           const mockTokens = {
-            access_token: `dev-token-${Date.now()}`,
+            access_token: `dev-token-${roleForToken}-${Date.now()}`,
             refresh_token: `dev-refresh-${Date.now()}`,
             expires_at: Date.now() + (24 * 60 * 60 * 1000), // 24 hours from now
             stored_at: Date.now()

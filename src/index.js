@@ -717,6 +717,7 @@ app.use(errorHandler);
 
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`OncoSafeRx API running on port ${PORT}`);
+  console.log('🔗 Auth proxy enabled:', process.env.AUTH_PROXY_ENABLED === 'true');
   logInfo(`Health: http://localhost:${PORT}/health  CORS: ${CORS_ORIGIN}`);
 });
 

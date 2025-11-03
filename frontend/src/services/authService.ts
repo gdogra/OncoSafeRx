@@ -463,14 +463,15 @@ export class SupabaseAuthService {
 
     // Original direct Supabase method as fallback
     try {
-      const redirectTo = (() => {
-        try { return `${window.location.origin}/auth/confirm`; } catch { return undefined as any }
-      })();
+      // Temporarily disable email confirmation due to Supabase email service 500 errors
+      // TODO: Re-enable once Supabase email service is properly configured
+      console.log('⚠️ Email confirmation temporarily disabled due to Supabase email service errors')
+      
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
-          emailRedirectTo: redirectTo,
+          // Remove emailRedirectTo to disable email confirmation temporarily
           data: {
             first_name: data.firstName,
             last_name: data.lastName,
@@ -488,30 +489,8 @@ export class SupabaseAuthService {
         throw new Error(error.message)
       }
 
-      // Check if user needs email confirmation
-      if (authData.user && !authData.session) {
-        console.log('📧 User created, email confirmation required')
-        // Return a pending profile that indicates email confirmation needed
-        return {
-          id: 'pending-' + Date.now(),
-          email: data.email,
-          firstName: data.firstName || '',
-          lastName: data.lastName || '',
-          role: (data.role || 'patient') as any,
-          specialty: data.specialty || '',
-          institution: data.institution || '',
-          licenseNumber: data.licenseNumber || '',
-          yearsExperience: data.yearsExperience || 0,
-          preferences: this.getDefaultPreferences(data.role || 'patient'),
-          persona: this.createDefaultPersona(data.role || 'patient'),
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
-          isActive: false, // User not active until email confirmed
-          roles: [(data.role || 'patient') as any],
-          permissions: this.getRolePermissions(data.role || 'patient'),
-          emailConfirmationPending: true
-        } as any
-      }
+      // With email confirmation disabled temporarily, users should get immediate access
+      // TODO: Restore email confirmation check once Supabase email service is configured
 
       if (!authData.user || !authData.session) {
         console.log('❌ No user/session returned', { user: !!authData.user, session: !!authData.session })

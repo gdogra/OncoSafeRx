@@ -628,7 +628,7 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
   const upstreamBody = { email, password, data: metadata };
   if (redirect_to) Object.assign(upstreamBody, { redirect_to });
 
-  // Helper: admin create + password grant flow
+  // Helper: admin create + password grant flow with email confirmation support
   async function adminCreateAndGrant() {
     if (!service) {
       return { error: 'missing SUPABASE_SERVICE_ROLE_KEY', stage: 'missing_service_key' };

@@ -1,7 +1,7 @@
 // Test script to verify signup role assignment works correctly
 // Run with: node test-signup-role.js
 
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
 const API_BASE = 'https://oncosaferx.com/api/supabase-auth/proxy';
 

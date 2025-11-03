@@ -740,6 +740,7 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
       const role = um.role || 'patient'; // Use role from signup form metadata
       
       console.log('[auth-proxy] User metadata role:', um.role, 'Final role:', role, 'All metadata:', um);
+      console.log('[auth-proxy] Creating user profile for email:', email);
 
       const { data: existingUser } = await admin
         .from('users')

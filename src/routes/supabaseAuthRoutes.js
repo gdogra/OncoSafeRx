@@ -611,7 +611,16 @@ router.post('/proxy/login', requireProxyEnabled, checkAllowedOrigin, proxyLimite
  * Server-side proxy signup to Supabase
  * Body: { email, password, metadata?: {...} }
  */
-router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimiter, validateBody(signupSchema), asyncHandler(async (req, res) => {
+// Temporarily disabled for debugging
+// router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimiter, validateBody(signupSchema), asyncHandler(async (req, res) => {
+
+// Simple test route
+router.post('/proxy/signup', requireProxyEnabled, (req, res) => {
+  res.json({ test: 'simple signup route works' });
+});
+
+/*
+router.post('/proxy/signup-full', requireProxyEnabled, checkAllowedOrigin, proxyLimiter, validateBody(signupSchema), asyncHandler(async (req, res) => {
   const { email, password, metadata = {} } = req.body || {};
 
   const url = getEnv("SUPABASE_URL");
@@ -839,6 +848,7 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
     ...(profileError ? { profile_error: profileError } : {})
   });
 }));
+*/
 
 /**
  * Server-side proxy: request password reset email

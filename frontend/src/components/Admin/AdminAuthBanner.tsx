@@ -17,21 +17,53 @@ const AdminAuthBanner: React.FC = () => {
   const [attemptedRecovery, setAttemptedRecovery] = React.useState(false);
 
   const tryAutoRecovery = async (body: any) => {
-    if (attemptedRecovery) return;
+    if (attemptedRecovery) {
+      console.log('🔄 Auto-recovery blocked: already attempted in this session');
+      return;
+    }
+    
+    // Check if we've recently attempted recovery to prevent loops
+    try {
+      const lastAttempt = localStorage.getItem('osrx_admin_recovery_attempt');
+      if (lastAttempt) {
+        const attemptTime = parseInt(lastAttempt);
+        const now = Date.now();
+        const timeSince = Math.floor((now - attemptTime) / 1000);
+        // Don't attempt again within 5 minutes
+        if (now - attemptTime < 5 * 60 * 1000) {
+          console.log(`🔄 Auto-recovery blocked: attempted ${timeSince}s ago, waiting 5min cooldown`);
+          return;
+        }
+      }
+    } catch {}
+    
     try {
       if (body?.tokenPresent && body?.backendJwtValid === false) {
+        console.log('🔄 Starting auto-recovery: token present but backend JWT invalid');
         setAttemptedRecovery(true);
+        localStorage.setItem('osrx_admin_recovery_attempt', Date.now().toString());
+        
         const ok = await refreshAdminTokens();
         if (ok) {
           const resp = await adminApi.get('/api/admin/dashboard');
           if (resp.ok) {
             try { localStorage.setItem('osrx_admin_auth_status', JSON.stringify({ status: 'auto', at: Date.now() })); } catch {}
             showToast('success', 'Admin access restored (auto)', 3000);
-            await load();
+            // Don't call load() again to prevent loops
+            setDiag(prev => prev ? { ...prev, body: { ...body, backendJwtValid: true } } : null);
+            console.log('✅ Auto-recovery completed successfully');
+          } else {
+            console.log('❌ Auto-recovery failed: dashboard test failed');
           }
+        } else {
+          console.log('❌ Auto-recovery failed: token refresh failed');
         }
+      } else {
+        console.log('🔄 Auto-recovery not needed:', { tokenPresent: body?.tokenPresent, backendJwtValid: body?.backendJwtValid });
       }
-    } catch {}
+    } catch (e) {
+      console.log('❌ Auto-recovery error:', e);
+    }
   };
 
   const load = async () => {

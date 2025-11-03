@@ -16,11 +16,26 @@ const router = express.Router();
 router.use(authenticateToken);
 router.use(requireAdmin);
 
+// Service diagnostic endpoint
+router.get('/service-status', asyncHandler(async (req, res) => {
+  const users = await supabaseService.getAllUsers();
+  res.json({
+    serviceEnabled: supabaseService.enabled,
+    serviceType: supabaseService.constructor.name,
+    userCount: users.length,
+    sampleUsers: users.slice(0, 3).map(u => ({ id: u.id, email: u.email, role: u.role }))
+  });
+}));
+
 // Dashboard overview - get system stats
 router.get('/dashboard', asyncHandler(async (req, res) => {
   try {
+    console.log('🔍 Admin dashboard - Supabase service enabled:', supabaseService.enabled);
+    console.log('🔍 Admin dashboard - Service type:', supabaseService.constructor.name);
+    
     // Get user statistics
     const users = await supabaseService.getAllUsers();
+    console.log('🔍 Admin dashboard - Found users:', users.length);
     const userStats = {
       total: users.length,
       active: users.filter(u => u.is_active).length,

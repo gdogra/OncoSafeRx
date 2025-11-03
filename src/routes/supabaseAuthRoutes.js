@@ -635,10 +635,11 @@ router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimit
     }
     try {
       const admin = createClient(url, service);
+      const autoConfirm = (process.env.SUPABASE_AUTH_EMAIL_CONFIRM || 'true').toLowerCase() !== 'false';
       const { data: created, error: createErr } = await admin.auth.admin.createUser({
         email,
         password,
-        email_confirm: true,
+        email_confirm: autoConfirm,
         user_metadata: metadata,
       });
       if (createErr) {
@@ -1136,10 +1137,11 @@ router.post('/admin/create-user', asyncHandler(async (req, res) => {
   // 1) Create auth user (or find if exists)
   let userId = null;
   try {
+    const autoConfirm = (process.env.SUPABASE_AUTH_EMAIL_CONFIRM || 'true').toLowerCase() !== 'false';
     const { data, error } = await admin.auth.admin.createUser({
       email,
       password: password || `Temp-${Math.random().toString(36).slice(2)}!A9`,
-      email_confirm: true,
+      email_confirm: autoConfirm,
       user_metadata: metadata
     });
     if (error && !String(error?.message || '').toLowerCase().includes('already registered')) {

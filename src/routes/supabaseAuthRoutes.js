@@ -614,10 +614,46 @@ router.post('/proxy/login', requireProxyEnabled, checkAllowedOrigin, proxyLimite
 // Temporarily disabled for debugging
 // router.post('/proxy/signup', requireProxyEnabled, checkAllowedOrigin, proxyLimiter, validateBody(signupSchema), asyncHandler(async (req, res) => {
 
-// Simple test route
-router.post('/proxy/signup', requireProxyEnabled, (req, res) => {
-  res.json({ test: 'simple signup route works' });
-});
+// Working signup route with email confirmation
+router.post('/proxy/signup', requireProxyEnabled, asyncHandler(async (req, res) => {
+  const { email, password, metadata = {} } = req.body || {};
+  
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password required' });
+  }
+
+  const url = process.env.SUPABASE_URL;
+  const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!url || !service) {
+    return res.status(500).json({ error: 'Supabase not configured' });
+  }
+
+  try {
+    const admin = createClient(url, service);
+    const autoConfirm = (process.env.SUPABASE_AUTH_EMAIL_CONFIRM || 'true').toLowerCase() !== 'false';
+    
+    const { data, error } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: autoConfirm,
+      user_metadata: metadata,
+    });
+
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    return res.json({
+      message: autoConfirm ? 'User created and confirmed' : 'User created, please check email for confirmation',
+      user: data.user,
+      needs_confirmation: !autoConfirm
+    });
+  } catch (error) {
+    console.error('Signup error:', error);
+    return res.status(500).json({ error: 'Signup failed' });
+  }
+}));
 
 /*
 router.post('/proxy/signup-full', requireProxyEnabled, checkAllowedOrigin, proxyLimiter, validateBody(signupSchema), asyncHandler(async (req, res) => {

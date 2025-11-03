@@ -457,61 +457,9 @@ export class SupabaseAuthService {
   static async signup(data: SignupData): Promise<UserProfile> {
     console.log('📝 Signup attempt for:', data.email)
 
-    // Use auth proxy as PRIMARY method for signup to handle email confirmation properly
-    console.log('🔄 Using auth proxy for signup...')
-    try {
-      const resp = await fetch('/api/supabase-auth/proxy/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          email: data.email, 
-          password: data.password, 
-          metadata: {
-            first_name: data.firstName,
-            last_name: data.lastName,
-            role: data.role,
-            specialty: data.specialty || '',
-            institution: data.institution || '',
-            license_number: data.licenseNumber || '',
-            years_experience: data.yearsExperience || 0
-          } 
-        })
-      });
-      
-      console.log('🔍 Proxy signup response:', resp.status, resp.statusText)
-      
-      if (resp.ok) {
-        const body = await resp.json();
-        console.log('✅ Proxy signup successful:', body.message)
-        
-        // Build minimal profile for email confirmation flow
-        return {
-          id: 'pending-' + Date.now(),
-          email: data.email,
-          firstName: data.firstName || '',
-          lastName: data.lastName || '',
-          role: (data.role || 'patient') as any,
-          specialty: data.specialty || '',
-          institution: data.institution || '',
-          licenseNumber: data.licenseNumber || '',
-          yearsExperience: data.yearsExperience || 0,
-          preferences: this.getDefaultPreferences(data.role || 'patient'),
-          persona: this.createDefaultPersona(data.role || 'patient'),
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
-          isActive: true,
-          roles: [(data.role || 'patient') as any],
-          permissions: this.getRolePermissions(data.role || 'patient')
-        }
-      } else {
-        const detail = await resp.json().catch(() => ({}));
-        console.error('❌ Proxy signup failed:', detail)
-        throw new Error(detail?.error || `Signup failed (${resp.status})`)
-      }
-    } catch (proxyError) {
-      console.log('❌ Auth proxy failed, falling back to direct Supabase:', proxyError)
-      // Fall through to original direct Supabase method below
-    }
+    // Temporarily disable auth proxy due to production routing issues
+    // TODO: Re-enable once auth proxy routes are working in production
+    console.log('⚠️ Auth proxy temporarily disabled, using direct Supabase with email confirmation')
 
     // Original direct Supabase method as fallback
     try {
@@ -537,135 +485,61 @@ export class SupabaseAuthService {
 
       if (error) {
         console.log('❌ Direct Supabase signup error:', error.message)
-        
-        // Always attempt server-side proxy as primary method since direct signup failed
-        console.log('🔄 Attempting signup via server proxy...')
-        try {
-          const resp = await fetch('/api/supabase-auth/proxy/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              email: data.email, 
-              password: data.password, 
-              metadata: {
-                first_name: data.firstName,
-                last_name: data.lastName,
-                role: data.role,
-                specialty: data.specialty || '',
-                institution: data.institution || '',
-                license_number: data.licenseNumber || '',
-                years_experience: data.yearsExperience || 0
-              } 
-            })
-          });
-          
-          console.log('🔍 Proxy signup response:', resp.status, resp.statusText)
-          
-          if (resp.ok) {
-            const body = await resp.json();
-            console.log('✅ Proxy signup successful, processing response...')
-            
-            // If tokens are present, establish session; else proceed with confirmation flow
-            if (body?.access_token && body?.refresh_token) {
-              console.log('🔐 Setting up session with returned tokens...')
-              const { data: setData, error: setErr } = await supabase.auth.setSession({
-                access_token: body.access_token,
-                refresh_token: body.refresh_token,
-              } as any)
-              if (setErr) {
-                console.error('❌ Failed to set session:', setErr)
-                throw setErr
-              }
-              if (!setData?.session?.user) {
-                console.error('❌ No user in session after signup')
-                throw new Error('Failed to establish session (signup proxy)')
-              }
-              
-              console.log('✅ Session established, building user profile...')
-              const userProfile = await this.buildUserProfile(setData.session.user)
-              try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'proxy-signup', at: Date.now() })) } catch {}
-              return userProfile
-            }
-            
-            // No tokens: require email confirmation; build minimal profile
-            console.log('📧 No tokens in response, user needs email confirmation')
-            return {
-              id: 'pending-' + Date.now(),
-              email: data.email,
-              firstName: data.firstName || '',
-              lastName: data.lastName || '',
-              role: (data.role || 'patient') as any,
-              specialty: data.specialty || '',
-              institution: data.institution || '',
-              licenseNumber: data.licenseNumber || '',
-              yearsExperience: data.yearsExperience || 0,
-              preferences: this.getDefaultPreferences(data.role || 'patient'),
-              persona: this.createDefaultPersona(data.role || 'patient'),
-              createdAt: new Date().toISOString(),
-              lastLogin: new Date().toISOString(),
-              isActive: true,
-              roles: [(data.role || 'patient') as any],
-              permissions: this.getRolePermissions(data.role || 'patient')
-            }
-          } else {
-            // Get detailed error from server
-            let detail: any = null
-            try { 
-              detail = await resp.json() 
-              console.error('❌ Proxy signup error details:', detail)
-            } catch { 
-              const txt = await resp.text().catch(() => '')
-              console.error('❌ Proxy signup error text:', txt)
-              detail = { error: txt || 'Unknown error' }
-            }
-            
-            const code = detail?.code || ''
-            if (resp.status === 404 && code === 'proxy_disabled') {
-              throw new Error('Signup temporarily unavailable: server auth proxy is disabled. Please enable AUTH_PROXY_ENABLED and PROXY_ALLOWED_ORIGINS on the API server.')
-            }
-            if (resp.status === 403 && code === 'forbidden_origin') {
-              throw new Error('Signup blocked: this origin is not allowed for the auth proxy. Add your site URL to PROXY_ALLOWED_ORIGINS on the API server.')
-            }
-            if (resp.status === 500 && code === 'profile_creation_failed') {
-              throw new Error(`Database error saving new user: ${detail?.details || 'Failed to create user profile'}`)
-            }
-            
-            // If upstream Supabase failed, surface its message clearly
-            if (code === 'supabase_error') {
-              const base = (detail?.error_description || detail?.error || '').toString() || 'Supabase signup failed';
-              const extra = detail?.details ? ` (${String(detail.details)})` : ''
-              throw new Error(base + extra)
-            }
-            // Include server error details if available
-            if (detail?.error) {
-              throw new Error(String(detail.error))
-            }
-            
-            throw new Error(`Signup failed with server error: ${resp.status}`)
-          }
-        } catch (proxyErr: any) {
-          console.error('❌ Signup proxy exception:', proxyErr)
-          // If the proxy error has a useful message, throw that
-          if (proxyErr?.message && !proxyErr.message.includes('fetch')) {
-            throw proxyErr
-          }
-          // Otherwise, throw the original error
-          throw new Error(`Database error saving new user`)
-        }
+        throw new Error(error.message)
       }
 
-      if (!authData.user) {
-        throw new Error('Signup failed - no user created')
+      // Check if user needs email confirmation
+      if (authData.user && !authData.session) {
+        console.log('📧 User created, email confirmation required')
+        // Return a pending profile that indicates email confirmation needed
+        return {
+          id: 'pending-' + Date.now(),
+          email: data.email,
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          role: (data.role || 'patient') as any,
+          specialty: data.specialty || '',
+          institution: data.institution || '',
+          licenseNumber: data.licenseNumber || '',
+          yearsExperience: data.yearsExperience || 0,
+          preferences: this.getDefaultPreferences(data.role || 'patient'),
+          persona: this.createDefaultPersona(data.role || 'patient'),
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+          isActive: false, // User not active until email confirmed
+          roles: [(data.role || 'patient') as any],
+          permissions: this.getRolePermissions(data.role || 'patient'),
+          emailConfirmationPending: true
+        } as any
       }
 
-      console.log('✅ Signup successful, check email for confirmation')
-      return this.buildUserProfile(authData.user, data)
+      if (!authData.user || !authData.session) {
+        console.log('❌ No user/session returned', { user: !!authData.user, session: !!authData.session })
+        throw new Error('Authentication failed')
+      }
+
+      // User was auto-confirmed (should not happen with email confirmation enabled)
+      console.log('⚠️ User was auto-confirmed despite email confirmation being enabled')
+      console.log('✅ Supabase auth successful', { 
+        userId: authData.user.id, 
+        email: authData.user.email,
+        confirmed: authData.user.email_confirmed_at,
+        lastSignIn: authData.user.last_sign_in_at 
+      })
+      const userProfile = await this.buildUserProfile(authData.user)
+      try { 
+        localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'direct-auto-confirmed', at: Date.now() }))
+        localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile))
+      } catch {}
+      
+      return userProfile
 
     } catch (error) {
       console.log('💥 Signup error:', error)
       throw error
     }
   }
+
 
   /**
    * Get current authenticated user

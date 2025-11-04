@@ -1091,6 +1091,24 @@ router.post('/verify-otp', requireProxyEnabled, checkAllowedOrigin, proxyLimiter
   }
 
   console.log('✅ OTP verification successful for phone:', phone);
+  
+  // After successful phone verification, also confirm the user's email to avoid email confirmation flow
+  if (body.user?.id) {
+    try {
+      const service = getEnv("SUPABASE_SERVICE_ROLE_KEY");
+      if (service) {
+        const admin = createClient(url, service);
+        await admin.auth.admin.updateUserById(body.user.id, {
+          email_confirm: true
+        });
+        console.log('✅ Email auto-confirmed after successful phone verification');
+      }
+    } catch (adminError) {
+      console.warn('⚠️ Failed to auto-confirm email after phone verification:', adminError.message);
+      // Don't fail the request, just log the warning
+    }
+  }
+  
   proxyAuthCounter.inc({ endpoint: 'verify-otp', outcome: 'success' });
   return res.json(body);
 }));

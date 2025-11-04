@@ -129,13 +129,9 @@ const AuthOtpVerify: React.FC = () => {
       const result = await response.json();
       console.log('✅ OTP verification successful');
 
-      // Redirect to success page
-      const params = new URLSearchParams({ 
-        phone,
-        email,
-        verified: 'true'
-      });
-      navigate(`/auth/check-email?${params.toString()}`);
+      // After successful OTP verification, redirect to dashboard (skip email confirmation)
+      // The backend automatically confirms the email after successful phone verification
+      navigate('/dashboard');
 
     } catch (error) {
       console.error('❌ OTP verification failed:', error);

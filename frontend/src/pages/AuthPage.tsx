@@ -392,6 +392,14 @@ const AuthPage: React.FC = () => {
           };
         }
         
+        // Handle weight as float
+        if (field === 'weight') {
+          return {
+            ...prev,
+            [field]: value ? parseFloat(value) : undefined
+          };
+        }
+        
         // Handle regular fields
         return {
           ...prev,
@@ -419,6 +427,7 @@ const AuthPage: React.FC = () => {
       licenseNumber: '',
       yearsExperience: undefined,
       age: undefined,
+      weight: undefined,
       sex: undefined,
       address: {
         street: '',
@@ -1014,6 +1023,29 @@ const AuthPage: React.FC = () => {
                       </div>
                       {errors.age && (
                         <p className="mt-1 text-xs text-red-600">{errors.age}</p>
+                      )}
+                    </div>
+
+                    {/* Weight */}
+                    <div>
+                      <label htmlFor="weight" className="block text-sm font-medium text-gray-700">
+                        Weight (kg)
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          id="weight"
+                          type="number"
+                          min="1"
+                          max="500"
+                          step="0.1"
+                          value={signupData.weight || ''}
+                          onChange={(e) => handleInputChange('weight', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="Enter your weight"
+                        />
+                      </div>
+                      {errors.weight && (
+                        <p className="mt-1 text-xs text-red-600">{errors.weight}</p>
                       )}
                     </div>
 

@@ -488,12 +488,18 @@ const InteractionCheckerInner: React.FC = () => {
         selectedDrugs={selectedDrugs}
         onDrugRemove={handleRemoveDrug}
         patientProfile={{
-          age: 65,
-          weight: 70,
+          age: currentPatient?.demographics?.dateOfBirth 
+            ? calculateAgeFromDOB(currentPatient.demographics.dateOfBirth)
+            : authState.user?.age,
+          weight: currentPatient?.demographics?.weightKg || authState.user?.weight,
           renalFunction: 'normal',
           hepaticFunction: 'normal',
-          comorbidities: ['hypertension', 'diabetes'],
-          allergies: ['penicillin']
+          comorbidities: currentPatient?.conditions?.length > 0 
+            ? getConditionNames(currentPatient.conditions)
+            : ['hypertension', 'diabetes'],
+          allergies: currentPatient?.allergies?.length > 0
+            ? currentPatient.allergies.map((a: any) => a.allergen || a.name)
+            : ['penicillin']
         }}
       />
 

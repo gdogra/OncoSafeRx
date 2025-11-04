@@ -20,6 +20,17 @@ export interface UserProfile {
   roles: string[];
   permissions: string[];
   organizationId?: string;
+  // Demographics (from signup)
+  age?: number;
+  weight?: number; // Weight in kg
+  sex?: 'male' | 'female' | 'other' | 'prefer-not-to-say';
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
 }
 
 export interface UserPersona {
@@ -82,6 +93,7 @@ export interface SignupData {
   yearsExperience?: number;
   // Demographics (age only required for patients)
   age?: number; // Required for patients, optional for others
+  weight?: number; // Weight in kg
   sex?: 'male' | 'female' | 'other' | 'prefer-not-to-say';
   address?: {
     street?: string;

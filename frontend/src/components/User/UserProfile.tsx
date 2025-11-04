@@ -671,6 +671,63 @@ const UserProfile: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {/* Demographics Section - for all users */}
+            <div className="col-span-2 border-t pt-6">
+              <h4 className="text-md font-medium text-gray-900 mb-4">Demographics</h4>
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Age {isPatientOrCaregiver && <span className="text-red-500">*</span>}
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="120"
+                    value={isEditing ? editedUser.age || '' : user.age || ''}
+                    onChange={(e) => setEditedUser(prev => ({ ...prev, age: parseInt(e.target.value) || undefined }))}
+                    disabled={!isEditing}
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    placeholder="Enter age"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Weight (kg)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="500"
+                    step="0.1"
+                    value={isEditing ? editedUser.weight || '' : user.weight || ''}
+                    onChange={(e) => setEditedUser(prev => ({ ...prev, weight: parseFloat(e.target.value) || undefined }))}
+                    disabled={!isEditing}
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    placeholder="Enter weight"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Sex
+                  </label>
+                  <select
+                    value={isEditing ? editedUser.sex || '' : user.sex || ''}
+                    onChange={(e) => setEditedUser(prev => ({ ...prev, sex: e.target.value as any }))}
+                    disabled={!isEditing}
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                  >
+                    <option value="">Select...</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                    <option value="prefer-not-to-say">Prefer not to say</option>
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
 
           {isEditing && (

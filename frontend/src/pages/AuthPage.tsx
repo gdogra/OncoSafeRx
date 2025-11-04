@@ -683,17 +683,6 @@ const AuthPage: React.FC = () => {
                 )}
               </button>
 
-              {/* Help users find the confirmation email */}
-              <div className="text-center text-xs text-gray-600">
-                Didn’t receive a confirmation email?{' '}
-                <a
-                  href={`/auth/check-email${loginData.email ? `?email=${encodeURIComponent(loginData.email)}` : ''}`}
-                  className="text-primary-600 hover:text-primary-700 underline"
-                >
-                  Check email instructions
-                </a>
-                .
-              </div>
               
               <div className="text-center">
                 <ForgotPasswordLink />

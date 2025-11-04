@@ -5,7 +5,7 @@ import { SupabaseAuthService } from '../services/authService';
 
 interface AuthActions {
   login: (data: LoginData) => Promise<void>;
-  signup: (data: SignupData) => Promise<void>;
+  signup: (data: SignupData) => Promise<UserProfile>;
   signInWithGoogle: () => Promise<void>;
   logout: () => void;
   updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
@@ -128,6 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const user = await SupabaseAuthService.signup(data);
         dispatch({ type: 'AUTH_SUCCESS', payload: user });
+        return user; // Return the user profile so AuthPage can check emailConfirmationPending
       } catch (error) {
         console.error('AuthContext: Signup failed:', error);
         dispatch({ type: 'AUTH_FAILURE', payload: error instanceof Error ? error.message : 'Signup failed' });

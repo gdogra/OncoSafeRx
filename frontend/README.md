@@ -55,3 +55,4 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 # Ultimate fix: use server-side auth proxy with admin fallback Mon Nov  3 15:47:30 PST 2025
 # Update signup messaging for immediate access flow Mon Nov  3 15:52:15 PST 2025
 # Force redeploy for messaging updates Mon Nov  3 15:57:45 PST 2025
+# Critical fix: AuthContext return signup result to enable proper flow detection Mon Nov  3 16:01:20 PST 2025

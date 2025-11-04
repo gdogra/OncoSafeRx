@@ -19,8 +19,14 @@ export default defineConfig({
     //   overlay: false, // Disable error overlay for WebSocket issues
     // },
     proxy: {
+      '/api/supabase-auth': {
+        // Auth proxy on port 3001
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+        secure: false,
+      },
       '/api': {
-        // Match backend default PORT in src/index.js (3000)
+        // All other API requests to main backend on port 3000
         target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,

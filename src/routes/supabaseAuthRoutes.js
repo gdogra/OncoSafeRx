@@ -636,13 +636,14 @@ router.post('/signup', asyncHandler(async (req, res) => {
 
 // Working signup route with email confirmation
 router.post('/proxy/signup', requireProxyEnabled, asyncHandler(async (req, res) => {
-  const { email, password, metadata = {} } = req.body || {};
+  const { email, password, phone, metadata = {} } = req.body || {};
   
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password required' });
   }
 
   const url = process.env.SUPABASE_URL;
+  const anon = process.env.SUPABASE_ANON_KEY;
   const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
   if (!url || !service) {
@@ -653,22 +654,67 @@ router.post('/proxy/signup', requireProxyEnabled, asyncHandler(async (req, res) 
     const admin = createClient(url, service);
     const autoConfirm = (process.env.SUPABASE_AUTH_EMAIL_CONFIRM || 'true').toLowerCase() !== 'false';
     
-    const { data, error } = await admin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: autoConfirm,
-      user_metadata: metadata,
-    });
+    // If phone is provided, use phone OTP signup instead of email
+    if (phone) {
+      console.log('📱 Phone signup with OTP for:', phone);
+      
+      // Create user with admin client first (unconfirmed)
+      const { data: userData, error: userError } = await admin.auth.admin.createUser({
+        email,
+        password,
+        phone,
+        email_confirm: false, // Don't confirm email, we'll confirm via phone OTP
+        phone_confirm: false, // Don't auto-confirm phone, require OTP
+        user_metadata: { ...metadata, phone },
+      });
 
-    if (error) {
-      return res.status(400).json({ error: error.message });
+      if (userError) {
+        console.error('User creation failed:', userError);
+        return res.status(400).json({ error: userError.message });
+      }
+
+      // Send OTP to phone using public client
+      const publicClient = createClient(url, anon);
+      const { data: otpData, error: otpError } = await publicClient.auth.signInWithOtp({
+        phone,
+        options: {
+          shouldCreateUser: false, // User already exists
+        }
+      });
+
+      if (otpError) {
+        console.error('OTP send failed:', otpError);
+        // Don't fail the signup if OTP send fails, user can resend
+        console.warn('⚠️ OTP send failed, but user was created. User can use resend.');
+      } else {
+        console.log('✅ OTP sent successfully to phone:', phone);
+      }
+
+      return res.json({
+        message: 'User created, please verify your phone number with the OTP sent via SMS',
+        user: userData.user,
+        needs_phone_verification: true,
+        phone_otp_sent: !otpError
+      });
+    } else {
+      // Original email-based signup
+      const { data, error } = await admin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: autoConfirm,
+        user_metadata: metadata,
+      });
+
+      if (error) {
+        return res.status(400).json({ error: error.message });
+      }
+
+      return res.json({
+        message: autoConfirm ? 'User created and confirmed' : 'User created, please check email for confirmation',
+        user: data.user,
+        needs_confirmation: !autoConfirm
+      });
     }
-
-    return res.json({
-      message: autoConfirm ? 'User created and confirmed' : 'User created, please check email for confirmation',
-      user: data.user,
-      needs_confirmation: !autoConfirm
-    });
   } catch (error) {
     console.error('Signup error:', error);
     return res.status(500).json({ error: 'Signup failed' });
@@ -986,6 +1032,125 @@ router.post('/proxy/refresh', requireProxyEnabled, checkAllowedOrigin, proxyLimi
   }
 
   proxyAuthCounter.inc({ endpoint: 'refresh', outcome: 'success' });
+  return res.json(body);
+}));
+
+/**
+ * OTP Verification Endpoint
+ */
+const verifyOtpSchema = Joi.object({
+  phone: Joi.string().pattern(/^\+[1-9]\d{1,14}$/).required(),
+  token: Joi.string().length(6).pattern(/^\d+$/).required(),
+  type: Joi.string().valid('sms').required()
+});
+
+router.post('/verify-otp', requireProxyEnabled, checkAllowedOrigin, proxyLimiter, validateBody(verifyOtpSchema), asyncHandler(async (req, res) => {
+  const { phone, token, type } = req.body;
+  console.log('🔐 OTP verification attempt for phone:', phone);
+
+  const url = getEnv("SUPABASE_URL");
+  const anon = getEnv("SUPABASE_ANON_KEY");
+  if (!url || !anon) {
+    proxyAuthCounter.inc({ endpoint: 'verify-otp', outcome: 'error' });
+    return res.status(500).json({ error: 'Supabase not configured on server', code: 'not_configured' });
+  }
+
+  const endpoint = `${url}/auth/v1/verify`;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
+  let resp;
+  try {
+    resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': anon,
+        'Authorization': `Bearer ${anon}`
+      },
+      body: JSON.stringify({ 
+        phone, 
+        token, 
+        type
+      }),
+      signal: ctrl.signal
+    });
+  } catch (e) {
+    clearTimeout(timer);
+    console.warn('Proxy OTP verify upstream error:', e?.name || e?.message || e);
+    proxyAuthCounter.inc({ endpoint: 'verify-otp', outcome: 'error' });
+    return res.status(504).json({ error: 'Upstream Supabase auth timeout', code: 'upstream_timeout' });
+  } finally {
+    clearTimeout(timer);
+  }
+
+  const body = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    console.warn('Proxy OTP verify failed', resp.status, body?.error || body?.error_description);
+    proxyAuthCounter.inc({ endpoint: 'verify-otp', outcome: 'error' });
+    return res.status(resp.status).json({ error: body?.error_description || body?.error || 'OTP verification failed', code: 'supabase_error' });
+  }
+
+  console.log('✅ OTP verification successful for phone:', phone);
+  proxyAuthCounter.inc({ endpoint: 'verify-otp', outcome: 'success' });
+  return res.json(body);
+}));
+
+/**
+ * OTP Resend Endpoint
+ */
+const resendOtpSchema = Joi.object({
+  phone: Joi.string().pattern(/^\+[1-9]\d{1,14}$/).required(),
+  type: Joi.string().valid('sms').required()
+});
+
+router.post('/resend-otp', requireProxyEnabled, checkAllowedOrigin, proxyLimiter, validateBody(resendOtpSchema), asyncHandler(async (req, res) => {
+  const { phone, type } = req.body;
+  console.log('📱 OTP resend request for phone:', phone);
+
+  const url = getEnv("SUPABASE_URL");
+  const anon = getEnv("SUPABASE_ANON_KEY");
+  if (!url || !anon) {
+    proxyAuthCounter.inc({ endpoint: 'resend-otp', outcome: 'error' });
+    return res.status(500).json({ error: 'Supabase not configured on server', code: 'not_configured' });
+  }
+
+  const endpoint = `${url}/auth/v1/otp`;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
+  let resp;
+  try {
+    resp = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': anon,
+        'Authorization': `Bearer ${anon}`
+      },
+      body: JSON.stringify({ 
+        phone,
+        create_user: false, // Don't create new user on resend
+        channel: type
+      }),
+      signal: ctrl.signal
+    });
+  } catch (e) {
+    clearTimeout(timer);
+    console.warn('Proxy OTP resend upstream error:', e?.name || e?.message || e);
+    proxyAuthCounter.inc({ endpoint: 'resend-otp', outcome: 'error' });
+    return res.status(504).json({ error: 'Upstream Supabase auth timeout', code: 'upstream_timeout' });
+  } finally {
+    clearTimeout(timer);
+  }
+
+  const body = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    console.warn('Proxy OTP resend failed', resp.status, body?.error || body?.error_description);
+    proxyAuthCounter.inc({ endpoint: 'resend-otp', outcome: 'error' });
+    return res.status(resp.status).json({ error: body?.error_description || body?.error || 'OTP resend failed', code: 'supabase_error' });
+  }
+
+  console.log('✅ OTP resent successfully for phone:', phone);
+  proxyAuthCounter.inc({ endpoint: 'resend-otp', outcome: 'success' });
   return res.json(body);
 }));
 

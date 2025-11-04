@@ -220,6 +220,11 @@ const AuthPage: React.FC = () => {
       newErrors.licenseNumber = 'License number is required for this role';
     }
     
+    // Age validation - required for patients
+    if (signupData.role === 'patient' && (!signupData.age || signupData.age < 1 || signupData.age > 120)) {
+      newErrors.age = 'Please enter a valid age (1-120 years)';
+    }
+    
     if (!acceptedTerms) {
       newErrors.terms = 'You must accept the terms and conditions';
     }
@@ -366,10 +371,33 @@ const AuthPage: React.FC = () => {
     if (mode === 'signin') {
       setLoginData(prev => ({ ...prev, [field]: value }));
     } else {
-      setSignupData(prev => ({
-        ...prev,
-        [field]: field === 'yearsExperience' ? (value ? parseInt(value) : undefined) : value
-      }));
+      setSignupData(prev => {
+        // Handle nested address fields
+        if (field.startsWith('address.')) {
+          const addressField = field.split('.')[1];
+          return {
+            ...prev,
+            address: {
+              ...prev.address,
+              [addressField]: value
+            }
+          };
+        }
+        
+        // Handle numeric fields
+        if (field === 'yearsExperience' || field === 'age') {
+          return {
+            ...prev,
+            [field]: value ? parseInt(value) : undefined
+          };
+        }
+        
+        // Handle regular fields
+        return {
+          ...prev,
+          [field]: value
+        };
+      });
     }
     
     if (errors[field]) {
@@ -390,6 +418,15 @@ const AuthPage: React.FC = () => {
       institution: '',
       licenseNumber: '',
       yearsExperience: undefined,
+      age: undefined,
+      sex: undefined,
+      address: {
+        street: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        country: '',
+      },
     });
     setConfirmPassword('');
     setErrors({});
@@ -964,6 +1001,103 @@ const AuthPage: React.FC = () => {
                       </div>
                     </div>
                   )}
+
+                  {/* Demographics section for all users */}
+                  <div className="space-y-4 border-t pt-4">
+                    <h3 className="text-sm font-medium text-gray-900">Demographics</h3>
+                    
+                    {/* Age - required for patients, optional for others */}
+                    <div>
+                      <label htmlFor="age" className="block text-sm font-medium text-gray-700">
+                        Age {signupData.role === 'patient' && <span className="text-red-500">*</span>}
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          id="age"
+                          type="number"
+                          min="1"
+                          max="120"
+                          value={signupData.age || ''}
+                          onChange={(e) => handleInputChange('age', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="Enter your age"
+                        />
+                      </div>
+                      {errors.age && (
+                        <p className="mt-1 text-xs text-red-600">{errors.age}</p>
+                      )}
+                    </div>
+
+                    {/* Sex */}
+                    <div>
+                      <label htmlFor="sex" className="block text-sm font-medium text-gray-700">
+                        Sex
+                      </label>
+                      <div className="mt-1">
+                        <select
+                          id="sex"
+                          value={signupData.sex || ''}
+                          onChange={(e) => handleInputChange('sex', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        >
+                          <option value="">Select...</option>
+                          <option value="male">Male</option>
+                          <option value="female">Female</option>
+                          <option value="other">Other</option>
+                          <option value="prefer-not-to-say">Prefer not to say</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Address */}
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium text-gray-700">Address</label>
+                      
+                      <div>
+                        <input
+                          type="text"
+                          value={signupData.address?.street || ''}
+                          onChange={(e) => handleInputChange('address.street', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="Street address"
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={signupData.address?.city || ''}
+                          onChange={(e) => handleInputChange('address.city', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="City"
+                        />
+                        <input
+                          type="text"
+                          value={signupData.address?.state || ''}
+                          onChange={(e) => handleInputChange('address.state', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="State"
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          value={signupData.address?.zipCode || ''}
+                          onChange={(e) => handleInputChange('address.zipCode', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="ZIP code"
+                        />
+                        <input
+                          type="text"
+                          value={signupData.address?.country || ''}
+                          onChange={(e) => handleInputChange('address.country', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="Country"
+                        />
+                      </div>
+                    </div>
+                  </div>
 
                   <div className="flex items-center">
                     <input

@@ -80,6 +80,16 @@ export interface SignupData {
   institution?: string;
   licenseNumber?: string;
   yearsExperience?: number;
+  // Demographics (age only required for patients)
+  age?: number; // Required for patients, optional for others
+  sex?: 'male' | 'female' | 'other' | 'prefer-not-to-say';
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+    country?: string;
+  };
 }
 
 export interface LoginData {

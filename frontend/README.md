@@ -52,3 +52,4 @@ To learn React, check out the [React documentation](https://reactjs.org/).
 # Fix admin sidebar navigation Mon Nov  3 15:34:15 PST 2025
 # Fix visitor analytics not populating Mon Nov  3 15:38:50 PST 2025
 # Critical fix: minimal signup to bypass email confirmation Mon Nov  3 15:43:25 PST 2025
+# Ultimate fix: use server-side auth proxy with admin fallback Mon Nov  3 15:47:30 PST 2025

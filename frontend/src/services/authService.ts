@@ -467,22 +467,34 @@ export class SupabaseAuthService {
       // TODO: Re-enable once Supabase email service is properly configured
       console.log('⚠️ Email confirmation temporarily disabled due to Supabase email service errors')
       
+      // Try minimal signup to avoid Supabase email confirmation issues
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
-        password: data.password,
-        options: {
-          // Remove emailRedirectTo to disable email confirmation temporarily
-          data: {
-            first_name: data.firstName,
-            last_name: data.lastName,
-            role: data.role,
-            specialty: data.specialty || '',
-            institution: data.institution || '',
-            license_number: data.licenseNumber || '',
-            years_experience: data.yearsExperience || 0
-          }
-        }
+        password: data.password
       })
+      
+      // Store user metadata separately after successful signup
+      if (authData.user && !error) {
+        try {
+          // Store additional user data in the user metadata or custom table
+          const { error: updateError } = await supabase.auth.updateUser({
+            data: {
+              first_name: data.firstName,
+              last_name: data.lastName,
+              role: data.role,
+              specialty: data.specialty || '',
+              institution: data.institution || '',
+              license_number: data.licenseNumber || '',
+              years_experience: data.yearsExperience || 0
+            }
+          });
+          if (updateError) {
+            console.warn('⚠️ Failed to update user metadata:', updateError);
+          }
+        } catch (metadataError) {
+          console.warn('⚠️ User metadata update failed:', metadataError);
+        }
+      }
 
       if (error) {
         console.log('❌ Direct Supabase signup error:', error.message)

@@ -496,10 +496,10 @@ const InteractionCheckerInner: React.FC = () => {
           hepaticFunction: 'normal',
           comorbidities: currentPatient?.conditions?.length > 0 
             ? getConditionNames(currentPatient.conditions)
-            : ['hypertension', 'diabetes'],
+            : [],
           allergies: currentPatient?.allergies?.length > 0
             ? currentPatient.allergies.map((a: any) => a.allergen || a.name)
-            : ['penicillin']
+            : []
         }}
       />
 

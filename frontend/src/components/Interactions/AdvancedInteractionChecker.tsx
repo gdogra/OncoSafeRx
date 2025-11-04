@@ -472,8 +472,23 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
             <div>
               <h4 className="font-medium text-gray-900 mb-2">Demographics</h4>
               <div className="space-y-1 text-sm">
-                {patientProfile.age && <div>Age: {patientProfile.age} years</div>}
-                {patientProfile.weight && <div>Weight: {patientProfile.weight} kg</div>}
+                {patientProfile.age ? (
+                  <div>Age: {patientProfile.age} years</div>
+                ) : (
+                  <div className="text-gray-500 italic">Age not provided</div>
+                )}
+                {patientProfile.weight ? (
+                  <div>Weight: {patientProfile.weight} kg</div>
+                ) : (
+                  <div className="text-gray-500 italic">Weight not provided</div>
+                )}
+                {!patientProfile.age && !patientProfile.weight && (
+                  <div className="text-gray-500 italic">
+                    <a href="/profile" className="text-primary-600 hover:text-primary-700 underline">
+                      Add demographics in your profile
+                    </a> for more accurate interaction analysis
+                  </div>
+                )}
               </div>
             </div>
             <div>
@@ -484,9 +499,9 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
               </div>
             </div>
           </div>
-          {patientProfile.comorbidities && patientProfile.comorbidities.length > 0 && (
-            <div className="mt-4">
-              <h4 className="font-medium text-gray-900 mb-2">Comorbidities</h4>
+          <div className="mt-4">
+            <h4 className="font-medium text-gray-900 mb-2">Comorbidities</h4>
+            {patientProfile.comorbidities && patientProfile.comorbidities.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {patientProfile.comorbidities.map(condition => (
                   <span key={condition} className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm">
@@ -494,8 +509,25 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
                   </span>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="text-gray-500 italic text-sm">No comorbidities recorded</div>
+            )}
+          </div>
+          
+          <div className="mt-4">
+            <h4 className="font-medium text-gray-900 mb-2">Allergies</h4>
+            {patientProfile.allergies && patientProfile.allergies.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {patientProfile.allergies.map(allergy => (
+                  <span key={allergy} className="px-2 py-1 bg-red-100 text-red-700 rounded text-sm">
+                    {allergy}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <div className="text-gray-500 italic text-sm">No allergies recorded</div>
+            )}
+          </div>
         </Card>
       )}
 

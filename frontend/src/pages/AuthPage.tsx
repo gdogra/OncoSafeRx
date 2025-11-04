@@ -340,19 +340,13 @@ const AuthPage: React.FC = () => {
     try {
       const result = await actions.signup(signupData);
       
-      // Check if user needs email confirmation or got immediate access
-      if (result && (result as any).emailConfirmationPending) {
-        // Email confirmation required - redirect to check email page
-        try {
-          const params = new URLSearchParams({ email: signupData.email });
-          navigate(`/auth/check-email?${params.toString()}`);
-        } catch {}
-      } else {
-        // Immediate access granted - redirect to app
-        console.log('✅ Signup successful with immediate access, redirecting to app');
-        const from = (location.state as any)?.from?.pathname || '/';
-        navigate(from, { replace: true });
-      }
+      // Always show success page for new account creation
+      console.log('✅ Signup successful, redirecting to success page');
+      const params = new URLSearchParams({ 
+        email: signupData.email,
+        success: 'true' // Flag to indicate this is a successful signup
+      });
+      navigate(`/auth/check-email?${params.toString()}`);
     } catch (error) {
       console.error('❌ Signup failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Signup failed. Please try again.';

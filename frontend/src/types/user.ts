@@ -1,6 +1,7 @@
 export interface UserProfile {
   id: string;
   email: string;
+  phone?: string;
   firstName?: string;
   lastName?: string;
   avatarUrl?: string;
@@ -72,6 +73,7 @@ export interface SignupData {
   password: string;
   firstName: string;
   lastName: string;
+  phone: string; // Required for OTP verification
   avatarUrl?: string;
   role: UserProfile['role'];
   specialty?: string;

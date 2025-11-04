@@ -471,9 +471,11 @@ export class SupabaseAuthService {
         body: JSON.stringify({ 
           email: data.email, 
           password: data.password, 
+          phone: data.phone, // Phone number for OTP verification
           metadata: {
             first_name: data.firstName,
             last_name: data.lastName,
+            phone: data.phone,
             role: data.role,
             specialty: data.specialty || '',
             institution: data.institution || '',
@@ -513,7 +515,7 @@ export class SupabaseAuthService {
         }
         
         console.log('✅ Session established successfully')
-        const userProfile = await this.buildUserProfile(setData.session.user)
+        const userProfile = await this.buildUserProfile(setData.session.user, data)
         try { localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'proxy-signup', at: Date.now() })) } catch {}
         return userProfile
       }
@@ -676,6 +678,7 @@ export class SupabaseAuthService {
         // Create/refresh dev tokens if needed
         if (!storedTokens || !storedTokens.access_token || storedTokens.expires_at <= Date.now()) {
           console.log('🔄 Creating fresh dev tokens for session restoration')
+          const defaultEmail = 'dev@oncosaferx.com'
           const devUser = storedDevUser || this.createDevUser(defaultEmail);
           const roleForToken = devUser.role === 'super_admin' ? 'admin' : devUser.role;
           const mockTokens = {

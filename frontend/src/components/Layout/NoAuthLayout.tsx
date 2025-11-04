@@ -71,18 +71,19 @@ const NoAuthLayout: React.FC<NoAuthLayoutProps> = ({ children }) => {
           </div>
         </main>
       </div>
+      
+      {/* Floating Chat Button (NoAuth) */}
+      {!chatOpen && (
+        <button
+          onClick={() => setChatOpen(true)}
+          className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700"
+          title="Chat with AI Assistant"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M7.5 8.25h9m-9 3h6m4.5 2.25a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <span className="text-sm">Chat</span>
+        </button>
+      )}
     </div>
-    {/* Floating Chat Button (NoAuth) */}
-    {!chatOpen && (
-      <button
-        onClick={() => setChatOpen(true)}
-        className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700"
-        title="Chat with AI Assistant"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5"><path d="M7.5 8.25h9m-9 3h6m4.5 2.25a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        <span className="text-sm">Chat</span>
-      </button>
-    )}
   );
 };
 

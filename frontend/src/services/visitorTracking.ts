@@ -783,7 +783,7 @@ class VisitorTrackingService {
         { role: 'visitor', count: 1 }
       ],
       deviceTypes: [
-        { type: this.detectDeviceType(), count: 1 }
+        { type: this.getDeviceInfo().deviceType, count: 1 }
       ],
       geographicDistribution: [
         { location: 'Unknown', count: 1 }

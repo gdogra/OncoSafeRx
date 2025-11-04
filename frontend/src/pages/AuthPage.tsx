@@ -18,6 +18,7 @@ import {
 import Card from '../components/UI/Card';
 import { useToast } from '../components/UI/Toast';
 import Tooltip from '../components/UI/Tooltip';
+import PhoneInput from '../components/UI/PhoneInput';
 
 const AuthPage: React.FC = () => {
   const { actions, state } = useAuth();
@@ -40,6 +41,7 @@ const AuthPage: React.FC = () => {
     password: '',
     firstName: '',
     lastName: '',
+    phone: '',
     role: 'oncologist',
     specialty: '',
     institution: '',
@@ -181,6 +183,12 @@ const AuthPage: React.FC = () => {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(signupData.email)) {
       newErrors.email = 'Email is invalid';
+    }
+    
+    if (!signupData.phone.trim()) {
+      newErrors.phone = 'Phone number is required for account verification';
+    } else if (!/^\+\d{7,15}$/.test(signupData.phone)) {
+      newErrors.phone = 'Please enter a valid international phone number';
     }
     
     if (!signupData.password) {
@@ -340,13 +348,13 @@ const AuthPage: React.FC = () => {
     try {
       const result = await actions.signup(signupData);
       
-      // Always show success page for new account creation
-      console.log('✅ Signup successful, redirecting to success page');
+      // Redirect to OTP verification for phone confirmation
+      console.log('✅ Signup successful, redirecting to OTP verification');
       const params = new URLSearchParams({ 
-        email: signupData.email,
-        success: 'true' // Flag to indicate this is a successful signup
+        phone: signupData.phone,
+        email: signupData.email
       });
-      navigate(`/auth/check-email?${params.toString()}`);
+      navigate(`/auth/verify-otp?${params.toString()}`);
     } catch (error) {
       console.error('❌ Signup failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Signup failed. Please try again.';
@@ -376,6 +384,7 @@ const AuthPage: React.FC = () => {
       password: '',
       firstName: '',
       lastName: '',
+      phone: '',
       role: 'oncologist',
       specialty: '',
       institution: '',
@@ -748,6 +757,24 @@ const AuthPage: React.FC = () => {
                     {errors.email && (
                       <p className="mt-1 text-xs text-red-600">{errors.email}</p>
                     )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Phone Number *
+                    </label>
+                    <div className="mt-1">
+                      <PhoneInput
+                        value={signupData.phone}
+                        onChange={(phone) => handleInputChange('phone', phone)}
+                        error={errors.phone}
+                        required
+                        placeholder="Enter your phone number"
+                      />
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Required for account verification via SMS
+                    </p>
                   </div>
 
                   <div>

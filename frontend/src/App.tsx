@@ -57,6 +57,7 @@ const AuthDebug = lazy(() => import('./pages/AuthDebug'));
 const ForceLogout = lazy(() => import('./pages/ForceLogout'));
 const AuthEmailConfirm = lazy(() => import('./pages/AuthEmailConfirm'));
 const AuthCheckEmail = lazy(() => import('./pages/AuthCheckEmail'));
+const AuthOtpVerify = lazy(() => import('./pages/AuthOtpVerify'));
 const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 
 // Patient-specific components
@@ -175,6 +176,7 @@ function AppWithAuth() {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/auth/confirm" element={<AuthEmailConfirm />} />
                 <Route path="/auth/check-email" element={<AuthCheckEmail />} />
+                <Route path="/auth/verify-otp" element={<AuthOtpVerify />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
                 <Route path="/logout" element={<Logout />} />
                 {isDev && <Route path="/auth-debug" element={<AuthDebug />} />}

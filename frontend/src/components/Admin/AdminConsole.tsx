@@ -71,7 +71,7 @@ const AdminConsole: React.FC = () => {
   const rbac = useRBAC(user);
   const navigate = useNavigate();
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'analytics' | 'system' | 'audit' | 'push' | 'subscriptions' | 'schedules' | 'role_management'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'analytics' | 'system' | 'audit' | 'push' | 'subscriptions' | 'schedules' | 'role_management' | 'auth' | 'integrations'>('overview');
   const [pushStatus, setPushStatus] = useState<string>('');
   const [pushForm, setPushForm] = useState<{ title: string; body: string; url: string; requireInteraction: boolean }>({ title: '', body: '', url: '/', requireInteraction: false });
   const [subs, setSubs] = useState<Array<{ endpoint: string }>>([]);
@@ -82,10 +82,13 @@ const AdminConsole: React.FC = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [systemMetrics, setSystemMetrics] = useState<SystemMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authDiag, setAuthDiag] = useState<any>(null);
+  const [authDiagLoading, setAuthDiagLoading] = useState(false);
+  const [authDiagError, setAuthDiagError] = useState<string | null>(null);
   const { showToast } = useToast();
   // Integrations state
   const [intHealth, setIntHealth] = useState<{ ok: boolean; tenants: Array<{ tenant: string; hasActive: boolean; hasNext: boolean; activeCount: number; nextCount: number }>; missingActive: string[] } | null>(null);
-  const [intUsage, setIntUsage] = useState<Record<string, { active: number; next: number; total: number; lastUsed?: string | null; lastPhase?: string | null }>>({});
+  const [intUsage, setIntUsage] = useState<Record<string, { active: number; next: number; total: number; active24h?: number; next24h?: number; total24h?: number; lastUsed?: string | null; lastPhase?: string | null }>>({});
   const [intForm, setIntForm] = useState<{ tenant: string; nextKeys: string; promote: boolean; retireActive: boolean }>({ tenant: '', nextKeys: '', promote: false, retireActive: true });
   const [intUpdate, setIntUpdate] = useState<{ tenant: string; phase: 'active' | 'next'; add: string; remove: string }>({ tenant: '', phase: 'active', add: '', remove: '' });
   const [intBusyRotate, setIntBusyRotate] = useState(false);
@@ -1024,17 +1027,6 @@ const AdminConsole: React.FC = () => {
                           <td className="px-3 py-2">
                             <span className="inline-flex items-center gap-1">
                               {last} {u.lastPhase ? `(${u.lastPhase})` : ''}
-                              <Tooltip
-                                content={<div>
-                                  <div><strong>24h</strong></div>
-                                  <div>Active: {u.active24h || 0}</div>
-                                  <div>Next: {u.next24h || 0}</div>
-                                  <div>Total: {u.total24h || 0}</div>
-                                </div>}
-                                type="help"
-                                position="top"
-                                iconOnly
-                              />
                             </span>
                           </td>
                           <td className="px-3 py-2">

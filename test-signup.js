@@ -82,7 +82,7 @@ async function testProxySignup() {
         metadata: {
           first_name: 'Proxy',
           last_name: 'Test',
-          role: 'oncologist',
+          user_role: 'oncologist',
           specialty: 'Medical Oncology'
         }
       })
@@ -124,7 +124,7 @@ async function testUsersTable() {
       .insert({
         id: testUserId,
         email: `table-test-${Date.now()}@oncosaferx.com`,
-        role: 'oncologist',
+        user_role: 'oncologist',
         first_name: 'Table',
         last_name: 'Test',
         created_at: new Date().toISOString()

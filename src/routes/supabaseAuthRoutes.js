@@ -232,7 +232,7 @@ router.put('/profile',
       const profileData = {
         id: user.id,
         email: user.email,
-        role: updates.role || user.role,
+        user_role: updates.role || user.role,
         first_name: updates.firstName || userMetadata.first_name || '',
         last_name: updates.lastName || userMetadata.last_name || '',
         specialty: updates.specialty || userMetadata.specialty || '',

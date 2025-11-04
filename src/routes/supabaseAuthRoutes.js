@@ -207,6 +207,11 @@ router.put('/profile',
       if (updates.preferences !== undefined) metadataUpdates.preferences = updates.preferences;
       if (updates.persona !== undefined) metadataUpdates.persona = updates.persona;
       if (updates.role !== undefined) metadataUpdates.role = updates.role;
+      // Demographics
+      if (updates.age !== undefined) metadataUpdates.age = updates.age;
+      if (updates.weight !== undefined) metadataUpdates.weight = updates.weight;
+      if (updates.sex !== undefined) metadataUpdates.sex = updates.sex;
+      if (updates.address !== undefined) metadataUpdates.address = updates.address;
       
       // Update Supabase auth user metadata (skip for dev/gdogra users)
       let authError = null;
@@ -241,6 +246,11 @@ router.put('/profile',
         years_experience: updates.yearsExperience || userMetadata.years_experience || 0,
         preferences: updates.preferences || userMetadata.preferences || {},
         persona: updates.persona || userMetadata.persona || {},
+        // Demographics
+        age: updates.age !== undefined ? updates.age : userMetadata.age,
+        weight: updates.weight !== undefined ? updates.weight : userMetadata.weight,
+        sex: updates.sex !== undefined ? updates.sex : userMetadata.sex,
+        address: updates.address !== undefined ? updates.address : userMetadata.address,
         // Do not set updated_at explicitly to avoid schema mismatch on instances where column is absent
       };
       
@@ -265,6 +275,11 @@ router.put('/profile',
         institution: updates.institution ?? userMetadata.institution ?? '',
         licenseNumber: updates.licenseNumber ?? userMetadata.license_number ?? '',
         yearsExperience: updates.yearsExperience ?? userMetadata.years_experience ?? 0,
+        // Demographics
+        age: updates.age !== undefined ? updates.age : userMetadata.age,
+        weight: updates.weight !== undefined ? updates.weight : userMetadata.weight,
+        sex: updates.sex !== undefined ? updates.sex : userMetadata.sex,
+        address: updates.address !== undefined ? updates.address : userMetadata.address,
         preferences: updates.preferences ?? userMetadata.preferences ?? {
           theme: 'light',
           language: 'en',

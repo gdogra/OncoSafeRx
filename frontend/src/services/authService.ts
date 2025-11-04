@@ -480,7 +480,12 @@ export class SupabaseAuthService {
             specialty: data.specialty || '',
             institution: data.institution || '',
             license_number: data.licenseNumber || '',
-            years_experience: data.yearsExperience || 0
+            years_experience: data.yearsExperience || 0,
+            // Demographics
+            age: data.age,
+            weight: data.weight,
+            sex: data.sex,
+            address: data.address
           }
         })
       });
@@ -897,6 +902,11 @@ export class SupabaseAuthService {
               institution: u.institution,
               license_number: u.licenseNumber,
               years_experience: typeof u.yearsExperience === 'number' ? u.yearsExperience : undefined,
+              // Demographics
+              age: u.age,
+              weight: u.weight,
+              sex: u.sex,
+              address: u.address,
               preferences: u.preferences,
               persona: u.persona,
             };
@@ -918,7 +928,7 @@ export class SupabaseAuthService {
           try {
             const full = await supabase
               .from('users')
-              .select('id,email,role,first_name,last_name,specialty,institution,license_number,preferences,created_at')
+              .select('id,email,role,first_name,last_name,specialty,institution,license_number,preferences,created_at,age,weight,sex,address')
               .eq('id', user.id)
               .maybeSingle();
             userData = full.data; error = full.error;
@@ -991,6 +1001,11 @@ export class SupabaseAuthService {
       institution: dbProfile?.institution || user.user_metadata?.institution || fallbackData?.institution || '',
       licenseNumber: dbProfile?.license_number || user.user_metadata?.license_number || fallbackData?.licenseNumber || '',
       yearsExperience: (typeof dbProfile?.years_experience === 'number' ? dbProfile.years_experience : undefined) || user.user_metadata?.years_experience || fallbackData?.yearsExperience || 0,
+      // Demographics
+      age: dbProfile?.age || user.user_metadata?.age || fallbackData?.age,
+      weight: dbProfile?.weight || user.user_metadata?.weight || fallbackData?.weight,
+      sex: dbProfile?.sex || user.user_metadata?.sex || fallbackData?.sex,
+      address: dbProfile?.address || user.user_metadata?.address || fallbackData?.address,
       preferences: (dbProfile?.preferences && typeof dbProfile.preferences === 'object') ? dbProfile.preferences : (user.user_metadata?.preferences || this.getDefaultPreferences(role)),
       persona: (dbProfile?.persona && typeof dbProfile.persona === 'object') ? dbProfile.persona : (user.user_metadata?.persona || this.createDefaultPersona(role)),
       createdAt: user.created_at || new Date().toISOString(),

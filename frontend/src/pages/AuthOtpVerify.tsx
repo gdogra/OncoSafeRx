@@ -131,16 +131,16 @@ const AuthOtpVerify: React.FC = () => {
 
       // Check if we got a session/user back from OTP verification
       if (result.user && result.access_token) {
-        console.log('✅ OTP verification returned valid session, going to dashboard');
-        navigate('/dashboard');
+        console.log('✅ OTP verification returned valid session, going to home dashboard');
+        navigate('/');
       } else if (result.user) {
         console.log('✅ OTP verification successful but user needs to sign in, going to login');
         // User is verified but we don't have a session, redirect to login
         navigate('/auth?mode=signin&verified=true');
       } else {
         console.log('⚠️ OTP verification successful but unexpected response format');
-        // Fallback to dashboard
-        navigate('/dashboard');
+        // Fallback to home dashboard
+        navigate('/');
       }
 
     } catch (error) {

@@ -51,7 +51,7 @@ const Dashboard: React.FC = () => {
       icon: Heart,
       title: 'My Care Dashboard',
       description: 'View your treatment plan, medications, and upcoming appointments',
-      link: '/my-care',
+      link: '/care-plan',
       color: 'bg-blue-500',
       badge: 'Patient Portal',
       features: ['Medication tracking', 'Appointment calendar', 'Treatment timeline', 'Communication']

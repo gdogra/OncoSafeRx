@@ -245,7 +245,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: 'Pain Management', 
             icon: Pill, 
             description: 'Opioid MME + safety',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'student', 'patient', 'caregiver'],
+            roles: ['oncologist', 'pharmacist', 'nurse', 'student'],
             requiresPermission: null
           },
           { 

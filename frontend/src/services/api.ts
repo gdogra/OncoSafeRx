@@ -2,6 +2,11 @@ import axios from 'axios';
 
 // Static API URL calculation to prevent repeated calls
 const getApiUrl = () => {
+  // Runtime-provided base from backend config (if index.tsx fetched it)
+  try {
+    const runtime = (window as any).__OSRX_API_BASE__;
+    if (runtime && typeof runtime === 'string' && runtime.trim()) return runtime;
+  } catch {}
   // For development, always use localhost:3000 API
   if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
     return 'http://localhost:3000/api';
@@ -205,7 +210,7 @@ export const interactionService = {
       // Backend expects an array of RXCUI strings
       const rxcuis = (drugs || []).map(d => String(d.rxcui)).filter(Boolean);
       
-      // Use relative proxy path first; if not available, try enhanced path
+      // Use relative proxy path first; if not available, try enhanced path; finally try absolute backend
       let response;
       try {
         response = await api.post('/interactions/check', { drugs: rxcuis });
@@ -214,7 +219,16 @@ export const interactionService = {
           try {
             response = await api.post('/interactions/enhanced/check', { drugs: rxcuis });
           } catch (enhErr: any) {
-            throw enhErr;
+            // Final attempt: absolute backend URL from env or known default
+            const backend = ((import.meta as any)?.env?.VITE_BACKEND_URL as string | undefined) || 'https://oncosaferx-backend.onrender.com';
+            const absUrl = `${backend.replace(/\/$/, '')}/api/interactions/check`;
+            const absResp = await fetch(absUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ drugs: rxcuis })
+            });
+            if (!absResp.ok) throw enhErr;
+            response = { data: await absResp.json() } as any;
           }
         } else {
           throw primaryErr;

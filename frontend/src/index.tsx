@@ -71,6 +71,9 @@ async function bootstrap() {
           ;(window as any).__OSRX_SUPABASE_URL__ = String(cfg.supabaseUrl)
           ;(window as any).__OSRX_SUPABASE_KEY__ = String(cfg.supabaseAnonKey)
         }
+        if (cfg?.apiBaseUrl) {
+          ;(window as any).__OSRX_API_BASE__ = String(cfg.apiBaseUrl)
+        }
         if (cfg?.features) {
           ;(window as any).__OSRX_FEATURES__ = cfg.features
         }

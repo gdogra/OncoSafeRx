@@ -22,8 +22,13 @@ export interface UserProfile {
   organizationId?: string;
   // Demographics (from signup)
   age?: number;
+  dateOfBirth?: string; // ISO date string
+  height?: number; // Height in cm
   weight?: number; // Weight in kg
   sex?: 'male' | 'female' | 'other' | 'prefer-not-to-say';
+  ethnicity?: string;
+  primaryLanguage?: string;
+  emergencyContact?: string;
   address?: {
     street?: string;
     city?: string;

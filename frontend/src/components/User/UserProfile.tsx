@@ -675,7 +675,9 @@ const UserProfile: React.FC = () => {
             {/* Demographics Section - for all users */}
             <div className="col-span-2 border-t pt-6">
               <h4 className="text-md font-medium text-gray-900 mb-4">Demographics</h4>
-              <div className="grid md:grid-cols-3 gap-4">
+              
+              {/* Basic Demographics Row 1 */}
+              <div className="grid md:grid-cols-3 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Age {isPatientOrCaregiver && <span className="text-red-500">*</span>}
@@ -694,24 +696,7 @@ const UserProfile: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Weight (kg)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="500"
-                    step="0.1"
-                    value={isEditing ? editedUser.weight || '' : user.weight || ''}
-                    onChange={(e) => setEditedUser(prev => ({ ...prev, weight: parseFloat(e.target.value) || undefined }))}
-                    disabled={!isEditing}
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
-                    placeholder="Enter weight"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Sex
+                    Sex {isPatientOrCaregiver && <span className="text-red-500">*</span>}
                   </label>
                   <select
                     value={isEditing ? editedUser.sex || '' : user.sex || ''}
@@ -725,6 +710,132 @@ const UserProfile: React.FC = () => {
                     <option value="other">Other</option>
                     <option value="prefer-not-to-say">Prefer not to say</option>
                   </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Date of Birth
+                  </label>
+                  <input
+                    type="date"
+                    value={isEditing ? editedUser.dateOfBirth || '' : user.dateOfBirth || ''}
+                    onChange={(e) => setEditedUser(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                    disabled={!isEditing}
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                  />
+                </div>
+              </div>
+
+              {/* Physical Measurements Row 2 */}
+              <div className="grid md:grid-cols-3 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Height (cm)
+                  </label>
+                  <input
+                    type="number"
+                    min="50"
+                    max="250"
+                    step="0.1"
+                    value={isEditing ? editedUser.height || '' : user.height || ''}
+                    onChange={(e) => setEditedUser(prev => ({ ...prev, height: parseFloat(e.target.value) || undefined }))}
+                    disabled={!isEditing}
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    placeholder="Enter height in cm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Weight (kg)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="500"
+                    step="0.1"
+                    value={isEditing ? editedUser.weight || '' : user.weight || ''}
+                    onChange={(e) => setEditedUser(prev => ({ ...prev, weight: parseFloat(e.target.value) || undefined }))}
+                    disabled={!isEditing}
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    placeholder="Enter weight in kg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    BMI
+                    <span className="text-xs text-gray-500 ml-1">(calculated)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={
+                      isEditing 
+                        ? (editedUser.height && editedUser.weight 
+                            ? ((editedUser.weight / Math.pow(editedUser.height / 100, 2)).toFixed(1) + ' kg/m²')
+                            : '')
+                        : (user.height && user.weight 
+                            ? ((user.weight / Math.pow(user.height / 100, 2)).toFixed(1) + ' kg/m²')
+                            : '')
+                    }
+                    disabled={true}
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-50 text-gray-600"
+                    placeholder="Auto-calculated"
+                  />
+                </div>
+              </div>
+
+              {/* Additional Demographics Row 3 */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Ethnicity
+                  </label>
+                  <select
+                    value={isEditing ? editedUser.ethnicity || '' : user.ethnicity || ''}
+                    onChange={(e) => setEditedUser(prev => ({ ...prev, ethnicity: e.target.value }))}
+                    disabled={!isEditing}
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                  >
+                    <option value="">Select...</option>
+                    <option value="asian">Asian</option>
+                    <option value="black">Black or African American</option>
+                    <option value="hispanic">Hispanic or Latino</option>
+                    <option value="native-american">Native American</option>
+                    <option value="pacific-islander">Pacific Islander</option>
+                    <option value="white">White</option>
+                    <option value="mixed">Mixed/Multiple</option>
+                    <option value="other">Other</option>
+                    <option value="prefer-not-to-say">Prefer not to say</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Primary Language
+                  </label>
+                  <input
+                    type="text"
+                    value={isEditing ? editedUser.primaryLanguage || '' : user.primaryLanguage || ''}
+                    onChange={(e) => setEditedUser(prev => ({ ...prev, primaryLanguage: e.target.value }))}
+                    disabled={!isEditing}
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    placeholder="e.g., English, Spanish"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Emergency Contact
+                  </label>
+                  <input
+                    type="text"
+                    value={isEditing ? editedUser.emergencyContact || '' : user.emergencyContact || ''}
+                    onChange={(e) => setEditedUser(prev => ({ ...prev, emergencyContact: e.target.value }))}
+                    disabled={!isEditing}
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    placeholder="Name and phone number"
+                  />
                 </div>
               </div>
             </div>

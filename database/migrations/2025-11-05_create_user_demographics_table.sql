@@ -6,9 +6,13 @@ create table if not exists public.user_demographics (
   id uuid default gen_random_uuid() primary key,
   user_id uuid not null references public.users(id) on delete cascade,
   age integer check (age > 0 and age <= 150),
-  weight numeric(6,2) check (weight > 0 and weight <= 1000),
+  date_of_birth date,
   height numeric(6,2) check (height > 0 and height <= 300), -- cm
+  weight numeric(6,2) check (weight > 0 and weight <= 1000), -- kg
   sex text check (sex in ('male', 'female', 'other', 'prefer-not-to-say')),
+  ethnicity text,
+  primary_language text,
+  emergency_contact text,
   address jsonb default '{}'::jsonb,
   allergies jsonb default '[]'::jsonb,
   medical_conditions jsonb default '[]'::jsonb,

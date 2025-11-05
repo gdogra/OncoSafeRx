@@ -76,7 +76,7 @@ router.get('/profile',
           // Get demographics data from separate table
           const { data: demoRow } = await admin
             .from('user_demographics')
-            .select('age,weight,height,sex,address,allergies,medical_conditions')
+            .select('age,date_of_birth,height,weight,sex,ethnicity,primary_language,emergency_contact,address,allergies,medical_conditions')
             .eq('user_id', user.id)
             .maybeSingle();
           demographicsRow = demoRow || null;
@@ -97,9 +97,13 @@ router.get('/profile',
           yearsExperience: meta.years_experience || dbRow?.years_experience || 0,
           // Demographics from separate table
           age: demographicsRow?.age ?? meta.age ?? null,
-          weight: demographicsRow?.weight ?? meta.weight ?? null,
+          dateOfBirth: demographicsRow?.date_of_birth ?? meta.date_of_birth ?? null,
           height: demographicsRow?.height ?? meta.height ?? null,
+          weight: demographicsRow?.weight ?? meta.weight ?? null,
           sex: demographicsRow?.sex ?? meta.sex ?? null,
+          ethnicity: demographicsRow?.ethnicity ?? meta.ethnicity ?? null,
+          primaryLanguage: demographicsRow?.primary_language ?? meta.primary_language ?? null,
+          emergencyContact: demographicsRow?.emergency_contact ?? meta.emergency_contact ?? null,
           address: demographicsRow?.address ?? meta.address ?? null,
           allergies: demographicsRow?.allergies ?? meta.allergies ?? null,
           medicalConditions: demographicsRow?.medical_conditions ?? meta.medical_conditions ?? null,
@@ -229,9 +233,13 @@ router.put('/profile',
       if (updates.role !== undefined) metadataUpdates.role = updates.role;
       // Demographics (still store in metadata for backwards compatibility)
       if (updates.age !== undefined) metadataUpdates.age = updates.age;
-      if (updates.weight !== undefined) metadataUpdates.weight = updates.weight;
+      if (updates.dateOfBirth !== undefined) metadataUpdates.date_of_birth = updates.dateOfBirth;
       if (updates.height !== undefined) metadataUpdates.height = updates.height;
+      if (updates.weight !== undefined) metadataUpdates.weight = updates.weight;
       if (updates.sex !== undefined) metadataUpdates.sex = updates.sex;
+      if (updates.ethnicity !== undefined) metadataUpdates.ethnicity = updates.ethnicity;
+      if (updates.primaryLanguage !== undefined) metadataUpdates.primary_language = updates.primaryLanguage;
+      if (updates.emergencyContact !== undefined) metadataUpdates.emergency_contact = updates.emergencyContact;
       if (updates.address !== undefined) metadataUpdates.address = updates.address;
       // Medical information
       if (updates.allergies !== undefined) metadataUpdates.allergies = updates.allergies;
@@ -276,9 +284,13 @@ router.put('/profile',
       
       // Update demographics in separate table if any demographics fields are provided
       const hasDemographicsUpdates = updates.age !== undefined || 
-                                     updates.weight !== undefined || 
+                                     updates.dateOfBirth !== undefined ||
                                      updates.height !== undefined ||
-                                     updates.sex !== undefined || 
+                                     updates.weight !== undefined || 
+                                     updates.sex !== undefined ||
+                                     updates.ethnicity !== undefined ||
+                                     updates.primaryLanguage !== undefined ||
+                                     updates.emergencyContact !== undefined ||
                                      updates.address !== undefined ||
                                      updates.allergies !== undefined ||
                                      updates.medicalConditions !== undefined;
@@ -288,9 +300,13 @@ router.put('/profile',
         const demographicsData = {
           user_id: user.id,
           ...(updates.age !== undefined && { age: updates.age }),
-          ...(updates.weight !== undefined && { weight: updates.weight }),
+          ...(updates.dateOfBirth !== undefined && { date_of_birth: updates.dateOfBirth }),
           ...(updates.height !== undefined && { height: updates.height }),
+          ...(updates.weight !== undefined && { weight: updates.weight }),
           ...(updates.sex !== undefined && { sex: updates.sex }),
+          ...(updates.ethnicity !== undefined && { ethnicity: updates.ethnicity }),
+          ...(updates.primaryLanguage !== undefined && { primary_language: updates.primaryLanguage }),
+          ...(updates.emergencyContact !== undefined && { emergency_contact: updates.emergencyContact }),
           ...(updates.address !== undefined && { address: updates.address }),
           ...(updates.allergies !== undefined && { allergies: updates.allergies }),
           ...(updates.medicalConditions !== undefined && { medical_conditions: updates.medicalConditions }),

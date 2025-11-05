@@ -31,6 +31,15 @@ export interface UserProfile {
     zipCode?: string;
     country?: string;
   };
+  // Medical information
+  allergies?: Array<{
+    allergen: string;
+    reaction: string;
+    severity: 'mild' | 'moderate' | 'severe' | 'life-threatening';
+    allergenType?: 'drug' | 'food' | 'environmental' | 'other';
+    verified?: boolean;
+    notes?: string;
+  }>;
 }
 
 export interface UserPersona {

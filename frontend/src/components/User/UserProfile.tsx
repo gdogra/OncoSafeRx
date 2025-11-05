@@ -728,6 +728,162 @@ const UserProfile: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* Allergies Section */}
+            <div className="col-span-2 border-t pt-6">
+              <h4 className="text-md font-medium text-gray-900 mb-4">Allergies & Medical Alerts</h4>
+              
+              {!isEditing && (
+                <div className="space-y-2">
+                  {(!user.allergies || user.allergies.length === 0) ? (
+                    <div className="text-gray-500 italic text-sm">No allergies recorded</div>
+                  ) : (
+                    user.allergies.map((allergy, index) => (
+                      <div key={index} className="border rounded-md p-3 bg-red-50 border-red-200">
+                        <div className="font-medium text-red-800">{allergy.allergen}</div>
+                        <div className="text-sm text-red-600">
+                          Reaction: {allergy.reaction}
+                          {allergy.severity && <span> • Severity: {allergy.severity}</span>}
+                          {allergy.allergenType && <span> • Type: {allergy.allergenType}</span>}
+                        </div>
+                        {allergy.notes && (
+                          <div className="text-xs text-gray-600 mt-1">Notes: {allergy.notes}</div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+              
+              {isEditing && (
+                <div className="space-y-4">
+                  {(editedUser.allergies || []).map((allergy, index) => (
+                    <div key={index} className="border rounded-md p-4 bg-gray-50">
+                      <div className="flex justify-between items-start mb-3">
+                        <h5 className="font-medium text-sm">Allergy {index + 1}</h5>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newAllergies = [...(editedUser.allergies || [])];
+                            newAllergies.splice(index, 1);
+                            setEditedUser(prev => ({ ...prev, allergies: newAllergies }));
+                          }}
+                          className="text-red-600 hover:text-red-800 text-sm"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Allergen *</label>
+                          <input
+                            type="text"
+                            value={allergy.allergen}
+                            onChange={(e) => {
+                              const newAllergies = [...(editedUser.allergies || [])];
+                              newAllergies[index] = { ...newAllergies[index], allergen: e.target.value };
+                              setEditedUser(prev => ({ ...prev, allergies: newAllergies }));
+                            }}
+                            className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                            placeholder="e.g., Penicillin, Peanuts"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Reaction *</label>
+                          <input
+                            type="text"
+                            value={allergy.reaction}
+                            onChange={(e) => {
+                              const newAllergies = [...(editedUser.allergies || [])];
+                              newAllergies[index] = { ...newAllergies[index], reaction: e.target.value };
+                              setEditedUser(prev => ({ ...prev, allergies: newAllergies }));
+                            }}
+                            className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                            placeholder="e.g., Rash, Difficulty breathing"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Severity</label>
+                          <select
+                            value={allergy.severity || ''}
+                            onChange={(e) => {
+                              const newAllergies = [...(editedUser.allergies || [])];
+                              newAllergies[index] = { ...newAllergies[index], severity: e.target.value as any };
+                              setEditedUser(prev => ({ ...prev, allergies: newAllergies }));
+                            }}
+                            className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                          >
+                            <option value="">Select severity...</option>
+                            <option value="mild">Mild</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="severe">Severe</option>
+                            <option value="life-threatening">Life-threatening</option>
+                          </select>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                          <select
+                            value={allergy.allergenType || ''}
+                            onChange={(e) => {
+                              const newAllergies = [...(editedUser.allergies || [])];
+                              newAllergies[index] = { ...newAllergies[index], allergenType: e.target.value as any };
+                              setEditedUser(prev => ({ ...prev, allergies: newAllergies }));
+                            }}
+                            className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                          >
+                            <option value="">Select type...</option>
+                            <option value="drug">Drug/Medication</option>
+                            <option value="food">Food</option>
+                            <option value="environmental">Environmental</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                        <textarea
+                          value={allergy.notes || ''}
+                          onChange={(e) => {
+                            const newAllergies = [...(editedUser.allergies || [])];
+                            newAllergies[index] = { ...newAllergies[index], notes: e.target.value };
+                            setEditedUser(prev => ({ ...prev, allergies: newAllergies }));
+                          }}
+                          rows={2}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                          placeholder="Additional notes about this allergy..."
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newAllergy = {
+                        allergen: '',
+                        reaction: '',
+                        severity: 'mild' as const,
+                        allergenType: 'drug' as const,
+                        verified: false,
+                        notes: ''
+                      };
+                      setEditedUser(prev => ({ 
+                        ...prev, 
+                        allergies: [...(prev.allergies || []), newAllergy] 
+                      }));
+                    }}
+                    className="w-full border-2 border-dashed border-gray-300 rounded-md p-4 text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    + Add New Allergy
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {isEditing && (

@@ -396,6 +396,21 @@ const InteractionCheckerInner: React.FC = () => {
     }
   }, [pendingScrollToResults, results]);
 
+  // Debug demographics data
+  useEffect(() => {
+    console.log('🔍 InteractionChecker Debug - Patient Data:', {
+      currentPatientAge: currentPatient?.age,
+      currentPatientWeight: currentPatient?.weight,
+      currentPatientWeightKg: currentPatient?.weightKg,
+      currentPatientDemographics: currentPatient?.demographics,
+      userAge: authState.user?.age,
+      userWeight: authState.user?.weight,
+      calculatedAge: currentPatient?.demographics?.dateOfBirth 
+        ? calculateAgeFromDOB(currentPatient.demographics.dateOfBirth)
+        : 'No DOB'
+    });
+  }, [currentPatient, authState.user]);
+
   // Load patient medications into interaction checker
   useEffect(() => {
     if (currentPatient?.medications && Array.isArray(currentPatient.medications)) {
@@ -529,7 +544,9 @@ const InteractionCheckerInner: React.FC = () => {
             : [],
           allergies: currentPatient?.allergies?.length > 0
             ? currentPatient.allergies.map((a: any) => a.allergen || a.name)
-            : []
+            : (authState.user?.allergies?.length > 0 
+                ? authState.user.allergies.map((a: any) => a.allergen)
+                : [])
         }}
       />
 

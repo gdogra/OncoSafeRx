@@ -212,6 +212,8 @@ router.put('/profile',
       if (updates.weight !== undefined) metadataUpdates.weight = updates.weight;
       if (updates.sex !== undefined) metadataUpdates.sex = updates.sex;
       if (updates.address !== undefined) metadataUpdates.address = updates.address;
+      // Medical information
+      if (updates.allergies !== undefined) metadataUpdates.allergies = updates.allergies;
       
       // Update Supabase auth user metadata (skip for dev/gdogra users)
       let authError = null;
@@ -251,6 +253,8 @@ router.put('/profile',
         weight: updates.weight !== undefined ? updates.weight : userMetadata.weight,
         sex: updates.sex !== undefined ? updates.sex : userMetadata.sex,
         address: updates.address !== undefined ? updates.address : userMetadata.address,
+        // Medical information
+        allergies: updates.allergies !== undefined ? updates.allergies : userMetadata.allergies,
         // Do not set updated_at explicitly to avoid schema mismatch on instances where column is absent
       };
       
@@ -280,6 +284,8 @@ router.put('/profile',
         weight: updates.weight !== undefined ? updates.weight : userMetadata.weight,
         sex: updates.sex !== undefined ? updates.sex : userMetadata.sex,
         address: updates.address !== undefined ? updates.address : userMetadata.address,
+        // Medical information
+        allergies: updates.allergies !== undefined ? updates.allergies : userMetadata.allergies,
         preferences: updates.preferences ?? userMetadata.preferences ?? {
           theme: 'light',
           language: 'en',

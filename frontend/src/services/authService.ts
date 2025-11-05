@@ -907,6 +907,8 @@ export class SupabaseAuthService {
               weight: u.weight,
               sex: u.sex,
               address: u.address,
+              // Medical information
+              allergies: u.allergies,
               preferences: u.preferences,
               persona: u.persona,
             };
@@ -1006,6 +1008,8 @@ export class SupabaseAuthService {
       weight: dbProfile?.weight || user.user_metadata?.weight || fallbackData?.weight,
       sex: dbProfile?.sex || user.user_metadata?.sex || fallbackData?.sex,
       address: dbProfile?.address || user.user_metadata?.address || fallbackData?.address,
+      // Medical information
+      allergies: dbProfile?.allergies || user.user_metadata?.allergies || fallbackData?.allergies,
       preferences: (dbProfile?.preferences && typeof dbProfile.preferences === 'object') ? dbProfile.preferences : (user.user_metadata?.preferences || this.getDefaultPreferences(role)),
       persona: (dbProfile?.persona && typeof dbProfile.persona === 'object') ? dbProfile.persona : (user.user_metadata?.persona || this.createDefaultPersona(role)),
       createdAt: user.created_at || new Date().toISOString(),

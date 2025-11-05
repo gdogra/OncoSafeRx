@@ -104,7 +104,8 @@ export const drugService = {
 
   getDrugInteractions: async (rxcui: string) => {
     try {
-      const response = await api.get(`/drugs/${rxcui}/interactions`);
+      // Use the known interactions endpoint to get interactions for this specific drug
+      const response = await api.get(`/interactions/known?drug=${encodeURIComponent(rxcui)}`);
       return response.data;
     } catch (error: any) {
       if (error.response?.status === 404) {
@@ -204,28 +205,22 @@ export const interactionService = {
       // Backend expects an array of RXCUI strings
       const rxcuis = (drugs || []).map(d => String(d.rxcui)).filter(Boolean);
       
-      // Try proxy first, then direct backend if proxy fails
+      // Try direct backend first (bypass proxy issues), then proxy as fallback
       let response;
       try {
-        response = await api.post('/interactions/check', { drugs: rxcuis });
-      } catch (proxyError: any) {
-        if (proxyError.response?.status === 404) {
-          console.log('Proxy failed with 404, trying direct backend...');
-          // Direct call to backend as fallback
-          const directResponse = await fetch('https://oncosaferx-backend.onrender.com/api/interactions/check', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ drugs: rxcuis })
-          });
-          if (!directResponse.ok) {
-            throw new Error(`Direct backend call failed: ${directResponse.status}`);
-          }
-          response = { data: await directResponse.json() };
-        } else {
-          throw proxyError;
+        const directResponse = await fetch('https://oncosaferx-backend.onrender.com/api/interactions/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ drugs: rxcuis })
+        });
+        if (!directResponse.ok) {
+          throw new Error(`Direct backend call failed: ${directResponse.status}`);
         }
+        response = { data: await directResponse.json() };
+      } catch (directError: any) {
+        console.log('Direct backend failed, trying proxy...', directError?.message || directError);
+        // Fallback to proxy
+        response = await api.post('/interactions/check', { drugs: rxcuis });
       }
       // Normalize severities for consistent UI grouping
       const data = response.data || { interactions: { stored: [], external: [] } };
@@ -299,7 +294,8 @@ export const interactionService = {
 
   getDrugInteractions: async (rxcui: string) => {
     try {
-      const response = await api.get(`/interactions/drug/${rxcui}`);
+      // Use the known interactions endpoint to get interactions for this specific drug
+      const response = await api.get(`/interactions/known?drug=${encodeURIComponent(rxcui)}`);
       return response.data;
     } catch (error: any) {
       // Handle 502 Bad Gateway errors from Netlify proxy

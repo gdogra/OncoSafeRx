@@ -398,16 +398,31 @@ const InteractionCheckerInner: React.FC = () => {
 
   // Debug demographics data
   useEffect(() => {
-    console.log('🔍 InteractionChecker Debug - Patient Data:', {
-      currentPatientAge: currentPatient?.age,
-      currentPatientWeight: currentPatient?.weight,
-      currentPatientWeightKg: currentPatient?.weightKg,
-      currentPatientDemographics: currentPatient?.demographics,
-      userAge: authState.user?.age,
-      userWeight: authState.user?.weight,
-      calculatedAge: currentPatient?.demographics?.dateOfBirth 
-        ? calculateAgeFromDOB(currentPatient.demographics.dateOfBirth)
-        : 'No DOB'
+    const finalAge = currentPatient?.demographics?.dateOfBirth 
+      ? calculateAgeFromDOB(currentPatient.demographics.dateOfBirth)
+      : (currentPatient?.age || authState.user?.age || undefined);
+    const finalWeight = currentPatient?.demographics?.weightKg 
+      || currentPatient?.weight 
+      || currentPatient?.weightKg 
+      || authState.user?.weight 
+      || undefined;
+      
+    console.log('🔍 InteractionChecker Demographics Debug:', {
+      finalAge,
+      finalWeight,
+      sources: {
+        currentPatientDOB: currentPatient?.demographics?.dateOfBirth,
+        calculatedFromDOB: currentPatient?.demographics?.dateOfBirth 
+          ? calculateAgeFromDOB(currentPatient.demographics.dateOfBirth)
+          : null,
+        currentPatientAge: currentPatient?.age,
+        userAge: authState.user?.age,
+        currentPatientWeightKg: currentPatient?.demographics?.weightKg,
+        currentPatientWeight: currentPatient?.weight,
+        userWeight: authState.user?.weight,
+        currentPatientId: currentPatient?.id,
+        userId: authState.user?.id
+      }
     });
   }, [currentPatient, authState.user]);
 
@@ -532,11 +547,12 @@ const InteractionCheckerInner: React.FC = () => {
         patientProfile={{
           age: currentPatient?.demographics?.dateOfBirth 
             ? calculateAgeFromDOB(currentPatient.demographics.dateOfBirth)
-            : (currentPatient?.age || authState.user?.age),
+            : (currentPatient?.age || authState.user?.age || undefined),
           weight: currentPatient?.demographics?.weightKg 
             || currentPatient?.weight 
             || currentPatient?.weightKg 
-            || authState.user?.weight,
+            || authState.user?.weight 
+            || undefined,
           renalFunction: currentPatient?.renalFunction || authState.user?.renalFunction || 'unknown',
           hepaticFunction: currentPatient?.hepaticFunction || authState.user?.hepaticFunction || 'unknown',
           comorbidities: currentPatient?.conditions?.length > 0 

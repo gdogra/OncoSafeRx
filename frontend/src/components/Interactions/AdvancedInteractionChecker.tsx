@@ -467,6 +467,10 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
           <div className="flex items-center space-x-2 mb-4">
             <Users className="w-5 h-5 text-primary-600" />
             <h3 className="text-lg font-semibold text-gray-900">Patient-Specific Considerations</h3>
+            {/* DEBUG: Show where data is coming from */}
+            <div className="text-xs text-gray-500 ml-auto">
+              Debug: Age={patientProfile.age}, Weight={patientProfile.weight}
+            </div>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
             <div>

@@ -125,6 +125,14 @@ router.get('/profile',
 
       const meta = user.supabaseUser?.user_metadata || {};
       const finalRole = (dbRow?.role) || user.role || meta.role || 'patient';
+      const hasMetaDemo = (
+        meta.age !== undefined || meta.date_of_birth !== undefined || meta.height !== undefined ||
+        meta.weight !== undefined || meta.sex !== undefined || meta.ethnicity !== undefined ||
+        meta.primary_language !== undefined || meta.emergency_contact !== undefined || meta.address !== undefined ||
+        meta.allergies !== undefined || meta.medical_conditions !== undefined
+      );
+      const profileSource = dbRow ? 'db' : (Object.keys(meta || {}).length ? 'auth_metadata' : 'fallback');
+      const demographicsSource = demographicsRow ? 'user_demographics' : (hasMetaDemo ? 'auth_metadata' : 'none');
       const responseUser = {
           id: user.id,
           email: user.email,
@@ -188,7 +196,15 @@ router.get('/profile',
         isActive: true,
       };
 
-      res.json({ user: responseUser });
+      res.json({ 
+        user: responseUser,
+        diagnostics: {
+          profileSource,
+          demographicsSource,
+          proxy: true,
+          at: new Date().toISOString()
+        }
+      });
 
     } catch (error) {
       console.error('Profile fetch error:', error);

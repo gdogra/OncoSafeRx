@@ -59,5 +59,3 @@ create index if not exists user_demographics_updated_at_idx on public.user_demog
 -- Grant permissions
 grant all on public.user_demographics to authenticated;
 grant all on public.user_demographics to service_role;
-grant usage on sequence user_demographics_id_seq to authenticated;
-grant usage on sequence user_demographics_id_seq to service_role;

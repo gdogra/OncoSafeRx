@@ -31,10 +31,16 @@ export interface UserProfile {
   emergencyContact?: string;
   address?: {
     street?: string;
+    streetLine2?: string; // Apartment, suite, unit, etc.
     city?: string;
-    state?: string;
-    zipCode?: string;
+    state?: string; // State/Province/Region
+    zipCode?: string; // ZIP/Postal Code
     country?: string;
+    // International variations
+    province?: string; // Alternative to state for some countries
+    postalCode?: string; // Alternative to zipCode
+    region?: string; // For countries that use regions
+    district?: string; // For countries that use districts
   };
   // Medical information
   allergies?: Array<{
@@ -116,10 +122,16 @@ export interface SignupData {
   emergencyContact?: string;
   address?: {
     street?: string;
+    streetLine2?: string; // Apartment, suite, unit, etc.
     city?: string;
-    state?: string;
-    zipCode?: string;
+    state?: string; // State/Province/Region
+    zipCode?: string; // ZIP/Postal Code
     country?: string;
+    // International variations
+    province?: string; // Alternative to state for some countries
+    postalCode?: string; // Alternative to zipCode
+    region?: string; // For countries that use regions
+    district?: string; // For countries that use districts
   };
 }
 

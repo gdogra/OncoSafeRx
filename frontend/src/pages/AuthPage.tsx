@@ -436,6 +436,7 @@ const AuthPage: React.FC = () => {
       emergencyContact: undefined,
       address: {
         street: '',
+        streetLine2: '',
         city: '',
         state: '',
         zipCode: '',
@@ -1175,6 +1176,30 @@ const AuthPage: React.FC = () => {
                     <div className="space-y-3">
                       <label className="block text-sm font-medium text-gray-700">Address</label>
                       
+                      {/* Country selection first to adapt other fields */}
+                      <div>
+                        <select
+                          value={signupData.address?.country || ''}
+                          onChange={(e) => handleInputChange('address.country', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        >
+                          <option value="">Select Country</option>
+                          <option value="United States">United States</option>
+                          <option value="Canada">Canada</option>
+                          <option value="United Kingdom">United Kingdom</option>
+                          <option value="Australia">Australia</option>
+                          <option value="Germany">Germany</option>
+                          <option value="France">France</option>
+                          <option value="India">India</option>
+                          <option value="China">China</option>
+                          <option value="Japan">Japan</option>
+                          <option value="Brazil">Brazil</option>
+                          <option value="Mexico">Mexico</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                      
+                      {/* Street Address */}
                       <div>
                         <input
                           type="text"
@@ -1185,6 +1210,18 @@ const AuthPage: React.FC = () => {
                         />
                       </div>
                       
+                      {/* Apartment/Unit line */}
+                      <div>
+                        <input
+                          type="text"
+                          value={signupData.address?.streetLine2 || ''}
+                          onChange={(e) => handleInputChange('address.streetLine2', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="Apartment, suite, unit, etc. (optional)"
+                        />
+                      </div>
+                      
+                      {/* City and State/Province row - adapts based on country */}
                       <div className="grid grid-cols-2 gap-2">
                         <input
                           type="text"
@@ -1198,24 +1235,43 @@ const AuthPage: React.FC = () => {
                           value={signupData.address?.state || ''}
                           onChange={(e) => handleInputChange('address.state', e.target.value)}
                           className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                          placeholder="State"
+                          placeholder={
+                            signupData.address?.country === 'United States' ? 'State' :
+                            signupData.address?.country === 'Canada' ? 'Province' :
+                            signupData.address?.country === 'United Kingdom' ? 'County' :
+                            signupData.address?.country === 'Australia' ? 'State' :
+                            signupData.address?.country === 'Germany' ? 'State (Länder)' :
+                            signupData.address?.country === 'India' ? 'State' :
+                            'State/Province/Region'
+                          }
                         />
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-2">
+                      {/* Postal Code - adapts based on country */}
+                      <div>
                         <input
                           type="text"
                           value={signupData.address?.zipCode || ''}
                           onChange={(e) => handleInputChange('address.zipCode', e.target.value)}
                           className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                          placeholder="ZIP code"
-                        />
-                        <input
-                          type="text"
-                          value={signupData.address?.country || ''}
-                          onChange={(e) => handleInputChange('address.country', e.target.value)}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                          placeholder="Country"
+                          placeholder={
+                            signupData.address?.country === 'United States' ? 'ZIP Code' :
+                            signupData.address?.country === 'United Kingdom' ? 'Postcode' :
+                            signupData.address?.country === 'Canada' ? 'Postal Code' :
+                            signupData.address?.country === 'Australia' ? 'Postcode' :
+                            signupData.address?.country === 'Germany' ? 'Postleitzahl (PLZ)' :
+                            signupData.address?.country === 'India' ? 'PIN Code' :
+                            'Postal/ZIP Code'
+                          }
+                          maxLength={
+                            signupData.address?.country === 'United States' ? 10 :
+                            signupData.address?.country === 'United Kingdom' ? 8 :
+                            signupData.address?.country === 'Canada' ? 7 :
+                            signupData.address?.country === 'Australia' ? 4 :
+                            signupData.address?.country === 'Germany' ? 5 :
+                            signupData.address?.country === 'India' ? 6 :
+                            15
+                          }
                         />
                       </div>
                     </div>

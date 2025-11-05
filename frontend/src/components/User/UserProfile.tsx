@@ -45,6 +45,32 @@ const UserProfile: React.FC = () => {
   const [editedUser, setEditedUser] = useState<Partial<UserProfileType>>(user || {});
   const [editedPreferences, setEditedPreferences] = useState<UserPreferences>(user?.preferences || {} as UserPreferences);
   const [showGenomicsCta, setShowGenomicsCta] = useState(false);
+  
+  // Unit conversion state
+  const [heightUnit, setHeightUnit] = useState<'cm' | 'ft-in'>('cm');
+  const [weightUnit, setWeightUnit] = useState<'kg' | 'lbs'>('kg');
+  
+  // Unit conversion functions
+  const convertHeight = (cm: number, toUnit: 'cm' | 'ft-in') => {
+    if (toUnit === 'cm') return cm;
+    const totalInches = cm / 2.54;
+    const feet = Math.floor(totalInches / 12);
+    const inches = Math.round(totalInches % 12);
+    return { feet, inches };
+  };
+  
+  const convertHeightToCm = (feet: number, inches: number) => {
+    return Math.round((feet * 12 + inches) * 2.54);
+  };
+  
+  const convertWeight = (kg: number, toUnit: 'kg' | 'lbs') => {
+    if (toUnit === 'kg') return kg;
+    return Math.round(kg * 2.20462 * 10) / 10; // Round to 1 decimal
+  };
+  
+  const convertWeightToKg = (lbs: number) => {
+    return Math.round(lbs / 2.20462 * 10) / 10; // Round to 1 decimal
+  };
 
   // Keep editedUser and editedPreferences in sync with user changes
   React.useEffect(() => {
@@ -729,36 +755,163 @@ const UserProfile: React.FC = () => {
               {/* Physical Measurements Row 2 */}
               <div className="grid md:grid-cols-3 gap-4 mb-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Height (cm)
-                  </label>
-                  <input
-                    type="number"
-                    min="50"
-                    max="250"
-                    step="0.1"
-                    value={isEditing ? editedUser.height || '' : user.height || ''}
-                    onChange={(e) => setEditedUser(prev => ({ ...prev, height: parseFloat(e.target.value) || undefined }))}
-                    disabled={!isEditing}
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
-                    placeholder="Enter height in cm"
-                  />
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Height
+                    </label>
+                    {isEditing && (
+                      <div className="flex bg-gray-100 rounded-md p-1">
+                        <button
+                          type="button"
+                          onClick={() => setHeightUnit('cm')}
+                          className={`px-2 py-1 text-xs rounded ${
+                            heightUnit === 'cm' 
+                              ? 'bg-white text-gray-900 shadow-sm' 
+                              : 'text-gray-600 hover:text-gray-900'
+                          }`}
+                        >
+                          cm
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setHeightUnit('ft-in')}
+                          className={`px-2 py-1 text-xs rounded ${
+                            heightUnit === 'ft-in' 
+                              ? 'bg-white text-gray-900 shadow-sm' 
+                              : 'text-gray-600 hover:text-gray-900'
+                          }`}
+                        >
+                          ft/in
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {heightUnit === 'cm' ? (
+                    <input
+                      type="number"
+                      min="50"
+                      max="250"
+                      step="0.1"
+                      value={isEditing ? editedUser.height || '' : user.height || ''}
+                      onChange={(e) => setEditedUser(prev => ({ ...prev, height: parseFloat(e.target.value) || undefined }))}
+                      disabled={!isEditing}
+                      className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                      placeholder="Enter height in cm"
+                    />
+                  ) : (
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        min="3"
+                        max="8"
+                        value={
+                          isEditing && editedUser.height 
+                            ? (convertHeight(editedUser.height, 'ft-in') as {feet: number, inches: number}).feet
+                            : user.height 
+                              ? (convertHeight(user.height, 'ft-in') as {feet: number, inches: number}).feet 
+                              : ''
+                        }
+                        onChange={(e) => {
+                          const feet = parseInt(e.target.value) || 0;
+                          const inches = isEditing && editedUser.height 
+                            ? (convertHeight(editedUser.height, 'ft-in') as {feet: number, inches: number}).inches
+                            : user.height 
+                              ? (convertHeight(user.height, 'ft-in') as {feet: number, inches: number}).inches 
+                              : 0;
+                          const cm = convertHeightToCm(feet, inches);
+                          setEditedUser(prev => ({ ...prev, height: cm }));
+                        }}
+                        disabled={!isEditing}
+                        className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                        placeholder="ft"
+                      />
+                      <input
+                        type="number"
+                        min="0"
+                        max="11"
+                        value={
+                          isEditing && editedUser.height 
+                            ? (convertHeight(editedUser.height, 'ft-in') as {feet: number, inches: number}).inches
+                            : user.height 
+                              ? (convertHeight(user.height, 'ft-in') as {feet: number, inches: number}).inches 
+                              : ''
+                        }
+                        onChange={(e) => {
+                          const inches = parseInt(e.target.value) || 0;
+                          const feet = isEditing && editedUser.height 
+                            ? (convertHeight(editedUser.height, 'ft-in') as {feet: number, inches: number}).feet
+                            : user.height 
+                              ? (convertHeight(user.height, 'ft-in') as {feet: number, inches: number}).feet 
+                              : 0;
+                          const cm = convertHeightToCm(feet, inches);
+                          setEditedUser(prev => ({ ...prev, height: cm }));
+                        }}
+                        disabled={!isEditing}
+                        className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                        placeholder="in"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Weight (kg)
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Weight
+                    </label>
+                    {isEditing && (
+                      <div className="flex bg-gray-100 rounded-md p-1">
+                        <button
+                          type="button"
+                          onClick={() => setWeightUnit('kg')}
+                          className={`px-2 py-1 text-xs rounded ${
+                            weightUnit === 'kg' 
+                              ? 'bg-white text-gray-900 shadow-sm' 
+                              : 'text-gray-600 hover:text-gray-900'
+                          }`}
+                        >
+                          kg
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setWeightUnit('lbs')}
+                          className={`px-2 py-1 text-xs rounded ${
+                            weightUnit === 'lbs' 
+                              ? 'bg-white text-gray-900 shadow-sm' 
+                              : 'text-gray-600 hover:text-gray-900'
+                          }`}
+                        >
+                          lbs
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  
                   <input
                     type="number"
-                    min="1"
-                    max="500"
+                    min={weightUnit === 'kg' ? '1' : '2'}
+                    max={weightUnit === 'kg' ? '500' : '1100'}
                     step="0.1"
-                    value={isEditing ? editedUser.weight || '' : user.weight || ''}
-                    onChange={(e) => setEditedUser(prev => ({ ...prev, weight: parseFloat(e.target.value) || undefined }))}
+                    value={
+                      isEditing 
+                        ? (weightUnit === 'kg' 
+                            ? editedUser.weight || ''
+                            : editedUser.weight ? convertWeight(editedUser.weight, 'lbs') : ''
+                          )
+                        : (weightUnit === 'kg' 
+                            ? user.weight || ''
+                            : user.weight ? convertWeight(user.weight, 'lbs') : ''
+                          )
+                    }
+                    onChange={(e) => {
+                      const value = parseFloat(e.target.value);
+                      const kg = weightUnit === 'kg' ? value : convertWeightToKg(value);
+                      setEditedUser(prev => ({ ...prev, weight: kg || undefined }));
+                    }}
                     disabled={!isEditing}
                     className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
-                    placeholder="Enter weight in kg"
+                    placeholder={`Enter weight in ${weightUnit}`}
                   />
                 </div>
 

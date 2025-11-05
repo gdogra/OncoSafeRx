@@ -11,20 +11,26 @@ class DrugAlternativesService {
       'lisinopril': 'ACE_INHIBITORS',
       'enalapril': 'ACE_INHIBITORS', 
       'ramipril': 'ACE_INHIBITORS',
+      'telma': 'ARB', // Indian brand of telmisartan
       'losartan': 'ARB',
       'valsartan': 'ARB',
       'irbesartan': 'ARB',
+      'telmisartan': 'ARB',
       'amlodipine': 'CCB_DIHYDROPYRIDINE',
       'nifedipine': 'CCB_DIHYDROPYRIDINE',
+      'cilicar': 'CCB_DIHYDROPYRIDINE', // Indian brand of cilnidipine
       'diltiazem': 'CCB_NON_DIHYDROPYRIDINE',
       'verapamil': 'CCB_NON_DIHYDROPYRIDINE',
       'metoprolol': 'BETA_BLOCKERS',
+      'metpure': 'BETA_BLOCKERS', // Indian brand of metoprolol
       'atenolol': 'BETA_BLOCKERS',
       'propranolol': 'BETA_BLOCKERS',
       'carvedilol': 'BETA_BLOCKERS',
       'atorvastatin': 'STATINS',
+      'atorva': 'STATINS', // Indian brand of atorvastatin
       'simvastatin': 'STATINS',
       'rosuvastatin': 'STATINS',
+      'rosuvas': 'STATINS', // Indian brand of rosuvastatin
       'pravastatin': 'STATINS',
       'warfarin': 'ANTICOAGULANTS',
       'rivaroxaban': 'DOAC',
@@ -46,33 +52,113 @@ class DrugAlternativesService {
       
       // Antidiabetics
       'metformin': 'BIGUANIDES',
+      'glycomet': 'BIGUANIDES', // Indian brand of metformin
       'glipizide': 'SULFONYLUREAS',
       'glyburide': 'SULFONYLUREAS',
       'glimepiride': 'SULFONYLUREAS',
+      'amaryl': 'SULFONYLUREAS', // Indian brand of glimepiride
       'sitagliptin': 'DPP4_INHIBITORS',
+      'januvia': 'DPP4_INHIBITORS', // Brand of sitagliptin
       'linagliptin': 'DPP4_INHIBITORS',
       'pioglitazone': 'TZD',
       'insulin': 'INSULIN',
+      'human mixtard': 'INSULIN', // Common insulin in India
       
       // Gastrointestinal
       'omeprazole': 'PPI',
+      'omez': 'PPI', // Indian brand of omeprazole
       'pantoprazole': 'PPI',
+      'pantop': 'PPI', // Indian brand of pantoprazole
       'esomeprazole': 'PPI',
+      'nexium': 'PPI', // Brand of esomeprazole
       'lansoprazole': 'PPI',
       'famotidine': 'H2_BLOCKERS',
+      'pepcid': 'H2_BLOCKERS', // Brand of famotidine
       'ranitidine': 'H2_BLOCKERS',
+      'rantac': 'H2_BLOCKERS', // Indian brand of ranitidine
       
       // Antibiotics
       'amoxicillin': 'PENICILLINS',
+      'amoxil': 'PENICILLINS', // Brand of amoxicillin
       'ampicillin': 'PENICILLINS',
       'cephalexin': 'CEPHALOSPORINS',
+      'cefixime': 'CEPHALOSPORINS',
       'cefazolin': 'CEPHALOSPORINS',
       'azithromycin': 'MACROLIDES',
+      'azee': 'MACROLIDES', // Indian brand of azithromycin
       'clarithromycin': 'MACROLIDES',
       'ciprofloxacin': 'FLUOROQUINOLONES',
+      'cipro': 'FLUOROQUINOLONES', // Brand of ciprofloxacin
       'levofloxacin': 'FLUOROQUINOLONES',
       'doxycycline': 'TETRACYCLINES',
+      'doxy': 'TETRACYCLINES', // Common short name
       'minocycline': 'TETRACYCLINES',
+      
+      // Diuretics
+      'furosemide': 'LOOP_DIURETICS',
+      'dytor': 'LOOP_DIURETICS', // Indian brand of furosemide
+      'bumetanide': 'LOOP_DIURETICS',
+      
+      // Antihypertensives (Alpha-2 agonists)
+      'clonidine': 'ALPHA2_AGONISTS',
+      'arkamin': 'ALPHA2_AGONISTS', // Indian brand of clonidine
+      
+      // Anticonvulsants
+      'oxcarbazepine': 'ANTICONVULSANTS',
+      'oxra': 'ANTICONVULSANTS', // Indian brand of oxcarbazepine
+      'carbamazepine': 'ANTICONVULSANTS',
+      'phenytoin': 'ANTICONVULSANTS',
+      
+      // Sedatives/Hypnotics
+      'zolpidem': 'Z_DRUGS',
+      'zolfresh': 'Z_DRUGS', // Indian brand of zolpidem
+      'zopiclone': 'Z_DRUGS',
+      
+      // Probiotics
+      'probowel': 'PROBIOTICS', // Indian probiotic
+      'lactobacillus': 'PROBIOTICS',
+      
+      // Potassium binders
+      'kbind': 'POTASSIUM_BINDERS', // Indian brand of calcium polystyrene sulfonate
+      'kayexalate': 'POTASSIUM_BINDERS',
+      
+      // Common Indian medicines
+      'paracetamol': 'NON_OPIOID_ANALGESICS',
+      'crocin': 'NON_OPIOID_ANALGESICS', // Indian brand of paracetamol
+      'dolo': 'NON_OPIOID_ANALGESICS', // Indian brand of paracetamol
+      'combiflam': 'NSAIDS', // Indian combination of ibuprofen + paracetamol
+      'brufen': 'NSAIDS', // Indian brand of ibuprofen
+      'voveran': 'NSAIDS', // Indian brand of diclofenac
+      'aspirin': 'SALICYLATES',
+      'disprin': 'SALICYLATES', // Indian brand of aspirin
+      
+      // Thyroid medications
+      'levothyroxine': 'THYROID_HORMONES',
+      'eltroxin': 'THYROID_HORMONES', // Indian brand of levothyroxine
+      'thyronorm': 'THYROID_HORMONES', // Indian brand of levothyroxine
+      
+      // Antacids
+      'eno': 'ANTACIDS', // Popular Indian antacid
+      'gelusil': 'ANTACIDS', // Indian antacid brand
+      'digene': 'ANTACIDS', // Indian antacid brand
+      
+      // Cough and cold
+      'dextromethorphan': 'COUGH_SUPPRESSANTS',
+      'benadryl': 'ANTIHISTAMINES', // Brand name
+      'cetirizine': 'ANTIHISTAMINES',
+      'zyrtec': 'ANTIHISTAMINES', // Brand of cetirizine
+      'allegra': 'ANTIHISTAMINES', // Brand of fexofenadine
+      
+      // Vitamins commonly prescribed in India
+      'calcium': 'CALCIUM_SUPPLEMENTS',
+      'shelcal': 'CALCIUM_SUPPLEMENTS', // Indian calcium brand
+      'calcimax': 'CALCIUM_SUPPLEMENTS', // Indian calcium brand
+      'vitamin d3': 'VITAMIN_D',
+      'uprise': 'VITAMIN_D', // Indian vitamin D3 brand
+      'iron': 'IRON_SUPPLEMENTS',
+      'autrin': 'IRON_SUPPLEMENTS', // Indian iron supplement
+      'folic acid': 'B_VITAMINS',
+      'vitamin b12': 'B_VITAMINS',
       
       // Oncology
       'doxorubicin': 'ANTHRACYCLINES',
@@ -93,17 +179,19 @@ class DrugAlternativesService {
     // Therapeutic alternatives by drug class
     this.therapeuticAlternatives = {
       'ACE_INHIBITORS': ['lisinopril', 'enalapril', 'ramipril', 'benazepril'],
-      'ARB': ['losartan', 'valsartan', 'irbesartan', 'olmesartan'],
-      'CCB_DIHYDROPYRIDINE': ['amlodipine', 'nifedipine', 'felodipine'],
+      'ARB': ['losartan', 'valsartan', 'irbesartan', 'olmesartan', 'telmisartan', 'telma'],
+      'CCB_DIHYDROPYRIDINE': ['amlodipine', 'cilicar', 'nifedipine', 'felodipine'],
       'CCB_NON_DIHYDROPYRIDINE': ['diltiazem', 'verapamil'],
-      'BETA_BLOCKERS': ['metoprolol', 'atenolol', 'propranolol', 'carvedilol'],
-      'STATINS': ['atorvastatin', 'simvastatin', 'rosuvastatin', 'pravastatin'],
+      'BETA_BLOCKERS': ['metoprolol', 'metpure', 'atenolol', 'propranolol', 'carvedilol'],
+      'STATINS': ['atorvastatin', 'atorva', 'simvastatin', 'rosuvastatin', 'rosuvas', 'pravastatin'],
       'DOAC': ['rivaroxaban', 'apixaban', 'dabigatran', 'edoxaban'],
-      'NSAIDS': ['ibuprofen', 'naproxen', 'diclofenac', 'indomethacin'],
+      'NSAIDS': ['ibuprofen', 'brufen', 'naproxen', 'diclofenac', 'voveran', 'indomethacin', 'combiflam'],
       'COX2_INHIBITORS': ['celecoxib', 'rofecoxib'],
-      'SULFONYLUREAS': ['glipizide', 'glyburide', 'glimepiride'],
-      'DPP4_INHIBITORS': ['sitagliptin', 'linagliptin', 'saxagliptin'],
-      'PPI': ['omeprazole', 'pantoprazole', 'esomeprazole', 'lansoprazole'],
+      'SULFONYLUREAS': ['glipizide', 'glyburide', 'glimepiride', 'amaryl'],
+      'DPP4_INHIBITORS': ['sitagliptin', 'januvia', 'linagliptin', 'saxagliptin'],
+      'PPI': ['omeprazole', 'omez', 'pantoprazole', 'pantop', 'esomeprazole', 'nexium', 'lansoprazole'],
+      'BIGUANIDES': ['metformin', 'glycomet'],
+      'NON_OPIOID_ANALGESICS': ['acetaminophen', 'paracetamol', 'crocin', 'dolo'],
       'H2_BLOCKERS': ['famotidine', 'cimetidine', 'nizatidine'],
       'PENICILLINS': ['amoxicillin', 'ampicillin', 'penicillin'],
       'CEPHALOSPORINS': ['cephalexin', 'cefazolin', 'ceftriaxone'],
@@ -112,7 +200,27 @@ class DrugAlternativesService {
       'ANTHRACYCLINES': ['doxorubicin', 'epirubicin', 'daunorubicin'],
       'PLATINUM_COMPOUNDS': ['carboplatin', 'cisplatin', 'oxaliplatin'],
       'TAXANES': ['paclitaxel', 'docetaxel', 'cabazitaxel'],
-      'ANTIMETABOLITES': ['fluorouracil', 'capecitabine', 'gemcitabine', 'methotrexate']
+      'ANTIMETABOLITES': ['fluorouracil', 'capecitabine', 'gemcitabine', 'methotrexate'],
+      
+      // New drug classes for Indian medications
+      'LOOP_DIURETICS': ['furosemide', 'dytor', 'bumetanide', 'torsemide'],
+      'ALPHA2_AGONISTS': ['clonidine', 'arkamin', 'methyldopa'],
+      'ANTICONVULSANTS': ['oxcarbazepine', 'oxra', 'carbamazepine', 'phenytoin', 'valproate'],
+      'Z_DRUGS': ['zolpidem', 'zolfresh', 'zopiclone', 'zaleplon'],
+      'PROBIOTICS': ['probowel', 'lactobacillus', 'bifidobacterium', 'saccharomyces'],
+      'POTASSIUM_BINDERS': ['kbind', 'kayexalate', 'patiromer', 'sodium zirconium'],
+      
+      // Additional Indian medication classes
+      'THYROID_HORMONES': ['levothyroxine', 'eltroxin', 'thyronorm'],
+      'ANTACIDS': ['eno', 'gelusil', 'digene', 'magnesium hydroxide'],
+      'ANTIHISTAMINES': ['cetirizine', 'zyrtec', 'allegra', 'benadryl', 'fexofenadine'],
+      'CALCIUM_SUPPLEMENTS': ['calcium', 'shelcal', 'calcimax', 'calcium carbonate'],
+      'VITAMIN_D': ['vitamin d3', 'uprise', 'cholecalciferol'],
+      'IRON_SUPPLEMENTS': ['iron', 'autrin', 'ferrous sulfate'],
+      'B_VITAMINS': ['folic acid', 'vitamin b12', 'methylcobalamin'],
+      'SALICYLATES': ['aspirin', 'disprin', 'acetylsalicylic acid'],
+      'COUGH_SUPPRESSANTS': ['dextromethorphan', 'codeine'],
+      'INSULIN': ['insulin', 'human mixtard', 'regular insulin']
     };
     
     // Drug interaction severity database

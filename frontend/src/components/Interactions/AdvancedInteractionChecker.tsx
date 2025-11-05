@@ -494,8 +494,16 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
             <div>
               <h4 className="font-medium text-gray-900 mb-2">Organ Function</h4>
               <div className="space-y-1 text-sm">
-                <div>Renal: {patientProfile.renalFunction || 'Normal'}</div>
-                <div>Hepatic: {patientProfile.hepaticFunction || 'Normal'}</div>
+                <div>Renal: {patientProfile.renalFunction === 'unknown' ? (
+                  <span className="text-gray-500 italic">Not assessed</span>
+                ) : (
+                  patientProfile.renalFunction || 'Not assessed'
+                )}</div>
+                <div>Hepatic: {patientProfile.hepaticFunction === 'unknown' ? (
+                  <span className="text-gray-500 italic">Not assessed</span>
+                ) : (
+                  patientProfile.hepaticFunction || 'Not assessed'
+                )}</div>
               </div>
             </div>
           </div>

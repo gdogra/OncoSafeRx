@@ -492,8 +492,8 @@ const InteractionCheckerInner: React.FC = () => {
             ? calculateAgeFromDOB(currentPatient.demographics.dateOfBirth)
             : authState.user?.age,
           weight: currentPatient?.demographics?.weightKg || authState.user?.weight,
-          renalFunction: 'normal',
-          hepaticFunction: 'normal',
+          renalFunction: currentPatient?.renalFunction || authState.user?.renalFunction || 'unknown',
+          hepaticFunction: currentPatient?.hepaticFunction || authState.user?.hepaticFunction || 'unknown',
           comorbidities: currentPatient?.conditions?.length > 0 
             ? getConditionNames(currentPatient.conditions)
             : [],
@@ -697,8 +697,8 @@ const InteractionCheckerInner: React.FC = () => {
                         age: currentPatient.age,
                         gender: currentPatient.gender?.toLowerCase(),
                         allergies: currentPatient.allergies || [],
-                        renalFunction: currentPatient.renalFunction || 'normal',
-                        hepaticFunction: currentPatient.hepaticFunction || 'normal'
+                        renalFunction: currentPatient.renalFunction || 'unknown',
+                        hepaticFunction: currentPatient.hepaticFunction || 'unknown'
                       } : {}
                     })
                   });

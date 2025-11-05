@@ -29,7 +29,7 @@ const ServerPatients: React.FC = () => {
   const [usingDefaultUser, setUsingDefaultUser] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [detailPatient, setDetailPatient] = useState<any | null>(null);
-  const [detailsTab, setDetailsTab] = useState<'demo'|'meds'|'cond'|'labs'>('demo');
+  const [detailsTab, setDetailsTab] = useState<'demo'|'meds'|'cond'|'allergies'|'labs'>('demo');
   const [showCoachBanner, setShowCoachBanner] = useState<boolean>(() => {
     try {
       if ((import.meta as any)?.env?.MODE !== 'production') return false;
@@ -863,6 +863,7 @@ const ServerPatients: React.FC = () => {
                 { id: 'demo', label: 'Demographics' },
                 { id: 'meds', label: 'Medications' },
                 { id: 'cond', label: 'Conditions' },
+                { id: 'allergies', label: 'Allergies' },
                 { id: 'labs', label: 'Labs' },
               ].map(t => (
                 <button
@@ -926,6 +927,25 @@ const ServerPatients: React.FC = () => {
                     <div key={i} className="border rounded px-3 py-2">
                       <div className="font-medium">{c?.name || c?.condition || 'Unknown condition'}</div>
                       <div className="text-xs text-gray-500">Status: {c?.status || '—'} {c?.icd10Code ? `• ICD-10: ${c.icd10Code}` : ''} {c?.stage ? `• Stage: ${c.stage}` : ''}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {detailsTab === 'allergies' && (
+                <div className="space-y-2">
+                  {(!d.allergies || d.allergies.length === 0) && <div className="text-gray-500 text-sm">No allergies recorded</div>}
+                  {(d.allergies || []).map((allergy: any, i: number) => (
+                    <div key={i} className="border rounded px-3 py-2 bg-red-50 border-red-200">
+                      <div className="font-medium text-red-800">{allergy?.allergen || allergy?.name || 'Unknown allergen'}</div>
+                      <div className="text-xs text-red-600">
+                        {allergy?.reaction && <span>Reaction: {allergy.reaction}</span>}
+                        {allergy?.severity && <span> • Severity: {allergy.severity}</span>}
+                        {allergy?.allergenType && <span> • Type: {allergy.allergenType}</span>}
+                        {allergy?.verified !== undefined && <span> • {allergy.verified ? 'Verified' : 'Unverified'}</span>}
+                      </div>
+                      {allergy?.notes && (
+                        <div className="text-xs text-gray-600 mt-1">Notes: {allergy.notes}</div>
+                      )}
                     </div>
                   ))}
                 </div>

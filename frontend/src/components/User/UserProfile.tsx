@@ -759,32 +759,30 @@ const UserProfile: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700">
                       Height
                     </label>
-                    {isEditing && (
-                      <div className="flex bg-gray-100 rounded-md p-1">
-                        <button
-                          type="button"
-                          onClick={() => setHeightUnit('cm')}
-                          className={`px-2 py-1 text-xs rounded ${
-                            heightUnit === 'cm' 
-                              ? 'bg-white text-gray-900 shadow-sm' 
-                              : 'text-gray-600 hover:text-gray-900'
-                          }`}
-                        >
-                          cm
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setHeightUnit('ft-in')}
-                          className={`px-2 py-1 text-xs rounded ${
-                            heightUnit === 'ft-in' 
-                              ? 'bg-white text-gray-900 shadow-sm' 
-                              : 'text-gray-600 hover:text-gray-900'
-                          }`}
-                        >
-                          ft/in
-                        </button>
-                      </div>
-                    )}
+                    <div className="flex bg-gray-100 rounded-md p-1">
+                      <button
+                        type="button"
+                        onClick={() => setHeightUnit('cm')}
+                        className={`px-2 py-1 text-xs rounded ${
+                          heightUnit === 'cm' 
+                            ? 'bg-white text-gray-900 shadow-sm' 
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        cm
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setHeightUnit('ft-in')}
+                        className={`px-2 py-1 text-xs rounded ${
+                          heightUnit === 'ft-in' 
+                            ? 'bg-white text-gray-900 shadow-sm' 
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        ft/in
+                      </button>
+                    </div>
                   </div>
                   
                   {heightUnit === 'cm' ? (
@@ -860,32 +858,30 @@ const UserProfile: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700">
                       Weight
                     </label>
-                    {isEditing && (
-                      <div className="flex bg-gray-100 rounded-md p-1">
-                        <button
-                          type="button"
-                          onClick={() => setWeightUnit('kg')}
-                          className={`px-2 py-1 text-xs rounded ${
-                            weightUnit === 'kg' 
-                              ? 'bg-white text-gray-900 shadow-sm' 
-                              : 'text-gray-600 hover:text-gray-900'
-                          }`}
-                        >
-                          kg
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setWeightUnit('lbs')}
-                          className={`px-2 py-1 text-xs rounded ${
-                            weightUnit === 'lbs' 
-                              ? 'bg-white text-gray-900 shadow-sm' 
-                              : 'text-gray-600 hover:text-gray-900'
-                          }`}
-                        >
-                          lbs
-                        </button>
-                      </div>
-                    )}
+                    <div className="flex bg-gray-100 rounded-md p-1">
+                      <button
+                        type="button"
+                        onClick={() => setWeightUnit('kg')}
+                        className={`px-2 py-1 text-xs rounded ${
+                          weightUnit === 'kg' 
+                            ? 'bg-white text-gray-900 shadow-sm' 
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        kg
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setWeightUnit('lbs')}
+                        className={`px-2 py-1 text-xs rounded ${
+                          weightUnit === 'lbs' 
+                            ? 'bg-white text-gray-900 shadow-sm' 
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        lbs
+                      </button>
+                    </div>
                   </div>
                   
                   <input

@@ -481,10 +481,15 @@ export class SupabaseAuthService {
             institution: data.institution || '',
             license_number: data.licenseNumber || '',
             years_experience: data.yearsExperience || 0,
-            // Demographics
+            // Demographics (store in auth metadata for immediate availability)
             age: data.age,
+            date_of_birth: data.dateOfBirth,
+            height: data.height,
             weight: data.weight,
             sex: data.sex,
+            ethnicity: data.ethnicity,
+            primary_language: data.primaryLanguage,
+            emergency_contact: data.emergencyContact,
             address: data.address
           }
         })
@@ -904,8 +909,13 @@ export class SupabaseAuthService {
               years_experience: typeof u.yearsExperience === 'number' ? u.yearsExperience : undefined,
               // Demographics
               age: u.age,
+              date_of_birth: u.dateOfBirth,
+              height: u.height,
               weight: u.weight,
               sex: u.sex,
+              ethnicity: u.ethnicity,
+              primary_language: u.primaryLanguage,
+              emergency_contact: u.emergencyContact,
               address: u.address,
               // Medical information
               allergies: u.allergies,
@@ -1025,8 +1035,13 @@ export class SupabaseAuthService {
       yearsExperience: (typeof dbProfile?.years_experience === 'number' ? dbProfile.years_experience : undefined) || user.user_metadata?.years_experience || fallbackData?.yearsExperience || 0,
       // Demographics
       age: dbProfile?.age || user.user_metadata?.age || fallbackData?.age,
+      dateOfBirth: dbProfile?.date_of_birth || user.user_metadata?.date_of_birth || fallbackData?.dateOfBirth,
+      height: dbProfile?.height || user.user_metadata?.height || fallbackData?.height,
       weight: dbProfile?.weight || user.user_metadata?.weight || fallbackData?.weight,
       sex: dbProfile?.sex || user.user_metadata?.sex || fallbackData?.sex,
+      ethnicity: dbProfile?.ethnicity || user.user_metadata?.ethnicity || fallbackData?.ethnicity,
+      primaryLanguage: dbProfile?.primary_language || user.user_metadata?.primary_language || fallbackData?.primaryLanguage,
+      emergencyContact: dbProfile?.emergency_contact || user.user_metadata?.emergency_contact || fallbackData?.emergencyContact,
       address: dbProfile?.address || user.user_metadata?.address || fallbackData?.address,
       // Medical information
       allergies: dbProfile?.allergies || user.user_metadata?.allergies || fallbackData?.allergies,

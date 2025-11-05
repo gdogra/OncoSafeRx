@@ -1006,6 +1006,36 @@ router.post('/proxy/signup-full', requireProxyEnabled, checkAllowedOrigin, proxy
         } else {
           profileCreated = true;
           console.log('[auth-proxy] Successfully created user profile for:', email, 'with role:', role);
+          // Also upsert demographics if provided in metadata
+          try {
+            const hasDemo = (
+              um.age !== undefined || um.date_of_birth !== undefined || um.height !== undefined ||
+              um.weight !== undefined || um.sex !== undefined || um.ethnicity !== undefined ||
+              um.primary_language !== undefined || um.emergency_contact !== undefined || um.address !== undefined
+            );
+            if (hasDemo) {
+              const demographicsData = {
+                user_id: body.user.id,
+                ...(um.age !== undefined && { age: um.age }),
+                ...(um.date_of_birth !== undefined && { date_of_birth: um.date_of_birth }),
+                ...(um.height !== undefined && { height: um.height }),
+                ...(um.weight !== undefined && { weight: um.weight }),
+                ...(um.sex !== undefined && { sex: um.sex }),
+                ...(um.ethnicity !== undefined && { ethnicity: um.ethnicity }),
+                ...(um.primary_language !== undefined && { primary_language: um.primary_language }),
+                ...(um.emergency_contact !== undefined && { emergency_contact: um.emergency_contact }),
+                ...(um.address !== undefined && { address: um.address })
+              };
+              const { error: demoErr } = await admin.from('user_demographics').upsert(demographicsData, { onConflict: 'user_id' });
+              if (demoErr) {
+                console.warn('[auth-proxy] Failed to upsert demographics on signup:', demoErr?.message || demoErr);
+              } else {
+                console.log('[auth-proxy] Demographics upserted on signup for user:', body.user.id);
+              }
+            }
+          } catch (demoEx) {
+            console.warn('[auth-proxy] Exception upserting demographics on signup:', demoEx?.message || demoEx);
+          }
         }
       } else {
         profileCreated = true;
@@ -1404,6 +1434,71 @@ router.post('/backfill/profiles', asyncHandler(async (req, res) => {
   } catch (e) {
     return res.status(500).json({ error: e?.message || 'Unexpected error' });
   }
+}));
+
+/**
+ * Backfill user_demographics from Supabase Auth user_metadata
+ * Protection: require service role configured AND X-Admin-Token header matching BACKFILL_TOKEN.
+ */
+router.post('/backfill/demographics', asyncHandler(async (req, res) => {
+  const url = getEnv("SUPABASE_URL");
+  const service = getEnv("SUPABASE_SERVICE_ROLE_KEY");
+  const adminToken = process.env.BACKFILL_TOKEN || '';
+  const provided = req.headers['x-admin-token'] || req.query.token;
+
+  if (!url || !service) return res.status(500).json({ error: 'Supabase service not configured' });
+  if (!adminToken || String(provided) !== adminToken) return res.status(403).json({ error: 'Forbidden' });
+
+  const admin = createClient(url, service);
+
+  let page = 1;
+  const perPage = 1000;
+  let scanned = 0, upserted = 0, skipped = 0, errors = 0;
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage });
+    if (error) return res.status(500).json({ error: error.message });
+    const users = data?.users || [];
+    if (users.length === 0) break;
+
+    for (const u of users) {
+      scanned++;
+      const um = u.user_metadata || {};
+      const hasDemo = (
+        um.age !== undefined || um.date_of_birth !== undefined || um.height !== undefined || um.weight !== undefined ||
+        um.sex !== undefined || um.ethnicity !== undefined || um.primary_language !== undefined ||
+        um.emergency_contact !== undefined || um.address !== undefined || um.allergies !== undefined || um.medical_conditions !== undefined
+      );
+      if (!hasDemo) { skipped++; continue; }
+
+      const demographicsData = {
+        user_id: u.id,
+        ...(um.age !== undefined && { age: um.age }),
+        ...(um.date_of_birth !== undefined && { date_of_birth: um.date_of_birth }),
+        ...(um.height !== undefined && { height: um.height }),
+        ...(um.weight !== undefined && { weight: um.weight }),
+        ...(um.sex !== undefined && { sex: um.sex }),
+        ...(um.ethnicity !== undefined && { ethnicity: um.ethnicity }),
+        ...(um.primary_language !== undefined && { primary_language: um.primary_language }),
+        ...(um.emergency_contact !== undefined && { emergency_contact: um.emergency_contact }),
+        ...(um.address !== undefined && { address: um.address }),
+        ...(um.allergies !== undefined && { allergies: um.allergies }),
+        ...(um.medical_conditions !== undefined && { medical_conditions: um.medical_conditions }),
+      };
+
+      try {
+        const { error: upErr } = await admin.from('user_demographics').upsert(demographicsData, { onConflict: 'user_id' });
+        if (upErr) { errors++; } else { upserted++; }
+      } catch (_) {
+        errors++;
+      }
+    }
+
+    page++;
+  }
+
+  return res.json({ scanned, upserted, skipped, errors });
 }));
 
 /**

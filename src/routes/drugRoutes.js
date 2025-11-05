@@ -121,7 +121,17 @@ router.get('/suggestions',
         { name: 'warfarin sodium', rxcui: '11289' },
         { name: 'rivaroxaban', rxcui: '1114195' },
         { name: 'apixaban', rxcui: '1364430' },
-        { name: 'dabigatran', rxcui: '1037042' }
+        { name: 'dabigatran', rxcui: '1037042' },
+        
+        // Indian medications
+        { name: 'arkamin', rxcui: 'IND001' }, // Clonidine
+        { name: 'metpure', rxcui: 'IND002' }, // Metoprolol
+        { name: 'probowel', rxcui: 'IND003' }, // Probiotic
+        { name: 'dytor', rxcui: 'IND004' }, // Furosemide
+        { name: 'cilicar', rxcui: 'IND005' }, // Cilnidipine
+        { name: 'kbind', rxcui: 'IND006' }, // Calcium polystyrene sulfonate
+        { name: 'oxra', rxcui: 'IND007' }, // Oxcarbazepine
+        { name: 'zolfresh', rxcui: 'IND008' } // Zolpidem
       ];
       const lc = q.toLowerCase();
       suggestions = OFFLINE

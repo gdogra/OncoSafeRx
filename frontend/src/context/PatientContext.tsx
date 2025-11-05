@@ -696,16 +696,21 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const firstName = user.firstName || user.user_metadata?.first_name || (user.email?.split('@')[0] || 'Patient');
       const lastName = user.lastName || user.user_metadata?.last_name || '';
 
+      // Calculate dateOfBirth from user.age if available
+      const currentYear = new Date().getFullYear();
+      const birthYear = user.age ? currentYear - user.age : 1980;
+      const dateOfBirth = user.age ? `${birthYear}-01-01` : '1980-01-01';
+
       const defaultProfile: PatientProfile = {
         id: `patient-${user.id}`,
         demographics: {
           firstName,
           lastName,
-          dateOfBirth: '1980-01-01',
-          sex: 'other',
+          dateOfBirth,
+          sex: user.sex || 'other',
           mrn: undefined as any,
           heightCm: 170,
-          weightKg: 70,
+          weightKg: user.weight || undefined,
         } as any,
         allergies: [],
         medications: [],

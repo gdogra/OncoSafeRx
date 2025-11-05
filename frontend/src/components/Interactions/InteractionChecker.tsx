@@ -396,6 +396,33 @@ const InteractionCheckerInner: React.FC = () => {
     }
   }, [pendingScrollToResults, results]);
 
+  // Load patient medications into interaction checker
+  useEffect(() => {
+    if (currentPatient?.medications && Array.isArray(currentPatient.medications)) {
+      const patientMeds = currentPatient.medications
+        .filter((med: any) => med.isActive !== false) // Only active medications
+        .map((med: any) => ({
+          id: med.id || `patient-med-${Math.random()}`,
+          name: med.drugName || med.name || med.drug?.name || 'Unknown medication',
+          rxcui: med.rxcui || med.drug?.rxcui || '',
+          category: med.category || 'patient-medication',
+          isPatientMedication: true
+        }));
+      
+      // Only update if we have medications and the current list is different
+      if (patientMeds.length > 0) {
+        setSelectedDrugs(prevDrugs => {
+          // Check if we already have these patient medications loaded
+          const hasPatientMeds = prevDrugs.some(drug => drug.isPatientMedication);
+          if (!hasPatientMeds) {
+            return [...prevDrugs, ...patientMeds];
+          }
+          return prevDrugs;
+        });
+      }
+    }
+  }, [currentPatient?.id, currentPatient?.medications]);
+
   const getTotalInteractions = () => {
     if (!results) return 0;
     return results.interactions.stored.length + results.interactions.external.length;
@@ -490,8 +517,11 @@ const InteractionCheckerInner: React.FC = () => {
         patientProfile={{
           age: currentPatient?.demographics?.dateOfBirth 
             ? calculateAgeFromDOB(currentPatient.demographics.dateOfBirth)
-            : authState.user?.age,
-          weight: currentPatient?.demographics?.weightKg || authState.user?.weight,
+            : (currentPatient?.age || authState.user?.age),
+          weight: currentPatient?.demographics?.weightKg 
+            || currentPatient?.weight 
+            || currentPatient?.weightKg 
+            || authState.user?.weight,
           renalFunction: currentPatient?.renalFunction || authState.user?.renalFunction || 'unknown',
           hepaticFunction: currentPatient?.hepaticFunction || authState.user?.hepaticFunction || 'unknown',
           comorbidities: currentPatient?.conditions?.length > 0 

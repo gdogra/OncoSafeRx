@@ -44,6 +44,7 @@ export interface Drug {
   monitoringRequirements?: any;
   clinicalDecisionSupport?: any;
   costEffectiveness?: any;
+  isPatientMedication?: boolean; // True if this drug comes from patient's medication list
 }
 
 export interface DrugSearchResult {

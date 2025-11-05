@@ -1054,6 +1054,34 @@ export class SupabaseAuthService {
       permissions: this.getRolePermissions(dbProfile?.role || role)
     };
     
+    // Fire-and-forget: if DB is missing demographics but auth metadata has them, persist via profile update
+    try {
+      const dbHasDemo = Boolean(dbProfile?.age || dbProfile?.height || dbProfile?.weight || dbProfile?.sex || dbProfile?.address || dbProfile?.ethnicity || dbProfile?.primary_language || dbProfile?.allergies || dbProfile?.medical_conditions || dbProfile?.date_of_birth);
+      const meta = user.user_metadata || {};
+      const metaDemo: any = {
+        age: meta.age,
+        dateOfBirth: meta.date_of_birth || meta.dateOfBirth,
+        height: meta.height,
+        weight: meta.weight,
+        sex: meta.sex,
+        ethnicity: meta.ethnicity,
+        primaryLanguage: meta.primary_language || meta.primaryLanguage,
+        emergencyContact: meta.emergency_contact || meta.emergencyContact,
+        address: meta.address,
+        allergies: meta.allergies,
+        medicalConditions: meta.medical_conditions,
+      };
+      const metaHasDemo = Object.values(metaDemo).some(v => v !== undefined && v !== null && v !== '');
+      if (!dbHasDemo && metaHasDemo) {
+        // Non-blocking; let backend upsert user_demographics
+        authedFetch('/api/supabase-auth/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(metaDemo)
+        }).catch(() => {});
+      }
+    } catch {}
+    
     console.log('🔧 buildUserProfile result:', {
       firstName: profile.firstName,
       lastName: profile.lastName,

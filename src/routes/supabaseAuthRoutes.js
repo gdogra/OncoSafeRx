@@ -80,6 +80,46 @@ router.get('/profile',
             .eq('user_id', user.id)
             .maybeSingle();
           demographicsRow = demoRow || null;
+
+          // Write-through: if demographics table is empty but auth metadata has values, upsert for consistency
+          try {
+            if (!demographicsRow) {
+              const um = user.supabaseUser?.user_metadata || {};
+              const hasDemo = (
+                um.age !== undefined || um.date_of_birth !== undefined || um.height !== undefined ||
+                um.weight !== undefined || um.sex !== undefined || um.ethnicity !== undefined ||
+                um.primary_language !== undefined || um.emergency_contact !== undefined || um.address !== undefined ||
+                um.allergies !== undefined || um.medical_conditions !== undefined
+              );
+              if (hasDemo) {
+                const demographicsData = {
+                  user_id: user.id,
+                  ...(um.age !== undefined && { age: um.age }),
+                  ...(um.date_of_birth !== undefined && { date_of_birth: um.date_of_birth }),
+                  ...(um.height !== undefined && { height: um.height }),
+                  ...(um.weight !== undefined && { weight: um.weight }),
+                  ...(um.sex !== undefined && { sex: um.sex }),
+                  ...(um.ethnicity !== undefined && { ethnicity: um.ethnicity }),
+                  ...(um.primary_language !== undefined && { primary_language: um.primary_language }),
+                  ...(um.emergency_contact !== undefined && { emergency_contact: um.emergency_contact }),
+                  ...(um.address !== undefined && { address: um.address }),
+                  ...(um.allergies !== undefined && { allergies: um.allergies }),
+                  ...(um.medical_conditions !== undefined && { medical_conditions: um.medical_conditions }),
+                };
+                const { error: demoErr } = await admin
+                  .from('user_demographics')
+                  .upsert(demographicsData, { onConflict: 'user_id' });
+                if (!demoErr) {
+                  const { data: refreshedDemo } = await admin
+                    .from('user_demographics')
+                    .select('age,date_of_birth,height,weight,sex,ethnicity,primary_language,emergency_contact,address,allergies,medical_conditions')
+                    .eq('user_id', user.id)
+                    .maybeSingle();
+                  demographicsRow = refreshedDemo || demographicsRow;
+                }
+              }
+            }
+          } catch {}
         }
       } catch {}
 
@@ -943,6 +983,9 @@ router.post('/proxy/signup-full', requireProxyEnabled, checkAllowedOrigin, proxy
     }
   }
 
+  // Use a single response holder for both branches
+  let body;
+
   // Optional forced admin path (env-controlled) to bypass upstream failures entirely
   if (AUTH_PROXY_FORCE_ADMIN_SIGNUP) {
     const adminResult = await adminCreateAndGrant();
@@ -951,7 +994,7 @@ router.post('/proxy/signup-full', requireProxyEnabled, checkAllowedOrigin, proxy
       return res.status(500).json({ error: 'Signup failed', code: 'supabase_error', details: adminResult.error, stage: adminResult.stage });
     }
     // Continue with profile creation below using `body` shape
-    var body = adminResult; // eslint-disable-line
+    body = adminResult;
   } else {
   const endpoint = `${url}/auth/v1/signup`;
   let resp;
@@ -970,7 +1013,7 @@ router.post('/proxy/signup-full', requireProxyEnabled, checkAllowedOrigin, proxy
     resp = null;
   }
 
-  let body = resp ? await resp.json().catch(() => ({})) : {};
+  body = resp ? await resp.json().catch(() => ({})) : {};
   if (!resp || !resp.ok) {
     // Fallback: create user via admin with email_confirm=true (bypass email send failures)
     const adminResult = await adminCreateAndGrant();

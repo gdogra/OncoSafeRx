@@ -54,6 +54,24 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
   const [loading, setLoading] = useState(false);
   const [selectedSeverity, setSelectedSeverity] = useState<string>('all');
   const [selectedEvidence, setSelectedEvidence] = useState<string>('all');
+  // Weight unit toggle with local persistence
+  const [weightUnit, setWeightUnit] = useState<'kg' | 'lb'>(() => {
+    try {
+      const saved = localStorage.getItem('osrx_weight_unit');
+      if (saved === 'kg' || saved === 'lb') return saved;
+    } catch {}
+    return 'kg';
+  });
+  useEffect(() => {
+    try { localStorage.setItem('osrx_weight_unit', weightUnit); } catch {}
+  }, [weightUnit]);
+
+  const displayWeight = (w?: number) => {
+    if (typeof w !== 'number' || isNaN(w)) return null;
+    if (weightUnit === 'kg') return `${w} kg`;
+    const lbs = Math.round(w * 2.20462262);
+    return `${lbs} lb`;
+  };
 
   useEffect(() => {
     const run = async () => {
@@ -464,9 +482,23 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
       {/* Patient Profile Considerations */}
       {patientProfile && (
         <Card>
-          <div className="flex items-center space-x-2 mb-4">
-            <Users className="w-5 h-5 text-primary-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Patient-Specific Considerations</h3>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <Users className="w-5 h-5 text-primary-600" />
+              <h3 className="text-lg font-semibold text-gray-900">Patient-Specific Considerations</h3>
+            </div>
+            <div className="text-sm text-gray-700 flex items-center space-x-2">
+              <span>Weight units:</span>
+              <select
+                aria-label="Weight units"
+                className="border border-gray-300 rounded px-2 py-1 text-sm"
+                value={weightUnit}
+                onChange={e => setWeightUnit(e.target.value as 'kg' | 'lb')}
+              >
+                <option value="kg">kg</option>
+                <option value="lb">lb</option>
+              </select>
+            </div>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
             <div>
@@ -478,7 +510,7 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
                   <div className="text-gray-500 italic">Age not provided</div>
                 )}
                 {patientProfile.weight ? (
-                  <div>Weight: {patientProfile.weight} kg</div>
+                  <div>Weight: {displayWeight(patientProfile.weight)}</div>
                 ) : (
                   <div className="text-gray-500 italic">Weight not provided</div>
                 )}

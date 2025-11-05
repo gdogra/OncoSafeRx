@@ -912,7 +912,8 @@ export class SupabaseAuthService {
               preferences: u.preferences,
               persona: u.persona,
             };
-            if (!role && u.role) role = u.role;
+            // Prefer server-reported role (source of truth)
+            role = u.role || role;
           }
         }
       } catch {}
@@ -930,7 +931,8 @@ export class SupabaseAuthService {
           try {
             const full = await supabase
               .from('users')
-              .select('id,email,role,first_name,last_name,specialty,institution,license_number,preferences,created_at,age,weight,sex,address')
+              // Only select columns that exist in public.users to avoid 400 errors
+              .select('id,email,role,first_name,last_name,specialty,institution,license_number,years_experience,preferences,persona,created_at')
               .eq('id', user.id)
               .maybeSingle();
             userData = full.data; error = full.error;

@@ -45,7 +45,7 @@ router.get('/profile',
             const payload = {
               id: user.id,
               email: user.email || null,
-              role: meta.role || 'oncologist',
+              role: meta.role || 'patient',
               first_name: meta.first_name || (user.email ? String(user.email).split('@')[0] : ''),
               last_name: meta.last_name || '',
               created_at: new Date().toISOString(),
@@ -65,7 +65,7 @@ router.get('/profile',
           const admin = createClient(getEnv('SUPABASE_URL'), getEnv('SUPABASE_SERVICE_ROLE_KEY'));
           const { data: row } = await admin
             .from('users')
-            .select('first_name,last_name,role,specialty,institution,license_number,years_experience,preferences,persona')
+            .select('first_name,last_name,role,specialty,institution,license_number,years_experience,preferences,persona,age,weight,sex,address')
             .eq('id', user.id)
             .maybeSingle();
           dbRow = row || null;
@@ -73,44 +73,50 @@ router.get('/profile',
       } catch {}
 
       const meta = user.supabaseUser?.user_metadata || {};
+      const finalRole = (dbRow?.role) || user.role || meta.role || 'patient';
       const responseUser = {
-        id: user.id,
-        email: user.email,
-        firstName: meta.first_name || dbRow?.first_name || '',
-        lastName: meta.last_name || dbRow?.last_name || '',
-        role: user.role || dbRow?.role,
-        specialty: meta.specialty || dbRow?.specialty || '',
-        institution: meta.institution || dbRow?.institution || '',
-        licenseNumber: meta.license_number || dbRow?.license_number || '',
-        yearsExperience: meta.years_experience || dbRow?.years_experience || 0,
-        preferences: meta.preferences || dbRow?.preferences || {
-            theme: 'light',
-            language: 'en',
-            notifications: {
-              email: true,
+          id: user.id,
+          email: user.email,
+          firstName: meta.first_name || dbRow?.first_name || '',
+          lastName: meta.last_name || dbRow?.last_name || '',
+          role: finalRole,
+          specialty: meta.specialty || dbRow?.specialty || '',
+          institution: meta.institution || dbRow?.institution || '',
+          licenseNumber: meta.license_number || dbRow?.license_number || '',
+          yearsExperience: meta.years_experience || dbRow?.years_experience || 0,
+          // Demographics (new)
+          age: meta.age ?? dbRow?.age ?? null,
+          weight: meta.weight ?? dbRow?.weight ?? null,
+          sex: meta.sex ?? dbRow?.sex ?? null,
+          address: meta.address ?? dbRow?.address ?? null,
+          preferences: meta.preferences || dbRow?.preferences || {
+              theme: 'light',
+              language: 'en',
+              notifications: {
+                email: true,
               push: true,
               criticalAlerts: true,
               weeklyReports: true,
-            },
-            dashboard: {
-              defaultView: 'overview',
-              refreshInterval: 5000,
-              compactMode: false,
-            },
-            clinical: {
-              showGenomicsByDefault: (user.role || dbRow?.role) === 'oncologist' || (user.role || dbRow?.role) === 'pharmacist',
-              autoCalculateDosing: (user.role || dbRow?.role) === 'oncologist' || (user.role || dbRow?.role) === 'pharmacist',
+              },
+              dashboard: {
+                defaultView: 'overview',
+                refreshInterval: 5000,
+                compactMode: false,
+              },
+              clinical: {
+              showGenomicsByDefault: finalRole === 'oncologist' || finalRole === 'pharmacist',
+              autoCalculateDosing: finalRole === 'oncologist' || finalRole === 'pharmacist',
               requireInteractionAck: true,
               showPatientPhotos: false,
-            },
+              },
           },
         persona: meta.persona || dbRow?.persona || {
             id: `persona-${Date.now()}`,
-            name: getDefaultPersonaName(user.role || dbRow?.role),
-            description: getDefaultPersonaDescription(user.role || dbRow?.role),
-            role: user.role || dbRow?.role,
+            name: getDefaultPersonaName(finalRole),
+            description: getDefaultPersonaDescription(finalRole),
+            role: finalRole,
             experienceLevel: 'intermediate',
-            specialties: getDefaultSpecialties(user.role),
+            specialties: getDefaultSpecialties(finalRole),
             preferences: {
               riskTolerance: 'moderate',
               alertSensitivity: 'medium',
@@ -1306,7 +1312,7 @@ router.post('/backfill/profiles', asyncHandler(async (req, res) => {
         total++;
         const email = u.email || null;
         const meta = u.user_metadata || {};
-        const role = meta.role || 'oncologist';
+        const role = meta.role || 'patient';
         const names = deriveNames(email, meta);
         // Check if profile exists
         const { data: existing } = await admin
@@ -1447,7 +1453,7 @@ router.post('/admin/create-user', asyncHandler(async (req, res) => {
     const payload = {
       id: userId,
       email,
-      role: metadata.role || 'oncologist',
+      role: metadata.role || 'patient',
       first_name: names.first,
       last_name: names.last,
       created_at: new Date().toISOString()
@@ -1512,7 +1518,7 @@ router.post('/admin/link-user', asyncHandler(async (req, res) => {
     const payload = {
       id: authUser.id,
       email,
-      role: authUser.user_metadata?.role || 'oncologist',
+      role: authUser.user_metadata?.role || 'patient',
       first_name: authUser.user_metadata?.first_name || (email.split('@')[0]),
       last_name: authUser.user_metadata?.last_name || 'User',
       created_at: new Date().toISOString()

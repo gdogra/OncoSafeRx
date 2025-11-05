@@ -15,6 +15,7 @@ import Breadcrumbs from '../UI/Breadcrumbs';
 import { useSelection } from '../../context/SelectionContext';
 import { usePatient } from '../../context/PatientContext';
 import { useAuth } from '../../context/AuthContext';
+import { SupabaseAuthService } from '../../services/authService';
 import { patientService } from '../../services/patientService';
 import { getDisplayPatient, calculateAgeFromDOB, getConditionNames } from '../../utils/patientDisplay';
 
@@ -115,6 +116,21 @@ const InteractionCheckerInner: React.FC = () => {
       setSelectedDrugs(selection.selectedDrugs);
     }
   }, [selectedDrugs.length, selection.selectedDrugs]);
+
+  // Force-refresh auth profile on page load to avoid stale demographics
+  useEffect(() => {
+    (async () => {
+      try {
+        const fresh = await SupabaseAuthService.getCurrentUser(true);
+        if (fresh) {
+          try { localStorage.setItem('osrx_user_profile', JSON.stringify(fresh)); } catch {}
+          try { actions.updateProfile(fresh as any); } catch {}
+        }
+      } catch {}
+    })();
+    // Run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Handle URL drug parameter
   useEffect(() => {

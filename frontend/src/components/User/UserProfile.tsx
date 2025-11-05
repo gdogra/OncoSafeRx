@@ -790,9 +790,13 @@ const UserProfile: React.FC = () => {
                       type="number"
                       min="50"
                       max="250"
-                      step="0.1"
+                      step="1"
                       value={isEditing ? editedUser.height || '' : user.height || ''}
-                      onChange={(e) => setEditedUser(prev => ({ ...prev, height: parseFloat(e.target.value) || undefined }))}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        const n = v === '' ? undefined : Number(v);
+                        setEditedUser(prev => ({ ...prev, height: Number.isFinite(n as number) ? (n as number) : undefined }))
+                      }}
                       disabled={!isEditing}
                       className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
                       placeholder="Enter height in cm"

@@ -1006,40 +1006,43 @@ router.post('/proxy/signup-full', requireProxyEnabled, checkAllowedOrigin, proxy
         } else {
           profileCreated = true;
           console.log('[auth-proxy] Successfully created user profile for:', email, 'with role:', role);
-          // Also upsert demographics if provided in metadata
-          try {
-            const hasDemo = (
-              um.age !== undefined || um.date_of_birth !== undefined || um.height !== undefined ||
-              um.weight !== undefined || um.sex !== undefined || um.ethnicity !== undefined ||
-              um.primary_language !== undefined || um.emergency_contact !== undefined || um.address !== undefined
-            );
-            if (hasDemo) {
-              const demographicsData = {
-                user_id: body.user.id,
-                ...(um.age !== undefined && { age: um.age }),
-                ...(um.date_of_birth !== undefined && { date_of_birth: um.date_of_birth }),
-                ...(um.height !== undefined && { height: um.height }),
-                ...(um.weight !== undefined && { weight: um.weight }),
-                ...(um.sex !== undefined && { sex: um.sex }),
-                ...(um.ethnicity !== undefined && { ethnicity: um.ethnicity }),
-                ...(um.primary_language !== undefined && { primary_language: um.primary_language }),
-                ...(um.emergency_contact !== undefined && { emergency_contact: um.emergency_contact }),
-                ...(um.address !== undefined && { address: um.address })
-              };
-              const { error: demoErr } = await admin.from('user_demographics').upsert(demographicsData, { onConflict: 'user_id' });
-              if (demoErr) {
-                console.warn('[auth-proxy] Failed to upsert demographics on signup:', demoErr?.message || demoErr);
-              } else {
-                console.log('[auth-proxy] Demographics upserted on signup for user:', body.user.id);
-              }
-            }
-          } catch (demoEx) {
-            console.warn('[auth-proxy] Exception upserting demographics on signup:', demoEx?.message || demoEx);
-          }
         }
       } else {
         profileCreated = true;
         console.log('[auth-proxy] User profile already exists for:', email);
+      }
+      // Always try demographics upsert regardless of users row state
+      try {
+        const hasDemo = (
+          um.age !== undefined || um.date_of_birth !== undefined || um.height !== undefined ||
+          um.weight !== undefined || um.sex !== undefined || um.ethnicity !== undefined ||
+          um.primary_language !== undefined || um.emergency_contact !== undefined || um.address !== undefined ||
+          um.allergies !== undefined || um.medical_conditions !== undefined
+        );
+        if (hasDemo) {
+          const demographicsData = {
+            user_id: body.user.id,
+            ...(um.age !== undefined && { age: um.age }),
+            ...(um.date_of_birth !== undefined && { date_of_birth: um.date_of_birth }),
+            ...(um.height !== undefined && { height: um.height }),
+            ...(um.weight !== undefined && { weight: um.weight }),
+            ...(um.sex !== undefined && { sex: um.sex }),
+            ...(um.ethnicity !== undefined && { ethnicity: um.ethnicity }),
+            ...(um.primary_language !== undefined && { primary_language: um.primary_language }),
+            ...(um.emergency_contact !== undefined && { emergency_contact: um.emergency_contact }),
+            ...(um.address !== undefined && { address: um.address }),
+            ...(um.allergies !== undefined && { allergies: um.allergies }),
+            ...(um.medical_conditions !== undefined && { medical_conditions: um.medical_conditions }),
+          };
+          const { error: demoErr } = await admin.from('user_demographics').upsert(demographicsData, { onConflict: 'user_id' });
+          if (demoErr) {
+            console.warn('[auth-proxy] Failed to upsert demographics on signup:', demoErr?.message || demoErr);
+          } else {
+            console.log('[auth-proxy] Demographics upserted on signup for user:', body.user.id);
+          }
+        }
+      } catch (demoEx) {
+        console.warn('[auth-proxy] Exception upserting demographics on signup:', demoEx?.message || demoEx);
       }
     } else {
       if (!service) console.warn('[auth-proxy] Skipping profile creation: missing service role key');

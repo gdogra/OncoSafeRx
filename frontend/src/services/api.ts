@@ -205,22 +205,20 @@ export const interactionService = {
       // Backend expects an array of RXCUI strings
       const rxcuis = (drugs || []).map(d => String(d.rxcui)).filter(Boolean);
       
-      // Try direct backend first (bypass proxy issues), then proxy as fallback
+      // Use relative proxy path first; if not available, try enhanced path
       let response;
       try {
-        const directResponse = await fetch('https://oncosaferx-backend.onrender.com/api/interactions/check', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ drugs: rxcuis })
-        });
-        if (!directResponse.ok) {
-          throw new Error(`Direct backend call failed: ${directResponse.status}`);
-        }
-        response = { data: await directResponse.json() };
-      } catch (directError: any) {
-        console.log('Direct backend failed, trying proxy...', directError?.message || directError);
-        // Fallback to proxy
         response = await api.post('/interactions/check', { drugs: rxcuis });
+      } catch (primaryErr: any) {
+        if (primaryErr?.response?.status === 404) {
+          try {
+            response = await api.post('/interactions/enhanced/check', { drugs: rxcuis });
+          } catch (enhErr: any) {
+            throw enhErr;
+          }
+        } else {
+          throw primaryErr;
+        }
       }
       // Normalize severities for consistent UI grouping
       const data = response.data || { interactions: { stored: [], external: [] } };
@@ -236,12 +234,8 @@ export const interactionService = {
       }
       return data;
     } catch (error: any) {
-      // Handle 502 Bad Gateway errors from Netlify proxy
-      if (error.response?.status === 502) {
-        console.warn(`502 Bad Gateway for interaction check, API temporarily unavailable`);
-      }
-      console.log('API Error:', error.response?.status, error.message);
-      if (error.response?.status === 404 || error.response?.status === 400) {
+      // Quietly fallback on 404/400/502
+      if (error.response?.status === 404 || error.response?.status === 400 || error.response?.status === 502) {
         // Fallback to curated known interactions by drug name pairs
         try {
           const pairs: Array<{ a: string; b: string }> = [];

@@ -1110,10 +1110,9 @@ const AuthPage: React.FC = () => {
                       
                       {heightUnit === 'cm' ? (
                         <input
-                          type="number"
-                          min="50"
-                          max="250"
-                          step="1"
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
                           value={signupData.height || ''}
                           onChange={(e) => handleInputChange('height', e.target.value)}
                           className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"

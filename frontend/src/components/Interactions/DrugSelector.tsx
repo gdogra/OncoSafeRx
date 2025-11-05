@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Drug, DrugSearchResult } from '../../types';
 import { drugService } from '../../services/api';
 import DrugSearchBar from '../DrugSearch/DrugSearchBar';
@@ -10,18 +10,28 @@ interface DrugSelectorProps {
   onDrugSelect: (drug: Drug) => void;
 }
 
-// Common drug shortcuts for quick access
+// Common drug shortcuts for quick access - including Indian medications
 const drugShortcuts = [
   { term: 'aspirin', label: 'Aspirin', category: 'Pain Relief' },
+  { term: 'crocin', label: 'Crocin', category: 'Pain Relief (IN)' },
+  { term: 'brufen', label: 'Brufen', category: 'Pain Relief (IN)' },
   { term: 'ibuprofen', label: 'Ibuprofen', category: 'Pain Relief' },
   { term: 'warfarin', label: 'Warfarin', category: 'Anticoagulant' },
   { term: 'metformin', label: 'Metformin', category: 'Diabetes' },
+  { term: 'glycomet', label: 'Glycomet', category: 'Diabetes (IN)' },
   { term: 'atorvastatin', label: 'Atorvastatin', category: 'Cholesterol' },
+  { term: 'atorva', label: 'Atorva', category: 'Cholesterol (IN)' },
   { term: 'omeprazole', label: 'Omeprazole', category: 'Acid Reducer' },
+  { term: 'omez', label: 'Omez', category: 'Acid Reducer (IN)' },
   { term: 'lisinopril', label: 'Lisinopril', category: 'Blood Pressure' },
+  { term: 'arkamin', label: 'Arkamin', category: 'Blood Pressure (IN)' },
+  { term: 'metpure', label: 'Metpure', category: 'Blood Pressure (IN)' },
   { term: 'amlodipine', label: 'Amlodipine', category: 'Blood Pressure' },
+  { term: 'cilicar', label: 'Cilicar', category: 'Blood Pressure (IN)' },
   { term: 'levothyroxine', label: 'Levothyroxine', category: 'Thyroid' },
-  { term: 'clopidogrel', label: 'Clopidogrel', category: 'Antiplatelet' },
+  { term: 'eltroxin', label: 'Eltroxin', category: 'Thyroid (IN)' },
+  { term: 'dytor', label: 'Dytor', category: 'Diuretic (IN)' },
+  { term: 'zolfresh', label: 'Zolfresh', category: 'Sleep (IN)' },
   { term: 'fluorouracil', label: 'Fluorouracil', category: 'Oncology' },
   { term: 'cisplatin', label: 'Cisplatin', category: 'Oncology' },
 ];
@@ -31,10 +41,14 @@ const DrugSelector: React.FC<DrugSelectorProps> = ({ onDrugSelect }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleSearch = useCallback(async (query: string) => {
     if (query.length < 2) {
-      setError('Please enter at least 2 characters');
+      setSearchResults(null);
+      setShowDropdown(false);
+      setError(null);
       return;
     }
 
@@ -44,27 +58,73 @@ const DrugSelector: React.FC<DrugSelectorProps> = ({ onDrugSelect }) => {
     try {
       const results = await drugService.searchDrugs(query);
       setSearchResults(results);
+      setShowDropdown(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to search drugs');
       setSearchResults(null);
+      setShowDropdown(false);
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // Debounced search for autocomplete
+  const handleInputChange = useCallback((value: string) => {
+    setSearchQuery(value);
+    
+    // Clear existing debounce
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    // Set up new debounced search
+    if (value.length >= 2) {
+      debounceRef.current = setTimeout(() => {
+        handleSearch(value);
+      }, 300); // 300ms debounce
+    } else {
+      setSearchResults(null);
+      setShowDropdown(false);
+      setError(null);
+    }
+  }, [handleSearch]);
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
+
   const handleDrugSelect = (drug: Drug) => {
     onDrugSelect(drug);
-    // Small delay to allow click event to complete before clearing
-    setTimeout(() => {
-      setSearchResults(null);
-      setSearchQuery('');
-    }, 150);
+    // Clear search and hide dropdown
+    setSearchResults(null);
+    setSearchQuery('');
+    setShowDropdown(false);
+    setError(null);
   };
 
   // Handle shortcut selection
   const handleShortcutClick = (term: string) => {
     setSearchQuery(term);
     handleSearch(term);
+  };
+
+  // Handle input focus
+  const handleInputFocus = () => {
+    if (searchResults && searchResults.count > 0) {
+      setShowDropdown(true);
+    }
+  };
+
+  // Handle input blur with delay to allow clicks
+  const handleInputBlur = () => {
+    setTimeout(() => {
+      setShowDropdown(false);
+    }, 200);
   };
 
   // Get drug type tooltip content

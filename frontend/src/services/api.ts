@@ -203,7 +203,30 @@ export const interactionService = {
     try {
       // Backend expects an array of RXCUI strings
       const rxcuis = (drugs || []).map(d => String(d.rxcui)).filter(Boolean);
-      const response = await api.post('/interactions/check', { drugs: rxcuis });
+      
+      // Try proxy first, then direct backend if proxy fails
+      let response;
+      try {
+        response = await api.post('/interactions/check', { drugs: rxcuis });
+      } catch (proxyError: any) {
+        if (proxyError.response?.status === 404) {
+          console.log('Proxy failed with 404, trying direct backend...');
+          // Direct call to backend as fallback
+          const directResponse = await fetch('https://oncosaferx-backend.onrender.com/api/interactions/check', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ drugs: rxcuis })
+          });
+          if (!directResponse.ok) {
+            throw new Error(`Direct backend call failed: ${directResponse.status}`);
+          }
+          response = { data: await directResponse.json() };
+        } else {
+          throw proxyError;
+        }
+      }
       // Normalize severities for consistent UI grouping
       const data = response.data || { interactions: { stored: [], external: [] } };
       const normalize = (s?: string) => {

@@ -24,7 +24,7 @@ router.get('/profile',
         user = {
           id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', // Default: Gautam
           email: 'gdogra@gmail.com',
-          role: 'oncologist',
+          role: 'patient',
           isDefault: true,
           supabaseUser: { user_metadata: {} }
         };
@@ -181,7 +181,7 @@ router.put('/profile',
         user = {
           id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', // Default: Gautam
           email: 'gdogra@gmail.com',
-          role: 'oncologist',
+          role: 'patient',
           isDefault: true,
           supabaseUser: { user_metadata: {} }
         };
@@ -380,7 +380,7 @@ router.post('/demo/profile', asyncHandler(async (req, res) => {
     }
 
     const admin = createClient(url, service);
-    const { id, email, role = 'oncologist', first_name, last_name } = req.body || {};
+    const { id, email, role = 'patient', first_name, last_name } = req.body || {};
     if (!id || !email) {
       return res.status(400).json({ error: 'Missing required fields: id, email' });
     }
@@ -454,7 +454,7 @@ router.post('/demo/reset', asyncHandler(async (req, res) => {
     const {
       id,
       email,
-      role = 'oncologist',
+      role = 'patient',
       first_name = 'Demo',
       last_name = 'Clinician',
       updateAuth = true,
@@ -1250,7 +1250,7 @@ router.post('/demo/session', async (req, res) => {
           id: userId,
           email: 'gdogra@gmail.com',
           user_metadata: {
-            role: 'oncologist',
+            role: 'patient',
             first_name: 'Gautam',
             last_name: 'Dogra'
           }
@@ -1259,7 +1259,7 @@ router.post('/demo/session', async (req, res) => {
       user: {
         id: userId,
         email: 'gdogra@gmail.com',
-        role: 'oncologist'
+        role: 'patient'
       }
     });
   } catch (error) {

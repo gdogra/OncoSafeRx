@@ -136,7 +136,7 @@ async function ensureUserRow(client, user) {
         email: user.email || null,
         first_name: (user.supabaseUser?.user_metadata?.first_name) || null,
         last_name: (user.supabaseUser?.user_metadata?.last_name) || null,
-        role: (user.supabaseUser?.user_metadata?.role) || 'oncologist',
+        role: (user.supabaseUser?.user_metadata?.role) || 'patient',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };

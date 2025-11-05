@@ -255,17 +255,6 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Load persisted data per user (and migrate old keys if found)
   useEffect(() => {
-    // CLEAR ALL CACHED PATIENT DATA for debugging hardcoded demographics
-    try {
-      const keys = Object.keys(localStorage).filter(key => 
-        key.includes('patient') || 
-        key.includes('osrx_current') || 
-        key.includes('osrx_recent') ||
-        key.includes('osrx_last')
-      );
-      keys.forEach(key => localStorage.removeItem(key));
-      console.log('🧹 Cleared cached patient data for debugging:', keys);
-    } catch {}
 
     try {
       const nsCurrent = localStorage.getItem(lsKey('current_patient'));
@@ -385,9 +374,6 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
           return;
         }
 
-        // FORCE DISABLE sample patients for debugging hardcoded demographics
-        console.log('🚫 Forcing sample patients disabled for demographics debugging');
-        return;
 
         // Add sample patients if API fails or returns no data
         const samplePatients: PatientProfile[] = [

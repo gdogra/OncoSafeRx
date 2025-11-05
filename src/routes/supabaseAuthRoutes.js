@@ -58,17 +58,28 @@ router.get('/profile',
         console.warn('⚠️ Failed to ensure users row:', ensureErr?.message || ensureErr);
       }
       
-      // Optionally load profile fields from public.users to supplement auth metadata
+      // Load profile fields from public.users and demographics from user_demographics
       let dbRow = null;
+      let demographicsRow = null;
       try {
         if (!user.isDefault && getEnv('SUPABASE_URL') && getEnv('SUPABASE_SERVICE_ROLE_KEY')) {
           const admin = createClient(getEnv('SUPABASE_URL'), getEnv('SUPABASE_SERVICE_ROLE_KEY'));
+          
+          // Get user profile data (excluding demographics)
           const { data: row } = await admin
             .from('users')
-            .select('first_name,last_name,role,specialty,institution,license_number,years_experience,preferences,persona,age,weight,sex,address')
+            .select('first_name,last_name,role,specialty,institution,license_number,years_experience,preferences,persona')
             .eq('id', user.id)
             .maybeSingle();
           dbRow = row || null;
+          
+          // Get demographics data from separate table
+          const { data: demoRow } = await admin
+            .from('user_demographics')
+            .select('age,weight,height,sex,address,allergies,medical_conditions')
+            .eq('user_id', user.id)
+            .maybeSingle();
+          demographicsRow = demoRow || null;
         }
       } catch {}
 
@@ -84,11 +95,14 @@ router.get('/profile',
           institution: meta.institution || dbRow?.institution || '',
           licenseNumber: meta.license_number || dbRow?.license_number || '',
           yearsExperience: meta.years_experience || dbRow?.years_experience || 0,
-          // Demographics (new)
-          age: meta.age ?? dbRow?.age ?? null,
-          weight: meta.weight ?? dbRow?.weight ?? null,
-          sex: meta.sex ?? dbRow?.sex ?? null,
-          address: meta.address ?? dbRow?.address ?? null,
+          // Demographics from separate table
+          age: demographicsRow?.age ?? meta.age ?? null,
+          weight: demographicsRow?.weight ?? meta.weight ?? null,
+          height: demographicsRow?.height ?? meta.height ?? null,
+          sex: demographicsRow?.sex ?? meta.sex ?? null,
+          address: demographicsRow?.address ?? meta.address ?? null,
+          allergies: demographicsRow?.allergies ?? meta.allergies ?? null,
+          medicalConditions: demographicsRow?.medical_conditions ?? meta.medical_conditions ?? null,
           preferences: meta.preferences || dbRow?.preferences || {
               theme: 'light',
               language: 'en',
@@ -213,13 +227,15 @@ router.put('/profile',
       if (updates.preferences !== undefined) metadataUpdates.preferences = updates.preferences;
       if (updates.persona !== undefined) metadataUpdates.persona = updates.persona;
       if (updates.role !== undefined) metadataUpdates.role = updates.role;
-      // Demographics
+      // Demographics (still store in metadata for backwards compatibility)
       if (updates.age !== undefined) metadataUpdates.age = updates.age;
       if (updates.weight !== undefined) metadataUpdates.weight = updates.weight;
+      if (updates.height !== undefined) metadataUpdates.height = updates.height;
       if (updates.sex !== undefined) metadataUpdates.sex = updates.sex;
       if (updates.address !== undefined) metadataUpdates.address = updates.address;
       // Medical information
       if (updates.allergies !== undefined) metadataUpdates.allergies = updates.allergies;
+      if (updates.medicalConditions !== undefined) metadataUpdates.medical_conditions = updates.medicalConditions;
       
       // Update Supabase auth user metadata (skip for dev/gdogra users)
       let authError = null;
@@ -240,7 +256,7 @@ router.put('/profile',
         return res.status(500).json({ error: 'Failed to update profile: ' + authError.message });
       }
       
-      // Also update or create user profile in users table
+      // Update user profile in users table (non-demographics data)
       const userMetadata = user.supabaseUser?.user_metadata || {};
       const profileData = {
         id: user.id,
@@ -254,22 +270,45 @@ router.put('/profile',
         years_experience: updates.yearsExperience || userMetadata.years_experience || 0,
         preferences: updates.preferences || userMetadata.preferences || {},
         persona: updates.persona || userMetadata.persona || {},
-        // Demographics
-        age: updates.age !== undefined ? updates.age : userMetadata.age,
-        weight: updates.weight !== undefined ? updates.weight : userMetadata.weight,
-        sex: updates.sex !== undefined ? updates.sex : userMetadata.sex,
-        address: updates.address !== undefined ? updates.address : userMetadata.address,
-        // Medical information
-        allergies: updates.allergies !== undefined ? updates.allergies : userMetadata.allergies,
-        // Do not set updated_at explicitly to avoid schema mismatch on instances where column is absent
       };
       
       const { error: profileError } = await admin.from('users').upsert(profileData, { onConflict: 'id' });
+      
+      // Update demographics in separate table if any demographics fields are provided
+      const hasDemographicsUpdates = updates.age !== undefined || 
+                                     updates.weight !== undefined || 
+                                     updates.height !== undefined ||
+                                     updates.sex !== undefined || 
+                                     updates.address !== undefined ||
+                                     updates.allergies !== undefined ||
+                                     updates.medicalConditions !== undefined;
+      
+      let demographicsError = null;
+      if (hasDemographicsUpdates) {
+        const demographicsData = {
+          user_id: user.id,
+          ...(updates.age !== undefined && { age: updates.age }),
+          ...(updates.weight !== undefined && { weight: updates.weight }),
+          ...(updates.height !== undefined && { height: updates.height }),
+          ...(updates.sex !== undefined && { sex: updates.sex }),
+          ...(updates.address !== undefined && { address: updates.address }),
+          ...(updates.allergies !== undefined && { allergies: updates.allergies }),
+          ...(updates.medicalConditions !== undefined && { medical_conditions: updates.medicalConditions }),
+        };
+        
+        const { error: demoError } = await admin.from('user_demographics').upsert(demographicsData, { onConflict: 'user_id' });
+        demographicsError = demoError;
+      }
       
       if (profileError) {
         console.error('❌ Failed to update profile table:', profileError);
         // Don't fail the request if the table update fails, as auth metadata was updated
         console.warn('⚠️ Profile table update failed, but auth metadata was updated successfully');
+      }
+      
+      if (demographicsError) {
+        console.error('❌ Failed to update demographics table:', demographicsError);
+        console.warn('⚠️ Demographics table update failed, but other profile data was updated successfully');
       }
       
       console.log('✅ Profile updated successfully for user:', user.id);

@@ -936,21 +936,39 @@ export class SupabaseAuthService {
             userData = full.data; error = full.error;
             
             if (error) {
-              console.warn('🔍 Full user query failed:', error.message);
-              if (/column/i.test(error.message)) {
-                // Column mismatch, fall back to minimal selection
-                console.log('🔄 Falling back to minimal user selection...');
+              console.warn('🔍 Full user query failed:', error.message, error);
+              // Always fall back to minimal selection for any database error
+              console.log('🔄 Falling back to minimal user selection...');
+              try {
                 const minimal = await supabase
                   .from('users')
                   .select('id,email,role,first_name,last_name')
                   .eq('id', user.id)
                   .maybeSingle();
                 userData = minimal.data; error = minimal.error;
+                if (!error && userData) {
+                  console.log('✅ Minimal user query succeeded');
+                }
+              } catch (minimalError: any) {
+                console.warn('🔍 Even minimal user query failed:', minimalError.message);
+                error = minimalError;
               }
             }
           } catch (e: any) {
             console.warn('🔍 User table query failed:', e.message);
-            error = e;
+            // Try minimal query as last resort
+            try {
+              console.log('🔄 Attempting minimal user query as last resort...');
+              const minimal = await supabase
+                .from('users')
+                .select('id,email,role,first_name,last_name')
+                .eq('id', user.id)
+                .maybeSingle();
+              userData = minimal.data; error = minimal.error;
+            } catch (finalError: any) {
+              console.warn('🔍 All user queries failed:', finalError.message);
+              error = finalError;
+            }
           }
           
           if (!error && userData && !dbProfile) {

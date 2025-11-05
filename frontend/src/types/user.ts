@@ -107,8 +107,13 @@ export interface SignupData {
   yearsExperience?: number;
   // Demographics (age only required for patients)
   age?: number; // Required for patients, optional for others
+  dateOfBirth?: string; // ISO date string
+  height?: number; // Height in cm
   weight?: number; // Weight in kg
   sex?: 'male' | 'female' | 'other' | 'prefer-not-to-say';
+  ethnicity?: string;
+  primaryLanguage?: string;
+  emergencyContact?: string;
   address?: {
     street?: string;
     city?: string;

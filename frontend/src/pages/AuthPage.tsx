@@ -392,8 +392,8 @@ const AuthPage: React.FC = () => {
           };
         }
         
-        // Handle weight as float
-        if (field === 'weight') {
+        // Handle weight and height as float
+        if (field === 'weight' || field === 'height') {
           return {
             ...prev,
             [field]: value ? parseFloat(value) : undefined
@@ -427,8 +427,13 @@ const AuthPage: React.FC = () => {
       licenseNumber: '',
       yearsExperience: undefined,
       age: undefined,
+      dateOfBirth: undefined,
+      height: undefined,
       weight: undefined,
       sex: undefined,
+      ethnicity: undefined,
+      primaryLanguage: undefined,
+      emergencyContact: undefined,
       address: {
         street: '',
         city: '',
@@ -1026,6 +1031,42 @@ const AuthPage: React.FC = () => {
                       )}
                     </div>
 
+                    {/* Date of Birth */}
+                    <div>
+                      <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">
+                        Date of Birth
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          id="dateOfBirth"
+                          type="date"
+                          value={signupData.dateOfBirth || ''}
+                          onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Height */}
+                    <div>
+                      <label htmlFor="height" className="block text-sm font-medium text-gray-700">
+                        Height (cm)
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          id="height"
+                          type="number"
+                          min="50"
+                          max="250"
+                          step="0.1"
+                          value={signupData.height || ''}
+                          onChange={(e) => handleInputChange('height', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="Enter your height in cm"
+                        />
+                      </div>
+                    </div>
+
                     {/* Weight */}
                     <div>
                       <label htmlFor="weight" className="block text-sm font-medium text-gray-700">
@@ -1041,7 +1082,7 @@ const AuthPage: React.FC = () => {
                           value={signupData.weight || ''}
                           onChange={(e) => handleInputChange('weight', e.target.value)}
                           className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                          placeholder="Enter your weight"
+                          placeholder="Enter your weight in kg"
                         />
                       </div>
                       {errors.weight && (
@@ -1067,6 +1108,66 @@ const AuthPage: React.FC = () => {
                           <option value="other">Other</option>
                           <option value="prefer-not-to-say">Prefer not to say</option>
                         </select>
+                      </div>
+                    </div>
+
+                    {/* Ethnicity */}
+                    <div>
+                      <label htmlFor="ethnicity" className="block text-sm font-medium text-gray-700">
+                        Ethnicity
+                      </label>
+                      <div className="mt-1">
+                        <select
+                          id="ethnicity"
+                          value={signupData.ethnicity || ''}
+                          onChange={(e) => handleInputChange('ethnicity', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        >
+                          <option value="">Select...</option>
+                          <option value="asian">Asian</option>
+                          <option value="black">Black or African American</option>
+                          <option value="hispanic">Hispanic or Latino</option>
+                          <option value="native-american">Native American</option>
+                          <option value="pacific-islander">Pacific Islander</option>
+                          <option value="white">White</option>
+                          <option value="mixed">Mixed/Multiple</option>
+                          <option value="other">Other</option>
+                          <option value="prefer-not-to-say">Prefer not to say</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Primary Language */}
+                    <div>
+                      <label htmlFor="primaryLanguage" className="block text-sm font-medium text-gray-700">
+                        Primary Language
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          id="primaryLanguage"
+                          type="text"
+                          value={signupData.primaryLanguage || ''}
+                          onChange={(e) => handleInputChange('primaryLanguage', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="e.g., English, Spanish"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Emergency Contact */}
+                    <div>
+                      <label htmlFor="emergencyContact" className="block text-sm font-medium text-gray-700">
+                        Emergency Contact
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          id="emergencyContact"
+                          type="text"
+                          value={signupData.emergencyContact || ''}
+                          onChange={(e) => handleInputChange('emergencyContact', e.target.value)}
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="Name and phone number"
+                        />
                       </div>
                     </div>
 

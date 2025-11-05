@@ -4,6 +4,8 @@ import './index.css';
 import NoAuthApp from './NoAuthApp';
 import ErrorBoundary from './components/System/ErrorBoundary';
 import reportWebVitals from './reportWebVitals';
+// Global image fallback handlers (e.g., Gravatar 404 → identicon)
+import './utils/imageFallback';
 // Silence debug logging in production (keep warn/error)
 try {
   if ((import.meta as any)?.env?.MODE === 'production') {

@@ -803,9 +803,9 @@ const UserProfile: React.FC = () => {
                   ) : (
                     <div className="flex gap-2">
                       <input
-                        type="number"
-                        min="3"
-                        max="8"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={
                           isEditing && editedUser.height 
                             ? (convertHeight(editedUser.height, 'ft-in') as {feet: number, inches: number}).feet
@@ -814,7 +814,8 @@ const UserProfile: React.FC = () => {
                               : ''
                         }
                         onChange={(e) => {
-                          const feet = parseInt(e.target.value) || 0;
+                          const raw = String(e.target.value || '').replace(/\D/g, '');
+                          const feet = parseInt(raw) || 0;
                           const inches = isEditing && editedUser.height 
                             ? (convertHeight(editedUser.height, 'ft-in') as {feet: number, inches: number}).inches
                             : user.height 
@@ -828,9 +829,9 @@ const UserProfile: React.FC = () => {
                         placeholder="ft"
                       />
                       <input
-                        type="number"
-                        min="0"
-                        max="11"
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={
                           isEditing && editedUser.height 
                             ? (convertHeight(editedUser.height, 'ft-in') as {feet: number, inches: number}).inches
@@ -839,7 +840,8 @@ const UserProfile: React.FC = () => {
                               : ''
                         }
                         onChange={(e) => {
-                          const inches = parseInt(e.target.value) || 0;
+                          const raw = String(e.target.value || '').replace(/\D/g, '');
+                          const inches = parseInt(raw) || 0;
                           const feet = isEditing && editedUser.height 
                             ? (convertHeight(editedUser.height, 'ft-in') as {feet: number, inches: number}).feet
                             : user.height 

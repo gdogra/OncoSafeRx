@@ -1121,16 +1121,17 @@ const AuthPage: React.FC = () => {
                       ) : (
                         <div className="flex gap-2">
                           <input
-                            type="number"
-                            min="3"
-                            max="8"
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             value={
                               signupData.height 
                                 ? (convertHeight(signupData.height, 'ft-in') as {feet: number, inches: number}).feet
                                 : ''
                             }
                             onChange={(e) => {
-                              const feet = parseInt(e.target.value) || 0;
+                              const raw = String(e.target.value || '').replace(/\D/g, '');
+                              const feet = parseInt(raw) || 0;
                               const inches = signupData.height 
                                 ? (convertHeight(signupData.height, 'ft-in') as {feet: number, inches: number}).inches
                                 : 0;
@@ -1141,16 +1142,17 @@ const AuthPage: React.FC = () => {
                             placeholder="ft"
                           />
                           <input
-                            type="number"
-                            min="0"
-                            max="11"
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             value={
                               signupData.height 
                                 ? (convertHeight(signupData.height, 'ft-in') as {feet: number, inches: number}).inches
                                 : ''
                             }
                             onChange={(e) => {
-                              const inches = parseInt(e.target.value) || 0;
+                              const raw = String(e.target.value || '').replace(/\D/g, '');
+                              const inches = parseInt(raw) || 0;
                               const feet = signupData.height 
                                 ? (convertHeight(signupData.height, 'ft-in') as {feet: number, inches: number}).feet
                                 : 0;

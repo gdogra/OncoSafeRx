@@ -772,6 +772,67 @@ router.post('/proxy/signup', requireProxyEnabled, asyncHandler(async (req, res) 
         console.log('✅ OTP sent successfully to phone:', phone);
       }
 
+      // Ensure app profile row and demographics are created for this new user
+      try {
+        const um = (userData.user && userData.user.user_metadata) ? userData.user.user_metadata : (metadata || {});
+        const first = um.first_name || (email ? email.split('@')[0] : '');
+        const last = um.last_name || 'User';
+        const role = um.role || 'patient';
+
+        // Upsert users profile
+        try {
+          const payload = {
+            id: userData.user.id,
+            email,
+            role,
+            first_name: first,
+            last_name: last,
+            specialty: um.specialty || '',
+            institution: um.institution || '',
+            license_number: um.license_number || '',
+            years_experience: um.years_experience || 0,
+            preferences: um.preferences || {},
+            persona: um.persona || {},
+            created_at: new Date().toISOString()
+          };
+          await admin.from('users').upsert(payload, { onConflict: 'id' });
+        } catch (profileUpErr) {
+          console.warn('[auth-proxy] Profile upsert (phone) warning:', profileUpErr?.message || profileUpErr);
+        }
+
+        // Upsert demographics from metadata if present
+        try {
+          const hasDemo = (
+            um.age !== undefined || um.date_of_birth !== undefined || um.height !== undefined ||
+            um.weight !== undefined || um.sex !== undefined || um.ethnicity !== undefined ||
+            um.primary_language !== undefined || um.emergency_contact !== undefined || um.address !== undefined ||
+            um.allergies !== undefined || um.medical_conditions !== undefined
+          );
+          if (hasDemo) {
+            const demographicsData = {
+              user_id: userData.user.id,
+              ...(um.age !== undefined && { age: um.age }),
+              ...(um.date_of_birth !== undefined && { date_of_birth: um.date_of_birth }),
+              ...(um.height !== undefined && { height: um.height }),
+              ...(um.weight !== undefined && { weight: um.weight }),
+              ...(um.sex !== undefined && { sex: um.sex }),
+              ...(um.ethnicity !== undefined && { ethnicity: um.ethnicity }),
+              ...(um.primary_language !== undefined && { primary_language: um.primary_language }),
+              ...(um.emergency_contact !== undefined && { emergency_contact: um.emergency_contact }),
+              ...(um.address !== undefined && { address: um.address }),
+              ...(um.allergies !== undefined && { allergies: um.allergies }),
+              ...(um.medical_conditions !== undefined && { medical_conditions: um.medical_conditions }),
+            };
+            const { error: demoErr } = await admin.from('user_demographics').upsert(demographicsData, { onConflict: 'user_id' });
+            if (demoErr) console.warn('[auth-proxy] Demographics upsert (phone) warning:', demoErr?.message || demoErr);
+          }
+        } catch (demoEx) {
+          console.warn('[auth-proxy] Demographics upsert (phone) exception:', demoEx?.message || demoEx);
+        }
+      } catch (ensureEx) {
+        console.warn('[auth-proxy] Exception ensuring profile/demographics (phone):', ensureEx?.message || ensureEx);
+      }
+
       return res.json({
         message: 'User created, please verify your phone number with the OTP sent via SMS',
         user: userData.user,

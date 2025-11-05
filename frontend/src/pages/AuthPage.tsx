@@ -418,12 +418,14 @@ const AuthPage: React.FC = () => {
           };
         }
         
-        // Handle weight and height as float
-        if (field === 'weight' || field === 'height') {
-          return {
-            ...prev,
-            [field]: value ? parseFloat(value) : undefined
-          };
+        // Handle height and weight with tailored parsing
+        if (field === 'height') {
+          const n = value === '' ? undefined : (Number.isFinite(Number(value)) ? Math.round(parseFloat(value)) : undefined);
+          return { ...prev, height: n };
+        }
+        if (field === 'weight') {
+          const n = value === '' ? undefined : (Number.isFinite(Number(value)) ? parseFloat(value) : undefined);
+          return { ...prev, weight: n };
         }
         
         // Handle regular fields
@@ -1111,7 +1113,7 @@ const AuthPage: React.FC = () => {
                           type="number"
                           min="50"
                           max="250"
-                          step="0.1"
+                          step="1"
                           value={signupData.height || ''}
                           onChange={(e) => handleInputChange('height', e.target.value)}
                           className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"

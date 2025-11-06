@@ -294,7 +294,8 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
         // Try to fetch from patient API
         (async () => {
           try {
-            const API_BASE = import.meta.env.VITE_API_URL || '/api';
+            const RAW = import.meta.env.VITE_API_URL || '/api';
+            const API_BASE = /^https?:\/\//i.test(RAW) ? RAW : (RAW.startsWith('/') ? RAW : `/${RAW}`);
             const response = await fetch(`${API_BASE}/patients`);
           
           if (response.ok) {

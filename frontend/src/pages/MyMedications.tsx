@@ -39,7 +39,15 @@ const MyMedications: React.FC = () => {
 
   // API config and helpers
   const ENABLE_PATIENT_API = String((import.meta as any)?.env?.VITE_ENABLE_PATIENT_API || '').toLowerCase() === 'true';
-  const API_BASE = (import.meta as any)?.env?.VITE_API_URL || '/api';
+  const RAW_API_BASE = (import.meta as any)?.env?.VITE_API_URL || '/api';
+  const API_BASE = (() => {
+    try {
+      const s = String(RAW_API_BASE || '').trim();
+      if (!s) return '/api';
+      if (/^https?:\/\//i.test(s)) return s; // absolute URL
+      return s.startsWith('/') ? s : `/${s}`; // ensure leading slash for relative
+    } catch { return '/api'; }
+  })();
 
   const authHeaders = async (): Promise<Record<string, string> | null> => {
     try {

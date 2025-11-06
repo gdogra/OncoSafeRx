@@ -420,7 +420,8 @@ export class CollaborationService {
   // Fetch teams from API
   public async fetchTeams(specialty?: string): Promise<Team[]> {
     try {
-      const API_BASE = import.meta.env.VITE_API_URL || '/api';
+      const RAW = import.meta.env.VITE_API_URL || '/api';
+      const API_BASE = /^https?:\/\//i.test(RAW) ? RAW : (RAW.startsWith('/') ? RAW : `/${RAW}`);
       const params = new URLSearchParams();
       if (specialty) params.append('specialty', specialty);
       
@@ -439,7 +440,8 @@ export class CollaborationService {
   // Fetch tumor boards from API
   public async fetchTumorBoards(teamId?: string): Promise<TumorBoard[]> {
     try {
-      const API_BASE = import.meta.env.VITE_API_URL || '/api';
+      const RAW2 = import.meta.env.VITE_API_URL || '/api';
+      const API_BASE = /^https?:\/\//i.test(RAW2) ? RAW2 : (RAW2.startsWith('/') ? RAW2 : `/${RAW2}`);
       const params = new URLSearchParams();
       if (teamId) params.append('teamId', teamId);
       
@@ -458,7 +460,8 @@ export class CollaborationService {
   // Fetch clinical pathways from API
   public async fetchClinicalPathways(cancerType?: string): Promise<ClinicalPathway[]> {
     try {
-      const API_BASE = import.meta.env.VITE_API_URL || '/api';
+      const RAW3 = import.meta.env.VITE_API_URL || '/api';
+      const API_BASE = /^https?:\/\//i.test(RAW3) ? RAW3 : (RAW3.startsWith('/') ? RAW3 : `/${RAW3}`);
       const params = new URLSearchParams();
       if (cancerType) params.append('cancerType', cancerType);
       

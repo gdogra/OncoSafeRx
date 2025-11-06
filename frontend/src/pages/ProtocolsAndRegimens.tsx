@@ -138,7 +138,8 @@ const ProtocolsAndRegimens: React.FC = () => {
         setProtocolsLoading(true);
         setProtocolsError(null);
         
-        const API_BASE = import.meta.env.VITE_API_URL || '/api';
+        const RAW = import.meta.env.VITE_API_URL || '/api';
+        const API_BASE = /^https?:\/\//i.test(RAW) ? RAW : (RAW.startsWith('/') ? RAW : `/${RAW}`);
         const response = await fetch(`${API_BASE}/protocols`);
         
         if (!response.ok) {
@@ -166,7 +167,8 @@ const ProtocolsAndRegimens: React.FC = () => {
         setLoading(true);
         setError(null);
         
-        const API_BASE = import.meta.env.VITE_API_URL || '/api';
+        const RAW2 = import.meta.env.VITE_API_URL || '/api';
+        const API_BASE = /^https?:\/\//i.test(RAW2) ? RAW2 : (RAW2.startsWith('/') ? RAW2 : `/${RAW2}`);
         const response = await fetch(`${API_BASE}/regimens`);
         
         if (!response.ok) {

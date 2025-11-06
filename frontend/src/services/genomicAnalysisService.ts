@@ -259,7 +259,8 @@ export class GenomicAnalysisService {
     variants: GenomicVariant[]
   ): Promise<ClinicalTrial[]> {
     try {
-      const API_BASE = import.meta.env.VITE_API_URL || '/api';
+      const RAW = import.meta.env.VITE_API_URL || '/api';
+      const API_BASE = /^https?:\/\//i.test(RAW) ? RAW : (RAW.startsWith('/') ? RAW : `/${RAW}`);
       
       // Extract biomarkers from variants
       const biomarkers = variants.map(v => `${v.gene} ${v.variant}`);

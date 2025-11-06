@@ -162,7 +162,8 @@ export const useAdvancedSearch = () => {
     setState(prev => ({ ...prev, isLoading: true }));
 
     try {
-      const API_BASE = import.meta.env.VITE_API_URL || '/api';
+      const RAW = import.meta.env.VITE_API_URL || '/api';
+      const API_BASE = /^https?:\/\//i.test(RAW) ? RAW : (RAW.startsWith('/') ? RAW : `/${RAW}`);
       let results: Drug[] = [];
 
       if (state.query.trim()) {

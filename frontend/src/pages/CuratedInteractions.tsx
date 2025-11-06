@@ -27,6 +27,7 @@ const CuratedInteractions: React.FC = () => {
   const [drug, setDrug] = useState('');
   const [drugA, setDrugA] = useState('');
   const [drugB, setDrugB] = useState('');
+  const [brandMeta, setBrandMeta] = useState<{ drug?: string; drugA?: string; drugB?: string }>({});
   const [severity, setSeverity] = useState('');
   const [resolveRx, setResolveRx] = useState(true);
   const [results, setResults] = useState<{ count: number; total: number; interactions: KnownInteraction[] } | null>(null);
@@ -134,29 +135,50 @@ const CuratedInteractions: React.FC = () => {
           <div>
             <label className="block text-sm text-gray-700 mb-1">Drug</label>
             <EnhancedDrugSearchBar
-              onDrugSelect={(d) => setDrug(d.name)}
+              onDrugSelect={(d) => {
+                setDrug(d.name);
+                const ob = (d as any).originBrand; const reg = (d as any).originRegion;
+                setBrandMeta(prev => ({ ...prev, drug: ob ? `${ob}${reg ? ` (${reg})` : ''}` : undefined }));
+              }}
               placeholder="Search or select a drug (e.g., aspirin)"
               showTooltips={false}
               className="w-full"
             />
+            {brandMeta.drug && (
+              <div className="text-xs text-gray-600 mt-1">Brand: {brandMeta.drug}</div>
+            )}
           </div>
           <div>
             <label className="block text-sm text-gray-700 mb-1">Drug A</label>
             <EnhancedDrugSearchBar
-              onDrugSelect={(d) => setDrugA(d.name)}
+              onDrugSelect={(d) => {
+                setDrugA(d.name);
+                const ob = (d as any).originBrand; const reg = (d as any).originRegion;
+                setBrandMeta(prev => ({ ...prev, drugA: ob ? `${ob}${reg ? ` (${reg})` : ''}` : undefined }));
+              }}
               placeholder="Search or select Drug A"
               showTooltips={false}
               className="w-full"
             />
+            {brandMeta.drugA && (
+              <div className="text-xs text-gray-600 mt-1">Brand: {brandMeta.drugA}</div>
+            )}
           </div>
           <div>
             <label className="block text-sm text-gray-700 mb-1">Drug B</label>
             <EnhancedDrugSearchBar
-              onDrugSelect={(d) => setDrugB(d.name)}
+              onDrugSelect={(d) => {
+                setDrugB(d.name);
+                const ob = (d as any).originBrand; const reg = (d as any).originRegion;
+                setBrandMeta(prev => ({ ...prev, drugB: ob ? `${ob}${reg ? ` (${reg})` : ''}` : undefined }));
+              }}
               placeholder="Search or select Drug B"
               showTooltips={false}
               className="w-full"
             />
+            {brandMeta.drugB && (
+              <div className="text-xs text-gray-600 mt-1">Brand: {brandMeta.drugB}</div>
+            )}
           </div>
           <div>
             <label className="block text-sm text-gray-700 mb-1">Severity</label>

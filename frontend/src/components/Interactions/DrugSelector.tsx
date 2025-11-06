@@ -239,6 +239,11 @@ const DrugSelector: React.FC<DrugSelectorProps> = ({ onDrugSelect }) => {
                         <p className="text-sm font-medium text-gray-900 truncate">
                           {drug.name}
                         </p>
+                        {(drug as any).originBrand && (
+                          <p className="text-[11px] text-gray-600">
+                            {(drug as any).originBrand}{(drug as any).originRegion ? ` (${(drug as any).originRegion})` : ''}
+                          </p>
+                        )}
                         <div className="flex items-center space-x-2 mt-1">
                           <p className="text-xs text-gray-500">RXCUI: {drug.rxcui}</p>
                           {drug.tty && (

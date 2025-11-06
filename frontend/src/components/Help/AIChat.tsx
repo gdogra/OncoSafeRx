@@ -886,6 +886,63 @@ Which specific CPIC guideline would you like to learn about?`,
       }
     } catch {}
 
+    // Intent: drug "claims" explanation (pull from Indications & Usage + Clinical Studies summaries)
+    try {
+      const claimsIntent = (() => {
+        const q = userMessage.content.toLowerCase().trim();
+        const m1 = q.match(/(?:what (?:does|do) )?([a-z0-9 .\-+]+) (?:claim|claims)(?:\?)?$/i);
+        const m2 = q.match(/drug (?:claims|claim) for ([a-z0-9 .\-+]+)/i);
+        const m3 = q.match(/claims? of ([a-z0-9 .\-+]+)/i);
+        const m4 = q.match(/what are the claims? of ([a-z0-9 .\-+]+)/i);
+        const candidate = (m1?.[1] || m2?.[1] || m3?.[1] || m4?.[1] || '').trim();
+        return candidate.length >= 2 ? candidate : null;
+      })();
+
+      if (claimsIntent) {
+        const searchResp = await fetch(`/api/drugs/search?q=${encodeURIComponent(claimsIntent)}`);
+        const searchData = await searchResp.json().catch(() => ({} as any));
+        const hit = (searchData?.results || [])[0];
+        if (hit?.rxcui) {
+          const detailsResp = await fetch(`/api/drugs/${encodeURIComponent(hit.rxcui)}`);
+          const details = await detailsResp.json().catch(() => ({} as any));
+          let indications = '';
+          let studies = '';
+          try {
+            const labelSearch = await fetch(`/api/drugs/labels/search?q=${encodeURIComponent(details?.name || claimsIntent)}`);
+            const labelData = await labelSearch.json().catch(() => ({} as any));
+            const first = (labelData?.results || [])[0];
+            if (first?.setid) {
+              const labelDetailsResp = await fetch(`/api/drugs/labels/${first.setid}`);
+              const labelDetails = await labelDetailsResp.json().catch(() => ({} as any));
+              indications = (labelDetails?.indications_and_usage?.[0] || '').replace(/\s+/g,' ').trim();
+              const cs = Array.isArray(labelDetails?.clinical_studies) ? labelDetails?.clinical_studies[0] : '';
+              studies = (cs || '').replace(/\s+/g,' ').trim();
+            }
+          } catch {}
+
+          const brand = (details?.brand_names || [])?.slice(0,3).join(', ');
+          const generic = details?.generic_name || details?.name || hit?.name || claimsIntent;
+          const parts = [] as string[];
+          if (indications) parts.push(`Indications & Usage: ${indications}`);
+          if (studies) parts.push(`Clinical Studies: ${studies}`);
+          const content = parts.length ? parts.join('\n\n') : 'Label claims unavailable. Try viewing the FDA label or clinical studies.';
+
+          const aiMessage: ChatMessage = {
+            id: (Date.now() + 1).toString(),
+            type: 'ai',
+            content: `${generic}${brand ? ` (${brand})` : ''} —\n${content}`,
+            timestamp: new Date(),
+            source: 'drug-claims'
+          };
+          setMessages(prev => [...prev, aiMessage]);
+          saveMessageToPatient(aiMessage);
+          setPendingConfirmId(aiMessage.id);
+          setIsLoading(false);
+          return;
+        }
+      }
+    } catch {}
+
     // Handle release notes / new features intent via API
     try {
       const q = inputValue.toLowerCase();

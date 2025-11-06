@@ -28,11 +28,11 @@ export const schemas = {
           .pattern(/^\d+$/)
           .messages({ 'string.pattern.base': 'Each drug must be a valid RXCUI (numbers only)' })
       )
-      .min(1)
+      .min(2)
       .max(10)
       .required()
       .messages({
-        'array.min': 'At least 1 drug is required for interaction checking',
+        'array.min': 'At least 2 drugs are required for interaction checking',
         'array.max': 'Maximum 10 drugs allowed for interaction checking',
         'any.required': 'Drugs array is required'
       }),

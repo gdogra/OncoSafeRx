@@ -84,7 +84,7 @@ router.get('/drug/:rxcui/genomics', async (req, res) => {
 // Check genomic profile against drug list
 router.post('/profile/check', validate(schemas.genomicsProfile, 'body'), async (req, res) => {
   try {
-    const { genes, drugs, observations = [] } = req.body;
+    const { genes, drugs, observations = [], phenotypes = {} } = req.body;
     
     if (!genes || !drugs) {
       return res.status(400).json({ 
@@ -92,31 +92,100 @@ router.post('/profile/check', validate(schemas.genomicsProfile, 'body'), async (
       });
     }
 
-    // Sample response - replace with actual genomic analysis
+    // Enhanced analysis using CPIC guidelines
     const analysis = {
       inputGenes: genes,
       inputDrugs: drugs,
+      phenotypes,
       hlaFindings: mapHLAFromObservations(observations),
-      alerts: [
-        {
-          gene: 'CYP2D6',
-          drug: 'codeine',
-          severity: 'HIGH',
-          recommendation: 'Avoid codeine - use alternative analgesic',
-          evidence: 'CPIC Level A'
-        }
-      ],
-      recommendations: [
-        'Consider genetic testing for CYP2D6 before prescribing codeine',
-        'Monitor for adverse effects with current medication regimen'
-      ]
+      recommendations: [],
+      alerts: [],
+      dosing: [],
+      alternatives: []
     };
 
+    // Analyze each drug against provided genes/phenotypes
+    for (const drugRxcui of drugs) {
+      const drugGuidelines = CPIC_GUIDELINES_DB.filter(g => g.drug_rxcui === drugRxcui);
+      
+      for (const guideline of drugGuidelines) {
+        const geneSymbol = guideline.gene_symbol;
+        
+        // Check if we have phenotype data for this gene
+        if (genes.includes(geneSymbol) && phenotypes[geneSymbol]) {
+          const patientPhenotype = phenotypes[geneSymbol];
+          
+          // Check if patient phenotype matches or relates to guideline phenotype
+          const phenotypeMatch = guideline.phenotype.toLowerCase().includes(patientPhenotype.toLowerCase()) ||
+                                patientPhenotype.toLowerCase().includes(guideline.phenotype.toLowerCase());
+
+          if (phenotypeMatch) {
+            analysis.recommendations.push({
+              gene: geneSymbol,
+              drug: guideline.drug?.name,
+              drugRxcui: guideline.drug_rxcui,
+              phenotype: guideline.phenotype,
+              recommendation: guideline.recommendation,
+              evidenceLevel: guideline.evidence_level,
+              implications: guideline.implications,
+              sources: guideline.sources
+            });
+
+            // Categorize alerts by severity
+            const implications = guideline.implications?.toLowerCase() || '';
+            let alertSeverity = 'LOW';
+            
+            if (implications.includes('severe') || implications.includes('toxicity')) {
+              alertSeverity = 'CRITICAL';
+            } else if (implications.includes('increased risk') || implications.includes('reduced')) {
+              alertSeverity = 'HIGH';
+            } else if (implications.includes('monitor') || implications.includes('consider')) {
+              alertSeverity = 'MODERATE';
+            }
+
+            if (alertSeverity !== 'LOW') {
+              analysis.alerts.push({
+                gene: geneSymbol,
+                drug: guideline.drug?.name,
+                risk: guideline.implications,
+                severity: alertSeverity.toLowerCase(),
+                action: guideline.recommendation
+              });
+            }
+
+            // Add dosing recommendations
+            if (guideline.dosage_adjustment) {
+              analysis.dosing.push({
+                drug: guideline.drug?.name,
+                recommendedDose: guideline.dosage_adjustment,
+                rationale: `${geneSymbol} ${patientPhenotype}: ${guideline.implications}`
+              });
+            }
+          }
+        }
+      }
+    }
+
+    // Add general recommendations based on findings
+    if (analysis.alerts.length === 0) {
+      analysis.recommendations.push({
+        general: true,
+        text: 'No significant pharmacogenomic interactions detected with current genetic profile'
+      });
+    }
+
     res.json({
-      message: 'Sample genomic analysis - full implementation coming in next phase',
-      analysis
+      message: 'Enhanced pharmacogenomics analysis',
+      success: true,
+      analysis,
+      metadata: {
+        guidelinesEvaluated: CPIC_GUIDELINES_DB.length,
+        matchingGuidelines: analysis.recommendations.length,
+        timestamp: new Date().toISOString()
+      }
     });
   } catch (error) {
+    console.error('Genomics profile check error:', error);
     res.status(500).json({ error: error.message });
   }
 });

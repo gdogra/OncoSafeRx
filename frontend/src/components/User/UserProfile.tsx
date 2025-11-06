@@ -62,6 +62,56 @@ const UserProfile: React.FC = () => {
   const convertHeightToCm = (feet: number, inches: number) => {
     return Math.round((feet * 12 + inches) * 2.54);
   };
+
+  // Accepts inputs like 5'10", 5' 10", 5 ft 10 in, 70in, 178 cm
+  const parseHeightInputToCm = (raw: string): number | undefined => {
+    if (!raw) return undefined;
+    const s = String(raw).trim().toLowerCase();
+    // direct cm numeric
+    if (/^\d{2,3}(?:\.\d+)?\s*(cm)?$/.test(s)) {
+      const n = parseFloat(s);
+      return Number.isFinite(n) ? Math.round(n) : undefined;
+    }
+    // normalize words/symbols
+    let t = s
+      .replace(/centimet(er|re)s?|cms?/g, 'cm')
+      .replace(/inches|inch|in\b|\"/g, 'in')
+      .replace(/feet|foot|ft\b|\'/g, 'ft')
+      .replace(/\s+/g, '');
+    // e.g. 5ft10in, 5ft, 70in
+    const ftInMatch = t.match(/^(\d+(?:\.\d+)?)ft(?:(\d+(?:\.\d+)?)in)?$/);
+    if (ftInMatch) {
+      const feet = parseFloat(ftInMatch[1] || '0');
+      const inches = parseFloat(ftInMatch[2] || '0');
+      if (Number.isFinite(feet) && Number.isFinite(inches)) return Math.round((feet * 12 + inches) * 2.54);
+    }
+    const onlyIn = t.match(/^(\d+(?:\.\d+)?)in$/);
+    if (onlyIn) {
+      const inches = parseFloat(onlyIn[1]);
+      if (Number.isFinite(inches)) return Math.round(inches * 2.54);
+    }
+    const onlyCm = t.match(/^(\d+(?:\.\d+)?)cm$/);
+    if (onlyCm) {
+      const cm = parseFloat(onlyCm[1]);
+      if (Number.isFinite(cm)) return Math.round(cm);
+    }
+    // pattern like 5'10" or 5'10
+    const quoteLike = s.replace(/\s+/g, '');
+    const qMatch = quoteLike.match(/^(\d+)(?:'|ft)(\d+)?(?:("|in))?$/i);
+    if (qMatch) {
+      const feet = parseInt(qMatch[1] || '0', 10);
+      const inches = parseInt(qMatch[2] || '0', 10);
+      if (Number.isFinite(feet) && Number.isFinite(inches)) return Math.round((feet * 12 + inches) * 2.54);
+    }
+    // space-separated like "5 10"
+    const parts = s.split(/\s+/).map(p => p.trim()).filter(Boolean);
+    if (parts.length === 2 && /^\d+$/.test(parts[0]) && /^\d+$/.test(parts[1])) {
+      const feet = parseInt(parts[0], 10);
+      const inches = parseInt(parts[1], 10);
+      if (Number.isFinite(feet) && Number.isFinite(inches)) return Math.round((feet * 12 + inches) * 2.54);
+    }
+    return undefined;
+  };
   
   const convertWeight = (kg: number, toUnit: 'kg' | 'lbs') => {
     if (toUnit === 'kg') return kg;
@@ -788,17 +838,26 @@ const UserProfile: React.FC = () => {
                   {heightUnit === 'cm' ? (
                     <input
                       type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={isEditing ? editedUser.height || '' : user.height || ''}
+                      inputMode="text"
+                      value={isEditing ? (editedUser.height ?? '') : (user.height ?? '')}
                       onChange={(e) => {
                         const v = e.target.value;
-                        const n = v === '' ? undefined : (Number.isFinite(Number(v)) ? Math.round(parseFloat(v)) : undefined);
-                        setEditedUser(prev => ({ ...prev, height: n }))
+                        if (v === '') {
+                          setEditedUser(prev => ({ ...prev, height: undefined }));
+                          return;
+                        }
+                        const cm = parseHeightInputToCm(v);
+                        if (typeof cm === 'number') {
+                          setEditedUser(prev => ({ ...prev, height: cm }));
+                        } else {
+                          // Fallback: try numeric parse assuming cm
+                          const n = Number(v);
+                          setEditedUser(prev => ({ ...prev, height: Number.isFinite(n) ? Math.round(n) : prev.height }));
+                        }
                       }}
                       disabled={!isEditing}
                       className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
-                      placeholder="Enter height in cm"
+                      placeholder="Enter cm or e.g., 5' 10\""
                     />
                   ) : (
                     <div className="flex gap-2">

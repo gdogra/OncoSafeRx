@@ -1079,47 +1079,48 @@ const AuthPage: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Demographics section for all users */}
-                  <div className="space-y-4 border-t pt-4">
-                    <h3 className="text-sm font-medium text-gray-900">Demographics</h3>
+                  {/* Demographics section - only for patients and caregivers */}
+                  {(signupData.role === 'patient' || signupData.role === 'caregiver') && (
+                    <div className="space-y-4 border-t pt-4">
+                      <h3 className="text-sm font-medium text-gray-900">Demographics</h3>
                     
-                    {/* Age - required for patients, optional for others */}
-                    <div>
-                      <label htmlFor="age" className="block text-sm font-medium text-gray-700">
-                        Age {signupData.role === 'patient' && <span className="text-red-500">*</span>}
-                      </label>
-                      <div className="mt-1">
-                        <input
-                          id="age"
-                          type="number"
-                          min="1"
-                          max="120"
-                          value={signupData.age || ''}
-                          onChange={(e) => handleInputChange('age', e.target.value)}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                          placeholder="Enter your age"
-                        />
+                      {/* Age - required for patients, optional for caregivers */}
+                      <div>
+                        <label htmlFor="age" className="block text-sm font-medium text-gray-700">
+                          Age {signupData.role === 'patient' && <span className="text-red-500">*</span>}
+                        </label>
+                        <div className="mt-1">
+                          <input
+                            id="age"
+                            type="number"
+                            min="1"
+                            max="120"
+                            value={signupData.age || ''}
+                            onChange={(e) => handleInputChange('age', e.target.value)}
+                            className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            placeholder="Enter your age"
+                          />
+                        </div>
+                        {errors.age && (
+                          <p className="mt-1 text-xs text-red-600">{errors.age}</p>
+                        )}
                       </div>
-                      {errors.age && (
-                        <p className="mt-1 text-xs text-red-600">{errors.age}</p>
-                      )}
-                    </div>
 
-                    {/* Date of Birth */}
-                    <div>
-                      <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">
-                        Date of Birth
-                      </label>
-                      <div className="mt-1">
-                        <input
-                          id="dateOfBirth"
-                          type="date"
-                          value={signupData.dateOfBirth || ''}
-                          onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                        />
+                      {/* Date of Birth */}
+                      <div>
+                        <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">
+                          Date of Birth
+                        </label>
+                        <div className="mt-1">
+                          <input
+                            id="dateOfBirth"
+                            type="date"
+                            value={signupData.dateOfBirth || ''}
+                            onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
+                            className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          />
+                        </div>
                       </div>
-                    </div>
 
                     {/* Height with unit conversion */}
                     <div>
@@ -1218,10 +1219,10 @@ const AuthPage: React.FC = () => {
                           />
                         </div>
                       )}
-                    </div>
+                      </div>
 
-                    {/* Weight with unit conversion */}
-                    <div>
+                      {/* Weight with unit conversion */}
+                      <div>
                       <div className="flex items-center justify-between mb-2">
                         <label className="block text-sm font-medium text-gray-700">
                           Weight
@@ -1459,7 +1460,8 @@ const AuthPage: React.FC = () => {
                         />
                       </div>
                     </div>
-                  </div>
+                    </div>
+                  )}
 
                   <div className="flex items-center">
                     <input

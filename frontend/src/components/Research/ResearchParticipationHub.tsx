@@ -22,8 +22,10 @@ import {
   Info,
   Phone,
   Mail,
-  ExternalLink
+  ExternalLink,
+  Loader2
 } from 'lucide-react';
+import researchParticipationService, { ResearchStudy, ParticipationHistory, ResearchPreferences } from '../../services/researchParticipationService';
 
 interface ResearchStudy {
   id: string;
@@ -96,150 +98,77 @@ export const ResearchParticipationHub: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStudy, setSelectedStudy] = useState<ResearchStudy | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [patientId, setPatientId] = useState<string>('default-patient');
+  const [matches, setMatches] = useState<ResearchStudy[]>([]);
 
   useEffect(() => {
-    // Mock research studies data
-    const mockStudies: ResearchStudy[] = [
-      {
-        id: '1',
-        title: 'Personalized CAR-T Cell Therapy for Triple-Negative Breast Cancer',
-        description: 'A phase II clinical trial evaluating the safety and efficacy of personalized CAR-T cell therapy in patients with advanced triple-negative breast cancer.',
-        phase: 'Phase II',
-        sponsor: 'BioTech Innovations',
-        institution: 'Memorial Sloan Kettering Cancer Center',
-        location: 'New York, NY',
-        status: 'Recruiting',
-        eligibilityCriteria: [
-          'Age 18-70 years',
-          'Triple-negative breast cancer diagnosis',
-          'ECOG performance status 0-1',
-          'Adequate organ function'
-        ],
-        primaryOutcome: 'Overall response rate at 6 months',
-        estimatedDuration: '24 months',
-        participantCount: 45,
-        maxParticipants: 60,
-        startDate: '2024-03-15',
-        estimatedCompletion: '2026-03-15',
-        matchScore: 94,
-        category: 'Treatment',
-        compensation: '$2,500 per visit',
-        requirements: ['Tumor biopsy required', 'Genetic testing required'],
-        contactInfo: {
-          name: 'Dr. Sarah Johnson',
-          phone: '(212) 555-0123',
-          email: 'sarah.johnson@mskcc.org'
-        },
-        genomicRequirements: ['BRCA1/2 testing', 'Tumor genomic profiling'],
-        exclusionCriteria: ['Prior CAR-T therapy', 'Active autoimmune disease']
-      },
-      {
-        id: '2',
-        title: 'AI-Powered Early Detection of Pancreatic Cancer',
-        description: 'Observational study using AI analysis of routine blood tests and imaging to detect early-stage pancreatic cancer.',
-        phase: 'Observational',
-        sponsor: 'National Cancer Institute',
-        institution: 'Johns Hopkins University',
-        location: 'Baltimore, MD',
-        status: 'Recruiting',
-        eligibilityCriteria: [
-          'Age 50+ years',
-          'Family history of pancreatic cancer OR diabetes onset after age 50',
-          'No current cancer diagnosis'
-        ],
-        primaryOutcome: 'Detection accuracy of AI algorithm',
-        estimatedDuration: '36 months',
-        participantCount: 1250,
-        maxParticipants: 2000,
-        startDate: '2024-01-10',
-        estimatedCompletion: '2027-01-10',
-        matchScore: 87,
-        category: 'Screening',
-        compensation: '$500 completion bonus',
-        requirements: ['Annual blood draws', 'Annual CT scans'],
-        contactInfo: {
-          name: 'Dr. Michael Chen',
-          phone: '(410) 555-0156',
-          email: 'mchen@jhmi.edu'
-        },
-        exclusionCriteria: ['Current cancer treatment', 'Pregnancy']
-      },
-      {
-        id: '3',
-        title: 'Immunotherapy Combination for Melanoma Resistance',
-        description: 'Phase III trial comparing novel immunotherapy combinations in patients with checkpoint inhibitor-resistant melanoma.',
-        phase: 'Phase III',
-        sponsor: 'Pharma Global',
-        institution: 'MD Anderson Cancer Center',
-        location: 'Houston, TX',
-        status: 'Recruiting',
-        eligibilityCriteria: [
-          'Metastatic melanoma',
-          'Prior anti-PD-1 treatment',
-          'Progression on or after immunotherapy'
-        ],
-        primaryOutcome: 'Progression-free survival',
-        estimatedDuration: '18 months',
-        participantCount: 234,
-        maxParticipants: 400,
-        startDate: '2024-02-01',
-        estimatedCompletion: '2025-08-01',
-        matchScore: 76,
-        category: 'Treatment',
-        compensation: 'Travel reimbursement up to $1,000',
-        requirements: ['Archival tissue sample', 'Fresh biopsy if feasible'],
-        contactInfo: {
-          name: 'Dr. Amanda Rodriguez',
-          phone: '(713) 555-0189',
-          email: 'arodriguez@mdanderson.org'
-        },
-        genomicRequirements: ['BRAF/NRAS mutation testing'],
-        exclusionCriteria: ['Active brain metastases', 'Autoimmune disease requiring steroids']
-      }
-    ];
+    loadResearchData();
+  }, [patientId]);
 
-    const mockHistory: ParticipationHistory[] = [
-      {
-        studyId: 'hist-1',
-        studyTitle: 'Genetic Risk Assessment for Hereditary Cancers',
-        status: 'Completed',
-        enrollmentDate: '2023-06-15',
-        lastUpdate: '2024-01-15',
-      },
-      {
-        studyId: 'hist-2',
-        studyTitle: 'Quality of Life Assessment During Treatment',
-        status: 'Active',
-        enrollmentDate: '2024-02-01',
-        lastUpdate: '2024-09-15',
-        nextAppointment: '2024-11-15'
-      }
-    ];
+  const loadResearchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    setStudies(mockStudies);
-    setFilteredStudies(mockStudies);
-    setParticipationHistory(mockHistory);
-  }, []);
+      const [studiesData, matchesData, historyData, preferencesData] = await Promise.all([
+        researchParticipationService.getAvailableStudies(patientId),
+        researchParticipationService.getPersonalizedMatches(patientId),
+        researchParticipationService.getParticipationHistory(patientId),
+        researchParticipationService.getResearchPreferences(patientId)
+      ]);
+
+      setStudies(studiesData);
+      setMatches(matchesData);
+      setParticipationHistory(historyData);
+      if (preferencesData) {
+        setPreferences(preferencesData);
+      }
+    } catch (error) {
+      console.error('Failed to load research data:', error);
+      setError('Failed to load research data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    let filtered = studies.filter(study => {
-      if (searchTerm && !study.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          !study.description.toLowerCase().includes(searchTerm.toLowerCase())) {
-        return false;
-      }
-      if (preferences.phases.length > 0 && !preferences.phases.includes(study.phase)) {
-        return false;
-      }
-      if (preferences.categories.length > 0 && !preferences.categories.includes(study.category)) {
-        return false;
-      }
-      return true;
-    });
-
-    // Sort by match score
-    filtered.sort((a, b) => b.matchScore - a.matchScore);
-    setFilteredStudies(filtered);
+    filterStudies();
   }, [studies, searchTerm, preferences]);
+
+  const filterStudies = async () => {
+    try {
+      const filtered = await researchParticipationService.getAvailableStudies(patientId, {
+        searchTerm,
+        phases: preferences.phases,
+        categories: preferences.categories,
+        maxDistance: preferences.maxDistance,
+        compensationRequired: preferences.compensationRequired
+      });
+      
+      setFilteredStudies(filtered);
+    } catch (error) {
+      console.error('Failed to filter studies:', error);
+      // Fallback to client-side filtering
+      let filtered = studies.filter(study => {
+        if (searchTerm && !study.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+            !study.description.toLowerCase().includes(searchTerm.toLowerCase())) {
+          return false;
+        }
+        if (preferences.phases.length > 0 && !preferences.phases.includes(study.phase)) {
+          return false;
+        }
+        if (preferences.categories.length > 0 && !preferences.categories.includes(study.category)) {
+          return false;
+        }
+        return true;
+      });
+
+      filtered.sort((a, b) => b.matchScore - a.matchScore);
+      setFilteredStudies(filtered);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -470,10 +399,31 @@ export const ResearchParticipationHub: React.FC = () => {
         
         <div className="p-6 border-t border-gray-200 bg-gray-50">
           <div className="flex gap-3">
-            <button className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+            <button 
+              onClick={async () => {
+                const success = await researchParticipationService.expressInterest(patientId, study.id);
+                if (success) {
+                  alert('Interest expressed successfully!');
+                  onClose();
+                } else {
+                  alert('Failed to express interest. Please try again.');
+                }
+              }}
+              className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
               Express Interest
             </button>
-            <button className="flex-1 border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+            <button 
+              onClick={async () => {
+                const success = await researchParticipationService.saveStudy(patientId, study.id);
+                if (success) {
+                  alert('Study saved successfully!');
+                } else {
+                  alert('Failed to save study. Please try again.');
+                }
+              }}
+              className="flex-1 border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            >
               Save for Later
             </button>
             <button className="px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
@@ -492,33 +442,59 @@ export const ResearchParticipationHub: React.FC = () => {
         <p className="text-gray-600">Discover and participate in cutting-edge cancer research studies tailored to your profile</p>
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          <span className="ml-3 text-gray-600">Loading research data...</span>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center">
+            <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
+            <span className="text-red-800">{error}</span>
+          </div>
+          <button
+            onClick={loadResearchData}
+            className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+          >
+            Try again
+          </button>
+        </div>
+      )}
+
       {/* Navigation Tabs */}
-      <div className="border-b border-gray-200 mb-6">
-        <nav className="flex space-x-8">
-          {[
-            { id: 'browse', label: 'Browse Studies', icon: Search },
-            { id: 'matches', label: 'My Matches', icon: Star },
-            { id: 'history', label: 'Participation History', icon: Clock },
-            { id: 'preferences', label: 'Preferences', icon: Filter }
-          ].map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id as any)}
-              className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <Icon className="h-5 w-5 mr-2" />
-              {label}
-            </button>
-          ))}
-        </nav>
-      </div>
+      {!loading && (
+        <div className="border-b border-gray-200 mb-6">
+          <nav className="flex space-x-8">
+            {[
+              { id: 'browse', label: 'Browse Studies', icon: Search },
+              { id: 'matches', label: 'My Matches', icon: Star },
+              { id: 'history', label: 'Participation History', icon: Clock },
+              { id: 'preferences', label: 'Preferences', icon: Filter }
+            ].map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id as any)}
+                className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === id
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Icon className="h-5 w-5 mr-2" />
+                {label}
+              </button>
+            ))}
+          </nav>
+        </div>
+      )}
 
       {/* Browse Studies Tab */}
-      {activeTab === 'browse' && (
+      {activeTab === 'browse' && !loading && (
         <div>
           {/* Search and Filters */}
           <div className="mb-6 space-y-4">
@@ -614,20 +590,67 @@ export const ResearchParticipationHub: React.FC = () => {
             ))}
           </div>
 
-          {filteredStudies.length === 0 && (
+          {filteredStudies.length === 0 && !loading && (
             <div className="text-center py-12">
               <Search className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No studies found</h3>
-              <p className="text-gray-500">Try adjusting your search criteria or filters</p>
+              <p className="text-gray-500 mb-4">Try adjusting your search criteria or filters</p>
+              <button
+                onClick={() => researchParticipationService.getRecommendedStudies(patientId).then(setFilteredStudies)}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                <Star className="w-4 h-4 mr-2" />
+                Show Recommended Studies
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* My Matches Tab */}
+      {activeTab === 'matches' && !loading && (
+        <div>
+          {matches.length === 0 ? (
+            <div className="text-center py-12">
+              <Star className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No personalized matches found</h3>
+              <p className="text-gray-500 mb-4">Complete your profile to get personalized study recommendations.</p>
+              <button
+                onClick={() => setActiveTab('preferences')}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                <Filter className="w-4 h-4 mr-2" />
+                Update Preferences
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {matches.map(study => (
+                <StudyCard key={study.id} study={study} />
+              ))}
             </div>
           )}
         </div>
       )}
 
       {/* Participation History Tab */}
-      {activeTab === 'history' && (
+      {activeTab === 'history' && !loading && (
         <div className="space-y-6">
-          {participationHistory.map(participation => (
+          {participationHistory.length === 0 ? (
+            <div className="text-center py-12">
+              <Clock className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No participation history</h3>
+              <p className="text-gray-500 mb-4">You haven't participated in any research studies yet.</p>
+              <button
+                onClick={() => setActiveTab('browse')}
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                <Search className="w-4 h-4 mr-2" />
+                Browse Studies
+              </button>
+            </div>
+          ) : (
+            participationHistory.map(participation => (
             <div key={participation.studyId} className="bg-white border border-gray-200 rounded-lg p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
@@ -655,12 +678,13 @@ export const ResearchParticipationHub: React.FC = () => {
                 )}
               </div>
             </div>
-          ))}
+            ))
+          )}
         </div>
       )}
 
       {/* Preferences Tab */}
-      {activeTab === 'preferences' && (
+      {activeTab === 'preferences' && !loading && (
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-6">Research Preferences</h2>
           <div className="space-y-6">
@@ -694,10 +718,14 @@ export const ResearchParticipationHub: React.FC = () => {
                     <input
                       type="checkbox"
                       checked={value}
-                      onChange={(e) => setPreferences(prev => ({
-                        ...prev,
-                        notifications: { ...prev.notifications, [key]: e.target.checked }
-                      }))}
+                      onChange={async (e) => {
+                        const newPreferences = {
+                          ...preferences,
+                          notifications: { ...preferences.notifications, [key]: e.target.checked }
+                        };
+                        setPreferences(newPreferences);
+                        await researchParticipationService.updateResearchPreferences(patientId, newPreferences);
+                      }}
                       className="mr-3"
                     />
                     <span className="capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>

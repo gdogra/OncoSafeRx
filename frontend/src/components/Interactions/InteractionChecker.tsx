@@ -159,8 +159,7 @@ const InteractionCheckerInner: React.FC = () => {
         if (selectedDrugs.length > 0) return;
         const { resolved, skipped } = await resolvePatientMedications(8, { includeInactive: false });
         if (resolved.length) {
-          const merged = [...selection.selectedDrugs, ...resolved]
-            .filter((d, idx, arr) => d?.rxcui && idx === arr.findIndex(x => x.rxcui === d.rxcui));
+          const merged = mergeUnique(selection.selectedDrugs, resolved);
           setSelectedDrugs(merged);
           merged.forEach(d => selection.addDrug(d));
           if (skipped.length) setImportNote(`Imported ${resolved.length} meds. Skipped: ${skipped.join(', ')}`);
@@ -276,22 +275,48 @@ const InteractionCheckerInner: React.FC = () => {
     return names[0] || fullName.toLowerCase().split(' ')[0];
   };
 
-  const handleAddDrug = (drug: Drug) => {
-    if (!selectedDrugs.find(d => d.rxcui === drug.rxcui)) {
-      setSelectedDrugs([...selectedDrugs, drug]);
-      selection.addDrug(drug);
-      setResults(null); // Clear previous results when drugs change
-      setAltResults(null);
-      setAltAllResults(null);
-      setOnlyCovered(false);
-      setOnlyBest(false);
+  const mergeUnique = (base: Drug[], incoming: Drug[]): Drug[] => {
+    const out: Drug[] = [...base];
+    for (const d of incoming) {
+      const keyR = (d.rxcui || '').trim();
+      const keyN = (d.name || '').trim().toLowerCase();
+      const exists = out.find(x => (x.rxcui && keyR && x.rxcui === keyR) || (!x.rxcui && !keyR && (x.name || '').trim().toLowerCase() === keyN));
+      if (!exists) out.push(d);
     }
+    return out;
+  };
+
+  const handleAddDrug = (drug: Drug) => {
+    setSelectedDrugs(prev => {
+      const merged = mergeUnique(prev, [drug]);
+      if (merged.length !== prev.length) selection.addDrug(drug);
+      return merged;
+    });
+    setResults(null); // Clear previous results when drugs change
+    setAltResults(null);
+    setAltAllResults(null);
+    setOnlyCovered(false);
+    setOnlyBest(false);
   };
 
   const handleRemoveDrug = (rxcui: string) => {
-    setSelectedDrugs(selectedDrugs.filter(drug => drug.rxcui !== rxcui));
-    selection.removeDrug(rxcui); // Remove from global selection too
+    setSelectedDrugs(prev => prev.filter(drug => drug.rxcui !== rxcui));
+    if (rxcui) selection.removeDrug(rxcui); // Remove from global selection too
     setResults(null); // Clear previous results when drugs change
+    setAltResults(null);
+    setAltAllResults(null);
+    setOnlyCovered(false);
+    setOnlyBest(false);
+  };
+
+  const handleRemoveAt = (index: number) => {
+    setSelectedDrugs(prev => {
+      const toRemove = prev[index];
+      const next = prev.filter((_, i) => i !== index);
+      if (toRemove?.rxcui) selection.removeDrug(toRemove.rxcui);
+      return next;
+    });
+    setResults(null);
     setAltResults(null);
     setAltAllResults(null);
     setOnlyCovered(false);
@@ -495,32 +520,7 @@ const InteractionCheckerInner: React.FC = () => {
     });
   }, [currentPatient, authState.user]);
 
-  // Load patient medications into interaction checker
-  useEffect(() => {
-    if (currentPatient?.medications && Array.isArray(currentPatient.medications)) {
-      const patientMeds = currentPatient.medications
-        .filter((med: any) => med.isActive !== false) // Only active medications
-        .map((med: any) => ({
-          id: med.id || `patient-med-${Math.random()}`,
-          name: med.drugName || med.name || med.drug?.name || 'Unknown medication',
-          rxcui: med.rxcui || med.drug?.rxcui || '',
-          category: med.category || 'patient-medication',
-          isPatientMedication: true
-        }));
-      
-      // Only update if we have medications and the current list is different
-      if (patientMeds.length > 0) {
-        setSelectedDrugs(prevDrugs => {
-          // Check if we already have these patient medications loaded
-          const hasPatientMeds = prevDrugs.some(drug => drug.isPatientMedication);
-          if (!hasPatientMeds) {
-            return [...prevDrugs, ...patientMeds];
-          }
-          return prevDrugs;
-        });
-      }
-    }
-  }, [currentPatient?.id, currentPatient?.medications]);
+  // Patient medications are imported via resolvePatientMedications (auto and manual import)
 
   const getTotalInteractions = () => {
     if (!results) return 0;
@@ -664,8 +664,7 @@ const InteractionCheckerInner: React.FC = () => {
               try {
                 const { resolved, skipped } = await resolvePatientMedications(12, { includeInactive });
                 if (resolved.length) {
-                  const merged = [...selectedDrugs, ...resolved]
-                    .filter((d, idx, arr) => d?.rxcui && idx === arr.findIndex(x => x.rxcui === d.rxcui));
+                  const merged = mergeUnique(selectedDrugs, resolved);
                   setSelectedDrugs(merged);
                   merged.forEach(d => selection.addDrug(d));
                 }
@@ -692,9 +691,9 @@ const InteractionCheckerInner: React.FC = () => {
               Selected Drugs ({selectedDrugs.length})
             </h3>
             <div className="space-y-2">
-              {selectedDrugs.map((drug) => (
+              {selectedDrugs.map((drug, i) => (
                 <div
-                  key={drug.rxcui}
+                  key={`${drug.rxcui || drug.name || 'drug'}-${i}`}
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                 >
                   <div>
@@ -705,7 +704,7 @@ const InteractionCheckerInner: React.FC = () => {
                     <div className="text-xs text-gray-500">RXCUI: {drug.rxcui}</div>
                   </div>
                   <button
-                    onClick={() => handleRemoveDrug(drug.rxcui)}
+                    onClick={() => handleRemoveAt(i)}
                     className="p-1 text-gray-400 hover:text-red-600 focus:outline-none"
                   >
                     <X className="w-4 h-4" />

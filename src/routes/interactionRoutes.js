@@ -108,14 +108,17 @@ router.get('/known', async (req, res) => {
         return '"' + s.replace(/"/g, '""').replace(/[\n\r]+/g, ' ') + '"';
       };
 
-      const headerCols = ['drugA','drugA_rxcui','drugB','drugB_rxcui','severity','mechanism','effect','management','evidence_level','sources'];
+      const headerCols = ['drugA','drugA_rxcui','drugA_origin','drugB','drugB_rxcui','drugB_origin','severity','mechanism','effect','management','evidence_level','sources'];
       const header = isTsv ? headerCols.join(sep) + '\n' : headerCols.map(safe).join(sep) + '\n';
+      const originA = String(req.query.originA || '').trim();
+      const originB = String(req.query.originB || '').trim();
 
       const rows = limited.map(item => {
         const a = item.drug_rxnorm[0] || { name: '', rxcui: '' };
         const b = item.drug_rxnorm[1] || { name: '', rxcui: '' };
         const fields = [
-          a.name, a.rxcui || '', b.name, b.rxcui || '',
+          a.name, a.rxcui || '', originA,
+          b.name, b.rxcui || '', originB,
           item.severity || '', item.mechanism || '', item.effect || '', item.management || '',
           item.evidence_level || '', Array.isArray(item.sources) ? item.sources.join(';') : ''
         ];

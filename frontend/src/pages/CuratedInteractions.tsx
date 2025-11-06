@@ -111,6 +111,8 @@ const CuratedInteractions: React.FC = () => {
     if (drugB) params.set('drugB', drugB);
     if (severity) params.set('severity', severity);
     if (resolveRx) params.set('resolveRx', 'true');
+    if (brandMeta.drugA) params.set('originA', brandMeta.drugA);
+    if (brandMeta.drugB) params.set('originB', brandMeta.drugB);
     params.set('view', format);
     const url = `${apiBaseUrl()}/interactions/known?${params.toString()}`;
     window.open(url, '_blank');

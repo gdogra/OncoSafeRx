@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { inferBiomarkerForDrug } from '../../utils/biomarkers';
 import Tooltip from '../UI/Tooltip';
 import { useAuth } from '../../context/AuthContext';
+import { useSelection } from '../../context/SelectionContext';
 
 interface InteractionResultsProps {
   results: InteractionCheckResult;
@@ -14,6 +15,7 @@ interface InteractionResultsProps {
 
 const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
   const { state: authState } = useAuth();
+  const selection = useSelection();
   const role = authState?.user?.role;
   const isPatientLike = role === 'patient' || role === 'caregiver';
   const getSeverityIcon = (severity: string) => {
@@ -60,6 +62,34 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
   };
 
   const navigate = useNavigate();
+
+  // Map selected drugs that have origin brand/region for quick lookup
+  const selectedBrandMeta = React.useMemo(() => {
+    const map: Record<string, { brand?: string; region?: string }> = {};
+    try {
+      for (const d of selection.selectedDrugs) {
+        const keyR = (d.rxcui || '').trim();
+        const keyN = (d.name || '').trim().toLowerCase();
+        const brand = (d as any).originBrand;
+        const region = (d as any).originRegion;
+        if (brand || region) {
+          if (keyR) map[`rxcui:${keyR}`] = { brand, region };
+          if (keyN) map[`name:${keyN}`] = { brand, region };
+        }
+      }
+    } catch {}
+    return map;
+  }, [selection.selectedDrugs]);
+
+  const findBrandLabel = (name?: string, rxcui?: string) => {
+    const keyR = rxcui ? selectedBrandMeta[`rxcui:${rxcui}`] : undefined;
+    const keyN = name ? selectedBrandMeta[`name:${name.trim().toLowerCase()}`] : undefined;
+    const meta = keyR || keyN;
+    if (!meta) return null;
+    if (meta.brand) return `${meta.brand}${meta.region ? ` (${meta.region})` : ''}`;
+    if (meta.region) return `(${meta.region})`;
+    return null;
+  };
 
   const renderInteractionCard = (interaction: DrugInteraction, source: 'stored' | 'external', index: number) => (
     <Card 
@@ -128,6 +158,11 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
                 {interaction.drug1?.name || `Drug ${interaction.drug1_rxcui}`}
               </p>
               <p className="text-sm text-gray-500">RXCUI: {interaction.drug1_rxcui}</p>
+              {findBrandLabel(interaction.drug1?.name, interaction.drug1_rxcui) && (
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-700 mt-1">
+                  {findBrandLabel(interaction.drug1?.name, interaction.drug1_rxcui)}
+                </span>
+              )}
             </div>
             <div className="text-2xl text-gray-400">×</div>
             <div className="text-center">
@@ -135,6 +170,11 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
                 {interaction.drug2?.name || `Drug ${interaction.drug2_rxcui}`}
               </p>
               <p className="text-sm text-gray-500">RXCUI: {interaction.drug2_rxcui}</p>
+              {findBrandLabel(interaction.drug2?.name, interaction.drug2_rxcui) && (
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-700 mt-1">
+                  {findBrandLabel(interaction.drug2?.name, interaction.drug2_rxcui)}
+                </span>
+              )}
             </div>
           </div>
         </div>

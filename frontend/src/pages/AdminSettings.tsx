@@ -5,7 +5,7 @@ import { adminApi } from '../utils/adminApi';
 import { Download, RefreshCw, AlertTriangle, Plus, X } from 'lucide-react';
 import { useToast } from '../components/UI/Toast';
 import AccessDeniedBanner from '../components/Admin/AccessDeniedBanner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const AdminSettings: React.FC = () => {
   const { showToast } = useToast();
@@ -15,6 +15,8 @@ const AdminSettings: React.FC = () => {
   const [unknown, setUnknown] = React.useState<Array<{ term: string; count: number }>>([]);
   const [brand, setBrand] = React.useState('');
   const [generic, setGeneric] = React.useState('');
+  const location = useLocation();
+  const aliasesRef = React.useRef<HTMLDivElement>(null);
 
   const loadAliases = async () => {
     try {
@@ -31,6 +33,11 @@ const AdminSettings: React.FC = () => {
     } catch {}
   };
   React.useEffect(() => { loadAliases(); loadUnknown(); }, []);
+  React.useEffect(() => {
+    if (location.hash === '#aliases' && aliasesRef.current) {
+      setTimeout(() => aliasesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+  }, [location.hash]);
 
   const exportFile = async (type: 'users' | 'stats') => {
     try {
@@ -130,7 +137,7 @@ const AdminSettings: React.FC = () => {
         </div>
       </Card>
 
-      <Card className="p-6">
+      <Card className="p-6" ref={aliasesRef} id="aliases">
         <h3 className="text-lg font-semibold text-gray-900 mb-2">Drug Brand Aliases</h3>
         <p className="text-sm text-gray-600 mb-4">Map international brand names to generics to improve search coverage.</p>
 

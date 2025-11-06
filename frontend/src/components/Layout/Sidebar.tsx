@@ -617,6 +617,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             requiresPermission: null
           },
           { 
+            path: '/admin/settings#aliases', 
+            label: 'Brand Aliases', 
+            icon: SettingsIcon, 
+            description: 'Manage drug brand→generic mappings',
+            roles: ['admin','super_admin'],
+            requiresPermission: null
+          },
+          { 
             path: '/evidence-protocols', 
             label: 'Evidence-Based Protocols', 
             icon: BookOpen, 

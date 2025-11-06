@@ -117,6 +117,48 @@ const InteractionCheckerInner: React.FC = () => {
     }
   }, [selectedDrugs.length, selection.selectedDrugs]);
 
+  // Auto-import current patient's medications into selected drugs when empty
+  useEffect(() => {
+    const importFromPatient = async () => {
+      try {
+        if (!currentPatient) return;
+        if (selectedDrugs.length > 0) return;
+        const meds: any[] = Array.isArray(currentPatient.medications) ? currentPatient.medications : [];
+        if (!meds.length) return;
+
+        // Extract up to 8 unique names to resolve
+        const names = Array.from(new Set(
+          meds
+            .map((m: any) => (m?.drug?.name || m?.name || m?.drugName || '').toString().trim())
+            .filter((s: string) => s && s.length >= 2)
+        )).slice(0, 8);
+
+        const resolved: Drug[] = [];
+        for (const nm of names) {
+          try {
+            const res = await drugService.searchDrugs(nm);
+            const first = res?.results?.[0];
+            if (first?.rxcui && first?.name) {
+              // Avoid duplicates by RXCUI
+              if (!resolved.some(d => d.rxcui === first.rxcui)) {
+                resolved.push(first as Drug);
+              }
+            }
+          } catch {}
+        }
+        if (resolved.length) {
+          // Merge with any selection cache
+          const merged = [...selection.selectedDrugs, ...resolved]
+            .filter((d, idx, arr) => d?.rxcui && idx === arr.findIndex(x => x.rxcui === d.rxcui));
+          setSelectedDrugs(merged);
+          merged.forEach(d => selection.addDrug(d));
+        }
+      } catch {}
+    };
+    importFromPatient();
+    // Run on patient switch or initial mount
+  }, [currentPatient?.id]);
+
   // Force-refresh auth profile on page load to avoid stale demographics
   useEffect(() => {
     (async () => {

@@ -79,132 +79,7 @@ const GenomicJourneyTracker: React.FC = () => {
   const [scenarios, setScenarios] = useState<ScenarioAnalysis[]>([]);
 
   useEffect(() => {
-    // Mock genomic data
-    setGenomicMarkers([
-      {
-        id: '1',
-        gene: 'BRCA1',
-        variant: 'c.5266dupC',
-        significance: 'pathogenic',
-        discoveryDate: new Date('2024-01-15'),
-        impact: 'Hereditary breast and ovarian cancer syndrome',
-        clinicalRelevance: 'High risk for breast and ovarian cancer',
-        drugResponse: 'Excellent response to PARP inhibitors',
-        actionability: 'high'
-      },
-      {
-        id: '2',
-        gene: 'CYP2D6',
-        variant: '*1/*4',
-        significance: 'likely_pathogenic',
-        discoveryDate: new Date('2024-02-01'),
-        impact: 'Intermediate drug metabolizer',
-        clinicalRelevance: 'Affects tamoxifen metabolism',
-        drugResponse: 'Requires dose adjustment for tamoxifen',
-        actionability: 'high'
-      },
-      {
-        id: '3',
-        gene: 'TP53',
-        variant: 'R273H',
-        significance: 'pathogenic',
-        discoveryDate: new Date('2024-02-15'),
-        impact: 'Li-Fraumeni syndrome',
-        clinicalRelevance: 'Increased cancer susceptibility',
-        actionability: 'medium'
-      }
-    ]);
-
-    // Mock treatment decisions
-    setTreatmentDecisions([
-      {
-        id: '1',
-        decision: 'Olaparib maintenance therapy',
-        date: new Date('2024-03-01'),
-        genomicBasis: ['BRCA1 c.5266dupC'],
-        efficacyPrediction: 85,
-        alternativesConsidered: ['Standard chemotherapy', 'Clinical trial PARP inhibitor'],
-        outcome: 'excellent',
-        notes: 'Complete response maintained for 8 months'
-      },
-      {
-        id: '2',
-        decision: 'Tamoxifen dose reduction',
-        date: new Date('2024-04-15'),
-        genomicBasis: ['CYP2D6 *1/*4'],
-        efficacyPrediction: 75,
-        alternativesConsidered: ['Standard dose tamoxifen', 'Aromatase inhibitor'],
-        outcome: 'good'
-      }
-    ]);
-
-    // Mock family risk data
-    setFamilyRisk({
-      relatives: [
-        {
-          relationship: 'Mother',
-          riskLevel: 'high',
-          recommendedScreening: ['Annual MRI', 'Mammography', 'BRCA testing'],
-          sharedVariants: ['BRCA1 c.5266dupC']
-        },
-        {
-          relationship: 'Sister',
-          riskLevel: 'high',
-          recommendedScreening: ['BRCA testing', 'Annual mammography from age 25'],
-          sharedVariants: ['BRCA1 c.5266dupC (potential)']
-        },
-        {
-          relationship: 'Daughter',
-          riskLevel: 'moderate',
-          recommendedScreening: ['Genetic counseling at age 18', 'Early screening protocols'],
-          sharedVariants: ['50% chance of BRCA1 inheritance']
-        }
-      ],
-      overallFamilyRisk: 75
-    });
-
-    // Mock research opportunities
-    setResearchOpportunities([
-      {
-        studyTitle: 'BRCA1 Precision Medicine Trial',
-        institution: 'Johns Hopkins University',
-        relevantGenes: ['BRCA1'],
-        participationStatus: 'eligible',
-        potentialImpact: 'Novel PARP inhibitor combination therapy',
-        contactInfo: 'research@hopkins.edu'
-      },
-      {
-        studyTitle: 'CYP2D6 Pharmacogenomics Study',
-        institution: 'Mayo Clinic',
-        relevantGenes: ['CYP2D6'],
-        participationStatus: 'enrolled',
-        potentialImpact: 'Personalized tamoxifen dosing algorithm'
-      }
-    ]);
-
-    // Mock scenario analyses
-    setScenarios([
-      {
-        scenarioName: 'If I had BRCA2 instead of BRCA1',
-        hypotheticalVariants: ['BRCA2 c.5946delT'],
-        treatmentChanges: ['Different PARP inhibitor selection', 'Modified surveillance protocol'],
-        outcomeProjections: {
-          efficacy: 80,
-          sideEffects: ['Similar profile', 'Potentially less neuropathy'],
-          duration: '12-18 months maintenance'
-        }
-      },
-      {
-        scenarioName: 'If I were a CYP2D6 ultra-rapid metabolizer',
-        hypotheticalVariants: ['CYP2D6 *1/*1'],
-        treatmentChanges: ['Standard tamoxifen dosing', 'No dose adjustments needed'],
-        outcomeProjections: {
-          efficacy: 95,
-          sideEffects: ['Standard profile'],
-          duration: '5 years as planned'
-        }
-      }
-    ]);
+    // Removed mock/demo data. These states should be populated from real data sources.
   }, []);
 
   const handleShareWithProvider = () => {
@@ -385,6 +260,9 @@ ${researchOpportunities.map(study => `
           {/* Genomic Markers */}
           <Card className="p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Genetic Variants</h2>
+            {genomicMarkers.length === 0 ? (
+              <p className="text-sm text-gray-600">No genetic variants available yet.</p>
+            ) : (
             <div className="space-y-4">
               {genomicMarkers.map((marker) => (
                 <div key={marker.id} className="border rounded-lg p-4">
@@ -414,11 +292,15 @@ ${researchOpportunities.map(study => `
                 </div>
               ))}
             </div>
+            )}
           </Card>
 
           {/* Treatment Decisions */}
           <Card className="p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Genomics-Based Treatment Decisions</h2>
+            {treatmentDecisions.length === 0 ? (
+              <p className="text-sm text-gray-600">No genomics-based treatment decisions recorded yet.</p>
+            ) : (
             <div className="space-y-4">
               {treatmentDecisions.map((decision) => (
                 <div key={decision.id} className="border rounded-lg p-4">
@@ -452,6 +334,7 @@ ${researchOpportunities.map(study => `
                 </div>
               ))}
             </div>
+            )}
           </Card>
         </div>
       )}
@@ -516,6 +399,9 @@ ${researchOpportunities.map(study => `
             <p className="text-gray-600 mb-6">
               Explore how different genetic variants would affect your treatment options
             </p>
+            {scenarios.length === 0 ? (
+              <p className="text-sm text-gray-600">No scenarios to display.</p>
+            ) : (
             <div className="space-y-6">
               {scenarios.map((scenario, index) => (
                 <div key={index} className="border rounded-lg p-4">
@@ -555,6 +441,7 @@ ${researchOpportunities.map(study => `
                 </div>
               ))}
             </div>
+            )}
           </Card>
         </div>
       )}
@@ -569,6 +456,9 @@ ${researchOpportunities.map(study => `
             <p className="text-gray-600 mb-6">
               Clinical trials and research studies matching your genetic profile
             </p>
+            {researchOpportunities.length === 0 ? (
+              <p className="text-sm text-gray-600">No research matches available.</p>
+            ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {researchOpportunities.map((study, index) => (
                 <div key={index} className="border rounded-lg p-4">
@@ -598,6 +488,7 @@ ${researchOpportunities.map(study => `
                 </div>
               ))}
             </div>
+            )}
           </Card>
         </div>
       )}

@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import Card from '../UI/Card';
 import PathwayDiagram from './PathwayDiagram';
+import DrugMechanismDashboard from '../Visualization/DrugMechanismDashboard';
 
 interface DrugPathway {
   drugName: string;
@@ -93,7 +94,7 @@ interface PredictiveModel {
 }
 
 const TreatmentSimulationLab: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'scenarios' | 'pathways' | 'body' | 'predictions'>('scenarios');
+  const [activeTab, setActiveTab] = useState<'scenarios' | 'pathways' | 'mechanisms' | 'body' | 'predictions'>('scenarios');
   const [selectedScenario, setSelectedScenario] = useState<SimulationScenario | null>(null);
   const [simulationRunning, setSimulationRunning] = useState(false);
   const [simulationProgress, setSimulationProgress] = useState(0);
@@ -378,6 +379,7 @@ const TreatmentSimulationLab: React.FC = () => {
           {[
             { id: 'scenarios', label: 'Treatment Scenarios', icon: Target },
             { id: 'pathways', label: 'Drug Pathways', icon: Route },
+            { id: 'mechanisms', label: 'Molecular Mechanisms', icon: Atom },
             { id: 'body', label: '3D Body Impact', icon: Layers },
             { id: 'predictions', label: 'Outcome Predictions', icon: TrendingUp }
           ].map(({ id, label, icon: Icon }) => (
@@ -669,6 +671,50 @@ const TreatmentSimulationLab: React.FC = () => {
                 className="border rounded-lg"
               />
             </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Molecular Mechanisms Tab */}
+      {activeTab === 'mechanisms' && (
+        <div className="space-y-6">
+          <Card className="p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Advanced Drug Mechanism Visualization
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Explore molecular-level interactions between your selected treatment and biological targets using advanced 3D modeling and simulation.
+            </p>
+            
+            {selectedScenario ? (
+              <DrugMechanismDashboard 
+                selectedDrugs={selectedScenario.treatments.map(t => ({
+                  id: t.drugName.toLowerCase().replace(/\s+/g, '_'),
+                  name: t.drugName,
+                  rxcui: `${Math.floor(Math.random() * 100000)}`,
+                  mechanism: t.mechanism,
+                  targets: t.targetProteins
+                }))}
+                patientGenomics={selectedScenario.geneticProfile}
+              />
+            ) : (
+              <div className="text-center py-12">
+                <Microscope className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Select a Treatment Scenario
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Choose a treatment scenario from the "Treatment Scenarios" tab to visualize molecular mechanisms.
+                </p>
+                <button
+                  onClick={() => setActiveTab('scenarios')}
+                  className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                >
+                  <Target className="w-4 h-4 mr-2" />
+                  Go to Scenarios
+                </button>
+              </div>
+            )}
           </Card>
         </div>
       )}

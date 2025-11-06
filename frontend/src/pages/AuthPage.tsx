@@ -1170,7 +1170,7 @@ const AuthPage: React.FC = () => {
                             }
                           }}
                           className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                          placeholder="Enter cm or e.g., 5' 10\""
+                          placeholder="Enter cm or e.g., 5' 10&quot;"
                         />
                       ) : (
                         <div className="flex gap-2">

@@ -84,6 +84,42 @@ const DrugIntelligenceIntegrator: React.FC = () => {
                        typeof data.data?.count === 'number' ? data.data.count :
                        'Available';
 
+    // Special rendering for DailyMed search to show label links
+    if (title === 'DailyMed' && Array.isArray(data?.data?.data)) {
+      const items = data.data.data as Array<{ setid: string; title: string }>;
+      return (
+        <Card>
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-1 text-xs font-medium rounded bg-${color}-100 text-${color}-800 border-${color}-200`}>
+                  {title}
+                </span>
+                <span className="text-gray-600 text-sm">{items.length} results</span>
+              </div>
+            </div>
+            <div className="text-xs text-gray-500 mb-2">
+              Source: {data.source} • {new Date(data.timestamp).toLocaleTimeString()}
+            </div>
+            <ul className="space-y-2">
+              {items.slice(0, 5).map((it) => (
+                <li key={it.setid} className="text-sm">
+                  <a
+                    href={`https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=${encodeURIComponent(it.setid)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-700 hover:underline"
+                  >
+                    {it.title || it.setid}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Card>
+      );
+    }
+
     return (
       <Card>
         <div className="p-4">

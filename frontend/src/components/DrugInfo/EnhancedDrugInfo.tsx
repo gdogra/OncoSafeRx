@@ -66,6 +66,7 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
   const [clinicalTrials, setClinicalTrials] = useState<ClinicalTrial[]>([]);
   const [guidelines, setGuidelines] = useState<DrugGuideline[]>([]);
   const [loading, setLoading] = useState(false);
+  const [labelSetId, setLabelSetId] = useState<string | null>(null);
 
   useEffect(() => {
     loadEnhancedDrugData();
@@ -81,6 +82,16 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
         // Merge enhanced data into the drug object
         Object.assign(drug, enhancedData);
       }
+      // Try to resolve FDA label setid for quick access
+      try {
+        const q = encodeURIComponent(drug.name || '');
+        if (q) {
+          const labelSearch = await fetch(`/api/drugs/labels/search?q=${q}`);
+          const labelData = await labelSearch.json().catch(() => ({} as any));
+          const first = (labelData?.results || [])[0];
+          if (first?.setid) setLabelSetId(String(first.setid));
+        }
+      } catch {}
       
       // Load additional UI data
       await Promise.all([
@@ -335,6 +346,13 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
             {(drug as any).originBrand && (
               <p className="text-sm text-gray-600">
                 Imported brand: {(drug as any).originBrand}{(drug as any).originRegion ? ` (${(drug as any).originRegion})` : ''}
+              </p>
+            )}
+            {labelSetId && (
+              <p className="text-sm mt-1">
+                <a className="text-blue-700 hover:underline" href={`https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=${labelSetId}`} target="_blank" rel="noreferrer">
+                  View FDA Label (DailyMed)
+                </a>
               </p>
             )}
             {drug.brandNames && drug.brandNames.length > 0 && (

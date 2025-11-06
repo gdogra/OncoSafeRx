@@ -37,6 +37,8 @@ function requireAdminToken(req, res, next) {
 router.get('/known', async (req, res) => {
   try {
     const { drug, drugA, drugB, severity, limit, resolveRx, view } = req.query;
+    const originA = String(req.query.originA || '').trim();
+    const originB = String(req.query.originB || '').trim();
 
     let results = getAllKnown();
 
@@ -139,6 +141,8 @@ router.get('/known', async (req, res) => {
       const compact = limited.map(item => ({
         drugA: item.drug_rxnorm[0],
         drugB: item.drug_rxnorm[1],
+        originA: originA || undefined,
+        originB: originB || undefined,
         severity: item.severity,
         mechanism: item.mechanism,
         effect: item.effect,
@@ -149,7 +153,7 @@ router.get('/known', async (req, res) => {
       return res.json({
         count: compact.length,
         total: enriched.length,
-        filters: { drug: drug || null, drugA: drugA || null, drugB: drugB || null, severity: severity || null },
+        filters: { drug: drug || null, drugA: drugA || null, drugB: drugB || null, originA: originA || null, originB: originB || null, severity: severity || null },
         interactions: compact
       });
     }
@@ -158,7 +162,7 @@ router.get('/known', async (req, res) => {
     return res.json({
       count: limited.length,
       total: enriched.length,
-      filters: { drug: drug || null, drugA: drugA || null, drugB: drugB || null, severity: severity || null },
+      filters: { drug: drug || null, drugA: drugA || null, drugB: drugB || null, originA: originA || null, originB: originB || null, severity: severity || null },
       interactions: limited
     });
   } catch (error) {

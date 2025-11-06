@@ -41,6 +41,25 @@ const normalizeQueryToGenerics = (q) => {
   return Array.from(new Set(normalized));
 };
 
+// Lightweight fuzzy score for suggestions
+const fuzzyScore = (candidate, query) => {
+  if (!candidate || !query) return 0;
+  const a = String(candidate).toLowerCase();
+  const b = String(query).toLowerCase();
+  if (!b) return 0;
+  if (a === b) return 1000;
+  if (a.startsWith(b)) return 850 - Math.min(100, a.length - b.length);
+  const idx = a.indexOf(b);
+  if (idx >= 0) return 650 - idx; // earlier matches score higher
+  // subsequence (characters in order)
+  let i = 0, j = 0, hits = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) { hits++; j++; }
+    i++;
+  }
+  return hits * 12 - (a.length - hits);
+};
+
 // Lightweight suggestions endpoint for typeahead
 router.get('/suggestions', 
   searchLimiter,
@@ -178,8 +197,13 @@ router.get('/suggestions',
         { name: 'montair fx', rxcui: null },
       ];
       const lc = q.toLowerCase();
-      const base = OFFLINE.filter(d => d.name.toLowerCase().includes(lc)).slice(0, limit);
-      suggestions = base.map(d => ({ id: d.rxcui || d.name, name: d.name, category: 'drug', rxcui: d.rxcui || null }));
+      // Fuzzy-rank offline list
+      const ranked = OFFLINE
+        .map(d => ({ d, score: fuzzyScore(d.name, lc) }))
+        .filter(x => x.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, limit);
+      suggestions = ranked.map(({ d }) => ({ id: d.rxcui || d.name, name: d.name, category: 'drug', rxcui: d.rxcui || null }));
       offline = true;
     }
 

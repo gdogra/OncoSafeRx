@@ -138,6 +138,19 @@ const InteractionCheckerInner: React.FC = () => {
     const skipped: string[] = [];
     for (const nm of names) {
       try {
+        // Prefer RXCUI from patient med if available
+        const med = filtered.find((m: any) => (m?.drug?.name || m?.name || m?.drugName || '').toString().trim() === nm);
+        const rx = med?.rxcui || med?.drug?.rxcui || '';
+        if (rx) {
+          try {
+            const details = await drugService.getDrugDetails(String(rx));
+            if (details?.rxcui && details?.name) {
+              if (!resolved.some(d => d.rxcui === details.rxcui)) resolved.push(details as Drug);
+              continue;
+            }
+          } catch {}
+        }
+        // Fallback: name search
         const res = await drugService.searchDrugs(nm);
         const first = res?.results?.[0];
         if (first?.rxcui && first?.name) {
@@ -669,6 +682,7 @@ const InteractionCheckerInner: React.FC = () => {
               setImporting(true);
               setImportNote(null);
               try {
+                if (!currentPatient) { setImportNote('No patient selected. Open My Medications and select a patient first.'); return; }
                 const { resolved, skipped } = await resolvePatientMedications(12, { includeInactive });
                 if (resolved.length) {
                   const merged = mergeUnique(selectedDrugs, resolved);
@@ -685,7 +699,7 @@ const InteractionCheckerInner: React.FC = () => {
               }
             }}
             className="text-sm text-blue-700 hover:text-blue-900 hover:underline"
-            disabled={importing || !currentPatient}
+            disabled={importing}
           >
             {importing ? 'Importing…' : 'Import from My Medications'}
           </button>

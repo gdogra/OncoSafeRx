@@ -31,6 +31,23 @@ const CuratedInteractions: React.FC = () => {
   const [drugA, setDrugA] = useState('');
   const [drugB, setDrugB] = useState('');
   const [brandMeta, setBrandMeta] = useState<{ drug?: string; drugA?: string; drugB?: string }>({});
+  const [labelMap, setLabelMap] = useState<Record<string, { setid?: string; loading?: boolean; error?: boolean }>>({});
+
+  const ensureLabel = async (name?: string) => {
+    const key = String(name || '').trim();
+    if (!key) return;
+    if (labelMap[key]?.setid || labelMap[key]?.loading) return;
+    setLabelMap((m) => ({ ...m, [key]: { loading: true } }));
+    try {
+      const resp = await fetch(`/api/drugs/labels/search?q=${encodeURIComponent(key)}`);
+      const data = await resp.json().catch(() => ({} as any));
+      const setid = (data?.results || [])[0]?.setid;
+      if (setid) setLabelMap((m) => ({ ...m, [key]: { setid } }));
+      else setLabelMap((m) => ({ ...m, [key]: { error: true } }));
+    } catch {
+      setLabelMap((m) => ({ ...m, [key]: { error: true } }));
+    }
+  };
   const [severity, setSeverity] = useState('');
   const [resolveRx, setResolveRx] = useState(true);
   const [results, setResults] = useState<{ count: number; total: number; interactions: KnownInteraction[] } | null>(null);
@@ -549,6 +566,28 @@ const CuratedInteractions: React.FC = () => {
                               <div className="text-[11px] text-gray-600">Brand: {label}</div>
                             ) : null;
                           })()}
+                          {(() => {
+                            const nm = (a?.name || it.drugs?.[0] || '').toString().trim();
+                            const lm = labelMap[nm];
+                            return (
+                              <div className="text-[11px] mt-0.5">
+                                {lm?.setid ? (
+                                  <a
+                                    className="text-blue-700 hover:underline"
+                                    href={`https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=${encodeURIComponent(lm.setid)}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >View FDA Label</a>
+                                ) : (
+                                  <button
+                                    className="text-blue-700 hover:underline disabled:text-gray-400"
+                                    disabled={lm?.loading}
+                                    onClick={() => ensureLabel(nm)}
+                                  >{lm?.loading ? 'Finding label…' : 'Find FDA Label'}</button>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </div>
                       </td>
                       <td className="py-2 pr-4">
@@ -564,6 +603,28 @@ const CuratedInteractions: React.FC = () => {
                             return label ? (
                               <div className="text-[11px] text-gray-600">Brand: {label}</div>
                             ) : null;
+                          })()}
+                          {(() => {
+                            const nm = (b?.name || it.drugs?.[1] || '').toString().trim();
+                            const lm = labelMap[nm];
+                            return (
+                              <div className="text-[11px] mt-0.5">
+                                {lm?.setid ? (
+                                  <a
+                                    className="text-blue-700 hover:underline"
+                                    href={`https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=${encodeURIComponent(lm.setid)}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >View FDA Label</a>
+                                ) : (
+                                  <button
+                                    className="text-blue-700 hover:underline disabled:text-gray-400"
+                                    disabled={lm?.loading}
+                                    onClick={() => ensureLabel(nm)}
+                                  >{lm?.loading ? 'Finding label…' : 'Find FDA Label'}</button>
+                                )}
+                              </div>
+                            );
                           })()}
                         </div>
                       </td>

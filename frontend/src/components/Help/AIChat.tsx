@@ -848,12 +848,14 @@ Which specific CPIC guideline would you like to learn about?`,
           const details = await detailsResp.json().catch(() => ({} as any));
           // Attempt DailyMed label search for indication text
           let indicationText = '';
+          let labelSetId = '';
           try {
             const labelSearch = await fetch(`/api/drugs/labels/search?q=${encodeURIComponent(details?.name || drugIntent)}`);
             const labelData = await labelSearch.json().catch(() => ({} as any));
             const first = (labelData?.results || [])[0];
             if (first?.setid) {
-              const labelDetailsResp = await fetch(`/api/drugs/labels/${first.setid}`);
+              labelSetId = String(first.setid);
+              const labelDetailsResp = await fetch(`/api/drugs/labels/${labelSetId}`);
               const labelDetails = await labelDetailsResp.json().catch(() => ({} as any));
               indicationText = labelDetails?.indications_and_usage?.[0] || '';
             }
@@ -877,7 +879,9 @@ Which specific CPIC guideline would you like to learn about?`,
             timestamp: new Date(),
             source: 'drug-info',
             cta: hit?.rxcui ? { label: 'Open Interactions', to: `/interactions?drug=${encodeURIComponent(hit.rxcui)}` } : undefined,
-            suggestion: { label: 'Open Drug Intelligence', to: `/drug-intelligence?q=${encodeURIComponent(details?.name || hit?.name || drugIntent)}`, type: 'drug-intel', query: details?.name || hit?.name || drugIntent }
+            suggestion: labelSetId
+              ? { label: 'View FDA Label', to: `https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=${encodeURIComponent(labelSetId)}` }
+              : { label: 'Open Drug Intelligence', to: `/drug-intelligence?q=${encodeURIComponent(details?.name || hit?.name || drugIntent)}`, type: 'drug-intel', query: details?.name || hit?.name || drugIntent }
           };
           setMessages(prev => [...prev, aiMessage]);
           saveMessageToPatient(aiMessage);
@@ -909,12 +913,14 @@ Which specific CPIC guideline would you like to learn about?`,
           const details = await detailsResp.json().catch(() => ({} as any));
           let indications = '';
           let studies = '';
+          let labelSetId = '';
           try {
             const labelSearch = await fetch(`/api/drugs/labels/search?q=${encodeURIComponent(details?.name || claimsIntent)}`);
             const labelData = await labelSearch.json().catch(() => ({} as any));
             const first = (labelData?.results || [])[0];
             if (first?.setid) {
-              const labelDetailsResp = await fetch(`/api/drugs/labels/${first.setid}`);
+              labelSetId = String(first.setid);
+              const labelDetailsResp = await fetch(`/api/drugs/labels/${labelSetId}`);
               const labelDetails = await labelDetailsResp.json().catch(() => ({} as any));
               indications = (labelDetails?.indications_and_usage?.[0] || '').replace(/\s+/g,' ').trim();
               const cs = Array.isArray(labelDetails?.clinical_studies) ? labelDetails?.clinical_studies[0] : '';
@@ -936,7 +942,9 @@ Which specific CPIC guideline would you like to learn about?`,
             timestamp: new Date(),
             source: 'drug-claims',
             cta: hit?.rxcui ? { label: 'Open Interactions', to: `/interactions?drug=${encodeURIComponent(hit.rxcui)}` } : undefined,
-            suggestion: { label: 'Open Drug Intelligence', to: `/drug-intelligence?q=${encodeURIComponent(details?.name || hit?.name || claimsIntent)}`, type: 'drug-intel', query: details?.name || hit?.name || claimsIntent }
+            suggestion: labelSetId
+              ? { label: 'View FDA Label', to: `https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=${encodeURIComponent(labelSetId)}` }
+              : { label: 'Open Drug Intelligence', to: `/drug-intelligence?q=${encodeURIComponent(details?.name || hit?.name || claimsIntent)}`, type: 'drug-intel', query: details?.name || hit?.name || claimsIntent }
           };
           setMessages(prev => [...prev, aiMessage]);
           saveMessageToPatient(aiMessage);

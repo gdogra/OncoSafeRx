@@ -2,7 +2,7 @@ import React from 'react';
 import Card from '../components/UI/Card';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { adminApi } from '../utils/adminApi';
-import { Download, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Download, RefreshCw, AlertTriangle, Plus, X } from 'lucide-react';
 import { useToast } from '../components/UI/Toast';
 import AccessDeniedBanner from '../components/Admin/AccessDeniedBanner';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +11,26 @@ const AdminSettings: React.FC = () => {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [unauthorized, setUnauthorized] = React.useState(false);
+  const [aliases, setAliases] = React.useState<Record<string, string | null>>({});
+  const [unknown, setUnknown] = React.useState<Array<{ term: string; count: number }>>([]);
+  const [brand, setBrand] = React.useState('');
+  const [generic, setGeneric] = React.useState('');
+
+  const loadAliases = async () => {
+    try {
+      const resp = await adminApi.get('/api/drugs/admin/aliases');
+      const body = await resp.json();
+      setAliases(body.aliases || {});
+    } catch {}
+  };
+  const loadUnknown = async () => {
+    try {
+      const resp = await adminApi.get('/api/drugs/admin/aliases/unknown');
+      const body = await resp.json();
+      setUnknown(body.items || []);
+    } catch {}
+  };
+  React.useEffect(() => { loadAliases(); loadUnknown(); }, []);
 
   const exportFile = async (type: 'users' | 'stats') => {
     try {
@@ -107,6 +127,98 @@ const AdminSettings: React.FC = () => {
           <span>
             If the global reset endpoint is not available, set <code>VITE_GUIDANCE_VERSION</code> and redeploy to force a reset for all users.
           </span>
+        </div>
+      </Card>
+
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Drug Brand Aliases</h3>
+        <p className="text-sm text-gray-600 mb-4">Map international brand names to generics to improve search coverage.</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+          <input
+            type="text"
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+            placeholder="Brand (e.g., cilicar)"
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+          />
+          <input
+            type="text"
+            value={generic}
+            onChange={(e) => setGeneric(e.target.value)}
+            placeholder="Generic (e.g., cilnidipine) — or leave blank to set null"
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+          />
+          <button
+            onClick={async () => {
+              if (!brand.trim()) { showToast('error', 'Brand is required'); return; }
+              try {
+                const resp = await adminApi.post('/api/drugs/admin/aliases/promote', {
+                  brand: brand.trim(),
+                  generic: generic.trim() ? generic.trim() : null
+                });
+                if (!resp.ok) throw new Error('Failed to save alias');
+                setBrand(''); setGeneric('');
+                await loadAliases();
+                await loadUnknown();
+                showToast('success', 'Alias saved');
+              } catch (e: any) {
+                showToast('error', e?.message || 'Failed to save alias');
+              }
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            <Plus size={16} /> Save Alias
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 className="font-medium text-gray-900 mb-2">Unknown Brands</h4>
+            <div className="border rounded-md divide-y">
+              {unknown.length === 0 ? (
+                <div className="p-3 text-sm text-gray-500">No unknown brands logged.</div>
+              ) : unknown.slice(0, 20).map((u) => (
+                <div key={u.term} className="p-3 flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">{u.term}</div>
+                    <div className="text-xs text-gray-500">{u.count} hits</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setBrand(u.term)}
+                      className="text-xs px-3 py-1 bg-gray-100 rounded hover:bg-gray-200"
+                    >Use</button>
+                    <button
+                      onClick={async () => { try { await adminApi.delete(`/api/drugs/admin/aliases/unknown?brand=${encodeURIComponent(u.term)}`); await loadUnknown(); } catch {} }}
+                      className="text-xs px-2 py-1 text-red-600 hover:bg-red-50 rounded"
+                      title="Remove from log"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {unknown.length > 0 && (
+              <button
+                onClick={async () => { try { await adminApi.delete('/api/drugs/admin/aliases/unknown?all=1'); await loadUnknown(); } catch {} }}
+                className="mt-2 text-xs text-red-700 hover:text-red-900"
+              >Clear all</button>
+            )}
+          </div>
+          <div>
+            <h4 className="font-medium text-gray-900 mb-2">Current Aliases</h4>
+            <div className="border rounded-md divide-y max-h-64 overflow-auto">
+              {Object.keys(aliases).length === 0 ? (
+                <div className="p-3 text-sm text-gray-500">No aliases configured.</div>
+              ) : Object.entries(aliases).sort(([a],[b]) => a.localeCompare(b)).map(([k, v]) => (
+                <div key={k} className="p-3 flex items-center justify-between">
+                  <div className="text-sm text-gray-800">{k} → <span className="font-medium">{String(v || 'null')}</span></div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </Card>
     </div>

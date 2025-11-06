@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { RxNormService } from '../services/rxnormService.js';
 import { DailyMedService } from '../services/dailymedService.js';
+import { requireAdmin } from '../middleware/auth.js';
 import supabaseService from '../config/supabase.js';
 import clinicalIntelligenceService from '../services/clinicalIntelligenceService.js';
 import { searchLimiter } from '../middleware/rateLimiter.js';
@@ -105,6 +106,102 @@ const logUnknownBrand = (term, context = 'suggestions') => {
     fs.appendFile(logPath, line + '\n', () => {});
   } catch {}
 };
+
+// Helpers to read/write alias JSON and unknown log
+const readAliasesJSON = () => {
+  try {
+    const raw = fs.readFileSync(BRAND_ALIAS_PATH, 'utf8');
+    return JSON.parse(raw || '{}');
+  } catch { return {}; }
+};
+
+const writeAliasesJSON = (obj) => {
+  try {
+    fs.mkdirSync(path.dirname(BRAND_ALIAS_PATH), { recursive: true });
+    fs.writeFileSync(BRAND_ALIAS_PATH, JSON.stringify(obj, null, 2));
+    loadBrandAliases();
+    return true;
+  } catch (e) {
+    console.warn('Failed to write brandAliases.json:', e?.message || e);
+    return false;
+  }
+};
+
+const UNKNOWN_LOG_PATH = process.env.ALIAS_FEEDBACK_FILE || path.resolve('logs/unknown-brands.log');
+const readUnknownLog = () => {
+  try {
+    const raw = fs.readFileSync(UNKNOWN_LOG_PATH, 'utf8');
+    const lines = raw.split(/\r?\n/).filter(Boolean);
+    const items = lines.map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+    // Aggregate counts by term
+    const counts = new Map();
+    items.forEach(it => {
+      const k = String(it.term || '').toLowerCase();
+      if (!k) return;
+      counts.set(k, (counts.get(k) || 0) + 1);
+    });
+    return Array.from(counts.entries()).map(([term, count]) => ({ term, count })).sort((a,b)=> b.count - a.count);
+  } catch { return []; }
+};
+
+const clearUnknownEntries = (brand) => {
+  try {
+    if (!fs.existsSync(UNKNOWN_LOG_PATH)) return true;
+    const raw = fs.readFileSync(UNKNOWN_LOG_PATH, 'utf8');
+    const lines = raw.split(/\r?\n/).filter(Boolean);
+    if (!brand) {
+      fs.writeFileSync(UNKNOWN_LOG_PATH, '');
+      return true;
+    }
+    const lc = brand.toLowerCase();
+    const kept = lines.filter(l => {
+      try { const it = JSON.parse(l); return String(it.term || '').toLowerCase() !== lc; } catch { return true; }
+    });
+    fs.writeFileSync(UNKNOWN_LOG_PATH, kept.join('\n') + (kept.length ? '\n' : ''));
+    return true;
+  } catch { return false; }
+};
+
+// Admin: list current aliases
+router.get('/admin/aliases', requireAdmin, (req, res) => {
+  try {
+    const obj = readAliasesJSON();
+    res.json({ count: Object.keys(obj).length, aliases: obj });
+  } catch (e) {
+    res.status(500).json({ error: e?.message || 'Failed to read aliases' });
+  }
+});
+
+// Admin: list unknown brand terms (aggregated)
+router.get('/admin/aliases/unknown', requireAdmin, (req, res) => {
+  const items = readUnknownLog();
+  res.json({ count: items.length, items });
+});
+
+// Admin: promote unknown brand to alias mapping
+router.post('/admin/aliases/promote', requireAdmin, express.json(), (req, res) => {
+  try {
+    const { brand, generic } = req.body || {};
+    if (!brand || typeof brand !== 'string') return res.status(400).json({ error: 'brand required' });
+    const obj = readAliasesJSON();
+    obj[String(brand).toLowerCase()] = generic === null ? null : String(generic || '').toLowerCase() || null;
+    const ok = writeAliasesJSON(obj);
+    if (!ok) return res.status(500).json({ error: 'Failed to write aliases' });
+    // Clear from unknown log
+    clearUnknownEntries(brand);
+    res.json({ ok: true, brand: String(brand).toLowerCase(), generic: obj[String(brand).toLowerCase()] });
+  } catch (e) {
+    res.status(500).json({ error: e?.message || 'Failed to promote alias' });
+  }
+});
+
+// Admin: clear unknown log (entire file or one brand)
+router.delete('/admin/aliases/unknown', requireAdmin, (req, res) => {
+  const { brand, all } = req.query || {};
+  const ok = clearUnknownEntries(all ? undefined : brand);
+  if (!ok) return res.status(500).json({ error: 'Failed to clear unknown entries' });
+  res.json({ ok: true });
+});
 
 // Lightweight suggestions endpoint for typeahead
 router.get('/suggestions', 

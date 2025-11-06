@@ -6,6 +6,7 @@ import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
+import Tooltip from '../components/UI/Tooltip';
 import { useSelection } from '../context/SelectionContext';
 import { usePatient } from '../context/PatientContext';
 import EnhancedDrugSearchBar from '../components/DrugSearch/EnhancedDrugSearchBar';
@@ -31,7 +32,7 @@ const CuratedInteractions: React.FC = () => {
   const [drugA, setDrugA] = useState('');
   const [drugB, setDrugB] = useState('');
   const [brandMeta, setBrandMeta] = useState<{ drug?: string; drugA?: string; drugB?: string }>({});
-  const [labelMap, setLabelMap] = useState<Record<string, { setid?: string; loading?: boolean; error?: boolean }>>({});
+  const [labelMap, setLabelMap] = useState<Record<string, { setid?: string; summary?: string; loading?: boolean; error?: boolean }>>({});
 
   const ensureLabel = async (name?: string) => {
     const key = String(name || '').trim();
@@ -42,7 +43,19 @@ const CuratedInteractions: React.FC = () => {
       const resp = await fetch(`/api/drugs/labels/search?q=${encodeURIComponent(key)}`);
       const data = await resp.json().catch(() => ({} as any));
       const setid = (data?.results || [])[0]?.setid;
-      if (setid) setLabelMap((m) => ({ ...m, [key]: { setid } }));
+      if (setid) {
+        let summary = '';
+        try {
+          const lbl = await fetch(`/api/drugs/labels/${setid}`);
+          const jd = await lbl.json().catch(() => ({} as any));
+          const ind = (jd?.indications_and_usage?.[0] || '').replace(/\s+/g,' ').trim();
+          if (ind) {
+            const m = ind.match(/^[^.]+\./);
+            summary = (m ? m[0] : ind).slice(0, 240);
+          }
+        } catch {}
+        setLabelMap((m) => ({ ...m, [key]: { setid, summary } }));
+      }
       else setLabelMap((m) => ({ ...m, [key]: { error: true } }));
     } catch {
       setLabelMap((m) => ({ ...m, [key]: { error: true } }));
@@ -572,12 +585,14 @@ const CuratedInteractions: React.FC = () => {
                             return (
                               <div className="text-[11px] mt-0.5">
                                 {lm?.setid ? (
-                                  <a
-                                    className="text-blue-700 hover:underline"
-                                    href={`https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=${encodeURIComponent(lm.setid)}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                  >View FDA Label</a>
+                                  <Tooltip content={lm.summary || 'FDA label (DailyMed)'} position="right">
+                                    <a
+                                      className="text-blue-700 hover:underline"
+                                      href={`https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=${encodeURIComponent(lm.setid)}`}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                    >View FDA Label</a>
+                                  </Tooltip>
                                 ) : (
                                   <button
                                     className="text-blue-700 hover:underline disabled:text-gray-400"
@@ -610,12 +625,14 @@ const CuratedInteractions: React.FC = () => {
                             return (
                               <div className="text-[11px] mt-0.5">
                                 {lm?.setid ? (
-                                  <a
-                                    className="text-blue-700 hover:underline"
-                                    href={`https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=${encodeURIComponent(lm.setid)}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                  >View FDA Label</a>
+                                  <Tooltip content={lm.summary || 'FDA label (DailyMed)'} position="right">
+                                    <a
+                                      className="text-blue-700 hover:underline"
+                                      href={`https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=${encodeURIComponent(lm.setid)}`}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                    >View FDA Label</a>
+                                  </Tooltip>
                                 ) : (
                                   <button
                                     className="text-blue-700 hover:underline disabled:text-gray-400"

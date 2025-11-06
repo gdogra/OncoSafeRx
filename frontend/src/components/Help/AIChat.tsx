@@ -875,7 +875,9 @@ Which specific CPIC guideline would you like to learn about?`,
             type: 'ai',
             content: answer,
             timestamp: new Date(),
-            source: 'drug-info'
+            source: 'drug-info',
+            cta: hit?.rxcui ? { label: 'Open Interactions', to: `/interactions?drug=${encodeURIComponent(hit.rxcui)}` } : undefined,
+            suggestion: { label: 'Open Drug Intelligence', to: `/drug-intelligence?q=${encodeURIComponent(details?.name || hit?.name || drugIntent)}`, type: 'drug-intel', query: details?.name || hit?.name || drugIntent }
           };
           setMessages(prev => [...prev, aiMessage]);
           saveMessageToPatient(aiMessage);
@@ -932,7 +934,9 @@ Which specific CPIC guideline would you like to learn about?`,
             type: 'ai',
             content: `${generic}${brand ? ` (${brand})` : ''} —\n${content}`,
             timestamp: new Date(),
-            source: 'drug-claims'
+            source: 'drug-claims',
+            cta: hit?.rxcui ? { label: 'Open Interactions', to: `/interactions?drug=${encodeURIComponent(hit.rxcui)}` } : undefined,
+            suggestion: { label: 'Open Drug Intelligence', to: `/drug-intelligence?q=${encodeURIComponent(details?.name || hit?.name || claimsIntent)}`, type: 'drug-intel', query: details?.name || hit?.name || claimsIntent }
           };
           setMessages(prev => [...prev, aiMessage]);
           saveMessageToPatient(aiMessage);

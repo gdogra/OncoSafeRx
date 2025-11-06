@@ -826,6 +826,66 @@ Which specific CPIC guideline would you like to learn about?`,
     setInputValue('');
     setIsLoading(true);
 
+    // Intent: simple drug-purpose Q&A (e.g., "what is zolfresh for" / "purpose of cilicar")
+    try {
+      const drugIntent = (() => {
+        const q = userMessage.content.toLowerCase().trim();
+        const m1 = q.match(/purpose of (?:a |an |the )?drug (?:like |named |called )?([a-z0-9 .\-+]+)/i);
+        const m2 = q.match(/what is (?:a |an |the )?drug (?:like |named |called )?([a-z0-9 .\-+]+)/i);
+        const m3 = q.match(/what is ([a-z0-9 .\-+]+) (?:for|used for|purpose)/i);
+        const m4 = q.match(/([a-z0-9 .\-+]+) purpose|([a-z0-9 .\-+]+) used for/i);
+        const candidate = (m1?.[1] || m2?.[1] || m3?.[1] || m4?.[1] || m4?.[2] || '').trim();
+        return candidate.length >= 2 ? candidate : null;
+      })();
+
+      if (drugIntent) {
+        // Try backend search → details → label indication
+        const searchResp = await fetch(`/api/drugs/search?q=${encodeURIComponent(drugIntent)}`);
+        const searchData = await searchResp.json().catch(() => ({} as any));
+        const hit = (searchData?.results || [])[0];
+        if (hit?.rxcui) {
+          const detailsResp = await fetch(`/api/drugs/${encodeURIComponent(hit.rxcui)}`);
+          const details = await detailsResp.json().catch(() => ({} as any));
+          // Attempt DailyMed label search for indication text
+          let indicationText = '';
+          try {
+            const labelSearch = await fetch(`/api/drugs/labels/search?q=${encodeURIComponent(details?.name || drugIntent)}`);
+            const labelData = await labelSearch.json().catch(() => ({} as any));
+            const first = (labelData?.results || [])[0];
+            if (first?.setid) {
+              const labelDetailsResp = await fetch(`/api/drugs/labels/${first.setid}`);
+              const labelDetails = await labelDetailsResp.json().catch(() => ({} as any));
+              indicationText = labelDetails?.indications_and_usage?.[0] || '';
+            }
+          } catch {}
+
+          const brand = (details?.brand_names || [])?.slice(0,3).join(', ');
+          const generic = details?.generic_name || details?.name || hit?.name || drugIntent;
+          const purpose = indicationText
+            ? indicationText.replace(/\s+/g,' ').trim().slice(0, 600)
+            : (details?.therapeutic_class || 'Indication information unavailable.');
+
+          const answer = [
+            `${generic}${brand ? ` (${brand})` : ''}:`,
+            typeof purpose === 'string' ? purpose : String(purpose)
+          ].join(' ');
+
+          const aiMessage: ChatMessage = {
+            id: (Date.now() + 1).toString(),
+            type: 'ai',
+            content: answer,
+            timestamp: new Date(),
+            source: 'drug-info'
+          };
+          setMessages(prev => [...prev, aiMessage]);
+          saveMessageToPatient(aiMessage);
+          setPendingConfirmId(aiMessage.id);
+          setIsLoading(false);
+          return;
+        }
+      }
+    } catch {}
+
     // Handle release notes / new features intent via API
     try {
       const q = inputValue.toLowerCase();

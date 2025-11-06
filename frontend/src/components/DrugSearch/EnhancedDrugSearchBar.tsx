@@ -37,6 +37,32 @@ const EnhancedDrugSearchBar: React.FC<EnhancedDrugSearchBarProps> = ({
     'metformin', 'atorvastatin', 'amlodipine', 'omeprazole', 'hydrochlorothiazide',
   ];
 
+  // Additional brand aliases to improve offline suggestions and typo tolerance
+  const FALLBACK_BRANDS = [
+    'arkamin', 'metpure', 'probowel', 'dytor', 'cilacar', 'cilicar', 'kbind', 'oxra', 'zolfresh', 'febutaz', 'montair fx',
+    'tylenol', 'advil', 'motrin', 'lipitor', 'crestor', 'zyrtec', 'allegra', 'flonase'
+  ];
+
+  const FALLBACK_SUGGESTIONS = Array.from(new Set([...FALLBACK_DRUGS, ...FALLBACK_BRANDS]));
+
+  // Lightweight fuzzy scoring (prefix > substring > subsequence)
+  const fuzzyScore = (candidate: string, query: string) => {
+    const a = candidate.toLowerCase();
+    const b = query.toLowerCase();
+    if (!b) return 0;
+    if (a === b) return 1000;
+    if (a.startsWith(b)) return 800 - (a.length - b.length);
+    const idx = a.indexOf(b);
+    if (idx >= 0) return 600 - idx; // earlier match is better
+    // subsequence score
+    let i = 0, j = 0, hits = 0;
+    while (i < a.length && j < b.length) {
+      if (a[i] === b[j]) { hits++; j++; }
+      i++;
+    }
+    return hits * 10 - (a.length - hits);
+  };
+
   // Load search history from localStorage
   useEffect(() => {
     try {
@@ -107,37 +133,41 @@ const EnhancedDrugSearchBar: React.FC<EnhancedDrugSearchBarProps> = ({
           })) : [];
       const combined = [...historyOptions, ...drugOptions];
 
-      // If no results from API, use a local fallback list filtered by query
+      // If no results from API, use a local fuzzy fallback list
       if (combined.length === 0) {
         const q = query.toLowerCase();
-        const fallbackOptions: AutoCompleteOption[] = FALLBACK_DRUGS
-          .filter((name) => name.includes(q))
-          .slice(0, maxSuggestions)
-          .map((name) => ({
-            value: name,
-            label: name,
-            description: 'Local suggestion',
-            category: 'Suggestions',
-            metadata: undefined,
-          }));
-        setOptions(fallbackOptions);
-      } else {
-        setOptions(combined);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to search drugs');
-      // On error, also provide fallback suggestions
-      const q = query.toLowerCase();
-      const fallbackOptions: AutoCompleteOption[] = FALLBACK_DRUGS
-        .filter((name) => name.includes(q))
-        .slice(0, maxSuggestions)
-        .map((name) => ({
+        const ranked = FALLBACK_SUGGESTIONS
+          .map((name) => ({ name, score: fuzzyScore(name, q) }))
+          .filter(x => x.score > 0)
+          .sort((a, b) => b.score - a.score)
+          .slice(0, maxSuggestions);
+        const fallbackOptions: AutoCompleteOption[] = ranked.map(({ name }) => ({
           value: name,
           label: name,
           description: 'Local suggestion',
           category: 'Suggestions',
           metadata: undefined,
         }));
+        setOptions(fallbackOptions);
+      } else {
+        setOptions(combined);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to search drugs');
+      // On error, also provide fuzzy fallback suggestions
+      const q = query.toLowerCase();
+      const ranked = FALLBACK_SUGGESTIONS
+        .map((name) => ({ name, score: fuzzyScore(name, q) }))
+        .filter(x => x.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, maxSuggestions);
+      const fallbackOptions: AutoCompleteOption[] = ranked.map(({ name }) => ({
+        value: name,
+        label: name,
+        description: 'Local suggestion',
+        category: 'Suggestions',
+        metadata: undefined,
+      }));
       setOptions(fallbackOptions);
     } finally {
       setLoading(false);

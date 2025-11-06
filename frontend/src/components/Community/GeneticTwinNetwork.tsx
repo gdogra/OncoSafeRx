@@ -112,168 +112,7 @@ const GeneticTwinNetwork: React.FC = () => {
   const [selectedTwin, setSelectedTwin] = useState<GeneticTwin | null>(null);
 
   useEffect(() => {
-    // Mock data initialization
-    setGeneticTwins([
-      {
-        id: '1',
-        userId: 'user_1',
-        firstName: 'Sarah',
-        lastInitial: 'J',
-        age: 34,
-        location: 'Seattle, WA',
-        diagnosisDate: new Date('2023-03-15'),
-        treatmentPhase: 'active_treatment',
-        geneticProfile: {
-          mutations: ['BRCA1 c.5266dupC', 'TP53 R273H'],
-          cancerType: 'Triple-negative breast cancer',
-          tumorMarkers: ['ER-', 'PR-', 'HER2-'],
-          hereditarySyndromes: ['Hereditary breast and ovarian cancer syndrome'],
-          pharmacogenomics: ['CYP2D6 *1/*4'],
-          compatibilityScore: 94
-        },
-        sharedExperiences: ['Neoadjuvant chemotherapy', 'PARP inhibitor therapy', 'Genetic counseling'],
-        mentorshipStatus: 'mentor',
-        communicationPreferences: {
-          video: true,
-          phone: true,
-          messaging: true,
-          inPerson: false
-        },
-        bio: 'BRCA1 carrier who has navigated the journey from diagnosis to current maintenance therapy. Happy to share experiences and support others.',
-        lastActive: new Date(),
-        connectionCount: 23,
-        helpfulVotes: 87,
-        verifiedStatus: true,
-        privacyLevel: 'selective'
-      },
-      {
-        id: '2',
-        userId: 'user_2',
-        firstName: 'Maria',
-        lastInitial: 'R',
-        age: 29,
-        location: 'Austin, TX',
-        diagnosisDate: new Date('2024-01-20'),
-        treatmentPhase: 'newly_diagnosed',
-        geneticProfile: {
-          mutations: ['BRCA1 c.5266dupC'],
-          cancerType: 'Invasive ductal carcinoma',
-          tumorMarkers: ['ER+', 'PR+', 'HER2-'],
-          hereditarySyndromes: ['Hereditary breast and ovarian cancer syndrome'],
-          pharmacogenomics: ['CYP2D6 *1/*1'],
-          compatibilityScore: 89
-        },
-        sharedExperiences: ['Recently diagnosed', 'Genetic testing', 'Treatment planning'],
-        mentorshipStatus: 'mentee',
-        communicationPreferences: {
-          video: false,
-          phone: false,
-          messaging: true,
-          inPerson: false
-        },
-        bio: 'Newly diagnosed and looking for support from others who have walked this path.',
-        lastActive: new Date(Date.now() - 3600000),
-        connectionCount: 3,
-        helpfulVotes: 12,
-        verifiedStatus: true,
-        privacyLevel: 'open'
-      },
-      {
-        id: '3',
-        userId: 'user_3',
-        firstName: 'Jennifer',
-        lastInitial: 'L',
-        age: 42,
-        location: 'Boston, MA',
-        diagnosisDate: new Date('2020-08-10'),
-        treatmentPhase: 'survivor',
-        geneticProfile: {
-          mutations: ['BRCA1 c.5266dupC', 'CHEK2 1100delC'],
-          cancerType: 'Invasive lobular carcinoma',
-          tumorMarkers: ['ER+', 'PR+', 'HER2+'],
-          hereditarySyndromes: ['Hereditary breast and ovarian cancer syndrome'],
-          pharmacogenomics: ['CYP2D6 *1/*4', 'CYP3A4 *1/*1B'],
-          compatibilityScore: 92
-        },
-        sharedExperiences: ['Completed treatment', 'Reconstruction surgery', 'Survivorship planning'],
-        mentorshipStatus: 'mentor',
-        communicationPreferences: {
-          video: true,
-          phone: true,
-          messaging: true,
-          inPerson: true
-        },
-        bio: '4-year survivor passionate about supporting newly diagnosed patients through their journey.',
-        lastActive: new Date(Date.now() - 1800000),
-        connectionCount: 45,
-        helpfulVotes: 156,
-        verifiedStatus: true,
-        privacyLevel: 'open'
-      }
-    ]);
-
-    setSupportGroups([
-      {
-        id: '1',
-        name: 'BRCA1 Warriors',
-        description: 'Support group for BRCA1 mutation carriers navigating prevention and treatment decisions',
-        geneticFocus: ['BRCA1'],
-        memberCount: 234,
-        isPrivate: false,
-        lastActivity: new Date(),
-        moderators: ['sarah_j', 'jennifer_l'],
-        tags: ['BRCA1', 'prevention', 'treatment', 'family planning']
-      },
-      {
-        id: '2',
-        name: 'Triple Negative Support Circle',
-        description: 'Private group for triple-negative breast cancer patients and survivors',
-        geneticFocus: ['BRCA1', 'BRCA2', 'TP53'],
-        memberCount: 89,
-        isPrivate: true,
-        lastActivity: new Date(Date.now() - 3600000),
-        moderators: ['maria_r'],
-        tags: ['triple-negative', 'chemotherapy', 'PARP inhibitors']
-      },
-      {
-        id: '3',
-        name: 'Young Adults with Hereditary Cancer',
-        description: 'Support network for adults under 40 with hereditary cancer syndromes',
-        geneticFocus: ['BRCA1', 'BRCA2', 'TP53', 'CHEK2', 'ATM'],
-        memberCount: 156,
-        isPrivate: false,
-        lastActivity: new Date(Date.now() - 7200000),
-        moderators: ['genetic_counselor_1', 'peer_mentor_2'],
-        tags: ['young adults', 'hereditary', 'fertility', 'career']
-      }
-    ]);
-
-    setCommunityInsights([
-      {
-        title: 'PARP Inhibitor Response Patterns',
-        description: 'BRCA1 carriers show 85% response rate to olaparib maintenance therapy',
-        relevantGenes: ['BRCA1'],
-        participantCount: 127,
-        confidence: 89,
-        category: 'treatment'
-      },
-      {
-        title: 'Exercise and Recovery Correlation',
-        description: 'Regular moderate exercise correlates with 40% faster recovery in BRCA+ patients',
-        relevantGenes: ['BRCA1', 'BRCA2'],
-        participantCount: 203,
-        confidence: 76,
-        category: 'lifestyle'
-      },
-      {
-        title: 'Prophylactic Surgery Satisfaction',
-        description: '92% of BRCA carriers report satisfaction with prophylactic mastectomy decision',
-        relevantGenes: ['BRCA1', 'BRCA2'],
-        participantCount: 85,
-        confidence: 94,
-        category: 'outcomes'
-      }
-    ]);
+    // Removed mock/demo data. Populate from backend when available.
   }, []);
 
   const filteredTwins = geneticTwins.filter(twin => 
@@ -394,6 +233,9 @@ const GeneticTwinNetwork: React.FC = () => {
           </div>
 
           {/* Genetic Twins Grid */}
+          {filteredTwins.length === 0 ? (
+            <Card className="p-6 text-sm text-gray-600">No genetic matches to display.</Card>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTwins.map((twin) => (
               <Card key={twin.id} className="p-6">
@@ -472,12 +314,16 @@ const GeneticTwinNetwork: React.FC = () => {
               </Card>
             ))}
           </div>
+          )}
         </div>
       )}
 
       {/* Support Groups Tab */}
       {activeTab === 'groups' && (
         <div className="space-y-6">
+          {supportGroups.length === 0 ? (
+            <Card className="p-6 text-sm text-gray-600">No support groups available.</Card>
+          ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {supportGroups.map((group) => (
               <Card key={group.id} className="p-6">
@@ -536,6 +382,7 @@ const GeneticTwinNetwork: React.FC = () => {
               </Card>
             ))}
           </div>
+          )}
         </div>
       )}
 
@@ -546,6 +393,9 @@ const GeneticTwinNetwork: React.FC = () => {
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Community-Generated Insights
             </h2>
+            {communityInsights.length === 0 ? (
+              <p className="text-sm text-gray-600">No insights to display.</p>
+            ) : (
             <div className="space-y-4">
               {communityInsights.map((insight, index) => (
                 <div key={index} className="border rounded-lg p-4">
@@ -586,6 +436,7 @@ const GeneticTwinNetwork: React.FC = () => {
                 </div>
               ))}
             </div>
+            )}
           </Card>
         </div>
       )}

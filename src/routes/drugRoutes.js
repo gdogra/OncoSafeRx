@@ -93,6 +93,14 @@ const fuzzyScore = (candidate, query) => {
   return hits * 12 - (a.length - hits);
 };
 
+// Treat all configured alias keys as Indian market brands (for display tag)
+const isIndianBrand = (brand) => {
+  try {
+    const lc = String(brand || '').toLowerCase();
+    return BRAND_ALIASES.has(lc);
+  } catch { return false; }
+};
+
 // Optional logging for unknown brand candidates
 const logUnknownBrand = (term, context = 'suggestions') => {
   try {
@@ -221,7 +229,11 @@ router.get('/suggestions',
         for (const c of candidates) {
           try {
             const r = await rxnormService.searchDrugs(c);
-            if (r && r.length) rxResults = [...rxResults, ...r];
+            if (r && r.length) {
+              // annotate origin brand/region in suggestion items
+              const annotated = r.map(item => ({ ...item, originBrand: q, originRegion: isIndianBrand(q) ? 'IN' : undefined }));
+              rxResults = [...rxResults, ...annotated];
+            }
           } catch (e2) {
             console.warn('RxNorm alias suggestion failed:', c, e2?.message || e2);
           }
@@ -382,7 +394,11 @@ router.get('/search',
         for (const c of candidates) {
           try {
             const r = await rxnormService.searchDrugs(c);
-            if (r && r.length) rxnormResults = [...rxnormResults, ...r];
+            if (r && r.length) {
+              // annotate origin brand/region so frontend can display brand (IN)
+              const annotated = r.map(item => ({ ...item, originBrand: q, originRegion: isIndianBrand(q) ? 'IN' : undefined }));
+              rxnormResults = [...rxnormResults, ...annotated];
+            }
           } catch (e2) {
             console.warn('RxNorm alias search failed:', c, e2?.message || e2);
           }

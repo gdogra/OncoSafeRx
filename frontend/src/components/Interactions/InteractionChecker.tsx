@@ -37,6 +37,7 @@ const InteractionCheckerInner: React.FC = () => {
   const [altAllResults, setAltAllResults] = useState<any[] | null>(null);
   const [onlyCovered, setOnlyCovered] = useState(false);
   const [onlyBest, setOnlyBest] = useState(false);
+  const [consolidateFormulations, setConsolidateFormulations] = useState(true);
   const resultsRef = useRef<HTMLDivElement | null>(null);
   const [pendingScrollToResults, setPendingScrollToResults] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -324,7 +325,13 @@ const InteractionCheckerInner: React.FC = () => {
   };
 
   const handleCheckInteractions = async () => {
-    if (selectedDrugs.length < 2) {
+    // Optionally consolidate different formulations of the same base drug
+    const norm = (d: Drug) => extractBaseDrugName(d.name || '');
+    const effectiveSelected = consolidateFormulations
+      ? selectedDrugs.filter((d, idx, arr) => idx === arr.findIndex(x => norm(x) === norm(d)))
+      : selectedDrugs;
+
+    if (effectiveSelected.length < 2) {
       setError('Please select at least 2 drugs to check for interactions');
       return;
     }
@@ -340,7 +347,7 @@ const InteractionCheckerInner: React.FC = () => {
       try {
         if (isDev) console.log('Trying primary interaction check endpoint...');
         result = await interactionService.checkInteractions(
-          selectedDrugs.map(drug => ({ rxcui: drug.rxcui, name: drug.name }))
+          effectiveSelected.map(drug => ({ rxcui: drug.rxcui, name: drug.name }))
         );
         if (isDev) console.log('Primary endpoint result:', result);
         
@@ -359,7 +366,7 @@ const InteractionCheckerInner: React.FC = () => {
         
         // Extract all drug names from all selected drugs (handling complex combinations)
         const allDrugNames: string[] = [];
-        selectedDrugs.forEach(drug => {
+        effectiveSelected.forEach(drug => {
           const names = extractBaseDrugNames(drug.name);
           if (isDev) console.log(`Extracted from "${drug.name}":`, names);
           allDrugNames.push(...names);
@@ -701,6 +708,11 @@ const InteractionCheckerInner: React.FC = () => {
                     {drug.generic_name && drug.generic_name !== drug.name && (
                       <span className="text-sm text-gray-600 ml-2">({drug.generic_name})</span>
                     )}
+                    {drug.originBrand && (
+                      <div className="text-xs text-gray-600">
+                        {String(drug.originBrand)}{drug.originRegion ? ` (${drug.originRegion})` : ''}
+                      </div>
+                    )}
                     <div className="text-xs text-gray-500">RXCUI: {drug.rxcui}</div>
                   </div>
                   <button
@@ -716,10 +728,21 @@ const InteractionCheckerInner: React.FC = () => {
         )}
 
         {/* Action Buttons */}
-        <div className="mt-6 flex flex-col sm:flex-row gap-4">
+        <div className="mt-6 flex flex-col sm:flex-row gap-4 items-start">
+          <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={consolidateFormulations}
+              onChange={(e) => setConsolidateFormulations(e.target.checked)}
+              className="rounded border-gray-300"
+            />
+            Consolidate formulations (same base drug)
+          </label>
           <button
             onClick={handleCheckInteractions}
-            disabled={selectedDrugs.length < 2 || loading}
+            disabled={(consolidateFormulations
+              ? (selectedDrugs.filter((d, idx, arr) => idx === arr.findIndex(x => extractBaseDrugName(x.name) === extractBaseDrugName(d.name))).length < 2)
+              : (selectedDrugs.length < 2)) || loading}
             className="flex items-center justify-center space-x-2 px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             data-tour="interactions-check-button"
           >

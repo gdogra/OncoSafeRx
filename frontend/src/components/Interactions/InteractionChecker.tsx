@@ -39,6 +39,8 @@ const InteractionCheckerInner: React.FC = () => {
   const [onlyBest, setOnlyBest] = useState(false);
   const resultsRef = useRef<HTMLDivElement | null>(null);
   const [pendingScrollToResults, setPendingScrollToResults] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importNote, setImportNote] = useState<string | null>(null);
 
   const applyAltFilters = (list: any[] | null, covered: boolean, best: boolean) => {
     if (!Array.isArray(list)) return list;
@@ -117,46 +119,50 @@ const InteractionCheckerInner: React.FC = () => {
     }
   }, [selectedDrugs.length, selection.selectedDrugs]);
 
+  const resolvePatientMedications = async (limit = 8) => {
+    if (!currentPatient) return { resolved: [] as Drug[], skipped: [] as string[] };
+    const meds: any[] = Array.isArray(currentPatient.medications) ? currentPatient.medications : [];
+    if (!meds.length) return { resolved: [], skipped: [] };
+    const names = Array.from(new Set(
+      meds
+        .map((m: any) => (m?.drug?.name || m?.name || m?.drugName || '').toString().trim())
+        .filter((s: string) => s && s.length >= 2)
+    )).slice(0, limit);
+    const resolved: Drug[] = [];
+    const skipped: string[] = [];
+    for (const nm of names) {
+      try {
+        const res = await drugService.searchDrugs(nm);
+        const first = res?.results?.[0];
+        if (first?.rxcui && first?.name) {
+          if (!resolved.some(d => d.rxcui === first.rxcui)) resolved.push(first as Drug);
+        } else {
+          skipped.push(nm);
+        }
+      } catch {
+        skipped.push(nm);
+      }
+    }
+    return { resolved, skipped };
+  };
+
   // Auto-import current patient's medications into selected drugs when empty
   useEffect(() => {
     const importFromPatient = async () => {
       try {
         if (!currentPatient) return;
         if (selectedDrugs.length > 0) return;
-        const meds: any[] = Array.isArray(currentPatient.medications) ? currentPatient.medications : [];
-        if (!meds.length) return;
-
-        // Extract up to 8 unique names to resolve
-        const names = Array.from(new Set(
-          meds
-            .map((m: any) => (m?.drug?.name || m?.name || m?.drugName || '').toString().trim())
-            .filter((s: string) => s && s.length >= 2)
-        )).slice(0, 8);
-
-        const resolved: Drug[] = [];
-        for (const nm of names) {
-          try {
-            const res = await drugService.searchDrugs(nm);
-            const first = res?.results?.[0];
-            if (first?.rxcui && first?.name) {
-              // Avoid duplicates by RXCUI
-              if (!resolved.some(d => d.rxcui === first.rxcui)) {
-                resolved.push(first as Drug);
-              }
-            }
-          } catch {}
-        }
+        const { resolved, skipped } = await resolvePatientMedications(8);
         if (resolved.length) {
-          // Merge with any selection cache
           const merged = [...selection.selectedDrugs, ...resolved]
             .filter((d, idx, arr) => d?.rxcui && idx === arr.findIndex(x => x.rxcui === d.rxcui));
           setSelectedDrugs(merged);
           merged.forEach(d => selection.addDrug(d));
+          if (skipped.length) setImportNote(`Imported ${resolved.length} meds. Skipped: ${skipped.join(', ')}`);
         }
       } catch {}
     };
     importFromPatient();
-    // Run on patient switch or initial mount
   }, [currentPatient?.id]);
 
   // Force-refresh auth profile on page load to avoid stale demographics
@@ -627,9 +633,42 @@ const InteractionCheckerInner: React.FC = () => {
       {/* Drug Selection */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Select Medications</h2>
+        {importNote && (
+          <div className="mb-3 text-xs text-gray-600">{importNote}</div>
+        )}
         
         <div data-tour="interactions-add-drug">
           <DrugSelector onDrugSelect={handleAddDrug} />
+        </div>
+
+        <div className="mt-3">
+          <button
+            type="button"
+            onClick={async () => {
+              setImporting(true);
+              setImportNote(null);
+              try {
+                const { resolved, skipped } = await resolvePatientMedications(12);
+                if (resolved.length) {
+                  const merged = [...selectedDrugs, ...resolved]
+                    .filter((d, idx, arr) => d?.rxcui && idx === arr.findIndex(x => x.rxcui === d.rxcui));
+                  setSelectedDrugs(merged);
+                  merged.forEach(d => selection.addDrug(d));
+                }
+                if (resolved.length || skipped.length) {
+                  setImportNote(`Imported ${resolved.length}${skipped.length ? `. Skipped: ${skipped.join(', ')}` : ''}`);
+                } else {
+                  setImportNote('No medications to import from patient profile.');
+                }
+              } finally {
+                setImporting(false);
+              }
+            }}
+            className="text-sm text-blue-700 hover:text-blue-900 hover:underline"
+            disabled={importing || !currentPatient}
+          >
+            {importing ? 'Importing…' : 'Import from My Medications'}
+          </button>
         </div>
         
         {/* Selected Drugs List */}

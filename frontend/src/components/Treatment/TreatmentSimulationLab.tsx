@@ -28,11 +28,13 @@ import {
   Microscope,
   Atom,
   Eye,
-  Timer
+  Timer,
+  Loader2
 } from 'lucide-react';
 import Card from '../UI/Card';
 import PathwayDiagram from './PathwayDiagram';
 import DrugMechanismDashboard from '../Visualization/DrugMechanismDashboard';
+import treatmentSimulationService, { SimulationScenario, BodySystem, PredictiveModel, DrugPathway } from '../../services/treatmentSimulationService';
 
 interface DrugPathway {
   drugName: string;
@@ -104,190 +106,76 @@ const TreatmentSimulationLab: React.FC = () => {
   const [selectedTreatment, setSelectedTreatment] = useState<DrugPathway | null>(null);
   const [selectedTarget, setSelectedTarget] = useState<string | null>(null);
   const [selectedEnzyme, setSelectedEnzyme] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [patientId, setPatientId] = useState<string>('default-patient');
 
   useEffect(() => {
-    // Mock data initialization
-    setScenarios([
-      {
-        id: '1',
-        name: 'Current Treatment Plan',
-        description: 'Olaparib maintenance therapy based on your BRCA1 mutation',
-        geneticProfile: {
-          mutations: ['BRCA1 c.5266dupC'],
-          metabolizerStatus: ['CYP2D6 intermediate'],
-          biomarkers: ['ER+', 'PR+', 'HER2-']
-        },
-        treatments: [
-          {
-            drugName: 'Olaparib',
-            mechanism: 'PARP inhibition',
-            targetProteins: ['PARP1', 'PARP2'],
-            metabolismPathway: ['CYP3A4', 'CYP2D6'],
-            expectedEfficacy: 85,
-            sideEffectProfile: [
-              { name: 'Fatigue', probability: 65, severity: 'moderate', timeframe: '1-2 weeks' },
-              { name: 'Nausea', probability: 45, severity: 'mild', timeframe: 'First month' },
-              { name: 'Anemia', probability: 25, severity: 'moderate', timeframe: '2-3 months' }
-            ],
-            genomicFactors: ['BRCA1 mutation', 'Homologous recombination deficiency'],
-            timeToEffect: 8,
-            duration: 104
-          }
-        ],
-        outcomeMetrics: {
-          overallSurvival: 87,
-          progressionFreeSurvival: 92,
-          responseRate: 78,
-          qualityOfLife: 72,
-          sideEffectBurden: 35
-        },
-        confidence: 89
-      },
-      {
-        id: '2',
-        name: 'Alternative Therapy A',
-        description: 'Combination immunotherapy with checkpoint inhibitors',
-        geneticProfile: {
-          mutations: ['BRCA1 c.5266dupC', 'PD-L1 positive'],
-          metabolizerStatus: ['CYP2D6 intermediate'],
-          biomarkers: ['ER+', 'PR+', 'HER2-', 'PD-L1+']
-        },
-        treatments: [
-          {
-            drugName: 'Pembrolizumab + Olaparib',
-            mechanism: 'PD-1 inhibition + PARP inhibition',
-            targetProteins: ['PD-1', 'PARP1', 'PARP2'],
-            metabolismPathway: ['Minimal hepatic metabolism', 'CYP3A4'],
-            expectedEfficacy: 78,
-            sideEffectProfile: [
-              { name: 'Immune-related rash', probability: 40, severity: 'mild', timeframe: '2-4 weeks' },
-              { name: 'Fatigue', probability: 70, severity: 'moderate', timeframe: '1-2 weeks' },
-              { name: 'Thyroid dysfunction', probability: 15, severity: 'moderate', timeframe: '3-6 months' }
-            ],
-            genomicFactors: ['BRCA1 mutation', 'PD-L1 expression', 'Tumor mutational burden'],
-            timeToEffect: 12,
-            duration: 78
-          }
-        ],
-        outcomeMetrics: {
-          overallSurvival: 82,
-          progressionFreeSurvival: 88,
-          responseRate: 72,
-          qualityOfLife: 68,
-          sideEffectBurden: 42
-        },
-        confidence: 76
-      },
-      {
-        id: '3',
-        name: 'Experimental Protocol',
-        description: 'Novel ADC therapy targeting specific tumor antigens',
-        geneticProfile: {
-          mutations: ['BRCA1 c.5266dupC'],
-          metabolizerStatus: ['CYP2D6 intermediate'],
-          biomarkers: ['ER+', 'PR+', 'HER2-', 'Trop2+']
-        },
-        treatments: [
-          {
-            drugName: 'Sacituzumab govitecan',
-            mechanism: 'Antibody-drug conjugate targeting Trop2',
-            targetProteins: ['Trop2', 'TOP1'],
-            metabolismPathway: ['Proteolytic cleavage', 'UGT1A1'],
-            expectedEfficacy: 68,
-            sideEffectProfile: [
-              { name: 'Neutropenia', probability: 55, severity: 'moderate', timeframe: '1-2 cycles' },
-              { name: 'Diarrhea', probability: 65, severity: 'moderate', timeframe: 'Ongoing' },
-              { name: 'Hair loss', probability: 45, severity: 'mild', timeframe: '2-3 cycles' }
-            ],
-            genomicFactors: ['Trop2 expression', 'UGT1A1 polymorphisms'],
-            timeToEffect: 6,
-            duration: 52
-          }
-        ],
-        outcomeMetrics: {
-          overallSurvival: 75,
-          progressionFreeSurvival: 80,
-          responseRate: 65,
-          qualityOfLife: 62,
-          sideEffectBurden: 48
-        },
-        confidence: 62
-      }
-    ]);
+    loadSimulationData();
+  }, [patientId]);
 
-    setBodySystems([
-      {
-        name: 'Cardiovascular System',
-        organs: ['Heart', 'Blood vessels', 'Blood'],
-        affectedByTreatment: true,
-        impactLevel: 'medium',
-        expectedChanges: ['Mild decrease in heart rate variability', 'Potential anemia'],
-        timeToEffect: 4
-      },
-      {
-        name: 'Hematologic System',
-        organs: ['Bone marrow', 'Blood cells'],
-        affectedByTreatment: true,
-        impactLevel: 'high',
-        expectedChanges: ['Decreased neutrophil count', 'Mild anemia', 'Platelet monitoring needed'],
-        timeToEffect: 2
-      },
-      {
-        name: 'Gastrointestinal System',
-        organs: ['Stomach', 'Intestines', 'Liver'],
-        affectedByTreatment: true,
-        impactLevel: 'medium',
-        expectedChanges: ['Mild nausea', 'Appetite changes', 'Liver enzyme monitoring'],
-        timeToEffect: 1
-      },
-      {
-        name: 'Nervous System',
-        organs: ['Brain', 'Spinal cord', 'Nerves'],
-        affectedByTreatment: false,
-        impactLevel: 'low',
-        expectedChanges: ['Minimal impact expected'],
-        timeToEffect: 8
-      },
-      {
-        name: 'Immune System',
-        organs: ['Lymph nodes', 'Spleen', 'Thymus'],
-        affectedByTreatment: false,
-        impactLevel: 'low',
-        expectedChanges: ['No significant impact expected'],
-        timeToEffect: 12
-      }
-    ]);
+  const loadSimulationData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-    setPredictiveModels([
-      {
-        scenario: 'Current Treatment Plan',
-        timePoints: [0, 4, 8, 12, 16, 20, 24],
-        tumorSize: [100, 85, 65, 50, 45, 42, 40],
-        biomarkerLevels: {
-          'CA 15-3': [45, 38, 28, 22, 20, 18, 16],
-          'CEA': [8.5, 7.2, 5.8, 4.5, 4.1, 3.8, 3.5]
-        },
-        sideEffectSeverity: [0, 25, 35, 30, 25, 20, 15],
-        qualityOfLife: [100, 85, 75, 80, 85, 88, 90],
-        confidence: [95, 92, 88, 82, 78, 72, 68]
-      }
-    ]);
-  }, []);
+      const [scenariosData, bodySystemsData, predictiveModelsData] = await Promise.all([
+        treatmentSimulationService.getSimulationScenarios(patientId),
+        treatmentSimulationService.getBodySystemsAnalysis(patientId),
+        treatmentSimulationService.getPredictiveModels(patientId)
+      ]);
 
-  const runSimulation = () => {
-    setSimulationRunning(true);
-    setSimulationProgress(0);
-    
-    const interval = setInterval(() => {
-      setSimulationProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setSimulationRunning(false);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 200);
+      setScenarios(scenariosData);
+      setBodySystems(bodySystemsData);
+      setPredictiveModels(predictiveModelsData);
+    } catch (error) {
+      console.error('Failed to load simulation data:', error);
+      setError('Failed to load simulation data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const runSimulation = async () => {
+    if (!selectedScenario) {
+      setError('Please select a scenario to run simulation');
+      return;
+    }
+
+    try {
+      setSimulationRunning(true);
+      setSimulationProgress(0);
+      setError(null);
+      
+      const interval = setInterval(() => {
+        setSimulationProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(interval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 200);
+
+      const result = await treatmentSimulationService.runSimulation(
+        selectedScenario.id,
+        patientId
+      );
+
+      clearInterval(interval);
+      setSimulationProgress(100);
+      
+      setTimeout(() => {
+        setSimulationRunning(false);
+        setSimulationProgress(0);
+        loadSimulationData();
+      }, 1000);
+    } catch (error) {
+      console.error('Failed to run simulation:', error);
+      setError('Failed to run simulation. Please try again.');
+      setSimulationRunning(false);
+      setSimulationProgress(0);
+    }
   };
 
   const getEffectColor = (effectiveness: number) => {
@@ -399,11 +287,53 @@ const TreatmentSimulationLab: React.FC = () => {
         </nav>
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+          <span className="ml-3 text-gray-600">Loading simulation data...</span>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
+            <span className="text-red-800">{error}</span>
+          </div>
+          <button
+            onClick={loadSimulationData}
+            className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
+          >
+            Try again
+          </button>
+        </div>
+      )}
+
       {/* Treatment Scenarios Tab */}
-      {activeTab === 'scenarios' && (
+      {activeTab === 'scenarios' && !loading && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {scenarios.map((scenario) => (
+          {scenarios.length === 0 ? (
+            <div className="text-center py-12">
+              <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No Treatment Scenarios Available
+              </h3>
+              <p className="text-gray-600 mb-4">
+                No treatment scenarios found for this patient. Generate personalized scenarios based on patient data.
+              </p>
+              <button
+                onClick={() => treatmentSimulationService.generatePersonalizedScenarios(patientId).then(setScenarios)}
+                className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                Generate Scenarios
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {scenarios.map((scenario) => (
               <Card 
                 key={scenario.id} 
                 className={`p-6 cursor-pointer transition-all ${
@@ -461,8 +391,9 @@ const TreatmentSimulationLab: React.FC = () => {
                   </span>
                 </div>
               </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Detailed Scenario View */}
           {selectedScenario && (
@@ -536,7 +467,7 @@ const TreatmentSimulationLab: React.FC = () => {
       )}
 
       {/* Drug Pathways Tab */}
-      {activeTab === 'pathways' && (
+      {activeTab === 'pathways' && !loading && (
         <div className="space-y-6">
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
@@ -676,7 +607,7 @@ const TreatmentSimulationLab: React.FC = () => {
       )}
 
       {/* Molecular Mechanisms Tab */}
-      {activeTab === 'mechanisms' && (
+      {activeTab === 'mechanisms' && !loading && (
         <div className="space-y-6">
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
@@ -720,14 +651,25 @@ const TreatmentSimulationLab: React.FC = () => {
       )}
 
       {/* 3D Body Impact Tab */}
-      {activeTab === 'body' && (
+      {activeTab === 'body' && !loading && (
         <div className="space-y-6">
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Treatment Impact on Body Systems
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {bodySystems.map((system, idx) => (
+            {bodySystems.length === 0 ? (
+              <div className="text-center py-12">
+                <Layers className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No Body Systems Analysis Available
+                </h3>
+                <p className="text-gray-600">
+                  No body systems analysis found. Please select a treatment scenario to view impact analysis.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {bodySystems.map((system, idx) => (
                 <div key={idx} className={`border rounded-lg p-4 ${
                   system.affectedByTreatment ? 'bg-yellow-50 border-yellow-200' : 'bg-green-50 border-green-200'
                 }`}>
@@ -762,16 +704,28 @@ const TreatmentSimulationLab: React.FC = () => {
                     </span>
                   </div>
                 </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </Card>
         </div>
       )}
 
       {/* Outcome Predictions Tab */}
-      {activeTab === 'predictions' && (
+      {activeTab === 'predictions' && !loading && (
         <div className="space-y-6">
-          {predictiveModels.map((model, idx) => (
+          {predictiveModels.length === 0 ? (
+            <div className="text-center py-12">
+              <TrendingUp className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No Prediction Models Available
+              </h3>
+              <p className="text-gray-600">
+                No predictive models found. Please select a treatment scenario to generate outcome predictions.
+              </p>
+            </div>
+          ) : (
+            predictiveModels.map((model, idx) => (
             <Card key={idx} className="p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Predictive Timeline: {model.scenario}
@@ -866,7 +820,8 @@ const TreatmentSimulationLab: React.FC = () => {
                 </div>
               </div>
             </Card>
-          ))}
+            ))
+          )}
         </div>
       )}
     </div>

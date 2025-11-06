@@ -120,130 +120,73 @@ const MedicationIntelligenceEngine: React.FC = () => {
   const [scanResult, setScanResult] = useState<PillRecognition | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [adherenceStats, setAdherenceStats] = useState({
-    overall: 87,
-    thisWeek: 92,
-    onTime: 78,
-    missed: 8
+    overall: 0,
+    thisWeek: 0,
+    onTime: 0,
+    missed: 0
   });
 
   useEffect(() => {
-    // Mock data initialization
-    setMedications([
-      {
-        id: '1',
-        name: 'Olaparib',
-        genericName: 'olaparib',
-        dosage: '150mg',
-        frequency: 'Twice daily',
-        route: 'oral',
-        startDate: new Date('2024-03-01'),
-        prescribedBy: 'Dr. Johnson',
-        purpose: 'PARP inhibitor maintenance therapy',
-        interactions: [
-          {
-            drugName: 'Warfarin',
-            severity: 'severe',
-            description: 'Increased bleeding risk',
-            recommendation: 'Monitor INR closely, consider dose adjustment',
-            evidenceLevel: 'high'
-          }
-        ],
-        sideEffects: ['Fatigue', 'Nausea', 'Anemia'],
-        foodRestrictions: ['Take with or without food'],
-        timingInstructions: 'Take 12 hours apart, same times each day',
-        pillIdentification: {
-          shape: 'Capsule',
-          color: 'Purple and white',
-          markings: 'OLAPARIB 150',
-          size: '8mm'
-        }
-      },
-      {
-        id: '2',
-        name: 'Ondansetron',
-        genericName: 'ondansetron',
-        dosage: '8mg',
-        frequency: 'As needed',
-        route: 'oral',
-        startDate: new Date('2024-03-01'),
-        prescribedBy: 'Dr. Johnson',
-        purpose: 'Nausea control',
-        interactions: [],
-        sideEffects: ['Headache', 'Constipation'],
-        foodRestrictions: ['Can take with or without food'],
-        timingInstructions: 'Take 30 minutes before chemotherapy or as needed for nausea',
-        pillIdentification: {
-          shape: 'Round',
-          color: 'White',
-          markings: 'ONB 8',
-          size: '6mm'
-        }
-      }
-    ]);
-
-    setReminders([
-      {
-        id: '1',
-        medicationId: '1',
-        scheduledTime: new Date(Date.now() + 1800000), // 30 minutes from now
-        status: 'pending',
-        personalizedMessage: 'Time for your morning Olaparib. Remember to take with water.',
-        contextualFactors: {
-          mealTiming: true,
-          sideEffectWindow: false,
-          sleepPattern: true,
-          activityLevel: false
-        }
-      },
-      {
-        id: '2',
-        medicationId: '1',
-        scheduledTime: new Date(Date.now() - 43200000), // 12 hours ago
-        actualTime: new Date(Date.now() - 43080000), // taken 2 minutes late
-        status: 'taken',
-        adaptiveDelay: 2,
-        personalizedMessage: 'Evening Olaparib dose',
-        contextualFactors: {
-          mealTiming: false,
-          sideEffectWindow: true,
-          sleepPattern: false,
-          activityLevel: false
-        }
-      }
-    ]);
-
-    setDoseAdjustments([
-      {
-        medicationId: '1',
-        currentDose: '150mg twice daily',
-        recommendedDose: '100mg twice daily',
-        reason: 'Grade 2 fatigue and anemia',
-        responsePattern: 'Decreased energy levels for 3 consecutive days',
-        confidence: 78,
-        approvalRequired: true
-      }
-    ]);
-
-    setResponses([
-      {
-        medicationId: '1',
-        efficacyScore: 85,
-        sideEffectSeverity: 6,
-        adherenceRate: 94,
-        qualityOfLifeImpact: 72,
-        biomarkerChanges: {
-          'Hemoglobin': -1.2,
-          'Platelet count': -15,
-          'CA 15-3': -45
-        },
-        patientReportedOutcomes: {
-          'Fatigue': 6,
-          'Nausea': 3,
-          'Overall wellbeing': 7
-        }
-      }
-    ]);
+    // Load real medication data from patient context or API
+    loadMedicationData();
   }, []);
+
+  const loadMedicationData = async () => {
+    try {
+      // Replace with actual API calls to load patient medications
+      const medicationResponse = await fetch('/api/patients/medications');
+      if (medicationResponse.ok) {
+        const medicationData = await medicationResponse.json();
+        setMedications(medicationData.medications || []);
+      }
+
+      // Load reminders
+      const remindersResponse = await fetch('/api/patients/medication-reminders');
+      if (remindersResponse.ok) {
+        const remindersData = await remindersResponse.json();
+        setReminders(remindersData.reminders || []);
+      }
+
+      // Load dose adjustments
+      const adjustmentsResponse = await fetch('/api/patients/dose-adjustments');
+      if (adjustmentsResponse.ok) {
+        const adjustmentsData = await adjustmentsResponse.json();
+        setDoseAdjustments(adjustmentsData.adjustments || []);
+      }
+
+      // Load medication responses
+      const responsesResponse = await fetch('/api/patients/medication-responses');
+      if (responsesResponse.ok) {
+        const responsesData = await responsesResponse.json();
+        setResponses(responsesData.responses || []);
+      }
+
+      // Load adherence statistics
+      const adherenceResponse = await fetch('/api/patients/adherence-stats');
+      if (adherenceResponse.ok) {
+        const adherenceData = await adherenceResponse.json();
+        setAdherenceStats(adherenceData.stats || {
+          overall: 0,
+          thisWeek: 0,
+          onTime: 0,
+          missed: 0
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load medication data:', error);
+      // Set empty states on error
+      setMedications([]);
+      setReminders([]);
+      setDoseAdjustments([]);
+      setResponses([]);
+      setAdherenceStats({
+        overall: 0,
+        thisWeek: 0,
+        onTime: 0,
+        missed: 0
+      });
+    }
+  };
 
   const handlePillScan = () => {
     fileInputRef.current?.click();
@@ -253,25 +196,76 @@ const MedicationIntelligenceEngine: React.FC = () => {
     const file = event.target.files?.[0];
     if (file) {
       setIsScanning(true);
-      // Mock pill recognition API call
-      setTimeout(() => {
-        setScanResult({
-          confidence: 92,
-          identifiedMedication: medications[0],
-          alternativeMatches: [medications[1]],
-          safetyWarnings: []
+      setScanResult(null);
+      
+      try {
+        // Create FormData to send image to pill recognition API
+        const formData = new FormData();
+        formData.append('image', file);
+        
+        const response = await fetch('/api/medication/pill-recognition', {
+          method: 'POST',
+          body: formData
         });
+        
+        if (response.ok) {
+          const result = await response.json();
+          setScanResult(result);
+        } else {
+          console.error('Pill recognition failed:', response.statusText);
+          setScanResult({
+            confidence: 0,
+            identifiedMedication: null,
+            alternativeMatches: [],
+            safetyWarnings: ['Unable to identify pill. Please consult your pharmacist or healthcare provider.']
+          });
+        }
+      } catch (error) {
+        console.error('Error during pill recognition:', error);
+        setScanResult({
+          confidence: 0,
+          identifiedMedication: null,
+          alternativeMatches: [],
+          safetyWarnings: ['Service temporarily unavailable. Please try again later or consult your pharmacist.']
+        });
+      } finally {
         setIsScanning(false);
-      }, 2000);
+      }
     }
   };
 
-  const markMedicationTaken = (reminderId: string) => {
-    setReminders(prev => prev.map(reminder => 
-      reminder.id === reminderId 
-        ? { ...reminder, status: 'taken', actualTime: new Date() }
-        : reminder
-    ));
+  const markMedicationTaken = async (reminderId: string) => {
+    try {
+      const response = await fetch(`/api/patients/medication-reminders/${reminderId}/taken`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          actualTime: new Date().toISOString()
+        })
+      });
+      
+      if (response.ok) {
+        // Update local state
+        setReminders(prev => prev.map(reminder => 
+          reminder.id === reminderId 
+            ? { ...reminder, status: 'taken', actualTime: new Date() }
+            : reminder
+        ));
+        
+        // Refresh adherence stats
+        const adherenceResponse = await fetch('/api/patients/adherence-stats');
+        if (adherenceResponse.ok) {
+          const adherenceData = await adherenceResponse.json();
+          setAdherenceStats(adherenceData.stats);
+        }
+      } else {
+        console.error('Failed to mark medication as taken:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error marking medication as taken:', error);
+    }
   };
 
   const getSeverityColor = (severity: string) => {
@@ -403,8 +397,9 @@ const MedicationIntelligenceEngine: React.FC = () => {
           {/* Current Medications */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Current Medications</h2>
-            <div className="space-y-4">
-              {medications.map((medication) => (
+            {medications.length > 0 ? (
+              <div className="space-y-4">
+                {medications.map((medication) => (
                 <div key={medication.id} className="border rounded-lg p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div>
@@ -445,14 +440,27 @@ const MedicationIntelligenceEngine: React.FC = () => {
                   )}
                 </div>
               ))}
-            </div>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Pill className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Medications Found</h3>
+                <p className="text-gray-600 mb-4">
+                  You don't have any medications in your profile yet. Add medications to start tracking your therapy.
+                </p>
+                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                  Add Medication
+                </button>
+              </div>
+            )}
           </Card>
 
           {/* Upcoming Reminders */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Upcoming Reminders</h2>
-            <div className="space-y-3">
-              {reminders.filter(r => r.status === 'pending').map((reminder) => {
+            {reminders.filter(r => r.status === 'pending').length > 0 ? (
+              <div className="space-y-3">
+                {reminders.filter(r => r.status === 'pending').map((reminder) => {
                 const medication = medications.find(m => m.id === reminder.medicationId);
                 return (
                   <div key={reminder.id} className="border rounded-lg p-4 bg-blue-50">
@@ -495,8 +503,17 @@ const MedicationIntelligenceEngine: React.FC = () => {
                     </div>
                   </div>
                 );
-              })}
-            </div>
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Bell className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Pending Reminders</h3>
+                <p className="text-gray-600">
+                  You're all caught up! No medication reminders are currently pending.
+                </p>
+              </div>
+            )}
           </Card>
         </div>
       )}
@@ -677,8 +694,9 @@ const MedicationIntelligenceEngine: React.FC = () => {
           {/* Medication Response Tracking */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Response Tracking</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {responses.map((response, idx) => {
+            {responses.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {responses.map((response, idx) => {
                 const medication = medications.find(m => m.id === response.medicationId);
                 return (
                   <div key={idx} className="border rounded-lg p-4">
@@ -719,14 +737,23 @@ const MedicationIntelligenceEngine: React.FC = () => {
                     </div>
                   </div>
                 );
-              })}
-            </div>
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Response Data</h3>
+                <p className="text-gray-600">
+                  Start tracking your medication responses to see efficacy and side effect analysis here.
+                </p>
+              </div>
+            )}
           </Card>
 
           {/* Dose Adjustment Recommendations */}
-          {doseAdjustments.length > 0 && (
-            <Card className="p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">AI Dose Recommendations</h2>
+          <Card className="p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">AI Dose Recommendations</h2>
+            {doseAdjustments.length > 0 ? (
               <div className="space-y-4">
                 {doseAdjustments.map((adjustment, idx) => {
                   const medication = medications.find(m => m.id === adjustment.medicationId);
@@ -780,8 +807,16 @@ const MedicationIntelligenceEngine: React.FC = () => {
                   );
                 })}
               </div>
-            </Card>
-          )}
+            ) : (
+              <div className="text-center py-12">
+                <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Dose Recommendations</h3>
+                <p className="text-gray-600">
+                  AI analysis hasn't detected any dose adjustments needed at this time. Your current medication regimen appears optimal.
+                </p>
+              </div>
+            )}
+          </Card>
         </div>
       )}
     </div>

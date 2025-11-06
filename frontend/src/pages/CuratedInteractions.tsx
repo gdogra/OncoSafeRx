@@ -7,6 +7,7 @@ import Alert from '../components/UI/Alert';
 import LoadingSpinner from '../components/UI/LoadingSpinner';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { useSelection } from '../context/SelectionContext';
+import { usePatient } from '../context/PatientContext';
 import EnhancedDrugSearchBar from '../components/DrugSearch/EnhancedDrugSearchBar';
 
 type KnownInteraction = {
@@ -23,6 +24,8 @@ type KnownInteraction = {
 const CuratedInteractions: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { state: patientState } = usePatient();
+  const currentPatient = (patientState as any)?.currentPatient;
 
   const [drug, setDrug] = useState('');
   const [drugA, setDrugA] = useState('');
@@ -87,6 +90,18 @@ const CuratedInteractions: React.FC = () => {
       setDrug(names[0] || '');
       setDrugA(names[0] || '');
       setDrugB(names[1] || '');
+    }
+    // If still empty, use patient meds if present
+    if (!drug && (!selection.selectedDrugs || selection.selectedDrugs.length === 0) && currentPatient?.medications?.length) {
+      try {
+        const meds: any[] = currentPatient.medications.filter((m: any) => m?.isActive !== false);
+        if (meds.length > 0) {
+          const n1 = meds[0]?.drug?.name || meds[0]?.name || meds[0]?.drugName;
+          const n2 = meds[1]?.drug?.name || meds[1]?.name || meds[1]?.drugName;
+          if (n1) { setDrug(String(n1)); setDrugA(String(n1)); }
+          if (n2) { setDrugB(String(n2)); }
+        }
+      } catch {}
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

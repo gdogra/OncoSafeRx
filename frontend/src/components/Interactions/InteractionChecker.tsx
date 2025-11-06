@@ -43,6 +43,17 @@ const InteractionCheckerInner: React.FC = () => {
   const [importing, setImporting] = useState(false);
   const [importNote, setImportNote] = useState<string | null>(null);
   const [includeInactive, setIncludeInactive] = useState(false);
+  const [usePatientMeds, setUsePatientMeds] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('osrx_use_patient_meds');
+      if (saved === '0') return false;
+      const role = (authState?.user?.role || '').toLowerCase();
+      return role === 'patient' || role === 'caregiver' || true;
+    } catch { return true; }
+  });
+  const [patientResolved, setPatientResolved] = useState<Drug[]>([]);
+  const [ignoredRxcuis, setIgnoredRxcuis] = useState<Set<string>>(new Set());
+  const [extras, setExtras] = useState<Drug[]>([]);
 
   const applyAltFilters = (list: any[] | null, covered: boolean, best: boolean) => {
     if (!Array.isArray(list)) return list;
@@ -120,6 +131,11 @@ const InteractionCheckerInner: React.FC = () => {
       setSelectedDrugs(selection.selectedDrugs);
     }
   }, [selectedDrugs.length, selection.selectedDrugs]);
+
+  // Persist preference
+  useEffect(() => {
+    try { localStorage.setItem('osrx_use_patient_meds', usePatientMeds ? '1' : '0'); } catch {}
+  }, [usePatientMeds]);
 
   const resolvePatientMedications = async (limit = 8, opts?: { includeInactive?: boolean }) => {
     if (!currentPatient) return { resolved: [] as Drug[], skipped: [] as string[] };
@@ -301,6 +317,7 @@ const InteractionCheckerInner: React.FC = () => {
   };
 
   const handleAddDrug = (drug: Drug) => {
+    setExtras(prev => mergeUnique(prev, [drug]));
     setSelectedDrugs(prev => {
       const merged = mergeUnique(prev, [drug]);
       if (merged.length !== prev.length) selection.addDrug(drug);
@@ -316,6 +333,8 @@ const InteractionCheckerInner: React.FC = () => {
   const handleRemoveDrug = (rxcui: string) => {
     setSelectedDrugs(prev => prev.filter(drug => drug.rxcui !== rxcui));
     if (rxcui) selection.removeDrug(rxcui); // Remove from global selection too
+    if (rxcui && patientResolved.some(d => d.rxcui === rxcui)) setIgnoredRxcuis(prev => new Set(prev).add(rxcui));
+    setExtras(prev => prev.filter(d => d.rxcui !== rxcui));
     setResults(null); // Clear previous results when drugs change
     setAltResults(null);
     setAltAllResults(null);
@@ -500,6 +519,23 @@ const InteractionCheckerInner: React.FC = () => {
     }
   };
 
+  // Sync selected drugs with patient meds when preference is enabled
+  useEffect(() => {
+    const sync = async () => {
+      if (!usePatientMeds || !currentPatient) return;
+      try {
+        const { resolved } = await resolvePatientMedications(24, { includeInactive });
+        setPatientResolved(resolved);
+        const filtered = resolved.filter(d => !ignoredRxcuis.has(d.rxcui || ''));
+        const merged = mergeUnique(filtered, extras);
+        setSelectedDrugs(merged);
+        try { merged.forEach(d => selection.addDrug(d)); } catch {}
+      } catch {}
+    };
+    sync();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [usePatientMeds, currentPatient?.id, (currentPatient as any)?.medications, includeInactive, ignoredRxcuis, extras.length]);
+
   // Ensure results are scrolled into view after a successful check
   useEffect(() => {
     if (pendingScrollToResults && results && resultsRef.current) {
@@ -670,6 +706,15 @@ const InteractionCheckerInner: React.FC = () => {
           <label className="inline-flex items-center gap-2 text-sm text-gray-700">
             <input
               type="checkbox"
+              checked={usePatientMeds}
+              onChange={(e) => { setUsePatientMeds(e.target.checked); setImportNote(null); }}
+              className="rounded border-gray-300"
+            />
+            Always use My Medications (personalized)
+          </label>
+          <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
               checked={includeInactive}
               onChange={(e) => { setIncludeInactive(e.target.checked); setImportNote(null); }}
               className="rounded border-gray-300"
@@ -703,6 +748,13 @@ const InteractionCheckerInner: React.FC = () => {
           >
             {importing ? 'Importing…' : 'Import from My Medications'}
           </button>
+          {ignoredRxcuis.size > 0 && (
+            <button
+              type="button"
+              onClick={() => setIgnoredRxcuis(new Set())}
+              className="text-xs text-gray-600 hover:text-gray-800 hover:underline"
+            >Reset exclusions</button>
+          )}
         </div>
         
         {/* Selected Drugs List */}

@@ -1,4 +1,6 @@
 import express from 'express';
+import fs from 'fs';
+import path from 'path';
 import { RxNormService } from '../services/rxnormService.js';
 import { DailyMedService } from '../services/dailymedService.js';
 import supabaseService from '../config/supabase.js';
@@ -12,11 +14,11 @@ const router = express.Router();
 const rxnormService = new RxNormService();
 const dailymedService = new DailyMedService();
 
-// Brand alias normalization for non-US brand names → international generics
-const BRAND_ALIASES = new Map(Object.entries({
+// Brand alias normalization for non-US brand names → generics (loaded from JSON)
+const DEFAULT_BRAND_ALIASES = {
   'arkamin': 'clonidine',
   'metpure': 'metoprolol',
-  'probowel': null, // probiotic blend; no single RxNorm generic
+  'probowel': null,
   'dytor': 'torsemide',
   'cilacar': 'cilnidipine',
   'cilicar': 'cilnidipine',
@@ -24,12 +26,42 @@ const BRAND_ALIASES = new Map(Object.entries({
   'oxra': 'dapagliflozin',
   'zolfresh': 'zolpidem',
   'febutaz': 'febuxostat',
-  'montair fx': 'montelukast fexofenadine', // combination; try both terms below
-}));
+  'montair fx': 'montelukast fexofenadine'
+};
+
+let BRAND_ALIASES = new Map(Object.entries(DEFAULT_BRAND_ALIASES));
+let brandAliasesLoadedAt = 0;
+const BRAND_ALIAS_TTL_MS = 5 * 60 * 1000; // refresh every 5 min
+const BRAND_ALIAS_PATH = path.resolve('src/config/brandAliases.json');
+
+const loadBrandAliases = () => {
+  try {
+    const stat = fs.statSync(BRAND_ALIAS_PATH);
+    if (stat.mtimeMs <= brandAliasesLoadedAt && BRAND_ALIASES.size) return;
+    const raw = fs.readFileSync(BRAND_ALIAS_PATH, 'utf8');
+    const obj = JSON.parse(raw);
+    const entries = Object.entries(obj || {}).map(([k, v]) => [String(k).toLowerCase(), v]);
+    BRAND_ALIASES = new Map(entries);
+    brandAliasesLoadedAt = stat.mtimeMs;
+    console.log(`Brand aliases loaded: ${BRAND_ALIASES.size} entries`);
+  } catch (e) {
+    // Fall back to defaults
+    if (!BRAND_ALIASES || !BRAND_ALIASES.size) {
+      BRAND_ALIASES = new Map(Object.entries(DEFAULT_BRAND_ALIASES));
+    }
+  }
+};
+
+// Refresh aliases periodically (lazy on first use)
+setInterval(() => {
+  try { loadBrandAliases(); } catch {}
+}, BRAND_ALIAS_TTL_MS).unref?.();
 
 const normalizeQueryToGenerics = (q) => {
   if (!q) return [];
   const lc = String(q).trim().toLowerCase();
+  // Ensure aliases are loaded
+  try { loadBrandAliases(); } catch {}
   const normalized = [];
   const alias = BRAND_ALIASES.get(lc);
   if (alias) normalized.push(alias);
@@ -60,6 +92,20 @@ const fuzzyScore = (candidate, query) => {
   return hits * 12 - (a.length - hits);
 };
 
+// Optional logging for unknown brand candidates
+const logUnknownBrand = (term, context = 'suggestions') => {
+  try {
+    if (!term) return;
+    const lc = String(term).trim().toLowerCase();
+    if (!lc || lc.length < 2) return;
+    if (BRAND_ALIASES.has(lc)) return; // known
+    const line = JSON.stringify({ t: new Date().toISOString(), term: lc, ctx: context });
+    const logPath = process.env.ALIAS_FEEDBACK_FILE || path.resolve('logs/unknown-brands.log');
+    fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    fs.appendFile(logPath, line + '\n', () => {});
+  } catch {}
+};
+
 // Lightweight suggestions endpoint for typeahead
 router.get('/suggestions', 
   searchLimiter,
@@ -82,6 +128,9 @@ router.get('/suggestions',
           } catch (e2) {
             console.warn('RxNorm alias suggestion failed:', c, e2?.message || e2);
           }
+        }
+        if ((!rxResults || rxResults.length === 0)) {
+          logUnknownBrand(q, 'suggestions');
         }
       }
     } catch (e) {
@@ -240,6 +289,9 @@ router.get('/search',
           } catch (e2) {
             console.warn('RxNorm alias search failed:', c, e2?.message || e2);
           }
+        }
+        if ((!rxnormResults || rxnormResults.length === 0)) {
+          logUnknownBrand(q, 'search');
         }
       }
     } catch (e) {

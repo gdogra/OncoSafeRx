@@ -145,9 +145,11 @@ const InteractionCheckerInner: React.FC = () => {
       ? meds
       : meds.filter((m: any) => m?.isActive !== false)
     );
+    const norm = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim();
     const names = Array.from(new Set(
       filtered
-        .map((m: any) => (m?.drug?.name || m?.name || m?.drugName || '').toString().trim())
+        .map((m: any) => (m?.drug?.name || m?.name || m?.drugName || '').toString())
+        .map(norm)
         .filter((s: string) => s && s.length >= 2)
     )).slice(0, limit);
     const resolved: Drug[] = [];
@@ -155,7 +157,7 @@ const InteractionCheckerInner: React.FC = () => {
     for (const nm of names) {
       try {
         // Prefer RXCUI from patient med if available
-        const med = filtered.find((m: any) => (m?.drug?.name || m?.name || m?.drugName || '').toString().trim() === nm);
+        const med = filtered.find((m: any) => norm((m?.drug?.name || m?.name || m?.drugName || '').toString()) === nm);
         const rx = med?.rxcui || med?.drug?.rxcui || '';
         if (rx) {
           try {
@@ -167,7 +169,10 @@ const InteractionCheckerInner: React.FC = () => {
           } catch {}
         }
         // Fallback: name search
-        const res = await drugService.searchDrugs(nm);
+        // Try original formatting too for better match
+        const originalName = (med?.drug?.name || med?.name || med?.drugName || '').toString();
+        const query = originalName || nm;
+        const res = await drugService.searchDrugs(query);
         const first = res?.results?.[0];
         if (first?.rxcui && first?.name) {
           if (!resolved.some(d => d.rxcui === first.rxcui)) resolved.push(first as Drug);
@@ -734,8 +739,10 @@ const InteractionCheckerInner: React.FC = () => {
                   setSelectedDrugs(merged);
                   merged.forEach(d => selection.addDrug(d));
                 }
+                const names = (currentPatient.medications || []).map((m: any) => (m?.drug?.name || m?.name || m?.drugName || '')).filter(Boolean).slice(0,12);
+                const skippedNames = skipped.map(s => names.find(n => n.toLowerCase().includes(s)) || s);
                 if (resolved.length || skipped.length) {
-                  setImportNote(`Imported ${resolved.length}${skipped.length ? `. Skipped: ${skipped.join(', ')}` : ''}`);
+                  setImportNote(`Imported ${resolved.length}${skipped.length ? `. Skipped: ${skippedNames.join(', ')}` : ''}`);
                 } else {
                   setImportNote('No medications to import from patient profile.');
                 }

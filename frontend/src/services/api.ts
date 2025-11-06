@@ -210,29 +210,45 @@ export const interactionService = {
       // Backend expects an array of RXCUI strings
       const rxcuis = (drugs || []).map(d => String(d.rxcui)).filter(Boolean);
       
-      // Use relative proxy path first; if not available, try enhanced path; finally try absolute backend
-      let response;
-      try {
-        response = await api.post('/interactions/check', { drugs: rxcuis });
-      } catch (primaryErr: any) {
-        if (primaryErr?.response?.status === 404) {
-          try {
-            response = await api.post('/interactions/enhanced/check', { drugs: rxcuis });
-          } catch (enhErr: any) {
-            // Final attempt: absolute backend URL from env or known default
-            const backend = ((import.meta as any)?.env?.VITE_BACKEND_URL as string | undefined) || 'https://oncosaferx-backend.onrender.com';
-            const absUrl = `${backend.replace(/\/$/, '')}/api/interactions/check`;
-            const absResp = await fetch(absUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ drugs: rxcuis })
-            });
-            if (!absResp.ok) throw enhErr;
-            response = { data: await absResp.json() } as any;
+      // Fast-path: if we know no endpoints work in this environment, return curated fallback immediately
+      if (interactionsRouteState === 'none') {
+        return await interactionService.getKnownInteractions({});
+      }
+
+      const tryPost = async (fullUrl: string, viaFetch = false) => {
+        try {
+          if (viaFetch) {
+            const resp = await fetch(fullUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ drugs: rxcuis }) });
+            if (!resp.ok) return null;
+            const data = await resp.json();
+            return { data } as any;
           }
-        } else {
-          throw primaryErr;
+          const res = await api.post(fullUrl, { drugs: rxcuis });
+          return res as any;
+        } catch {
+          return null;
         }
+      };
+
+      // Try proxy primary
+      let response: any = await tryPost('/interactions/check');
+      if (response) interactionsRouteState = 'primary';
+      // Try proxy enhanced
+      if (!response) {
+        response = await tryPost('/interactions/enhanced/check');
+        if (response) interactionsRouteState = 'enhanced';
+      }
+      // Try absolute backend
+      if (!response) {
+        const backend = ((import.meta as any)?.env?.VITE_BACKEND_URL as string | undefined) || 'https://oncosaferx-backend.onrender.com';
+        const absUrl = `${backend.replace(/\/$/, '')}/api/interactions/check`;
+        response = await tryPost(absUrl, true);
+        if (response) interactionsRouteState = 'absolute';
+      }
+      // If still no response, cache 'none' and return curated fallback
+      if (!response) {
+        interactionsRouteState = 'none';
+        return await interactionService.getKnownInteractions({});
       }
       // Normalize severities for consistent UI grouping
       const data = response.data || { interactions: { stored: [], external: [] } };

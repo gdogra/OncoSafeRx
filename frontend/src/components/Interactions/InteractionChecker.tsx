@@ -246,6 +246,28 @@ const InteractionCheckerInner: React.FC = () => {
     }
   }, [searchParams, selectedDrugs.length, selection]);
 
+  // Seed selected drugs from URL 'seed' param (comma-separated names)
+  useEffect(() => {
+    const seed = searchParams.get('seed');
+    if (!seed || selectedDrugs.length > 0) return;
+    const parts = seed.split(',').map(s => decodeURIComponent(s).trim()).filter(Boolean).slice(0, 12);
+    if (parts.length === 0) return;
+    (async () => {
+      const acc: Drug[] = [];
+      for (const name of parts) {
+        try {
+          const res = await drugService.searchDrugs(name);
+          const first = res?.results?.[0];
+          if (first?.rxcui && first?.name) acc.push(first as Drug);
+          else acc.push({ name, rxcui: '' } as any);
+        } catch {
+          acc.push({ name, rxcui: '' } as any);
+        }
+      }
+      if (acc.length) setSelectedDrugs(mergeUnique([], acc));
+    })();
+  }, [searchParams, selectedDrugs.length]);
+
   // Helper function to extract base drug names from full drug name (including complex combinations)
   const extractBaseDrugNames = (fullName: string): string[] => {
     const drugNames = new Set<string>();

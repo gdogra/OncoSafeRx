@@ -532,7 +532,14 @@ const MyMedications: React.FC = () => {
           <button 
             onClick={() => {
               if (!currentPatient) { showToast('error', 'Select a patient first'); return; }
-              navigate(`/interactions?patient=${encodeURIComponent(currentPatient.id)}`);
+              const names = (currentPatient.medications || [])
+                .filter((m: any) => m?.isActive !== false)
+                .map((m: any) => encodeURIComponent(String(m?.drug?.name || m?.name || m?.drugName || '')))
+                .filter(Boolean)
+                .slice(0, 12)
+                .join(',');
+              const seed = names ? `&seed=${names}` : '';
+              navigate(`/interactions?patient=${encodeURIComponent(currentPatient.id)}${seed}`);
             }}
             className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center space-x-2"
             title="Check interactions for My Medications"

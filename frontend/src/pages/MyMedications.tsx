@@ -7,6 +7,8 @@ import Alert from '../components/UI/Alert';
 import Tooltip from '../components/UI/Tooltip';
 import { useToast } from '../components/UI/Toast';
 import { Pill, Clock, AlertTriangle, CheckCircle, Calendar, Bell, Info, Plus, Edit, Trash2, X } from 'lucide-react';
+import EnhancedDrugSearchBar from '../components/DrugSearch/EnhancedDrugSearchBar';
+import { Drug } from '../types';
 import { supabase } from '../lib/supabase';
 import { reminderManager } from '../utils/reminders';
 import { PWAManager } from '../utils/pwa';
@@ -588,12 +590,14 @@ const MyMedications: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Medication Name *
               </label>
-              <input
-                type="text"
-                value={newMedication.name}
-                onChange={(e) => setNewMedication({...newMedication, name: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="e.g., Tylenol, Metformin"
+              <EnhancedDrugSearchBar
+                placeholder="Search and select medication (generic or brand)"
+                onDrugSelect={(drug: Drug) => {
+                  setNewMedication({ ...newMedication, name: drug.name });
+                  (newMedication as any).rxcui = (drug as any).rxcui;
+                }}
+                showTooltips={false}
+                className="w-full"
               />
             </div>
 

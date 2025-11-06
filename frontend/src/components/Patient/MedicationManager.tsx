@@ -18,6 +18,8 @@ import {
   Filter,
   Search
 } from 'lucide-react';
+import EnhancedDrugSearchBar from '../DrugSearch/EnhancedDrugSearchBar';
+import { Drug } from '../../types';
 
 interface MedicationManagerProps {
   patientId?: string;
@@ -365,12 +367,14 @@ const MedicationManager: React.FC<MedicationManagerProps> = ({ patientId }) => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Drug Name <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    value={newMedication.drugName || ''}
-                    onChange={(e) => setNewMedication({ ...newMedication, drugName: e.target.value })}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="e.g., Tamoxifen"
+                  <EnhancedDrugSearchBar
+                    placeholder="Search and select medication (generic or brand)"
+                    onDrugSelect={(drug: Drug) => {
+                      setNewMedication({ ...newMedication, drugName: drug.name });
+                      (newMedication as any).rxcui = (drug as any).rxcui;
+                    }}
+                    showTooltips={false}
+                    className="w-full"
                   />
                 </div>
                 <div>

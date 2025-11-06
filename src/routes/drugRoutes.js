@@ -12,6 +12,35 @@ const router = express.Router();
 const rxnormService = new RxNormService();
 const dailymedService = new DailyMedService();
 
+// Brand alias normalization for non-US brand names → international generics
+const BRAND_ALIASES = new Map(Object.entries({
+  'arkamin': 'clonidine',
+  'metpure': 'metoprolol',
+  'probowel': null, // probiotic blend; no single RxNorm generic
+  'dytor': 'torsemide',
+  'cilacar': 'cilnidipine',
+  'cilicar': 'cilnidipine',
+  'kbind': 'calcium polystyrene sulfonate',
+  'oxra': 'dapagliflozin',
+  'zolfresh': 'zolpidem',
+  'febutaz': 'febuxostat',
+  'montair fx': 'montelukast fexofenadine', // combination; try both terms below
+}));
+
+const normalizeQueryToGenerics = (q) => {
+  if (!q) return [];
+  const lc = String(q).trim().toLowerCase();
+  const normalized = [];
+  const alias = BRAND_ALIASES.get(lc);
+  if (alias) normalized.push(alias);
+  // Special handling for combination alias values
+  if (alias && alias.includes(' ')) {
+    const parts = alias.split(/\s+/).filter(Boolean);
+    for (const p of parts) normalized.push(p);
+  }
+  return Array.from(new Set(normalized));
+};
+
 // Lightweight suggestions endpoint for typeahead
 router.get('/suggestions', 
   searchLimiter,
@@ -24,6 +53,18 @@ router.get('/suggestions',
     let rxResults = [];
     try {
       rxResults = await rxnormService.searchDrugs(q);
+      // If empty, try normalized brand aliases to generics
+      if ((!rxResults || rxResults.length === 0)) {
+        const candidates = normalizeQueryToGenerics(q);
+        for (const c of candidates) {
+          try {
+            const r = await rxnormService.searchDrugs(c);
+            if (r && r.length) rxResults = [...rxResults, ...r];
+          } catch (e2) {
+            console.warn('RxNorm alias suggestion failed:', c, e2?.message || e2);
+          }
+        }
+      }
     } catch (e) {
       console.warn('RxNorm suggestions failed:', e?.message || e);
     }
@@ -123,21 +164,22 @@ router.get('/suggestions',
         { name: 'apixaban', rxcui: '1364430' },
         { name: 'dabigatran', rxcui: '1037042' },
         
-        // Indian medications
-        { name: 'arkamin', rxcui: 'IND001' }, // Clonidine
-        { name: 'metpure', rxcui: 'IND002' }, // Metoprolol
-        { name: 'probowel', rxcui: 'IND003' }, // Probiotic
-        { name: 'dytor', rxcui: 'IND004' }, // Furosemide
-        { name: 'cilicar', rxcui: 'IND005' }, // Cilnidipine
-        { name: 'kbind', rxcui: 'IND006' }, // Calcium polystyrene sulfonate
-        { name: 'oxra', rxcui: 'IND007' }, // Oxcarbazepine
-        { name: 'zolfresh', rxcui: 'IND008' } // Zolpidem
+        // Indian brand examples (fallback only; try to map to generics via alias)
+        { name: 'arkamin', rxcui: null },
+        { name: 'metpure', rxcui: null },
+        { name: 'probowel', rxcui: null },
+        { name: 'dytor', rxcui: null },
+        { name: 'cilacar', rxcui: null },
+        { name: 'cilicar', rxcui: null },
+        { name: 'kbind', rxcui: null },
+        { name: 'oxra', rxcui: null },
+        { name: 'zolfresh', rxcui: null },
+        { name: 'febutaz', rxcui: null },
+        { name: 'montair fx', rxcui: null },
       ];
       const lc = q.toLowerCase();
-      suggestions = OFFLINE
-        .filter(d => d.name.toLowerCase().includes(lc))
-        .slice(0, limit)
-        .map(d => ({ id: d.rxcui || d.name, name: d.name, category: 'drug', rxcui: d.rxcui || null }));
+      const base = OFFLINE.filter(d => d.name.toLowerCase().includes(lc)).slice(0, limit);
+      suggestions = base.map(d => ({ id: d.rxcui || d.name, name: d.name, category: 'drug', rxcui: d.rxcui || null }));
       offline = true;
     }
 
@@ -164,6 +206,18 @@ router.get('/search',
     let rxnormResults = [];
     try {
       rxnormResults = await rxnormService.searchDrugs(q);
+      // If RxNorm returns nothing, try brand alias normalization to generics and combine
+      if ((!rxnormResults || rxnormResults.length === 0)) {
+        const candidates = normalizeQueryToGenerics(q);
+        for (const c of candidates) {
+          try {
+            const r = await rxnormService.searchDrugs(c);
+            if (r && r.length) rxnormResults = [...rxnormResults, ...r];
+          } catch (e2) {
+            console.warn('RxNorm alias search failed:', c, e2?.message || e2);
+          }
+        }
+      }
     } catch (e) {
       console.warn('RxNorm search failed:', e?.message || e);
     }

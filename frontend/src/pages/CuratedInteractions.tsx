@@ -517,13 +517,39 @@ const CuratedInteractions: React.FC = () => {
                     const sevClass = sev==='major'||sev==='high' ? 'bg-red-100 text-red-800' : sev==='moderate' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-700';
                     return (
                     <>
-                      <tr key={idx} className="border-b align-top">
-                        <td className="py-2 pr-4">
-                          {a ? `${a.name} ${a.rxcui ? `(RXCUI ${a.rxcui})` : ''}` : it.drugs[0]}
-                        </td>
-                        <td className="py-2 pr-4">
-                          {b ? `${b.name} ${b.rxcui ? `(RXCUI ${b.rxcui})` : ''}` : it.drugs[1]}
-                        </td>
+                    <tr key={idx} className="border-b align-top">
+                      <td className="py-2 pr-4">
+                        <div className="flex flex-col">
+                          <div>
+                            {a ? `${a.name} ${a.rxcui ? `(RXCUI ${a.rxcui})` : ''}` : it.drugs[0]}
+                          </div>
+                          {(() => {
+                            const nm = (a?.name || it.drugs?.[0] || '').toString().toLowerCase();
+                            const dA = brandMeta.drugA && nm === (drugA || '').toLowerCase();
+                            const d = brandMeta.drug && nm === (drug || '').toLowerCase();
+                            const label = dA ? brandMeta.drugA : d ? brandMeta.drug : undefined;
+                            return label ? (
+                              <div className="text-[11px] text-gray-600">Brand: {label}</div>
+                            ) : null;
+                          })()}
+                        </div>
+                      </td>
+                      <td className="py-2 pr-4">
+                        <div className="flex flex-col">
+                          <div>
+                            {b ? `${b.name} ${b.rxcui ? `(RXCUI ${b.rxcui})` : ''}` : it.drugs[1]}
+                          </div>
+                          {(() => {
+                            const nm = (b?.name || it.drugs?.[1] || '').toString().toLowerCase();
+                            const dB = brandMeta.drugB && nm === (drugB || '').toLowerCase();
+                            const d = brandMeta.drug && nm === (drug || '').toLowerCase();
+                            const label = dB ? brandMeta.drugB : d ? brandMeta.drug : undefined;
+                            return label ? (
+                              <div className="text-[11px] text-gray-600">Brand: {label}</div>
+                            ) : null;
+                          })()}
+                        </div>
+                      </td>
                         <td className="py-2 pr-4 capitalize">
                           <span className={`px-2 py-0.5 rounded text-xs ${sevClass}`}>{it.severity || 'unknown'}</span>
                           {it.evidence_level && (
@@ -551,15 +577,27 @@ const CuratedInteractions: React.FC = () => {
                             <button
                               className="text-xs text-primary-700 underline"
                               onClick={() => {
-                                if (a?.name) selection.addDrug({ name: a.name, rxcui: a.rxcui || '' } as any);
-                                if (b?.name) selection.addDrug({ name: b.name, rxcui: b.rxcui || '' } as any);
+                                if (a?.name) {
+                                  const ob = (brandMeta.drugA && a.name.toLowerCase() === (drugA || '').toLowerCase()) ? brandMeta.drugA : (brandMeta.drug && a.name.toLowerCase() === (drug || '').toLowerCase()) ? brandMeta.drug : undefined;
+                                  selection.addDrug({ name: a.name, rxcui: a.rxcui || '', originBrand: ob?.replace(/ \(IN\)$/,'') || undefined, originRegion: ob ? (ob.includes('(IN)') ? 'IN' : undefined) : undefined } as any);
+                                }
+                                if (b?.name) {
+                                  const ob = (brandMeta.drugB && b.name.toLowerCase() === (drugB || '').toLowerCase()) ? brandMeta.drugB : (brandMeta.drug && b.name.toLowerCase() === (drug || '').toLowerCase()) ? brandMeta.drug : undefined;
+                                  selection.addDrug({ name: b.name, rxcui: b.rxcui || '', originBrand: ob?.replace(/ \(IN\)$/,'') || undefined, originRegion: ob ? (ob.includes('(IN)') ? 'IN' : undefined) : undefined } as any);
+                                }
                               }}
                             >Add both</button>
                             <button
                               className="text-xs text-blue-700 underline"
                               onClick={() => {
-                                if (a?.name) selection.addDrug({ name: a.name, rxcui: a.rxcui || '' } as any);
-                                if (b?.name) selection.addDrug({ name: b.name, rxcui: b.rxcui || '' } as any);
+                                if (a?.name) {
+                                  const ob = (brandMeta.drugA && a.name.toLowerCase() === (drugA || '').toLowerCase()) ? brandMeta.drugA : (brandMeta.drug && a.name.toLowerCase() === (drug || '').toLowerCase()) ? brandMeta.drug : undefined;
+                                  selection.addDrug({ name: a.name, rxcui: a.rxcui || '', originBrand: ob?.replace(/ \(IN\)$/,'') || undefined, originRegion: ob ? (ob.includes('(IN)') ? 'IN' : undefined) : undefined } as any);
+                                }
+                                if (b?.name) {
+                                  const ob = (brandMeta.drugB && b.name.toLowerCase() === (drugB || '').toLowerCase()) ? brandMeta.drugB : (brandMeta.drug && b.name.toLowerCase() === (drug || '').toLowerCase()) ? brandMeta.drug : undefined;
+                                  selection.addDrug({ name: b.name, rxcui: b.rxcui || '', originBrand: ob?.replace(/ \(IN\)$/,'') || undefined, originRegion: ob ? (ob.includes('(IN)') ? 'IN' : undefined) : undefined } as any);
+                                }
                                 setTimeout(() => navigate('/interactions'), 100);
                               }}
                             >Open checker</button>

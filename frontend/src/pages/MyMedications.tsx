@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { useAuth } from '../context/AuthContext';
 import { usePatient } from '../context/PatientContext';
@@ -31,6 +32,7 @@ interface Medication {
 }
 
 const MyMedications: React.FC = () => {
+  const navigate = useNavigate();
   const { state } = useAuth();
   const { user } = state;
   const { state: patientState, actions } = usePatient();
@@ -526,13 +528,26 @@ const MyMedications: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900">My Medications</h1>
           <p className="text-gray-600 mt-1">Track your current medications and treatment plan</p>
         </div>
-        <button 
-          onClick={handleAddMedication}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Medication</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => {
+              if (!currentPatient) { showToast('error', 'Select a patient first'); return; }
+              navigate(`/interactions?patient=${encodeURIComponent(currentPatient.id)}`);
+            }}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center space-x-2"
+            title="Check interactions for My Medications"
+          >
+            <AlertTriangle className="w-4 h-4" />
+            <span>Check Interactions</span>
+          </button>
+          <button 
+            onClick={handleAddMedication}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Medication</span>
+          </button>
+        </div>
       </div>
 
       {/* Quick Stats */}

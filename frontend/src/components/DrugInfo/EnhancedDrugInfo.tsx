@@ -332,6 +332,11 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
               )}
             </div>
             <p className="text-lg text-gray-600">{drug.genericName}</p>
+            {(drug as any).originBrand && (
+              <p className="text-sm text-gray-600">
+                Imported brand: {(drug as any).originBrand}{(drug as any).originRegion ? ` (${(drug as any).originRegion})` : ''}
+              </p>
+            )}
             {drug.brandNames && drug.brandNames.length > 0 && (
               <p className="text-sm text-gray-500">
                 Brand names: {drug.brandNames.join(', ')}

@@ -139,6 +139,11 @@ const DrugCard: React.FC<DrugCardProps> = ({ drug, onClick, showDetails = false,
                 />
               )}
             </div>
+            {(drug as any).originBrand && (
+              <p className="text-xs text-gray-600 mt-0.5">
+                {(drug as any).originBrand}{(drug as any).originRegion ? ` (${(drug as any).originRegion})` : ''}
+              </p>
+            )}
             
             {drug.synonym && drug.synonym !== drug.name && (
               <p className="text-sm text-gray-600 mt-1">

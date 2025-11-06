@@ -41,6 +41,7 @@ const InteractionCheckerInner: React.FC = () => {
   const [pendingScrollToResults, setPendingScrollToResults] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importNote, setImportNote] = useState<string | null>(null);
+  const [includeInactive, setIncludeInactive] = useState(false);
 
   const applyAltFilters = (list: any[] | null, covered: boolean, best: boolean) => {
     if (!Array.isArray(list)) return list;
@@ -119,12 +120,16 @@ const InteractionCheckerInner: React.FC = () => {
     }
   }, [selectedDrugs.length, selection.selectedDrugs]);
 
-  const resolvePatientMedications = async (limit = 8) => {
+  const resolvePatientMedications = async (limit = 8, opts?: { includeInactive?: boolean }) => {
     if (!currentPatient) return { resolved: [] as Drug[], skipped: [] as string[] };
     const meds: any[] = Array.isArray(currentPatient.medications) ? currentPatient.medications : [];
     if (!meds.length) return { resolved: [], skipped: [] };
+    const filtered = (opts?.includeInactive
+      ? meds
+      : meds.filter((m: any) => m?.isActive !== false)
+    );
     const names = Array.from(new Set(
-      meds
+      filtered
         .map((m: any) => (m?.drug?.name || m?.name || m?.drugName || '').toString().trim())
         .filter((s: string) => s && s.length >= 2)
     )).slice(0, limit);
@@ -152,7 +157,7 @@ const InteractionCheckerInner: React.FC = () => {
       try {
         if (!currentPatient) return;
         if (selectedDrugs.length > 0) return;
-        const { resolved, skipped } = await resolvePatientMedications(8);
+        const { resolved, skipped } = await resolvePatientMedications(8, { includeInactive: false });
         if (resolved.length) {
           const merged = [...selection.selectedDrugs, ...resolved]
             .filter((d, idx, arr) => d?.rxcui && idx === arr.findIndex(x => x.rxcui === d.rxcui));
@@ -641,14 +646,23 @@ const InteractionCheckerInner: React.FC = () => {
           <DrugSelector onDrugSelect={handleAddDrug} />
         </div>
 
-        <div className="mt-3">
+        <div className="mt-3 flex items-center gap-4 flex-wrap">
+          <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={includeInactive}
+              onChange={(e) => { setIncludeInactive(e.target.checked); setImportNote(null); }}
+              className="rounded border-gray-300"
+            />
+            Include previous/inactive medications
+          </label>
           <button
             type="button"
             onClick={async () => {
               setImporting(true);
               setImportNote(null);
               try {
-                const { resolved, skipped } = await resolvePatientMedications(12);
+                const { resolved, skipped } = await resolvePatientMedications(12, { includeInactive });
                 if (resolved.length) {
                   const merged = [...selectedDrugs, ...resolved]
                     .filter((d, idx, arr) => d?.rxcui && idx === arr.findIndex(x => x.rxcui === d.rxcui));

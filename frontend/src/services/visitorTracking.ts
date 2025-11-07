@@ -657,16 +657,10 @@ class VisitorTrackingService {
     if (!isDevelopment) {
       try {
         console.log('📊 Fetching analytics from server:', `${this.apiEndpoint}/metrics?range=${dateRange}`);
-        const response = await fetch(`${this.apiEndpoint}/metrics?range=${dateRange}`, {
-          credentials: 'include', // Include authentication cookies
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
+        
+        // Use adminFetch for authenticated requests
+        const { adminFetch } = await import('../utils/adminApi');
+        const response = await adminFetch(`${this.apiEndpoint}/metrics?range=${dateRange}`);
         const serverMetrics = await response.json();
         console.log('📊 ✅ Retrieved analytics from server:', serverMetrics);
         return serverMetrics;

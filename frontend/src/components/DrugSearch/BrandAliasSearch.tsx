@@ -7,6 +7,7 @@ interface BrandAlias {
   brand: string;
   generic: string | null;
   relevance: 'high' | 'medium';
+  source?: string;
 }
 
 interface BrandAliasSearchProps {
@@ -51,7 +52,7 @@ const BrandAliasSearch: React.FC<BrandAliasSearchProps> = ({
         setShowResults(true);
         
         if (data.message) {
-          console.warn('Brand alias search warning:', data.message);
+          console.log('Brand alias search info:', data.message);
         }
       } catch (err) {
         console.error('Brand alias search error:', err);
@@ -154,7 +155,7 @@ const BrandAliasSearch: React.FC<BrandAliasSearchProps> = ({
             Brand Name Lookup
           </h3>
           <p className="text-sm text-gray-600">
-            Search for brand names to find their generic equivalents. Supports international brand names.
+            Search for brand names to find their generic equivalents. Covers global markets including Europe, India, and more.
           </p>
         </div>
       )}
@@ -233,6 +234,11 @@ const BrandAliasSearch: React.FC<BrandAliasSearchProps> = ({
                         Exact match
                       </span>
                     )}
+                    {alias.source && alias.source !== 'Local' && (
+                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">
+                        {alias.source}
+                      </span>
+                    )}
                   </div>
                 </button>
               ))}
@@ -243,7 +249,7 @@ const BrandAliasSearch: React.FC<BrandAliasSearchProps> = ({
 
       {/* Help text */}
       <div className="mt-2 text-xs text-gray-500">
-        Start typing a brand name to see instant suggestions. Use arrow keys to navigate, Enter to select.
+        Start typing a brand name to see instant suggestions from multiple pharmaceutical databases. Use arrow keys to navigate, Enter to select.
       </div>
     </div>
   );

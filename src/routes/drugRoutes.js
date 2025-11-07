@@ -1,6 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
+import axios from 'axios';
 import { RxNormService } from '../services/rxnormService.js';
 import { DailyMedService } from '../services/dailymedService.js';
 import { requireAdmin, authenticateToken } from '../middleware/auth.js';
@@ -50,6 +51,122 @@ const loadBrandAliases = () => {
     if (!BRAND_ALIASES || !BRAND_ALIASES.size) {
       BRAND_ALIASES = new Map(Object.entries(DEFAULT_BRAND_ALIASES));
     }
+  }
+};
+
+// External API integration for comprehensive brand alias lookup
+const searchExternalBrandAliases = async (query, timeout = 5000) => {
+  const results = [];
+  
+  // Search multiple external APIs in parallel
+  const searchPromises = [
+    searchRxNavBrands(query, timeout),
+    searchDrugBankBrands(query, timeout),
+    searchOpenFDABrands(query, timeout)
+  ];
+  
+  try {
+    const responses = await Promise.allSettled(searchPromises);
+    
+    responses.forEach(response => {
+      if (response.status === 'fulfilled' && Array.isArray(response.value)) {
+        results.push(...response.value);
+      }
+    });
+    
+    // Deduplicate and normalize results
+    const seen = new Set();
+    return results.filter(result => {
+      const key = `${result.brand.toLowerCase()}-${(result.generic || '').toLowerCase()}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    
+  } catch (error) {
+    console.warn('External brand alias search failed:', error.message);
+    return [];
+  }
+};
+
+// RxNav/RxNorm brand search
+const searchRxNavBrands = async (query, timeout = 5000) => {
+  try {
+    // Search for brand names in RxNav
+    const response = await axios.get('https://rxnav.nlm.nih.gov/REST/brands', {
+      params: { ingredientname: query },
+      timeout
+    });
+    
+    const results = [];
+    if (response.data?.brandGroup?.conceptProperties) {
+      response.data.brandGroup.conceptProperties.forEach(brand => {
+        if (brand.name && brand.name.toLowerCase().includes(query.toLowerCase())) {
+          results.push({
+            brand: brand.name,
+            generic: query,
+            relevance: brand.name.toLowerCase().startsWith(query.toLowerCase()) ? 'high' : 'medium',
+            source: 'RxNav'
+          });
+        }
+      });
+    }
+    
+    return results;
+  } catch (error) {
+    console.warn('RxNav brand search failed:', error.message);
+    return [];
+  }
+};
+
+// DrugBank API search (if available)
+const searchDrugBankBrands = async (query, timeout = 5000) => {
+  try {
+    // Note: This would require DrugBank API access
+    // For now, return empty array - can be implemented with proper API key
+    return [];
+  } catch (error) {
+    console.warn('DrugBank brand search failed:', error.message);
+    return [];
+  }
+};
+
+// OpenFDA brand search
+const searchOpenFDABrands = async (query, timeout = 5000) => {
+  try {
+    // Search OpenFDA drug labels for brand names
+    const response = await axios.get('https://api.fda.gov/drug/label.json', {
+      params: {
+        search: `brand_name:"${query}" OR generic_name:"${query}"`,
+        limit: 10
+      },
+      timeout
+    });
+    
+    const results = [];
+    if (response.data?.results) {
+      response.data.results.forEach(drug => {
+        if (drug.brand_name && drug.generic_name) {
+          drug.brand_name.forEach(brand => {
+            drug.generic_name.forEach(generic => {
+              if (brand.toLowerCase().includes(query.toLowerCase())) {
+                results.push({
+                  brand: brand,
+                  generic: generic,
+                  relevance: brand.toLowerCase().startsWith(query.toLowerCase()) ? 'high' : 'medium',
+                  source: 'OpenFDA'
+                });
+              }
+            });
+          });
+        }
+      });
+    }
+    
+    return results;
+  } catch (error) {
+    console.warn('OpenFDA brand search failed:', error.message);
+    return [];
   }
 };
 
@@ -554,35 +671,66 @@ router.get('/brand-aliases/search', async (req, res) => {
         error: 'Search query must be at least 2 characters long' 
       });
     }
-
-    // Ensure aliases are loaded
+    
+    // Ensure local aliases are loaded
     try { loadBrandAliases(); } catch {}
     
     const query = String(q).toLowerCase().trim();
-    const results = [];
+    const localResults = [];
+    const sources = ['Local'];
     
-    // Search through loaded brand aliases
+    // Search through loaded brand aliases (local)
     for (const [brand, generic] of BRAND_ALIASES.entries()) {
       if (brand.includes(query)) {
-        results.push({
+        localResults.push({
           brand,
           generic,
-          relevance: brand.startsWith(query) ? 'high' : 'medium'
+          relevance: brand.startsWith(query) ? 'high' : 'medium',
+          source: 'Local'
         });
       }
     }
     
-    // Sort by relevance (starts with query first, then contains)
-    results.sort((a, b) => {
+    // Search external APIs for comprehensive coverage
+    let externalResults = [];
+    try {
+      externalResults = await searchExternalBrandAliases(query, 3000); // 3 second timeout
+      if (externalResults.length > 0) {
+        const externalSources = [...new Set(externalResults.map(r => r.source))];
+        sources.push(...externalSources);
+      }
+    } catch (error) {
+      console.warn('External API search failed, using local only:', error.message);
+    }
+    
+    // Combine and deduplicate results
+    const allResults = [...localResults, ...externalResults];
+    const seen = new Set();
+    const uniqueResults = allResults.filter(result => {
+      const key = `${result.brand.toLowerCase()}-${(result.generic || '').toLowerCase()}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    
+    // Sort by relevance (high relevance first, then alphabetical)
+    uniqueResults.sort((a, b) => {
       if (a.relevance === 'high' && b.relevance !== 'high') return -1;
       if (b.relevance === 'high' && a.relevance !== 'high') return 1;
       return a.brand.localeCompare(b.brand);
     });
     
+    // Enhanced response with source information
     res.json({
       query: q,
-      count: results.length,
-      results: results.slice(0, 20) // Limit to top 20 results
+      count: uniqueResults.length,
+      sources: sources,
+      results: uniqueResults.slice(0, 50), // Increased limit for comprehensive results
+      message: externalResults.length > 0 
+        ? `Found ${localResults.length} local and ${externalResults.length} external brand aliases`
+        : localResults.length > 0 
+        ? `Found ${localResults.length} local brand aliases`
+        : 'No brand aliases found. Try searching for the generic drug name instead.'
     });
     
   } catch (error) {

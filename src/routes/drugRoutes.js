@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { RxNormService } from '../services/rxnormService.js';
 import { DailyMedService } from '../services/dailymedService.js';
-import { requireAdmin } from '../middleware/auth.js';
+import { requireAdmin, authenticateToken } from '../middleware/auth.js';
 import supabaseService from '../config/supabase.js';
 import clinicalIntelligenceService from '../services/clinicalIntelligenceService.js';
 import { searchLimiter } from '../middleware/rateLimiter.js';
@@ -171,7 +171,7 @@ const clearUnknownEntries = (brand) => {
 };
 
 // Admin: list current aliases
-router.get('/admin/aliases', requireAdmin, (req, res) => {
+router.get('/admin/aliases', authenticateToken, requireAdmin, (req, res) => {
   try {
     const obj = readAliasesJSON();
     res.json({ count: Object.keys(obj).length, aliases: obj });
@@ -181,13 +181,13 @@ router.get('/admin/aliases', requireAdmin, (req, res) => {
 });
 
 // Admin: list unknown brand terms (aggregated)
-router.get('/admin/aliases/unknown', requireAdmin, (req, res) => {
+router.get('/admin/aliases/unknown', authenticateToken, requireAdmin, (req, res) => {
   const items = readUnknownLog();
   res.json({ count: items.length, items });
 });
 
 // Admin: promote unknown brand to alias mapping
-router.post('/admin/aliases/promote', requireAdmin, express.json(), (req, res) => {
+router.post('/admin/aliases/promote', authenticateToken, requireAdmin, express.json(), (req, res) => {
   try {
     const { brand, generic } = req.body || {};
     if (!brand || typeof brand !== 'string') return res.status(400).json({ error: 'brand required' });
@@ -204,7 +204,7 @@ router.post('/admin/aliases/promote', requireAdmin, express.json(), (req, res) =
 });
 
 // Admin: clear unknown log (entire file or one brand)
-router.delete('/admin/aliases/unknown', requireAdmin, (req, res) => {
+router.delete('/admin/aliases/unknown', authenticateToken, requireAdmin, (req, res) => {
   const { brand, all } = req.query || {};
   const ok = clearUnknownEntries(all ? undefined : brand);
   if (!ok) return res.status(500).json({ error: 'Failed to clear unknown entries' });

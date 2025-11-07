@@ -170,9 +170,39 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
       try {
         const loadedPatients = await patientService.getPatients();
         setPatients(loadedPatients);
-        // If the current user is a patient, auto-select their record and skip manual selection
+        
+        // If the current user is a patient, find and auto-select their specific record
         if (auth.user?.role === 'patient' && loadedPatients.length > 0) {
-          setSelectedPatient(loadedPatients[0]);
+          // Try to match by email first, then by user ID, then by name
+          let matchedPatient = loadedPatients.find(patient => 
+            patient.email?.toLowerCase() === auth.user?.email?.toLowerCase()
+          );
+          
+          if (!matchedPatient && auth.user?.id) {
+            matchedPatient = loadedPatients.find(patient => 
+              patient.userId === auth.user.id || patient.id === auth.user.id
+            );
+          }
+          
+          // Fallback: try to match by name if user has name info
+          if (!matchedPatient && auth.user?.email) {
+            const userNameParts = auth.user.email.split('@')[0].split(/[._-]/);
+            matchedPatient = loadedPatients.find(patient => {
+              const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
+              return userNameParts.some(part => 
+                part.length > 2 && fullName.includes(part.toLowerCase())
+              );
+            });
+          }
+          
+          if (matchedPatient) {
+            setSelectedPatient(matchedPatient);
+            console.log('✅ Auto-selected patient record:', matchedPatient.firstName, matchedPatient.lastName);
+          } else {
+            console.warn('⚠️ Could not find matching patient record for user:', auth.user?.email);
+            // For patients without a matching record, don't auto-select
+            setSelectedPatient(null);
+          }
         }
       } catch (error) {
         console.error('Failed to load patients:', error);
@@ -181,8 +211,8 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
     };
     
     loadPatients();
-    // Re-evaluate if auth role changes
-  }, [auth.user?.role]);
+    // Re-evaluate if auth role changes or user data changes
+  }, [auth.user?.role, auth.user?.email, auth.user?.id]);
 
   const tabs: TabInfo[] = [
     {

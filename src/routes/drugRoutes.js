@@ -62,7 +62,8 @@ const searchExternalBrandAliases = async (query, timeout = 5000) => {
   const searchPromises = [
     searchRxNavBrands(query, timeout),
     searchDrugBankBrands(query, timeout),
-    searchOpenFDABrands(query, timeout)
+    searchOpenFDABrands(query, timeout),
+    searchIndianBrands(query, timeout)
   ];
   
   try {
@@ -166,6 +167,104 @@ const searchOpenFDABrands = async (query, timeout = 5000) => {
     return results;
   } catch (error) {
     console.warn('OpenFDA brand search failed:', error.message);
+    return [];
+  }
+};
+
+// Indian pharmaceutical brand search
+const searchIndianBrands = async (query, timeout = 5000) => {
+  const results = [];
+  
+  // Search multiple Indian sources in parallel
+  const indianPromises = [
+    searchCDSCOBrands(query, timeout),
+    searchJanAushadhiBrands(query, timeout),
+    searchMedsIndiaBrands(query, timeout)
+  ];
+  
+  try {
+    const responses = await Promise.allSettled(indianPromises);
+    responses.forEach(response => {
+      if (response.status === 'fulfilled' && Array.isArray(response.value)) {
+        results.push(...response.value);
+      }
+    });
+    
+    return results;
+  } catch (error) {
+    console.warn('Indian brand search failed:', error.message);
+    return [];
+  }
+};
+
+// CDSCO (Central Drugs Standard Control Organization) search
+const searchCDSCOBrands = async (query, timeout = 5000) => {
+  try {
+    // CDSCO is developing a national database but no public API yet
+    // Future implementation could scrape approved drug lists
+    // For now, return empty array - can be enhanced when API becomes available
+    return [];
+  } catch (error) {
+    console.warn('CDSCO brand search failed:', error.message);
+    return [];
+  }
+};
+
+// Jan Aushadhi generic medicine search
+const searchJanAushadhiBrands = async (query, timeout = 5000) => {
+  try {
+    // Jan Aushadhi has 2110+ medicines but no public API
+    // Could potentially scrape their product portal: http://janaushadhi.gov.in/ProductList.aspx
+    // For now, return empty array - can be enhanced with web scraping
+    return [];
+  } catch (error) {
+    console.warn('Jan Aushadhi brand search failed:', error.message);
+    return [];
+  }
+};
+
+// MedsIndia/Indian pharmacy database search
+const searchMedsIndiaBrands = async (query, timeout = 5000) => {
+  try {
+    // Load comprehensive Indian brand database
+    let indianBrands = {};
+    try {
+      const indianData = fs.readFileSync(path.resolve('src/data/indianBrands.json'), 'utf8');
+      indianBrands = JSON.parse(indianData).brands || {};
+    } catch (e) {
+      console.warn('Failed to load Indian brands database:', e.message);
+    }
+    
+    const results = [];
+    const queryLower = query.toLowerCase().trim();
+    
+    // Search through Indian brand database
+    Object.entries(indianBrands).forEach(([brand, generic]) => {
+      if (brand.includes(queryLower)) {
+        results.push({
+          brand: brand,
+          generic: generic,
+          relevance: brand.startsWith(queryLower) ? 'high' : 'medium',
+          source: 'IndianDB'
+        });
+      }
+    });
+    
+    // Also check if query matches any generic and find corresponding brands
+    Object.entries(indianBrands).forEach(([brand, generic]) => {
+      if (generic && typeof generic === 'string' && generic.toLowerCase().includes(queryLower)) {
+        results.push({
+          brand: brand,
+          generic: generic,
+          relevance: 'medium',
+          source: 'IndianDB'
+        });
+      }
+    });
+    
+    return results;
+  } catch (error) {
+    console.warn('Indian pharmacy brand search failed:', error.message);
     return [];
   }
 };

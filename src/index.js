@@ -86,6 +86,7 @@ import clinicalChatbotRoutes from './routes/clinicalChatbotRoutes.js';
 import drugVisualizationRoutes from './routes/drugVisualizationRoutes.js';
 import ehrIntegrationRoutes from './routes/ehrIntegrationRoutes.js';
 import pharmacyIntegrationRoutes from './routes/pharmacyIntegrationRoutes.js';
+import careplanRoutes from './routes/careplanRoutes.js';
 import { addScientistModeHeaders, scientistModeFilter } from './middleware/scientistMode.js';
 import { join as pathJoin } from 'path';
 
@@ -567,6 +568,7 @@ app.use('/api/clinical-chatbot', clinicalChatbotRoutes);
 app.use('/api/drug-visualization', drugVisualizationRoutes);
 app.use('/api/ehr-integration', ehrIntegrationRoutes);
 app.use('/api/pharmacy-integration', pharmacyIntegrationRoutes);
+app.use('/api/careplan', careplanRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/overrides', overrideRoutes);
 app.use('/', cdsHooksRoutes);

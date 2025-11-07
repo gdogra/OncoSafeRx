@@ -111,7 +111,7 @@ class CarePlanService {
     } catch (error) {
       console.error('Error fetching care plan data:', error);
       
-      // Return empty structure instead of dummy data
+      // Return empty structure - API endpoints are now available
       return {
         sections: [],
         goals: [],

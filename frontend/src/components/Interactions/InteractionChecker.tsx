@@ -20,6 +20,7 @@ import { useAuth } from '../../context/AuthContext';
 import { SupabaseAuthService } from '../../services/authService';
 import { patientService } from '../../services/patientService';
 import { getDisplayPatient, calculateAgeFromDOB, getConditionNames } from '../../utils/patientDisplay';
+import { useVisitorTracking } from '../../hooks/useVisitorTracking';
 
 const InteractionCheckerInner: React.FC = () => {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ const InteractionCheckerInner: React.FC = () => {
   const selection = useSelection();
   const { state, actions } = usePatient();
   const { state: authState } = useAuth();
+  const { trackEvent } = useVisitorTracking();
   const { currentPatient, hydrated, recentPatients } = state as any;
   const [results, setResults] = useState<InteractionCheckResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -882,7 +884,32 @@ const InteractionCheckerInner: React.FC = () => {
               setImporting(true);
               setImportNote(null);
               try {
-                if (!currentPatient) { setImportNote('No patient selected. Open My Medications and select a patient first.'); return; }
+                // Track import attempt
+                trackEvent('medication_import_attempted', {
+                  user_role: authState.user?.role,
+                  has_patient: !!currentPatient
+                });
+                
+                if (!currentPatient) { 
+                  setImportNote('No patient selected. Open My Medications and select a patient first.'); 
+                  trackEvent('medication_import_failed', {
+                    user_role: authState.user?.role,
+                    reason: 'no_patient_selected'
+                  });
+                  return; 
+                }
+                const meds = currentPatient.medications || [];
+                console.log('Debug: Current patient medications:', meds);
+                console.log('Debug: Current patient:', currentPatient);
+                
+                if (meds.length === 0) { 
+                  setImportNote('No medications found in your profile. Go to My Medications to add your medications first.'); 
+                  trackEvent('medication_import_failed', {
+                    user_role: authState.user?.role,
+                    reason: 'no_medications_in_profile'
+                  });
+                  return; 
+                }
                 const { resolved, skipped } = await resolvePatientMedications(12, { includeInactive });
                 if (resolved.length) {
                   const merged = mergeUnique(selectedDrugs, resolved);
@@ -893,9 +920,25 @@ const InteractionCheckerInner: React.FC = () => {
                 const skippedNames = skipped.map(s => names.find(n => n.toLowerCase().includes(s)) || s);
                 if (resolved.length || skipped.length) {
                   setImportNote(`Imported ${resolved.length}${skipped.length ? `. Skipped: ${skippedNames.join(', ')}` : ''}`);
+                  trackEvent('medication_import_succeeded', {
+                    user_role: authState.user?.role,
+                    imported_count: resolved.length,
+                    skipped_count: skipped.length
+                  });
                 } else {
                   setImportNote('No medications to import from patient profile.');
+                  trackEvent('medication_import_failed', {
+                    user_role: authState.user?.role,
+                    reason: 'no_importable_medications'
+                  });
                 }
+              } catch (error) {
+                console.error('Import error:', error);
+                setImportNote('Failed to import medications. Please try again.');
+                trackEvent('medication_import_error', {
+                  user_role: authState.user?.role,
+                  error: String(error)
+                });
               } finally {
                 setImporting(false);
               }

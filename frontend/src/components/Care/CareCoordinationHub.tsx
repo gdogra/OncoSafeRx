@@ -34,80 +34,15 @@ import {
   Search,
   Mail
 } from 'lucide-react';
+import { careplanService, type CareTeamMember, type CareTask, type CarePlan, type CommunicationThread } from '../../services/careplanService';
+import { useToast } from '../UI/Toast';
+import Alert from '../UI/Alert';
+import { useVisitorTracking } from '../../hooks/useVisitorTracking';
 
-interface CareTeamMember {
-  id: string;
-  name: string;
-  role: 'oncologist' | 'nurse' | 'pharmacist' | 'social_worker' | 'nutritionist' | 'surgeon' | 'radiologist' | 'pathologist';
-  specialty?: string;
-  hospital: string;
-  department: string;
-  email: string;
-  phone: string;
-  availability: 'available' | 'busy' | 'offline';
-  lastActive: string;
-  avatar?: string;
-  certifications: string[];
-  yearsExperience: number;
-}
-
-interface CareTask {
-  id: string;
-  title: string;
-  description: string;
-  type: 'medication' | 'appointment' | 'lab' | 'imaging' | 'consultation' | 'follow_up' | 'education' | 'emergency';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  assignedTo: string;
-  assignedBy: string;
-  dueDate: string;
-  createdAt: string;
-  completedAt?: string;
-  notes?: string;
-  dependencies?: string[];
-  patientId: string;
-}
-
-interface CarePlan {
-  id: string;
-  patientId: string;
-  patientName: string;
-  diagnosis: string;
-  stage: string;
-  treatmentPhase: 'initial' | 'active' | 'maintenance' | 'surveillance' | 'palliative';
-  primaryOncologist: string;
-  startDate: string;
-  nextReviewDate: string;
-  goals: string[];
-  milestones: Array<{
-    id: string;
-    title: string;
-    targetDate: string;
-    status: 'not_started' | 'in_progress' | 'completed' | 'delayed';
-    description: string;
-  }>;
-  riskFactors: string[];
-  allergies: string[];
-  currentMedications: string[];
-}
-
-interface CommunicationThread {
-  id: string;
-  subject: string;
-  participants: string[];
-  patientId: string;
-  type: 'general' | 'urgent' | 'medication' | 'symptoms' | 'results';
-  lastMessage: {
-    sender: string;
-    content: string;
-    timestamp: string;
-    read: boolean;
-  };
-  unreadCount: number;
-  priority: 'normal' | 'high' | 'urgent';
-}
 
 export const CareCoordinationHub: React.FC = () => {
+  const { showToast } = useToast();
+  const { trackEvent } = useVisitorTracking();
   const [activeTab, setActiveTab] = useState<'overview' | 'team' | 'tasks' | 'plans' | 'communication' | 'analytics'>('overview');
   const [careTeam, setCareTeam] = useState<CareTeamMember[]>([]);
   const [careTasks, setCareTasks] = useState<CareTask[]>([]);
@@ -116,9 +51,149 @@ export const CareCoordinationHub: React.FC = () => {
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Mock data initialization
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [teamData, tasksData, plansData, communicationsData] = await Promise.all([
+          careplanService.getCareTeam(),
+          careplanService.getCareTasks(),
+          careplanService.getCarePlans(),
+          careplanService.getCommunications()
+        ]);
+        
+        setCareTeam(teamData);
+        setCareTasks(tasksData);
+        setCarePlans(plansData);
+        setCommunications(communicationsData);
+        
+        // Track care coordination hub view
+        trackEvent('care_coordination_hub_viewed', {
+          tab: activeTab,
+          team_size: teamData.length,
+          tasks_count: tasksData.length,
+          plans_count: plansData.length
+        });
+      } catch (err) {
+        setError('Failed to load care coordination data');
+        console.error('Error fetching care coordination data:', err);
+        
+        // Track error
+        trackEvent('care_coordination_hub_error', {
+          error: 'failed_to_load_data',
+          tab: activeTab
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [activeTab, trackEvent]);
+
+  const handleTaskStatusUpdate = async (taskId: string, newStatus: CareTask['status']) => {
+    try {
+      // Track task update attempt
+      trackEvent('care_task_status_update_attempted', {
+        task_id: taskId,
+        new_status: newStatus,
+        tab: activeTab
+      });
+      
+      await careplanService.updateTaskStatus(taskId, newStatus);
+      setCareTasks(prev => prev.map(task => 
+        task.id === taskId ? { ...task, status: newStatus } : task
+      ));
+      showToast('success', 'Task status updated successfully');
+      
+      // Track successful update
+      trackEvent('care_task_status_updated', {
+        task_id: taskId,
+        new_status: newStatus,
+        tab: activeTab
+      });
+    } catch (err) {
+      showToast('error', 'Failed to update task status');
+      
+      // Track error
+      trackEvent('care_task_status_update_error', {
+        task_id: taskId,
+        new_status: newStatus,
+        error: 'update_failed',
+        tab: activeTab
+      });
+    }
+  };
+
+  const handleSendMessage = async (subject: string, content: string, recipients: string[]) => {
+    try {
+      // Track message attempt
+      trackEvent('care_message_send_attempted', {
+        recipients_count: recipients.length,
+        has_subject: !!subject,
+        tab: activeTab
+      });
+      
+      await careplanService.sendMessage(subject, content, recipients);
+      showToast('success', 'Message sent successfully');
+      
+      // Refresh communications
+      const updatedCommunications = await careplanService.getCommunications();
+      setCommunications(updatedCommunications);
+      
+      // Track successful send
+      trackEvent('care_message_sent', {
+        recipients_count: recipients.length,
+        tab: activeTab
+      });
+    } catch (err) {
+      showToast('error', 'Failed to send message');
+      
+      // Track error
+      trackEvent('care_message_send_error', {
+        recipients_count: recipients.length,
+        error: 'send_failed',
+        tab: activeTab
+      });
+    }
+  };
+
+  // Track tab changes
+  const handleTabChange = (newTab: 'overview' | 'team' | 'tasks' | 'plans' | 'communication' | 'analytics') => {
+    setActiveTab(newTab);
+    
+    trackEvent('care_coordination_tab_changed', {
+      from_tab: activeTab,
+      to_tab: newTab
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading care coordination data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <Alert type="error" title="Failed to Load Data">
+          {error}
+        </Alert>
+      </div>
+    );
+  }
+
+  // Old mock data initialization removed
+  /*
     const mockCareTeam: CareTeamMember[] = [
       {
         id: '1',
@@ -278,11 +353,9 @@ export const CareCoordinationHub: React.FC = () => {
       }
     ];
 
-    setCareTeam(mockCareTeam);
-    setCareTasks(mockTasks);
-    setCarePlans(mockCarePlans);
-    setCommunications(mockCommunications);
-  }, []);
+    // Mock data removed - now using real API data
+    */
+  // }, []);
 
   const getAvailabilityColor = (availability: string) => {
     switch (availability) {
@@ -434,7 +507,7 @@ export const CareCoordinationHub: React.FC = () => {
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}
-              onClick={() => setActiveTab(id as any)}
+              onClick={() => handleTabChange(id as any)}
               className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === id
                   ? 'border-blue-500 text-blue-600'
@@ -495,27 +568,29 @@ export const CareCoordinationHub: React.FC = () => {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
             <div className="space-y-4">
-              <div className="flex items-center p-3 bg-blue-50 rounded-lg">
-                <CheckCircle className="h-5 w-5 text-blue-600 mr-3" />
-                <div>
-                  <p className="text-sm font-medium">Task completed: Medication review for Emily Rodriguez</p>
-                  <p className="text-xs text-gray-500">2 hours ago by Dr. Thompson</p>
+              {careTasks.slice(0, 3).map((task, index) => {
+                const IconComponent = task.status === 'completed' ? CheckCircle : 
+                                   task.priority === 'urgent' ? AlertTriangle : Users;
+                const bgColor = task.status === 'completed' ? 'bg-green-50' :
+                              task.priority === 'urgent' ? 'bg-yellow-50' : 'bg-blue-50';
+                const iconColor = task.status === 'completed' ? 'text-green-600' :
+                                task.priority === 'urgent' ? 'text-yellow-600' : 'text-blue-600';
+                
+                return (
+                  <div key={task.id} className={`flex items-center p-3 ${bgColor} rounded-lg`}>
+                    <IconComponent className={`h-5 w-5 ${iconColor} mr-3`} />
+                    <div>
+                      <p className="text-sm font-medium">{task.title}</p>
+                      <p className="text-xs text-gray-500">{new Date(task.createdAt).toLocaleString()}</p>
+                    </div>
+                  </div>
+                );
+              })}
+              {careTasks.length === 0 && (
+                <div className="text-center py-4 text-gray-500">
+                  <p>No recent activity</p>
                 </div>
-              </div>
-              <div className="flex items-center p-3 bg-yellow-50 rounded-lg">
-                <AlertTriangle className="h-5 w-5 text-yellow-600 mr-3" />
-                <div>
-                  <p className="text-sm font-medium">New urgent message: Lab results concern</p>
-                  <p className="text-xs text-gray-500">30 minutes ago from Dr. Thompson</p>
-                </div>
-              </div>
-              <div className="flex items-center p-3 bg-green-50 rounded-lg">
-                <Users className="h-5 w-5 text-green-600 mr-3" />
-                <div>
-                  <p className="text-sm font-medium">Care plan updated for Emily Rodriguez</p>
-                  <p className="text-xs text-gray-500">1 day ago by Dr. Chen</p>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

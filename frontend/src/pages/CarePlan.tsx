@@ -1,127 +1,152 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import { FileText, Calendar, User, Target, CheckCircle, Clock, Activity, Heart, Pill, Stethoscope, AlertTriangle, Download, Edit } from 'lucide-react';
 import TipCard from '../components/UI/TipCard';
+import { careplanService, type CarePlanData, type CarePlanGoal, type CarePlanSection } from '../services/careplanService';
+import { useToast } from '../components/UI/Toast';
+import { useVisitorTracking } from '../hooks/useVisitorTracking';
 
-interface CarePlanGoal {
-  id: string;
-  title: string;
-  description: string;
-  status: 'active' | 'completed' | 'paused';
-  targetDate: string;
-  progress: number;
-  category: 'treatment' | 'lifestyle' | 'support' | 'monitoring';
-}
-
-interface CarePlanSection {
-  id: string;
-  title: string;
-  description: string;
-  items: string[];
-  lastUpdated: string;
-}
 
 const CarePlan: React.FC = () => {
   const { state } = useAuth();
   const { user } = state;
+  const { showToast } = useToast();
+  const { trackEvent } = useVisitorTracking();
 
   const [selectedTab, setSelectedTab] = useState<'overview' | 'goals' | 'timeline' | 'resources'>('overview');
+  const [carePlanData, setCarePlanData] = useState<CarePlanData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock care plan data
-  const carePlanSections: CarePlanSection[] = [
-    {
-      id: '1',
-      title: 'Treatment Plan',
-      description: 'Current chemotherapy protocol and surgical planning',
-      items: [
-        'Chemotherapy: Carboplatin + Paclitaxel every 3 weeks (6 cycles)',
-        'Surgery: Scheduled after chemotherapy completion',
-        'Radiation: To be determined post-surgery',
-        'Follow-up imaging every 6 weeks'
-      ],
-      lastUpdated: '2024-10-10'
-    },
-    {
-      id: '2',
-      title: 'Medications',
-      description: 'Current medications and supportive care',
-      items: [
-        'Carboplatin 400mg IV every 3 weeks',
-        'Paclitaxel 175mg/m² IV every 3 weeks',
-        'Ondansetron 8mg as needed for nausea',
-        'Lorazepam 0.5mg as needed for anxiety'
-      ],
-      lastUpdated: '2024-10-08'
-    },
-    {
-      id: '3',
-      title: 'Monitoring & Tests',
-      description: 'Required lab work and monitoring schedule',
-      items: [
-        'CBC with differential before each treatment',
-        'Comprehensive metabolic panel weekly',
-        'CA-125 levels monthly',
-        'CT scan every 8 weeks',
-        'Echocardiogram every 3 months'
-      ],
-      lastUpdated: '2024-10-05'
-    },
-    {
-      id: '4',
-      title: 'Supportive Care',
-      description: 'Services and support to manage side effects',
-      items: [
-        'Nutritionist consultation monthly',
-        'Social worker support available',
-        'Physical therapy as needed',
-        'Mental health counseling available',
-        'Support group participation encouraged'
-      ],
-      lastUpdated: '2024-10-01'
-    }
-  ];
+  useEffect(() => {
+    const fetchCarePlanData = async () => {
+      try {
+        setLoading(true);
+        const data = await careplanService.getCarePlanData();
+        setCarePlanData(data);
+        
+        // Track care plan view
+        trackEvent('care_plan_viewed', {
+          user_role: user?.role,
+          tab: 'overview'
+        });
+      } catch (err) {
+        setError('Failed to load care plan data');
+        console.error('Error fetching care plan:', err);
+        
+        // Track error
+        trackEvent('care_plan_error', {
+          error: 'failed_to_load_data',
+          user_role: user?.role
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const goals: CarePlanGoal[] = [
-    {
-      id: '1',
-      title: 'Complete Chemotherapy Treatment',
-      description: 'Successfully complete all 6 cycles of chemotherapy with minimal complications',
-      status: 'active',
-      targetDate: '2024-12-15',
-      progress: 50,
-      category: 'treatment'
-    },
-    {
-      id: '2',
-      title: 'Maintain Nutritional Status',
-      description: 'Maintain adequate nutrition and weight during treatment',
-      status: 'active',
-      targetDate: '2024-12-31',
-      progress: 75,
-      category: 'lifestyle'
-    },
-    {
-      id: '3',
-      title: 'Manage Treatment Side Effects',
-      description: 'Effectively manage nausea, fatigue, and other treatment-related side effects',
-      status: 'active',
-      targetDate: '2024-12-31',
-      progress: 65,
-      category: 'support'
-    },
-    {
-      id: '4',
-      title: 'Regular Monitoring',
-      description: 'Keep up with all scheduled lab work and imaging',
-      status: 'active',
-      targetDate: '2024-12-31',
-      progress: 90,
-      category: 'monitoring'
+    if (user) {
+      fetchCarePlanData();
     }
-  ];
+  }, [user, trackEvent]);
+
+  const handleDownloadPDF = async () => {
+    try {
+      // Track download attempt
+      trackEvent('care_plan_pdf_download_attempted', {
+        user_role: user?.role
+      });
+      
+      const pdfBlob = await careplanService.generateCarePlanPDF();
+      const url = URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'my-care-plan.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      showToast('success', 'Care plan PDF downloaded successfully');
+      
+      // Track successful download
+      trackEvent('care_plan_pdf_downloaded', {
+        user_role: user?.role
+      });
+    } catch (err) {
+      showToast('error', 'Failed to download care plan PDF');
+      
+      // Track download error
+      trackEvent('care_plan_pdf_download_error', {
+        user_role: user?.role,
+        error: 'download_failed'
+      });
+    }
+  };
+
+  const handleRequestUpdate = async () => {
+    try {
+      // Track update request attempt
+      trackEvent('care_plan_update_requested', {
+        user_role: user?.role
+      });
+      
+      await careplanService.requestCarePlanUpdate('Patient requesting care plan review and update');
+      showToast('success', 'Update request sent to your care team');
+      
+      // Track successful update request
+      trackEvent('care_plan_update_request_sent', {
+        user_role: user?.role
+      });
+    } catch (err) {
+      showToast('error', 'Failed to send update request');
+      
+      // Track update request error
+      trackEvent('care_plan_update_request_error', {
+        user_role: user?.role,
+        error: 'request_failed'
+      });
+    }
+  };
+
+  // Track tab changes
+  const handleTabChange = (newTab: 'overview' | 'goals' | 'timeline' | 'resources') => {
+    setSelectedTab(newTab);
+    
+    trackEvent('care_plan_tab_changed', {
+      user_role: user?.role,
+      from_tab: selectedTab,
+      to_tab: newTab
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'My Care Plan' }]} />
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your care plan...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !carePlanData) {
+    return (
+      <div className="space-y-6">
+        <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'My Care Plan' }]} />
+        <Alert type="warning" title="Care Plan Not Available">
+          {error || 'No care plan data is currently available. Please contact your healthcare provider to set up your personalized care plan.'}
+        </Alert>
+      </div>
+    );
+  }
+
+  const carePlanSections = carePlanData.sections;
+  const goals = carePlanData.goals;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -173,11 +198,17 @@ const CarePlan: React.FC = () => {
           <p className="text-gray-600 mt-1">Your personalized treatment and care roadmap</p>
         </div>
         <div className="flex space-x-3">
-          <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+          <button 
+            onClick={handleDownloadPDF}
+            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+          >
             <Download className="w-4 h-4 inline mr-2" />
             Download PDF
           </button>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+          <button 
+            onClick={handleRequestUpdate}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
             <Edit className="w-4 h-4 inline mr-2" />
             Request Update
           </button>
@@ -185,9 +216,13 @@ const CarePlan: React.FC = () => {
       </div>
 
       {/* Care Plan Summary */}
-      <Alert type="info" title="Care Plan Last Updated">
-        Your care plan was last reviewed and updated on October 10, 2024 by Dr. Sarah Smith. Next review scheduled for November 10, 2024.
-      </Alert>
+      {carePlanData.lastUpdated && (
+        <Alert type="info" title="Care Plan Last Updated">
+          Your care plan was last reviewed and updated on {new Date(carePlanData.lastUpdated).toLocaleDateString()}
+          {carePlanData.doctorName && ` by ${carePlanData.doctorName}`}.
+          {carePlanData.reviewDate && ` Next review scheduled for ${new Date(carePlanData.reviewDate).toLocaleDateString()}.`}
+        </Alert>
+      )}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -222,7 +257,7 @@ const CarePlan: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-gray-600">Current Medications</p>
-              <p className="text-2xl font-bold text-gray-900">4</p>
+              <p className="text-2xl font-bold text-gray-900">{carePlanSections.find(s => s.title.toLowerCase().includes('medication'))?.items.length || 0}</p>
             </div>
           </div>
         </Card>
@@ -234,7 +269,7 @@ const CarePlan: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-gray-600">Next Appointment</p>
-              <p className="text-lg font-semibold text-gray-900">Oct 15</p>
+              <p className="text-lg font-semibold text-gray-900">{carePlanData.nextAppointment ? new Date(carePlanData.nextAppointment).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Not scheduled'}</p>
             </div>
           </div>
         </Card>
@@ -249,7 +284,7 @@ const CarePlan: React.FC = () => {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setSelectedTab(tab.id)}
+                  onClick={() => handleTabChange(tab.id)}
                   className={`group inline-flex items-center space-x-2 py-4 px-6 border-b-2 font-medium text-sm ${
                     selectedTab === tab.id
                       ? 'border-blue-500 text-blue-600'
@@ -422,8 +457,8 @@ const CarePlan: React.FC = () => {
           <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
             <Clock className="w-5 h-5 text-blue-600" />
             <div>
-              <p className="font-medium text-blue-900">Oncology appointment scheduled</p>
-              <p className="text-blue-700 text-sm">October 15, 2024 at 10:00 AM</p>
+              <p className="font-medium text-blue-900">{carePlanData.nextAppointment ? 'Next appointment scheduled' : 'No appointments scheduled'}</p>
+              <p className="text-blue-700 text-sm">{carePlanData.nextAppointment ? new Date(carePlanData.nextAppointment).toLocaleString() : 'Contact your care team to schedule'}</p>
             </div>
           </div>
           
@@ -438,8 +473,8 @@ const CarePlan: React.FC = () => {
           <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
             <CheckCircle className="w-5 h-5 text-green-600" />
             <div>
-              <p className="font-medium text-green-900">Care plan review due</p>
-              <p className="text-green-700 text-sm">November 10, 2024 - discuss progress and adjustments</p>
+              <p className="font-medium text-green-900">{carePlanData.reviewDate ? 'Care plan review scheduled' : 'Care plan review not scheduled'}</p>
+              <p className="text-green-700 text-sm">{carePlanData.reviewDate ? `${new Date(carePlanData.reviewDate).toLocaleDateString()} - discuss progress and adjustments` : 'Contact your care team to schedule review'}</p>
             </div>
           </div>
         </div>

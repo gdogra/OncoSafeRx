@@ -71,7 +71,7 @@ const AdminConsole: React.FC = () => {
   const rbac = useRBAC(user);
   const navigate = useNavigate();
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'analytics' | 'system' | 'audit' | 'push' | 'subscriptions' | 'schedules' | 'role_management' | 'auth' | 'integrations'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'system' | 'audit' | 'auth'>('overview');
   const [pushStatus, setPushStatus] = useState<string>('');
   const [pushForm, setPushForm] = useState<{ title: string; body: string; url: string; requireInteraction: boolean }>({ title: '', body: '', url: '/', requireInteraction: false });
   const [subs, setSubs] = useState<Array<{ endpoint: string }>>([]);
@@ -196,12 +196,9 @@ const AdminConsole: React.FC = () => {
 
   useEffect(() => {
     if (!rbac.canAccessAdminConsole()) {
-      // Redirect or show access denied
       return;
     }
     loadAdminData();
-    // Preload integrations to show tab badge if needed
-    loadIntegrations();
   }, []);
 
   const loadAdminData = async () => {
@@ -421,10 +418,7 @@ const AdminConsole: React.FC = () => {
   const sendScheduleNow = async (id: string) => { try { await fetch(`/api/push/schedules/${id}/send`, { method: 'POST' } as any); loadSchedules(); } catch {} };
 
   useEffect(() => {
-    if (activeTab === 'subscriptions') loadSubs();
-    if (activeTab === 'schedules') loadSchedules();
-    if (activeTab === 'role_management') loadRoleUsers();
-    if (activeTab === 'integrations') loadIntegrations();
+    // Non-essential tabs removed; no additional tab-specific loads
   }, [activeTab]);
 
   const loadRoleUsers = async () => {
@@ -900,16 +894,9 @@ const AdminConsole: React.FC = () => {
           {[
             { id: 'overview', label: 'Overview', icon: Monitor, permission: null },
             { id: 'users', label: 'Users', icon: Users, permission: 'manage_users' },
-            { id: 'role_management', label: 'Role Management', icon: Users, permission: 'manage_roles' },
-            { id: 'analytics', label: 'Analytics', icon: BarChart3, permission: 'view_visitor_analytics' },
-            { id: 'integrations', label: 'Integrations', icon: Globe, permission: 'manage_system_settings' },
             { id: 'system', label: 'System', icon: Settings, permission: 'manage_system_settings' },
             { id: 'audit', label: 'Audit Logs', icon: FileText, permission: 'view_audit_logs' },
-            ...(PUSH_ADMIN_ENABLED ? [
-              { id: 'push', label: 'Push', icon: Smartphone, permission: null },
-              { id: 'subscriptions', label: 'Subscriptions', icon: Users, permission: null },
-              { id: 'schedules', label: 'Schedules', icon: Clock, permission: null }
-            ] : [])
+            { id: 'auth', label: 'Auth', icon: Lock, permission: 'admin_console_access' }
           ].filter(tab => !tab.permission || rbac.hasPermission(tab.permission)).map(tab => {
             const Icon = tab.icon;
             return (
@@ -925,9 +912,6 @@ const AdminConsole: React.FC = () => {
                 <Icon className="w-4 h-4" />
                 <span className="relative inline-flex items-center">
                   {tab.label}
-                  {tab.id === 'integrations' && intHealth && intHealth.missingActive && intHealth.missingActive.length > 0 && (
-                    <span className="ml-1 inline-flex h-2 w-2 rounded-full bg-red-500" aria-label="Attention required"></span>
-                  )}
                 </span>
               </button>
             );
@@ -1393,7 +1377,7 @@ const AdminConsole: React.FC = () => {
           </div>
         </div>
       )}
-      {activeTab === 'push' && (
+      {false && (
         <div className="space-y-4">
           <div className="p-4 bg-blue-50 border border-blue-200 rounded">
             <h3 className="font-medium text-blue-900 mb-2">Background Push Test</h3>
@@ -1429,7 +1413,7 @@ const AdminConsole: React.FC = () => {
           </div>
         </div>
       )}
-      {activeTab === 'subscriptions' && (
+      {false && (
         <div className="space-y-4">
           <div className="p-4 bg-white border border-gray-200 rounded">
             <h3 className="font-medium text-gray-900 mb-2">Push Subscriptions</h3>
@@ -1446,7 +1430,7 @@ const AdminConsole: React.FC = () => {
           </div>
         </div>
       )}
-      {activeTab === 'schedules' && (
+      {false && (
         <div className="space-y-4">
           <div className="p-4 bg-white border border-gray-200 rounded">
             <h3 className="font-medium text-gray-900 mb-2">Create Schedule</h3>
@@ -1508,23 +1492,25 @@ const AdminConsole: React.FC = () => {
           </div>
         </div>
       )}
-      <FeatureTour
-        open={tourOpen}
-        steps={tourSteps}
-        index={tourIndex}
-        onClose={() => { setTourOpen(false); try { localStorage.setItem(TOUR_KEY, 'true'); } catch {} }}
-        onPrev={() => setTourIndex((i) => Math.max(0, i - 1))}
-        onNext={() => {
-          setTourIndex((i) => {
-            const next = Math.min(tourSteps.length - 1, i + 1);
-            if (next === tourSteps.length - 1) {
-              try { localStorage.setItem(TOUR_KEY, 'true'); } catch {}
-              setTimeout(() => setTourOpen(false), 100);
-            }
-            return next;
-          });
-        }}
-      />
+      {false && (
+        <FeatureTour
+          open={tourOpen}
+          steps={tourSteps}
+          index={tourIndex}
+          onClose={() => { setTourOpen(false); try { localStorage.setItem(TOUR_KEY, 'true'); } catch {} }}
+          onPrev={() => setTourIndex((i) => Math.max(0, i - 1))}
+          onNext={() => {
+            setTourIndex((i) => {
+              const next = Math.min(tourSteps.length - 1, i + 1);
+              if (next === tourSteps.length - 1) {
+                try { localStorage.setItem(TOUR_KEY, 'true'); } catch {}
+                setTimeout(() => setTourOpen(false), 100);
+              }
+              return next;
+            });
+          }}
+        />
+      )}
     </div>
   );
 };

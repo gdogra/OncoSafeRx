@@ -22,8 +22,10 @@ export const useVisitorTracking = () => {
 
   // Track page views on route changes
   useEffect(() => {
-    // Skip tracking in scientist mode unless analytics are explicitly enabled
-    if (!shouldShowComponent('analytics')) {
+    // Skip tracking in scientist mode unless explicitly enabled
+    let analyticsOverride = false;
+    try { analyticsOverride = localStorage.getItem('osrx_enable_analytics') === 'true'; } catch {}
+    if (!analyticsOverride && !shouldShowComponent('analytics')) {
       return;
     }
     

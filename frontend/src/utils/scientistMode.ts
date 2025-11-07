@@ -43,6 +43,13 @@ export const scientistMode = {
 export const isScientistMode = (): boolean => scientistMode.enabled;
 
 export const shouldShowComponent = (componentType: 'marketing' | 'social' | 'analytics'): boolean => {
+  // Allow override via localStorage to unblock features in production quickly
+  try {
+    const override = localStorage.getItem('osrx_enable_' + componentType);
+    if (override === 'true') return true;
+    if (override === 'false') return false;
+  } catch {}
+
   if (!scientistMode.enabled) return true;
   
   switch (componentType) {

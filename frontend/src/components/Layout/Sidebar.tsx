@@ -568,22 +568,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             roles: ['admin','super_admin'],
             requiresPermission: null
           },
-          { 
-            path: '/admin/trial-analytics', 
-            label: 'Trial Analytics', 
-            icon: BarChart3, 
-            description: 'Per-drug trials overview & DDI signals',
-            roles: ['admin','super_admin'],
-            requiresPermission: null
-          },
-          { 
-            path: '/regulatory-compliance', 
-            label: 'Regulatory Compliance', 
-            icon: Shield, 
-            description: 'HIPAA, FDA, GDPR compliance management',
-            roles: ['oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: null
-          },
+          // Hide Trial Analytics by default unless explicitly enabled via env
+          (() => {
+            const enableTrialAnalytics = String((import.meta as any)?.env?.VITE_ENABLE_TRIAL_ANALYTICS || '').toLowerCase() === 'true';
+            if (!enableTrialAnalytics) return null;
+            return {
+              path: '/admin/trial-analytics',
+              label: 'Trial Analytics',
+              icon: BarChart3,
+              description: 'Per-drug trials overview & DDI signals',
+              roles: ['admin','super_admin'],
+              requiresPermission: null
+            } as const;
+          })(),
+          // Removed non-essential admin links without routes
           { 
             path: '/admin/health', 
             label: 'System Health', 
@@ -616,38 +614,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             roles: ['admin','super_admin'],
             requiresPermission: null
           },
-          { 
-            path: '/admin/settings#aliases', 
-            label: 'Brand Aliases', 
-            icon: SettingsIcon, 
-            description: 'Manage drug brand→generic mappings',
-            roles: ['admin','super_admin'],
-            requiresPermission: null
-          },
-          { 
-            path: '/evidence-protocols', 
-            label: 'Evidence-Based Protocols', 
-            icon: BookOpen, 
-            description: 'NCCN, ASCO, ESMO clinical guidelines',
-            roles: ['oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: null
-          },
-          { 
-            path: '/laboratory-integration', 
-            label: 'Laboratory Integration', 
-            icon: TestTube, 
-            description: 'Lab results monitoring & alerts',
-            roles: ['oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: null
-          },
-          { 
-            path: '/workflow-system', 
-            label: 'Advanced Workflows', 
-            icon: Workflow, 
-            description: 'Clinical workflow automation & mobile tools',
-            roles: ['oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: null
-          },
+          
         ]
       },
       {
@@ -753,7 +720,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
     
     return getGroupedNavItems().map(group => ({
       ...group,
-      items: group.items.filter(item => {
+      items: group.items
+        .filter(Boolean as any)
+        .filter((item: any) => {
         // Check if item is available for user's role
         if (!item.roles.includes(effUser.role)) return false;
         

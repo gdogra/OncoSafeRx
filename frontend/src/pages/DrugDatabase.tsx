@@ -152,27 +152,31 @@ const DrugDatabase: React.FC = () => {
       const data = await response.json();
       
       // Transform API results to match our Drug interface
-      const transformedResults = data.results.map((drug: any) => ({
-        rxcui: drug.rxcui,
-        name: drug.name,
-        genericName: drug.genericName || drug.name,
-        brandNames: drug.brandNames || [],
-        category: drug.clinicalRelevance?.therapeuticClass || 'Medication',
-        mechanism: drug.clinicalRelevance?.mechanismOfAction || 'Therapeutic agent',
-        indications: drug.clinicalRelevance?.primaryIndications || [],
-        contraindications: drug.safetyAlerts?.map((alert: any) => alert.description) || [],
-        sideEffects: drug.safetyAlerts?.map((alert: any) => alert.type) || [],
-        interactions: [],
-        dosing: {
-          standard: 'Consult prescribing information',
-          renal: 'Adjust based on renal function',
-          hepatic: 'Adjust based on hepatic function'
-        },
-        monitoring: [],
-        fdaApproved: true,
-        oncologyDrug: drug.clinicalRelevance?.isOncologyDrug || false,
-        clinicalData: drug // Store full clinical data
-      }));
+      const transformedResults = (data.results || [])
+        .filter(Boolean)
+        .map((drug: any) => ({
+          rxcui: String(drug?.rxcui || drug?.id || ''),
+          name: drug?.name || 'Unknown',
+          genericName: drug?.genericName || drug?.name || 'Unknown',
+          brandNames: drug?.brandNames || [],
+          category: drug?.clinicalRelevance?.therapeuticClass || 'Medication',
+          mechanism: drug?.clinicalRelevance?.mechanismOfAction || 'Therapeutic agent',
+          indications: drug?.clinicalRelevance?.primaryIndications || [],
+          contraindications: (drug?.safetyAlerts || []).map((alert: any) => alert?.description).filter(Boolean),
+          sideEffects: (drug?.safetyAlerts || []).map((alert: any) => alert?.type).filter(Boolean),
+          interactions: [],
+          dosing: {
+            standard: 'Consult prescribing information',
+            renal: 'Adjust based on renal function',
+            hepatic: 'Adjust based on hepatic function'
+          },
+          monitoring: [],
+          fdaApproved: true,
+          oncologyDrug: !!drug?.clinicalRelevance?.isOncologyDrug,
+          clinicalData: drug // Store full clinical data
+        }))
+        // Drop entries missing an identifier to avoid downstream key/selection issues
+        .filter((d: any) => !!d.rxcui);
 
       // Apply filters if provided
       let filteredResults = transformedResults;

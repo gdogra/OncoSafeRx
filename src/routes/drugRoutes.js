@@ -628,7 +628,48 @@ router.get('/search',
     }
     
     // Combine and deduplicate results
-    const combinedResults = [...localResults, ...rxnormResults];
+    let combinedResults = [...localResults, ...rxnormResults];
+    
+    // If still no results, search fallback drug database
+    if (combinedResults.length === 0) {
+      try {
+        const fallbackData = JSON.parse(fs.readFileSync(path.resolve('src/data/fallbackDrugs.json'), 'utf8'));
+        const fallbackDrugs = fallbackData.drugs || [];
+        
+        const query = String(q).toLowerCase().trim();
+        const matches = fallbackDrugs.filter(drug => {
+          const name = drug.name.toLowerCase();
+          const generic = (drug.generic_name || '').toLowerCase();
+          return name.includes(query) || generic.includes(query) || 
+                 name.startsWith(query) || generic.startsWith(query);
+        });
+        
+        // Sort by relevance (exact match > starts with > contains)
+        matches.sort((a, b) => {
+          const aName = a.name.toLowerCase();
+          const bName = b.name.toLowerCase();
+          const aGeneric = (a.generic_name || '').toLowerCase();
+          const bGeneric = (b.generic_name || '').toLowerCase();
+          
+          if (aName === query && bName !== query) return -1;
+          if (bName === query && aName !== query) return 1;
+          if (aGeneric === query && bGeneric !== query) return -1;
+          if (bGeneric === query && aGeneric !== query) return 1;
+          if (aName.startsWith(query) && !bName.startsWith(query)) return -1;
+          if (bName.startsWith(query) && !aName.startsWith(query)) return 1;
+          if (aGeneric.startsWith(query) && !bGeneric.startsWith(query)) return -1;
+          if (bGeneric.startsWith(query) && !aGeneric.startsWith(query)) return 1;
+          
+          return aName.localeCompare(bName);
+        });
+        
+        combinedResults = matches.slice(0, 15);
+        
+      } catch (e) {
+        console.warn('Fallback drug search failed:', e?.message || e);
+      }
+    }
+    
     const uniqueResults = combinedResults.filter((drug, index, self) => 
       index === self.findIndex(d => d.rxcui === drug.rxcui)
     );

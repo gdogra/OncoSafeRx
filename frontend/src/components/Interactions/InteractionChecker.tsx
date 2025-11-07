@@ -192,48 +192,124 @@ const InteractionCheckerInner: React.FC = () => {
     if (!currentPatient) return { resolved: [] as Drug[], skipped: [] as string[] };
     const meds: any[] = Array.isArray(currentPatient.medications) ? currentPatient.medications : [];
     if (!meds.length) return { resolved: [], skipped: [] };
+    
     const filtered = (opts?.includeInactive
       ? meds
       : meds.filter((m: any) => m?.isActive !== false)
     );
+    
     const norm = (s: string) => s.toLowerCase().replace(/\s+/g, ' ').trim();
+    const getMedicationName = (m: any) => {
+      // Try multiple possible name fields
+      return m?.drug?.name || m?.name || m?.drugName || m?.drug?.generic_name || m?.genericName || '';
+    };
+    
     const names = Array.from(new Set(
       filtered
-        .map((m: any) => (m?.drug?.name || m?.name || m?.drugName || '').toString())
+        .map((m: any) => getMedicationName(m).toString())
         .map(norm)
         .filter((s: string) => s && s.length >= 2)
     )).slice(0, limit);
+    
     const resolved: Drug[] = [];
     const skipped: string[] = [];
+    
     for (const nm of names) {
+      let found = false;
+      
       try {
-        // Prefer RXCUI from patient med if available
-        const med = filtered.find((m: any) => norm((m?.drug?.name || m?.name || m?.drugName || '').toString()) === nm);
+        const med = filtered.find((m: any) => norm(getMedicationName(m).toString()) === nm);
+        const originalName = getMedicationName(med).toString();
+        
+        // Strategy 1: Try RXCUI from patient med if available
         const rx = med?.rxcui || med?.drug?.rxcui || '';
         if (rx) {
           try {
             const details = await drugService.getDrugDetails(String(rx));
             if (details?.rxcui && details?.name) {
-              if (!resolved.some(d => d.rxcui === details.rxcui)) resolved.push(details as Drug);
-              continue;
+              if (!resolved.some(d => d.rxcui === details.rxcui)) {
+                resolved.push(details as Drug);
+                found = true;
+                continue;
+              }
             }
-          } catch {}
+          } catch (e) {
+            console.warn(`Failed to get drug details for RXCUI ${rx}:`, e);
+          }
         }
-        // Fallback: name search
-        // Try original formatting too for better match
-        const originalName = (med?.drug?.name || med?.name || med?.drugName || '').toString();
-        const query = originalName || nm;
-        const res = await drugService.searchDrugs(query);
-        const first = res?.results?.[0];
-        if (first?.rxcui && first?.name) {
-          if (!resolved.some(d => d.rxcui === first.rxcui)) resolved.push(first as Drug);
-        } else {
-          skipped.push(nm);
+        
+        // Strategy 2: Search by original name (exact as stored)
+        if (!found && originalName) {
+          try {
+            const res = await drugService.searchDrugs(originalName);
+            const first = res?.results?.[0];
+            if (first?.rxcui && first?.name) {
+              if (!resolved.some(d => d.rxcui === first.rxcui)) {
+                resolved.push(first as Drug);
+                found = true;
+                continue;
+              }
+            }
+          } catch (e) {
+            console.warn(`Failed to search for original name "${originalName}":`, e);
+          }
         }
-      } catch {
+        
+        // Strategy 3: Try normalized name
+        if (!found && nm !== originalName) {
+          try {
+            const res = await drugService.searchDrugs(nm);
+            const first = res?.results?.[0];
+            if (first?.rxcui && first?.name) {
+              if (!resolved.some(d => d.rxcui === first.rxcui)) {
+                resolved.push(first as Drug);
+                found = true;
+                continue;
+              }
+            }
+          } catch (e) {
+            console.warn(`Failed to search for normalized name "${nm}":`, e);
+          }
+        }
+        
+        // Strategy 4: Try brand alias search for non-US names
+        if (!found) {
+          try {
+            const aliasRes = await drugService.searchBrandAliases(originalName || nm);
+            if (aliasRes?.results?.length > 0) {
+              const alias = aliasRes.results[0];
+              if (alias.generic) {
+                // Search for the generic name
+                const genericRes = await drugService.searchDrugs(alias.generic);
+                const first = genericRes?.results?.[0];
+                if (first?.rxcui && first?.name) {
+                  if (!resolved.some(d => d.rxcui === first.rxcui)) {
+                    // Add brand name info to the drug
+                    const drugWithBrand = { ...first, brandNames: [...(first.brandNames || []), alias.brand] };
+                    resolved.push(drugWithBrand as Drug);
+                    found = true;
+                    continue;
+                  }
+                }
+              }
+            }
+          } catch (e) {
+            console.warn(`Failed to search brand aliases for "${originalName || nm}":`, e);
+          }
+        }
+        
+        // If all strategies failed, add to skipped
+        if (!found) {
+          skipped.push(originalName || nm);
+        }
+        
+      } catch (e) {
+        console.error(`Error resolving medication "${nm}":`, e);
         skipped.push(nm);
       }
     }
+    
+    console.log(`Medication resolution: ${resolved.length} resolved, ${skipped.length} skipped`, { resolved, skipped });
     return { resolved, skipped };
   };
 

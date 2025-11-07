@@ -1,5 +1,5 @@
-import api from './api';
-import { useAuth } from '../context/AuthContext';
+import { adminFetch } from '../utils/adminApi';
+// Note: We use adminFetch which handles JWT authentication headers properly
 
 export interface CarePlanGoal {
   id: string;
@@ -106,8 +106,8 @@ class CarePlanService {
    */
   async getCarePlanData(): Promise<CarePlanData> {
     try {
-      const response = await api.get('/careplan/patient');
-      return response.data;
+      const response = await adminFetch('/careplan/patient');
+      return response;
     } catch (error: any) {
       console.error('Error fetching care plan data:', error);
       
@@ -128,8 +128,8 @@ class CarePlanService {
    */
   async getCareTeam(): Promise<CareTeamMember[]> {
     try {
-      const response = await api.get('/careplan/team');
-      return response.data;
+      const response = await adminFetch('/careplan/team');
+      return response;
     } catch (error) {
       console.error('Error fetching care team:', error);
       return [];
@@ -141,8 +141,8 @@ class CarePlanService {
    */
   async getCareTasks(): Promise<CareTask[]> {
     try {
-      const response = await api.get('/careplan/tasks');
-      return response.data;
+      const response = await adminFetch('/careplan/tasks');
+      return response;
     } catch (error) {
       console.error('Error fetching care tasks:', error);
       return [];
@@ -154,8 +154,8 @@ class CarePlanService {
    */
   async getCarePlans(): Promise<CarePlan[]> {
     try {
-      const response = await api.get('/careplan/plans');
-      return response.data;
+      const response = await adminFetch('/careplan/plans');
+      return response;
     } catch (error) {
       console.error('Error fetching care plans:', error);
       return [];
@@ -167,8 +167,8 @@ class CarePlanService {
    */
   async getCommunications(): Promise<CommunicationThread[]> {
     try {
-      const response = await api.get('/careplan/communications');
-      return response.data;
+      const response = await adminFetch('/careplan/communications');
+      return response;
     } catch (error) {
       console.error('Error fetching communications:', error);
       return [];
@@ -180,7 +180,11 @@ class CarePlanService {
    */
   async updateGoalProgress(goalId: string, progress: number): Promise<void> {
     try {
-      await api.patch(`/careplan/goals/${goalId}`, { progress });
+      await adminFetch(`/careplan/goals/${goalId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ progress })
+      });
     } catch (error) {
       console.error('Error updating goal progress:', error);
       throw error;
@@ -192,8 +196,12 @@ class CarePlanService {
    */
   async createTask(task: Omit<CareTask, 'id' | 'createdAt'>): Promise<CareTask> {
     try {
-      const response = await api.post('/careplan/tasks', task);
-      return response.data;
+      const response = await adminFetch('/careplan/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(task)
+      });
+      return response;
     } catch (error) {
       console.error('Error creating task:', error);
       throw error;
@@ -205,7 +213,11 @@ class CarePlanService {
    */
   async updateTaskStatus(taskId: string, status: CareTask['status'], notes?: string): Promise<void> {
     try {
-      await api.patch(`/careplan/tasks/${taskId}`, { status, notes });
+      await adminFetch(`/careplan/tasks/${taskId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, notes })
+      });
     } catch (error) {
       console.error('Error updating task status:', error);
       throw error;
@@ -217,7 +229,11 @@ class CarePlanService {
    */
   async sendMessage(subject: string, content: string, recipients: string[], type: CommunicationThread['type'] = 'general'): Promise<void> {
     try {
-      await api.post('/careplan/messages', { subject, content, recipients, type });
+      await adminFetch('/careplan/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subject, content, recipients, type })
+      });
     } catch (error) {
       console.error('Error sending message:', error);
       throw error;
@@ -229,7 +245,11 @@ class CarePlanService {
    */
   async requestCarePlanUpdate(message: string): Promise<void> {
     try {
-      await api.post('/careplan/request-update', { message });
+      await adminFetch('/careplan/request-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      });
     } catch (error) {
       console.error('Error requesting care plan update:', error);
       throw error;
@@ -241,14 +261,33 @@ class CarePlanService {
    */
   async generateCarePlanPDF(): Promise<Blob> {
     try {
-      const response = await api.get('/careplan/pdf', {
-        responseType: 'blob'
+      const response = await fetch('/api/careplan/pdf', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${await this.getAuthToken()}`
+        }
       });
-      return response.data;
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.blob();
     } catch (error) {
       console.error('Error generating care plan PDF:', error);
       throw error;
     }
+  }
+  
+  private async getAuthToken(): Promise<string | null> {
+    try {
+      const tokens = localStorage.getItem('osrx_auth_tokens');
+      if (tokens) {
+        const parsed = JSON.parse(tokens);
+        return parsed.access_token || null;
+      }
+    } catch {}
+    return null;
   }
 }
 

@@ -108,10 +108,10 @@ class CarePlanService {
     try {
       const response = await api.get('/careplan/patient');
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching care plan data:', error);
       
-      // Return empty structure - API endpoints are now available
+      // Return empty structure when API fails
       return {
         sections: [],
         goals: [],

@@ -544,6 +544,53 @@ router.get('/:rxcui/interactions',
   })
 );
 
+// Brand alias search (accessible to all users)
+router.get('/brand-aliases/search', async (req, res) => {
+  try {
+    const { q } = req.query;
+    
+    if (!q || q.length < 2) {
+      return res.status(400).json({ 
+        error: 'Search query must be at least 2 characters long' 
+      });
+    }
+
+    // Ensure aliases are loaded
+    try { loadBrandAliases(); } catch {}
+    
+    const query = String(q).toLowerCase().trim();
+    const results = [];
+    
+    // Search through loaded brand aliases
+    for (const [brand, generic] of BRAND_ALIASES.entries()) {
+      if (brand.includes(query)) {
+        results.push({
+          brand,
+          generic,
+          relevance: brand.startsWith(query) ? 'high' : 'medium'
+        });
+      }
+    }
+    
+    // Sort by relevance (starts with query first, then contains)
+    results.sort((a, b) => {
+      if (a.relevance === 'high' && b.relevance !== 'high') return -1;
+      if (b.relevance === 'high' && a.relevance !== 'high') return 1;
+      return a.brand.localeCompare(b.brand);
+    });
+    
+    res.json({
+      query: q,
+      count: results.length,
+      results: results.slice(0, 20) // Limit to top 20 results
+    });
+    
+  } catch (error) {
+    console.error('Brand alias search error:', error);
+    res.status(500).json({ error: 'Brand alias search failed' });
+  }
+});
+
 // Search FDA labels via DailyMed
 router.get('/labels/search', async (req, res) => {
   try {

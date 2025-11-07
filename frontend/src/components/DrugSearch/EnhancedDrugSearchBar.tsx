@@ -1,10 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Pill, AlertTriangle } from 'lucide-react';
+import { Pill, AlertTriangle, Star } from 'lucide-react';
 import AutoComplete, { AutoCompleteOption } from '../UI/AutoComplete';
 import Tooltip from '../UI/Tooltip';
 import { drugService } from '../../services/api';
 import { useSelection } from '../../context/SelectionContext';
 import { Drug } from '../../types';
+import BrandAliasSearch from './BrandAliasSearch';
 
 interface EnhancedDrugSearchBarProps {
   onDrugSelect: (drug: Drug) => void;
@@ -13,6 +14,7 @@ interface EnhancedDrugSearchBarProps {
   allowMultiple?: boolean;
   maxSuggestions?: number;
   className?: string;
+  showBrandAliasSearch?: boolean;
 }
 
 const EnhancedDrugSearchBar: React.FC<EnhancedDrugSearchBarProps> = ({
@@ -22,12 +24,14 @@ const EnhancedDrugSearchBar: React.FC<EnhancedDrugSearchBarProps> = ({
   allowMultiple = false,
   maxSuggestions = 10,
   className = '',
+  showBrandAliasSearch = true,
 }) => {
   const selection = useSelection();
   const [options, setOptions] = useState<AutoCompleteOption[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchHistory, setSearchHistory] = useState<Drug[]>([]);
+  const [activeSearchMode, setActiveSearchMode] = useState<'drugs' | 'brands'>('drugs');
 
   // Local fallback drug names when API is unavailable (e.g., offline/dev sandbox)
   const FALLBACK_DRUGS = [
@@ -199,6 +203,39 @@ const EnhancedDrugSearchBar: React.FC<EnhancedDrugSearchBarProps> = ({
     }
   };
 
+  // Handle brand alias selection
+  const handleBrandAliasSelect = async (brand: string, generic: string | null) => {
+    if (generic) {
+      try {
+        // Search for the generic drug
+        const results = await drugService.searchDrugs(generic);
+        if (results.count > 0) {
+          const drug = results.results[0] as Drug;
+          // Add brand name to drug metadata
+          drug.brandNames = drug.brandNames || [];
+          if (!drug.brandNames.includes(brand)) {
+            drug.brandNames.push(brand);
+          }
+          addToHistory(drug);
+          selection.addDrug(drug);
+          try { const { rxcui, name } = drug; (await import('../../utils/analytics')).analytics.logSelection(rxcui, name, 'brand_alias'); } catch {}
+          onDrugSelect(drug);
+        }
+      } catch (error) {
+        console.warn('Failed to search for generic drug:', error);
+        // Create a basic drug object if API fails
+        const drug: Drug = {
+          rxcui: `brand_${brand}`,
+          name: generic,
+          brandNames: [brand],
+          drugClass: '',
+          description: `Generic: ${generic}, Brand: ${brand}`
+        };
+        onDrugSelect(drug);
+      }
+    }
+  };
+
   // Get search tips for tooltip
   const getSearchTips = () => (
     <div className="space-y-2 text-xs">
@@ -279,6 +316,45 @@ const EnhancedDrugSearchBar: React.FC<EnhancedDrugSearchBarProps> = ({
           </div>
         )}
       </div>
+
+      {/* Brand Alias Search Toggle and Interface */}
+      {showBrandAliasSearch && (
+        <div className="mt-4 border-t pt-4">
+          <div className="flex items-center space-x-2 mb-3">
+            <button
+              onClick={() => setActiveSearchMode('drugs')}
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                activeSearchMode === 'drugs'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <Pill className="w-4 h-4 mr-1 inline" />
+              Drug Search
+            </button>
+            <button
+              onClick={() => setActiveSearchMode('brands')}
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                activeSearchMode === 'brands'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <Star className="w-4 h-4 mr-1 inline" />
+              Brand Lookup
+            </button>
+          </div>
+
+          {activeSearchMode === 'brands' && (
+            <BrandAliasSearch
+              onAliasSelect={handleBrandAliasSelect}
+              placeholder="Search brand names (e.g., Arkamin, Tylenol, Lipitor)..."
+              showTitle={false}
+              className="mb-2"
+            />
+          )}
+        </div>
+      )}
 
       {error && (
         <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">

@@ -134,6 +134,19 @@ export const drugService = {
     }
   },
 
+  searchBrandAliases: async (query: string) => {
+    try {
+      const response = await api.get(`/drugs/brand-aliases/search?q=${encodeURIComponent(query)}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        console.warn(`Brand aliases search API not available for query: ${query}`);
+        return { results: [], message: 'Brand aliases service is currently unavailable' };
+      }
+      throw error;
+    }
+  },
+
   getLabelDetails: async (setId: string) => {
     try {
       const response = await api.get(`/drugs/labels/${setId}`);

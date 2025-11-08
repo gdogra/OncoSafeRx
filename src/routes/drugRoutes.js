@@ -585,6 +585,39 @@ router.get('/suggestions',
   })
 );
 
+// Diagnostic endpoint to test RxNorm connectivity
+router.get('/rxnorm-test', 
+  asyncHandler(async (req, res) => {
+    const query = req.query.q || 'aspirin';
+    
+    try {
+      // Test connectivity
+      const isOnline = await rxnormService.checkConnectivity();
+      
+      // Test search functionality
+      let searchResults = [];
+      if (isOnline) {
+        searchResults = await rxnormService.searchDrugs(query);
+      }
+      
+      res.json({
+        rxnorm_connectivity: isOnline ? 'online' : 'offline',
+        test_query: query,
+        results_count: searchResults.length,
+        sample_results: searchResults.slice(0, 3),
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.json({
+        rxnorm_connectivity: 'error',
+        error: error.message,
+        test_query: query,
+        timestamp: new Date().toISOString()
+      });
+    }
+  })
+);
+
 // Enhanced drug search with clinical insights
 router.get('/search', 
   searchLimiter,

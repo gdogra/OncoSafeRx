@@ -13,7 +13,9 @@ export const scientistModeConfig = {
  */
 export const scientistModeFilter = (featureType) => {
   return (req, res, next) => {
-    if (!scientistModeConfig.enabled) {
+    const config = getEffectiveConfig();
+    
+    if (!config.enabled) {
       return next();
     }
     
@@ -21,13 +23,13 @@ export const scientistModeFilter = (featureType) => {
     let isEnabled = false;
     switch (featureType) {
       case 'analytics':
-        isEnabled = scientistModeConfig.enableAnalytics;
+        isEnabled = config.enableAnalytics;
         break;
       case 'feedback':
-        isEnabled = scientistModeConfig.enableFeedback;
+        isEnabled = config.enableFeedback;
         break;
       case 'social':
-        isEnabled = scientistModeConfig.enableSocial;
+        isEnabled = config.enableSocial;
         break;
       default:
         isEnabled = true;
@@ -49,12 +51,56 @@ export const scientistModeFilter = (featureType) => {
  * Add scientist mode headers to API responses
  */
 export const addScientistModeHeaders = (req, res, next) => {
-  if (scientistModeConfig.enabled) {
+  const config = getEffectiveConfig();
+  if (config.enabled) {
     res.setHeader('X-Scientist-Mode', 'true');
     res.setHeader('X-Evidence-Based', 'true');
     res.setHeader('X-Data-Sources', 'ClinicalTrials.gov, FDA Labels, PubMed');
   }
   next();
+};
+
+/**
+ * Runtime configuration updates (stored in memory)
+ * In production, these could be stored in database/config service
+ */
+const runtimeConfig = {
+  scientistModeOverride: null, // null = use env var, true/false = override
+  analyticsOverride: null,
+  feedbackOverride: null,
+  socialOverride: null
+};
+
+/**
+ * Get effective scientist mode config (runtime overrides + env vars)
+ */
+export const getEffectiveConfig = () => {
+  return {
+    enabled: runtimeConfig.scientistModeOverride ?? scientistModeConfig.enabled,
+    enableAnalytics: runtimeConfig.analyticsOverride ?? scientistModeConfig.enableAnalytics,
+    enableFeedback: runtimeConfig.feedbackOverride ?? scientistModeConfig.enableFeedback,
+    enableSocial: runtimeConfig.socialOverride ?? scientistModeConfig.enableSocial
+  };
+};
+
+/**
+ * Update runtime configuration
+ */
+export const updateScientistModeConfig = (updates) => {
+  if (updates.hasOwnProperty('enabled')) {
+    runtimeConfig.scientistModeOverride = updates.enabled;
+  }
+  if (updates.hasOwnProperty('enableAnalytics')) {
+    runtimeConfig.analyticsOverride = updates.enableAnalytics;
+  }
+  if (updates.hasOwnProperty('enableFeedback')) {
+    runtimeConfig.feedbackOverride = updates.enableFeedback;
+  }
+  if (updates.hasOwnProperty('enableSocial')) {
+    runtimeConfig.socialOverride = updates.enableSocial;
+  }
+  
+  return getEffectiveConfig();
 };
 
 export default scientistModeConfig;

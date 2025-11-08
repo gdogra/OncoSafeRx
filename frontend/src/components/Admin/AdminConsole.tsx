@@ -71,7 +71,7 @@ const AdminConsole: React.FC = () => {
   const rbac = useRBAC(user);
   const navigate = useNavigate();
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'system' | 'audit' | 'auth'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'system' | 'audit' | 'auth' | 'scientist'>('overview');
   const [pushStatus, setPushStatus] = useState<string>('');
   const [pushForm, setPushForm] = useState<{ title: string; body: string; url: string; requireInteraction: boolean }>({ title: '', body: '', url: '/', requireInteraction: false });
   const [subs, setSubs] = useState<Array<{ endpoint: string }>>([]);
@@ -97,6 +97,10 @@ const AdminConsole: React.FC = () => {
   const [rowForce, setRowForce] = useState<Record<string, boolean>>({});
   const [issuesOnly, setIssuesOnly] = useState(false);
   const [intSeries, setIntSeries] = useState<Record<string, Array<{ date: string; active: number; next: number; total: number }>>>({});
+  
+  // Scientist Mode state
+  const [scientistConfig, setScientistConfig] = useState<any>(null);
+  const [scientistLoading, setScientistLoading] = useState(false);
   const [seriesDays, setSeriesDays] = useState(30);
   const [seriesExpanded, setSeriesExpanded] = useState(false);
   const [highlightZeros, setHighlightZeros] = useState(true);
@@ -200,6 +204,13 @@ const AdminConsole: React.FC = () => {
     }
     loadAdminData();
   }, []);
+
+  // Load scientist mode config when tab becomes active
+  useEffect(() => {
+    if (activeTab === 'scientist' && !scientistConfig) {
+      loadScientistConfig();
+    }
+  }, [activeTab]);
 
   const loadAdminData = async () => {
     setLoading(true);
@@ -699,6 +710,190 @@ const AdminConsole: React.FC = () => {
     </div>
   );
 
+  // Scientist Mode functions
+  const loadScientistConfig = async () => {
+    try {
+      setScientistLoading(true);
+      const response = await adminApi.get('/scientist-mode/config');
+      setScientistConfig(response);
+    } catch (error) {
+      console.error('Failed to load scientist mode config:', error);
+      showToast('error', 'Failed to load scientist mode configuration');
+    } finally {
+      setScientistLoading(false);
+    }
+  };
+
+  const updateScientistConfig = async (updates: any) => {
+    try {
+      setScientistLoading(true);
+      const response = await adminApi.post('/scientist-mode/config', updates);
+      setScientistConfig(response);
+      showToast('success', 'Scientist mode configuration updated successfully');
+    } catch (error) {
+      console.error('Failed to update scientist mode config:', error);
+      showToast('error', 'Failed to update scientist mode configuration');
+    } finally {
+      setScientistLoading(false);
+    }
+  };
+
+  const resetScientistConfig = async () => {
+    try {
+      setScientistLoading(true);
+      const response = await adminApi.post('/scientist-mode/reset', {});
+      setScientistConfig(response);
+      showToast('success', 'Scientist mode configuration reset to defaults');
+    } catch (error) {
+      console.error('Failed to reset scientist mode config:', error);
+      showToast('error', 'Failed to reset scientist mode configuration');
+    } finally {
+      setScientistLoading(false);
+    }
+  };
+
+  const renderScientistMode = () => (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Scientist Mode Configuration</h3>
+            <p className="text-sm text-gray-600 mt-1">
+              Transform OncoSafeRx into a pure scientific instrument by controlling feature availability
+            </p>
+          </div>
+          <div className="flex space-x-2">
+            <button
+              onClick={loadScientistConfig}
+              disabled={scientistLoading}
+              className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded border disabled:opacity-50"
+            >
+              <RefreshCw className="w-4 h-4 inline mr-1" />
+              Refresh
+            </button>
+            <button
+              onClick={resetScientistConfig}
+              disabled={scientistLoading}
+              className="px-3 py-1 text-sm bg-yellow-100 hover:bg-yellow-200 text-yellow-700 rounded border disabled:opacity-50"
+            >
+              Reset to Defaults
+            </button>
+          </div>
+        </div>
+
+        {scientistLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <RefreshCw className="w-6 h-6 animate-spin text-gray-400" />
+            <span className="ml-2 text-gray-600">Loading configuration...</span>
+          </div>
+        ) : scientistConfig ? (
+          <div className="space-y-6">
+            {/* Current Configuration Display */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-3">Current Configuration</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <h5 className="text-sm font-medium text-gray-700">Active Settings</h5>
+                  {Object.entries(scientistConfig.current || {}).map(([key, value]) => (
+                    <div key={key} className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600 capitalize">{key.replace(/([A-Z])/g, ' $1').toLowerCase()}:</span>
+                      <span className={`px-2 py-1 rounded text-xs ${value ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {value ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <div className="space-y-2">
+                  <h5 className="text-sm font-medium text-gray-700">Environment Variables</h5>
+                  {Object.entries(scientistConfig.environment || {}).map(([key, value]) => (
+                    <div key={key} className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600 font-mono text-xs">{key}:</span>
+                      <span className="text-gray-800">{value || 'unset'}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Toggle Controls */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-gray-900">Feature Controls</h4>
+              
+              {/* Master Scientist Mode Toggle */}
+              <div className="flex items-center justify-between p-4 border rounded-lg bg-blue-50 border-blue-200">
+                <div className="flex-1">
+                  <h5 className="font-medium text-blue-900">Scientist Mode</h5>
+                  <p className="text-sm text-blue-700 mt-1">
+                    {scientistConfig.description?.enabled || 'Master toggle for scientist mode'}
+                  </p>
+                </div>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={scientistConfig.current?.enabled || false}
+                    onChange={(e) => updateScientistConfig({ enabled: e.target.checked })}
+                    className="sr-only"
+                  />
+                  <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    scientistConfig.current?.enabled ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}>
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      scientistConfig.current?.enabled ? 'translate-x-6' : 'translate-x-1'
+                    }`} />
+                  </div>
+                </label>
+              </div>
+
+              {/* Feature Toggles */}
+              {['enableAnalytics', 'enableFeedback', 'enableSocial'].map((feature) => (
+                <div key={feature} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex-1">
+                    <h5 className="font-medium text-gray-900 capitalize">
+                      {feature.replace(/([A-Z])/g, ' $1').replace('enable', '').trim()}
+                    </h5>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {scientistConfig.description?.[feature] || `Control ${feature.replace('enable', '').toLowerCase()} features`}
+                    </p>
+                  </div>
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={scientistConfig.current?.[feature] || false}
+                      onChange={(e) => updateScientistConfig({ [feature]: e.target.checked })}
+                      className="sr-only"
+                      disabled={!scientistConfig.current?.enabled}
+                    />
+                    <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      scientistConfig.current?.[feature] ? 'bg-green-600' : 'bg-gray-300'
+                    } ${!scientistConfig.current?.enabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        scientistConfig.current?.[feature] ? 'translate-x-6' : 'translate-x-1'
+                      }`} />
+                    </div>
+                  </label>
+                </div>
+              ))}
+            </div>
+
+            {/* Help Text */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <h5 className="font-medium text-yellow-900 mb-2">Important Notes</h5>
+              <ul className="text-sm text-yellow-800 space-y-1">
+                <li>• Changes are applied immediately but will reset on server restart</li>
+                <li>• For persistent changes, update environment variables and restart the server</li>
+                <li>• Scientist mode transforms the app into a pure scientific instrument</li>
+                <li>• Disabled features return 404 responses when scientist mode is active</li>
+              </ul>
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-600">Click "Refresh" to load scientist mode configuration</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   const renderUsers = () => (
     <div className="space-y-6">
@@ -895,6 +1090,7 @@ const AdminConsole: React.FC = () => {
             { id: 'overview', label: 'Overview', icon: Monitor, permission: null },
             { id: 'users', label: 'Users', icon: Users, permission: 'manage_users' },
             { id: 'system', label: 'System', icon: Settings, permission: 'manage_system_settings' },
+            { id: 'scientist', label: 'Scientist Mode', icon: Eye, permission: 'manage_system_settings' },
             { id: 'audit', label: 'Audit Logs', icon: FileText, permission: 'view_audit_logs' },
             { id: 'auth', label: 'Auth', icon: Lock, permission: 'admin_console_access' }
           ].filter(tab => !tab.permission || rbac.hasPermission(tab.permission)).map(tab => {
@@ -923,6 +1119,7 @@ const AdminConsole: React.FC = () => {
       {activeTab === 'overview' && renderOverview()}
       {activeTab === 'users' && renderUsers()}
       {activeTab === 'analytics' && renderAnalytics()}
+      {activeTab === 'scientist' && renderScientistMode()}
       {activeTab === 'auth' && (
         <div className="space-y-6">
           <div className="bg-white rounded border border-gray-200 p-6">

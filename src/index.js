@@ -87,6 +87,7 @@ import drugVisualizationRoutes from './routes/drugVisualizationRoutes.js';
 import ehrIntegrationRoutes from './routes/ehrIntegrationRoutes.js';
 import pharmacyIntegrationRoutes from './routes/pharmacyIntegrationRoutes.js';
 import careplanRoutes from './routes/careplanRoutes.js';
+import scientistModeRoutes from './routes/scientistModeRoutes.js';
 import { addScientistModeHeaders, scientistModeFilter } from './middleware/scientistMode.js';
 import { join as pathJoin } from 'path';
 
@@ -506,6 +507,7 @@ app.use('/api/regimens', regimenRoutes);
 app.use('/api/protocols', protocolRoutes);
 app.use('/api/collaboration', collaborationRoutes);
 app.use('/api/analytics', scientistModeFilter('analytics'), analyticsRoutes);
+app.use('/api/scientist-mode', scientistModeRoutes);
 app.use('/api/trials', trialRoutes);
 app.use('/api/clinical-trials', clinicalTrialsRoutes);
 app.use('/api/clinical', enhancedClinicalRoutes);

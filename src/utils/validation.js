@@ -63,6 +63,22 @@ export const schemas = {
         'array.max': 'Maximum 10 drugs allowed',
         'string.pattern.base': 'Each drug must be a valid RXCUI (numbers only)',
         'any.required': 'Drugs array is required'
+      }),
+    phenotypes: Joi.object()
+      .pattern(
+        Joi.string().pattern(/^[A-Z0-9_]+$/),
+        Joi.string().min(1).max(100)
+      )
+      .optional()
+      .messages({
+        'string.pattern.base': 'Phenotype keys must be valid gene names (uppercase letters, numbers, underscores)',
+        'string.max': 'Phenotype values cannot exceed 100 characters'
+      }),
+    observations: Joi.array()
+      .items(Joi.object().unknown(true))
+      .optional()
+      .messages({
+        'array.base': 'Observations must be an array of objects'
       })
   })
   ,

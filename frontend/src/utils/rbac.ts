@@ -334,7 +334,9 @@ class RBACService {
 
   // Check if user has specific role
   hasRole(user: UserProfile, roleId: string): boolean {
-    return user.roles?.includes(roleId) ?? false;
+    const result = user.roles?.includes(roleId) ?? false;
+    console.log(`RBAC DEBUG - hasRole('${roleId}'):`, result, 'user.roles:', user.roles);
+    return result;
   }
 
   // Check if user has any of the specified roles
@@ -351,8 +353,20 @@ class RBACService {
 
   // Check if user can access admin console
   canAccessAdminConsole(user: UserProfile): boolean {
-    return this.hasPermission(user, 'admin_console_access') || 
-           this.hasAnyRole(user, ['super_admin', 'superadmin', 'system_admin', 'analytics_admin']);
+    console.log('RBAC DEBUG - canAccessAdminConsole called with user:', user);
+    console.log('RBAC DEBUG - user.roles:', user?.roles);
+    console.log('RBAC DEBUG - user.permissions:', user?.permissions);
+    
+    const hasPermission = this.hasPermission(user, 'admin_console_access');
+    const hasRole = this.hasAnyRole(user, ['super_admin', 'superadmin', 'system_admin', 'analytics_admin']);
+    
+    console.log('RBAC DEBUG - hasPermission(admin_console_access):', hasPermission);
+    console.log('RBAC DEBUG - hasAnyRole([super_admin, superadmin, system_admin, analytics_admin]):', hasRole);
+    
+    const canAccess = hasPermission || hasRole;
+    console.log('RBAC DEBUG - final canAccessAdminConsole result:', canAccess);
+    
+    return canAccess;
   }
 
   // Check if user can view analytics

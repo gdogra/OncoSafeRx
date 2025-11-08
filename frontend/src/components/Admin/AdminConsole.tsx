@@ -199,9 +199,18 @@ const AdminConsole: React.FC = () => {
   const [auditFilters, setAuditFilters] = useState<{ actor: string; target: string; action: string; from: string; to: string }>({ actor: '', target: '', action: '', from: '', to: '' });
 
   useEffect(() => {
-    if (!rbac.canAccessAdminConsole()) {
+    console.log('AdminConsole useEffect - checking access');
+    console.log('AdminConsole useEffect - user:', user);
+    console.log('AdminConsole useEffect - rbac object:', rbac);
+    
+    const canAccess = rbac.canAccessAdminConsole();
+    console.log('AdminConsole useEffect - canAccessAdminConsole result:', canAccess);
+    
+    if (!canAccess) {
+      console.log('AdminConsole useEffect - Access DENIED, returning early');
       return;
     }
+    console.log('AdminConsole useEffect - Access GRANTED, loading admin data');
     loadAdminData();
   }, []);
 
@@ -959,7 +968,13 @@ const AdminConsole: React.FC = () => {
     </div>
   );
 
-  if (!rbac.canAccessAdminConsole()) {
+  console.log('AdminConsole render - checking access again for render');
+  console.log('AdminConsole render - user:', user);
+  const canAccessForRender = rbac.canAccessAdminConsole();
+  console.log('AdminConsole render - canAccessAdminConsole for render:', canAccessForRender);
+
+  if (!canAccessForRender) {
+    console.log('AdminConsole render - Showing Access Denied banner');
     return (
       <div className="max-w-4xl mx-auto p-6">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">

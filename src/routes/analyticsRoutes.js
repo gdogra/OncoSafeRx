@@ -59,6 +59,52 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Debug endpoint to check analytics status and recent events
+router.get('/debug', async (req, res) => {
+  try {
+    const recentEvents = [];
+    let supabaseStatus = 'disabled';
+    let eventCount = 0;
+    
+    if (supabaseService.enabled && supabaseService.client) {
+      supabaseStatus = 'enabled';
+      try {
+        const { data, error } = await supabaseService.client
+          .from('visitor_analytics')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(10);
+          
+        if (error) throw error;
+        recentEvents.push(...(data || []));
+        
+        const { count } = await supabaseService.client
+          .from('visitor_analytics')
+          .select('*', { count: 'exact', head: true });
+          
+        eventCount = count || 0;
+        supabaseStatus = 'working';
+      } catch (error) {
+        supabaseStatus = `error: ${error.message}`;
+      }
+    }
+    
+    res.json({
+      supabase_status: supabaseStatus,
+      total_events: eventCount,
+      recent_events: recentEvents,
+      analytics_endpoint: '/api/analytics',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.json({
+      error: error.message,
+      supabase_status: 'error',
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // GET endpoint for retrieving visitor metrics (for dashboard)
 router.get('/metrics', authenticateToken, requireAdmin, async (req, res) => {
   try {

@@ -315,23 +315,63 @@ const InteractionCheckerInner: React.FC = () => {
     return { resolved, skipped };
   };
 
-  // Auto-import current patient's medications into selected drugs when empty
+  // Auto-import current patient's medications into selected drugs
   useEffect(() => {
     const importFromPatient = async () => {
       try {
-        if (!currentPatient) return;
-        if (selectedDrugs.length > 0) return;
-        const { resolved, skipped } = await resolvePatientMedications(8, { includeInactive: false });
+        console.log('Auto-import check:', { 
+          hasCurrentPatient: !!currentPatient, 
+          currentPatientId: currentPatient?.id,
+          selectedDrugsCount: selectedDrugs.length,
+          patientMedications: currentPatient?.medications?.length || 0,
+          usePatientMeds
+        });
+        
+        if (!currentPatient) {
+          console.log('Auto-import skipped: No current patient');
+          return;
+        }
+        
+        if (!usePatientMeds) {
+          console.log('Auto-import skipped: usePatientMeds is disabled');
+          return;
+        }
+        
+        // Check if patient has medications
+        const patientMeds = currentPatient.medications || [];
+        if (patientMeds.length === 0) {
+          console.log('Auto-import skipped: Patient has no medications');
+          return;
+        }
+        
+        // If user already has drugs selected, merge instead of replacing
+        const { resolved, skipped } = await resolvePatientMedications(12, { includeInactive: false });
         if (resolved.length) {
-          const merged = mergeUnique(selection.selectedDrugs, resolved);
+          const merged = mergeUnique(selectedDrugs, resolved);
           setSelectedDrugs(merged);
           merged.forEach(d => selection.addDrug(d));
-          if (skipped.length) setImportNote(`Imported ${resolved.length} meds. Skipped: ${skipped.join(', ')}`);
+          
+          console.log(`Auto-imported medications: ${resolved.length} added, ${skipped.length} skipped`, {
+            resolved: resolved.map(r => r.name),
+            skipped
+          });
+          
+          if (selectedDrugs.length > 0) {
+            // User was already analyzing interactions, so we merged
+            setImportNote(`Added ${resolved.length} medications from your profile${skipped.length ? `. Skipped: ${skipped.join(', ')}` : ''}`);
+          } else {
+            // Fresh start with patient medications
+            if (skipped.length) {
+              setImportNote(`Auto-loaded ${resolved.length} medications. Skipped: ${skipped.join(', ')}`);
+            }
+          }
         }
-      } catch {}
+      } catch (error) {
+        console.error('Auto-import error:', error);
+      }
     };
     importFromPatient();
-  }, [currentPatient?.id]);
+  }, [currentPatient?.id, currentPatient?.medications?.length, usePatientMeds]);
 
   // Force-refresh auth profile on page load to avoid stale demographics
   useEffect(() => {
@@ -912,18 +952,32 @@ const InteractionCheckerInner: React.FC = () => {
                 }
                 const { resolved, skipped } = await resolvePatientMedications(12, { includeInactive });
                 if (resolved.length) {
+                  // Smart merging - add to existing drugs or replace if none selected
                   const merged = mergeUnique(selectedDrugs, resolved);
                   setSelectedDrugs(merged);
                   merged.forEach(d => selection.addDrug(d));
+                  
+                  console.log('Manual import completed:', {
+                    previousCount: selectedDrugs.length,
+                    importedCount: resolved.length,
+                    newTotal: merged.length,
+                    resolved: resolved.map(r => r.name),
+                    skipped
+                  });
                 }
+                
                 const names = (currentPatient.medications || []).map((m: any) => (m?.drug?.name || m?.name || m?.drugName || '')).filter(Boolean).slice(0,12);
                 const skippedNames = skipped.map(s => names.find(n => n.toLowerCase().includes(s)) || s);
+                
                 if (resolved.length || skipped.length) {
-                  setImportNote(`Imported ${resolved.length}${skipped.length ? `. Skipped: ${skippedNames.join(', ')}` : ''}`);
+                  const wasAnalyzing = selectedDrugs.length > 0;
+                  const action = wasAnalyzing ? 'Added' : 'Imported';
+                  setImportNote(`${action} ${resolved.length} medication${resolved.length !== 1 ? 's' : ''}${skipped.length ? `. Skipped: ${skippedNames.join(', ')}` : ''}`);
                   trackEvent('medication_import_succeeded', {
                     user_role: authState.user?.role,
                     imported_count: resolved.length,
-                    skipped_count: skipped.length
+                    skipped_count: skipped.length,
+                    was_analyzing: wasAnalyzing
                   });
                 } else {
                   setImportNote('No medications to import from patient profile.');
@@ -946,7 +1000,7 @@ const InteractionCheckerInner: React.FC = () => {
             className="text-sm text-blue-700 hover:text-blue-900 hover:underline"
             disabled={importing}
           >
-            {importing ? 'Importing…' : 'Import from My Medications'}
+            {importing ? 'Importing…' : selectedDrugs.length > 0 ? 'Add My Medications' : 'Import from My Medications'}
           </button>
           {ignoredRxcuis.size > 0 && (
             <button

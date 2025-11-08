@@ -71,7 +71,7 @@ const AdminConsole: React.FC = () => {
   const rbac = useRBAC(user);
   const navigate = useNavigate();
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'system' | 'audit' | 'auth' | 'scientist'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'system' | 'audit' | 'auth' | 'scientist' | 'analytics' | 'integrations' | 'role_management'>('overview');
   const [pushStatus, setPushStatus] = useState<string>('');
   const [pushForm, setPushForm] = useState<{ title: string; body: string; url: string; requireInteraction: boolean }>({ title: '', body: '', url: '/', requireInteraction: false });
   const [subs, setSubs] = useState<Array<{ endpoint: string }>>([]);
@@ -808,7 +808,7 @@ const AdminConsole: React.FC = () => {
                   {Object.entries(scientistConfig.environment || {}).map(([key, value]) => (
                     <div key={key} className="flex items-center justify-between text-sm">
                       <span className="text-gray-600 font-mono text-xs">{key}:</span>
-                      <span className="text-gray-800">{value || 'unset'}</span>
+                      <span className="text-gray-800">{String(value) || 'unset'}</span>
                     </div>
                   ))}
                 </div>

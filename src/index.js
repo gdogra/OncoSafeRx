@@ -88,6 +88,7 @@ import ehrIntegrationRoutes from './routes/ehrIntegrationRoutes.js';
 import pharmacyIntegrationRoutes from './routes/pharmacyIntegrationRoutes.js';
 import careplanRoutes from './routes/careplanRoutes.js';
 import patientFeaturesRoutes from './routes/patientFeaturesRoutes.js';
+import oncologistFeaturesRoutes from './routes/oncologistFeaturesRoutes.js';
 import { join as pathJoin } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -569,6 +570,7 @@ app.use('/api/ehr-integration', ehrIntegrationRoutes);
 app.use('/api/pharmacy-integration', pharmacyIntegrationRoutes);
 app.use('/api/careplan', careplanRoutes);
 app.use('/api/patient-features', patientFeaturesRoutes);
+app.use('/api/oncologist-features', oncologistFeaturesRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/overrides', overrideRoutes);
 app.use('/', cdsHooksRoutes);

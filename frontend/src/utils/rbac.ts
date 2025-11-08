@@ -352,7 +352,7 @@ class RBACService {
   // Check if user can access admin console
   canAccessAdminConsole(user: UserProfile): boolean {
     return this.hasPermission(user, 'admin_console_access') || 
-           this.hasAnyRole(user, ['super_admin', 'system_admin', 'analytics_admin']);
+           this.hasAnyRole(user, ['super_admin', 'superadmin', 'system_admin', 'analytics_admin']);
   }
 
   // Check if user can view analytics

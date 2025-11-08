@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import visitorTracking from '../services/visitorTracking';
 import { useAuth } from '../context/AuthContext';
-import { shouldShowComponent } from '../utils/scientistMode';
 
 export const useVisitorTracking = () => {
   const location = useLocation();
@@ -22,13 +21,6 @@ export const useVisitorTracking = () => {
 
   // Track page views on route changes
   useEffect(() => {
-    // Skip tracking in scientist mode unless explicitly enabled
-    let analyticsOverride = false;
-    try { analyticsOverride = localStorage.getItem('osrx_enable_analytics') === 'true'; } catch {}
-    if (!analyticsOverride && !shouldShowComponent('analytics')) {
-      return;
-    }
-    
     const currentPath = location.pathname + location.search;
     
     // Avoid tracking the same page twice

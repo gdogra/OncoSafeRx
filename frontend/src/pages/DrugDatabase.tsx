@@ -146,7 +146,7 @@ const DrugDatabase: React.FC = () => {
     setError(null);
     
     try {
-      const response = await fetch(`${API_BASE}/drugs/enhanced/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`${API_BASE}/drugs/search?q=${encodeURIComponent(query)}`);
       if (!response.ok) throw new Error('Search failed');
       
       const data = await response.json();
@@ -157,22 +157,22 @@ const DrugDatabase: React.FC = () => {
         .map((drug: any) => ({
           rxcui: String(drug?.rxcui || drug?.id || ''),
           name: drug?.name || 'Unknown',
-          genericName: drug?.genericName || drug?.name || 'Unknown',
-          brandNames: drug?.brandNames || [],
-          category: drug?.clinicalRelevance?.therapeuticClass || 'Medication',
-          mechanism: drug?.clinicalRelevance?.mechanismOfAction || 'Therapeutic agent',
-          indications: drug?.clinicalRelevance?.primaryIndications || [],
-          contraindications: (drug?.safetyAlerts || []).map((alert: any) => alert?.description).filter(Boolean),
-          sideEffects: (drug?.safetyAlerts || []).map((alert: any) => alert?.type).filter(Boolean),
+          genericName: drug?.generic_name || drug?.name || 'Unknown',
+          brandNames: drug?.brand_names || [],
+          category: drug?.therapeutic_class || 'Medication',
+          mechanism: drug?.insights?.clinicalInsights?.mechanismOfAction || 'Therapeutic agent',
+          indications: drug?.insights?.clinicalInsights?.patientSubgroups?.map((s: any) => s.criteria) || [],
+          contraindications: drug?.insights?.riskProfile?.specificRisks?.map((r: any) => r.description).filter(Boolean) || [],
+          sideEffects: drug?.insights?.riskProfile?.specificRisks?.map((r: any) => r.type).filter(Boolean) || [],
           interactions: [],
           dosing: {
             standard: 'Consult prescribing information',
             renal: 'Adjust based on renal function',
             hepatic: 'Adjust based on hepatic function'
           },
-          monitoring: [],
+          monitoring: drug?.insights?.monitoringRequirements?.ongoing || [],
           fdaApproved: true,
-          oncologyDrug: !!drug?.clinicalRelevance?.isOncologyDrug,
+          oncologyDrug: false, // Default for basic search
           clinicalData: drug // Store full clinical data
         }))
         // Drop entries missing an identifier to avoid downstream key/selection issues

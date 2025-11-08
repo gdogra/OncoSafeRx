@@ -145,8 +145,8 @@ const CarePlan: React.FC = () => {
     );
   }
 
-  const carePlanSections = carePlanData.sections;
-  const goals = carePlanData.goals;
+  const carePlanSections = carePlanData.sections || [];
+  const goals = carePlanData.goals || [];
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -257,7 +257,7 @@ const CarePlan: React.FC = () => {
             </div>
             <div>
               <p className="text-sm text-gray-600">Current Medications</p>
-              <p className="text-2xl font-bold text-gray-900">{carePlanSections.find(s => s.title.toLowerCase().includes('medication'))?.items.length || 0}</p>
+              <p className="text-2xl font-bold text-gray-900">{carePlanSections.find(s => s.title?.toLowerCase().includes('medication'))?.items?.length || 0}</p>
             </div>
           </div>
         </Card>

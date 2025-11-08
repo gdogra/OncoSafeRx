@@ -17,7 +17,6 @@ import AdminApiStatus from '../Admin/AdminApiStatus';
 import LoginWizard from '../Onboarding/LoginWizard';
 import AIChat from '../Help/AIChat';
 import { appVersion } from '../../utils/env';
-import { isScientistMode, shouldShowComponent } from '../../utils/scientistMode';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -210,16 +209,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </footer>
       </div>
       
-      {/* Global Feedback Button - Hidden in scientist mode */}
-      {shouldShowComponent('marketing') && <FeedbackButton />}
-      
-      {/* Scientist Mode Indicator */}
-      {isScientistMode() && (
-        <div className="fixed top-4 right-4 z-50 flex items-center space-x-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 shadow-sm">
-          <FlaskConical className="w-4 h-4 text-blue-600" />
-          <span className="text-xs font-mono text-blue-800">Scientist Mode</span>
-        </div>
-      )}
+      {/* Global Feedback Button - Always show now */}
+      <FeedbackButton />
       
       {/* Drug Comparison Tray */}
       <ComparisonTray />

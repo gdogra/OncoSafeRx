@@ -1,5 +1,4 @@
 import React from 'react';
-import { shouldShowComponent } from '../../utils/scientistMode';
 
 interface ConditionalRenderProps {
   children: React.ReactNode;
@@ -8,18 +7,15 @@ interface ConditionalRenderProps {
 }
 
 /**
- * ConditionalRender component hides marketing/promotional content 
- * when scientist mode is enabled
+ * ConditionalRender component - now always shows content
+ * Scientist mode has been removed from the platform
  */
 const ConditionalRender: React.FC<ConditionalRenderProps> = ({ 
   children, 
   type, 
   fallback = null 
 }) => {
-  if (!shouldShowComponent(type)) {
-    return fallback as React.ReactElement || null;
-  }
-  
+  // Always show content now that scientist mode is removed
   return children as React.ReactElement;
 };
 

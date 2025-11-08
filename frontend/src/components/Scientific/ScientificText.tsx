@@ -1,5 +1,4 @@
 import React from 'react';
-import { isScientistMode, transformText } from '../../utils/scientistMode';
 
 interface ScientificTextProps {
   children: string;
@@ -9,8 +8,8 @@ interface ScientificTextProps {
 }
 
 /**
- * ScientificText component automatically transforms marketing language
- * to scientific language when scientist mode is enabled
+ * ScientificText component - now just passes through text
+ * Scientist mode has been removed from the platform
  */
 const ScientificText: React.FC<ScientificTextProps> = ({ 
   children, 
@@ -18,18 +17,10 @@ const ScientificText: React.FC<ScientificTextProps> = ({
   tag: Tag = 'span',
   addMetadata = false
 }) => {
-  let text = children;
-  
-  if (isScientistMode()) {
-    text = transformText.scientificLanguage(text);
-    if (addMetadata) {
-      text = transformText.addMetadata(text);
-    }
-  }
-  
+  // Just return the original text now that scientist mode is removed
   return (
     <Tag className={className}>
-      {text}
+      {children}
     </Tag>
   );
 };

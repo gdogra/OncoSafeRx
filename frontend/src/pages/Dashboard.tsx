@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { hasPermission, getRoleConfig } from '../utils/roleConfig';
-import { isScientistMode } from '../utils/scientistMode';
 import Card from '../components/UI/Card';
 import Tooltip from '../components/UI/Tooltip';
 import ScientificDashboard from './ScientificDashboard';
@@ -22,10 +21,7 @@ const Dashboard: React.FC = () => {
   }
 
   // Evidence Explorer (Scientific) default only for research roles
-  const scientificEligible = ['researcher', 'student'];
-  if (isScientistMode() && scientificEligible.includes(userRole)) {
-    return <ScientificDashboard />;
-  }
+  // Scientist mode has been removed - this condition is now disabled
 
   // state, userRole declared above
   

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { scientistMode, isScientistMode } from '../utils/scientistMode';
 import Card from '../components/UI/Card';
 import { 
   Database, 
@@ -167,15 +166,15 @@ const ScientificDashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-mono text-gray-900">
-                {scientistMode.scientific.title}
+                Evidence Explorer
               </h1>
               <p className="text-sm text-gray-600 mt-1">
-                {scientistMode.scientific.subtitle}
+                Pure oncological research and clinical data analysis
               </p>
             </div>
             <div className="text-xs text-gray-500 text-right">
-              <div>Data Sources: {scientistMode.primaryDataSource}</div>
-              <div>Update Frequency: {scientistMode.dataUpdateFrequency}</div>
+              <div>Data Sources: FDA, EMA, NCI, PubMed</div>
+              <div>Update Frequency: Real-time</div>
               <div className="mt-1 px-2 py-1 bg-blue-50 text-blue-700 rounded">
                 Scientist Mode Active
               </div>
@@ -189,7 +188,14 @@ const ScientificDashboard: React.FC = () => {
         <div className="mb-8">
           <h2 className="text-lg font-mono text-gray-800 mb-4">Quick Navigation</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {scientistMode.scientific.navigationItems.map((item, index) => (
+            {[
+              { icon: Database, label: 'Drug Database', path: '/drug-database', description: 'Comprehensive pharmaceutical data' },
+              { icon: AlertTriangle, label: 'Interaction Check', path: '/interactions', description: 'Drug interaction analysis' },
+              { icon: FileText, label: 'Protocols', path: '/protocols', description: 'Clinical treatment protocols' },
+              { icon: TrendingUp, label: 'Analytics', path: '/analytics', description: 'Evidence-based insights' },
+              { icon: TestTube, label: 'Genomics', path: '/genomics', description: 'Genetic profiling data' },
+              { icon: BarChart3, label: 'Research Tools', path: '/research', description: 'Scientific utilities' }
+            ].map((item, index) => (
               <Link
                 key={index}
                 to={item.path}
@@ -281,7 +287,7 @@ const ScientificDashboard: React.FC = () => {
                 })}.
               </div>
               <div>
-                <strong>Primary Data Sources:</strong> {scientistMode.primaryDataSource}
+                <strong>Primary Data Sources:</strong> FDA, EMA, NCI, PubMed
               </div>
               <div>
                 <strong>Methodology:</strong> Systematic extraction and curation of drug interaction evidence 

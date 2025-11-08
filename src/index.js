@@ -89,6 +89,7 @@ import pharmacyIntegrationRoutes from './routes/pharmacyIntegrationRoutes.js';
 import careplanRoutes from './routes/careplanRoutes.js';
 import patientFeaturesRoutes from './routes/patientFeaturesRoutes.js';
 import oncologistFeaturesRoutes from './routes/oncologistFeaturesRoutes.js';
+import studentFeaturesRoutes from './routes/studentFeaturesRoutes.js';
 import { join as pathJoin } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -571,6 +572,7 @@ app.use('/api/pharmacy-integration', pharmacyIntegrationRoutes);
 app.use('/api/careplan', careplanRoutes);
 app.use('/api/patient-features', patientFeaturesRoutes);
 app.use('/api/oncologist-features', oncologistFeaturesRoutes);
+app.use('/api/student-features', studentFeaturesRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/overrides', overrideRoutes);
 app.use('/', cdsHooksRoutes);

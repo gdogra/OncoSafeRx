@@ -90,6 +90,9 @@ import careplanRoutes from './routes/careplanRoutes.js';
 import patientFeaturesRoutes from './routes/patientFeaturesRoutes.js';
 import oncologistFeaturesRoutes from './routes/oncologistFeaturesRoutes.js';
 import studentFeaturesRoutes from './routes/studentFeaturesRoutes.js';
+import researcherFeaturesRoutes from './routes/researcherFeaturesRoutes.js';
+import researchRoutes from './routes/researchRoutes.js';
+import treatmentSimulationRoutes from './routes/treatmentSimulationRoutes.js';
 import { join as pathJoin } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -147,6 +150,10 @@ if ((process.env.ENABLE_CSP || '').toLowerCase() === 'true') {
         "'self'",
         suOrigin || supabaseWildcard,
         suWs || 'wss://*.supabase.co',
+        'https://clinicaltrials.gov',
+        'https://nominatim.openstreetmap.org',
+        // Allow localhost for development
+        ...(process.env.NODE_ENV === 'development' ? ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'] : [])
       ],
       // Enable HSTS when behind HTTPS (set ENABLE_HSTS=true)
     };
@@ -573,6 +580,9 @@ app.use('/api/careplan', careplanRoutes);
 app.use('/api/patient-features', patientFeaturesRoutes);
 app.use('/api/oncologist-features', oncologistFeaturesRoutes);
 app.use('/api/student-features', studentFeaturesRoutes);
+app.use('/api/researcher-features', researcherFeaturesRoutes);
+app.use('/api/research', researchRoutes);
+app.use('/api/treatment/simulation', treatmentSimulationRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/overrides', overrideRoutes);
 app.use('/', cdsHooksRoutes);

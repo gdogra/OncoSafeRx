@@ -42,16 +42,29 @@ router.get('/profile',
             .maybeSingle();
           if (!selErr && !existing) {
             const meta = user.supabaseUser?.user_metadata || {};
+            
+            // Be more careful about role assignment - don't default to 'patient' for auth users
+            let userRole = meta.role;
+            if (!userRole) {
+              console.warn('⚠️ No role in user metadata for', user.email, 'metadata:', meta);
+              // Only use 'patient' as absolute last resort for users without any role indication
+              userRole = 'patient';
+            }
+            
             const payload = {
               id: user.id,
               email: user.email || null,
-              role: meta.role || 'patient',
+              role: userRole,
               first_name: meta.first_name || (user.email ? String(user.email).split('@')[0] : ''),
               last_name: meta.last_name || '',
+              specialty: meta.specialty || '',
+              institution: meta.institution || '',
+              license_number: meta.license_number || '',
+              years_experience: meta.years_experience || 0,
               created_at: new Date().toISOString(),
             };
             await admin.from('users').upsert(payload, { onConflict: 'id' });
-            console.log('🆕 Created users row for', user.email);
+            console.log('🆕 Created users row for', user.email, 'with role:', userRole);
           }
         }
       } catch (ensureErr) {
@@ -475,6 +488,96 @@ router.get('/health',
 );
 
 // Dev-only: Create/Upsert demo profile row via service role (no client session required)
+// Admin endpoint to fix user roles
+router.post('/admin/fix-user-role', asyncHandler(async (req, res) => {
+  const { email, role } = req.body;
+  
+  if (!email || !role) {
+    return res.status(400).json({ error: 'Email and role required' });
+  }
+  
+  // Validate role
+  const validRoles = ['patient', 'oncologist', 'pharmacist', 'nurse', 'admin', 'super_admin'];
+  if (!validRoles.includes(role)) {
+    return res.status(400).json({ error: 'Invalid role. Valid roles: ' + validRoles.join(', ') });
+  }
+  
+  const url = getEnv("SUPABASE_URL");
+  const service = getEnv("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !service) {
+    return res.status(500).json({ error: 'Supabase service not configured' });
+  }
+
+  try {
+    const admin = createClient(url, service);
+    
+    // Find user by email
+    const { data: userData, error: listError } = await admin.auth.admin.listUsers();
+    if (listError) throw listError;
+    
+    const user = userData.users.find(u => u.email === email);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    console.log(`🔄 Fixing role for ${email} (${user.id}) to ${role}...`);
+    
+    // Get current state
+    const { data: currentDbUser } = await admin
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
+    
+    // Update auth user metadata
+    const { error: authUpdateError } = await admin.auth.admin.updateUserById(user.id, {
+      user_metadata: {
+        ...user.user_metadata,
+        role: role
+      }
+    });
+    
+    if (authUpdateError) throw authUpdateError;
+    
+    // Update users table
+    const payload = {
+      id: user.id,
+      email: user.email,
+      role: role,
+      first_name: user.user_metadata?.first_name || currentDbUser?.first_name || email.split('@')[0],
+      last_name: user.user_metadata?.last_name || currentDbUser?.last_name || '',
+      specialty: user.user_metadata?.specialty || currentDbUser?.specialty || '',
+      institution: user.user_metadata?.institution || currentDbUser?.institution || '',
+      license_number: user.user_metadata?.license_number || currentDbUser?.license_number || '',
+      years_experience: user.user_metadata?.years_experience || currentDbUser?.years_experience || 0,
+      created_at: currentDbUser?.created_at || new Date().toISOString()
+    };
+    
+    const { error: upsertError } = await admin
+      .from('users')
+      .upsert(payload, { onConflict: 'id' });
+      
+    if (upsertError) throw upsertError;
+    
+    console.log(`✅ Role fixed for ${email}: ${role}`);
+    
+    return res.json({
+      success: true,
+      message: `Role updated to ${role} for ${email}`,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: role,
+        updated_at: new Date().toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fixing user role:', error);
+    return res.status(500).json({ error: error.message || 'Failed to fix user role' });
+  }
+}));
+
 router.post('/demo/profile', asyncHandler(async (req, res) => {
   try {
     const devAllowed = ((process.env.NODE_ENV || 'development') === 'development') 

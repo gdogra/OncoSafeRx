@@ -402,6 +402,9 @@ app.use((req, res, next) => {
 app.get('/metrics', async (req, res) => {
   try {
     const token = process.env.METRICS_TOKEN;
+    if (!token && IS_PROD) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
     if (token) {
       const provided = req.headers['x-metrics-token'] || req.query.token;
       if (provided !== token) {

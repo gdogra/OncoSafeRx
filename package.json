@@ -20,7 +20,7 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
-    "hasura:console": "hasura console --endpoint http://localhost:8081 --admin-secret jrVx4KlySc1PoNUkbn6S41x958VtU6pR9loQHrpe44bSTlYE3qq9NGjGttaZGtR5",
+    "hasura:console": "hasura console --endpoint http://localhost:8081 --admin-secret $HASURA_ADMIN_SECRET",
     "db:setup": "echo 'Please run the SQL scripts in database/ folder in your Supabase dashboard'",
     "db:seed": "node src/scripts/seedDatabase.js",
     "sync:rxnorm": "node src/scripts/syncRxNorm.js",

@@ -1,34 +1,24 @@
-import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
-import { setContext } from '@apollo/client/link/context';
-
-// Hasura GraphQL endpoint
+// Lightweight Hasura client using native fetch (avoids extra deps in Node)
 const HASURA_ENDPOINT = process.env.HASURA_ENDPOINT || 'http://localhost:8081/v1/graphql';
-const HASURA_ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET; // no default in code
+const HASURA_ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET;
 
-// Create HTTP link
-const httpLink = createHttpLink({
-  uri: HASURA_ENDPOINT,
-});
-
-// Create auth link with admin secret
-const authLink = setContext((_, { headers }) => {
-  const extra = HASURA_ADMIN_SECRET ? { 'x-hasura-admin-secret': HASURA_ADMIN_SECRET } : {};
-  return { headers: { ...headers, ...extra } };
-});
-
-// Create Apollo Client
-export const hasuraClient = new ApolloClient({
-  link: authLink.concat(httpLink),
-  cache: new InMemoryCache(),
-  defaultOptions: {
-    watchQuery: {
-      errorPolicy: 'all',
+async function postGraphQL(body) {
+  const res = await fetch(HASURA_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(HASURA_ADMIN_SECRET ? { 'x-hasura-admin-secret': HASURA_ADMIN_SECRET } : {}),
     },
-    query: {
-      errorPolicy: 'all',
-    },
-  },
-});
+    body: JSON.stringify(body),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || json.errors) {
+    const err = new Error(`Hasura error: ${res.status} ${res.statusText}`);
+    err.details = json.errors || null;
+    throw err;
+  }
+  return json;
+}
 
 // GraphQL queries and mutations
 export const QUERIES = {
@@ -346,31 +336,12 @@ export const MUTATIONS = {
 
 // Helper function to execute GraphQL queries
 export const executeQuery = async (query, variables = {}) => {
-  try {
-    const result = await hasuraClient.query({
-      query: gql(query),
-      variables,
-      fetchPolicy: 'network-only'
-    });
-    return result.data;
-  } catch (error) {
-    console.error('GraphQL query error:', error);
-    throw error;
-  }
+  const data = await postGraphQL({ query, variables });
+  return data.data;
 };
 
 // Helper function to execute GraphQL mutations
 export const executeMutation = async (mutation, variables = {}) => {
-  try {
-    const result = await hasuraClient.mutate({
-      mutation: gql(mutation),
-      variables
-    });
-    return result.data;
-  } catch (error) {
-    console.error('GraphQL mutation error:', error);
-    throw error;
-  }
+  const data = await postGraphQL({ query: mutation, variables });
+  return data.data;
 };
-
-export default hasuraClient;

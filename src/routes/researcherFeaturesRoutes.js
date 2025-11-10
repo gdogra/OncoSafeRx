@@ -1,6 +1,6 @@
 import express from 'express';
 import { asyncHandler } from '../middleware/asyncHandler.js';
-import auth from '../middleware/auth.js';
+import { authenticateToken as auth } from '../middleware/auth.js';
 import researcherFeaturesService from '../services/researcherFeaturesService.js';
 
 const router = express.Router();

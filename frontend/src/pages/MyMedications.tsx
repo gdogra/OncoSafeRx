@@ -7,12 +7,14 @@ import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import Tooltip from '../components/UI/Tooltip';
 import { useToast } from '../components/UI/Toast';
-import { Pill, Clock, AlertTriangle, CheckCircle, Calendar, Bell, Info, Plus, Edit, Trash2, X } from 'lucide-react';
+import { Pill, Clock, AlertTriangle, CheckCircle, Calendar, Bell, Info, Plus, Edit, Trash2, X, Download, Upload, FileText, Search } from 'lucide-react';
 import EnhancedDrugSearchBar from '../components/DrugSearch/EnhancedDrugSearchBar';
 import { Drug } from '../types';
 import { supabase } from '../lib/supabase';
 import { reminderManager } from '../utils/reminders';
 import { PWAManager } from '../utils/pwa';
+import { fhirService, FHIRPatient } from '../services/fhirService';
+import LoadingSpinner from '../components/UI/LoadingSpinner';
 
 interface Medication {
   id: string;
@@ -136,6 +138,108 @@ const MyMedications: React.FC = () => {
     if (confirm('Are you experiencing a medical emergency? Click OK to call the emergency line.')) {
       window.open('tel:+1-800-EMERGENCY', '_self');
     }
+  };
+
+  // Import functionality
+  React.useEffect(() => {
+    checkEHRConnection();
+  }, []);
+
+  const checkEHRConnection = async () => {
+    try {
+      const result = await fhirService.validateConnection();
+      setIsEHRConnected(result.connected);
+    } catch (error) {
+      setIsEHRConnected(false);
+    }
+  };
+
+  const handleSearchPatients = async () => {
+    if (!searchQuery.trim()) return;
+
+    setIsSearching(true);
+    setSearchError(null);
+    
+    try {
+      const bundle = await fhirService.searchPatients({
+        name: searchQuery,
+        limit: 10
+      });
+
+      const patients = bundle.entry?.map(entry => entry.resource as FHIRPatient) || [];
+      setSearchResults(patients);
+      
+      if (patients.length === 0) {
+        setSearchError(`No patients found matching "${searchQuery}"`);
+      }
+    } catch (error) {
+      setSearchError(error instanceof Error ? error.message : 'Search failed');
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleImportFromEHR = async (fhirPatient: FHIRPatient) => {
+    if (!fhirPatient.id || !currentPatient) {
+      showToast('error', 'Invalid patient or no current patient selected');
+      return;
+    }
+
+    setIsImporting(true);
+
+    try {
+      const patientData = await fhirService.getPatientWithResources(fhirPatient.id);
+      
+      if (patientData.medications && patientData.medications.length > 0) {
+        const importedMedications = patientData.medications.map((med, index) => ({
+          id: `imported-${Date.now()}-${index}`,
+          drug: {
+            id: `drug-${Date.now()}-${index}`,
+            rxcui: 'unknown',
+            name: med.medicationCodeableConcept?.text || med.medicationCodeableConcept?.coding?.[0]?.display || 'Unknown medication',
+            generic_name: med.medicationCodeableConcept?.coding?.[0]?.display,
+            oncologyDrug: false
+          },
+          dosage: med.dosageInstruction?.[0]?.doseAndRate?.[0]?.doseQuantity?.value?.toString() || 'Unknown',
+          frequency: med.dosageInstruction?.[0]?.text || 'Unknown',
+          route: med.dosageInstruction?.[0]?.route?.text || 'oral',
+          startDate: med.authoredOn || new Date().toISOString().split('T')[0],
+          indication: 'Imported from EHR',
+          prescriber: 'EHR Import',
+          isActive: med.status === 'active',
+          adherence: 'excellent' as const,
+          sideEffects: []
+        }));
+
+        const updatedMedications = [...(currentPatient.medications || []), ...importedMedications];
+        actions.updatePatientData({ medications: updatedMedications });
+
+        showToast('success', `Successfully imported ${importedMedications.length} medications`);
+        setShowImportModal(false);
+        setSearchQuery('');
+        setSearchResults([]);
+      } else {
+        showToast('warning', 'No medications found for this patient in the EHR');
+      }
+    } catch (error) {
+      showToast('error', error instanceof Error ? error.message : 'Import failed');
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const formatPatientName = (patient: FHIRPatient): string => {
+    const name = patient.name?.[0];
+    if (name) {
+      return `${name.given?.join(' ') || ''} ${name.family || ''}`.trim();
+    }
+    return 'Unknown Name';
+  };
+
+  const getPatientIdentifier = (patient: FHIRPatient): string => {
+    const mrn = patient.identifier?.find(id => id.type?.coding?.[0]?.code === 'MR');
+    return mrn?.value || patient.id || 'No ID';
   };
 
   const handleAddMedication = () => {
@@ -452,6 +556,13 @@ const MyMedications: React.FC = () => {
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingMedication, setEditingMedication] = useState<Medication | null>(null);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<FHIRPatient[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [isEHRConnected, setIsEHRConnected] = useState<boolean | null>(null);
   const [newMedication, setNewMedication] = useState<{
     name: string;
     dosage: string;
@@ -546,6 +657,15 @@ const MyMedications: React.FC = () => {
           >
             <AlertTriangle className="w-4 h-4" />
             <span>Check Interactions</span>
+          </button>
+          <button 
+            onClick={() => setShowImportModal(true)}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2"
+            title="Import medications from EHR system"
+            disabled={isEHRConnected === false}
+          >
+            <Download className="w-4 h-4" />
+            <span>Import from EHR</span>
           </button>
           <button 
             onClick={handleAddMedication}
@@ -1039,6 +1159,155 @@ const MyMedications: React.FC = () => {
           </div>
         </div>
       </Card>
+
+      {/* Import Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Download className="w-5 h-5 text-green-600" />
+                  <h3 className="text-lg font-semibold text-gray-900">Import Medications from EHR</h3>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowImportModal(false);
+                    setSearchQuery('');
+                    setSearchResults([]);
+                    setSearchError(null);
+                  }}
+                  className="p-1 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6 overflow-y-auto max-h-[70vh]">
+              {/* Connection Status */}
+              <div className={`p-4 rounded-lg border ${isEHRConnected ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                <div className="flex items-center space-x-2">
+                  {isEHRConnected ? (
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <AlertTriangle className="w-5 h-5 text-red-600" />
+                  )}
+                  <span className={`font-medium ${isEHRConnected ? 'text-green-800' : 'text-red-800'}`}>
+                    EHR Connection: {isEHRConnected ? 'Connected' : 'Disconnected'}
+                  </span>
+                </div>
+                {!isEHRConnected && (
+                  <p className="text-sm text-red-700 mt-1">
+                    Cannot connect to EHR system. Please check your network connection or contact support.
+                  </p>
+                )}
+              </div>
+
+              {isEHRConnected && (
+                <>
+                  {/* Search Section */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Search for Patient in EHR System
+                    </label>
+                    <div className="flex space-x-3">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && handleSearchPatients()}
+                        placeholder="Enter patient name..."
+                        className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      />
+                      <button
+                        onClick={handleSearchPatients}
+                        disabled={isSearching || !searchQuery.trim()}
+                        className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isSearching ? (
+                          <>
+                            <LoadingSpinner size="sm" />
+                            <span>Searching...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Search className="w-4 h-4" />
+                            <span>Search</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Search will find patients in the connected EHR system and import their medication lists.
+                    </p>
+                  </div>
+
+                  {/* Search Error */}
+                  {searchError && (
+                    <Alert type="error" title="Search Error">
+                      {searchError}
+                    </Alert>
+                  )}
+
+                  {/* Search Results */}
+                  {searchResults.length > 0 && (
+                    <div>
+                      <h4 className="text-md font-medium text-gray-900 mb-3">
+                        Search Results ({searchResults.length})
+                      </h4>
+                      <div className="space-y-3 max-h-60 overflow-y-auto">
+                        {searchResults.map((patient, index) => (
+                          <div
+                            key={patient.id || index}
+                            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                          >
+                            <div className="flex items-center space-x-3">
+                              <FileText className="w-5 h-5 text-gray-400" />
+                              <div>
+                                <div className="font-medium text-gray-900">
+                                  {formatPatientName(patient)}
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                  ID: {getPatientIdentifier(patient)} • 
+                                  DOB: {patient.birthDate || 'Unknown'} • 
+                                  Gender: {patient.gender || 'Unknown'}
+                                </div>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => handleImportFromEHR(patient)}
+                              disabled={isImporting}
+                              className="flex items-center space-x-2 px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50"
+                            >
+                              {isImporting ? (
+                                <LoadingSpinner size="sm" />
+                              ) : (
+                                <Download className="w-4 h-4" />
+                              )}
+                              <span>Import Medications</span>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Info Section */}
+              <Alert type="info" title="How Import Works">
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>Search for patients in the connected EHR system</li>
+                  <li>Select a patient to import their medication list</li>
+                  <li>Medications will be added to your current patient's profile</li>
+                  <li>You can edit or remove imported medications after import</li>
+                </ul>
+              </Alert>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

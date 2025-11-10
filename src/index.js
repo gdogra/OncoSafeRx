@@ -241,6 +241,82 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Temporary role fix endpoint
+app.post('/fix-user-role', async (req, res) => {
+  const { email, role } = req.body;
+  
+  if (email !== 'tenniscommunity2@gmail.com') {
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+  
+  if (role !== 'oncologist') {
+    return res.status(400).json({ error: 'Invalid role' });
+  }
+  
+  try {
+    const { createClient } = await import('@supabase/supabase-js');
+    const url = process.env.SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    
+    if (!url || !serviceKey) {
+      return res.status(500).json({ error: 'Supabase not configured' });
+    }
+    
+    const admin = createClient(url, serviceKey);
+    
+    // Find user by email
+    const { data: userData, error: listError } = await admin.auth.admin.listUsers();
+    if (listError) throw listError;
+    
+    const user = userData.users.find(u => u.email === email);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    console.log(`🔄 Fixing role for ${email} (${user.id}) to ${role}...`);
+    
+    // Update auth user metadata
+    const { error: authUpdateError } = await admin.auth.admin.updateUserById(user.id, {
+      user_metadata: {
+        ...user.user_metadata,
+        role: role
+      }
+    });
+    
+    if (authUpdateError) throw authUpdateError;
+    
+    // Update users table
+    const { error: upsertError } = await admin
+      .from('users')
+      .upsert({
+        id: user.id,
+        email: user.email,
+        role: role,
+        first_name: user.user_metadata?.first_name || email.split('@')[0],
+        last_name: user.user_metadata?.last_name || '',
+        specialty: user.user_metadata?.specialty || '',
+        institution: user.user_metadata?.institution || '',
+        license_number: user.user_metadata?.license_number || '',
+        years_experience: user.user_metadata?.years_experience || 0,
+        created_at: new Date().toISOString()
+      }, { onConflict: 'id' });
+      
+    if (upsertError) throw upsertError;
+    
+    console.log(`✅ Role fixed for ${email}: ${role}`);
+    
+    return res.json({
+      success: true,
+      message: `Role updated to ${role} for ${email}`,
+      user: { id: user.id, email: user.email, role: role }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error fixing user role:', error);
+    return res.status(500).json({ error: error.message || 'Failed to fix user role' });
+  }
+});
+
 // API Health check endpoint (for frontend)
 app.get('/api/health', (req, res) => {
   res.json({ 

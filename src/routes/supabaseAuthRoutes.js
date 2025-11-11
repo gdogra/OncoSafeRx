@@ -539,24 +539,82 @@ router.post('/admin/fix-user-role', asyncHandler(async (req, res) => {
     
     if (authUpdateError) throw authUpdateError;
     
-    // Update users table (handle both role and user_role columns for compatibility)
-    const payload = {
-      id: user.id,
-      email: user.email,
-      role: role, // For schemas that use 'role' column
-      user_role: role, // For schemas that use 'user_role' column  
-      first_name: user.user_metadata?.first_name || currentDbUser?.first_name || email.split('@')[0],
-      last_name: user.user_metadata?.last_name || currentDbUser?.last_name || '',
-      specialty: user.user_metadata?.specialty || currentDbUser?.specialty || '',
-      institution: user.user_metadata?.institution || currentDbUser?.institution || '',
-      license_number: user.user_metadata?.license_number || currentDbUser?.license_number || '',
-      years_experience: user.user_metadata?.years_experience || currentDbUser?.years_experience || 0,
-      created_at: currentDbUser?.created_at || new Date().toISOString()
-    };
+    // Try different approaches for role column based on database schema
+    let upsertError = null;
     
-    const { error: upsertError } = await admin
-      .from('users')
-      .upsert(payload, { onConflict: 'id' });
+    if (currentDbUser) {
+      // User exists - try update with user_role only first
+      console.log(`🔄 Updating existing user with user_role: ${role}`);
+      const updateResult = await admin
+        .from('users')
+        .update({ 
+          user_role: role,
+          first_name: user.user_metadata?.first_name || currentDbUser?.first_name || email.split('@')[0],
+          last_name: user.user_metadata?.last_name || currentDbUser?.last_name || '',
+          specialty: user.user_metadata?.specialty || currentDbUser?.specialty || '',
+          institution: user.user_metadata?.institution || currentDbUser?.institution || '',
+          license_number: user.user_metadata?.license_number || currentDbUser?.license_number || '',
+          years_experience: user.user_metadata?.years_experience || currentDbUser?.years_experience || 0,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+      
+      upsertError = updateResult.error;
+      
+      if (upsertError) {
+        // If user_role fails, try with role column instead
+        console.log('🔄 user_role failed, trying role column...');
+        const retryResult = await admin
+          .from('users')
+          .update({ 
+            role: role,
+            first_name: user.user_metadata?.first_name || currentDbUser?.first_name || email.split('@')[0],
+            last_name: user.user_metadata?.last_name || currentDbUser?.last_name || '',
+            specialty: user.user_metadata?.specialty || currentDbUser?.specialty || '',
+            institution: user.user_metadata?.institution || currentDbUser?.institution || '',
+            license_number: user.user_metadata?.license_number || currentDbUser?.license_number || '',
+            years_experience: user.user_metadata?.years_experience || currentDbUser?.years_experience || 0,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user.id);
+        
+        upsertError = retryResult.error;
+      }
+    } else {
+      // User doesn't exist - try insert with user_role first
+      console.log(`🔄 Inserting new user with user_role: ${role}`);
+      const payload = {
+        id: user.id,
+        email: user.email,
+        user_role: role,
+        first_name: user.user_metadata?.first_name || email.split('@')[0],
+        last_name: user.user_metadata?.last_name || '',
+        specialty: user.user_metadata?.specialty || '',
+        institution: user.user_metadata?.institution || '',
+        license_number: user.user_metadata?.license_number || '',
+        years_experience: user.user_metadata?.years_experience || 0,
+        created_at: new Date().toISOString()
+      };
+      
+      const insertResult = await admin
+        .from('users')
+        .insert(payload);
+      
+      upsertError = insertResult.error;
+      
+      if (upsertError) {
+        // If user_role fails, try with role column instead
+        console.log('🔄 user_role insert failed, trying role column...');
+        payload.role = role;
+        delete payload.user_role;
+        
+        const retryResult = await admin
+          .from('users')
+          .insert(payload);
+        
+        upsertError = retryResult.error;
+      }
+    }
       
     if (upsertError) throw upsertError;
     

@@ -539,11 +539,12 @@ router.post('/admin/fix-user-role', asyncHandler(async (req, res) => {
     
     if (authUpdateError) throw authUpdateError;
     
-    // Update users table
+    // Update users table (handle both role and user_role columns for compatibility)
     const payload = {
       id: user.id,
       email: user.email,
-      role: role,
+      role: role, // For schemas that use 'role' column
+      user_role: role, // For schemas that use 'user_role' column  
       first_name: user.user_metadata?.first_name || currentDbUser?.first_name || email.split('@')[0],
       last_name: user.user_metadata?.last_name || currentDbUser?.last_name || '',
       specialty: user.user_metadata?.specialty || currentDbUser?.specialty || '',

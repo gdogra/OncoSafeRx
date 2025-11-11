@@ -1,5 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import Card from '../components/UI/Card';
+import Badge from '../components/UI/Badge';
+import Alert from '../components/UI/Alert';
+import Button from '../components/UI/Button';
 import { 
   Search, 
   Database, 
@@ -265,31 +268,57 @@ const MultiDatabaseSearch: React.FC = () => {
         </div>
       </div>
 
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Methodology:</strong> Boolean logic with MeSH term mapping and citation indexing across 
-          PubMed, Embase, and Cochrane databases. Results are ranked by relevance and evidence quality.
-        </AlertDescription>
+      <Alert type="info" title="Methodology">
+        Boolean logic with MeSH term mapping and citation indexing across 
+        PubMed, Embase, and Cochrane databases. Results are ranked by relevance and evidence quality.
       </Alert>
 
-      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="search">Search & Filters</TabsTrigger>
-          <TabsTrigger value="results">Results ({searchResults.length})</TabsTrigger>
-          <TabsTrigger value="sources">Data Sources</TabsTrigger>
-        </TabsList>
+      <div className="border-b border-gray-200">
+        <nav className="flex space-x-8">
+          <button
+            onClick={() => setActiveTab('search')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'search'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Search & Filters
+          </button>
+          <button
+            onClick={() => setActiveTab('results')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'results'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Results ({searchResults.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('sources')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'sources'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Data Sources
+          </button>
+        </nav>
+      </div>
 
-        <TabsContent value="search" className="mt-6" data-tour="multi-search-tabs">
+        {activeTab === 'search' && (
+        <div className="mt-6" data-tour="multi-search-tabs">
           <div className="space-y-6">
             <Card data-tour="multi-search-query">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
                   <Search className="h-5 w-5" />
                   Search Query
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                </h3>
+              </div>
+              <div className="p-6 space-y-4">
                 <div className="flex gap-2">
                   <Input
                     placeholder="Enter search terms (e.g., pembrolizumab melanoma, EGFR mutation NSCLC)"
@@ -316,17 +345,17 @@ const MultiDatabaseSearch: React.FC = () => {
                   <strong>Search Tips:</strong> Use AND, OR, NOT for Boolean logic. 
                   Use quotes for exact phrases. Combine drug names with conditions for better results.
                 </div>
-              </CardContent>
+              </div>
             </Card>
 
             <Card data-tour="multi-search-databases">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
                   <Database className="h-5 w-5" />
                   Select Databases
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                </h3>
+              </div>
+              <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {databaseOptions.map((db) => {
                     const Icon = db.icon;
@@ -353,17 +382,17 @@ const MultiDatabaseSearch: React.FC = () => {
                     );
                   })}
                 </div>
-              </CardContent>
+              </div>
             </Card>
 
             <Card data-tour="multi-search-filters">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
                   <Filter className="h-5 w-5" />
                   Search Filters
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                </h3>
+              </div>
+              <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Date Range</label>
@@ -405,12 +434,14 @@ const MultiDatabaseSearch: React.FC = () => {
                     </select>
                   </div>
                 </div>
-              </CardContent>
+              </div>
             </Card>
           </div>
-        </TabsContent>
+        </div>
+        )}
 
-        <TabsContent value="results" className="mt-6" data-tour="multi-search-results">
+        {activeTab === 'results' && (
+        <div className="mt-6" data-tour="multi-search-results">
           <div className="space-y-4">
             {isSearching && (
               <Card>
@@ -419,7 +450,7 @@ const MultiDatabaseSearch: React.FC = () => {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
                     <p className="text-gray-600">Searching across {selectedDatabases.length} databases...</p>
                   </div>
-                </CardContent>
+                </div>
               </Card>
             )}
 
@@ -429,7 +460,7 @@ const MultiDatabaseSearch: React.FC = () => {
                   <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
                   <p className="text-gray-600">Try adjusting your search terms or selecting different databases.</p>
-                </CardContent>
+                </div>
               </Card>
             )}
 
@@ -485,17 +516,19 @@ const MultiDatabaseSearch: React.FC = () => {
                       {result.type}
                     </div>
                   </div>
-                </CardContent>
+                </div>
               </Card>
             ))}
           </div>
-        </TabsContent>
+        </div>
+        )}
 
-        <TabsContent value="sources" className="mt-6">
+        {activeTab === 'sources' && (
+        <div className="mt-6">
           <div className="space-y-4">
             <Card>
-              <CardHeader>
-                <CardTitle>Database Status</CardTitle>
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">Database Status</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -521,20 +554,18 @@ const MultiDatabaseSearch: React.FC = () => {
                     </div>
                   ))}
                 </div>
-              </CardContent>
+              </div>
             </Card>
 
-            <Alert>
-              <Info className="h-4 w-4" />
-              <AlertDescription>
-                All searches are performed in real-time against live databases. Response times may vary 
-                based on database load and query complexity. Results are automatically cached for 
-                improved performance on repeated searches.
-              </AlertDescription>
+            <Alert type="info" title="Real-time Search">
+              All searches are performed in real-time against live databases. Response times may vary 
+              based on database load and query complexity. Results are automatically cached for 
+              improved performance on repeated searches.
             </Alert>
           </div>
-        </TabsContent>
-      </Tabs>
+        </div>
+        )}
+    </div>
     </div>
   );
 };

@@ -2199,4 +2199,82 @@ router.post('/fix-role', asyncHandler(async (req, res) => {
   }
 }));
 
+// Emergency SQL fix for tenniscommunity2@gmail.com
+router.post('/emergency-fix', asyncHandler(async (req, res) => {
+  try {
+    const { email, secret } = req.body || {};
+    
+    // Security check
+    if (email !== 'tenniscommunity2@gmail.com' || secret !== 'fix-role-emergency') {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+    
+    const url = getEnv("SUPABASE_URL");
+    const service = getEnv("SUPABASE_SERVICE_ROLE_KEY");
+    if (!url || !service) {
+      return res.status(500).json({ error: 'Supabase service not configured' });
+    }
+    
+    const admin = createClient(url, service);
+    
+    console.log('🚨 Emergency role fix for tenniscommunity2@gmail.com');
+    
+    // Execute the SQL fix directly
+    const sqlFix = `
+      DO $$
+      DECLARE
+          user_auth_id UUID;
+      BEGIN
+          -- Find the user ID from auth.users
+          SELECT id INTO user_auth_id 
+          FROM auth.users 
+          WHERE email = 'tenniscommunity2@gmail.com';
+          
+          IF user_auth_id IS NULL THEN
+              RAISE EXCEPTION 'User not found in auth.users';
+          END IF;
+          
+          -- Force update with user_role column (production schema)
+          INSERT INTO public.users (
+              id, email, user_role, first_name, last_name, specialty, institution, created_at
+          ) VALUES (
+              user_auth_id, 'tenniscommunity2@gmail.com', 'oncologist', 
+              'Tennis', 'Community', 'Oncology', 'Medical Center', NOW()
+          ) ON CONFLICT (id) DO UPDATE SET
+              user_role = 'oncologist',
+              first_name = 'Tennis',
+              last_name = 'Community',
+              specialty = 'Oncology',
+              institution = 'Medical Center',
+              updated_at = NOW();
+          
+          -- Update auth metadata
+          UPDATE auth.users 
+          SET user_metadata = COALESCE(user_metadata, '{}'::jsonb) || '{"role": "oncologist"}'::jsonb
+          WHERE id = user_auth_id;
+          
+      END $$;
+    `;
+    
+    const { data, error } = await admin.rpc('execute_sql', { sql: sqlFix });
+    
+    if (error) {
+      console.error('❌ SQL fix failed:', error);
+      return res.status(500).json({ error: 'SQL fix failed: ' + error.message });
+    }
+    
+    console.log('✅ Emergency SQL fix completed');
+    
+    return res.json({
+      success: true,
+      message: 'Emergency role fix completed',
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('❌ Emergency fix error:', error);
+    res.status(500).json({ error: error.message });
+  }
+}));
+
 export default router;

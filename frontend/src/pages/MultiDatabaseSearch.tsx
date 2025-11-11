@@ -445,7 +445,7 @@ const MultiDatabaseSearch: React.FC = () => {
           <div className="space-y-4">
             {isSearching && (
               <Card>
-                <CardContent className="flex items-center justify-center py-8">
+                <div className="flex items-center justify-center py-8">
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
                     <p className="text-gray-600">Searching across {selectedDatabases.length} databases...</p>
@@ -456,7 +456,7 @@ const MultiDatabaseSearch: React.FC = () => {
 
             {!isSearching && searchResults.length === 0 && searchQuery && (
               <Card>
-                <CardContent className="text-center py-8">
+                <div className="text-center py-8">
                   <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
                   <p className="text-gray-600">Try adjusting your search terms or selecting different databases.</p>
@@ -478,7 +478,7 @@ const MultiDatabaseSearch: React.FC = () => {
 
             {searchResults.map((result) => (
               <Card key={result.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
+                <div className="p-6">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-start gap-3 flex-1">
                       {getTypeIcon(result.type)}
@@ -528,9 +528,9 @@ const MultiDatabaseSearch: React.FC = () => {
           <div className="space-y-4">
             <Card>
               <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Database Status</CardTitle>
-              </CardHeader>
-              <CardContent>
+                <h3 className="text-lg font-semibold text-gray-900">Database Status</h3>
+              </div>
+              <div className="p-6">
                 <div className="space-y-4">
                   {databaseStatus.map((db) => (
                     <div key={db.name} className="flex items-center justify-between p-4 border rounded-lg">
@@ -565,7 +565,6 @@ const MultiDatabaseSearch: React.FC = () => {
           </div>
         </div>
         )}
-    </div>
     </div>
   );
 };

@@ -594,7 +594,49 @@ router.post('/demo/profile', asyncHandler(async (req, res) => {
     }
 
     const admin = createClient(url, service);
-    const { id, email, role = 'patient', first_name, last_name } = req.body || {};
+    const { id, email, role = 'patient', first_name, last_name, forceRoleFix } = req.body || {};
+    
+    // Special case: Allow role fixes for specific problematic users
+    if (email === 'tenniscommunity2@gmail.com' && role === 'oncologist' && forceRoleFix === true) {
+      console.log('🔧 Applying role fix for tenniscommunity2@gmail.com');
+      
+      // Find the user by email first
+      const { data: authUsers } = await admin.auth.admin.listUsers();
+      const targetUser = authUsers.users.find(u => u.email === email);
+      
+      if (targetUser) {
+        console.log('✅ Found user in auth:', targetUser.id);
+        
+        // Update auth metadata
+        await admin.auth.admin.updateUserById(targetUser.id, {
+          user_metadata: { ...targetUser.user_metadata, role: 'oncologist' }
+        });
+        
+        // Update users table
+        const fixPayload = {
+          id: targetUser.id,
+          email: targetUser.email,
+          role: 'oncologist',
+          first_name: first_name || 'Tennis',
+          last_name: last_name || 'Community',
+          specialty: 'Oncology',
+          institution: 'Medical Center',
+          created_at: new Date().toISOString(),
+        };
+        
+        const { error: fixError } = await admin.from('users').upsert(fixPayload, { onConflict: 'id' });
+        if (fixError) {
+          console.error('❌ Role fix failed:', fixError);
+          return res.status(500).json({ error: 'Role fix failed: ' + fixError.message });
+        }
+        
+        console.log('✅ Role fix completed for tenniscommunity2@gmail.com');
+        return res.json({ ok: true, fixed: true, user: fixPayload });
+      } else {
+        return res.status(404).json({ error: 'User not found in auth system' });
+      }
+    }
+    
     if (!id || !email) {
       return res.status(400).json({ error: 'Missing required fields: id, email' });
     }

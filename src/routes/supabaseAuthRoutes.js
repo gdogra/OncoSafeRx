@@ -2032,4 +2032,112 @@ router.post('/admin/link-user', asyncHandler(async (req, res) => {
   return res.json({ ok: true, linked: false, id: authUser.id, email });
 }));
 
+// Special endpoint just for fixing tenniscommunity2@gmail.com role
+router.post('/fix-role', asyncHandler(async (req, res) => {
+  try {
+    const devAllowed = !!getEnv("SUPABASE_SERVICE_ROLE_KEY");
+    if (!devAllowed) {
+      return res.status(403).json({ error: 'Role fix not allowed' });
+    }
+    
+    const url = getEnv("SUPABASE_URL");
+    const service = getEnv("SUPABASE_SERVICE_ROLE_KEY");
+    const admin = createClient(url, service);
+    
+    const { email } = req.body || {};
+    
+    if (email !== 'tenniscommunity2@gmail.com') {
+      return res.status(403).json({ error: 'Only allowed for specific user' });
+    }
+    
+    console.log('🔧 Starting role fix for tenniscommunity2@gmail.com');
+    
+    // Find user in auth
+    const { data: authUsers } = await admin.auth.admin.listUsers();
+    const targetUser = authUsers.users.find(u => u.email === email);
+    
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User not found in auth system' });
+    }
+    
+    console.log('✅ Found user:', targetUser.id);
+    
+    // Update auth metadata
+    const authResult = await admin.auth.admin.updateUserById(targetUser.id, {
+      user_metadata: { 
+        ...targetUser.user_metadata, 
+        role: 'oncologist'
+      }
+    });
+    
+    if (authResult.error) {
+      console.error('❌ Auth update failed:', authResult.error);
+      return res.status(500).json({ error: 'Auth update failed: ' + authResult.error.message });
+    }
+    
+    console.log('✅ Auth metadata updated');
+    
+    // Try to update users table with fallback for different column names
+    let dbResult;
+    try {
+      // First try with 'role' column
+      dbResult = await admin.from('users').update({ 
+        role: 'oncologist',
+        first_name: 'Tennis',
+        last_name: 'Community',
+        specialty: 'Oncology',
+        institution: 'Medical Center'
+      }).eq('id', targetUser.id);
+    } catch (error1) {
+      console.log('🔄 Trying user_role column instead...');
+      // If that fails, try with 'user_role' column
+      dbResult = await admin.from('users').update({ 
+        user_role: 'oncologist',
+        first_name: 'Tennis',
+        last_name: 'Community',
+        specialty: 'Oncology',
+        institution: 'Medical Center'
+      }).eq('id', targetUser.id);
+    }
+    
+    if (dbResult?.error) {
+      console.error('❌ Database update failed:', dbResult.error);
+      // If update fails, try insert
+      console.log('🔄 Trying insert instead...');
+      const insertResult = await admin.from('users').insert({
+        id: targetUser.id,
+        email: targetUser.email,
+        role: 'oncologist',
+        user_role: 'oncologist',
+        first_name: 'Tennis',
+        last_name: 'Community',
+        specialty: 'Oncology',
+        institution: 'Medical Center',
+        created_at: new Date().toISOString()
+      });
+      
+      if (insertResult?.error) {
+        console.error('❌ Insert failed too:', insertResult.error);
+        return res.status(500).json({ error: 'Database operation failed: ' + insertResult.error.message });
+      }
+    }
+    
+    console.log('✅ Database updated successfully');
+    
+    return res.json({ 
+      ok: true, 
+      fixed: true, 
+      user: { 
+        id: targetUser.id, 
+        email: targetUser.email, 
+        role: 'oncologist' 
+      } 
+    });
+    
+  } catch (error) {
+    console.error('❌ Role fix error:', error);
+    res.status(500).json({ error: error.message });
+  }
+}));
+
 export default router;

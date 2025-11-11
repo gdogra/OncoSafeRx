@@ -544,35 +544,22 @@ router.post('/admin/fix-user-role', asyncHandler(async (req, res) => {
       console.log('🚨 Using direct SQL fix for tenniscommunity2@gmail.com');
       
       try {
-        // Use raw SQL to force the update
-        const sqlQuery = `
+        // Simplified SQL without auth.users metadata update
+        const simpleSql = `
           INSERT INTO public.users (
               id, email, user_role, first_name, last_name, specialty, institution, created_at
           ) VALUES (
-              $1, $2, $3, $4, $5, $6, $7, NOW()
+              '${user.id}', '${user.email}', '${role}', 'Tennis', 'Community', 'Oncology', 'Medical Center', NOW()
           ) ON CONFLICT (id) DO UPDATE SET
-              user_role = $3,
-              first_name = $4,
-              last_name = $5,
-              specialty = $6,
-              institution = $7,
+              user_role = '${role}',
+              first_name = 'Tennis',
+              last_name = 'Community',
+              specialty = 'Oncology',
+              institution = 'Medical Center',
               updated_at = NOW();
         `;
         
-        const { error: sqlError } = await admin.rpc('exec_sql', {
-          sql: sqlQuery.replace(/\$(\d+)/g, (_, num) => {
-            const values = [
-              user.id, 
-              user.email, 
-              role, 
-              'Tennis', 
-              'Community', 
-              'Oncology', 
-              'Medical Center'
-            ];
-            return `'${values[parseInt(num) - 1]}'`;
-          })
-        });
+        const { error: sqlError } = await admin.rpc('exec_sql', { sql: simpleSql });
         
         if (sqlError) {
           console.error('❌ Direct SQL failed, trying simple update...', sqlError);

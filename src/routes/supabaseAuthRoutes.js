@@ -612,11 +612,12 @@ router.post('/demo/profile', asyncHandler(async (req, res) => {
           user_metadata: { ...targetUser.user_metadata, role: 'oncologist' }
         });
         
-        // Update users table
+        // Update users table (use user_role column name for production compatibility)
         const fixPayload = {
           id: targetUser.id,
           email: targetUser.email,
-          role: 'oncologist',
+          user_role: 'oncologist', // Use user_role column for production database
+          role: 'oncologist', // Keep role as well in case migration ran
           first_name: first_name || 'Tennis',
           last_name: last_name || 'Community',
           specialty: 'Oncology',

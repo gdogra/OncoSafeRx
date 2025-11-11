@@ -596,7 +596,7 @@ router.post('/demo/profile', asyncHandler(async (req, res) => {
     const admin = createClient(url, service);
     const { id, email, role = 'patient', first_name, last_name, forceRoleFix } = req.body || {};
     
-    // Special case: Allow role fixes for specific problematic users
+    // Special case: Allow role fixes for specific problematic users (handle this FIRST)
     if (email === 'tenniscommunity2@gmail.com' && role === 'oncologist' && forceRoleFix === true) {
       console.log('🔧 Applying role fix for tenniscommunity2@gmail.com');
       
@@ -625,7 +625,27 @@ router.post('/demo/profile', asyncHandler(async (req, res) => {
           created_at: new Date().toISOString(),
         };
         
-        const { error: fixError } = await admin.from('users').upsert(fixPayload, { onConflict: 'id' });
+        // First check if user exists in users table, then update or insert accordingly
+        const { data: existingUser } = await admin.from('users').select('id').eq('id', targetUser.id).single();
+        
+        let fixError = null;
+        if (existingUser) {
+          // Update existing user
+          const updateResult = await admin.from('users').update({
+            user_role: 'oncologist',
+            role: 'oncologist',
+            first_name: first_name || 'Tennis',
+            last_name: last_name || 'Community',
+            specialty: 'Oncology',
+            institution: 'Medical Center'
+          }).eq('id', targetUser.id);
+          fixError = updateResult.error;
+        } else {
+          // Insert new user record
+          const insertResult = await admin.from('users').insert(fixPayload);
+          fixError = insertResult.error;
+        }
+        
         if (fixError) {
           console.error('❌ Role fix failed:', fixError);
           return res.status(500).json({ error: 'Role fix failed: ' + fixError.message });

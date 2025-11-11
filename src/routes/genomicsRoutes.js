@@ -82,13 +82,22 @@ router.get('/drug/:rxcui/genomics', async (req, res) => {
 });
 
 // Check genomic profile against drug list
-router.post('/profile/check', validate(schemas.genomicsProfile, 'body'), async (req, res) => {
+router.post('/profile/check', async (req, res) => {
   try {
-    const { genes, drugs, observations = [], phenotypes = {} } = req.body;
+    console.log('🧬 Genomics profile check request:', JSON.stringify(req.body, null, 2));
+    const { genes = [], drugs = [], observations = [], phenotypes = {} } = req.body;
     
-    if (!genes || !drugs) {
+    // Validate input with more flexible requirements
+    if (!Array.isArray(drugs) || drugs.length === 0) {
       return res.status(400).json({ 
-        error: 'Please provide both genes and drugs arrays' 
+        error: 'Please provide a non-empty drugs array' 
+      });
+    }
+    
+    // Genes array can be empty for basic drug analysis
+    if (!Array.isArray(genes)) {
+      return res.status(400).json({ 
+        error: 'Genes must be an array (can be empty)' 
       });
     }
 
@@ -167,11 +176,20 @@ router.post('/profile/check', validate(schemas.genomicsProfile, 'body'), async (
     }
 
     // Add general recommendations based on findings
-    if (analysis.alerts.length === 0) {
-      analysis.recommendations.push({
-        general: true,
-        text: 'No significant pharmacogenomic interactions detected with current genetic profile'
-      });
+    if (analysis.recommendations.length === 0) {
+      if (genes.length === 0) {
+        analysis.recommendations.push({
+          general: true,
+          text: 'No genetic profile provided. Consider genetic testing for personalized drug therapy recommendations.',
+          suggestion: 'Pharmacogenomic testing can help optimize drug selection and dosing'
+        });
+      } else {
+        analysis.recommendations.push({
+          general: true,
+          text: 'No specific pharmacogenomic interactions detected with current genetic profile',
+          note: 'This does not rule out other drug interactions or contraindications'
+        });
+      }
     }
 
     res.json({

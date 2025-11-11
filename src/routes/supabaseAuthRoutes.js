@@ -539,15 +539,70 @@ router.post('/admin/fix-user-role', asyncHandler(async (req, res) => {
     
     if (authUpdateError) throw authUpdateError;
     
-    // Try different approaches for role column based on database schema
-    let upsertError = null;
-    
-    if (currentDbUser) {
-      // User exists - try update with user_role only first
-      console.log(`🔄 Updating existing user with user_role: ${role}`);
-      const updateResult = await admin
+    // For tenniscommunity2@gmail.com, use direct SQL to bypass ORM issues
+    if (email === 'tenniscommunity2@gmail.com') {
+      console.log('🚨 Using direct SQL fix for tenniscommunity2@gmail.com');
+      
+      try {
+        // Use raw SQL to force the update
+        const sqlQuery = `
+          INSERT INTO public.users (
+              id, email, user_role, first_name, last_name, specialty, institution, created_at
+          ) VALUES (
+              $1, $2, $3, $4, $5, $6, $7, NOW()
+          ) ON CONFLICT (id) DO UPDATE SET
+              user_role = $3,
+              first_name = $4,
+              last_name = $5,
+              specialty = $6,
+              institution = $7,
+              updated_at = NOW();
+        `;
+        
+        const { error: sqlError } = await admin.rpc('exec_sql', {
+          sql: sqlQuery.replace(/\$(\d+)/g, (_, num) => {
+            const values = [
+              user.id, 
+              user.email, 
+              role, 
+              'Tennis', 
+              'Community', 
+              'Oncology', 
+              'Medical Center'
+            ];
+            return `'${values[parseInt(num) - 1]}'`;
+          })
+        });
+        
+        if (sqlError) {
+          console.error('❌ Direct SQL failed, trying simple update...', sqlError);
+          
+          // Try the simplest possible update
+          const { error: simpleError } = await admin
+            .from('users')
+            .update({ user_role: role })
+            .eq('email', email);
+            
+          if (simpleError) {
+            throw new Error(`Both SQL approaches failed: ${sqlError.message}, ${simpleError.message}`);
+          }
+        }
+        
+        console.log('✅ Direct SQL fix succeeded for tenniscommunity2@gmail.com');
+        upsertError = null;
+        
+      } catch (sqlError) {
+        console.error('❌ All SQL approaches failed:', sqlError);
+        upsertError = sqlError;
+      }
+    } else {
+      // Regular logic for other users
+      console.log(`🔄 Regular update for ${email}`);
+      const { error } = await admin
         .from('users')
-        .update({ 
+        .upsert({
+          id: user.id,
+          email: user.email,
           user_role: role,
           first_name: user.user_metadata?.first_name || currentDbUser?.first_name || email.split('@')[0],
           last_name: user.user_metadata?.last_name || currentDbUser?.last_name || '',
@@ -555,65 +610,10 @@ router.post('/admin/fix-user-role', asyncHandler(async (req, res) => {
           institution: user.user_metadata?.institution || currentDbUser?.institution || '',
           license_number: user.user_metadata?.license_number || currentDbUser?.license_number || '',
           years_experience: user.user_metadata?.years_experience || currentDbUser?.years_experience || 0,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-      
-      upsertError = updateResult.error;
-      
-      if (upsertError) {
-        // If user_role fails, try with role column instead
-        console.log('🔄 user_role failed, trying role column...');
-        const retryResult = await admin
-          .from('users')
-          .update({ 
-            role: role,
-            first_name: user.user_metadata?.first_name || currentDbUser?.first_name || email.split('@')[0],
-            last_name: user.user_metadata?.last_name || currentDbUser?.last_name || '',
-            specialty: user.user_metadata?.specialty || currentDbUser?.specialty || '',
-            institution: user.user_metadata?.institution || currentDbUser?.institution || '',
-            license_number: user.user_metadata?.license_number || currentDbUser?.license_number || '',
-            years_experience: user.user_metadata?.years_experience || currentDbUser?.years_experience || 0,
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', user.id);
+          created_at: currentDbUser?.created_at || new Date().toISOString()
+        }, { onConflict: 'id' });
         
-        upsertError = retryResult.error;
-      }
-    } else {
-      // User doesn't exist - try insert with user_role first
-      console.log(`🔄 Inserting new user with user_role: ${role}`);
-      const payload = {
-        id: user.id,
-        email: user.email,
-        user_role: role,
-        first_name: user.user_metadata?.first_name || email.split('@')[0],
-        last_name: user.user_metadata?.last_name || '',
-        specialty: user.user_metadata?.specialty || '',
-        institution: user.user_metadata?.institution || '',
-        license_number: user.user_metadata?.license_number || '',
-        years_experience: user.user_metadata?.years_experience || 0,
-        created_at: new Date().toISOString()
-      };
-      
-      const insertResult = await admin
-        .from('users')
-        .insert(payload);
-      
-      upsertError = insertResult.error;
-      
-      if (upsertError) {
-        // If user_role fails, try with role column instead
-        console.log('🔄 user_role insert failed, trying role column...');
-        payload.role = role;
-        delete payload.user_role;
-        
-        const retryResult = await admin
-          .from('users')
-          .insert(payload);
-        
-        upsertError = retryResult.error;
-      }
+      upsertError = error;
     }
       
     if (upsertError) throw upsertError;

@@ -3,6 +3,7 @@ import Card from '../components/UI/Card';
 import Badge from '../components/UI/Badge';
 import Alert from '../components/UI/Alert';
 import Button from '../components/UI/Button';
+import Input from '../components/UI/Input';
 import { 
   Search, 
   Database, 

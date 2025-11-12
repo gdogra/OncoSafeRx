@@ -539,7 +539,9 @@ router.post('/admin/fix-user-role', asyncHandler(async (req, res) => {
     
     if (authUpdateError) throw authUpdateError;
     
-    // For tenniscommunity2@gmail.com, use direct SQL to bypass ORM issues
+    // Handle database updates based on user
+    let dbError = null;
+    
     if (email === 'tenniscommunity2@gmail.com') {
       console.log('🚨 Using direct SQL fix for tenniscommunity2@gmail.com');
       
@@ -576,11 +578,10 @@ router.post('/admin/fix-user-role', asyncHandler(async (req, res) => {
         }
         
         console.log('✅ Direct SQL fix succeeded for tenniscommunity2@gmail.com');
-        upsertError = null;
         
       } catch (sqlError) {
         console.error('❌ All SQL approaches failed:', sqlError);
-        upsertError = sqlError;
+        dbError = sqlError;
       }
     } else {
       // Regular logic for other users
@@ -600,10 +601,10 @@ router.post('/admin/fix-user-role', asyncHandler(async (req, res) => {
           created_at: currentDbUser?.created_at || new Date().toISOString()
         }, { onConflict: 'id' });
         
-      upsertError = error;
+      dbError = error;
     }
       
-    if (upsertError) throw upsertError;
+    if (dbError) throw dbError;
     
     console.log(`✅ Role fixed for ${email}: ${role}`);
     

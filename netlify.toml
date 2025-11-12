@@ -1,7 +1,7 @@
 [build]
   base = "frontend"
   publish = "dist"
-  command = "rm -rf node_modules/.cache && rm -rf dist && rm -f .env && echo 'VITE_API_URL=/api' > .env && echo 'VITE_SUPABASE_URL=https://emfrwckxctyarphjvfeu.supabase.co' >> .env && echo 'VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c' >> .env && echo 'VITE_DISABLE_SAMPLE_PATIENTS=true' >> .env && echo 'VITE_SCIENTIST_MODE=true' >> .env && echo 'VITE_ENABLE_MARKETING=false' >> .env && echo 'VITE_ANALYTICS_ENABLED=false' >> .env && echo 'VITE_APP_NAME=OncoSafeRx Evidence Explorer' >> .env && npm ci --legacy-peer-deps && npm run build && echo 'Static files in dist:' && (ls -la dist/*.html || ls -la dist || true)"
+  command = "rm -rf node_modules/.cache && rm -rf dist && rm -f .env && echo 'VITE_API_URL=/api' > .env && echo 'VITE_SUPABASE_URL=https://emfrwckxctyarphjvfeu.supabase.co' >> .env && echo 'VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c' >> .env && echo 'VITE_DISABLE_SAMPLE_PATIENTS=true' >> .env && echo 'VITE_SCIENTIST_MODE=true' >> .env && echo 'VITE_ENABLE_MARKETING=false' >> .env && echo 'VITE_ANALYTICS_ENABLED=true' >> .env && echo 'VITE_APP_NAME=OncoSafeRx Evidence Explorer' >> .env && npm ci --legacy-peer-deps && npm run build && echo 'Static files in dist:' && (ls -la dist/*.html || ls -la dist || true)"
 
 [build.environment]
   NODE_VERSION = "20.19.1"
@@ -79,7 +79,7 @@
   # Scientist Mode Configuration
   VITE_SCIENTIST_MODE = "true"
   VITE_ENABLE_MARKETING = "false"
-  VITE_ANALYTICS_ENABLED = "false"
+  VITE_ANALYTICS_ENABLED = "true"
   VITE_APP_NAME = "OncoSafeRx Evidence Explorer"
   VITE_ENABLE_SOCIAL_FEATURES = "false"
   VITE_DATA_UPDATE_FREQUENCY = "weekly"

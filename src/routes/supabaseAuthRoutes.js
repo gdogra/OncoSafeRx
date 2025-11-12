@@ -79,11 +79,17 @@ router.get('/profile',
           const admin = createClient(getEnv('SUPABASE_URL'), getEnv('SUPABASE_SERVICE_ROLE_KEY'));
           
           // Get user profile data (excluding demographics)
+          // Handle both 'role' and 'user_role' column names for production compatibility
           const { data: row } = await admin
             .from('users')
-            .select('first_name,last_name,role,specialty,institution,license_number,years_experience,preferences,persona')
+            .select('first_name,last_name,role,user_role,specialty,institution,license_number,years_experience,preferences,persona')
             .eq('id', user.id)
             .maybeSingle();
+          
+          // Prefer user_role column if available, fall back to role column
+          if (row) {
+            row.role = row.user_role || row.role;
+          }
           dbRow = row || null;
           
           // Get demographics data from separate table

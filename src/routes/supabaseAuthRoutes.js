@@ -2187,6 +2187,62 @@ router.post('/fix-role', asyncHandler(async (req, res) => {
   }
 }));
 
+// Simple role verification endpoint
+router.get('/verify-role/:email', asyncHandler(async (req, res) => {
+  try {
+    const { email } = req.params;
+    
+    if (email !== 'tenniscommunity2@gmail.com') {
+      return res.status(403).json({ error: 'Only allowed for specific user' });
+    }
+    
+    const url = getEnv("SUPABASE_URL");
+    const service = getEnv("SUPABASE_SERVICE_ROLE_KEY");
+    if (!url || !service) {
+      return res.status(500).json({ error: 'Supabase service not configured' });
+    }
+    
+    const admin = createClient(url, service);
+    
+    // Check what's actually in the database
+    const { data: dbUser, error: dbError } = await admin
+      .from('users')
+      .select('id, email, user_role, role, first_name, last_name')
+      .eq('email', email)
+      .maybeSingle();
+    
+    // Check auth users
+    const { data: authUsers } = await admin.auth.admin.listUsers();
+    const authUser = authUsers.users.find(u => u.email === email);
+    
+    return res.json({
+      email,
+      database: {
+        found: !!dbUser,
+        user_role: dbUser?.user_role,
+        role: dbUser?.role,
+        name: `${dbUser?.first_name || ''} ${dbUser?.last_name || ''}`.trim(),
+        error: dbError?.message
+      },
+      auth: {
+        found: !!authUser,
+        id: authUser?.id,
+        email: authUser?.email,
+        user_metadata: authUser?.user_metadata,
+        role_in_metadata: authUser?.user_metadata?.role
+      },
+      instructions: {
+        frontend_cache: "Clear localStorage key 'osrx_user_profile' and refresh page",
+        browser_cache: "Hard refresh with Ctrl+Shift+R or Cmd+Shift+R"
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Role verification error:', error);
+    res.status(500).json({ error: error.message });
+  }
+}));
+
 // Emergency SQL fix for tenniscommunity2@gmail.com
 router.post('/emergency-fix', asyncHandler(async (req, res) => {
   try {

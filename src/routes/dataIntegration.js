@@ -100,6 +100,15 @@ router.get('/openfda/drug/event', async (req, res) => {
     const url = `https://api.fda.gov/drug/event.json?search=${encodeURIComponent(search)}&limit=${limit}`;
     
     const response = await fetch(url);
+    if (response.status === 404) {
+      // Normalize OpenFDA 404 (no results) to a 200 with empty list for better UX
+      return res.json({
+        source: 'OpenFDA',
+        query: search,
+        timestamp: new Date().toISOString(),
+        data: { results: [] }
+      });
+    }
     if (!response.ok) {
       return res.status(response.status).json({
         error: 'OpenFDA API error',
@@ -130,6 +139,15 @@ router.get('/openfda/drug/label', async (req, res) => {
     const url = `https://api.fda.gov/drug/label.json?search=${encodeURIComponent(search)}&limit=${limit}`;
     
     const response = await fetch(url);
+    if (response.status === 404) {
+      // Normalize OpenFDA 404 (no results) to a 200 with empty list for better UX
+      return res.json({
+        source: 'OpenFDA Labels',
+        query: search,
+        timestamp: new Date().toISOString(),
+        data: { results: [] }
+      });
+    }
     if (!response.ok) {
       return res.status(response.status).json({
         error: 'OpenFDA Label API error',

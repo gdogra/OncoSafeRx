@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Card from './UI/Card';
 import { Loader2, Search, AlertTriangle, Info, ExternalLink } from 'lucide-react';
 import { dataIntegrationService } from '../services/dataIntegrationService';
@@ -29,6 +29,13 @@ const DrugIntelligenceIntegrator: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'drug-info' | 'interactions'>('drug-info');
+  const [rxnormSuggestion, setRxnormSuggestion] = useState<string | null>(null);
+  const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
+  const [nameSuggestLoading, setNameSuggestLoading] = useState(false);
+  const [drug1Suggestions, setDrug1Suggestions] = useState<string[]>([]);
+  const [drug1SuggestLoading, setDrug1SuggestLoading] = useState(false);
+  const [drug2Suggestions, setDrug2Suggestions] = useState<string[]>([]);
+  const [drug2SuggestLoading, setDrug2SuggestLoading] = useState(false);
 
   const searchDrugInfo = useCallback(async () => {
     if (!drugName.trim()) return;
@@ -39,6 +46,14 @@ const DrugIntelligenceIntegrator: React.FC = () => {
     try {
       const data = await dataIntegrationService.getComprehensiveDrugInfo(drugName);
       setDrugData(data);
+      // Compute RxNorm-based suggestion
+      try {
+        const concepts: string[] = [];
+        const groups = data?.rxnorm?.data?.drugGroup?.conceptGroup || [];
+        groups.forEach((g: any) => (g.conceptProperties || []).forEach((cp: any) => cp?.name && concepts.push(String(cp.name))));
+        const best = pickBestSuggestion(drugName, concepts);
+        setRxnormSuggestion(best);
+      } catch { setRxnormSuggestion(null); }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch drug information');
     } finally {
@@ -62,6 +77,67 @@ const DrugIntelligenceIntegrator: React.FC = () => {
     }
   }, [drug1, drug2]);
 
+  // Debounced RxNorm suggestions for main drugName
+  useEffect(() => {
+    const q = drugName.trim();
+    if (q.length < 2) { setNameSuggestions([]); return; }
+    setNameSuggestLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const resp = await dataIntegrationService.searchRxNormDrugs(q);
+        const names: string[] = [];
+        const groups = resp?.data?.drugGroup?.conceptGroup || [];
+        groups.forEach((g: any) => (g.conceptProperties || []).forEach((cp: any) => cp?.name && names.push(String(cp.name))));
+        const unique = Array.from(new Set(names));
+        // prioritize prefix matches, then others
+        const prefix = unique.filter(n => n.toLowerCase().startsWith(q.toLowerCase()));
+        const rest = unique.filter(n => !n.toLowerCase().startsWith(q.toLowerCase()));
+        setNameSuggestions([...prefix, ...rest].slice(0, 8));
+      } catch { setNameSuggestions([]); } finally { setNameSuggestLoading(false); }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [drugName]);
+
+  // Debounced suggestions for interaction drug1
+  useEffect(() => {
+    const q = drug1.trim();
+    if (q.length < 2) { setDrug1Suggestions([]); return; }
+    setDrug1SuggestLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const resp = await dataIntegrationService.searchRxNormDrugs(q);
+        const names: string[] = [];
+        const groups = resp?.data?.drugGroup?.conceptGroup || [];
+        groups.forEach((g: any) => (g.conceptProperties || []).forEach((cp: any) => cp?.name && names.push(String(cp.name))));
+        const unique = Array.from(new Set(names));
+        const prefix = unique.filter(n => n.toLowerCase().startsWith(q.toLowerCase()));
+        const rest = unique.filter(n => !n.toLowerCase().startsWith(q.toLowerCase()));
+        setDrug1Suggestions([...prefix, ...rest].slice(0, 6));
+      } catch { setDrug1Suggestions([]); } finally { setDrug1SuggestLoading(false); }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [drug1]);
+
+  // Debounced suggestions for interaction drug2
+  useEffect(() => {
+    const q = drug2.trim();
+    if (q.length < 2) { setDrug2Suggestions([]); return; }
+    setDrug2SuggestLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const resp = await dataIntegrationService.searchRxNormDrugs(q);
+        const names: string[] = [];
+        const groups = resp?.data?.drugGroup?.conceptGroup || [];
+        groups.forEach((g: any) => (g.conceptProperties || []).forEach((cp: any) => cp?.name && names.push(String(cp.name))));
+        const unique = Array.from(new Set(names));
+        const prefix = unique.filter(n => n.toLowerCase().startsWith(q.toLowerCase()));
+        const rest = unique.filter(n => !n.toLowerCase().startsWith(q.toLowerCase()));
+        setDrug2Suggestions([...prefix, ...rest].slice(0, 6));
+      } catch { setDrug2Suggestions([]); } finally { setDrug2SuggestLoading(false); }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [drug2]);
+
   const renderDataSource = (title: string, data: any, color: string) => {
     if (!data) {
       return (
@@ -84,9 +160,57 @@ const DrugIntelligenceIntegrator: React.FC = () => {
                        typeof data.data?.count === 'number' ? data.data.count :
                        'Available';
 
+    // Simple spelling suggestions for common drug names
+    const suggestionsMap: Record<string, string> = {
+      asprin: 'aspirin',
+      ibuprophen: 'ibuprofen',
+      amoxicillan: 'amoxicillin',
+      metformine: 'metformin',
+      warfrin: 'warfarin',
+      paracetemol: 'acetaminophen',
+      cetirizne: 'cetirizine',
+      omperazole: 'omeprazole',
+      clopidegrel: 'clopidogrel'
+    };
+
+    const lowerName = drugName.trim().toLowerCase();
+    const spellingSuggestion = suggestionsMap[lowerName] || null;
+    const effectiveSuggestion = spellingSuggestion || rxnormSuggestion;
+
     // Special rendering for DailyMed search to show label links
     if (title === 'DailyMed' && Array.isArray(data?.data?.data)) {
       const items = data.data.data as Array<{ setid: string; title: string }>;
+      if (items.length === 0) {
+        return (
+          <Card>
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-1 text-xs font-medium rounded bg-${color}-100 text-${color}-800 border-${color}-200`}>
+                    {title}
+                  </span>
+                  <span className="text-gray-600 text-sm">No results</span>
+                </div>
+              </div>
+              <div className="text-xs text-gray-500 mb-2">
+                Source: {data.source} • {new Date(data.timestamp).toLocaleTimeString()}
+              </div>
+              <div className="text-sm text-gray-700 mb-3">No DailyMed labels found for “{drugName}”.</div>
+              {effectiveSuggestion && (
+                <button
+                  className="text-sm text-blue-700 hover:underline"
+                  onClick={() => {
+                    setDrugName(effectiveSuggestion);
+                    setTimeout(() => searchDrugInfo(), 0);
+                  }}
+                >
+                  Did you mean: {effectiveSuggestion}?
+                </button>
+              )}
+            </div>
+          </Card>
+        );
+      }
       return (
         <Card>
           <div className="p-4">
@@ -120,6 +244,80 @@ const DrugIntelligenceIntegrator: React.FC = () => {
       );
     }
 
+    // Friendly empty state for OpenFDA sources
+    if ((title === 'FDA Labels' || title === 'FDA Events' || title === 'FDA Adverse Events')) {
+      const items = Array.isArray(data?.data?.results) ? data.data.results : [];
+      if (items.length === 0) {
+        return (
+          <Card>
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-1 text-xs font-medium rounded bg-${color}-100 text-${color}-800 border-${color}-200`}>
+                    {title}
+                  </span>
+                  <span className="text-gray-600 text-sm">No results</span>
+                </div>
+              </div>
+              <div className="text-xs text-gray-500 mb-2">
+                Source: {data.source} • {new Date(data.timestamp).toLocaleTimeString()}
+              </div>
+              <div className="text-sm text-gray-700 mb-3">No FDA {title.toLowerCase()} found for “{drugName}”.</div>
+              {(effectiveSuggestion) && (
+                <button
+                  className="text-sm text-blue-700 hover:underline"
+                  onClick={() => {
+                    setDrugName(effectiveSuggestion);
+                    // Kick off a new search after setting
+                    setTimeout(() => searchDrugInfo(), 0);
+                  }}
+                >
+                  Did you mean: {effectiveSuggestion}?
+                </button>
+              )}
+            </div>
+          </Card>
+        );
+      }
+    }
+
+    // Friendly empty state for PubMed
+    if (title === 'PubMed') {
+      const articlesObj = data?.data?.articles || {};
+      const articles = Object.values(articlesObj);
+      if (!articles || articles.length === 0) {
+        return (
+          <Card>
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-1 text-xs font-medium rounded bg-${color}-100 text-${color}-800 border-${color}-200`}>
+                    {title}
+                  </span>
+                  <span className="text-gray-600 text-sm">No results</span>
+                </div>
+              </div>
+              <div className="text-xs text-gray-500 mb-2">
+                Source: {data.source} • {new Date(data.timestamp).toLocaleTimeString()}
+              </div>
+              <div className="text-sm text-gray-700 mb-3">No PubMed articles found for “{drugName}”. Try broader terms.</div>
+              {effectiveSuggestion && (
+                <button
+                  className="text-sm text-blue-700 hover:underline"
+                  onClick={() => {
+                    setDrugName(effectiveSuggestion);
+                    setTimeout(() => searchDrugInfo(), 0);
+                  }}
+                >
+                  Did you mean: {effectiveSuggestion}?
+                </button>
+              )}
+            </div>
+          </Card>
+        );
+      }
+    }
+
     return (
       <Card>
         <div className="p-4">
@@ -137,9 +335,9 @@ const DrugIntelligenceIntegrator: React.FC = () => {
           <div className="text-xs text-gray-500 mb-2">
             Source: {data.source} • {new Date(data.timestamp).toLocaleTimeString()}
           </div>
-          {data.query && (
+          {typeof data.query !== 'undefined' && (
             <div className="text-xs bg-gray-50 p-2 rounded mb-2">
-              Query: {data.query}
+              Query: {typeof data.query === 'string' ? data.query : JSON.stringify(data.query)}
             </div>
           )}
           <div className="text-sm text-gray-700">
@@ -203,7 +401,7 @@ const DrugIntelligenceIntegrator: React.FC = () => {
               <Card>
                 <div className="p-6">
                   <h3 className="text-lg font-medium mb-4">Drug Information Search</h3>
-                  <div className="flex gap-2 mb-4" data-tour="drug-intel-search">
+                  <div className="flex gap-2 mb-2" data-tour="drug-intel-search">
                     <input
                       type="text"
                       placeholder="Enter drug name (e.g., aspirin, ibuprofen)"
@@ -221,6 +419,19 @@ const DrugIntelligenceIntegrator: React.FC = () => {
                       Search
                     </button>
                   </div>
+                  {nameSuggestions.length > 0 && (
+                    <div className="mb-4 border border-gray-200 rounded-md divide-y bg-white">
+                      {nameSuggestions.map((sug) => (
+                        <button
+                          key={sug}
+                          className="w-full text-left px-3 py-2 hover:bg-gray-50 text-sm"
+                          onClick={() => { setDrugName(sug); setTimeout(() => searchDrugInfo(), 0); }}
+                        >
+                          {sug}
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
                   {drugData && (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
@@ -242,7 +453,7 @@ const DrugIntelligenceIntegrator: React.FC = () => {
               <Card>
                 <div className="p-6">
                   <h3 className="text-lg font-medium mb-4">Drug Interaction Search</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4" data-tour="drug-intel-interactions">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2" data-tour="drug-intel-interactions">
                     <input
                       type="text"
                       placeholder="First drug"
@@ -266,6 +477,36 @@ const DrugIntelligenceIntegrator: React.FC = () => {
                       Find Interactions
                     </button>
                   </div>
+                  {(drug1Suggestions.length > 0 || drug2Suggestions.length > 0) && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      {drug1Suggestions.length > 0 && (
+                        <div className="border border-gray-200 rounded-md divide-y bg-white">
+                          {drug1Suggestions.map((sug) => (
+                            <button
+                              key={`d1-${sug}`}
+                              className="w-full text-left px-3 py-2 hover:bg-gray-50 text-sm"
+                              onClick={() => setDrug1(sug)}
+                            >
+                              {sug}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {drug2Suggestions.length > 0 && (
+                        <div className="border border-gray-200 rounded-md divide-y bg-white">
+                          {drug2Suggestions.map((sug) => (
+                            <button
+                              key={`d2-${sug}`}
+                              className="w-full text-left px-3 py-2 hover:bg-gray-50 text-sm"
+                              onClick={() => setDrug2(sug)}
+                            >
+                              {sug}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {interactionData && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
@@ -296,3 +537,37 @@ const DrugIntelligenceIntegrator: React.FC = () => {
 };
 
 export default DrugIntelligenceIntegrator;
+
+// Helper: pick best suggestion by simple Levenshtein distance
+function pickBestSuggestion(input: string, candidates: string[]): string | null {
+  const src = (input || '').trim().toLowerCase();
+  if (!src || candidates.length === 0) return null;
+  let best: { s: string; d: number } | null = null;
+  candidates.forEach((c) => {
+    const name = String(c || '').toLowerCase();
+    if (!name) return;
+    const d = levenshtein(src, name);
+    if (best == null || d < best.d) best = { s: c, d };
+  });
+  // Only suggest if reasonably close and not identical
+  if (best && best.d > 0 && best.d <= Math.max(2, Math.floor(src.length * 0.3))) return best.s;
+  return null;
+}
+
+function levenshtein(a: string, b: string): number {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return dp[m][n];
+}

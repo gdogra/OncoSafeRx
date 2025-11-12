@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Card from '../components/UI/Card';
 import Badge from '../components/UI/Badge';
 import Alert from '../components/UI/Alert';
@@ -45,6 +45,10 @@ const MultiDatabaseSearch: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [rxnormSuggestion, setRxnormSuggestion] = useState<string | null>(null);
+  const [nameSuggestions, setNameSuggestions] = useState<string[]>([]);
+  const [nameSuggestLoading, setNameSuggestLoading] = useState(false);
+  const [sourceCounts, setSourceCounts] = useState<Record<string, number>>({});
   const [selectedDatabases, setSelectedDatabases] = useState<string[]>([
     'pubmed', 'clinicaltrials', 'dailymed', 'rxnorm'
   ]);
@@ -54,6 +58,21 @@ const MultiDatabaseSearch: React.FC = () => {
     evidenceLevel: 'all'
   });
   const [activeTab, setActiveTab] = useState<'search' | 'results' | 'sources'>('search');
+
+  // Simple spelling suggestions for common drug name typos
+  const suggestionsMap: Record<string, string> = {
+    asprin: 'aspirin',
+    ibuprophen: 'ibuprofen',
+    amoxicillan: 'amoxicillin',
+    metformine: 'metformin',
+    warfrin: 'warfarin',
+    paracetemol: 'acetaminophen',
+    cetirizne: 'cetirizine',
+    omperazole: 'omeprazole',
+    clopidegrel: 'clopidogrel'
+  };
+  const lowerQuery = searchQuery.trim().toLowerCase();
+  const spellingSuggestion = suggestionsMap[lowerQuery] || null;
 
   const databaseOptions = [
     { id: 'pubmed', name: 'PubMed/MEDLINE', description: 'Biomedical literature', icon: BookOpen },
@@ -80,6 +99,8 @@ const MultiDatabaseSearch: React.FC = () => {
     try {
       const searchPromises = [];
       const results: SearchResult[] = [];
+      const rxnormCandidates: string[] = [];
+      const counts: Record<string, number> = { pubmed: 0, clinicaltrials: 0, dailymed: 0, rxnorm: 0, openfda: 0 };
 
       // Search PubMed if selected
       if (selectedDatabases.includes('pubmed')) {
@@ -99,6 +120,7 @@ const MultiDatabaseSearch: React.FC = () => {
                   url: `https://pubmed.ncbi.nlm.nih.gov/${article.pmid}`,
                   metadata: article
                 });
+                counts.pubmed += 1;
               }
             });
           })
@@ -128,6 +150,7 @@ const MultiDatabaseSearch: React.FC = () => {
                   url: `https://clinicaltrials.gov/ct2/show/${id.nctId}`,
                   metadata: study
                 });
+                counts.clinicaltrials += 1;
               }
             });
           })
@@ -152,6 +175,7 @@ const MultiDatabaseSearch: React.FC = () => {
                   url: `https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=${label.setid}`,
                   metadata: label
                 });
+                counts.dailymed += 1;
               }
             });
           })
@@ -178,6 +202,8 @@ const MultiDatabaseSearch: React.FC = () => {
                     url: `https://mor.nlm.nih.gov/RxNav/search?searchBy=RXCUI&searchTerm=${concept.rxcui}`,
                     metadata: concept
                   });
+                  counts.rxnorm += 1;
+                  if (concept.name) rxnormCandidates.push(String(concept.name));
                 }
               });
             });
@@ -188,7 +214,7 @@ const MultiDatabaseSearch: React.FC = () => {
 
       // Search OpenFDA if selected
       if (selectedDatabases.includes('openfda')) {
-        const fdaPromise = dataIntegrationService.searchFDALabels(`generic_name:"${searchQuery}" OR brand_name:"${searchQuery}"`, 20)
+        const fdaPromise = dataIntegrationService.searchFDALabels(`openfda.generic_name:"${searchQuery}" OR openfda.brand_name:"${searchQuery}"`, 20)
           .then(response => {
             const labels = response.data?.results || [];
             labels.forEach((label: any, index: number) => {
@@ -201,6 +227,7 @@ const MultiDatabaseSearch: React.FC = () => {
                 summary: `FDA label data. Manufacturer: ${label.openfda?.manufacturer_name?.[0] || 'Unknown'}`,
                 metadata: label
               });
+              counts.openfda += 1;
             });
           })
           .catch(err => console.error('OpenFDA search error:', err));
@@ -212,6 +239,12 @@ const MultiDatabaseSearch: React.FC = () => {
       // Sort results by relevance score
       results.sort((a, b) => b.relevanceScore - a.relevanceScore);
       setSearchResults(results);
+      // compute RxNorm-based suggestion for the top-level query
+      try {
+        const best = pickBestSuggestion(searchQuery, rxnormCandidates);
+        setRxnormSuggestion(best);
+      } catch { setRxnormSuggestion(null); }
+      setSourceCounts(counts);
 
     } catch (error) {
       console.error('Search error:', error);
@@ -219,6 +252,26 @@ const MultiDatabaseSearch: React.FC = () => {
       setIsSearching(false);
     }
   }, [searchQuery, selectedDatabases]);
+
+  // Debounced RxNorm suggestions (single-word queries only)
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (q.length < 2 || q.includes(' ')) { setNameSuggestions([]); return; }
+    setNameSuggestLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const resp = await dataIntegrationService.searchRxNormDrugs(q);
+        const names: string[] = [];
+        const groups = resp?.data?.drugGroup?.conceptGroup || [];
+        groups.forEach((g: any) => (g.conceptProperties || []).forEach((cp: any) => cp?.name && names.push(String(cp.name))));
+        const unique = Array.from(new Set(names));
+        const prefix = unique.filter(n => n.toLowerCase().startsWith(q.toLowerCase()));
+        const rest = unique.filter(n => !n.toLowerCase().startsWith(q.toLowerCase()));
+        setNameSuggestions([...prefix, ...rest].slice(0, 8));
+      } catch { setNameSuggestions([]); } finally { setNameSuggestLoading(false); }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -318,7 +371,7 @@ const MultiDatabaseSearch: React.FC = () => {
                   Search Query
                 </h3>
               </div>
-              <div className="p-6 space-y-4">
+              <div className="p-6 space-y-2">
                 <div className="flex gap-2">
                   <Input
                     placeholder="Enter search terms (e.g., pembrolizumab melanoma, EGFR mutation NSCLC)"
@@ -340,6 +393,19 @@ const MultiDatabaseSearch: React.FC = () => {
                     Search
                   </Button>
                 </div>
+                {nameSuggestions.length > 0 && (
+                  <div className="border border-gray-200 rounded-md divide-y bg-white">
+                    {nameSuggestions.map((sug) => (
+                      <button
+                        key={sug}
+                        className="w-full text-left px-3 py-2 hover:bg-gray-50 text-sm"
+                        onClick={() => { setSearchQuery(sug); setTimeout(() => performFederatedSearch(), 0); }}
+                      >
+                        {sug}
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 <div className="text-sm text-gray-600">
                   <strong>Search Tips:</strong> Use AND, OR, NOT for Boolean logic. 
@@ -460,6 +526,20 @@ const MultiDatabaseSearch: React.FC = () => {
                   <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
                   <p className="text-gray-600">Try adjusting your search terms or selecting different databases.</p>
+                  {effectiveSuggestion && (
+                    <div className="mt-3">
+                      <button
+                        className="text-blue-700 hover:underline"
+                        onClick={() => {
+                          const s = effectiveSuggestion;
+                          setSearchQuery(s);
+                          setTimeout(() => performFederatedSearch(), 0);
+                        }}
+                      >
+                        Did you mean: {effectiveSuggestion}?
+                      </button>
+                    </div>
+                  )}
                 </div>
               </Card>
             )}
@@ -474,6 +554,75 @@ const MultiDatabaseSearch: React.FC = () => {
                   Export Results
                 </Button>
               </div>
+            )}
+
+            {activeTab === 'results' && selectedDatabases.includes('openfda') && (!sourceCounts.openfda || sourceCounts.openfda === 0) && (
+              <Card>
+                <div className="p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <AlertTriangle className="h-4 w-4 text-red-600" />
+                    <span className="text-sm text-gray-800">No OpenFDA label results for “{searchQuery}”.</span>
+                  </div>
+                  {effectiveSuggestion && (
+                    <button
+                      className="text-sm text-blue-700 hover:underline"
+                      onClick={() => {
+                        const s = effectiveSuggestion;
+                        setSearchQuery(s);
+                        setTimeout(() => performFederatedSearch(), 0);
+                      }}
+                    >
+                      Did you mean: {effectiveSuggestion}?
+                    </button>
+                  )}
+                </div>
+              </Card>
+            )}
+
+            {activeTab === 'results' && selectedDatabases.includes('dailymed') && (!sourceCounts.dailymed || sourceCounts.dailymed === 0) && (
+              <Card>
+                <div className="p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <AlertTriangle className="h-4 w-4 text-purple-600" />
+                    <span className="text-sm text-gray-800">No DailyMed label results for “{searchQuery}”.</span>
+                  </div>
+                  {effectiveSuggestion && (
+                    <button
+                      className="text-sm text-blue-700 hover:underline"
+                      onClick={() => {
+                        const s = effectiveSuggestion;
+                        setSearchQuery(s);
+                        setTimeout(() => performFederatedSearch(), 0);
+                      }}
+                    >
+                      Did you mean: {effectiveSuggestion}?
+                    </button>
+                  )}
+                </div>
+              </Card>
+            )}
+
+            {activeTab === 'results' && selectedDatabases.includes('pubmed') && (!sourceCounts.pubmed || sourceCounts.pubmed === 0) && (
+              <Card>
+                <div className="p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <AlertTriangle className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm text-gray-800">No PubMed articles found for “{searchQuery}”. Try broader terms.</span>
+                  </div>
+                  {effectiveSuggestion && (
+                    <button
+                      className="text-sm text-blue-700 hover:underline"
+                      onClick={() => {
+                        const s = effectiveSuggestion;
+                        setSearchQuery(s);
+                        setTimeout(() => performFederatedSearch(), 0);
+                      }}
+                    >
+                      Did you mean: {effectiveSuggestion}?
+                    </button>
+                  )}
+                </div>
+              </Card>
             )}
 
             {searchResults.map((result) => (
@@ -570,3 +719,36 @@ const MultiDatabaseSearch: React.FC = () => {
 };
 
 export default MultiDatabaseSearch;
+
+// Helper: pick best suggestion by simple Levenshtein distance
+function pickBestSuggestion(input: string, candidates: string[]): string | null {
+  const src = (input || '').trim().toLowerCase();
+  if (!src || candidates.length === 0) return null;
+  let best: { s: string; d: number } | null = null;
+  candidates.forEach((c) => {
+    const name = String(c || '').toLowerCase();
+    if (!name) return;
+    const d = levenshtein(src, name);
+    if (best == null || d < best.d) best = { s: c, d };
+  });
+  if (best && best.d > 0 && best.d <= Math.max(2, Math.floor(src.length * 0.3))) return best.s;
+  return null;
+}
+
+function levenshtein(a: string, b: string): number {
+  const m = a.length, n = b.length;
+  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + cost
+      );
+    }
+  }
+  return dp[m][n];
+}

@@ -219,7 +219,7 @@ class DataIntegrationService {
   }> {
     const results = await Promise.allSettled([
       this.searchDailyMed(drugName, 5),
-      this.searchFDALabels(`generic_name:"${drugName}" OR brand_name:"${drugName}"`, 5),
+      this.searchFDALabels(`openfda.generic_name:"${drugName}" OR openfda.brand_name:"${drugName}"`, 5),
       this.searchFDAAdverseEvents(`patient.drug.medicinalproduct:"${drugName}"`, 10),
       this.searchRxNormDrugs(drugName),
       this.searchPubMed(`"${drugName}" AND (interaction OR contraindication OR adverse)`, { retmax: 10 }),

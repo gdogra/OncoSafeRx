@@ -64,45 +64,33 @@ const ClinicalLandingPage: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div>
-                {/* Clinical Validation Badge */}
-                <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-100 text-green-800 text-sm font-semibold mb-8">
-                  <Microscope className="h-4 w-4 mr-2" />
-                  Validated by Clinical Research • FDA 21 CFR Part 11 Ready
+                {/* Clinical Badge */}
+                <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-semibold mb-8">
+                  <Stethoscope className="h-4 w-4 mr-2" />
+                  Clinical Decision Support
                 </div>
                 
                 <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 leading-tight mb-6">
-                  AI-Powered Drug Interaction Intelligence
-                  <span className="text-blue-700 block">for Oncology Teams</span>
+                  Clinical Decision Support for
+                  <span className="text-blue-700 block">Oncology Drug Safety</span>
                 </h1>
                 
-                <p className="text-xl text-gray-700 mb-8 leading-relaxed font-medium">
-                  Detect high-risk drug interactions before they occur. Integrates pharmacogenomic 
-                  and clinical evidence in real-time to guide safer prescribing decisions for cancer patients.
+                <p className="text-xl text-gray-700 mb-6 leading-relaxed">
+                  AI-powered drug interaction analysis designed for cancer care teams. Reduce medication errors, 
+                  optimize patient safety, and support evidence-based prescribing decisions at the point of care.
                 </p>
 
-                {/* Clinical Evidence Stats */}
-                <div className="grid grid-cols-3 gap-8 mb-10 p-6 bg-white rounded-xl border border-gray-200">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-700 mb-1">94%</div>
-                    <div className="text-sm text-gray-600 font-medium">Interaction Detection</div>
-                  </div>
-                  <div className="text-center border-x border-gray-200">
-                    <div className="text-3xl font-bold text-green-600 mb-1">&lt;30s</div>
-                    <div className="text-sm text-gray-600 font-medium">Clinical Decision Time</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-orange-600 mb-1">67%</div>
-                    <div className="text-sm text-gray-600 font-medium">Error Reduction</div>
-                  </div>
-                </div>
+                <p className="text-lg text-gray-600 mb-8 font-medium">
+                  Trusted by oncology practices to identify high-risk interactions in complex cancer treatment regimens.
+                </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 mb-8">
                   <Button size="lg" className="bg-blue-700 hover:bg-blue-800 text-white px-8 py-3 font-semibold">
-                    Join Early Access for Clinicians
+                    Request Clinical Demo
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                   <Button variant="outline" size="lg" className="border-blue-700 text-blue-700 hover:bg-blue-50 px-8 py-3 font-semibold">
-                    Try Clinical Sandbox
+                    View Evidence Summary
                   </Button>
                 </div>
 
@@ -110,15 +98,15 @@ const ClinicalLandingPage: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-6 text-sm text-gray-600">
                   <div className="flex items-center">
                     <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    HIPAA Compliant
+                    HIPAA Ready
                   </div>
                   <div className="flex items-center">
                     <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    Peer Reviewed
+                    Evidence-Based
                   </div>
                   <div className="flex items-center">
                     <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                    Enterprise Ready
+                    Clinical Quality
                   </div>
                 </div>
               </div>
@@ -174,6 +162,203 @@ const ClinicalLandingPage: React.FC = () => {
                   </div>
                 </Card>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Problem → Solution Section */}
+        <section className="py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+              {/* Problem */}
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6">
+                  The Challenge in Oncology Medication Safety
+                </h2>
+                <div className="space-y-4 text-lg text-gray-700">
+                  <p>
+                    Cancer patients receive an average of <strong>12+ concurrent medications</strong>, creating complex 
+                    interaction risks that standard drug databases don't adequately address.
+                  </p>
+                  <p>
+                    Oncology-specific protocols, novel agents, and patient comorbidities require specialized 
+                    clinical decision support that goes beyond generic drug interaction checkers.
+                  </p>
+                </div>
+                
+                {/* Problem Stats */}
+                <div className="mt-8 space-y-4">
+                  <div className="flex items-center">
+                    <AlertTriangle className="h-5 w-5 text-orange-500 mr-3" />
+                    <span className="text-gray-700"><strong>Complex polypharmacy</strong> in cancer treatment</span>
+                  </div>
+                  <div className="flex items-center">
+                    <AlertTriangle className="h-5 w-5 text-orange-500 mr-3" />
+                    <span className="text-gray-700"><strong>Novel agents</strong> with limited interaction data</span>
+                  </div>
+                  <div className="flex items-center">
+                    <AlertTriangle className="h-5 w-5 text-orange-500 mr-3" />
+                    <span className="text-gray-700"><strong>Patient-specific factors</strong> affecting drug metabolism</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Solution */}
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-6">
+                  Evidence-Based Clinical Decision Support
+                </h2>
+                <div className="space-y-4 text-lg text-gray-700">
+                  <p>
+                    OncoSafeRx provides <strong>real-time analysis</strong> of drug interactions specifically 
+                    validated for oncology practice.
+                  </p>
+                  <p>
+                    Our clinical engine integrates FDA drug labels, NCCN guidelines, and peer-reviewed 
+                    oncology research to deliver actionable safety recommendations for cancer care teams.
+                  </p>
+                </div>
+
+                {/* Solution Benefits */}
+                <div className="mt-8 space-y-4">
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span className="text-gray-700"><strong>Oncology-specific</strong> interaction analysis</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span className="text-gray-700"><strong>Real-time alerts</strong> at point of care</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-3" />
+                    <span className="text-gray-700"><strong>Evidence-based recommendations</strong> from clinical literature</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Target User Section */}
+        <section className="py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
+                Built for Oncology Healthcare Professionals
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Designed specifically for the unique needs of cancer care teams and the complexity 
+                of oncology medication management.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {/* Oncologists */}
+              <Card className="p-6 text-center bg-white hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Stethoscope className="h-8 w-8 text-blue-700" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-3">Oncologists</h3>
+                <p className="text-gray-600 text-sm">
+                  Access comprehensive interaction analysis for novel cancer therapies and combination regimens
+                </p>
+              </Card>
+
+              {/* Clinical Pharmacists */}
+              <Card className="p-6 text-center bg-white hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Database className="h-8 w-8 text-green-700" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-3">Clinical Pharmacists</h3>
+                <p className="text-gray-600 text-sm">
+                  Validate dosing decisions with oncology-specific evidence and interaction data
+                </p>
+              </Card>
+
+              {/* Oncology Nurses */}
+              <Card className="p-6 text-center bg-white hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Activity className="h-8 w-8 text-orange-700" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-3">Oncology Nurses</h3>
+                <p className="text-gray-600 text-sm">
+                  Receive safety alerts tailored to cancer patient monitoring protocols
+                </p>
+              </Card>
+
+              {/* Clinical Researchers */}
+              <Card className="p-6 text-center bg-white hover:shadow-lg transition-shadow">
+                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Microscope className="h-8 w-8 text-purple-700" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-3">Clinical Researchers</h3>
+                <p className="text-gray-600 text-sm">
+                  Leverage evidence-based tools for protocol development and patient safety oversight
+                </p>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* Features/Outcomes Module */}
+        <section className="py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
+                Clinical-Grade Drug Safety Intelligence
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Advanced clinical capabilities designed for the complexities of oncology medication management.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {/* Real-time Screening */}
+              <Card className="p-8 bg-white border border-gray-200 hover:border-blue-200 transition-colors">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-6">
+                  <Zap className="h-6 w-6 text-blue-700" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Real-time Interaction Screening</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Immediate analysis of drug-drug, drug-disease, and drug-food interactions using 
+                  oncology-validated algorithms
+                </p>
+              </Card>
+
+              {/* Evidence-Based Recommendations */}
+              <Card className="p-8 bg-white border border-gray-200 hover:border-green-200 transition-colors">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-6">
+                  <FileText className="h-6 w-6 text-green-700" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Evidence-Based Recommendations</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Clinical guidance derived from FDA labels, CPIC guidelines, and peer-reviewed 
+                  oncology literature
+                </p>
+              </Card>
+
+              {/* Severity-Graded Alerts */}
+              <Card className="p-8 bg-white border border-gray-200 hover:border-orange-200 transition-colors">
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-6">
+                  <AlertTriangle className="h-6 w-6 text-orange-700" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Severity-Graded Alerts</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Prioritized warnings with clinical context specific to cancer patient populations
+                </p>
+              </Card>
+
+              {/* Dosing Support */}
+              <Card className="p-8 bg-white border border-gray-200 hover:border-purple-200 transition-colors">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-6">
+                  <Brain className="h-6 w-6 text-purple-700" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Dosing Support</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Pharmacogenomic-informed dosing recommendations for chemotherapy and supportive 
+                  care medications
+                </p>
+              </Card>
             </div>
           </div>
         </section>

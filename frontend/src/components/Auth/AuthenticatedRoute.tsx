@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import LandingPage from '../../pages/LandingPage';
+import ClinicalLandingPage from '../../pages/ClinicalLandingPage';
 import Layout from '../Layout/Layout';
 
 // Lazy load dashboard to avoid circular imports
@@ -10,9 +10,9 @@ const AuthenticatedRoute: React.FC = () => {
   const { state } = useAuth();
   const { isAuthenticated } = state;
 
-  // Show landing page to unauthenticated users
+  // Show clinical landing page to unauthenticated users
   if (!isAuthenticated) {
-    return <LandingPage />;
+    return <ClinicalLandingPage />;
   }
 
   // Show dashboard to authenticated users

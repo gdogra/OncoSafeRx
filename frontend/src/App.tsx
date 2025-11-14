@@ -25,6 +25,7 @@ import { setupConsoleFilter } from './utils/consoleFilter';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const DrugSearch = lazy(() => import('./pages/DrugSearch'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
+const ClinicalLandingPage = lazy(() => import('./pages/ClinicalLandingPage'));
 const AuthenticatedRoute = lazy(() => import('./components/Auth/AuthenticatedRoute'));
 const InteractionChecker = lazy(() => import('./components/Interactions/InteractionChecker'));
 const GenomicsAnalysis = lazy(() => import('./components/Genomics/GenomicsAnalysis'));
@@ -245,8 +246,9 @@ function AppWithAuth() {
                 
 
                 {/* Protected routes */}
-                {/* Landing page routes */}
-                <Route path="/landing" element={<LandingPage />} />
+                {/* Landing page routes - Clinical focus */}
+                <Route path="/landing" element={<ClinicalLandingPage />} />
+                <Route path="/clinical" element={<ClinicalLandingPage />} />
                 <Route path="/home" element={<LandingPage />} />
                 
                 <Route path="/" element={<AuthenticatedRoute />} />

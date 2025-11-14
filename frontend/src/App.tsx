@@ -245,8 +245,9 @@ function AppWithAuth() {
                 
 
                 {/* Protected routes */}
-                {/* Landing page for unauthenticated users, dashboard for authenticated */}
+                {/* Landing page routes */}
                 <Route path="/landing" element={<LandingPage />} />
+                <Route path="/home" element={<LandingPage />} />
                 
                 <Route path="/" element={<AuthenticatedRoute />} />
                 <Route path="/dashboard" element={

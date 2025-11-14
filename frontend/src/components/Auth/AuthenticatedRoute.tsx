@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import LandingPage from '../../pages/LandingPage';
-import Dashboard from '../../pages/Dashboard';
 import Layout from '../Layout/Layout';
+
+// Lazy load dashboard to avoid circular imports
+const Dashboard = React.lazy(() => import('../../pages/Dashboard'));
 
 const AuthenticatedRoute: React.FC = () => {
   const { state } = useAuth();
@@ -16,7 +18,9 @@ const AuthenticatedRoute: React.FC = () => {
   // Show dashboard to authenticated users
   return (
     <Layout>
-      <Dashboard />
+      <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="text-gray-500">Loading...</div></div>}>
+        <Dashboard />
+      </Suspense>
     </Layout>
   );
 };

@@ -24,6 +24,7 @@ import { checkForUpdates } from './utils/versionCheck';
 import { setupConsoleFilter } from './utils/consoleFilter';
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const DrugSearch = lazy(() => import('./pages/DrugSearch'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
 const InteractionChecker = lazy(() => import('./components/Interactions/InteractionChecker'));
 const GenomicsAnalysis = lazy(() => import('./components/Genomics/GenomicsAnalysis'));
 const Protocols = lazy(() => import('./pages/Protocols'));
@@ -243,6 +244,9 @@ function AppWithAuth() {
                 
 
                 {/* Protected routes */}
+                {/* Public landing page */}
+                <Route path="/landing" element={<LandingPage />} />
+                
                 <Route path="/" element={
                   <ProtectedRoute>
                     <Layout>

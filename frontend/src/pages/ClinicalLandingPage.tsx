@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   ArrowRight, 
   Shield, 
@@ -29,6 +29,32 @@ import Button from '../components/UI/Button';
 import Card from '../components/UI/Card';
 
 const ClinicalLandingPage: React.FC = () => {
+  const navigate = useNavigate();
+  const [showDemo, setShowDemo] = useState(false);
+
+  // Button click handlers
+  const handleStartTrial = () => {
+    // Navigate to auth page with trial signup
+    navigate('/auth?mode=trial');
+  };
+
+  const handleWatchDemo = () => {
+    setShowDemo(true);
+  };
+
+  const handleContactSales = () => {
+    // Navigate to contact page or open contact modal
+    navigate('/contact');
+  };
+
+  const handlePricing = () => {
+    navigate('/pricing');
+  };
+
+  const handleTryDemo = () => {
+    navigate('/demo');
+  };
+
   return (
     <>
       {/* SEO Meta Tags */}
@@ -57,10 +83,10 @@ const ClinicalLandingPage: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-6">
-                <Link to="/pricing" className="text-gray-600 hover:text-gray-900 font-medium">Pricing</Link>
-                <Link to="/demo" className="text-gray-600 hover:text-gray-900 font-medium">Live Demo</Link>
+                <button onClick={handlePricing} className="text-gray-600 hover:text-gray-900 font-medium">Pricing</button>
+                <button onClick={handleTryDemo} className="text-gray-600 hover:text-gray-900 font-medium">Live Demo</button>
                 <Link to="/auth" className="text-gray-600 hover:text-gray-900 font-medium">Log In</Link>
-                <Button className="bg-green-600 hover:bg-green-700 font-semibold">Start Free Trial</Button>
+                <Button onClick={handleStartTrial} className="bg-green-600 hover:bg-green-700 font-semibold">Start Free Trial</Button>
               </div>
             </div>
           </div>
@@ -104,11 +130,20 @@ const ClinicalLandingPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                  <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 font-bold text-lg">
+                  <Button 
+                    onClick={handleStartTrial}
+                    size="lg" 
+                    className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 font-bold text-lg"
+                  >
                     Start 14-Day Free Trial
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
-                  <Button variant="outline" size="lg" className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-4 font-bold text-lg">
+                  <Button 
+                    onClick={handleWatchDemo}
+                    variant="outline" 
+                    size="lg" 
+                    className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-4 font-bold text-lg"
+                  >
                     <Play className="mr-2 h-5 w-5" />
                     Watch 2-Min Demo
                   </Button>
@@ -173,7 +208,10 @@ const ClinicalLandingPage: React.FC = () => {
 
                     {/* CTA Overlay */}
                     <div className="text-center">
-                      <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3">
+                      <Button 
+                        onClick={handleTryDemo}
+                        className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3"
+                      >
                         <Play className="mr-2 h-4 w-4" />
                         Try Interactive Demo
                       </Button>
@@ -273,7 +311,7 @@ const ClinicalLandingPage: React.FC = () => {
                     <span className="text-4xl font-bold text-gray-900">$49</span>
                     <span className="text-gray-600">/month</span>
                   </div>
-                  <Button variant="outline" className="w-full mb-6 font-semibold">Start Free Trial</Button>
+                  <Button onClick={handleStartTrial} variant="outline" className="w-full mb-6 font-semibold">Start Free Trial</Button>
                 </div>
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center">
@@ -309,7 +347,7 @@ const ClinicalLandingPage: React.FC = () => {
                     <span className="text-4xl font-bold text-gray-900">$149</span>
                     <span className="text-gray-600">/month</span>
                   </div>
-                  <Button className="w-full mb-6 bg-green-600 hover:bg-green-700 font-bold">Start Free Trial</Button>
+                  <Button onClick={handleStartTrial} className="w-full mb-6 bg-green-600 hover:bg-green-700 font-bold">Start Free Trial</Button>
                 </div>
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center">
@@ -347,7 +385,7 @@ const ClinicalLandingPage: React.FC = () => {
                   <div className="mb-6">
                     <span className="text-4xl font-bold text-gray-900">Custom</span>
                   </div>
-                  <Button variant="outline" className="w-full mb-6 font-semibold">Contact Sales</Button>
+                  <Button onClick={handleContactSales} variant="outline" className="w-full mb-6 font-semibold">Contact Sales</Button>
                 </div>
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center">
@@ -478,7 +516,11 @@ const ClinicalLandingPage: React.FC = () => {
 
             {/* CTA in testimonials */}
             <div className="text-center mt-12">
-              <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-4">
+              <Button 
+                onClick={handleStartTrial}
+                size="lg" 
+                className="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-4"
+              >
                 Join 500+ Happy Customers
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
@@ -589,10 +631,10 @@ const ClinicalLandingPage: React.FC = () => {
             <div className="text-center mt-12">
               <p className="text-gray-600 mb-6">Still have questions?</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button variant="outline" className="font-semibold">
+                <Button onClick={handleContactSales} variant="outline" className="font-semibold">
                   Contact Sales Team
                 </Button>
-                <Button className="bg-green-600 hover:bg-green-700 font-semibold">
+                <Button onClick={handleStartTrial} className="bg-green-600 hover:bg-green-700 font-semibold">
                   Start Free Trial
                 </Button>
               </div>
@@ -648,18 +690,32 @@ const ClinicalLandingPage: React.FC = () => {
 
             {/* Primary CTA */}
             <div className="space-y-4">
-              <Button size="lg" className="bg-white text-green-700 hover:bg-gray-100 px-12 py-4 text-xl font-bold shadow-xl">
+              <Button 
+                onClick={handleStartTrial}
+                size="lg" 
+                className="bg-white text-green-700 hover:bg-gray-100 px-12 py-4 text-xl font-bold shadow-xl"
+              >
                 Start Your Free Trial Now
                 <ArrowRight className="ml-3 h-6 w-6" />
               </Button>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-green-700 px-8 py-3 font-semibold">
+                <Button 
+                  onClick={handleWatchDemo}
+                  variant="outline" 
+                  size="lg" 
+                  className="border-2 border-white text-white hover:bg-white hover:text-green-700 px-8 py-3 font-semibold"
+                >
                   <Play className="mr-2 h-5 w-5" />
                   Watch 2-Min Demo
                 </Button>
                 <span className="text-green-200">or</span>
-                <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-green-700 px-8 py-3 font-semibold">
+                <Button 
+                  onClick={handleContactSales}
+                  variant="outline" 
+                  size="lg" 
+                  className="border-2 border-white text-white hover:bg-white hover:text-green-700 px-8 py-3 font-semibold"
+                >
                   Talk to Sales Team
                 </Button>
               </div>
@@ -741,7 +797,11 @@ const ClinicalLandingPage: React.FC = () => {
                   Start your free trial today • No credit card required
                 </p>
                 <div className="flex items-center space-x-6">
-                  <Button size="sm" className="bg-green-600 hover:bg-green-700 font-semibold">
+                  <Button 
+                    onClick={handleStartTrial}
+                    size="sm" 
+                    className="bg-green-600 hover:bg-green-700 font-semibold"
+                  >
                     Start Free Trial
                   </Button>
                   <div className="flex items-center space-x-4 text-xs text-gray-500">
@@ -756,6 +816,53 @@ const ClinicalLandingPage: React.FC = () => {
             </div>
           </div>
         </footer>
+
+        {/* Demo Modal */}
+        {showDemo && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg max-w-4xl w-full m-4 max-h-[90vh] overflow-auto">
+              <div className="flex justify-between items-center p-6 border-b">
+                <h2 className="text-2xl font-bold text-gray-900">OncoSafeRx Platform Demo</h2>
+                <button
+                  onClick={() => setShowDemo(false)}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+              <div className="p-6">
+                <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center mb-6">
+                  <div className="text-center">
+                    <Play className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 text-lg">Demo Video Coming Soon</p>
+                    <p className="text-gray-500 text-sm">Experience our drug interaction platform</p>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button 
+                    onClick={() => {
+                      setShowDemo(false);
+                      handleStartTrial();
+                    }}
+                    className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3"
+                  >
+                    Start Your Free Trial
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      setShowDemo(false);
+                      handleTryDemo();
+                    }}
+                    variant="outline" 
+                    className="border-green-600 text-green-600 hover:bg-green-50 font-semibold px-6 py-3"
+                  >
+                    Try Interactive Demo
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

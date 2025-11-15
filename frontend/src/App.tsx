@@ -27,6 +27,8 @@ const DrugSearch = lazy(() => import('./pages/DrugSearch'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const ClinicalLandingPage = lazy(() => import('./pages/ClinicalLandingPage'));
 const AuthenticatedRoute = lazy(() => import('./components/Auth/AuthenticatedRoute'));
+const CompetitiveAdvantage = lazy(() => import('./pages/CompetitiveAdvantage'));
+const ClinicalTrials = lazy(() => import('./pages/ClinicalTrials'));
 const InteractionChecker = lazy(() => import('./components/Interactions/InteractionChecker'));
 const GenomicsAnalysis = lazy(() => import('./components/Genomics/GenomicsAnalysis'));
 const Protocols = lazy(() => import('./pages/Protocols'));
@@ -250,6 +252,26 @@ function AppWithAuth() {
                 <Route path="/landing" element={<ClinicalLandingPage />} />
                 <Route path="/clinical" element={<ClinicalLandingPage />} />
                 <Route path="/home" element={<LandingPage />} />
+                
+                {/* Competitive Advantage Features */}
+                <Route path="/competitive-advantage" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
+                    <Layout>
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <CompetitiveAdvantage />
+                      </Suspense>
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/clinical-trials" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
+                    <Layout>
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <ClinicalTrials />
+                      </Suspense>
+                    </Layout>
+                  </ProtectedRoute>
+                } />
                 
                 <Route path="/" element={<AuthenticatedRoute />} />
                 <Route path="/dashboard" element={

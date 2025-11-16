@@ -76,6 +76,17 @@ class PharmacogenomicsService {
   private baseUrl = '/api/pharmacogenomics';
 
   /**
+   * Get list of common pharmacogenes for testing and display
+   */
+  getCommonPharmacogenes(): string[] {
+    return [
+      'CYP2D6', 'CYP2C19', 'CYP3A4', 'CYP3A5', 'CYP2C9',
+      'CYP1A2', 'CYP2B6', 'UGT1A1', 'DPYD', 'TPMT',
+      'COMT', 'SLCO1B1', 'ABCB1', 'ABCG2', 'VKORC1'
+    ];
+  }
+
+  /**
    * Generate personalized dosing recommendations
    */
   async generateDosingRecommendation(

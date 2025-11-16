@@ -74,6 +74,7 @@ const MultiDatabaseSearch: React.FC = () => {
   };
   const lowerQuery = searchQuery.trim().toLowerCase();
   const spellingSuggestion = suggestionsMap[lowerQuery] || null;
+  const effectiveSuggestion = spellingSuggestion || rxnormSuggestion;
 
   const databaseOptions = [
     { id: 'pubmed', name: 'PubMed/MEDLINE', description: 'Biomedical literature', icon: BookOpen },

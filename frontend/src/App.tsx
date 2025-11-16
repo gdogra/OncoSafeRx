@@ -29,6 +29,7 @@ const ClinicalLandingPage = lazy(() => import('./pages/ClinicalLandingPage'));
 const AuthenticatedRoute = lazy(() => import('./components/Auth/AuthenticatedRoute'));
 const CompetitiveAdvantage = lazy(() => import('./pages/CompetitiveAdvantage'));
 const ClinicalTrials = lazy(() => import('./pages/ClinicalTrials'));
+const BreakthroughFeatures = lazy(() => import('./pages/BreakthroughFeatures'));
 const InteractionChecker = lazy(() => import('./components/Interactions/InteractionChecker'));
 const GenomicsAnalysis = lazy(() => import('./components/Genomics/GenomicsAnalysis'));
 const Protocols = lazy(() => import('./pages/Protocols'));
@@ -268,6 +269,15 @@ function AppWithAuth() {
                     <Layout>
                       <Suspense fallback={<div>Loading...</div>}>
                         <ClinicalTrials />
+                      </Suspense>
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/breakthrough-features" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
+                    <Layout>
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <BreakthroughFeatures />
                       </Suspense>
                     </Layout>
                   </ProtectedRoute>

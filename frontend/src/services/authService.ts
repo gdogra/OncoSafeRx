@@ -998,8 +998,9 @@ export class SupabaseAuthService {
         console.warn('⚠️ Session check failed, skipping users table query:', sessionError);
       }
       
-      // Final fallback - ensure new users get patient role unless specified
-      if (!role) role = 'patient';
+      // Final fallback - ensure new users get oncologist role unless specified  
+      // This gives access to competitive advantage features by default
+      if (!role) role = 'oncologist';
     }
     
     // Build profile, prioritizing database data over auth metadata

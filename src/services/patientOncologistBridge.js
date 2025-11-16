@@ -11,9 +11,11 @@ import oncologistFeaturesService from './oncologistFeaturesService.js';
 class PatientOncologistBridge {
   constructor() {
     if (!supabaseService || !supabaseService.enabled) {
-      throw new Error('Supabase service not available');
+      console.warn('⚠️ Supabase service not available, using demo mode');
+      this.supabase = null;
+    } else {
+      this.supabase = supabaseService.supabase;
     }
-    this.supabase = supabaseService.supabase;
   }
 
   // =============================================

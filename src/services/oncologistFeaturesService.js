@@ -9,9 +9,11 @@ import supabaseService from '../config/supabase.js';
 class OncologistFeaturesService {
   constructor() {
     if (!supabaseService || !supabaseService.enabled) {
-      throw new Error('Supabase service not available');
+      console.warn('⚠️ Supabase service not available, using demo mode');
+      this.supabase = null;
+    } else {
+      this.supabase = supabaseService.supabase;
     }
-    this.supabase = supabaseService.supabase;
   }
 
   // =============================================
@@ -20,6 +22,16 @@ class OncologistFeaturesService {
 
   async createClinicalProtocol(oncologistId, protocolData) {
     try {
+      if (!this.supabase) {
+        // Demo mode - return mock data
+        return {
+          id: 'demo_' + Date.now(),
+          oncologist_id: oncologistId,
+          ...protocolData,
+          created_at: new Date().toISOString()
+        };
+      }
+
       const { data, error } = await this.supabase
         .from('clinical_protocols')
         .insert({

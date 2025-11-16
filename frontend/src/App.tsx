@@ -30,6 +30,8 @@ const AuthenticatedRoute = lazy(() => import('./components/Auth/AuthenticatedRou
 const CompetitiveAdvantage = lazy(() => import('./pages/CompetitiveAdvantage'));
 const ClinicalTrials = lazy(() => import('./pages/ClinicalTrials'));
 const BreakthroughFeatures = lazy(() => import('./pages/BreakthroughFeatures'));
+const Phase2Dashboard = lazy(() => import('./pages/Phase2Dashboard'));
+const Phase3CommandCenter = lazy(() => import('./pages/Phase3CommandCenter'));
 const InteractionChecker = lazy(() => import('./components/Interactions/InteractionChecker'));
 const GenomicsAnalysis = lazy(() => import('./components/Genomics/GenomicsAnalysis'));
 const Protocols = lazy(() => import('./pages/Protocols'));
@@ -278,6 +280,24 @@ function AppWithAuth() {
                     <Layout>
                       <Suspense fallback={<div>Loading...</div>}>
                         <BreakthroughFeatures />
+                      </Suspense>
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/phase2" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
+                    <Layout>
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <Phase2Dashboard />
+                      </Suspense>
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/phase3" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
+                    <Layout>
+                      <Suspense fallback={<div>Loading...</div>}>
+                        <Phase3CommandCenter />
                       </Suspense>
                     </Layout>
                   </ProtectedRoute>

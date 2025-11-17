@@ -69,6 +69,8 @@ const CuratedInteractions: React.FC = () => {
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(25);
   const selection = useSelection();
   // Editor visibility without requiring AuthProvider; opt-in via localStorage
   const canEdit = typeof window !== 'undefined' && (localStorage.getItem('allow_curated_editor') === '1');
@@ -519,14 +521,28 @@ const CuratedInteractions: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Results ({results.count}/{results.total})</h2>
-            <div className="text-xs text-gray-600 inline-flex items-center gap-2">
-              <span>Sort:</span>
-              <select className="border rounded px-1 py-0.5" value={sortBy} onChange={e => setSortBy(e.target.value as any)}>
-                <option value="severity">Severity</option>
-                <option value="drugA">Drug A</option>
-                <option value="drugB">Drug B</option>
-              </select>
-              <button className="underline" onClick={() => setSortDir(d => d==='asc'?'desc':'asc')}>{sortDir === 'asc' ? 'Asc' : 'Desc'}</button>
+            <div className="flex items-center gap-4">
+              <div className="text-xs text-gray-600 inline-flex items-center gap-2">
+                <span>Per page:</span>
+                <select className="border rounded px-1 py-0.5" value={itemsPerPage} onChange={e => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}>
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+              <div className="text-xs text-gray-600 inline-flex items-center gap-2">
+                <span>Sort:</span>
+                <select className="border rounded px-1 py-0.5" value={sortBy} onChange={e => setSortBy(e.target.value as any)}>
+                  <option value="severity">Severity</option>
+                  <option value="drugA">Drug A</option>
+                  <option value="drugB">Drug B</option>
+                </select>
+                <button className="underline" onClick={() => setSortDir(d => d==='asc'?'desc':'asc')}>{sortDir === 'asc' ? 'Asc' : 'Desc'}</button>
+              </div>
             </div>
           </div>
           <div className="overflow-x-auto">
@@ -543,21 +559,28 @@ const CuratedInteractions: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {results.interactions
-                  .slice()
-                  .sort((a, b) => {
-                    const aA = (a.drug_rxnorm?.[0]?.name || a.drugs?.[0] || '').toLowerCase();
-                    const aB = (a.drug_rxnorm?.[1]?.name || a.drugs?.[1] || '').toLowerCase();
-                    const bA = (b.drug_rxnorm?.[0]?.name || b.drugs?.[0] || '').toLowerCase();
-                    const bB = (b.drug_rxnorm?.[1]?.name || b.drugs?.[1] || '').toLowerCase();
-                    if (sortBy === 'drugA') return (sortDir==='asc' ? 1 : -1) * (aA > bA ? 1 : aA < bA ? -1 : 0);
-                    if (sortBy === 'drugB') return (sortDir==='asc' ? 1 : -1) * (aB > bB ? 1 : aB < bB ? -1 : 0);
-                    // severity order major > moderate > minor > unknown
-                    const rank = (s?: string) => ({ major: 3, high:3, moderate:2, minor:1, low:1 }[(s||'').toLowerCase()] || 0);
-                    const r = rank(a.severity) - rank(b.severity);
-                    return (sortDir==='asc' ? 1 : -1) * (r === 0 ? 0 : r);
-                  })
-                  .map((it, idx) => {
+                {(() => {
+                  const sortedInteractions = results.interactions
+                    .slice()
+                    .sort((a, b) => {
+                      const aA = (a.drug_rxnorm?.[0]?.name || a.drugs?.[0] || '').toLowerCase();
+                      const aB = (a.drug_rxnorm?.[1]?.name || a.drugs?.[1] || '').toLowerCase();
+                      const bA = (b.drug_rxnorm?.[0]?.name || b.drugs?.[0] || '').toLowerCase();
+                      const bB = (b.drug_rxnorm?.[1]?.name || b.drugs?.[1] || '').toLowerCase();
+                      if (sortBy === 'drugA') return (sortDir==='asc' ? 1 : -1) * (aA > bA ? 1 : aA < bA ? -1 : 0);
+                      if (sortBy === 'drugB') return (sortDir==='asc' ? 1 : -1) * (aB > bB ? 1 : aB < bB ? -1 : 0);
+                      // severity order major > moderate > minor > unknown
+                      const rank = (s?: string) => ({ major: 3, high:3, moderate:2, minor:1, low:1 }[(s||'').toLowerCase()] || 0);
+                      const r = rank(a.severity) - rank(b.severity);
+                      return (sortDir==='asc' ? 1 : -1) * (r === 0 ? 0 : r);
+                    });
+                  
+                  const totalItems = sortedInteractions.length;
+                  const totalPages = Math.ceil(totalItems / itemsPerPage);
+                  const startIndex = (currentPage - 1) * itemsPerPage;
+                  const paginatedInteractions = sortedInteractions.slice(startIndex, startIndex + itemsPerPage);
+                  
+                  return paginatedInteractions.map((it, idx) => {
                     const a = it.drug_rxnorm?.[0];
                     const b = it.drug_rxnorm?.[1];
                     const sev = (it.severity || '').toLowerCase();
@@ -724,10 +747,77 @@ const CuratedInteractions: React.FC = () => {
                         </tr>
                       )}
                     </>
-                  );})}
+                    );
+                  });
+                })()}
               </tbody>
             </table>
           </div>
+          
+          {/* Pagination Controls */}
+          {(() => {
+            const sortedInteractions = results.interactions
+              .slice()
+              .sort((a, b) => {
+                const aA = (a.drug_rxnorm?.[0]?.name || a.drugs?.[0] || '').toLowerCase();
+                const aB = (a.drug_rxnorm?.[1]?.name || a.drugs?.[1] || '').toLowerCase();
+                const bA = (b.drug_rxnorm?.[0]?.name || b.drugs?.[0] || '').toLowerCase();
+                const bB = (b.drug_rxnorm?.[1]?.name || b.drugs?.[1] || '').toLowerCase();
+                if (sortBy === 'drugA') return (sortDir==='asc' ? 1 : -1) * (aA > bA ? 1 : aA < bA ? -1 : 0);
+                if (sortBy === 'drugB') return (sortDir==='asc' ? 1 : -1) * (aB > bB ? 1 : aB < bB ? -1 : 0);
+                const rank = (s?: string) => ({ major: 3, high:3, moderate:2, minor:1, low:1 }[(s||'').toLowerCase()] || 0);
+                const r = rank(a.severity) - rank(b.severity);
+                return (sortDir==='asc' ? 1 : -1) * (r === 0 ? 0 : r);
+              });
+            
+            const totalItems = sortedInteractions.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            
+            if (totalPages <= 1) return null;
+            
+            return (
+              <div className="mt-6 flex items-center justify-between border-t pt-4">
+                <div className="text-sm text-gray-700">
+                  Showing {startIndex + 1} to {endIndex} of {totalItems} interactions
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setCurrentPage(1)}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    First
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-sm text-gray-700">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(totalPages)}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1 text-sm border rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Last
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
         </Card>
       )}
     </div>

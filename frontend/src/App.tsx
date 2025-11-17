@@ -137,6 +137,8 @@ const Biostatistics = lazy(() => import('./pages/Biostatistics'));
 const MultiDatabaseSearch = lazy(() => import('./pages/MultiDatabaseSearch'));
 const EvidenceAnalysis = lazy(() => import('./pages/EvidenceAnalysis'));
 const DrugIntelligenceIntegrator = lazy(() => import('./components/DrugIntelligenceIntegrator'));
+const Contact = lazy(() => import('./pages/Contact'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Component that handles initialization inside AuthProvider
 function AppWithAuth() {
@@ -850,6 +852,9 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 
+                {/* Contact Page - Public access */}
+                <Route path="/contact" element={<Contact />} />
+                
                 {/* Advanced Patient Portal Routes */}
                 <Route path="/patient-portal" element={
                   <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse']}>
@@ -932,20 +937,8 @@ function AppWithAuth() {
                 } />
 {/* Removed duplicate route - moved to top */}
                 
-                {/* Catch-all route for debugging - NO PROTECTED ROUTE */}
-                <Route path="*" element={
-                  <div className="min-h-screen bg-yellow-50 flex items-center justify-center p-4">
-                    <div className="bg-white p-8 rounded-lg shadow-lg max-w-md text-center">
-                      <h1 className="text-2xl font-bold text-yellow-600 mb-4">🔍 Route Not Found</h1>
-                      <p className="text-gray-600 mb-4">Current path: {window.location.pathname}</p>
-                      <div className="space-y-2">
-                        <a href="/auth" className="block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Go to Auth</a>
-                        <a href="/force-logout" className="block px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Force Logout</a>
-                        <Link to="/" className="block px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Dashboard</Link>
-                      </div>
-                    </div>
-                  </div>
-                } />
+                {/* Professional 404 Page - NO PROTECTED ROUTE */}
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
             </ComparisonProvider>

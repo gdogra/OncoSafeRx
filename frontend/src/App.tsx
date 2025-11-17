@@ -332,6 +332,13 @@ function AppWithAuth() {
                     </Layout>
                   </ProtectedRoute>
                 } />
+                <Route path="/curated-interactions" element={
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver']}>
+                    <Layout>
+                      <CuratedInteractions />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
                 <Route path="/regimens" element={
                   <ProtectedRoute requiredRole={['oncologist']}>
                     <Layout>

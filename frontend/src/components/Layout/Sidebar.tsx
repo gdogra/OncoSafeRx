@@ -241,6 +241,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             requiresPermission: null
           },
           { 
+            path: '/curated-interactions', 
+            label: 'Curated Pairs', 
+            icon: Link2, 
+            description: 'Expert-curated drug interaction pairs',
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            requiresPermission: null
+          },
+          { 
             path: '/pain', 
             label: 'Pain Management', 
             icon: Pill, 
@@ -262,48 +270,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             icon: BookOpen, 
             description: 'Comprehensive drug information',
             roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver'],
-            requiresPermission: null
-          },
-        ]
-      },
-      {
-        title: 'Advanced Tools',
-        items: [
-          { 
-            path: '/genomics', 
-            label: 'Genomics', 
-            icon: Dna, 
-            description: 'Pharmacogenomics',
-            roles: ['oncologist', 'pharmacist', 'researcher', 'student'],
-            requiresPermission: 'canAccessGenomics'
-          },
-          { 
-            path: '/ai', 
-            label: 'AI Recommendations', 
-            icon: UserCheck, 
-            description: 'AI-powered insights',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
-            requiresPermission: null
-          },
-          { 
-            path: '/trials', 
-            label: 'Clinical Trials', 
-            icon: TestTube, 
-            description: 'Find relevant trials',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver'],
-            requiresPermission: null
-          },
-        ]
-      },
-      {
-        title: 'Drug Information',
-        items: [
-          { 
-            path: '/database', 
-            label: 'Drug Database', 
-            icon: Search, 
-            description: 'Comprehensive drug information & search',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
             requiresPermission: null
           },
           { 
@@ -336,6 +302,35 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             icon: Calculator, 
             description: 'Statistical analysis tools for clinical data',
             roles: ['oncologist', 'pharmacist', 'researcher', 'student'],
+            requiresPermission: null
+          },
+        ]
+      },
+      {
+        title: 'Advanced Tools',
+        items: [
+          { 
+            path: '/genomics', 
+            label: 'Genomics', 
+            icon: Dna, 
+            description: 'Pharmacogenomics',
+            roles: ['oncologist', 'pharmacist', 'researcher', 'student'],
+            requiresPermission: 'canAccessGenomics'
+          },
+          { 
+            path: '/ai', 
+            label: 'AI Recommendations', 
+            icon: UserCheck, 
+            description: 'AI-powered insights',
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            requiresPermission: null
+          },
+          { 
+            path: '/trials', 
+            label: 'Clinical Trials', 
+            icon: TestTube, 
+            description: 'Find relevant trials',
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver'],
             requiresPermission: null
           },
         ]

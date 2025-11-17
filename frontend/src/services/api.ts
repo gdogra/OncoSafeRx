@@ -199,7 +199,56 @@ export const interactionService = {
         if (v !== undefined && v !== null && v !== '') search.append(k, String(v));
       }
       const response = await api.get(`/interactions/known?${search.toString()}`);
-      return response.data;
+      
+      // If API returns limited data (< 50 interactions), use fallback data instead
+      const apiData = response.data;
+      if (apiData && apiData.total && apiData.total < 50) {
+        console.info('API returned limited data, using comprehensive fallback dataset instead');
+        
+        // Import fallback data dynamically to avoid build issues
+        const { FALLBACK_INTERACTIONS } = await import('../data/fallbackInteractions');
+        
+        // Apply filtering logic similar to backend
+        let results = FALLBACK_INTERACTIONS;
+        const { drug, drugA, drugB, severity } = params;
+        
+        // Filter by single drug name (matches either in the pair, case-insensitive, substring)
+        if (drug && typeof drug === 'string') {
+          const term = drug.toLowerCase();
+          results = results.filter(k => k.drugs.some(d => d.toLowerCase().includes(term)));
+        }
+        
+        // Filter by two drug names (order-insensitive, both must match)
+        if (drugA && drugB && typeof drugA === 'string' && typeof drugB === 'string') {
+          const a = drugA.toLowerCase();
+          const b = drugB.toLowerCase();
+          results = results.filter(k => {
+            const names = k.drugs.map(d => d.toLowerCase());
+            return (names.some(n => n.includes(a)) && names.some(n => n.includes(b)));
+          });
+        }
+        
+        // Filter by severity (exact match, case-insensitive)
+        if (severity && typeof severity === 'string') {
+          const sev = severity.toLowerCase();
+          results = results.filter(k => (k.severity || '').toLowerCase() === sev);
+        }
+        
+        // Add drug_rxnorm mapping for compatibility
+        const enriched = results.map(k => ({
+          ...k,
+          drug_rxnorm: k.drugs.map(name => ({ name, rxcui: null }))
+        }));
+        
+        return {
+          count: enriched.length,
+          total: enriched.length,
+          interactions: enriched,
+          message: 'Using comprehensive interaction dataset (API had limited data)'
+        };
+      }
+      
+      return apiData;
     } catch (error: any) {
       console.warn('Known interactions API not available, using fallback data');
       

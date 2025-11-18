@@ -18,6 +18,7 @@ const LandingPage: React.FC = () => {
               <span className="text-xl font-bold text-gray-900">OncoSafeRx</span>
             </div>
             <div className="flex items-center space-x-4">
+              <Link to="/features" className="text-gray-600 hover:text-gray-900">Features</Link>
               <Link to="/auth" className="text-gray-600 hover:text-gray-900">Sign In</Link>
               <Button>Start Free Trial</Button>
             </div>

@@ -139,6 +139,7 @@ const EvidenceAnalysis = lazy(() => import('./pages/EvidenceAnalysis'));
 const DrugIntelligenceIntegrator = lazy(() => import('./components/DrugIntelligenceIntegrator'));
 const Contact = lazy(() => import('./pages/Contact'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const Explainer = lazy(() => import('./pages/Explainer'));
 
 // Component that handles initialization inside AuthProvider
 function AppWithAuth() {
@@ -852,8 +853,11 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 
-                {/* Contact Page - Public access */}
+                {/* Public Pages - No authentication required */}
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/features" element={<Explainer />} />
+                <Route path="/explainer" element={<Explainer />} />
+                <Route path="/what-to-expect" element={<Explainer />} />
                 
                 {/* Advanced Patient Portal Routes */}
                 <Route path="/patient-portal" element={

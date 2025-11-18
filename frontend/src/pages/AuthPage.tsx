@@ -19,6 +19,7 @@ import Card from '../components/UI/Card';
 import { useToast } from '../components/UI/Toast';
 import Tooltip from '../components/UI/Tooltip';
 import PhoneInput from '../components/UI/PhoneInput';
+import ExplainerBanner from '../components/Marketing/ExplainerBanner';
 
 const AuthPage: React.FC = () => {
   const { actions, state } = useAuth();
@@ -554,8 +555,13 @@ const AuthPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Explainer Banner - shown for new users */}
+      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-lg">
+        <ExplainerBanner placement="auth" />
+      </div>
+
       {/* Main Form */}
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md">
         <Card className="py-8 px-4 shadow-lg sm:rounded-lg sm:px-10 border-0">
           {/* Mode Toggle */}
           <div className="flex bg-gray-100 p-1 rounded-lg mb-6">

@@ -16,7 +16,7 @@ import {
   Clock,
   Globe,
   Stethoscope,
-  Pills,
+  Pill,
   Activity,
   TrendingUp,
   Heart,
@@ -83,7 +83,7 @@ const Explainer: React.FC = () => {
     },
     {
       type: 'Pharmacists',
-      icon: Pills,
+      icon: Pill,
       description: 'Advanced medication management and safety checking',
       features: ['Interaction screening', 'Dosing guidelines', 'Safety alerts', 'Clinical consultations']
     },

@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import Card from '../components/UI/Card';
+import { SecurityManager } from '../utils/security';
+import { Check, AlertCircle } from 'lucide-react';
 
 const ResetPassword: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [status, setStatus] = useState<'idle'|'updating'|'success'|'error'>('idle');
   const [message, setMessage] = useState<string>('');
+  const [passwordValidation, setPasswordValidation] = useState<{
+    isValid: boolean;
+    requirements: { [key: string]: boolean };
+  } | null>(null);
 
   useEffect(() => {
     // No-op: Supabase session should be present via recovery link
@@ -15,10 +21,26 @@ const ResetPassword: React.FC = () => {
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
-    if (newPassword.length < 8) {
-      setMessage('Password must be at least 8 characters.');
+    
+    const validation = SecurityManager.validatePassword(newPassword);
+    if (!validation.isValid) {
+      const failedRequirements = Object.entries(validation.requirements)
+        .filter(([_, isValid]) => !isValid)
+        .map(([requirement]) => {
+          switch (requirement) {
+            case 'minLength': return 'at least 8 characters';
+            case 'hasUppercase': return 'uppercase letter';
+            case 'hasLowercase': return 'lowercase letter';
+            case 'hasNumber': return 'number';
+            case 'hasSpecialChar': return 'special character';
+            case 'noCommonWords': return 'avoid common words';
+            default: return requirement;
+          }
+        });
+      setMessage(`Password must include: ${failedRequirements.join(', ')}`);
       return;
     }
+    
     if (newPassword !== confirmPassword) {
       setMessage('Passwords do not match.');
       return;
@@ -45,11 +67,65 @@ const ResetPassword: React.FC = () => {
             <input
               type="password"
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setNewPassword(value);
+                if (value) {
+                  setPasswordValidation(SecurityManager.validatePassword(value));
+                } else {
+                  setPasswordValidation(null);
+                }
+              }}
               className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               required
-              minLength={8}
             />
+            {newPassword && passwordValidation && (
+              <div className="mt-2 p-3 bg-gray-50 rounded-md border">
+                <p className="text-xs font-medium text-gray-700 mb-2">Password Requirements:</p>
+                <div className="space-y-1">
+                  {Object.entries(passwordValidation.requirements).map(([requirement, isValid]) => {
+                    const label = {
+                      minLength: 'At least 8 characters',
+                      hasUppercase: 'At least one uppercase letter (A-Z)',
+                      hasLowercase: 'At least one lowercase letter (a-z)',
+                      hasNumber: 'At least one number (0-9)',
+                      hasSpecialChar: 'At least one special character (!@#$%^&*(),.?":{}|<>)',
+                      noCommonWords: 'No common words (password, 123456, etc.)'
+                    }[requirement] || requirement;
+                    
+                    return (
+                      <div key={requirement} className="flex items-center space-x-2">
+                        {isValid ? (
+                          <Check className="w-3 h-3 text-green-600" />
+                        ) : (
+                          <AlertCircle className="w-3 h-3 text-red-500" />
+                        )}
+                        <span className={`text-xs ${isValid ? 'text-green-700' : 'text-red-600'}`}>
+                          {label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-2 pt-2 border-t">
+                  <div className="flex items-center space-x-2">
+                    {passwordValidation.isValid ? (
+                      <>
+                        <Check className="w-3 h-3 text-green-600" />
+                        <span className="text-xs text-green-700 font-medium">Strong password!</span>
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="w-3 h-3 text-amber-500" />
+                        <span className="text-xs text-amber-700 font-medium">
+                          Complete all requirements above
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           <div>
             <label className="block text-sm text-gray-700 mb-1">Confirm Password</label>

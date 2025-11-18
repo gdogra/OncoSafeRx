@@ -20,6 +20,7 @@ import { useToast } from '../components/UI/Toast';
 import Tooltip from '../components/UI/Tooltip';
 import PhoneInput from '../components/UI/PhoneInput';
 import ExplainerBanner from '../components/Marketing/ExplainerBanner';
+import { SecurityManager } from '../utils/security';
 
 const AuthPage: React.FC = () => {
   const { actions, state } = useAuth();
@@ -125,6 +126,10 @@ const AuthPage: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [resetMessage, setResetMessage] = useState<string>('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [passwordValidation, setPasswordValidation] = useState<{
+    isValid: boolean;
+    requirements: { [key: string]: boolean };
+  } | null>(null);
   const { showToast } = useToast();
   const [authModeInfo, setAuthModeInfo] = useState<string | null>(null);
   const [useProxy, setUseProxy] = useState<boolean>(() => {
@@ -265,8 +270,24 @@ const AuthPage: React.FC = () => {
     
     if (!signupData.password) {
       newErrors.password = 'Password is required';
-    } else if (signupData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+    } else {
+      const validation = SecurityManager.validatePassword(signupData.password);
+      if (!validation.isValid) {
+        const failedRequirements = Object.entries(validation.requirements)
+          .filter(([_, isValid]) => !isValid)
+          .map(([requirement]) => {
+            switch (requirement) {
+              case 'minLength': return 'at least 8 characters';
+              case 'hasUppercase': return 'uppercase letter';
+              case 'hasLowercase': return 'lowercase letter';
+              case 'hasNumber': return 'number';
+              case 'hasSpecialChar': return 'special character (!@#$%^&*(),.?":{}|<>)';
+              case 'noCommonWords': return 'avoid common words (password, 123456, etc.)';
+              default: return requirement;
+            }
+          });
+        newErrors.password = `Password must include: ${failedRequirements.join(', ')}`;
+      }
     }
     
     if (signupData.password !== confirmPassword) {
@@ -474,6 +495,16 @@ const AuthPage: React.FC = () => {
           return { ...prev, weight: n };
         }
         
+        // Handle password field with real-time validation
+        if (field === 'password') {
+          const validation = SecurityManager.validatePassword(value);
+          setPasswordValidation(validation);
+          return {
+            ...prev,
+            [field]: value
+          };
+        }
+        
         // Handle regular fields
         return {
           ...prev,
@@ -521,6 +552,7 @@ const AuthPage: React.FC = () => {
     setErrors({});
     setCurrentStep(1);
     setAcceptedTerms(false);
+    setPasswordValidation(null);
   };
 
   const switchMode = (newMode: 'signin' | 'signup') => {
@@ -922,6 +954,53 @@ const AuthPage: React.FC = () => {
                     </div>
                     {errors.password && (
                       <p className="mt-1 text-xs text-red-600">{errors.password}</p>
+                    )}
+                    {mode === 'signup' && signupData.password && passwordValidation && (
+                      <div className="mt-2 p-3 bg-gray-50 rounded-md border">
+                        <p className="text-xs font-medium text-gray-700 mb-2">Password Requirements:</p>
+                        <div className="space-y-1">
+                          {Object.entries(passwordValidation.requirements).map(([requirement, isValid]) => {
+                            const label = {
+                              minLength: 'At least 8 characters',
+                              hasUppercase: 'At least one uppercase letter (A-Z)',
+                              hasLowercase: 'At least one lowercase letter (a-z)',
+                              hasNumber: 'At least one number (0-9)',
+                              hasSpecialChar: 'At least one special character (!@#$%^&*(),.?":{}|<>)',
+                              noCommonWords: 'No common words (password, 123456, etc.)'
+                            }[requirement] || requirement;
+                            
+                            return (
+                              <div key={requirement} className="flex items-center space-x-2">
+                                {isValid ? (
+                                  <Check className="w-3 h-3 text-green-600" />
+                                ) : (
+                                  <AlertCircle className="w-3 h-3 text-red-500" />
+                                )}
+                                <span className={`text-xs ${isValid ? 'text-green-700' : 'text-red-600'}`}>
+                                  {label}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="mt-2 pt-2 border-t">
+                          <div className="flex items-center space-x-2">
+                            {passwordValidation.isValid ? (
+                              <>
+                                <Check className="w-3 h-3 text-green-600" />
+                                <span className="text-xs text-green-700 font-medium">Strong password!</span>
+                              </>
+                            ) : (
+                              <>
+                                <AlertCircle className="w-3 h-3 text-amber-500" />
+                                <span className="text-xs text-amber-700 font-medium">
+                                  Complete all requirements above for a strong password
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </div>
 

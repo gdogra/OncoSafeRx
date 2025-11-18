@@ -12,6 +12,7 @@ export default defineConfig({
   })],
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   envPrefix: ['VITE_', 'REACT_APP_'],
+  base: '/',
   server: {
     port: 5176,
     hmr: false, // Disable HMR completely to prevent auth interruption
@@ -45,7 +46,11 @@ export default defineConfig({
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom', 'react-is']
-        }
+        },
+        // Ensure proper asset file naming
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js'
       }
     },
   },

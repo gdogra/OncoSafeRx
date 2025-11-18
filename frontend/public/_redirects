@@ -1,2 +1,21 @@
+# API proxy to backend
 /api/* https://oncosaferx-backend.onrender.com/api/:splat 200
+
+# Asset files - serve with correct MIME types
+/assets/*.js /assets/:splat 200
+/assets/*.css /assets/:splat 200
+/assets/*.woff2 /assets/:splat 200
+/assets/*.woff /assets/:splat 200
+
+# Root level assets
+/*.js /:splat 200
+/*.css /:splat 200
+/*.woff2 /:splat 200
+/*.woff /:splat 200
+/*.ico /:splat 200
+/*.png /:splat 200
+/*.jpg /:splat 200
+/*.svg /:splat 200
+
+# SPA fallback - only for routes that don't match static files
 /* /index.html 200

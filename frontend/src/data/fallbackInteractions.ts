@@ -1138,6 +1138,570 @@ export const FALLBACK_INTERACTIONS = [
     management: 'Avoid herbal supplement; monitor for bleeding',
     evidence_level: 'C',
     sources: ['Integrative medicine literature']
+  },
+  // Enhanced Oncology-Specific Interactions
+  {
+    drugs: ['bevacizumab', 'cisplatin'],
+    severity: 'major',
+    mechanism: 'Additive nephrotoxicity and hypertension',
+    effect: 'Severe kidney damage and uncontrolled hypertension',
+    management: 'Monitor renal function and BP closely; adjust dosing',
+    evidence_level: 'A',
+    sources: ['Oncology guidelines', 'Clinical trials']
+  },
+  {
+    drugs: ['trastuzumab', 'doxorubicin'],
+    severity: 'major',
+    mechanism: 'Additive cardiotoxicity',
+    effect: 'Severe heart failure risk',
+    management: 'Avoid concurrent use; sequential therapy preferred with cardiac monitoring',
+    evidence_level: 'A',
+    sources: ['FDA', 'Cardio-oncology guidelines']
+  },
+  {
+    drugs: ['pembrolizumab', 'prednisone'],
+    severity: 'moderate',
+    mechanism: 'Immunosuppression may reduce pembrolizumab efficacy',
+    effect: 'Decreased anti-tumor response',
+    management: 'Use lowest effective steroid dose; consider alternatives',
+    evidence_level: 'B',
+    sources: ['Immunotherapy guidelines']
+  },
+  {
+    drugs: ['imatinib', 'ketoconazole'],
+    severity: 'major',
+    mechanism: 'CYP3A4 inhibition increases imatinib exposure',
+    effect: 'Severe myelosuppression and hepatotoxicity',
+    management: 'Reduce imatinib dose by 25-50%; monitor closely',
+    evidence_level: 'A',
+    sources: ['FDA', 'Clinical pharmacology']
+  },
+  {
+    drugs: ['erlotinib', 'rifampin'],
+    severity: 'major',
+    mechanism: 'CYP3A4 induction reduces erlotinib levels',
+    effect: 'Loss of therapeutic efficacy',
+    management: 'Increase erlotinib dose or avoid rifampin',
+    evidence_level: 'A',
+    sources: ['Oncology guidelines']
+  },
+  {
+    drugs: ['capecitabine', 'warfarin'],
+    severity: 'major',
+    mechanism: 'Enhanced anticoagulant effect via CYP2C9',
+    effect: 'Severe bleeding and elevated INR',
+    management: 'Monitor INR frequently; adjust warfarin dose',
+    evidence_level: 'A',
+    sources: ['FDA', 'Oncology literature']
+  },
+  {
+    drugs: ['paclitaxel', 'carboplatin'],
+    severity: 'moderate',
+    mechanism: 'Sequence-dependent pharmacokinetic interaction',
+    effect: 'Increased myelotoxicity if carboplatin given first',
+    management: 'Administer paclitaxel before carboplatin',
+    evidence_level: 'A',
+    sources: ['NCCN guidelines']
+  },
+  {
+    drugs: ['sorafenib', 'warfarin'],
+    severity: 'major',
+    mechanism: 'Enhanced anticoagulation',
+    effect: 'Increased bleeding risk',
+    management: 'Monitor INR closely; consider LMWH',
+    evidence_level: 'B',
+    sources: ['FDA']
+  },
+  {
+    drugs: ['dasatinib', 'proton pump inhibitor'],
+    severity: 'moderate',
+    mechanism: 'Reduced gastric acidity decreases dasatinib absorption',
+    effect: 'Decreased therapeutic efficacy',
+    management: 'Take dasatinib 2h before or 10h after PPI',
+    evidence_level: 'B',
+    sources: ['Clinical pharmacology']
+  },
+  {
+    drugs: ['rituximab', 'live vaccines'],
+    severity: 'major',
+    mechanism: 'B-cell depletion reduces vaccine response',
+    effect: 'Risk of severe infection from live vaccines',
+    management: 'Avoid live vaccines during and after treatment',
+    evidence_level: 'A',
+    sources: ['CDC', 'Immunization guidelines']
+  },
+  {
+    drugs: ['lenalidomide', 'warfarin'],
+    severity: 'moderate',
+    mechanism: 'Enhanced anticoagulation',
+    effect: 'Increased bleeding risk',
+    management: 'Monitor INR closely; adjust anticoagulation',
+    evidence_level: 'B',
+    sources: ['Hematology guidelines']
+  },
+  {
+    drugs: ['temozolomide', 'valproic acid'],
+    severity: 'moderate',
+    mechanism: 'Reduced temozolomide clearance',
+    effect: 'Increased myelotoxicity',
+    management: 'Monitor CBC more frequently',
+    evidence_level: 'B',
+    sources: ['Neuro-oncology literature']
+  },
+  {
+    drugs: ['cetuximab', 'radiation therapy'],
+    severity: 'major',
+    mechanism: 'Enhanced radiation sensitivity',
+    effect: 'Severe skin reactions and mucositis',
+    management: 'Close monitoring; supportive care protocols',
+    evidence_level: 'A',
+    sources: ['Radiation oncology guidelines']
+  },
+  {
+    drugs: ['bortezomib', 'green tea extract'],
+    severity: 'moderate',
+    mechanism: 'EGCG may antagonize proteasome inhibition',
+    effect: 'Reduced therapeutic efficacy',
+    management: 'Avoid green tea supplements during treatment',
+    evidence_level: 'B',
+    sources: ['Laboratory studies', 'Clinical case reports']
+  },
+  {
+    drugs: ['tamoxifen', 'fluoxetine'],
+    severity: 'major',
+    mechanism: 'CYP2D6 inhibition reduces active metabolite formation',
+    effect: 'Decreased breast cancer survival',
+    management: 'Switch to non-CYP2D6 inhibiting antidepressant',
+    evidence_level: 'A',
+    sources: ['Breast cancer guidelines']
+  },
+  {
+    drugs: ['anastrozole', 'tamoxifen'],
+    severity: 'major',
+    mechanism: 'Competitive inhibition of aromatase',
+    effect: 'Reduced efficacy of both agents',
+    management: 'Do not use concurrently; sequential therapy only',
+    evidence_level: 'A',
+    sources: ['Endocrine therapy guidelines']
+  },
+  {
+    drugs: ['docetaxel', 'ketoconazole'],
+    severity: 'major',
+    mechanism: 'CYP3A4 inhibition increases docetaxel exposure',
+    effect: 'Severe neutropenia and neuropathy',
+    management: 'Avoid concomitant use or reduce docetaxel dose',
+    evidence_level: 'A',
+    sources: ['FDA', 'Clinical pharmacology']
+  },
+  {
+    drugs: ['gemcitabine', 'radiation therapy'],
+    severity: 'major',
+    mechanism: 'Radiosensitization',
+    effect: 'Enhanced normal tissue toxicity',
+    management: 'Careful dose modification and sequencing',
+    evidence_level: 'A',
+    sources: ['Radiation oncology']
+  },
+  {
+    drugs: ['oxaliplatin', 'fluorouracil'],
+    severity: 'moderate',
+    mechanism: 'Synergistic cytotoxicity',
+    effect: 'Enhanced efficacy but increased toxicity',
+    management: 'Standard combination with established dosing',
+    evidence_level: 'A',
+    sources: ['Colorectal cancer guidelines']
+  },
+  {
+    drugs: ['vemurafenib', 'ipilimumab'],
+    severity: 'major',
+    mechanism: 'Hepatotoxicity interaction',
+    effect: 'Severe liver toxicity',
+    management: 'Avoid combination; monitor liver function',
+    evidence_level: 'B',
+    sources: ['Melanoma guidelines']
+  },
+  {
+    drugs: ['abiraterone', 'dexamethasone'],
+    severity: 'moderate',
+    mechanism: 'Required combination for mineralocorticoid excess',
+    effect: 'Dexamethasone needed to prevent hypertension/hypokalemia',
+    management: 'Always co-administer with corticosteroid',
+    evidence_level: 'A',
+    sources: ['Prostate cancer guidelines']
+  },
+  {
+    drugs: ['enzalutamide', 'warfarin'],
+    severity: 'moderate',
+    mechanism: 'CYP2C9 induction reduces warfarin effect',
+    effect: 'Decreased anticoagulation',
+    management: 'Monitor INR and increase warfarin dose as needed',
+    evidence_level: 'B',
+    sources: ['Clinical pharmacology']
+  },
+  {
+    drugs: ['ibrutinib', 'strong CYP3A inhibitors'],
+    severity: 'major',
+    mechanism: 'Increased ibrutinib exposure',
+    effect: 'Severe bleeding and atrial fibrillation risk',
+    management: 'Avoid strong inhibitors or reduce ibrutinib dose',
+    evidence_level: 'A',
+    sources: ['FDA', 'CLL guidelines']
+  },
+  {
+    drugs: ['venetoclax', 'azole antifungals'],
+    severity: 'major',
+    mechanism: 'CYP3A4 inhibition increases venetoclax levels',
+    effect: 'Tumor lysis syndrome risk',
+    management: 'Reduce venetoclax dose significantly during co-administration',
+    evidence_level: 'A',
+    sources: ['FDA', 'AML guidelines']
+  },
+  {
+    drugs: ['palbociclib', 'grapefruit juice'],
+    severity: 'moderate',
+    mechanism: 'Increased palbociclib absorption',
+    effect: 'Enhanced myelotoxicity',
+    management: 'Avoid grapefruit products during treatment',
+    evidence_level: 'B',
+    sources: ['Clinical pharmacology']
+  },
+  {
+    drugs: ['nivolumab', 'high-dose corticosteroids'],
+    severity: 'moderate',
+    mechanism: 'Immunosuppression reduces checkpoint inhibitor efficacy',
+    effect: 'Decreased anti-tumor activity',
+    management: 'Use lowest effective steroid dose',
+    evidence_level: 'B',
+    sources: ['Immunotherapy guidelines']
+  },
+  {
+    drugs: ['carboplatin', 'aminoglycosides'],
+    severity: 'major',
+    mechanism: 'Additive nephrotoxicity and ototoxicity',
+    effect: 'Severe kidney damage and hearing loss',
+    management: 'Avoid combination; monitor renal function and hearing',
+    evidence_level: 'A',
+    sources: ['Oncology nephrotoxicity guidelines']
+  },
+  {
+    drugs: ['bleomycin', 'cisplatin'],
+    severity: 'major',
+    mechanism: 'Enhanced pulmonary toxicity',
+    effect: 'Severe pneumonitis and pulmonary fibrosis',
+    management: 'Monitor pulmonary function; consider alternative regimens',
+    evidence_level: 'A',
+    sources: ['Pulmonary oncology guidelines']
+  },
+  {
+    drugs: ['ifosfamide', 'aprepitant'],
+    severity: 'moderate',
+    mechanism: 'CYP3A4 inhibition affects ifosfamide metabolism',
+    effect: 'Altered toxicity profile',
+    management: 'Monitor for CNS toxicity and nephrotoxicity',
+    evidence_level: 'B',
+    sources: ['Clinical pharmacology']
+  },
+  {
+    drugs: ['cyclosporine', 'sirolimus'],
+    severity: 'moderate',
+    mechanism: 'Synergistic nephrotoxicity in post-transplant patients',
+    effect: 'Increased risk of kidney dysfunction',
+    management: 'Monitor renal function closely in transplant patients with cancer',
+    evidence_level: 'B',
+    sources: ['Transplant oncology guidelines']
+  },
+  // Additional High-Impact Cancer Drug Interactions
+  {
+    drugs: ['afatinib', 'proton pump inhibitors'],
+    severity: 'moderate',
+    mechanism: 'Reduced gastric acidity decreases afatinib absorption',
+    effect: 'Decreased therapeutic efficacy',
+    management: 'Take afatinib 3h before or 1h after PPI',
+    evidence_level: 'B',
+    sources: ['Clinical pharmacology']
+  },
+  {
+    drugs: ['axitinib', 'strong CYP3A4 inducers'],
+    severity: 'major',
+    mechanism: 'Increased axitinib metabolism',
+    effect: 'Loss of therapeutic efficacy',
+    management: 'Avoid strong inducers or double axitinib dose',
+    evidence_level: 'A',
+    sources: ['FDA']
+  },
+  {
+    drugs: ['bosutinib', 'strong CYP3A inhibitors'],
+    severity: 'major',
+    mechanism: 'Increased bosutinib exposure',
+    effect: 'Severe myelosuppression and GI toxicity',
+    management: 'Reduce bosutinib dose or avoid inhibitors',
+    evidence_level: 'A',
+    sources: ['FDA']
+  },
+  {
+    drugs: ['cabozantinib', 'warfarin'],
+    severity: 'moderate',
+    mechanism: 'Enhanced anticoagulation',
+    effect: 'Increased bleeding risk',
+    management: 'Monitor INR closely; consider LMWH',
+    evidence_level: 'B',
+    sources: ['Clinical pharmacology']
+  },
+  {
+    drugs: ['ceritinib', 'strong CYP3A4 inhibitors'],
+    severity: 'major',
+    mechanism: 'Increased ceritinib exposure',
+    effect: 'Severe hepatotoxicity and QT prolongation',
+    management: 'Reduce ceritinib dose by one-third',
+    evidence_level: 'A',
+    sources: ['FDA']
+  },
+  {
+    drugs: ['dabrafenib', 'sensitive CYP3A4 substrates'],
+    severity: 'moderate',
+    mechanism: 'CYP3A4 induction reduces substrate levels',
+    effect: 'Decreased efficacy of co-administered drugs',
+    management: 'Monitor and adjust doses of CYP3A4 substrates',
+    evidence_level: 'B',
+    sources: ['Clinical pharmacology']
+  },
+  {
+    drugs: ['everolimus', 'ACE inhibitors'],
+    severity: 'moderate',
+    mechanism: 'Increased risk of angioedema',
+    effect: 'Potentially life-threatening angioedema',
+    management: 'Monitor closely; consider alternative antihypertensive',
+    evidence_level: 'B',
+    sources: ['FDA']
+  },
+  {
+    drugs: ['gefitinib', 'phenytoin'],
+    severity: 'moderate',
+    mechanism: 'CYP3A4 induction reduces gefitinib levels',
+    effect: 'Decreased therapeutic efficacy',
+    management: 'Increase gefitinib dose or avoid phenytoin',
+    evidence_level: 'B',
+    sources: ['Clinical pharmacology']
+  },
+  {
+    drugs: ['idelalisib', 'CYP3A substrates'],
+    severity: 'major',
+    mechanism: 'Strong CYP3A4 inhibition',
+    effect: 'Increased toxicity of co-administered drugs',
+    management: 'Avoid sensitive CYP3A substrates or reduce doses',
+    evidence_level: 'A',
+    sources: ['FDA']
+  },
+  {
+    drugs: ['lapatinib', 'strong CYP3A4 inducers'],
+    severity: 'major',
+    mechanism: 'Increased lapatinib metabolism',
+    effect: 'Loss of therapeutic efficacy',
+    management: 'Avoid strong inducers; titrate lapatinib dose',
+    evidence_level: 'A',
+    sources: ['Breast cancer guidelines']
+  },
+  {
+    drugs: ['nilotinib', 'QT-prolonging drugs'],
+    severity: 'major',
+    mechanism: 'Additive QT prolongation',
+    effect: 'Torsades de pointes risk',
+    management: 'Avoid combination; monitor ECG if unavoidable',
+    evidence_level: 'A',
+    sources: ['Cardio-oncology guidelines']
+  },
+  {
+    drugs: ['olaparib', 'strong CYP3A inhibitors'],
+    severity: 'major',
+    mechanism: 'Increased olaparib exposure',
+    effect: 'Severe myelosuppression',
+    management: 'Reduce olaparib dose to 150mg twice daily',
+    evidence_level: 'A',
+    sources: ['FDA', 'PARP inhibitor guidelines']
+  },
+  {
+    drugs: ['pazopanib', 'strong CYP3A4 inhibitors'],
+    severity: 'major',
+    mechanism: 'Increased pazopanib exposure',
+    effect: 'Severe hepatotoxicity and cardiac toxicity',
+    management: 'Reduce pazopanib dose or avoid inhibitors',
+    evidence_level: 'A',
+    sources: ['FDA']
+  },
+  {
+    drugs: ['regorafenib', 'strong CYP3A4 inducers'],
+    severity: 'major',
+    mechanism: 'Decreased regorafenib exposure',
+    effect: 'Loss of therapeutic efficacy',
+    management: 'Avoid strong inducers during treatment',
+    evidence_level: 'A',
+    sources: ['Colorectal cancer guidelines']
+  },
+  {
+    drugs: ['ruxolitinib', 'strong CYP3A4 inhibitors'],
+    severity: 'major',
+    mechanism: 'Increased ruxolitinib exposure',
+    effect: 'Severe myelosuppression',
+    management: 'Reduce ruxolitinib dose by approximately 50%',
+    evidence_level: 'A',
+    sources: ['FDA']
+  },
+  {
+    drugs: ['sunitinib', 'strong CYP3A4 inducers'],
+    severity: 'major',
+    mechanism: 'Decreased sunitinib and active metabolite levels',
+    effect: 'Reduced therapeutic efficacy',
+    management: 'Increase sunitinib dose or avoid inducers',
+    evidence_level: 'A',
+    sources: ['Oncology guidelines']
+  },
+  {
+    drugs: ['tofacitinib', 'immunosuppressants'],
+    severity: 'major',
+    mechanism: 'Additive immunosuppression',
+    effect: 'Increased infection risk',
+    management: 'Avoid combination in cancer patients',
+    evidence_level: 'A',
+    sources: ['Immunology guidelines']
+  },
+  {
+    drugs: ['trametinib', 'strong CYP3A4 inducers'],
+    severity: 'moderate',
+    mechanism: 'Decreased trametinib exposure',
+    effect: 'Reduced therapeutic efficacy',
+    management: 'Avoid strong inducers during treatment',
+    evidence_level: 'B',
+    sources: ['Melanoma guidelines']
+  },
+  {
+    drugs: ['vandetanib', 'QT-prolonging drugs'],
+    severity: 'major',
+    mechanism: 'Additive QT prolongation',
+    effect: 'Torsades de pointes risk',
+    management: 'Avoid combination; monitor ECG closely',
+    evidence_level: 'A',
+    sources: ['Thyroid cancer guidelines']
+  },
+  {
+    drugs: ['vismodegib', 'acid-reducing agents'],
+    severity: 'moderate',
+    mechanism: 'Reduced vismodegib solubility',
+    effect: 'Decreased absorption and efficacy',
+    management: 'Take vismodegib without acid-reducing drugs',
+    evidence_level: 'B',
+    sources: ['Clinical pharmacology']
+  },
+  // Immunotherapy and CAR-T Interactions
+  {
+    drugs: ['atezolizumab', 'corticosteroids'],
+    severity: 'moderate',
+    mechanism: 'Immunosuppression may reduce checkpoint inhibitor activity',
+    effect: 'Decreased anti-tumor response',
+    management: 'Use steroids only for immune-related adverse events',
+    evidence_level: 'B',
+    sources: ['Immunotherapy guidelines']
+  },
+  {
+    drugs: ['durvalumab', 'systemic corticosteroids'],
+    severity: 'moderate',
+    mechanism: 'Immunosuppression interferes with checkpoint inhibition',
+    effect: 'Reduced therapeutic efficacy',
+    management: 'Minimize steroid use; taper when possible',
+    evidence_level: 'B',
+    sources: ['Lung cancer guidelines']
+  },
+  {
+    drugs: ['ipilimumab', 'budesonide'],
+    severity: 'minor',
+    mechanism: 'Local immunosuppression unlikely to affect systemic response',
+    effect: 'Minimal impact on efficacy',
+    management: 'Continue budesonide for GI irAEs as indicated',
+    evidence_level: 'C',
+    sources: ['Immunotherapy guidelines']
+  },
+  // Hormonal Therapy Interactions
+  {
+    drugs: ['fulvestrant', 'strong CYP3A4 inducers'],
+    severity: 'moderate',
+    mechanism: 'Increased fulvestrant metabolism',
+    effect: 'Reduced therapeutic efficacy',
+    management: 'Avoid strong CYP3A4 inducers',
+    evidence_level: 'B',
+    sources: ['Breast cancer guidelines']
+  },
+  {
+    drugs: ['letrozole', 'estrogens'],
+    severity: 'major',
+    mechanism: 'Competitive inhibition of aromatase activity',
+    effect: 'Reduced efficacy of both agents',
+    management: 'Avoid estrogen-containing products',
+    evidence_level: 'A',
+    sources: ['Endocrine therapy guidelines']
+  },
+  {
+    drugs: ['exemestane', 'strong CYP3A4 inducers'],
+    severity: 'moderate',
+    mechanism: 'Increased exemestane metabolism',
+    effect: 'Reduced therapeutic efficacy',
+    management: 'Adjust exemestane dose; avoid strong inducers',
+    evidence_level: 'B',
+    sources: ['Clinical pharmacology']
+  },
+  // Supportive Care Drug Interactions
+  {
+    drugs: ['aprepitant', 'dexamethasone'],
+    severity: 'minor',
+    mechanism: 'CYP3A4 inhibition increases dexamethasone exposure',
+    effect: 'Enhanced corticosteroid effects',
+    management: 'Reduce dexamethasone dose per antiemetic protocols',
+    evidence_level: 'A',
+    sources: ['Supportive care guidelines']
+  },
+  {
+    drugs: ['ondansetron', 'tramadol'],
+    severity: 'moderate',
+    mechanism: 'Additive serotonergic effects',
+    effect: 'Risk of serotonin syndrome',
+    management: 'Monitor for serotonin syndrome; consider alternative analgesic',
+    evidence_level: 'B',
+    sources: ['Pain management guidelines']
+  },
+  {
+    drugs: ['filgrastim', 'cytotoxic chemotherapy'],
+    severity: 'minor',
+    mechanism: 'Growth factor stimulation during active chemotherapy',
+    effect: 'May enhance chemotherapy toxicity',
+    management: 'Administer 24h after chemotherapy completion',
+    evidence_level: 'A',
+    sources: ['NCCN guidelines']
+  },
+  // Herbal and Supplement Interactions
+  {
+    drugs: ['st john\'s wort', 'imatinib'],
+    severity: 'major',
+    mechanism: 'CYP3A4 induction reduces imatinib levels',
+    effect: 'Loss of therapeutic efficacy',
+    management: 'Avoid St. John\'s wort during cancer treatment',
+    evidence_level: 'A',
+    sources: ['Integrative oncology guidelines']
+  },
+  {
+    drugs: ['ginkgo biloba', 'temozolomide'],
+    severity: 'moderate',
+    mechanism: 'Potential bleeding risk with alkylating agents',
+    effect: 'Increased bleeding tendency',
+    management: 'Avoid ginkgo during cancer treatment',
+    evidence_level: 'C',
+    sources: ['Integrative medicine literature']
+  },
+  {
+    drugs: ['milk thistle', 'sorafenib'],
+    severity: 'moderate',
+    mechanism: 'Potential inhibition of drug transporters',
+    effect: 'Altered sorafenib pharmacokinetics',
+    management: 'Avoid milk thistle supplements during treatment',
+    evidence_level: 'C',
+    sources: ['Hepatocellular carcinoma guidelines']
   }
 ];
 

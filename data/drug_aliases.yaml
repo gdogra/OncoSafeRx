@@ -1,0 +1,17 @@
+# Curated drug aliases (brand/generic) and optional RxCUIs
+- name: Xeloda
+  canonical_name: capecitabine
+- name: Capecitabine
+  canonical_name: capecitabine
+- name: Coumadin
+  canonical_name: warfarin
+- name: Warfarin
+  canonical_name: warfarin
+- name: Imatinib
+  canonical_name: imatinib
+- name: Gleevec
+  canonical_name: imatinib
+- name: Pazopanib
+  canonical_name: pazopanib
+- name: Votrient
+  canonical_name: pazopanib

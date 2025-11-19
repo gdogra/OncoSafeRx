@@ -1,0 +1,27 @@
+# Curated DDI entries; authoritative, manually reviewed
+# Fields: drug_primary, drug_interactor, severity, mechanism, recommendation, evidence_source, evidence_level, citations
+
+- drug_primary: capecitabine
+  drug_interactor: warfarin
+  severity: major
+  mechanism: Increased anticoagulant effect (INR elevation)
+  recommendation: monitor
+  evidence_source: label
+  evidence_level: high
+  citations:
+    - source_type: label
+      url: https://www.accessdata.fda.gov
+      snippet: Capecitabine increases anticoagulant effect of warfarin; monitor INR.
+
+- drug_primary: tamoxifen
+  drug_interactor: paroxetine
+  severity: major
+  mechanism: CYP2D6 inhibition reduces endoxifen
+  recommendation: avoid
+  evidence_source: guideline
+  evidence_level: high
+  citations:
+    - source_type: guideline
+      id: CPIC-Tamoxifen-CYP2D6
+      url: https://cpicpgx.org/guidelines/guideline-for-tamoxifen-and-cyp2d6/
+      snippet: Avoid strong CYP2D6 inhibitors with tamoxifen.

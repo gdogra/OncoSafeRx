@@ -184,8 +184,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: 'Clinical Decision', 
             icon: Stethoscope, 
             description: 'Decision support tools',
-            roles: ['oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: 'canViewFullPatientData'
+            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+            requiresPermission: null
           },
           { 
             path: '/real-time-support', 

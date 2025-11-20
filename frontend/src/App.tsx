@@ -520,7 +520,7 @@ function AppWithAuth() {
                   </ProtectedRoute>
                 } />
                 <Route path="/clinical-decision-support" element={
-                  <ProtectedRoute requiredPermission="canViewFullPatientData">
+                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
                     <Layout>
                       <ClinicalDecisionSupport />
                     </Layout>

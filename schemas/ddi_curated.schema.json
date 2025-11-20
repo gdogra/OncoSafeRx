@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oncosaferx.com/schemas/ddi_curated.schema.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["drug_primary", "drug_interactor", "severity", "recommendation", "evidence_source", "evidence_level"],
+    "properties": {
+      "drug_primary": { "type": "string", "minLength": 1 },
+      "drug_interactor": { "type": "string", "minLength": 1 },
+      "severity": { "type": "string", "enum": ["minor", "moderate", "major", "contraindicated"] },
+      "mechanism": { "type": "string" },
+      "recommendation": { "type": "string" },
+      "evidence_source": { "type": "string" },
+      "evidence_level": { "type": "string", "enum": ["high", "moderate", "low", "unknown"] },
+      "citations": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "source_type": { "type": "string" },
+            "id": { "type": "string" },
+            "url": { "type": "string", "format": "uri" },
+            "snippet": { "type": "string" }
+          },
+          "required": ["source_type"],
+          "additionalProperties": false
+        }
+      }
+    },
+    "additionalProperties": false
+  }
+}
+

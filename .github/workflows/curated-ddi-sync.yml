@@ -16,10 +16,11 @@ jobs:
         with:
           node-version: '20'
       - run: npm init -y
-      - run: npm install js-yaml@4
+      - run: npm install js-yaml@4 ajv@8 ajv-formats@3
+      - name: Validate curated YAML
+        run: node scripts/validate_curated.mjs
       - name: Sync curated YAML to Supabase
         env:
           FUNCTION_URL: ${{ secrets.DDI_SYNC_FUNCTION_URL }}
           FUNCTION_ADMIN_SECRET: ${{ secrets.DDI_SYNC_FUNCTION_SECRET }}
         run: node scripts/sync_curated.mjs
-

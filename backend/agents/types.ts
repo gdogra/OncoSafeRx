@@ -53,6 +53,8 @@ export interface DDIInteraction {
   recommendation?: string; // avoid / adjust / monitor
   evidence_level: EvidenceLevel;
   citations: Citation[];
+  stale?: boolean; // evidence may be stale according to source checks
+  evidence_hash?: string; // uniq_hash for provenance
 }
 
 export interface RunDDIAgentOutput {
@@ -177,4 +179,3 @@ export interface AgentContext {
   supabase?: any; // Supabase client in runtime
   logger?: { info: (...args: any[]) => void; warn: (...args: any[]) => void; error: (...args: any[]) => void };
 }
-

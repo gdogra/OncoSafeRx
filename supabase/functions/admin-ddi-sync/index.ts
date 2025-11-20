@@ -49,6 +49,9 @@ Deno.serve(async (req) => {
 
   try {
     const body = (await req.json()) as SyncPayload;
+    // Minimal runtime validation
+    if (body.aliases && !Array.isArray(body.aliases)) return json(400, { error: 'aliases must be an array' });
+    if (body.ddi && !Array.isArray(body.ddi)) return json(400, { error: 'ddi must be an array' });
     const res = { aliases_upserted: 0, ddi_upserted: 0 };
 
     if (body.aliases && body.aliases.length > 0) {
@@ -81,4 +84,3 @@ Deno.serve(async (req) => {
     return json(400, { error: 'Invalid payload', details: String(e) });
   }
 });
-

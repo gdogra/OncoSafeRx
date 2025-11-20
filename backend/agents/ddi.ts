@@ -81,17 +81,34 @@ async function lookupDDIEvidence(
     if (!supabase) return null;
 
     // Helper to map a row into DDIInteraction
-    const toInteraction = (row: any, aDrug: NormalizedMedication, bDrug: NormalizedMedication): DDIInteraction => ({
-      primary_drug: aDrug.normalized_drug_name || aDrug.drug_name,
-      interacting_drug: bDrug.normalized_drug_name || bDrug.drug_name,
-      rxnorm_primary: aDrug.rxnorm_concept_id,
-      rxnorm_interactor: bDrug.rxnorm_concept_id,
-      severity: row.severity as Severity,
-      mechanism: row.mechanism || undefined,
-      recommendation: row.recommendation || undefined,
-      evidence_level: (row.evidence_level || 'unknown') as EvidenceLevel,
-      citations: (row.citations || []) as Citation[],
-    });
+    const toInteraction = async (row: any, aDrug: NormalizedMedication, bDrug: NormalizedMedication): Promise<DDIInteraction> => {
+      let stale = false;
+      if (row.uniq_hash) {
+        try {
+          const { data: statusRow } = await supabase
+            .from('ddi_evidence_status')
+            .select('stale')
+            .eq('uniq_hash', row.uniq_hash)
+            .maybeSingle();
+          stale = Boolean(statusRow?.stale);
+        } catch (_e) {
+          stale = false;
+        }
+      }
+      return {
+        primary_drug: aDrug.normalized_drug_name || aDrug.drug_name,
+        interacting_drug: bDrug.normalized_drug_name || bDrug.drug_name,
+        rxnorm_primary: aDrug.rxnorm_concept_id,
+        rxnorm_interactor: bDrug.rxnorm_concept_id,
+        severity: row.severity as Severity,
+        mechanism: row.mechanism || undefined,
+        recommendation: row.recommendation || undefined,
+        evidence_level: (row.evidence_level || 'unknown') as EvidenceLevel,
+        citations: (row.citations || []) as Citation[],
+        stale,
+        evidence_hash: row.uniq_hash || undefined,
+      };
+    };
 
     // Try by rxnorm ids first (both orders)
     if (a.rxnorm_concept_id && b.rxnorm_concept_id) {
@@ -101,7 +118,7 @@ async function lookupDDIEvidence(
         .eq('drug_primary', a.rxnorm_concept_id)
         .eq('drug_interactor', b.rxnorm_concept_id)
         .limit(1);
-      if (!q.error && q.data && q.data.length > 0) return toInteraction(q.data[0], a, b);
+      if (!q.error && q.data && q.data.length > 0) return await toInteraction(q.data[0], a, b);
 
       q = await supabase
         .from('ddi_evidence')
@@ -109,7 +126,7 @@ async function lookupDDIEvidence(
         .eq('drug_primary', b.rxnorm_concept_id)
         .eq('drug_interactor', a.rxnorm_concept_id)
         .limit(1);
-      if (!q.error && q.data && q.data.length > 0) return toInteraction(q.data[0], a, b);
+      if (!q.error && q.data && q.data.length > 0) return await toInteraction(q.data[0], a, b);
     }
 
     // Fallback by normalized name (both orders)
@@ -119,7 +136,7 @@ async function lookupDDIEvidence(
       .eq('drug_primary', a.normalized_drug_name)
       .eq('drug_interactor', b.normalized_drug_name)
       .limit(1);
-    if (!qn.error && qn.data && qn.data.length > 0) return toInteraction(qn.data[0], a, b);
+    if (!qn.error && qn.data && qn.data.length > 0) return await toInteraction(qn.data[0], a, b);
 
     qn = await supabase
       .from('ddi_evidence')
@@ -127,7 +144,7 @@ async function lookupDDIEvidence(
       .eq('drug_primary', b.normalized_drug_name)
       .eq('drug_interactor', a.normalized_drug_name)
       .limit(1);
-    if (!qn.error && qn.data && qn.data.length > 0) return toInteraction(qn.data[0], a, b);
+    if (!qn.error && qn.data && qn.data.length > 0) return await toInteraction(qn.data[0], a, b);
 
     return null;
   } catch (_e) {

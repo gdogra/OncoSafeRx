@@ -180,7 +180,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         title: 'Clinical Care',
         items: [
           { 
-            path: '/clinical', 
+            path: '/clinical-decision-support', 
             label: 'Clinical Decision', 
             icon: Stethoscope, 
             description: 'Decision support tools',

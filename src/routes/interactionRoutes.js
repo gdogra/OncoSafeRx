@@ -492,10 +492,16 @@ function getKnownInteractions(drugDetails) {
         
         if (matchesPair) {
           interactions.push({
-            drug1_rxcui: drug1.rxcui,
-            drug2_rxcui: drug2.rxcui,
-            drug1: { name: drug1.name, generic_name: drug1.generic_name },
-            drug2: { name: drug2.name, generic_name: drug2.generic_name },
+            drug1_rxcui: drug1.rxcui || 'unknown',
+            drug2_rxcui: drug2.rxcui || 'unknown',
+            drug1: { 
+              name: drug1.name || drug1.generic_name || 'Unknown Drug', 
+              generic_name: drug1.generic_name || drug1.name || 'Unknown Drug' 
+            },
+            drug2: { 
+              name: drug2.name || drug2.generic_name || 'Unknown Drug', 
+              generic_name: drug2.generic_name || drug2.name || 'Unknown Drug' 
+            },
             severity: knownPair.severity,
             mechanism: knownPair.mechanism,
             effect: knownPair.effect,
@@ -535,10 +541,16 @@ function getLocalStoredInteractions(drugDetails) {
 
         if (matches) {
           interactions.push({
-            drug1_rxcui: drug1.rxcui,
-            drug2_rxcui: drug2.rxcui,
-            drug1: { name: drug1.name, generic_name: drug1.generic_name },
-            drug2: { name: drug2.name, generic_name: drug2.generic_name },
+            drug1_rxcui: drug1.rxcui || 'unknown',
+            drug2_rxcui: drug2.rxcui || 'unknown',
+            drug1: { 
+              name: drug1.name || drug1.generic_name || 'Unknown Drug', 
+              generic_name: drug1.generic_name || drug1.name || 'Unknown Drug' 
+            },
+            drug2: { 
+              name: drug2.name || drug2.generic_name || 'Unknown Drug', 
+              generic_name: drug2.generic_name || drug2.name || 'Unknown Drug' 
+            },
             severity: knownPair.severity,
             mechanism: knownPair.mechanism,
             effect: knownPair.effect,

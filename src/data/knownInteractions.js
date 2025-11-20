@@ -3200,7 +3200,7 @@ export const KNOWN_INTERACTIONS = [
   {drugs: ['cd19 car-t', 'immunoglobulins'], severity: 'moderate', mechanism: 'B-cell targeting', effect: 'Hypogammaglobulinemia', management: 'Monitor Ig levels and supplement if needed', evidence_level: 'A', sources: ['CAR-T management'], rxcui: ['cd19_cart', 'immunoglobulins']},
   {drugs: ['bcma car-t', 'none specific'], severity: 'minor', mechanism: 'Plasma cell targeting', effect: 'Disease-specific effects', management: 'Monitor for multiple myeloma progression', evidence_level: 'A', sources: ['Multiple myeloma'], rxcui: ['bcma_cart', 'none']},
   {drugs: ['cd22 car-t', 'b-cell function'], severity: 'major', mechanism: 'B-cell depletion', effect: 'Prolonged B-cell aplasia', management: 'Monitor B-cell recovery', evidence_level: 'A', sources: ['CAR-T studies'], rxcui: ['cd22_cart', 'bcell_function']},
-  {drugs: ['cd30 car-t', 'none significant'], severity: 'minor', mechanism: 'Limited clinical experience', effect: 'Unknown interactions', management: 'Standard CAR-T monitoring', evidence_level: 'C', sources: ['Early trials'], rxcui: ['cd30_cart', 'none']}]
+  {drugs: ['cd30 car-t', 'none significant'], severity: 'minor', mechanism: 'Limited clinical experience', effect: 'Unknown interactions', management: 'Standard CAR-T monitoring', evidence_level: 'C', sources: ['Early trials'], rxcui: ['cd30_cart', 'none']}
 ];
 
 export default KNOWN_INTERACTIONS;

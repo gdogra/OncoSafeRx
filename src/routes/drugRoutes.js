@@ -36,6 +36,64 @@ let brandAliasesLoadedAt = 0;
 const BRAND_ALIAS_TTL_MS = 5 * 60 * 1000; // refresh every 5 min
 const BRAND_ALIAS_PATH = path.resolve('src/config/brandAliases.json');
 
+// Manual mapping of common drug names to their basic ingredient RXCUIs for interaction checking
+const INTERACTION_INGREDIENT_MAP = {
+  'aspirin': { rxcui: '1191', name: 'aspirin', tty: 'IN' },
+  'warfarin': { rxcui: '11289', name: 'warfarin', tty: 'IN' },
+  'ibuprofen': { rxcui: '5640', name: 'ibuprofen', tty: 'IN' },
+  'acetaminophen': { rxcui: '161', name: 'acetaminophen', tty: 'IN' },
+  'metformin': { rxcui: '6809', name: 'metformin', tty: 'IN' },
+  'lisinopril': { rxcui: '29046', name: 'lisinopril', tty: 'IN' },
+  'atorvastatin': { rxcui: '83367', name: 'atorvastatin', tty: 'IN' },
+  'metoprolol': { rxcui: '6918', name: 'metoprolol', tty: 'IN' },
+  'amlodipine': { rxcui: '17767', name: 'amlodipine', tty: 'IN' },
+  'simvastatin': { rxcui: '36567', name: 'simvastatin', tty: 'IN' },
+  'clopidogrel': { rxcui: '32968', name: 'clopidogrel', tty: 'IN' },
+  'omeprazole': { rxcui: '7646', name: 'omeprazole', tty: 'IN' }
+};
+
+// Prioritize basic drug ingredients for interaction checking
+const prioritizeBasicIngredients = (results, searchTerm) => {
+  if (!Array.isArray(results)) return results;
+  
+  // Check if we have a direct mapping for this search term
+  const normalizedSearch = searchTerm?.toLowerCase().trim();
+  const basicIngredient = INTERACTION_INGREDIENT_MAP[normalizedSearch];
+  
+  if (basicIngredient) {
+    // If we have a manual mapping, inject it as the first result
+    const existingRxcuis = new Set(results.map(r => r.rxcui));
+    if (!existingRxcuis.has(basicIngredient.rxcui)) {
+      results.unshift(basicIngredient);
+    } else {
+      // Move existing basic ingredient to front
+      const index = results.findIndex(r => r.rxcui === basicIngredient.rxcui);
+      if (index > 0) {
+        const [item] = results.splice(index, 1);
+        results.unshift(item);
+      }
+    }
+  }
+  
+  // Sort remaining results to put basic ingredients (TTY="IN") first
+  return results.sort((a, b) => {
+    // Basic ingredients (IN) come first
+    if (a.tty === 'IN' && b.tty !== 'IN') return -1;
+    if (a.tty !== 'IN' && b.tty === 'IN') return 1;
+    
+    // Among non-ingredients, prefer simpler forms (SCD, SBD over complex combinations)
+    const preferredTypes = ['SCD', 'SBD', 'GPCK', 'BPCK'];
+    const aPreferred = preferredTypes.includes(a.tty);
+    const bPreferred = preferredTypes.includes(b.tty);
+    
+    if (aPreferred && !bPreferred) return -1;
+    if (!aPreferred && bPreferred) return 1;
+    
+    // Finally sort by name length (simpler names first)
+    return (a.name?.length || 999) - (b.name?.length || 999);
+  });
+};
+
 const loadBrandAliases = () => {
   try {
     const stat = fs.statSync(BRAND_ALIAS_PATH);
@@ -637,6 +695,10 @@ router.get('/search',
     let rxnormResults = [];
     try {
       rxnormResults = await rxnormService.searchDrugs(q);
+      
+      // Prioritize basic ingredients (TTY="IN") for interaction checking
+      rxnormResults = prioritizeBasicIngredients(rxnormResults, q);
+      
       // If RxNorm returns nothing, try brand alias normalization to generics and combine
       if ((!rxnormResults || rxnormResults.length === 0)) {
         const candidates = normalizeQueryToGenerics(q);

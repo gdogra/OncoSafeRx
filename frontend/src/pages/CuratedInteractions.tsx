@@ -88,8 +88,14 @@ const CuratedInteractions: React.FC = () => {
 
   const searchTrialsForDrugCombination = async (drugA: string, drugB: string) => {
     const key = `${drugA}-${drugB}`;
-    if (trialData[key] || trialLoading[key]) return; // Already loaded or loading
+    console.log('searchTrialsForDrugCombination called with:', { drugA, drugB, key });
+    
+    if (trialData[key] || trialLoading[key]) {
+      console.log('Skipping - already loaded or loading:', { hasData: !!trialData[key], isLoading: !!trialLoading[key] });
+      return;
+    }
 
+    console.log('Starting trial search for drug combination...');
     setTrialLoading(prev => ({ ...prev, [key]: true }));
     try {
       // Create a mock patient profile for searching trials with these drugs
@@ -119,12 +125,14 @@ const CuratedInteractions: React.FC = () => {
           return interventionText.includes(drugALower) || interventionText.includes(drugBLower);
         });
 
+      console.log(`Found ${relevantTrials.length} relevant trials for ${drugA} + ${drugB}`);
       setTrialData(prev => ({ ...prev, [key]: relevantTrials }));
     } catch (error) {
       console.warn(`Error searching trials for ${drugA} + ${drugB}:`, error);
       setTrialData(prev => ({ ...prev, [key]: [] }));
     } finally {
       setTrialLoading(prev => ({ ...prev, [key]: false }));
+      console.log(`Trial search completed for ${key}`);
     }
   };
 
@@ -812,7 +820,10 @@ const CuratedInteractions: React.FC = () => {
                             
                             return (
                               <button
-                                onClick={() => searchTrialsForDrugCombination(drugAName, drugBName)}
+                                onClick={() => {
+                                  console.log('Searching trials for:', drugAName, '+', drugBName);
+                                  searchTrialsForDrugCombination(drugAName, drugBName);
+                                }}
                                 className="text-xs text-gray-500 hover:text-blue-700 underline"
                               >
                                 Search trials
@@ -825,28 +836,76 @@ const CuratedInteractions: React.FC = () => {
                             <button
                               className="text-xs text-primary-700 underline"
                               onClick={() => {
-                                if (a?.name) {
-                                  const ob = (brandMeta.drugA && a.name.toLowerCase() === (drugA || '').toLowerCase()) ? brandMeta.drugA : (brandMeta.drug && a.name.toLowerCase() === (drug || '').toLowerCase()) ? brandMeta.drug : undefined;
-                                  selection.addDrug({ name: a.name, rxcui: a.rxcui || '', originBrand: ob?.replace(/ \(IN\)$/,'') || undefined, originRegion: ob ? (ob.includes('(IN)') ? 'IN' : undefined) : undefined } as any);
-                                }
-                                if (b?.name) {
-                                  const ob = (brandMeta.drugB && b.name.toLowerCase() === (drugB || '').toLowerCase()) ? brandMeta.drugB : (brandMeta.drug && b.name.toLowerCase() === (drug || '').toLowerCase()) ? brandMeta.drug : undefined;
-                                  selection.addDrug({ name: b.name, rxcui: b.rxcui || '', originBrand: ob?.replace(/ \(IN\)$/,'') || undefined, originRegion: ob ? (ob.includes('(IN)') ? 'IN' : undefined) : undefined } as any);
+                                console.log('Adding drugs to selection:', a?.name, b?.name);
+                                console.log('Selection context available:', !!selection?.addDrug);
+                                
+                                try {
+                                  if (a?.name) {
+                                    const drugAToAdd = { 
+                                      name: a.name, 
+                                      rxcui: a.rxcui || `temp_${Date.now()}_a`, // Generate temp RXCUI if missing
+                                      tty: 'IN'
+                                    };
+                                    console.log('Adding drug A:', drugAToAdd);
+                                    selection.addDrug(drugAToAdd);
+                                  }
+                                  if (b?.name) {
+                                    const drugBToAdd = { 
+                                      name: b.name, 
+                                      rxcui: b.rxcui || `temp_${Date.now()}_b`, // Generate temp RXCUI if missing
+                                      tty: 'IN'
+                                    };
+                                    console.log('Adding drug B:', drugBToAdd);
+                                    selection.addDrug(drugBToAdd);
+                                  }
+                                  
+                                  // Show success feedback
+                                  try {
+                                    (window as any)?.showToast?.('success', 'Drugs added to selection');
+                                  } catch {}
+                                  
+                                } catch (error) {
+                                  console.error('Error adding drugs to selection:', error);
+                                  try {
+                                    (window as any)?.showToast?.('error', 'Failed to add drugs to selection');
+                                  } catch {}
                                 }
                               }}
                             >Add both</button>
                             <button
                               className="text-xs text-blue-700 underline"
                               onClick={() => {
-                                if (a?.name) {
-                                  const ob = (brandMeta.drugA && a.name.toLowerCase() === (drugA || '').toLowerCase()) ? brandMeta.drugA : (brandMeta.drug && a.name.toLowerCase() === (drug || '').toLowerCase()) ? brandMeta.drug : undefined;
-                                  selection.addDrug({ name: a.name, rxcui: a.rxcui || '', originBrand: ob?.replace(/ \(IN\)$/,'') || undefined, originRegion: ob ? (ob.includes('(IN)') ? 'IN' : undefined) : undefined } as any);
+                                console.log('Adding drugs and navigating to checker:', a?.name, b?.name);
+                                
+                                try {
+                                  if (a?.name) {
+                                    const drugAToAdd = { 
+                                      name: a.name, 
+                                      rxcui: a.rxcui || `temp_${Date.now()}_a`,
+                                      tty: 'IN'
+                                    };
+                                    selection.addDrug(drugAToAdd);
+                                  }
+                                  if (b?.name) {
+                                    const drugBToAdd = { 
+                                      name: b.name, 
+                                      rxcui: b.rxcui || `temp_${Date.now()}_b`,
+                                      tty: 'IN'
+                                    };
+                                    selection.addDrug(drugBToAdd);
+                                  }
+                                  
+                                  setTimeout(() => {
+                                    console.log('Navigating to interactions page...');
+                                    navigate('/interactions');
+                                  }, 200);
+                                  
+                                } catch (error) {
+                                  console.error('Error adding drugs for checker:', error);
+                                  try {
+                                    (window as any)?.showToast?.('error', 'Failed to open interaction checker');
+                                  } catch {}
                                 }
-                                if (b?.name) {
-                                  const ob = (brandMeta.drugB && b.name.toLowerCase() === (drugB || '').toLowerCase()) ? brandMeta.drugB : (brandMeta.drug && b.name.toLowerCase() === (drug || '').toLowerCase()) ? brandMeta.drug : undefined;
-                                  selection.addDrug({ name: b.name, rxcui: b.rxcui || '', originBrand: ob?.replace(/ \(IN\)$/,'') || undefined, originRegion: ob ? (ob.includes('(IN)') ? 'IN' : undefined) : undefined } as any);
-                                }
-                                setTimeout(() => navigate('/interactions'), 100);
                               }}
                             >Open checker</button>
                             <button

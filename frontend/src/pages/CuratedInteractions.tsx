@@ -10,6 +10,7 @@ import Tooltip from '../components/UI/Tooltip';
 import { useSelection } from '../context/SelectionContext';
 import { usePatient } from '../context/PatientContext';
 import EnhancedDrugSearchBar from '../components/DrugSearch/EnhancedDrugSearchBar';
+import { clinicalTrialsService, type ClinicalTrial } from '../services/clinicalTrialsService';
 
 type KnownInteraction = {
   drugs: string[];
@@ -71,6 +72,7 @@ const CuratedInteractions: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
+  const [textFilter, setTextFilter] = useState('');
   const selection = useSelection();
   // Editor visibility without requiring AuthProvider; opt-in via localStorage
   const canEdit = typeof window !== 'undefined' && (localStorage.getItem('allow_curated_editor') === '1');
@@ -80,6 +82,51 @@ const CuratedInteractions: React.FC = () => {
   const [dbQuery, setDbQuery] = useState<{ a: string; b: string }>({ a: '', b: '' });
   const [dbLoading, setDbLoading] = useState(false);
   const [dbResults, setDbResults] = useState<any[] | null>(null);
+  // Clinical trial integration
+  const [trialData, setTrialData] = useState<Record<string, ClinicalTrial[]>>({});
+  const [trialLoading, setTrialLoading] = useState<Record<string, boolean>>({});
+
+  const searchTrialsForDrugCombination = async (drugA: string, drugB: string) => {
+    const key = `${drugA}-${drugB}`;
+    if (trialData[key] || trialLoading[key]) return; // Already loaded or loading
+
+    setTrialLoading(prev => ({ ...prev, [key]: true }));
+    try {
+      // Create a mock patient profile for searching trials with these drugs
+      const mockProfile = {
+        age: 55,
+        gender: 'All' as const,
+        diagnosis: ['Cancer'], // Generic cancer diagnosis
+        currentMedications: [
+          { name: drugA, dose: '1mg', frequency: 'daily' },
+          { name: drugB, dose: '1mg', frequency: 'daily' }
+        ],
+        priorTreatments: [],
+        performanceStatus: 1,
+        biomarkers: [],
+        genetics: [],
+        zipCode: '10001' // NYC
+      };
+
+      const trialMatches = await clinicalTrialsService.searchTrials(mockProfile);
+      // Filter to trials that specifically mention both drugs
+      const relevantTrials = trialMatches
+        .map(match => match.trial)
+        .filter(trial => {
+          const interventionText = trial.interventions.join(' ').toLowerCase();
+          const drugALower = drugA.toLowerCase();
+          const drugBLower = drugB.toLowerCase();
+          return interventionText.includes(drugALower) || interventionText.includes(drugBLower);
+        });
+
+      setTrialData(prev => ({ ...prev, [key]: relevantTrials }));
+    } catch (error) {
+      console.warn(`Error searching trials for ${drugA} + ${drugB}:`, error);
+      setTrialData(prev => ({ ...prev, [key]: [] }));
+    } finally {
+      setTrialLoading(prev => ({ ...prev, [key]: false }));
+    }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -522,6 +569,26 @@ const CuratedInteractions: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Results ({results.count}/{results.total})</h2>
             <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <label className="text-xs text-gray-600">Filter table:</label>
+                <input
+                  type="text"
+                  placeholder="Search drugs, effects, mechanisms..."
+                  value={textFilter}
+                  onChange={e => {
+                    setTextFilter(e.target.value);
+                    setCurrentPage(1); // Reset to first page when filtering
+                  }}
+                  className="border rounded px-2 py-1 text-sm w-64"
+                />
+                {textFilter && (
+                  <button
+                    onClick={() => setTextFilter('')}
+                    className="text-xs text-gray-500 hover:text-gray-700"
+                    title="Clear filter"
+                  >✕</button>
+                )}
+              </div>
               <div className="text-xs text-gray-600 inline-flex items-center gap-2">
                 <span>Per page:</span>
                 <select className="border rounded px-1 py-0.5" value={itemsPerPage} onChange={e => {
@@ -555,13 +622,34 @@ const CuratedInteractions: React.FC = () => {
                   <th className="py-2 pr-4">Effect</th>
                   <th className="py-2 pr-4">Management</th>
                   <th className="py-2 pr-4">Sources</th>
+                  <th className="py-2 pr-4">Clinical Trials</th>
                   <th className="py-2 pr-4">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {(() => {
-                  const sortedInteractions = results.interactions
-                    .slice()
+                  // Apply text filter first
+                  let filteredInteractions = results.interactions.slice();
+                  if (textFilter.trim()) {
+                    const filterLower = textFilter.toLowerCase();
+                    filteredInteractions = filteredInteractions.filter(it => {
+                      const drugA = (it.drug_rxnorm?.[0]?.name || it.drugs?.[0] || '').toLowerCase();
+                      const drugB = (it.drug_rxnorm?.[1]?.name || it.drugs?.[1] || '').toLowerCase();
+                      const effect = (it.effect || '').toLowerCase();
+                      const mechanism = (it.mechanism || '').toLowerCase();
+                      const management = (it.management || '').toLowerCase();
+                      const severity = (it.severity || '').toLowerCase();
+                      
+                      return drugA.includes(filterLower) || 
+                             drugB.includes(filterLower) || 
+                             effect.includes(filterLower) || 
+                             mechanism.includes(filterLower) || 
+                             management.includes(filterLower) || 
+                             severity.includes(filterLower);
+                    });
+                  }
+                  
+                  const sortedInteractions = filteredInteractions
                     .sort((a, b) => {
                       const aA = (a.drug_rxnorm?.[0]?.name || a.drugs?.[0] || '').toLowerCase();
                       const aB = (a.drug_rxnorm?.[1]?.name || a.drugs?.[1] || '').toLowerCase();
@@ -691,6 +779,48 @@ const CuratedInteractions: React.FC = () => {
                           ) : '-'}
                         </td>
                         <td className="py-2 pr-4">
+                          {(() => {
+                            const drugAName = a?.name || it.drugs?.[0] || '';
+                            const drugBName = b?.name || it.drugs?.[1] || '';
+                            if (!drugAName || !drugBName) return '-';
+                            
+                            const key = `${drugAName}-${drugBName}`;
+                            const trials = trialData[key];
+                            const loading = trialLoading[key];
+                            
+                            if (loading) {
+                              return <span className="text-xs text-gray-500">Loading...</span>;
+                            }
+                            
+                            if (trials && trials.length > 0) {
+                              return (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">
+                                    {trials.length} trial{trials.length > 1 ? 's' : ''}
+                                  </span>
+                                  <Tooltip 
+                                    content={trials.map(t => `${t.title} (${t.phase})`).join('; ')}
+                                    position="left"
+                                  >
+                                    <button className="text-xs text-blue-700 hover:underline">
+                                      View
+                                    </button>
+                                  </Tooltip>
+                                </div>
+                              );
+                            }
+                            
+                            return (
+                              <button
+                                onClick={() => searchTrialsForDrugCombination(drugAName, drugBName)}
+                                className="text-xs text-gray-500 hover:text-blue-700 underline"
+                              >
+                                Search trials
+                              </button>
+                            );
+                          })()}
+                        </td>
+                        <td className="py-2 pr-4">
                           <div className="flex items-center gap-2">
                             <button
                               className="text-xs text-primary-700 underline"
@@ -728,7 +858,7 @@ const CuratedInteractions: React.FC = () => {
                       </tr>
                       {expanded[idx] && (
                         <tr className="border-b bg-gray-50">
-                          <td colSpan={7} className="p-3">
+                          <td colSpan={8} className="p-3">
                             <div className="grid md:grid-cols-3 gap-3 text-sm">
                               <div>
                                 <div className="text-gray-500 text-xs">Mechanism</div>
@@ -756,8 +886,28 @@ const CuratedInteractions: React.FC = () => {
           
           {/* Pagination Controls */}
           {(() => {
-            const sortedInteractions = results.interactions
-              .slice()
+            // Apply text filter first (same logic as above)
+            let filteredInteractions = results.interactions.slice();
+            if (textFilter.trim()) {
+              const filterLower = textFilter.toLowerCase();
+              filteredInteractions = filteredInteractions.filter(it => {
+                const drugA = (it.drug_rxnorm?.[0]?.name || it.drugs?.[0] || '').toLowerCase();
+                const drugB = (it.drug_rxnorm?.[1]?.name || it.drugs?.[1] || '').toLowerCase();
+                const effect = (it.effect || '').toLowerCase();
+                const mechanism = (it.mechanism || '').toLowerCase();
+                const management = (it.management || '').toLowerCase();
+                const severity = (it.severity || '').toLowerCase();
+                
+                return drugA.includes(filterLower) || 
+                       drugB.includes(filterLower) || 
+                       effect.includes(filterLower) || 
+                       mechanism.includes(filterLower) || 
+                       management.includes(filterLower) || 
+                       severity.includes(filterLower);
+              });
+            }
+            
+            const sortedInteractions = filteredInteractions
               .sort((a, b) => {
                 const aA = (a.drug_rxnorm?.[0]?.name || a.drugs?.[0] || '').toLowerCase();
                 const aB = (a.drug_rxnorm?.[1]?.name || a.drugs?.[1] || '').toLowerCase();

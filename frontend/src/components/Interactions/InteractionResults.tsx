@@ -155,7 +155,7 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
           <div className="flex items-center justify-center space-x-4">
             <div className="text-center">
               <p className="font-medium text-gray-900">
-                {interaction.drug1?.name || (interaction.drug1_rxcui ? `Drug ${interaction.drug1_rxcui}` : 'Unknown Drug')}
+                {interaction.drug1?.name || (interaction.drug1_rxcui ? `Drug ${interaction.drug1_rxcui}` : 'Drug Not Identified')}
               </p>
               <p className="text-sm text-gray-500">RXCUI: {interaction.drug1_rxcui || 'Not available'}</p>
               {findBrandLabel(interaction.drug1?.name, interaction.drug1_rxcui) && (
@@ -167,7 +167,7 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
             <div className="text-2xl text-gray-400">×</div>
             <div className="text-center">
               <p className="font-medium text-gray-900">
-                {interaction.drug2?.name || (interaction.drug2_rxcui ? `Drug ${interaction.drug2_rxcui}` : 'Unknown Drug')}
+                {interaction.drug2?.name || (interaction.drug2_rxcui ? `Drug ${interaction.drug2_rxcui}` : 'Drug Not Identified')}
               </p>
               <p className="text-sm text-gray-500">RXCUI: {interaction.drug2_rxcui || 'Not available'}</p>
               {findBrandLabel(interaction.drug2?.name, interaction.drug2_rxcui) && (

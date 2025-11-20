@@ -33,14 +33,37 @@ router.post('/check',
     const basicInteractions = await supabaseService.checkMultipleInteractions(drugs);
     
     // Enhanced response with comprehensive insights
+    // Attach curated evidence (citations + stale) per interaction when available
+    const withCurated = await Promise.all((intelligentAnalysis.interactions || []).map(async (it) => {
+      const a = it?.drug1?.generic_name || it?.drug1?.name;
+      const b = it?.drug2?.generic_name || it?.drug2?.name;
+      let curated = null;
+      if (a && b) {
+        curated = await supabaseService.getDDIEvidence(a, b);
+      }
+      return {
+        ...it,
+        curatedEvidence: curated ? {
+          evidenceLevel: curated.evidence_level,
+          evidenceSource: curated.evidence_source,
+          citations: curated.citations,
+          stale: curated.stale,
+          severity: curated.severity,
+          mechanism: curated.mechanism,
+          recommendation: curated.recommendation,
+          evidenceHash: curated.uniq_hash,
+        } : null,
+      };
+    }));
+
     const response = {
       summary: {
-        totalInteractions: intelligentAnalysis.interactions?.length || 0,
-        highRiskInteractions: intelligentAnalysis.interactions?.filter(i => i.severity === 'high' || i.severity === 'critical').length || 0,
+        totalInteractions: withCurated.length || 0,
+        highRiskInteractions: withCurated.filter(i => i.severity === 'high' || i.severity === 'critical').length || 0,
         overallRiskScore: intelligentAnalysis.riskStratification?.overallScore || 0,
         clinicalSignificance: intelligentAnalysis.riskStratification?.significance || 'Low'
       },
-      interactions: intelligentAnalysis.interactions || [],
+      interactions: withCurated,
       clinicalInsights: {
         riskStratification: intelligentAnalysis.riskStratification,
         patientSpecificFactors: await getPatientSpecificRiskFactors(drugs, patientData),

@@ -54,6 +54,11 @@ export class NoOpSupabaseService {
     return Promise.resolve([]);
   }
 
+  // Curated DDI evidence lookup (no-op)
+  getDDIEvidence(_drugAName, _drugBName) {
+    return Promise.resolve(null);
+  }
+
   insertDrugInteraction(interactionData) {
     return Promise.resolve(interactionData);
   }

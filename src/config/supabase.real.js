@@ -264,6 +264,62 @@ export class SupabaseService {
     }
   }
 
+  // Curated DDI evidence lookup (by normalized names)
+  async getDDIEvidence(drugAName, drugBName) {
+    if (!this.enabled) return null;
+    try {
+      const a = String(drugAName || '').toLowerCase();
+      const b = String(drugBName || '').toLowerCase();
+
+      // Try order A|B
+      let q = await this.client
+        .from('ddi_evidence')
+        .select('*')
+        .eq('drug_primary', a)
+        .eq('drug_interactor', b)
+        .limit(1);
+      let row = q.data && q.data[0];
+
+      // Try order B|A
+      if (!row) {
+        q = await this.client
+          .from('ddi_evidence')
+          .select('*')
+          .eq('drug_primary', b)
+          .eq('drug_interactor', a)
+          .limit(1);
+        row = q.data && q.data[0];
+      }
+
+      if (!row) return null;
+
+      // Fetch status to know if stale
+      let stale = false;
+      if (row.uniq_hash) {
+        const st = await this.client
+          .from('ddi_evidence_status')
+          .select('stale')
+          .eq('uniq_hash', row.uniq_hash)
+          .maybeSingle();
+        stale = Boolean(st.data?.stale);
+      }
+
+      return {
+        evidence_level: row.evidence_level || 'unknown',
+        evidence_source: row.evidence_source || null,
+        citations: row.citations || [],
+        uniq_hash: row.uniq_hash || null,
+        stale,
+        severity: row.severity,
+        mechanism: row.mechanism,
+        recommendation: row.recommendation,
+      };
+    } catch (error) {
+      console.error('Error getting DDI curated evidence:', error);
+      return null;
+    }
+  }
+
   async insertDrugInteraction(interactionData) {
     if (!this.enabled) return interactionData;
     

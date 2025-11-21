@@ -211,6 +211,14 @@ export const interactionService = {
       return apiData;
     } catch (error: any) {
       console.error('Known interactions API error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        url: error.config?.url,
+        method: error.config?.method
+      });
       
       // Return empty result instead of fallback to prevent count inconsistencies
       return {
@@ -413,5 +421,8 @@ export const genomicsService = {
     }
   }
 };
+
+// Cache for interaction route state to avoid repeated failed attempts
+let interactionsRouteState: 'primary' | 'enhanced' | 'absolute' | 'none' | null = null;
 
 export default api;

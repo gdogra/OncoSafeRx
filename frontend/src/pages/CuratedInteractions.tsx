@@ -140,14 +140,22 @@ const CuratedInteractions: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
+      console.log('Loading curated interactions with params:', { drug, drugA, drugB, severity, resolveRx });
       const data = await interactionService.getKnownInteractions({ drug, drugA, drugB, severity, resolveRx: resolveRx ? 'true' : 'false' });
+      console.log('API response:', data);
+      console.log('Interactions sample:', data.interactions?.[0]);
       setResults({ count: data.count, total: data.total, interactions: data.interactions || [] });
       
       // Show info message if using fallback data
       if (data.message && data.message.includes('cached interaction data')) {
         console.info('Using fallback interaction data - API not available');
       }
+      if (data.error) {
+        console.error('API returned error:', data.message);
+        setError(data.message || 'API error occurred');
+      }
     } catch (e) {
+      console.error('Load error:', e);
       setError(e instanceof Error ? e.message : 'Failed to load curated interactions');
     } finally {
       setLoading(false);
@@ -687,7 +695,7 @@ const CuratedInteractions: React.FC = () => {
                       <td className="py-2 pr-4">
                         <div className="flex flex-col">
                           <div>
-                            {a ? `${a.name} ${a.rxcui ? `(RXCUI ${a.rxcui})` : ''}` : it.drugs[0]}
+                            {a ? `${a.name} ${a.rxcui ? `(RXCUI ${a.rxcui})` : ''}` : (it.drugs?.[0] || 'Drug Not Identified')}
                           </div>
                           {(() => {
                             const nm = (a?.name || it.drugs?.[0] || '').toString().toLowerCase();
@@ -727,7 +735,7 @@ const CuratedInteractions: React.FC = () => {
                       <td className="py-2 pr-4">
                         <div className="flex flex-col">
                           <div>
-                            {b ? `${b.name} ${b.rxcui ? `(RXCUI ${b.rxcui})` : ''}` : it.drugs[1]}
+                            {b ? `${b.name} ${b.rxcui ? `(RXCUI ${b.rxcui})` : ''}` : (it.drugs?.[1] || 'Drug Not Identified')}
                           </div>
                           {(() => {
                             const nm = (b?.name || it.drugs?.[1] || '').toString().toLowerCase();

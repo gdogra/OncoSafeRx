@@ -46,7 +46,7 @@ const API_BASE_URL = getApiUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 20000, // Increased to 20 seconds for production stability
+  timeout: 60000, // Increased to 60 seconds for slow networks
 });
 
 // Request interceptor
@@ -193,42 +193,109 @@ export const drugService = {
 // Interaction services
 export const interactionService = {
   getKnownInteractions: async (params: Record<string, string | number | boolean> = {}) => {
-    try {
-      const search = new URLSearchParams();
-      for (const [k,v] of Object.entries(params)) {
-        if (v !== undefined && v !== null && v !== '') search.append(k, String(v));
+    const maxRetries = 2;
+    let lastError: any = null;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const search = new URLSearchParams();
+        for (const [k,v] of Object.entries(params)) {
+          if (v !== undefined && v !== null && v !== '') search.append(k, String(v));
+        }
+        
+        console.log(`API call attempt ${attempt}/${maxRetries}: /interactions/known?${search.toString()}`);
+        const response = await api.get(`/interactions/known?${search.toString()}`);
+        
+        // Use API data directly - fallback logic removed to prevent count inconsistencies
+        const apiData = response.data;
+        
+        // Log if we get unexpected low counts for debugging
+        if (apiData && apiData.total && apiData.total < 50) {
+          console.warn(`Low interaction count received: ${apiData.total}. This may indicate an API issue.`);
+        }
+        
+        console.log(`API call succeeded on attempt ${attempt}, returning ${apiData.total} interactions`);
+        return apiData;
+        
+      } catch (error: any) {
+        console.error(`API call attempt ${attempt} failed:`, error.message);
+        lastError = error;
+        
+        if (attempt < maxRetries) {
+          console.log(`Retrying in ${attempt * 1000}ms...`);
+          await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+        }
       }
-      const response = await api.get(`/interactions/known?${search.toString()}`);
-      
-      // Use API data directly - fallback logic removed to prevent count inconsistencies
-      const apiData = response.data;
-      
-      // Log if we get unexpected low counts for debugging
-      if (apiData && apiData.total && apiData.total < 50) {
-        console.warn(`Low interaction count received: ${apiData.total}. This may indicate an API issue.`);
-      }
-      
-      return apiData;
-    } catch (error: any) {
-      console.error('Known interactions API error:', error);
-      console.error('Error details:', {
-        message: error.message,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        url: error.config?.url,
-        method: error.config?.method
-      });
-      
-      // Return empty result instead of fallback to prevent count inconsistencies
-      return {
-        count: 0,
-        total: 0,
-        interactions: [],
-        message: 'Unable to load interaction data. Please try again later.',
-        error: true
-      };
     }
+    
+    // All attempts failed
+    console.error('All API attempts failed. Final error:', lastError);
+    console.error('Error details:', {
+      message: lastError?.message,
+      status: lastError?.response?.status,
+      statusText: lastError?.response?.statusText,
+      data: lastError?.response?.data,
+      url: lastError?.config?.url,
+      method: lastError?.config?.method,
+      code: lastError?.code
+    });
+    
+    // If timeout error, provide temporary fallback to prevent user frustration
+    if (lastError?.code === 'ECONNABORTED' && lastError?.message?.includes('timeout')) {
+      console.warn('API timeout detected, providing temporary fallback data');
+      
+      // Import fallback data temporarily for timeout scenarios
+      try {
+        const { FALLBACK_INTERACTIONS } = await import('../data/fallbackInteractions');
+        
+        // Apply basic filtering
+        let results = FALLBACK_INTERACTIONS;
+        const { drug, drugA, drugB, severity } = params;
+        
+        if (drug && typeof drug === 'string') {
+          const term = drug.toLowerCase();
+          results = results.filter(k => k.drugs.some(d => d.toLowerCase().includes(term)));
+        }
+        
+        if (drugA && drugB && typeof drugA === 'string' && typeof drugB === 'string') {
+          const a = drugA.toLowerCase();
+          const b = drugB.toLowerCase();
+          results = results.filter(k => {
+            const names = k.drugs.map(d => d.toLowerCase());
+            return (names.some(n => n.includes(a)) && names.some(n => n.includes(b)));
+          });
+        }
+        
+        if (severity && typeof severity === 'string') {
+          const sev = severity.toLowerCase();
+          results = results.filter(k => (k.severity || '').toLowerCase() === sev);
+        }
+        
+        const enriched = results.map(k => ({
+          ...k,
+          drug_rxnorm: k.drugs.map(name => ({ name, rxcui: null }))
+        }));
+        
+        return {
+          count: enriched.length,
+          total: enriched.length,
+          interactions: enriched,
+          message: 'API temporarily unavailable - showing cached data. Please refresh to try again.',
+          fallback: true
+        };
+      } catch (fallbackError) {
+        console.error('Fallback data import failed:', fallbackError);
+      }
+    }
+    
+    // Return empty result for other errors
+    return {
+      count: 0,
+      total: 0,
+      interactions: [],
+      message: 'Unable to load interaction data. Please try again later.',
+      error: true
+    };
   },
 
   checkInteractions: async (drugs: { rxcui: string; name: string }[]) => {

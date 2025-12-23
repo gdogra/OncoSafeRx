@@ -219,9 +219,7 @@ class ContinuousLearningAIService extends EventEmitter {
         privacyPreservation: {
           differentialPrivacy: this.applyDifferentialPrivacy(localUpdates),
           gradientClipping: this.clipGradients(localUpdates),
-          noiseAddition: this.addCalibr
-
-ted
+          noiseAddition: this.addCalibratedNoise(localUpdates)
         },
         
         aggregation: await this.aggregateWithGlobalModel(localUpdates, globalModel),

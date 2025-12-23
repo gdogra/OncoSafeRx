@@ -226,7 +226,7 @@ class ContinuousLearningAIService extends EventEmitter {
         
         validation: await this.validateFederatedUpdate(localUpdates, globalModel),
         
-        knowledge Sharing: await this.shareNonSensitiveInsights(localUpdates)
+        knowledgeSharing: await this.shareNonSensitiveInsights(localUpdates)
       };
 
       // Update local model with federated improvements

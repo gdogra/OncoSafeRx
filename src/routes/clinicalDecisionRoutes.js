@@ -1,6 +1,6 @@
 import express from 'express';
 import clinicalDecisionSupportService from '../services/clinicalDecisionSupportService.js';
-import { authenticateUser } from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ const router = express.Router();
  */
 
 // Generate clinical decision support
-router.post('/support', authenticateUser, async (req, res) => {
+router.post('/support', authenticateToken, async (req, res) => {
   try {
     const { patientData, clinicalQuery } = req.body;
 
@@ -41,7 +41,7 @@ router.post('/support', authenticateUser, async (req, res) => {
 });
 
 // Get treatment recommendations
-router.post('/treatment/recommend', authenticateUser, async (req, res) => {
+router.post('/treatment/recommend', authenticateToken, async (req, res) => {
   try {
     const { patientData, treatmentContext } = req.body;
 
@@ -66,7 +66,7 @@ router.post('/treatment/recommend', authenticateUser, async (req, res) => {
 });
 
 // Check guideline compliance
-router.post('/guidelines/check', authenticateUser, async (req, res) => {
+router.post('/guidelines/check', authenticateToken, async (req, res) => {
   try {
     const { patientData, proposedTreatment, guidelines = 'all' } = req.body;
 
@@ -93,7 +93,7 @@ router.post('/guidelines/check', authenticateUser, async (req, res) => {
 });
 
 // Get evidence for specific recommendation
-router.get('/evidence/:recommendationId', authenticateUser, async (req, res) => {
+router.get('/evidence/:recommendationId', authenticateToken, async (req, res) => {
   try {
     const { recommendationId } = req.params;
     const { includeEmergingEvidence = false } = req.query;
@@ -120,7 +120,7 @@ router.get('/evidence/:recommendationId', authenticateUser, async (req, res) => 
 });
 
 // Perform drug dosing analysis
-router.post('/dosing/analyze', authenticateUser, async (req, res) => {
+router.post('/dosing/analyze', authenticateToken, async (req, res) => {
   try {
     const { patientData, medications, dosingContext } = req.body;
 
@@ -153,7 +153,7 @@ router.post('/dosing/analyze', authenticateUser, async (req, res) => {
 });
 
 // Assess clinical risks
-router.post('/risk/assess', authenticateUser, async (req, res) => {
+router.post('/risk/assess', authenticateToken, async (req, res) => {
   try {
     const { patientData, treatmentPlan, riskFactors = 'all' } = req.body;
 
@@ -179,7 +179,7 @@ router.post('/risk/assess', authenticateUser, async (req, res) => {
 });
 
 // Get decision history for patient
-router.get('/history/:patientId', authenticateUser, async (req, res) => {
+router.get('/history/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { timeRange = '30d', decisionType = 'all' } = req.query;
@@ -207,7 +207,7 @@ router.get('/history/:patientId', authenticateUser, async (req, res) => {
 });
 
 // Get quality measures assessment
-router.post('/quality/assess', authenticateUser, async (req, res) => {
+router.post('/quality/assess', authenticateToken, async (req, res) => {
   try {
     const { patientData, careEpisode, measures = 'all' } = req.body;
 
@@ -234,7 +234,7 @@ router.post('/quality/assess', authenticateUser, async (req, res) => {
 });
 
 // Generate monitoring plan
-router.post('/monitoring/plan', authenticateUser, async (req, res) => {
+router.post('/monitoring/plan', authenticateToken, async (req, res) => {
   try {
     const { patientData, treatmentPlan, riskFactors } = req.body;
 
@@ -260,7 +260,7 @@ router.post('/monitoring/plan', authenticateUser, async (req, res) => {
 });
 
 // Search clinical evidence
-router.get('/evidence/search', authenticateUser, async (req, res) => {
+router.get('/evidence/search', authenticateToken, async (req, res) => {
   try {
     const { 
       query, 
@@ -304,7 +304,7 @@ router.get('/evidence/search', authenticateUser, async (req, res) => {
 });
 
 // Update decision with feedback
-router.patch('/feedback/:decisionId', authenticateUser, async (req, res) => {
+router.patch('/feedback/:decisionId', authenticateToken, async (req, res) => {
   try {
     const { decisionId } = req.params;
     const { feedback, outcome, followUpActions } = req.body;
@@ -336,7 +336,7 @@ router.patch('/feedback/:decisionId', authenticateUser, async (req, res) => {
 });
 
 // Get decision confidence metrics
-router.get('/confidence/:decisionId', authenticateUser, async (req, res) => {
+router.get('/confidence/:decisionId', authenticateToken, async (req, res) => {
   try {
     const { decisionId } = req.params;
 

@@ -1,6 +1,6 @@
 import express from 'express';
 import continuousLearningAIService from '../services/continuousLearningAIService.js';
-import { authenticateUser } from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ const router = express.Router();
  */
 
 // Submit learning data from treatment outcomes
-router.post('/learn/outcomes', authenticateUser, async (req, res) => {
+router.post('/learn/outcomes', authenticateToken, async (req, res) => {
   try {
     const { patientId, treatmentData, outcomeData, timepoint } = req.body;
 
@@ -43,7 +43,7 @@ router.post('/learn/outcomes', authenticateUser, async (req, res) => {
 });
 
 // Generate adaptive recommendations
-router.post('/recommendations/adaptive', authenticateUser, async (req, res) => {
+router.post('/recommendations/adaptive', authenticateToken, async (req, res) => {
   try {
     const { patientData, clinicalContext } = req.body;
 
@@ -68,7 +68,7 @@ router.post('/recommendations/adaptive', authenticateUser, async (req, res) => {
 });
 
 // Get model performance metrics
-router.get('/performance/:domain', authenticateUser, async (req, res) => {
+router.get('/performance/:domain', authenticateToken, async (req, res) => {
   try {
     const { domain } = req.params;
     const { timeRange = '30d' } = req.query;
@@ -96,7 +96,7 @@ router.get('/performance/:domain', authenticateUser, async (req, res) => {
 });
 
 // Submit feedback for model improvement
-router.post('/feedback/submit', authenticateUser, async (req, res) => {
+router.post('/feedback/submit', authenticateToken, async (req, res) => {
   try {
     const { domain, feedback, outcomeData, context } = req.body;
 
@@ -133,7 +133,7 @@ router.post('/feedback/submit', authenticateUser, async (req, res) => {
 });
 
 // Get discovered patterns
-router.get('/patterns/discovered', authenticateUser, async (req, res) => {
+router.get('/patterns/discovered', authenticateToken, async (req, res) => {
   try {
     const { 
       patternType = 'all',
@@ -166,7 +166,7 @@ router.get('/patterns/discovered', authenticateUser, async (req, res) => {
 });
 
 // Participate in federated learning
-router.post('/federated/participate', authenticateUser, async (req, res) => {
+router.post('/federated/participate', authenticateToken, async (req, res) => {
   try {
     const { institutionId, localUpdates, globalModel } = req.body;
 
@@ -198,7 +198,7 @@ router.post('/federated/participate', authenticateUser, async (req, res) => {
 });
 
 // Get knowledge graph insights
-router.get('/knowledge-graph/insights', authenticateUser, async (req, res) => {
+router.get('/knowledge-graph/insights', authenticateToken, async (req, res) => {
   try {
     const { 
       entityType = 'all',
@@ -231,7 +231,7 @@ router.get('/knowledge-graph/insights', authenticateUser, async (req, res) => {
 });
 
 // Get learning statistics
-router.get('/statistics/learning', authenticateUser, async (req, res) => {
+router.get('/statistics/learning', authenticateToken, async (req, res) => {
   try {
     const { timeRange = '30d' } = req.query;
 
@@ -254,7 +254,7 @@ router.get('/statistics/learning', authenticateUser, async (req, res) => {
 });
 
 // Trigger model retraining
-router.post('/models/retrain/:domain', authenticateUser, async (req, res) => {
+router.post('/models/retrain/:domain', authenticateToken, async (req, res) => {
   try {
     const { domain } = req.params;
     const { force = false, options = {} } = req.body;
@@ -292,7 +292,7 @@ router.post('/models/retrain/:domain', authenticateUser, async (req, res) => {
 });
 
 // Get model versions and updates
-router.get('/models/versions', authenticateUser, async (req, res) => {
+router.get('/models/versions', authenticateToken, async (req, res) => {
   try {
     const { domain = 'all' } = req.query;
 
@@ -315,7 +315,7 @@ router.get('/models/versions', authenticateUser, async (req, res) => {
 });
 
 // Get personalization improvements
-router.get('/personalization/:patientId', authenticateUser, async (req, res) => {
+router.get('/personalization/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { includeHistory = false } = req.query;
@@ -342,7 +342,7 @@ router.get('/personalization/:patientId', authenticateUser, async (req, res) => 
 });
 
 // Export learning insights
-router.get('/insights/export', authenticateUser, async (req, res) => {
+router.get('/insights/export', authenticateToken, async (req, res) => {
   try {
     const { 
       format = 'json',
@@ -377,7 +377,7 @@ router.get('/insights/export', authenticateUser, async (req, res) => {
 });
 
 // Get real-time learning status
-router.get('/status/real-time', authenticateUser, async (req, res) => {
+router.get('/status/real-time', authenticateToken, async (req, res) => {
   try {
     const status = await continuousLearningAIService.getRealTimeLearningStatus();
 

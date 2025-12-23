@@ -1,6 +1,6 @@
 import express from 'express';
 import multiOmicsIntegrationService from '../services/multiOmicsIntegrationService.js';
-import { authenticateUser } from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ const router = express.Router();
  */
 
 // Submit multi-omics data for integration
-router.post('/integrate', authenticateUser, async (req, res) => {
+router.post('/integrate', authenticateToken, async (req, res) => {
   try {
     const { patientId, omicsData } = req.body;
 
@@ -41,7 +41,7 @@ router.post('/integrate', authenticateUser, async (req, res) => {
 });
 
 // Get integrated omics profile for patient
-router.get('/profile/:patientId', authenticateUser, async (req, res) => {
+router.get('/profile/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { includeRawData = false } = req.query;
@@ -67,7 +67,7 @@ router.get('/profile/:patientId', authenticateUser, async (req, res) => {
 });
 
 // Get pathway analysis results
-router.get('/pathways/:patientId', authenticateUser, async (req, res) => {
+router.get('/pathways/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { 
@@ -102,7 +102,7 @@ router.get('/pathways/:patientId', authenticateUser, async (req, res) => {
 });
 
 // Get multi-omics biomarkers
-router.get('/biomarkers/:patientId', authenticateUser, async (req, res) => {
+router.get('/biomarkers/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { 
@@ -137,7 +137,7 @@ router.get('/biomarkers/:patientId', authenticateUser, async (req, res) => {
 });
 
 // Get therapeutic implications
-router.get('/therapeutics/:patientId', authenticateUser, async (req, res) => {
+router.get('/therapeutics/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { 
@@ -172,7 +172,7 @@ router.get('/therapeutics/:patientId', authenticateUser, async (req, res) => {
 });
 
 // Get network analysis results
-router.get('/networks/:patientId', authenticateUser, async (req, res) => {
+router.get('/networks/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { 
@@ -207,7 +207,7 @@ router.get('/networks/:patientId', authenticateUser, async (req, res) => {
 });
 
 // Get disease subtyping results
-router.get('/subtyping/:patientId', authenticateUser, async (req, res) => {
+router.get('/subtyping/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { includeConfidence = true } = req.query;
@@ -233,7 +233,7 @@ router.get('/subtyping/:patientId', authenticateUser, async (req, res) => {
 });
 
 // Compare omics profiles between patients
-router.post('/compare', authenticateUser, async (req, res) => {
+router.post('/compare', authenticateToken, async (req, res) => {
   try {
     const { patientIds, comparisonType = 'similarity' } = req.body;
 
@@ -266,7 +266,7 @@ router.post('/compare', authenticateUser, async (req, res) => {
 });
 
 // Get data quality report
-router.get('/quality/:patientId', authenticateUser, async (req, res) => {
+router.get('/quality/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
 
@@ -290,7 +290,7 @@ router.get('/quality/:patientId', authenticateUser, async (req, res) => {
 });
 
 // Update omics data for patient
-router.patch('/update/:patientId', authenticateUser, async (req, res) => {
+router.patch('/update/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { omicsUpdates, reprocessing = true } = req.body;
@@ -323,7 +323,7 @@ router.patch('/update/:patientId', authenticateUser, async (req, res) => {
 });
 
 // Export integrated omics data
-router.get('/export/:patientId', authenticateUser, async (req, res) => {
+router.get('/export/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { 

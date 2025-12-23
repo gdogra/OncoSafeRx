@@ -1,6 +1,6 @@
 import express from 'express';
 import patientTreatmentSimulationService from '../services/patientTreatmentSimulationService.js';
-import { authenticateUser } from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ const router = express.Router();
  */
 
 // Create personalized treatment simulation
-router.post('/create', authenticateUser, async (req, res) => {
+router.post('/create', authenticateToken, async (req, res) => {
   try {
     const { patientProfile, treatmentOptions, preferences = {} } = req.body;
 
@@ -42,7 +42,7 @@ router.post('/create', authenticateUser, async (req, res) => {
 });
 
 // Get simulation by ID
-router.get('/:simulationId', authenticateUser, async (req, res) => {
+router.get('/:simulationId', authenticateToken, async (req, res) => {
   try {
     const { simulationId } = req.params;
     const { includeInteractions = false } = req.query;
@@ -68,7 +68,7 @@ router.get('/:simulationId', authenticateUser, async (req, res) => {
 });
 
 // Get treatment comparison visualization
-router.post('/compare', authenticateUser, async (req, res) => {
+router.post('/compare', authenticateToken, async (req, res) => {
   try {
     const { patientProfile, treatmentOptions, comparisonCriteria = 'all' } = req.body;
 
@@ -95,7 +95,7 @@ router.post('/compare', authenticateUser, async (req, res) => {
 });
 
 // Get personalized outcome projections
-router.post('/outcomes/predict', authenticateUser, async (req, res) => {
+router.post('/outcomes/predict', authenticateToken, async (req, res) => {
   try {
     const { patientProfile, treatment, timeHorizon = '2y' } = req.body;
 
@@ -122,7 +122,7 @@ router.post('/outcomes/predict', authenticateUser, async (req, res) => {
 });
 
 // Get side effect timeline and management
-router.post('/side-effects/timeline', authenticateUser, async (req, res) => {
+router.post('/side-effects/timeline', authenticateToken, async (req, res) => {
   try {
     const { patientProfile, treatment, includeManagement = true } = req.body;
 
@@ -149,7 +149,7 @@ router.post('/side-effects/timeline', authenticateUser, async (req, res) => {
 });
 
 // Generate interactive treatment timeline
-router.post('/timeline/interactive', authenticateUser, async (req, res) => {
+router.post('/timeline/interactive', authenticateToken, async (req, res) => {
   try {
     const { patientProfile, treatment, includePersonalization = true } = req.body;
 
@@ -175,7 +175,7 @@ router.post('/timeline/interactive', authenticateUser, async (req, res) => {
 });
 
 // Get decision support tools
-router.post('/decision-aid', authenticateUser, async (req, res) => {
+router.post('/decision-aid', authenticateToken, async (req, res) => {
   try {
     const { patientProfile, treatmentOptions, decisionContext = {} } = req.body;
 
@@ -201,7 +201,7 @@ router.post('/decision-aid', authenticateUser, async (req, res) => {
 });
 
 // Get personalized educational materials
-router.get('/education/:patientId', authenticateUser, async (req, res) => {
+router.get('/education/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { 
@@ -236,7 +236,7 @@ router.get('/education/:patientId', authenticateUser, async (req, res) => {
 });
 
 // Record patient interaction with simulation
-router.post('/interaction/:simulationId', authenticateUser, async (req, res) => {
+router.post('/interaction/:simulationId', authenticateToken, async (req, res) => {
   try {
     const { simulationId } = req.params;
     const { interactionType, data, timestamp } = req.body;
@@ -267,7 +267,7 @@ router.post('/interaction/:simulationId', authenticateUser, async (req, res) => 
 });
 
 // Get quality of life projection
-router.post('/quality-of-life/project', authenticateUser, async (req, res) => {
+router.post('/quality-of-life/project', authenticateToken, async (req, res) => {
   try {
     const { patientProfile, treatment, timeframe = '6m' } = req.body;
 
@@ -294,7 +294,7 @@ router.post('/quality-of-life/project', authenticateUser, async (req, res) => {
 });
 
 // Generate discussion guide for appointments
-router.post('/discussion-guide', authenticateUser, async (req, res) => {
+router.post('/discussion-guide', authenticateToken, async (req, res) => {
   try {
     const { patientProfile, treatmentOptions, appointmentType = 'treatment_planning' } = req.body;
 
@@ -321,7 +321,7 @@ router.post('/discussion-guide', authenticateUser, async (req, res) => {
 });
 
 // Update patient preferences
-router.patch('/preferences/:simulationId', authenticateUser, async (req, res) => {
+router.patch('/preferences/:simulationId', authenticateToken, async (req, res) => {
   try {
     const { simulationId } = req.params;
     const { preferences } = req.body;
@@ -347,7 +347,7 @@ router.patch('/preferences/:simulationId', authenticateUser, async (req, res) =>
 });
 
 // Share simulation with caregiver
-router.post('/share/:simulationId', authenticateUser, async (req, res) => {
+router.post('/share/:simulationId', authenticateToken, async (req, res) => {
   try {
     const { simulationId } = req.params;
     const { caregiverEmail, accessLevel = 'view', message } = req.body;
@@ -385,7 +385,7 @@ router.post('/share/:simulationId', authenticateUser, async (req, res) => {
 });
 
 // Export simulation for printing
-router.get('/export/:simulationId', authenticateUser, async (req, res) => {
+router.get('/export/:simulationId', authenticateToken, async (req, res) => {
   try {
     const { simulationId } = req.params;
     const { format = 'pdf', sections = 'all' } = req.query;

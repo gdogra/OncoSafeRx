@@ -1,6 +1,6 @@
 import express from 'express';
 import realTimeBiomarkerService from '../services/realTimeBiomarkerService.js';
-import { authenticateUser } from '../middleware/auth.js';
+import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ const router = express.Router();
  */
 
 // Start biomarker monitoring for a patient
-router.post('/monitor/start', authenticateUser, async (req, res) => {
+router.post('/monitor/start', authenticateToken, async (req, res) => {
   try {
     const { patientId, monitoringConfig } = req.body;
 
@@ -41,7 +41,7 @@ router.post('/monitor/start', authenticateUser, async (req, res) => {
 });
 
 // Submit new biomarker data
-router.post('/data/submit', authenticateUser, async (req, res) => {
+router.post('/data/submit', authenticateToken, async (req, res) => {
   try {
     const { patientId, biomarkerData } = req.body;
 
@@ -72,7 +72,7 @@ router.post('/data/submit', authenticateUser, async (req, res) => {
 });
 
 // Get current biomarker dashboard for patient
-router.get('/dashboard/:patientId', authenticateUser, async (req, res) => {
+router.get('/dashboard/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { timeRange = '30d' } = req.query;
@@ -98,7 +98,7 @@ router.get('/dashboard/:patientId', authenticateUser, async (req, res) => {
 });
 
 // Get predictive insights for patient
-router.get('/insights/:patientId', authenticateUser, async (req, res) => {
+router.get('/insights/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { horizon = 'short' } = req.query;
@@ -125,7 +125,7 @@ router.get('/insights/:patientId', authenticateUser, async (req, res) => {
 });
 
 // Get active alerts for patient
-router.get('/alerts/:patientId', authenticateUser, async (req, res) => {
+router.get('/alerts/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { severity, status = 'active' } = req.query;
@@ -152,7 +152,7 @@ router.get('/alerts/:patientId', authenticateUser, async (req, res) => {
 });
 
 // Update alert status (acknowledge, resolve, etc.)
-router.patch('/alerts/:alertId/status', authenticateUser, async (req, res) => {
+router.patch('/alerts/:alertId/status', authenticateToken, async (req, res) => {
   try {
     const { alertId } = req.params;
     const { status, notes } = req.body;
@@ -183,7 +183,7 @@ router.patch('/alerts/:alertId/status', authenticateUser, async (req, res) => {
 });
 
 // Get biomarker trends analysis
-router.get('/trends/:patientId/:biomarker', authenticateUser, async (req, res) => {
+router.get('/trends/:patientId/:biomarker', authenticateToken, async (req, res) => {
   try {
     const { patientId, biomarker } = req.params;
     const { timeRange = '90d', includeProjections = false } = req.query;
@@ -215,7 +215,7 @@ router.get('/trends/:patientId/:biomarker', authenticateUser, async (req, res) =
 });
 
 // Configure monitoring parameters
-router.put('/monitor/configure/:patientId', authenticateUser, async (req, res) => {
+router.put('/monitor/configure/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { monitoringConfig } = req.body;
@@ -241,7 +241,7 @@ router.put('/monitor/configure/:patientId', authenticateUser, async (req, res) =
 });
 
 // Get monitoring status and health
-router.get('/monitor/status/:patientId', authenticateUser, async (req, res) => {
+router.get('/monitor/status/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
 
@@ -263,7 +263,7 @@ router.get('/monitor/status/:patientId', authenticateUser, async (req, res) => {
 });
 
 // Stop biomarker monitoring
-router.post('/monitor/stop/:patientId', authenticateUser, async (req, res) => {
+router.post('/monitor/stop/:patientId', authenticateToken, async (req, res) => {
   try {
     const { patientId } = req.params;
     const { reason, notes } = req.body;

@@ -337,26 +337,15 @@ class VoiceDocumentationService extends EventEmitter {
     const startTime = Date.now();
     
     // Simulate speech recognition with realistic processing
-    await new Promise(resolve => setTimeout(resolve, 100 + Math.random() * 200));
-    
-    const mockTranscriptions = [
-      "The patient is a 65-year-old male with a history of stage three lung adenocarcinoma who presents for routine follow-up.",
-      "Chief complaint patient reports increasing shortness of breath and fatigue over the past two weeks.",
-      "Physical examination reveals clear lung fields bilaterally, regular rate and rhythm, no murmurs, rubs, or gallops.",
-      "Assessment and plan continue current chemotherapy regimen with carboplatin and paclitaxel, order chest CT in four weeks.",
-      "Patient tolerated treatment well, no acute adverse events, follow-up scheduled in two weeks."
-    ];
-    
-    const randomTranscription = mockTranscriptions[Math.floor(Math.random() * mockTranscriptions.length)];
-    const confidence = 0.85 + Math.random() * 0.12;
-    
+    // Voice transcription requires a real speech-to-text service
+    // (Google Cloud Speech, AWS Transcribe, etc.). Return an honest
+    // "not configured" response instead of fabricated text.
     const processingTime = Date.now() - startTime;
-    
+
     return {
-      transcription: randomTranscription,
-      confidence: confidence,
+      transcription: '',
+      confidence: 0,
       alternatives: [
-        { transcription: randomTranscription, confidence: confidence },
         { transcription: randomTranscription.replace(/patient/g, 'patient'), confidence: confidence - 0.05 }
       ],
       audioLength: audioData?.length || 1024,

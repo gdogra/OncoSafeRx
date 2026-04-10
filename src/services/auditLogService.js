@@ -357,7 +357,7 @@ class AuditLogService {
   async getRecentFailedLogins(userId) {
     // In production, query the audit database
     // For now, return a mock count
-    return Math.floor(Math.random() * 3);
+    return 0;
   }
 
   async sendAlerts(alerts, auditEntry) {

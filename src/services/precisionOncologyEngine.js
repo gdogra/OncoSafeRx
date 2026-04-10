@@ -506,11 +506,19 @@ class PrecisionOncologyEngine {
   }
 
   assessMSIStatus(markers) {
-    // Assess microsatellite instability
+    // MSI status MUST come from actual lab testing (IHC or PCR).
+    // Cannot be randomly generated — that would be clinically dangerous.
+    if (markers?.msiStatus) {
+      return {
+        status: markers.msiStatus,
+        confidence: 'Lab-confirmed',
+        immunotherapyRecommendation: markers.msiStatus === 'MSI-High',
+      };
+    }
     return {
-      status: Math.random() > 0.85 ? 'MSI-High' : 'MSS',
-      confidence: 'High',
-      immunotherapyRecommendation: Math.random() > 0.85
+      status: 'Unknown — MSI testing required',
+      confidence: 'Not tested',
+      immunotherapyRecommendation: null,
     };
   }
 

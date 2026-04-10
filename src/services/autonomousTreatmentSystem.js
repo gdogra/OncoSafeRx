@@ -600,7 +600,7 @@ class AutonomousTreatmentSystem extends EventEmitter {
   }
 
   getCycleNumber(patientId) {
-    return Math.floor(Math.random() * 100) + 1;
+    return 0 // Requires real priority scoring;
   }
 
   async emergencySafetyProtocol(patientId, error) {

@@ -350,35 +350,34 @@ class AIAnalyticsEngine {
 
   // Helper methods for AI calculations
   async predictInteractionRisk(drug1, drug2, patientData) {
-    // Simulate advanced ML prediction
-    const baseRisk = Math.random() * 0.8;
-    const patientFactors = this.calculatePatientRiskMultiplier(patientData);
-    
+    // Return honest "unknown" when no real ML model is available.
+    // Never fabricate risk scores — clinicians may act on them.
     return {
-      probability: Math.min(baseRisk * patientFactors, 0.95),
-      severity: baseRisk > 0.7 ? 'Major' : baseRisk > 0.4 ? 'Moderate' : 'Minor',
+      probability: null,
+      severity: 'Unknown — requires curated interaction database lookup',
       mechanism: this.determineMechanism(drug1, drug2),
       consequence: this.predictConsequence(drug1, drug2),
-      recommendation: this.generateRecommendation(drug1, drug2, baseRisk),
-      evidenceLevel: 'High',
-      aiConfidence: 0.91
+      recommendation: 'Check curated interaction database at /api/interactions/check',
+      evidenceLevel: 'Not computed — use evidence-based interaction checker',
+      aiConfidence: 0,
+      disclaimer: 'AI prediction not available. Use the curated interaction checker for evidence-based results.',
     };
   }
 
   async predictAdverseEventRisk(treatment, riskFactors, patientData) {
-    // Simulate ML adverse event prediction
-    const baseRisk = Math.random() * 0.6;
+    // Return honest "unknown" — cannot fabricate adverse event probabilities
     const riskMultiplier = this.calculateRiskMultiplier(riskFactors);
     
     return {
       event: this.selectLikelyAdverseEvent(treatment),
-      probability: Math.min(baseRisk * riskMultiplier, 0.9),
-      severity: baseRisk > 0.5 ? 'Severe' : baseRisk > 0.3 ? 'Moderate' : 'Mild',
+      probability: null,
+      severity: 'Unknown — use FAERS data at /api/faers/adverse-events/:drug for evidence-based safety data',
       timeToOnset: this.predictTimeToOnset(treatment),
       contributingFactors: riskFactors,
       prevention: this.generatePreventionStrategy(treatment),
       monitoring: this.generateMonitoringStrategy(treatment),
-      aiConfidence: 0.88
+      aiConfidence: 0,
+      disclaimer: 'Adverse event prediction requires real pharmacovigilance data. See FAERS endpoint.',
     };
   }
 

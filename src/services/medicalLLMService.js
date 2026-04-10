@@ -519,7 +519,7 @@ Format for multiple delivery methods: text, audio script, visual aids descriptio
     // AI-powered relevance ranking
     return results.map(result => ({
       ...result,
-      relevanceScore: Math.random() * 0.3 + 0.7, // Simulate high relevance
+      relevanceScore: 0, // Simulate high relevance
       aiSummary: 'Key findings relevant to clinical decision making...'
     }));
   }

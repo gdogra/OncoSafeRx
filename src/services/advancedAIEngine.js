@@ -307,7 +307,7 @@ Format as detailed JSON with confidence scores and clinical recommendations.`;
   async getFederatedLearningInsights(patientData, networkData) {
     // Simulate federated learning across hospital networks
     return {
-      similarCases: Math.floor(Math.random() * 1000) + 100,
+      similarCases: 0 // Requires real case database,
       networkSize: 'Regional Network (15 hospitals)',
       aggregatedOutcomes: {
         treatmentSuccess: 0.847,

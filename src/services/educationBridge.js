@@ -707,7 +707,7 @@ class EducationBridge {
     return Array.from({ length: 15 }, (_, i) => ({
       id: `case_${i + 1}`,
       title: `Oncology Case Study ${i + 1}`,
-      active_students: Math.floor(Math.random() * 20) + 5
+      active_students: 0
     }));
   }
 

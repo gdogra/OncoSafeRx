@@ -17,6 +17,7 @@ import AdminApiStatus from '../Admin/AdminApiStatus';
 import LoginWizard from '../Onboarding/LoginWizard';
 import AIChat from '../Help/AIChat';
 import { appVersion } from '../../utils/env';
+import MedicalDisclaimer from '../UI/MedicalDisclaimer';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -207,8 +208,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
           </div>
         </footer>
+        <MedicalDisclaimer />
       </div>
-      
+
       {/* Global Feedback Button - Always show now */}
       <FeedbackButton />
       

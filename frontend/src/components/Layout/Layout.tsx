@@ -63,7 +63,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         ]}
       />
       
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex">
         {/* Sidebar */}
         <Sidebar 
           isOpen={isMobile ? sidebarOpen : sidebarExpanded} 
@@ -188,20 +188,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </main>
 
         {/* Footer */}
-        <footer className="bg-white border-t border-gray-200 mt-auto">
+        <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-auto">
           <div className="px-4 sm:px-6 py-6">
             <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
               <div className="text-sm text-gray-500 text-center sm:text-left">
-                © 2024 OncoSafeRx. Built for precision oncology and pharmacogenomics.
+                © 2026 OncoSafeRx. Built for precision oncology and pharmacogenomics.
               </div>
               <div className="flex space-x-6">
-                <a href="#" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-100">
-                  Privacy Policy
-                </a>
-                <a href="/terms-of-service" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-100">
+                <a href="/terms-of-service" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
                   Terms of Service
                 </a>
-                <a href="/privacy-policy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-100">
+                <a href="/privacy-policy" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
                   Privacy Policy
                 </a>
               </div>

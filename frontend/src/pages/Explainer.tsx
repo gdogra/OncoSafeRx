@@ -312,8 +312,8 @@ const Explainer: React.FC = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   {userType.features.map((feature, fIndex) => (
-                    <div key={fIndex} className="flex items-center text-sm">
-                      <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                    <div key={fIndex} className="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                      <CheckCircle className="h-4 w-4 text-green-500 mr-2 shrink-0" />
                       {feature}
                     </div>
                   ))}

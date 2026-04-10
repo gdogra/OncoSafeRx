@@ -1,3 +1,4 @@
+import { fetchSuggestions as rxnormFetchSuggestions } from '../../services/rxnormDirect';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 type Option = {
@@ -56,7 +57,8 @@ export default function SolidDrugSearch({ placeholder, value, onChange, onSelect
     setLoading(true);
     const t = setTimeout(async () => {
       try {
-        const resp = await fetch(`/api/drugs/suggestions?q=${encodeURIComponent(q)}&limit=${maxResults}`);
+        let resp = await fetch(`/api/drugs/suggestions?q=${encodeURIComponent(q)}&limit=${maxResults}`).catch(() => null);
+        if (!resp || !resp.ok) resp = await rxnormFetchSuggestions(q, parseInt(String(${maxResults})) || 12);
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const data = await resp.json();
         if (abort) return;

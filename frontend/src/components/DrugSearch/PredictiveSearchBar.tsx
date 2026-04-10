@@ -1,3 +1,4 @@
+import { fetchSuggestions as rxnormFetchSuggestions } from '../../services/rxnormDirect';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, X, Clock, TrendingUp, Zap } from 'lucide-react';
 import { debounce } from 'lodash';
@@ -94,7 +95,8 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
       
       try {
         // Try Netlify proxy first
-        let response = await fetch(`/api/drugs/suggestions?q=${encodeURIComponent(query)}&limit=${maxSuggestions}`);
+        let response = await fetch(`/api/drugs/suggestions?q=${encodeURIComponent(query)}&limit=${maxSuggestions}`).catch(() => null) as Response | null;
+        if (!response || !response.ok) response = await rxnormFetchSuggestions(query, parseInt(String(${maxSuggestions})) || 12);
         
         // If 502 Bad Gateway, API is temporarily unavailable
         if (response.status === 502) {

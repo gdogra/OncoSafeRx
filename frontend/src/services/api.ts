@@ -42,33 +42,50 @@ api.interceptors.response.use(
 // Drug services
 export const drugService = {
   searchDrugs: async (query: string) => {
+    // Try backend first, then fall back to RxNorm direct
     try {
       const response = await api.get(`/drugs/search?q=${encodeURIComponent(query)}`);
       return response.data;
-    } catch (error: any) {
-      console.warn(`API error for drug search "${query}":`, error.response?.status || error.message);
-      
-      // Return fallback data for common drugs to keep functionality working
-      const fallbackDrugs = [
-        { name: 'Aspirin', rxcui: '1191', tty: 'IN' },
-        { name: 'Ibuprofen', rxcui: '5640', tty: 'IN' },
-        { name: 'Acetaminophen', rxcui: '161', tty: 'IN' },
-        { name: 'Metformin', rxcui: '6809', tty: 'IN' },
-        { name: 'Warfarin', rxcui: '11289', tty: 'IN' },
-        { name: 'Lisinopril', rxcui: '29046', tty: 'IN' },
-      ];
-      
-      const filteredResults = fallbackDrugs.filter(drug => 
-        drug.name.toLowerCase().includes(query.toLowerCase())
-      );
-      
-      return { 
-        results: filteredResults,
-        count: filteredResults.length,
-        query,
-        message: 'Using cached drug data (API temporarily unavailable)',
-        fallback: true
-      };
+    } catch {
+      // Backend unavailable — call RxNorm directly (free, CORS-enabled)
+      try {
+        const rxRes = await fetch(
+          `https://rxnav.nlm.nih.gov/REST/drugs.json?name=${encodeURIComponent(query)}`
+        );
+        if (rxRes.ok) {
+          const rxData = await rxRes.json();
+          const concepts = rxData?.drugGroup?.conceptGroup || [];
+          const results: any[] = [];
+          for (const group of concepts) {
+            for (const prop of (group.conceptProperties || [])) {
+              results.push({
+                name: prop.name,
+                rxcui: prop.rxcui,
+                tty: prop.tty,
+                synonym: prop.synonym || '',
+              });
+            }
+          }
+          return { results: results.slice(0, 20), count: results.length, query, source: 'RxNorm' };
+        }
+      } catch {}
+      // Final fallback: approximate search
+      try {
+        const approxRes = await fetch(
+          `https://rxnav.nlm.nih.gov/REST/approximateTerm.json?term=${encodeURIComponent(query)}&maxEntries=10`
+        );
+        if (approxRes.ok) {
+          const approxData = await approxRes.json();
+          const candidates = approxData?.approximateGroup?.candidate || [];
+          return {
+            results: candidates.map((c: any) => ({ name: c.name || query, rxcui: c.rxcui, tty: 'IN', score: c.score })),
+            count: candidates.length,
+            query,
+            source: 'RxNorm approximate',
+          };
+        }
+      } catch {}
+      return { results: [], count: 0, query, message: 'Drug search unavailable' };
     }
   },
 

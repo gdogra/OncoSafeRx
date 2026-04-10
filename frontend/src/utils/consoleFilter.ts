@@ -3,9 +3,7 @@
  */
 
 export const setupConsoleFilter = () => {
-  if (window.location.hostname !== 'localhost') {
-    return; // Only filter in development
-  }
+  // Filter in both dev and production to suppress expected 404s when backend is unavailable
 
   const originalError = console.error;
   const originalWarn = console.warn;
@@ -21,6 +19,11 @@ export const setupConsoleFilter = () => {
       message.includes('api/regimens') ||
       message.includes('api/drugs/suggestions') ||
       message.includes('api/pain/opiates') ||
+      message.includes('api/patients') ||
+      message.includes('api/admin') ||
+      message.includes('api/supabase-auth') ||
+      message.includes('404 (Not Found)') ||
+      message.includes('Failed to load resource') ||
       message.includes('localhost:3000') ||
       (message.includes('localhost:5177') && message.includes('500'))
     ) {

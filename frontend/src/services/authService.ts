@@ -891,10 +891,10 @@ export class SupabaseAuthService {
       // Resolve role with clear priority: metadata -> backend profile -> DB -> fallback -> patient
       role = user.user_metadata?.role || fallbackData?.role;
       
-      // Prefer backend profile (service role; robust against RLS/column drift)
+      // Try backend profile (if backend is available). Silent failure — falls back to Supabase direct.
       try {
-        const resp = await authedFetch('/api/supabase-auth/profile');
-        if (resp.ok) {
+        const resp = await authedFetch('/api/supabase-auth/profile').catch(() => null);
+        if (resp && resp.ok) {
           const body = await resp.json().catch(() => ({} as any));
           const u = body?.user;
           if (u) {

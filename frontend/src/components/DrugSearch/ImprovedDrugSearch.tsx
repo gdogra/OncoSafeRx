@@ -1,3 +1,4 @@
+import { fetchSuggestions as rxnormFetchSuggestions } from '../../services/rxnormDirect';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -254,7 +255,8 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
     setServerSuggestionsLoading(true);
     const t = setTimeout(async () => {
       try {
-        const resp = await fetch(`/api/drugs/suggestions?q=${encodeURIComponent(filters.query)}&limit=8`);
+        let resp = await fetch(`/api/drugs/suggestions?q=${encodeURIComponent(filters.query)}&limit=8`).catch(() => null);
+        if (!resp || !resp.ok) resp = await rxnormFetchSuggestions(filters.query, parseInt(String(8)) || 12);
         if (!resp.ok) throw new Error('suggestions failed');
         const data = await resp.json();
         if (abort) return;

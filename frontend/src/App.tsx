@@ -22,98 +22,36 @@ import { useVisitorTracking } from './hooks/useVisitorTracking';
 import setupErrorSuppression from './utils/errorSuppression';
 import { checkForUpdates } from './utils/versionCheck';
 import { setupConsoleFilter } from './utils/consoleFilter';
+// ── Core pages ────────────────────────────────────────────────
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const DrugSearch = lazy(() => import('./pages/DrugSearch'));
-const LandingPage = lazy(() => import('./pages/LandingPage'));
-const ClinicalLandingPage = lazy(() => import('./pages/ClinicalLandingPage'));
-const AuthenticatedRoute = lazy(() => import('./components/Auth/AuthenticatedRoute'));
-const CompetitiveAdvantage = lazy(() => import('./pages/CompetitiveAdvantage'));
-const ClinicalTrials = lazy(() => import('./pages/ClinicalTrials'));
-const BreakthroughFeatures = lazy(() => import('./pages/BreakthroughFeatures'));
-const Phase2Dashboard = lazy(() => import('./pages/Phase2Dashboard'));
-const Phase3CommandCenter = lazy(() => import('./pages/Phase3CommandCenter'));
 const InteractionChecker = lazy(() => import('./components/Interactions/InteractionChecker'));
-const GenomicsAnalysis = lazy(() => import('./components/Genomics/GenomicsAnalysis'));
-const Protocols = lazy(() => import('./pages/Protocols'));
 const CuratedInteractions = lazy(() => import('./pages/CuratedInteractions'));
-const Regimens = lazy(() => import('./pages/Regimens'));
+const GenomicsAnalysis = lazy(() => import('./components/Genomics/GenomicsAnalysis'));
+const PrecisionMedicine = lazy(() => import('./pages/PrecisionMedicine'));
 const Trials = lazy(() => import('./pages/Trials'));
-// const Patients = lazy(() => import('./pages/EnhancedPatients'));
-// const LegacyPatients = lazy(() => import('./pages/Patients'));
-const ServerPatients = lazy(() => import('./pages/ServerPatients'));
-const Collaboration = lazy(() => import('./pages/Collaboration'));
-const AIInsights = lazy(() => import('./pages/AIInsights'));
-const DrugDatabase = lazy(() => import('./pages/DrugDatabase'));
-const Analytics = lazy(() => import('./pages/Analytics'));
-const AIRecommendations = lazy(() => import('./pages/AIRecommendations'));
-const AITreatmentPlanner = lazy(() => import('./pages/AITreatmentPlanner'));
-const AdvancedAIDashboard = lazy(() => import('./pages/AdvancedAIDashboard'));
-const EHRIntegration = lazy(() => import('./components/EHR/EHRIntegration'));
-const Help = lazy(() => import('./pages/Help'));
-const PatientProfilesDiagnostics = lazy(() => import('./pages/PatientProfilesDiagnostics'));
-const AuthDiagnostics = lazy(() => import('./pages/AuthDiagnostics'));
-const EnvCheck = lazy(() => import('./pages/EnvCheck'));
-const ClinicalDecisionSupport = lazy(() => import('./pages/ClinicalDecisionSupport'));
-const Research = lazy(() => import('./pages/Research'));
-const AuthPage = lazy(() => import('./pages/AuthPage'));
+const ClinicalTrials = lazy(() => import('./pages/ClinicalTrials'));
 const Profile = lazy(() => import('./pages/Profile'));
-const Testing = lazy(() => import('./pages/Testing'));
-const Pain = lazy(() => import('./pages/Pain'));
-const Logout = lazy(() => import('./pages/Logout'));
-const ResetPassword = lazy(() => import('./pages/ResetPassword'));
-const AuthDebug = lazy(() => import('./pages/AuthDebug'));
-const ForceLogout = lazy(() => import('./pages/ForceLogout'));
-const AuthEmailConfirm = lazy(() => import('./pages/AuthEmailConfirm'));
+
+// ── Auth pages ───────────────────────────────────────────────
+const AuthPage = lazy(() => import('./pages/AuthPage'));
+const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 const AuthCheckEmail = lazy(() => import('./pages/AuthCheckEmail'));
 const AuthOtpVerify = lazy(() => import('./pages/AuthOtpVerify'));
-const AuthCallback = lazy(() => import('./pages/AuthCallback'));
+const AuthEmailConfirm = lazy(() => import('./pages/AuthEmailConfirm'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const ForceLogout = lazy(() => import('./pages/ForceLogout'));
+const Logout = lazy(() => import('./pages/Logout'));
 
-// Patient-specific components
-const MyMedications = lazy(() => import('./pages/MyMedications'));
-const MyAppointments = lazy(() => import('./pages/MyAppointments'));
-const CarePlan = lazy(() => import('./pages/CarePlan'));
-const PatientEducation = lazy(() => import('./pages/PatientEducation'));
-const SideEffects = lazy(() => import('./pages/SideEffects'));
-const PatientSupport = lazy(() => import('./pages/PatientSupport'));
-const CareManagement = lazy(() => import('./pages/CareManagement'));
-const PatientSuccessStories = lazy(() => import('./pages/PatientSuccessStories'));
-const ArticleUnderstandingDiagnosis = lazy(() => import('./pages/ArticleUnderstandingDiagnosis'));
-const ChemoSideEffectsVideo = lazy(() => import('./pages/ChemoSideEffectsVideo'));
-const NutritionDuringTreatmentPDF = lazy(() => import('./pages/NutritionDuringTreatmentPDF'));
-const MeditationInteractive = lazy(() => import('./pages/MeditationInteractive'));
-const NotificationSettings = lazy(() => import('./pages/NotificationSettings'));
-const UserAdmin = lazy(() => import('./pages/UserAdmin'));
-const AuditLogViewer = lazy(() => import('./pages/AuditLogViewer'));
-const AdminSystemHealth = lazy(() => import('./pages/AdminSystemHealth'));
-const AdminSettings = lazy(() => import('./pages/AdminSettings'));
-const AdminTrialAnalytics = lazy(() => import('./pages/AdminTrialAnalytics'));
-const EnterpriseAIDashboard = lazy(() => import('./pages/EnterpriseAIDashboard'));
-const FeedbackAdmin = lazy(() => import('./pages/FeedbackAdmin'));
-const AdminConsole = lazy(() => import('./components/Admin/AdminConsole'));
+// ── Admin ────────────────────────────────────────────────────
 const AdminHome = lazy(() => import('./pages/AdminHome'));
-const AdminAuthDiagnostics = lazy(() => import('./pages/AdminAuthDiagnostics'));
-const AdminOnboardingAnalytics = lazy(() => import('./pages/AdminOnboardingAnalytics'));
-const FHIRPatients = lazy(() => import('./pages/FHIRPatients'));
-const ArticleLabResults = lazy(() => import('./pages/ArticleLabResults'));
-const VideoSupportNetwork = lazy(() => import('./pages/VideoSupportNetwork'));
+const UserAdmin = lazy(() => import('./pages/UserAdmin'));
 
-// Advanced Patient Portal Components
-const EnhancedPatientPortal = lazy(() => import('./components/Patient/EnhancedPatientPortal'));
-const GenomicJourneyTracker = lazy(() => import('./components/Genomics/GenomicJourneyTracker'));
-const SymptomIntelligencePlatform = lazy(() => import('./components/Symptoms/SymptomIntelligencePlatform'));
-const DigitalBiomarkersTracker = lazy(() => import('./components/Monitoring/DigitalBiomarkersTracker'));
-const GeneticTwinNetwork = lazy(() => import('./components/Community/GeneticTwinNetwork'));
-const TreatmentSimulationLab = lazy(() => import('./components/Treatment/TreatmentSimulationLab'));
-const MedicationIntelligenceEngine = lazy(() => import('./components/Medication/MedicationIntelligenceEngine'));
-const ResearchParticipationHub = lazy(() => import('./components/Research/ResearchParticipationHub'));
-
-// Advanced Care & Collaboration Components
-const CareCoordinationHub = lazy(() => import('./components/Care/CareCoordinationHub'));
-const RealTimeCollaborationPlatform = lazy(() => import('./components/Collaboration/RealTimeCollaborationPlatform'));
-const PredictiveAnalyticsDashboard = lazy(() => import('./components/Analytics/PredictiveAnalyticsDashboard'));
-const PrecisionMedicine = lazy(() => import('./pages/PrecisionMedicine'));
+// ── Legal + utility ──────────────────────────────────────────
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const NotFound = lazy(() => import('./pages/NotFound'));
+const ClinicalLandingPage = lazy(() => import('./pages/ClinicalLandingPage'));
 
 // Feature flag to disable patient UI routes (build-time)
 const PATIENTS_DISABLED = String((import.meta as any)?.env?.VITE_PATIENTS_DISABLED || '').toLowerCase() === 'true';
@@ -182,780 +120,86 @@ function AppWithAuth() {
             <ComparisonProvider>
             <Suspense fallback={<div className="p-4 text-sm text-gray-500 dark:text-gray-400">Loading…</div>}>
               <Routes>
-                {/* Public routes */}
+                {/* ── Public routes ──────────────────────────── */}
                 <Route path="/auth" element={<AuthPage />} />
-                <Route path="/auth-old" element={<AuthPage />} />
                 <Route path="/login" element={<AuthPage />} />
                 <Route path="/signup" element={<AuthPage />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/auth/confirm" element={<AuthEmailConfirm />} />
-                <Route path="/auth/check-email" element={<AuthCheckEmail />} />
-                <Route path="/auth/verify-otp" element={<AuthOtpVerify />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
-                <Route path="/logout" element={<Logout />} />
-                {isDev && <Route path="/auth-debug" element={<AuthDebug />} />}
+                <Route path="/auth/check-email" element={<AuthCheckEmail />} />
+                <Route path="/auth/otp-verify" element={<AuthOtpVerify />} />
+                <Route path="/auth/email-confirm" element={<AuthEmailConfirm />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/force-logout" element={<ForceLogout />} />
-                <Route path="/env-check" element={<EnvCheck />} />
-                
-                {/* Emergency/debug routes only in development */}
-                {isDev && (
-                  <Route path="/emergency-debug" element={
-                    <div className="min-h-screen bg-red-50 flex items-center justify-center p-4">
-                      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md text-center">
-                        <h1 className="text-2xl font-bold text-red-600 mb-4">Emergency Debug</h1>
-                        <p className="text-gray-600 mb-4">Bypasses all authentication logic</p>
-                        <div className="space-y-2">
-                          <div className="text-sm"><strong>URL:</strong> {window.location.href}</div>
-                          <div className="text-sm"><strong>Path:</strong> {window.location.pathname}</div>
-                        </div>
-                      </div>
-                    </div>
-                  } />
-                )}
-                
-                
-                {/* Simple test route (dev only) */}
-                {isDev && (
-                  <Route path="/test-admin" element={
-                    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                      <div className="bg-white p-8 rounded-lg shadow-lg">
-                        <h1 className="text-2xl font-bold text-gray-900 mb-4">Test Route Working!</h1>
-                        <p className="text-gray-600 dark:text-gray-400">This confirms routing is working.</p>
-                      </div>
-                    </div>
-                  } />
-                )}
-                
-                {/* Visitor analytics is a real feature; keep gated by permission */}
-                <Route path="/visitor-analytics" element={
-                  <ProtectedRoute requiredPermission="view_visitor_analytics">
-                    <Layout>
-                      <VisitorAnalyticsDashboard />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                
-                {isDev && (
-                  <Route path="/debug-routing" element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <RoutingTest />
-                      </Layout>
-                    </ProtectedRoute>
-                  } />
-                )}
-                
-                {isDev && (
-                  <Route path="/debug-tokens" element={
-                    <ProtectedRoute>
-                      <Layout>
-                        <TokenDebug />
-                      </Layout>
-                    </ProtectedRoute>
-                  } />
-                )}
-                
-
-                {/* Protected routes */}
-                {/* Landing page routes - Clinical focus */}
+                <Route path="/logout" element={<Logout />} />
                 <Route path="/landing" element={<ClinicalLandingPage />} />
-                <Route path="/clinical" element={<ClinicalLandingPage />} />
-                <Route path="/home" element={<LandingPage />} />
-                
-                {/* Competitive Advantage Features */}
-                <Route path="/competitive-advantage" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
-                    <Layout>
-                      <Suspense fallback={<div>Loading...</div>}>
-                        <CompetitiveAdvantage />
-                      </Suspense>
-                    </Layout>
+                <Route path="/terms-of-service" element={<Layout><TermsOfService /></Layout>} />
+                <Route path="/privacy-policy" element={<Layout><PrivacyPolicy /></Layout>} />
+
+                {/* ── Core app routes (interaction checker is the homepage) ── */}
+                <Route path="/" element={
+                  <ProtectedRoute>
+                    <Layout><InteractionChecker /></Layout>
                   </ProtectedRoute>
                 } />
-                <Route path="/clinical-trials" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
-                    <Layout>
-                      <Suspense fallback={<div>Loading...</div>}>
-                        <ClinicalTrials />
-                      </Suspense>
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/breakthrough-features" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
-                    <Layout>
-                      <Suspense fallback={<div>Loading...</div>}>
-                        <BreakthroughFeatures />
-                      </Suspense>
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/phase2" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
-                    <Layout>
-                      <Suspense fallback={<div>Loading...</div>}>
-                        <Phase2Dashboard />
-                      </Suspense>
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/phase3" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
-                    <Layout>
-                      <Suspense fallback={<div>Loading...</div>}>
-                        <Phase3CommandCenter />
-                      </Suspense>
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/" element={<AuthenticatedRoute />} />
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
-                    <Layout>
-                      <Dashboard />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/search" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
-                    <Layout>
-                      <DrugSearch />
-                    </Layout>
+                    <Layout><InteractionChecker /></Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/interactions" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver']}>
-                    <Layout>
-                      <InteractionChecker />
-                    </Layout>
+                  <ProtectedRoute>
+                    <Layout><InteractionChecker /></Layout>
                   </ProtectedRoute>
                 } />
-                <Route path="/curated" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver']}>
-                    <Layout>
-                      <CuratedInteractions />
-                    </Layout>
+                <Route path="/search" element={
+                  <ProtectedRoute>
+                    <Layout><DrugSearch /></Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/curated-interactions" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver']}>
-                    <Layout>
-                      <CuratedInteractions />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/regimens" element={
-                  <ProtectedRoute requiredRole={['oncologist']}>
-                    <Layout>
-                      <Regimens />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/trials" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver']}>
-                    <Layout>
-                      <Trials />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/education" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse', 'student']}>
-                    <Layout>
-                      <PatientEducation />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/stories" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
-                    <Layout>
-                      <PatientSuccessStories />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/education/understanding-diagnosis" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
-                    <Layout>
-                      <ArticleUnderstandingDiagnosis />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/education/video/chemo-side-effects" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
-                    <Layout>
-                      <ChemoSideEffectsVideo />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/education/pdf/nutrition-during-treatment" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
-                    <Layout>
-                      <NutritionDuringTreatmentPDF />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/settings/notifications" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse', 'researcher']}>
-                    <Layout>
-                      <NotificationSettings />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin" element={
-                  <ProtectedRoute requiredPermission="admin_console_access">
-                    <Layout>
-                      <AdminHome />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/users" element={
-                  <ProtectedRoute requiredPermission="manage_users">
-                    <Layout>
-                      <UserAdmin />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/audit" element={
-                  <ProtectedRoute requiredPermission="view_audit_logs">
-                    <Layout>
-                      <AuditLogViewer />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/health" element={
-                  <ProtectedRoute requiredPermission="admin_console_access">
-                    <Layout>
-                      <AdminSystemHealth />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/settings" element={
-                  <ProtectedRoute requiredPermission="manage_system_settings">
-                    <Layout>
-                      <AdminSettings />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/trial-analytics" element={
-                  <ProtectedRoute requiredPermission="admin_console_access">
-                    <Layout>
-                      <AdminTrialAnalytics />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/enterprise/ai-dashboard" element={
-                  <ProtectedRoute requiredPermission="admin_console_access">
-                    <Layout>
-                      <EnterpriseAIDashboard />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-
-                <Route path="/advanced-ai" element={
                   <ProtectedRoute>
-                    <Layout>
-                      <AdvancedAIDashboard />
-                    </Layout>
+                    <Layout><CuratedInteractions /></Layout>
                   </ProtectedRoute>
                 } />
-
-                <Route path="/admin/feedback" element={
-                  <ProtectedRoute requiredPermission="manage_feedback">
-                    <Layout>
-                      <FeedbackAdmin />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/onboarding" element={
-                  <ProtectedRoute requiredPermission="view_visitor_analytics">
-                    <Layout>
-                      <AdminOnboardingAnalytics />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/console" element={
-                  <ProtectedRoute requiredPermission="admin_console_access">
-                    <Layout>
-                      <AdminConsole />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/admin/auth-diagnostics" element={
+                <Route path="/precision-medicine" element={
                   <ProtectedRoute>
-                    <Layout>
-                      <AdminAuthDiagnostics />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/education/article/lab-results" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
-                    <Layout>
-                      <ArticleLabResults />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/education/video/support-network" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
-                    <Layout>
-                      <VideoSupportNetwork />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/education/interactive/meditation" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
-                    <Layout>
-                      <MeditationInteractive />
-                    </Layout>
+                    <Layout><PrecisionMedicine /></Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/genomics" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'researcher', 'patient']}>
-                    <Layout>
-                      <GenomicsAnalysis />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/protocols" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
-                    <Layout>
-                      <Protocols />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/clinical-decision-support" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
-                    <Layout>
-                      <ClinicalDecisionSupport />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/ai-treatment-planner" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <AITreatmentPlanner />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                {!PATIENTS_DISABLED && (
-                  <>
-                <Route path="/patients" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
-                    <Layout>
-                      <ServerPatients />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/patients/all" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
-                    <Layout>
-                      <ServerPatients />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                  </>
-                )}
-                <Route path="/collaboration" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
-                    <Layout>
-                      <Collaboration />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/ai-insights" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
-                    <Layout>
-                      <AIInsights />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/database" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
-                    <Layout>
-                      <DrugDatabase />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/analytics" element={
-                  <ProtectedRoute requiredPermission="view_visitor_analytics">
-                    <Layout>
-                      <Analytics />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/diagnostics/patient-profiles" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'researcher', 'admin']}>
-                    <Layout>
-                      <PatientProfilesDiagnostics />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/pain" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <Pain />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/research" element={
-                  <ProtectedRoute requiredRole={['researcher', 'oncologist']}>
-                    <Layout>
-                      <Research />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/ai" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
-                    <Layout>
-                      <AIRecommendations />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/ehr" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <EHRIntegration />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                {/* FHIR Patients Debug */}
-                <Route path="/fhir-patients" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
-                    <Layout>
-                      <FHIRPatients />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/help" element={
                   <ProtectedRoute>
-                    <Layout>
-                      <Help />
-                    </Layout>
+                    <Layout><GenomicsAnalysis /></Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/trials" element={
+                  <ProtectedRoute>
+                    <Layout><Trials /></Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/clinical-trials" element={
+                  <ProtectedRoute>
+                    <Layout><ClinicalTrials /></Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/profile" element={
                   <ProtectedRoute>
-                    <Layout>
-                      <Profile />
-                    </Layout>
+                    <Layout><Profile /></Layout>
                   </ProtectedRoute>
-                } />
-                <Route path="/auth-diagnostics" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
-                    <Layout>
-                      <AuthDiagnostics />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                
-                {/* Patient-specific routes */}
-                <Route path="/my-care" element={
-                  <ProtectedRoute requiredRole={['patient']}>
-                    <Layout>
-                      <Dashboard />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/my-profile" element={
-                  <ProtectedRoute requiredRole={['patient']}>
-                    <Layout>
-                      <Profile />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/my-medications" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
-                    <Layout>
-                      <MyMedications />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/my-appointments" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
-                    <Layout>
-                      <MyAppointments />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/care-plan" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
-                    <Layout>
-                      <CarePlan />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/care-management" element={
-                  <ProtectedRoute requiredRole={['caregiver']}>
-                    <Layout>
-                      <CareManagement />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/education" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
-                    <Layout>
-                      <PatientEducation />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/support" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
-                    <Layout>
-                      <PatientSupport />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                
-                {/* Education & Support routes */}
-                <Route path="/drug-lookup" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
-                    <Layout>
-                      <DrugSearch />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/side-effects" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
-                    <Layout>
-                      <SideEffects />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/educational-resources" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver']}>
-                    <Layout>
-                      <PatientEducation />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                
-                {/* New Powerful AI Components Routes */}
-                <Route path="/ai-decision-engine" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <ClinicalDecisionEngine />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/safety-alerts" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <DrugSafetyAlertSystem />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/ml-analytics" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'researcher']}>
-                    <Layout>
-                      <MLAnalyticsDashboard />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/clinical-communication" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <ClinicalCommunicationHub />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/iot-monitoring" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <IoTMonitoringSystem />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/predictive-outcomes" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'researcher']}>
-                    <Layout>
-                      <TreatmentOutcomesEngine />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/opioid-risk-report" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <OpioidRiskReport />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/real-time-support" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <RealTimeClinicalSupport />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/ehr-integration" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <EHRIntegrationDashboard />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/regulatory-compliance" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <RegulatoryComplianceSystem />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/evidence-protocols" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <EvidenceBasedProtocolsSystem />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/patient-journey" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <PatientJourney />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/laboratory-integration" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <LaboratoryIntegrationSystem />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/workflow-system" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <AdvancedWorkflowSystem />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/biostatistics" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'researcher', 'student']}>
-                    <Layout>
-                      <Biostatistics />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/multi-database-search" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
-                    <Layout>
-                      <MultiDatabaseSearch />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/evidence-analysis" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
-                    <Layout>
-                      <EvidenceAnalysis />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/drug-intelligence" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher', 'student']}>
-                    <Layout>
-                      <DrugIntelligenceIntegrator />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                
-                {/* Public Pages - No authentication required */}
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/features" element={<Explainer />} />
-                <Route path="/explainer" element={<Explainer />} />
-                <Route path="/what-to-expect" element={<Explainer />} />
-                
-                {/* Advanced Patient Portal Routes */}
-                <Route path="/patient-portal" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <EnhancedPatientPortal />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/genomic-journey" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'researcher']}>
-                    <Layout>
-                      <GenomicJourneyTracker />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/symptom-intelligence" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <SymptomIntelligencePlatform />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/biomarkers-tracking" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <DigitalBiomarkersTracker />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/genetic-twins" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'researcher']}>
-                    <Layout>
-                      <GeneticTwinNetwork />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/treatment-simulation" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist']}>
-                    <Layout>
-                      <TreatmentSimulationLab />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/medication-intelligence" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse']}>
-                    <Layout>
-                      <MedicationIntelligenceEngine />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/research-participation" element={
-                  <ProtectedRoute requiredRole={['patient', 'caregiver', 'oncologist', 'researcher']}>
-                    <Layout>
-                      <ResearchParticipationHub />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                
-                {/* Advanced Care & Collaboration Routes */}
-                <Route path="/care-coordination" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
-                    <Layout>
-                      <CareCoordinationHub />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/collaboration-platform" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'nurse', 'researcher']}>
-                    <Layout>
-                      <RealTimeCollaborationPlatform />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/predictive-analytics" element={
-                  <ProtectedRoute requiredRole={['oncologist', 'pharmacist', 'researcher', 'admin']}>
-                    <Layout>
-                      <PredictiveAnalyticsDashboard />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-{/* Removed duplicate route - moved to top */}
-                
-                {/* Precision Medicine — Biomarker Matcher + Regimen Safety */}
-                <Route path="/precision-medicine" element={
-                  <Layout>
-                    <PrecisionMedicine />
-                  </Layout>
                 } />
 
-                {/* Legal pages — no auth required */}
-                <Route path="/terms-of-service" element={<Layout><TermsOfService /></Layout>} />
-                <Route path="/privacy-policy" element={<Layout><PrivacyPolicy /></Layout>} />
+                {/* ── Admin routes ─────────────────────────── */}
+                <Route path="/admin" element={
+                  <ProtectedRoute requiredRole={['admin', 'super_admin']}>
+                    <Layout><AdminHome /></Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/users" element={
+                  <ProtectedRoute requiredRole={['admin', 'super_admin']}>
+                    <Layout><UserAdmin /></Layout>
+                  </ProtectedRoute>
+                } />
 
-                {/* Professional 404 Page - NO PROTECTED ROUTE */}
+                {/* ── 404 ─────────────────────────────────── */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>

@@ -118,211 +118,57 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
 
   // Grouped navigation items with clear Information Architecture
   const getGroupedNavItems = () => {
+    const allRoles = ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver', 'admin', 'super_admin'];
+    const clinicalRoles = ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'admin', 'super_admin'];
+    const adminRoles = ['admin', 'super_admin'];
+
     const groups = [
       {
-        title: user?.role === 'patient' ? 'My Care' : user?.role === 'caregiver' ? 'Care Management' : 'Overview',
+        title: 'Drug Safety',
         items: [
-          { 
-            path: '/', 
-            label: user?.role === 'patient' ? 'My Dashboard' : user?.role === 'caregiver' ? 'Care Dashboard' : 'Dashboard', 
-            icon: Activity, 
-            description: user?.role === 'patient' ? 'Your treatment overview' : user?.role === 'caregiver' ? 'Patient care overview' : 'Overview and analytics',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver'],
+          {
+            path: '/',
+            label: 'Interaction Checker',
+            icon: AlertTriangle,
+            description: 'Check drug-drug interactions',
+            roles: allRoles,
             requiresPermission: null
           },
-          ...(user?.role === 'patient' ? [
-            { 
-              path: '/my-profile', 
-              label: 'My Health Profile', 
-              icon: UserCheck, 
-              description: 'Your medical information',
-              roles: ['patient'],
-              requiresPermission: null
-            },
-            { 
-              path: '/my-medications', 
-              label: 'My Medications', 
-              icon: Pill, 
-              description: 'Track your medications',
-              roles: ['patient'],
-              requiresPermission: null
-            },
-            { 
-              path: '/my-appointments', 
-              label: 'Appointments', 
-              icon: Clipboard, 
-              description: 'Your upcoming visits',
-              roles: ['patient'],
-              requiresPermission: null
-            }
-          ] : []),
-          ...(user?.role === 'caregiver' ? [
-            { 
-              path: '/patient-info', 
-              label: 'Patient Information', 
-              icon: UserCheck, 
-              description: 'View patient details',
-              roles: ['caregiver'],
-              requiresPermission: null
-            },
-            { 
-              path: '/care-plan', 
-              label: 'Care Plan', 
-              icon: Heart, 
-              description: 'Treatment and care schedule',
-              roles: ['caregiver'],
-              requiresPermission: null
-            }
-          ] : [])
-        ]
-      },
-      {
-        title: 'Clinical Care',
-        items: [
-          { 
-            path: '/clinical-decision-support', 
-            label: 'Clinical Decision', 
-            icon: Stethoscope, 
-            description: 'Decision support tools',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+          {
+            path: '/search',
+            label: 'Drug Search',
+            icon: Search,
+            description: 'Search medications by name',
+            roles: allRoles,
             requiresPermission: null
           },
-          { 
-            path: '/real-time-support', 
-            label: 'Real-Time Support', 
-            icon: Zap, 
-            description: 'Live clinical alerts & monitoring',
-            roles: ['oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: null
-          },
-          { 
-            path: '/patients/all', 
-            label: user?.role === 'researcher' ? 'Subjects' : user?.role === 'student' ? 'Case Studies' : 'Patients', 
-            icon: Users, 
-            description: 'Patient management (server-backed)',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
-            requiresPermission: null
-          },
-          { 
-            path: '/regimens', 
-            label: 'Treatment Plans', 
-            icon: Heart, 
-            description: 'Treatment regimens',
-            roles: ['oncologist'],
-            requiresPermission: 'canPrescribe'
-          },
-          { 
-            path: '/protocols', 
-            label: 'Protocols', 
-            icon: FileText, 
-            description: 'Clinical protocols',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+          {
+            path: '/curated-interactions',
+            label: 'Known Interactions',
+            icon: Shield,
+            description: 'Curated interaction database',
+            roles: allRoles,
             requiresPermission: null
           },
         ]
       },
       {
-        title: 'Drug Information',
+        title: 'Precision Medicine',
         items: [
-          { 
-            path: '/search', 
-            label: 'Drug Search', 
-            icon: Search, 
-            description: 'Search medications',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'student', 'patient', 'caregiver'],
+          {
+            path: '/precision-medicine',
+            label: 'Biomarker Matcher',
+            icon: Target,
+            description: 'Match biomarkers to therapies',
+            roles: clinicalRoles,
             requiresPermission: null
           },
-          { 
-            path: '/interactions', 
-            label: user?.role === 'researcher' ? 'Adverse Events' : 'Interactions', 
-            icon: AlertTriangle, 
-            description: user?.role === 'researcher' ? 'Study adverse events' : 'Drug interactions',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver'],
-            requiresPermission: null
-          },
-          { 
-            path: '/curated-interactions', 
-            label: 'Curated Pairs', 
-            icon: Link2, 
-            description: 'Expert-curated drug interaction pairs',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
-            requiresPermission: null
-          },
-          { 
-            path: '/pain', 
-            label: 'Pain Management', 
-            icon: Pill, 
-            description: 'Opioid MME + safety',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'student'],
-            requiresPermission: null
-          },
-          { 
-            path: '/opioid-risk-report', 
-            label: 'Opioid Risk Report', 
-            icon: Calculator, 
-            description: 'Addiction risk + pharmacogenomics',
-            roles: ['oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: null
-          },
-          { 
-            path: '/database', 
-            label: 'Drug Database', 
-            icon: BookOpen, 
-            description: 'Comprehensive drug information',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver'],
-            requiresPermission: null
-          },
-          { 
-            path: '/evidence-analysis', 
-            label: 'Evidence Analysis', 
-            icon: FileText, 
-            description: 'Real-time clinical evidence synthesis',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
-            requiresPermission: null
-          },
-          { 
-            path: '/drug-intelligence', 
-            label: 'Drug Intelligence', 
-            icon: Brain, 
-            description: 'Multi-source drug intelligence integration',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
-            requiresPermission: null
-          },
-          { 
-            path: '/multi-database-search', 
-            label: 'Multi-Database Search', 
-            icon: BarChart3, 
-            description: 'Search across multiple medical databases',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
-            requiresPermission: null
-          },
-          { 
-            path: '/biostatistics', 
-            label: 'Biostatistics', 
-            icon: Calculator, 
-            description: 'Statistical analysis tools for clinical data',
-            roles: ['oncologist', 'pharmacist', 'researcher', 'student'],
-            requiresPermission: null
-          },
-        ]
-      },
-      {
-        title: 'Advanced Tools',
-        items: [
-          { 
-            path: '/genomics', 
-            label: 'Genomics', 
-            icon: Dna, 
-            description: 'Pharmacogenomics',
-            roles: ['oncologist', 'pharmacist', 'researcher', 'student'],
-            requiresPermission: 'canAccessGenomics'
-          },
-          { 
-            path: '/ai', 
-            label: 'AI Recommendations', 
-            icon: UserCheck, 
-            description: 'AI-powered insights',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
+          {
+            path: '/genomics',
+            label: 'Pharmacogenomics',
+            icon: Dna,
+            description: 'PGx gene-drug guidelines',
+            roles: clinicalRoles,
             requiresPermission: null
           },
           {
@@ -330,377 +176,22 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             label: 'Clinical Trials',
             icon: TestTube,
             description: 'Find relevant trials',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver'],
+            roles: allRoles,
             requiresPermission: null
           },
+        ]
+      },
+      ...(adminRoles.includes(user?.role || '') ? [{
+        title: 'Admin',
+        items: [
           {
-            path: '/precision-medicine',
-            label: 'Precision Medicine',
-            icon: Target,
-            description: 'Biomarker matching & regimen safety',
-            roles: ['oncologist', 'pharmacist', 'researcher', 'student'],
+            path: '/admin',
+            label: 'Admin Home',
+            icon: SettingsIcon,
+            description: 'System administration',
+            roles: adminRoles,
             requiresPermission: null
           },
-        ]
-      },
-      {
-        title: 'AI & Advanced Analytics',
-        items: [
-          { 
-            path: '/ai-decision-engine', 
-            label: 'AI Decision Engine', 
-            icon: Brain, 
-            description: 'AI-powered clinical decision support',
-            roles: ['oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: null
-          },
-          { 
-            path: '/safety-alerts', 
-            label: 'Safety Alert System', 
-            icon: Shield, 
-            description: 'Real-time drug safety monitoring',
-            roles: ['oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: null
-          },
-          { 
-            path: '/ml-analytics', 
-            label: 'ML Analytics', 
-            icon: TrendingUp, 
-            description: 'Machine learning insights dashboard',
-            roles: ['oncologist', 'pharmacist', 'researcher'],
-            requiresPermission: null
-          },
-          { 
-            path: '/predictive-outcomes', 
-            label: 'Predictive Outcomes', 
-            icon: Target, 
-            description: 'Treatment outcome predictions',
-            roles: ['oncologist', 'pharmacist', 'researcher'],
-            requiresPermission: null
-          },
-        ]
-      },
-      {
-        title: 'Advanced Patient Care',
-        items: [
-          { 
-            path: '/patient-portal', 
-            label: 'Patient Portal', 
-            icon: Activity, 
-            description: 'AI-powered patient dashboard',
-            roles: ['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: null
-          },
-          { 
-            path: '/genomic-journey', 
-            label: 'Genomic Journey', 
-            icon: Dna, 
-            description: 'Interactive genomic analysis timeline',
-            roles: ['patient', 'caregiver', 'oncologist', 'pharmacist', 'researcher'],
-            requiresPermission: null
-          },
-          { 
-            path: '/symptom-intelligence', 
-            label: 'Symptom Intelligence', 
-            icon: Brain, 
-            description: 'AI-powered symptom tracking',
-            roles: ['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: null
-          },
-          { 
-            path: '/biomarkers-tracking', 
-            label: 'Digital Biomarkers', 
-            icon: Smartphone, 
-            description: 'Continuous health monitoring',
-            roles: ['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: null
-          },
-          { 
-            path: '/genetic-twins', 
-            label: 'Genetic Twins', 
-            icon: Users, 
-            description: 'Connect with genetic matches',
-            roles: ['patient', 'caregiver', 'researcher'],
-            requiresPermission: null
-          },
-          { 
-            path: '/treatment-simulation', 
-            label: 'Treatment Simulation', 
-            icon: Target, 
-            description: 'Simulate treatment scenarios',
-            roles: ['patient', 'caregiver', 'oncologist', 'pharmacist'],
-            requiresPermission: null
-          },
-          { 
-            path: '/medication-intelligence', 
-            label: 'Medication Intelligence', 
-            icon: Pill, 
-            description: 'Smart medication management',
-            roles: ['patient', 'caregiver', 'oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: null
-          },
-          { 
-            path: '/research-participation', 
-            label: 'Research Hub', 
-            icon: TestTube, 
-            description: 'Find and join research studies',
-            roles: ['patient', 'caregiver', 'oncologist', 'researcher'],
-            requiresPermission: null
-          },
-        ]
-      },
-      {
-        title: 'Care Coordination & Analytics',
-        items: [
-          { 
-            path: '/care-coordination', 
-            label: 'Care Coordination', 
-            icon: Users, 
-            description: 'Streamline care team collaboration',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher'],
-            requiresPermission: null
-          },
-          { 
-            path: '/collaboration-platform', 
-            label: 'Team Collaboration', 
-            icon: MessageSquare, 
-            description: 'Real-time communication platform',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher'],
-            requiresPermission: null
-          },
-          { 
-            path: '/predictive-analytics', 
-            label: 'Predictive Analytics', 
-            icon: TrendingUp, 
-            description: 'AI-powered insights and forecasting',
-            roles: ['oncologist', 'pharmacist', 'researcher', 'admin'],
-            requiresPermission: null
-          },
-        ]
-      },
-      {
-        title: 'Connected Health',
-        items: [
-          { 
-            path: '/ehr-integration', 
-            label: 'EHR Integration', 
-            icon: Link2, 
-            description: 'Connect Epic, Cerner, Allscripts',
-            roles: ['oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: null
-          },
-          { 
-            path: '/fhir-patients', 
-            label: 'FHIR Patients', 
-            icon: Users, 
-            description: 'Search via FHIR proxy (debug)',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher'],
-            requiresPermission: null
-          },
-          { 
-            path: '/clinical-communication', 
-            label: 'Clinical Communication', 
-            icon: MessageSquare, 
-            description: 'HIPAA-compliant team messaging',
-            roles: ['oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: null
-          },
-          { 
-            path: '/iot-monitoring', 
-            label: 'IoT Monitoring', 
-            icon: Smartphone, 
-            description: 'Connected device monitoring',
-            roles: ['oncologist', 'pharmacist', 'nurse'],
-            requiresPermission: null
-          },
-        ]
-      },
-      {
-        title: 'Collaboration & Analytics',
-        items: [
-          { 
-            path: '/collaboration', 
-            label: 'Collaboration', 
-            icon: Users, 
-            description: 'Team collaboration',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
-            requiresPermission: null
-          },
-          { 
-            path: '/analytics', 
-            label: 'Analytics', 
-            icon: BarChart3, 
-            description: 'Performance analytics',
-            roles: ['admin','super_admin'],
-            requiresPermission: 'canViewAnalytics'
-          },
-          { 
-            path: '/visitor-analytics', 
-            label: 'Visitor Analytics', 
-            icon: Users, 
-            description: 'Site usage and visitor tracking',
-            roles: ['admin','super_admin'],
-            requiresPermission: 'canViewAnalytics'
-          },
-          { 
-            path: '/research', 
-            label: 'Research', 
-            icon: BarChart3, 
-            description: 'Data analysis and research',
-            roles: ['researcher', 'oncologist'],
-            requiresPermission: 'canAccessResearch'
-          },
-        ]
-      },
-      {
-        title: 'Compliance & Governance',
-        items: [
-          { 
-            path: '/admin', 
-            label: 'Admin Home', 
-            icon: Shield, 
-            description: 'Admin landing overview',
-            roles: ['admin','super_admin'],
-            requiresPermission: null
-          },
-          { 
-            path: '/admin/console', 
-            label: 'Admin Console', 
-            icon: SettingsIcon, 
-            description: 'Administrative overview & tools',
-            roles: ['admin','super_admin'],
-            requiresPermission: null
-          },
-          // Hide Trial Analytics by default unless explicitly enabled via env
-          (() => {
-            const enableTrialAnalytics = String((import.meta as any)?.env?.VITE_ENABLE_TRIAL_ANALYTICS || '').toLowerCase() === 'true';
-            if (!enableTrialAnalytics) return null;
-            return {
-              path: '/admin/trial-analytics',
-              label: 'Trial Analytics',
-              icon: BarChart3,
-              description: 'Per-drug trials overview & DDI signals',
-              roles: ['admin','super_admin'],
-              requiresPermission: null
-            } as const;
-          })(),
-          // Removed non-essential admin links without routes
-          { 
-            path: '/admin/health', 
-            label: 'System Health', 
-            icon: Activity, 
-            description: 'Platform status and services',
-            roles: ['admin','super_admin'],
-            requiresPermission: null
-          },
-          { 
-            path: '/admin/audit', 
-            label: 'Audit Logs', 
-            icon: FileText, 
-            description: 'Administrative audit trail',
-            roles: ['admin','super_admin'],
-            requiresPermission: null
-          },
-          { 
-            path: '/admin/users', 
-            label: 'User Management', 
-            icon: Users, 
-            description: 'Manage user accounts and roles',
-            roles: ['admin','super_admin'],
-            requiresPermission: null
-          },
-          { 
-            path: '/admin/settings', 
-            label: 'Admin Settings', 
-            icon: SettingsIcon, 
-            description: 'Maintenance and utilities',
-            roles: ['admin','super_admin'],
-            requiresPermission: null
-          },
-          
-        ]
-      },
-      {
-        title: 'Resources',
-        items: [
-          { 
-            path: '/help', 
-            label: 'Help', 
-            icon: HelpCircle, 
-            description: 'Help and support',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
-            requiresPermission: null
-          },
-          { 
-            path: '/auth-diagnostics', 
-            label: 'Auth Diagnostics', 
-            icon: Clipboard, 
-            description: 'Session, server verify, profile check',
-            roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
-            requiresPermission: null
-          },
-        ]
-      },
-      ...(user?.role === 'patient' || user?.role === 'caregiver' ? [{
-        title: 'Education & Support',
-        items: [
-          // Patient quick link to Genomics
-          ...(user?.role === 'patient' ? [{
-            path: '/genomics',
-            label: 'Analyze My Genomics',
-            icon: Dna,
-            description: 'Upload and analyze your genomic report',
-            roles: ['patient'],
-            requiresPermission: null
-          }] : []),
-          { 
-            path: '/drug-lookup', 
-            label: 'Medication Information', 
-            icon: Search, 
-            description: 'Learn about your medications',
-            roles: ['patient', 'caregiver'],
-            requiresPermission: null
-          },
-          { 
-            path: '/side-effects', 
-            label: 'Side Effects Guide', 
-            icon: AlertTriangle, 
-            description: 'Understanding side effects',
-            roles: ['patient', 'caregiver'],
-            requiresPermission: null
-          },
-          { 
-            path: '/educational-resources', 
-            label: 'Educational Resources', 
-            icon: BookOpen, 
-            description: 'Cancer treatment information',
-            roles: ['patient', 'caregiver'],
-            requiresPermission: null
-          },
-          { 
-            path: '/stories', 
-            label: 'Success Stories', 
-            icon: Heart, 
-            description: 'Real-world patient experiences',
-            roles: ['patient', 'caregiver'],
-            requiresPermission: null
-          },
-          { 
-            path: '/education/understanding-diagnosis', 
-            label: 'Understanding Diagnosis', 
-            icon: BookOpen, 
-            description: 'Cancer types, staging, and expectations',
-            roles: ['patient', 'caregiver'],
-            requiresPermission: null
-          },
-          { 
-            path: '/support', 
-            label: 'Support & Community', 
-            icon: MessageSquare, 
-            description: 'Connect with others',
-            roles: ['patient', 'caregiver'],
-            requiresPermission: null
-          }
         ]
       }] : [])
     ];

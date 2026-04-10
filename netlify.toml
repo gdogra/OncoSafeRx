@@ -23,6 +23,7 @@
   included_files = ["src/**", "data/**"]
 
 [functions.api]
+  node_bundler = "nft"
   external_node_modules = ["express", "pg", "ioredis", "pdfkit", "web-push", "prom-client", "bcryptjs", "xml2js", "lightningcss", "vite", "@sentry/node"]
 
 # Route all /api/* to the Netlify Function

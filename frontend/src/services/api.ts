@@ -333,7 +333,7 @@ export const interactionService = {
       }
       // Try absolute backend
       if (!response) {
-        const backend = ((import.meta as any)?.env?.VITE_BACKEND_URL as string | undefined) || 'https://oncosaferx-backend.onrender.com';
+        const backend = ((import.meta as any)?.env?.VITE_BACKEND_URL as string | undefined) || ''  // Backend is same-origin via Netlify Function;
         const absUrl = `${backend.replace(/\/$/, '')}/api/interactions/check`;
         response = await tryPost(absUrl, true);
         if (response) interactionsRouteState = 'absolute';

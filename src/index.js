@@ -409,9 +409,7 @@ app.get('/api/config/check', async (req, res) => {
       netlify: {
         configured: !!(process.env.NETLIFY_AUTH_TOKEN && process.env.NETLIFY_SITE_ID)
       },
-      render: {
-        configured: !!(process.env.RENDER_API_KEY && process.env.RENDER_SERVICE_ID)
-      },
+      // Render removed — backend runs as Netlify Function
       warnings: []
     };
     if (!cfg.supabase.enabled) cfg.warnings.push('supabase_not_configured');
@@ -422,8 +420,10 @@ app.get('/api/config/check', async (req, res) => {
   }
 });
 
-// Prometheus metrics
-client.collectDefaultMetrics();
+// Prometheus metrics (skip default collection in serverless — no persistent state)
+if (!process.env.NETLIFY) {
+  client.collectDefaultMetrics();
+}
 const httpRequestDuration = new client.Histogram({
   name: 'http_request_duration_seconds',
   help: 'HTTP request duration in seconds',
@@ -834,28 +834,33 @@ app.use('*', notFoundHandler);
 app.use(sentryErrorHandler());
 app.use(errorHandler);
 
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`OncoSafeRx API running on port ${PORT}`);
-  console.log('🔗 Auth proxy enabled:', process.env.AUTH_PROXY_ENABLED === 'true');
-  logInfo(`Health: http://localhost:${PORT}/health  CORS: ${CORS_ORIGIN}`);
-});
-
-// Graceful shutdown
-const shutdown = (signal) => {
-  console.log(`Received ${signal}. Shutting down...`);
-  server.close(() => {
-    console.log('HTTP server closed');
-    process.exit(0);
+// Only listen when running standalone (not imported by Netlify Function)
+if (!process.env.NETLIFY && !process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`OncoSafeRx API running on port ${PORT}`);
+    console.log('🔗 Auth proxy enabled:', process.env.AUTH_PROXY_ENABLED === 'true');
+    logInfo(`Health: http://localhost:${PORT}/health  CORS: ${CORS_ORIGIN}`);
   });
-  // Force shutdown after timeout
-  setTimeout(() => process.exit(1), 10000).unref();
-};
 
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('SIGINT', () => shutdown('SIGINT'));
+  const shutdown = (signal) => {
+    console.log(`Received ${signal}. Shutting down...`);
+    server.close(() => {
+      console.log('HTTP server closed');
+      process.exit(0);
+    });
+    setTimeout(() => process.exit(1), 10000).unref();
+  };
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
+}
+
 process.on('uncaughtException', (err) => {
   console.error('Uncaught exception:', err);
 });
 process.on('unhandledRejection', (reason) => {
   console.error('Unhandled rejection:', reason);
 });
+
+// Export for Netlify Function wrapper
+export default app;

@@ -90,7 +90,7 @@ const DrugSearchSimple: React.FC = () => {
           <div className="font-medium mb-2">Debug Information:</div>
           <div>• Selected drugs: {selection.selectedDrugs.length}</div>
           <div>• Current view: {selectedDrug ? 'Drug details' : 'Search'}</div>
-          <div>• API endpoint: https://oncosaferx.onrender.com/api</div>
+          <div>• API endpoint: /api</div>
         </div>
       </Card>
     </div>

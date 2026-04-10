@@ -71,7 +71,7 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
     try {
       setTesting(true);
       // TEMPORARY: Skip connectivity test to avoid CSP violations
-      // TODO: Fix oncosaferx-backend.onrender.com reference
+      // TODO: Fix localhost reference
       console.log('🔄 ConnectivityStatus: Skipping test to avoid CSP violations');
       setStatus('online'); // Assume online since main API is working
       writeStored('online');

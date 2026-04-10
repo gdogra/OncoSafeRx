@@ -181,7 +181,7 @@ const AuthPage: React.FC = () => {
     let cancelled = false;
     (async () => {
       try {
-        const backend = (import.meta as any)?.env?.VITE_BACKEND_URL || 'https://oncosaferx-backend.onrender.com'
+        const backend = (import.meta as any)?.env?.VITE_BACKEND_URL || ''
         const tryOne = async (u: string) => {
           const ctl = new AbortController();
           const t = setTimeout(() => ctl.abort(), 1500);

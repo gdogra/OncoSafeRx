@@ -70,7 +70,7 @@ const DeployStatusPanel: React.FC = () => {
           <div className="border rounded p-3">
             <div className="font-medium text-gray-800 mb-2">Render</div>
             {data?.warnings?.includes('render_not_configured') ? (
-              <div className="text-gray-600">Not configured (set RENDER_API_KEY and RENDER_SERVICE_ID on the server)</div>
+              <div className="text-gray-600">Render removed — backend runs as Netlify Function</div>
             ) : data?.render ? (
               <div className="space-y-1">
                 <div>Status: <span className="font-mono">{data.render.status || data.render.deploy?.status || 'unknown'}</span></div>

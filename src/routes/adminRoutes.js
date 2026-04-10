@@ -728,10 +728,7 @@ router.get('/deploy/status', asyncHandler(async (req, res) => {
   }
   // Render
   try {
-    const RENDER_KEY = process.env.RENDER_API_KEY;
-    const RENDER_SERVICE_ID = process.env.RENDER_SERVICE_ID;
-    if (RENDER_KEY && RENDER_SERVICE_ID) {
-      const resp = await fetch(`https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys?limit=1`, {
+    // Render removed — backend is a Netlify Function/deploys?limit=1`, {
         headers: { Authorization: `Bearer ${RENDER_KEY}` }
       });
       if (resp.ok) {

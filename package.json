@@ -56,7 +56,6 @@
     "ioredis": "^5.3.2",
     "joi": "^17.11.0",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.3.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.2",
     "node-cache": "^5.1.2",
@@ -65,6 +64,7 @@
     "pdfkit": "^0.15.0",
     "pg": "^8.11.3",
     "prom-client": "^15.1.2",
+    "serverless-http": "^4.0.0",
     "uuid": "^9.0.1",
     "web-push": "^3.6.6",
     "xml2js": "^0.6.2"

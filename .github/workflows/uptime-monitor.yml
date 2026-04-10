@@ -22,8 +22,8 @@ jobs:
           API_SUGGEST_URL: ${{ secrets.API_SUGGEST_URL }}
         run: |
           SITE_URL=${SITE_URL:-"https://oncosaferx.com"}
-          API_HEALTH_URL=${API_HEALTH_URL:-"https://oncosaferx.onrender.com/health"}
-          API_SUGGEST_URL=${API_SUGGEST_URL:-"https://oncosaferx.onrender.com/api/drugs/suggestions?q=asp&limit=1"}
+          API_HEALTH_URL=${API_HEALTH_URL:-"https://oncosaferx.com/api/health"}
+          API_SUGGEST_URL=${API_SUGGEST_URL:-"https://oncosaferx.com/api/drugs/suggestions?q=asp&limit=1"}
 
           echo "Checking SITE_URL=$SITE_URL"
           SITE_STATUS=$(curl -fsS -o /dev/null -w "%{http_code}" "$SITE_URL" || echo 000)

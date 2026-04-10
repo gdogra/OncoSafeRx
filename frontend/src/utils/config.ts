@@ -49,7 +49,7 @@ const viteApi = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
 const getApiUrl = () => {
   if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
     console.log('🚨 Config: FORCING Netlify proxy for production API calls');
-    return '/api'; // Uses Netlify proxy to reach oncosaferx.onrender.com
+    return '/api'; // API served by Netlify Function (same origin)
   }
   
   if (viteApi?.trim()) {

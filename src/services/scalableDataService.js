@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 import Redis from 'ioredis';
-import { MongoClient } from 'mongodb';
+// MongoDB removed — all data lives in Supabase PostgreSQL
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 
 class ScalableDataService {
@@ -99,24 +99,9 @@ class ScalableDataService {
         this.connections.cache = null;
       }
 
-      // MongoDB for document storage (analytics, logs) - optional
-      if (process.env.MONGODB_URI) {
-        try {
-          this.connections.documentStore = new MongoClient(process.env.MONGODB_URI, {
-            maxPoolSize: 20,
-            serverSelectionTimeoutMS: 5000,
-            socketTimeoutMS: 45000
-          });
-          await this.connections.documentStore.connect();
-          console.log('MongoDB connected successfully');
-        } catch (error) {
-          console.warn('MongoDB connection failed, continuing without document store:', error.message);
-          this.connections.documentStore = null;
-        }
-      } else {
-        console.log('MongoDB not configured, continuing without document store');
-        this.connections.documentStore = null;
-      }
+      // MongoDB removed — document store disabled.
+      // Analytics logging falls back to no-op (existing graceful handling).
+      this.connections.documentStore = null;
 
       // S3 for object storage (large reports, exports) - optional
       if (process.env.AWS_ACCESS_KEY_ID) {
@@ -709,9 +694,7 @@ class ScalableDataService {
         this.connections.cache.disconnect();
       }
       
-      if (this.connections.documentStore) {
-        await this.connections.documentStore.close();
-      }
+      // documentStore (MongoDB) removed
       
       console.log('Scalable data service shutdown complete');
     } catch (error) {

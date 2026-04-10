@@ -112,6 +112,8 @@ const CareCoordinationHub = lazy(() => import('./components/Care/CareCoordinatio
 const RealTimeCollaborationPlatform = lazy(() => import('./components/Collaboration/RealTimeCollaborationPlatform'));
 const PredictiveAnalyticsDashboard = lazy(() => import('./components/Analytics/PredictiveAnalyticsDashboard'));
 const PrecisionMedicine = lazy(() => import('./pages/PrecisionMedicine'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 
 // Feature flag to disable patient UI routes (build-time)
 const PATIENTS_DISABLED = String((import.meta as any)?.env?.VITE_PATIENTS_DISABLED || '').toLowerCase() === 'true';
@@ -948,6 +950,10 @@ function AppWithAuth() {
                     <PrecisionMedicine />
                   </Layout>
                 } />
+
+                {/* Legal pages — no auth required */}
+                <Route path="/terms-of-service" element={<Layout><TermsOfService /></Layout>} />
+                <Route path="/privacy-policy" element={<Layout><PrivacyPolicy /></Layout>} />
 
                 {/* Professional 404 Page - NO PROTECTED ROUTE */}
                 <Route path="*" element={<NotFound />} />

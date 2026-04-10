@@ -1,7 +1,26 @@
 import express from 'express';
 import { validate, schemas } from '../utils/validation.js';
 import { GeneDrugInteraction } from '../models/Interaction.js';
-import CPIC_GUIDELINES_DB from '../data/cpicGuidelines.js';
+import { CPIC_GUIDELINES_DB } from '../data/cpicGuidelines.js';
+import { CPIC_GUIDELINES_EXPANDED } from '../data/cpicGuidelinesExpanded.js';
+
+// Merge original (16 entries) with expanded (80+) — deduplicated by gene+drug+phenotype
+const MERGED_GUIDELINES = [...CPIC_GUIDELINES_DB];
+for (const expanded of CPIC_GUIDELINES_EXPANDED) {
+  const exists = MERGED_GUIDELINES.some(g =>
+    g.gene_symbol === expanded.gene_symbol &&
+    g.drug?.generic_name?.toLowerCase() === expanded.drug?.generic_name?.toLowerCase() &&
+    g.phenotype === expanded.phenotype
+  );
+  if (!exists) {
+    MERGED_GUIDELINES.push({
+      ...expanded,
+      drug_rxcui: expanded.drug_rxcui || '',
+    });
+  }
+}
+// Replace the original reference so all downstream code uses the merged set
+const _CPIC_GUIDELINES_DB = MERGED_GUIDELINES;
 import mapObservationsToPhenotypes, { mapHLAFromObservations } from '../engine/pgxPhenotype.js';
 import PGX_PANEL from '../data/pgxPanel.js';
 import PGX_VERSION_LOG from '../data/pgxVersionLog.js';

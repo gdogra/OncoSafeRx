@@ -1,7 +1,7 @@
 [build]
   base = "."
   publish = "frontend/dist"
-  command = "npm install && cd frontend && rm -rf node_modules/.cache && rm -rf dist && rm -f .env && echo 'VITE_API_URL=/api' > .env && echo 'VITE_SUPABASE_URL=https://emfrwckxctyarphjvfeu.supabase.co' >> .env && echo 'VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c' >> .env && echo 'VITE_DISABLE_SAMPLE_PATIENTS=true' >> .env && echo 'VITE_SCIENTIST_MODE=true' >> .env && echo 'VITE_ENABLE_MARKETING=false' >> .env && echo 'VITE_ANALYTICS_ENABLED=true' >> .env && echo 'VITE_APP_NAME=OncoSafeRx Evidence Explorer' >> .env && npm install --legacy-peer-deps && npm run build && cd .. && echo 'Verifying publish dir:' && ls frontend/dist/index.html"
+  command = "cd frontend && rm -rf node_modules/.cache && rm -rf dist && rm -f .env && echo 'VITE_API_URL=' > .env && echo 'VITE_SUPABASE_URL=https://emfrwckxctyarphjvfeu.supabase.co' >> .env && echo 'VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c' >> .env && echo 'VITE_DISABLE_SAMPLE_PATIENTS=true' >> .env && echo 'VITE_SCIENTIST_MODE=true' >> .env && echo 'VITE_ENABLE_MARKETING=false' >> .env && echo 'VITE_ANALYTICS_ENABLED=true' >> .env && echo 'VITE_APP_NAME=OncoSafeRx' >> .env && npm install --legacy-peer-deps && npm run build && cd .. && ls frontend/dist/index.html"
 
 [build.environment]
   NODE_VERSION = "20.19.1"
@@ -9,85 +9,38 @@
   NODE_OPTIONS = "--max-old-space-size=4096"
   GENERATE_SOURCEMAP = "false"
   CI = "false"
-  BUILD_TIMEOUT = "15"
-  VITE_ALLOW_PUBLIC_READ = "true"
-  VITE_SUPABASE_AUTH_VIA_PROXY = "true"
-  VITE_FORCE_PROXY_AUTH = "true"
-  BUILD_TIMESTAMP = "2025-10-23T17:40:00Z"
-  VITE_APP_VERSION = "20.1.0"
 
-# Backend runs as a Netlify Function (replaces Render.com)
-# Backend runs as a Netlify Function. Using nft (Node File Tracing) which
-# traces imports without bundling/transforming — preserves ESM + top-level await.
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "nft"
-  included_files = ["src/**", "data/**"]
-
-# Route all /api/* to the Netlify Function
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/api/:splat"
-  status = 200
-  force = true
-
-# SPA fallback so client-side routes work
+# SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Cache static assets aggressively
+# Cache static assets
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=2592000, immutable"
 
-# Ensure HTML is always fresh so chunk hashes stay in sync
 [[headers]]
   for = "/index.html"
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
 
 [[headers]]
-  for = "/"
-  [headers.values]
-    Cache-Control = "no-cache, no-store, must-revalidate"
-
-# Basic security headers
-[[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "no-referrer-when-downgrade"
-    Permissions-Policy = "geolocation=*, microphone=(), camera=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://emfrwckxctyarphjvfeu.supabase.co wss://emfrwckxctyarphjvfeu.supabase.co https://clinicaltrials.gov https://nominatim.openstreetmap.org; worker-src 'self' blob:; frame-ancestors 'none'; object-src 'none'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://emfrwckxctyarphjvfeu.supabase.co wss://emfrwckxctyarphjvfeu.supabase.co https://rxnav.nlm.nih.gov https://dailymed.nlm.nih.gov https://api.fda.gov https://clinicaltrials.gov https://clinicaltrialsapi.cancer.gov https://nominatim.openstreetmap.org https://data.medicaid.gov; worker-src 'self' blob:; frame-ancestors 'none'; object-src 'none'"
 
 [context.production.environment]
-  VITE_API_URL = "/api"
-  REACT_APP_API_URL = "/api"
-  VITE_ENABLE_SERVER_ANALYTICS = "false"
-  VITE_ALLOW_PUBLIC_READ = "true"
-  VITE_SUPABASE_AUTH_VIA_PROXY = "true"
-  VITE_FORCE_PROXY_AUTH = "true"
-  VITE_SCIENTIST_MODE = "true"
-  VITE_ENABLE_MARKETING = "false"
-  VITE_ANALYTICS_ENABLED = "true"
-  VITE_APP_NAME = "OncoSafeRx Evidence Explorer"
-  VITE_ENABLE_SOCIAL_FEATURES = "false"
-  VITE_DATA_UPDATE_FREQUENCY = "weekly"
-  VITE_PRIMARY_DATA_SOURCE = "ClinicalTrials.gov, FDA Labels, PubMed"
-  VITE_AUTH_TIMEOUT_MS = "7000"
+  VITE_API_URL = ""
   VITE_SUPABASE_URL = "https://emfrwckxctyarphjvfeu.supabase.co"
   VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZnJ3Y2t4Y3R5YXJwaGp2ZmV1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwNjM2NjcsImV4cCI6MjA3MzYzOTY2N30.yYrhigcrMY82OkA4KPqSANtN5YgeA6xGH9fnrTe5k8c"
-  VITE_APP_VERSION = "20.1.0"
-  VITE_EMERGENCY_APP_AUTH = "false"
-  VITE_DISABLE_SAMPLE_PATIENTS = "true"
-  NETLIFY = "true"
-
-[context.deploy-preview.environment]
-  VITE_API_URL = "/api"
-  VITE_ENABLE_SERVER_ANALYTICS = "false"
+  VITE_APP_VERSION = "21.0.0"
+  VITE_ALLOW_PUBLIC_READ = "true"
+  VITE_APP_NAME = "OncoSafeRx"
   NETLIFY = "true"

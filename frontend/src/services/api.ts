@@ -1,45 +1,15 @@
 import axios from 'axios';
 
-// Static API URL calculation to prevent repeated calls
+// API URL: use env var if set, otherwise localhost for dev.
+// In production without a backend, API calls will fail gracefully —
+// the app falls back to client-side data (curated interactions, RxNorm direct).
 const getApiUrl = () => {
-  // Runtime-provided base from backend config (if index.tsx fetched it)
-  try {
-    const runtime = (window as any).__OSRX_API_BASE__;
-    if (runtime && typeof runtime === 'string' && runtime.trim()) return runtime;
-  } catch {}
-  // For development, always use localhost:3000 API
+  const vite = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
+  if (vite?.trim()) return vite;
   if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
     return 'http://localhost:3000/api';
   }
-  
-  // In production, ALWAYS use relative /api path to leverage Netlify proxy
-  // This overrides any environment variables to ensure proxy usage
-  if (typeof window !== 'undefined' && 
-      (window.location?.hostname === 'oncosaferx.com' || 
-       window.location?.hostname === 'www.oncosaferx.com' ||
-       window.location?.hostname.includes('netlify.app'))) {
-    return '/api';
-  }
-  
-  // FORCE relative /api for any non-localhost to prevent CORS issues
-  if (typeof window !== 'undefined' && window.location?.hostname !== 'localhost') {
-    return '/api';
-  }
-  
-  // Fallback to environment variables ONLY for localhost development
-  const vite = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
-  // @ts-ignore
-  const cra = typeof process !== 'undefined' ? (process as any)?.env?.REACT_APP_API_URL as string | undefined : undefined;
-  
-  if (vite?.trim()) {
-    return vite;
-  }
-  if (cra?.trim()) {
-    return cra;
-  }
-  
-  // Final fallback
-  return '/api';
+  return '/api'; // Will 404 in production without backend — handled gracefully
 };
 
 const API_BASE_URL = getApiUrl();

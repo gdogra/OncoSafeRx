@@ -10,7 +10,7 @@ import DrugSelector from './DrugSelector';
 import AdvancedInteractionChecker from './AdvancedInteractionChecker';
 import FeatureErrorBoundary from '../ErrorBoundary/FeatureErrorBoundary';
 import PharmacogenomicsPanel from '../Genomics/PharmacogenomicsPanel';
-import AIPredictionDashboard from '../AI/AIPredictionDashboard';
+import DrugIntelligencePanel from '../AI/DrugIntelligencePanel';
 import { AlertTriangle, X, Info, Dna, Brain } from 'lucide-react';
 import TipCard from '../UI/TipCard';
 import Breadcrumbs from '../UI/Breadcrumbs';
@@ -51,12 +51,6 @@ const InteractionCheckerInner: React.FC = () => {
   const [showPharmacogenomics, setShowPharmacogenomics] = useState<boolean>(() => {
     try {
       const saved = localStorage.getItem('osrx_show_pharmacogenomics');
-      return saved === 'true';
-    } catch { return false; }
-  });
-  const [showAIPredictions, setShowAIPredictions] = useState<boolean>(() => {
-    try {
-      const saved = localStorage.getItem('osrx_show_ai_predictions');
       return saved === 'true';
     } catch { return false; }
   });
@@ -187,8 +181,6 @@ const InteractionCheckerInner: React.FC = () => {
 
   // Persist AI predictions preference
   useEffect(() => {
-    try { localStorage.setItem('osrx_show_ai_predictions', showAIPredictions ? 'true' : 'false'); } catch {}
-  }, [showAIPredictions]);
 
   const resolvePatientMedications = async (limit = 8, opts?: { includeInactive?: boolean }) => {
     if (!currentPatient) return { resolved: [] as Drug[], skipped: [] as string[] };
@@ -1399,55 +1391,9 @@ const InteractionCheckerInner: React.FC = () => {
         </div>
       )}
 
-      {/* Revolutionary AI Prediction Engine */}
+      {/* Drug Intelligence — real FAERS + PGx data */}
       {selectedDrugs.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Brain className="w-5 h-5 text-purple-600" />
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">AI Clinical Intelligence</h3>
-              <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="text-xs text-green-600 font-medium">99.2% Accuracy</span>
-              </div>
-              <Tooltip content="Revolutionary AI engine with quantum-enhanced drug discovery, real-time adverse event prediction, and multi-omics analysis">
-                <Info className="w-4 h-4 text-gray-400" />
-              </Tooltip>
-            </div>
-            <button
-              onClick={() => setShowAIPredictions(!showAIPredictions)}
-              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center space-x-2 ${
-                showAIPredictions 
-                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              <Brain className="w-4 h-4" />
-              <span>{showAIPredictions ? 'Hide AI Engine' : 'Unlock AI Engine'}</span>
-              {showAIPredictions && (
-                <div className="w-1 h-1 bg-white rounded-full animate-ping"></div>
-              )}
-            </button>
-          </div>
-
-          {showAIPredictions && (
-            <AIPredictionDashboard 
-              selectedDrugs={selectedDrugs}
-              patientId={currentPatient?.id || 'current'}
-              realTimeData={{
-                wearableData: {
-                  heartRate: [72, 75, 68, 71],
-                  temperature: [98.6, 98.4, 98.8, 98.2],
-                  activity: [2500, 3200, 1800, 2900],
-                  sleep: [7.2, 6.8, 7.5, 8.1],
-                  timestamps: [new Date().toISOString()]
-                },
-                symptoms: []
-              }}
-              className="mt-4"
-            />
-          )}
-        </div>
+        <DrugIntelligencePanel selectedDrugs={selectedDrugs} className="mt-4" />
       )}
     </div>
   );

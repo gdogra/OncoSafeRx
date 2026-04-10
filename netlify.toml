@@ -19,12 +19,8 @@
 # Backend runs as a Netlify Function (replaces Render.com)
 [functions]
   directory = "netlify/functions"
-  node_bundler = "nft"
-  included_files = ["src/**", "data/**"]
-
-[functions.api]
-  node_bundler = "nft"
-  external_node_modules = ["express", "pg", "ioredis", "pdfkit", "web-push", "prom-client", "bcryptjs", "xml2js", "lightningcss", "vite", "@sentry/node"]
+  node_bundler = "none"
+  included_files = ["src/**", "data/**", "node_modules/**"]
 
 # Route all /api/* to the Netlify Function
 [[redirects]]

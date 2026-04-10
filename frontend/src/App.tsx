@@ -23,7 +23,6 @@ import setupErrorSuppression from './utils/errorSuppression';
 import { checkForUpdates } from './utils/versionCheck';
 import { setupConsoleFilter } from './utils/consoleFilter';
 // ── Core pages ────────────────────────────────────────────────
-const Dashboard = lazy(() => import('./pages/Dashboard'));
 const DrugSearch = lazy(() => import('./pages/DrugSearch'));
 const InteractionChecker = lazy(() => import('./components/Interactions/InteractionChecker'));
 const CuratedInteractions = lazy(() => import('./pages/CuratedInteractions'));
@@ -54,27 +53,7 @@ const NotFound = lazy(() => import('./pages/NotFound'));
 const ClinicalLandingPage = lazy(() => import('./pages/ClinicalLandingPage'));
 
 // Feature flag to disable patient UI routes (build-time)
-const PATIENTS_DISABLED = String((import.meta as any)?.env?.VITE_PATIENTS_DISABLED || '').toLowerCase() === 'true';
 
-// New Powerful AI Components
-const ClinicalDecisionEngine = lazy(() => import('./components/AI/ClinicalDecisionEngine'));
-const DrugSafetyAlertSystem = lazy(() => import('./components/Safety/DrugSafetyAlertSystem'));
-const MLAnalyticsDashboard = lazy(() => import('./components/Analytics/MLAnalyticsDashboard'));
-const ClinicalCommunicationHub = lazy(() => import('./components/Communication/ClinicalCommunicationHub'));
-const IoTMonitoringSystem = lazy(() => import('./components/IoT/IoTMonitoringSystem'));
-const TreatmentOutcomesEngine = lazy(() => import('./components/Predictive/TreatmentOutcomesEngine'));
-const OpioidRiskReport = lazy(() => import('./components/Pain/OpioidRiskReport'));
-const RealTimeClinicalSupport = lazy(() => import('./components/Clinical/RealTimeClinicalSupport'));
-const EHRIntegrationDashboard = lazy(() => import('./components/Integration/EHRIntegrationDashboard'));
-const RegulatoryComplianceSystem = lazy(() => import('./components/Compliance/RegulatoryComplianceSystem'));
-const EvidenceBasedProtocolsSystem = lazy(() => import('./components/Protocols/EvidenceBasedProtocolsSystem'));
-const LaboratoryIntegrationSystem = lazy(() => import('./components/Laboratory/LaboratoryIntegrationSystem'));
-const AdvancedWorkflowSystem = lazy(() => import('./components/Workflow/AdvancedWorkflowSystem'));
-const VisitorAnalyticsDashboard = lazy(() => import('./components/Analytics/VisitorAnalyticsDashboard'));
-const PatientJourney = lazy(() => import('./pages/PatientJourney'));
-const RoutingTest = lazy(() => import('./components/Debug/RoutingTest'));
-const TokenDebug = lazy(() => import('./pages/TokenDebug'));
-const Biostatistics = lazy(() => import('./pages/Biostatistics'));
 // Component that handles initialization inside AuthProvider
 function AppWithAuth() {
   // Get auth state to check if initialization is complete

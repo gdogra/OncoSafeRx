@@ -75,13 +75,6 @@ const PatientJourney = lazy(() => import('./pages/PatientJourney'));
 const RoutingTest = lazy(() => import('./components/Debug/RoutingTest'));
 const TokenDebug = lazy(() => import('./pages/TokenDebug'));
 const Biostatistics = lazy(() => import('./pages/Biostatistics'));
-const MultiDatabaseSearch = lazy(() => import('./pages/MultiDatabaseSearch'));
-const EvidenceAnalysis = lazy(() => import('./pages/EvidenceAnalysis'));
-const DrugIntelligenceIntegrator = lazy(() => import('./components/DrugIntelligenceIntegrator'));
-const Contact = lazy(() => import('./pages/Contact'));
-const NotFound = lazy(() => import('./pages/NotFound'));
-const Explainer = lazy(() => import('./pages/Explainer'));
-
 // Component that handles initialization inside AuthProvider
 function AppWithAuth() {
   // Get auth state to check if initialization is complete

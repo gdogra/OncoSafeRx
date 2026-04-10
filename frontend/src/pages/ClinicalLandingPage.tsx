@@ -33,9 +33,9 @@ const ClinicalLandingPage: React.FC = () => {
   const [showDemo, setShowDemo] = useState(false);
 
   // Button click handlers
-  const handleStartTrial = () => {
-    // Navigate to auth page with trial signup
-    navigate('/auth?mode=trial');
+  const handleSignIn = () => {
+    // Navigate to auth page
+    navigate('/auth');
   };
 
   const handleWatchDemo = () => {
@@ -58,10 +58,10 @@ const ClinicalLandingPage: React.FC = () => {
   return (
     <>
       {/* SEO Meta Tags */}
-      <title>OncoSafeRx - #1 Drug Interaction Platform for Healthcare Teams | 14-Day Free Account</title>
+      <title>OncoSafeRx - #1 Drug Interaction Platform for Healthcare Teams | Sign In</title>
       <meta 
         name="description" 
-        content="Join 500+ healthcare teams using OncoSafeRx to reduce medication errors by 67%. Real-time drug interaction alerts, automated safety protocols. Start your free account today."
+        content="Join 500+ healthcare teams using OncoSafeRx to reduce medication errors by 67%. Real-time drug interaction alerts, automated safety protocols. Sign in to get started."
       />
       <meta 
         name="keywords" 
@@ -86,7 +86,7 @@ const ClinicalLandingPage: React.FC = () => {
                 <button onClick={handlePricing} className="text-gray-600 hover:text-gray-900 font-medium">Sign Up Free</button>
                 <button onClick={handleTryDemo} className="text-gray-600 hover:text-gray-900 font-medium">Live Demo</button>
                 <Link to="/auth" className="text-gray-600 hover:text-gray-900 font-medium">Log In</Link>
-                <Button onClick={handleStartTrial} className="bg-green-600 hover:bg-green-700 font-semibold">Create Free Account</Button>
+                <Button onClick={handleSignIn} className="bg-green-600 hover:bg-green-700 font-semibold">Sign In</Button>
               </div>
             </div>
           </div>
@@ -131,11 +131,11 @@ const ClinicalLandingPage: React.FC = () => {
 
                 <div className="flex flex-col sm:flex-row gap-4 mb-8">
                   <Button 
-                    onClick={handleStartTrial}
+                    onClick={handleSignIn}
                     size="lg" 
                     className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 font-bold text-lg"
                   >
-                    Start 14-Day Free Account
+                    Start Sign In
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                   <Button 
@@ -151,7 +151,7 @@ const ClinicalLandingPage: React.FC = () => {
 
                 {/* Social Proof */}
                 <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
-                  <span>✨ No restrictions</span>
+                  <span>✨ No cost for healthcare professionals</span>
                   <span>•</span>
                   <span>⚡ Setup in 15 minutes</span>
                   <span>•</span>
@@ -310,7 +310,7 @@ const ClinicalLandingPage: React.FC = () => {
                     <span className="text-4xl font-bold text-green-600">Free</span>
                     <span className="text-gray-600 dark:text-gray-400 ml-2">for all verified users</span>
                   </div>
-                  <Button onClick={handleStartTrial} className="w-full mb-6 bg-green-600 hover:bg-green-700 font-bold text-lg py-3">Create Free Account</Button>
+                  <Button onClick={handleSignIn} className="w-full mb-6 bg-green-600 hover:bg-green-700 font-bold text-lg py-3">Sign In</Button>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm text-gray-700 dark:text-gray-300">
                   <div className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-3 shrink-0" /><span>Drug interaction checking</span></div>
@@ -425,14 +425,14 @@ const ClinicalLandingPage: React.FC = () => {
             {/* CTA in testimonials */}
             <div className="text-center mt-12">
               <Button 
-                onClick={handleStartTrial}
+                onClick={handleSignIn}
                 size="lg" 
                 className="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-4"
               >
                 Join 500+ Happy Customers
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <p className="text-gray-500 mt-4">Create your free account today • No restrictions</p>
+              <p className="text-gray-500 mt-4">Sign in to get started • Full access</p>
             </div>
           </div>
         </section>
@@ -497,10 +497,10 @@ const ClinicalLandingPage: React.FC = () => {
                 <div className="flex justify-between items-start cursor-pointer">
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      What's included in the free account?
+                      What's included?
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400">
-                      The free account includes full access to all features, unlimited patient records, EHR integration, and priority support. Full access to all features for verified healthcare professionals.
+                      The All features are available to verified healthcare professionals at no cost. Sign in with your email or Google account.
                     </p>
                   </div>
                 </div>
@@ -542,8 +542,8 @@ const ClinicalLandingPage: React.FC = () => {
                 <Button onClick={handleContactSales} variant="outline" className="font-semibold">
                   Contact Sales Team
                 </Button>
-                <Button onClick={handleStartTrial} className="bg-green-600 hover:bg-green-700 font-semibold">
-                  Create Free Account
+                <Button onClick={handleSignIn} className="bg-green-600 hover:bg-green-700 font-semibold">
+                  Sign In
                 </Button>
               </div>
             </div>
@@ -559,7 +559,7 @@ const ClinicalLandingPage: React.FC = () => {
               </h2>
               <p className="text-xl text-green-100 mb-8 leading-relaxed">
                 Join 500+ healthcare teams using OncoSafeRx to improve patient safety. 
-                Create your free account today and see results in 30 days.
+                Sign in to get started and see results in 30 days.
               </p>
             </div>
 
@@ -581,7 +581,7 @@ const ClinicalLandingPage: React.FC = () => {
                   <span className="font-semibold">No Credit Card</span>
                 </div>
                 <p className="text-green-100 text-sm">
-                  free account with full access to all features. Cancel anytime.
+                  Full access for verified healthcare professionals.
                 </p>
               </div>
               
@@ -599,11 +599,11 @@ const ClinicalLandingPage: React.FC = () => {
             {/* Primary CTA */}
             <div className="space-y-4">
               <Button 
-                onClick={handleStartTrial}
+                onClick={handleSignIn}
                 size="lg" 
                 className="bg-white text-green-700 hover:bg-gray-100 px-12 py-4 text-xl font-bold shadow-xl"
               >
-                Start Your Free Account Now
+                Sign In Now
                 <ArrowRight className="ml-3 h-6 w-6" />
               </Button>
               
@@ -702,15 +702,15 @@ const ClinicalLandingPage: React.FC = () => {
             <div className="border-t border-gray-800 mt-12 pt-8">
               <div className="flex flex-col md:flex-row justify-between items-center">
                 <p className="text-gray-500 text-sm mb-4 md:mb-0">
-                  Create your free account today • No restrictions
+                  Sign in to get started • Full access
                 </p>
                 <div className="flex items-center space-x-6">
                   <Button 
-                    onClick={handleStartTrial}
+                    onClick={handleSignIn}
                     size="sm" 
                     className="bg-green-600 hover:bg-green-700 font-semibold"
                   >
-                    Create Free Account
+                    Sign In
                   </Button>
                   <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
                     <span>SOC 2 Compliant</span>
@@ -750,11 +750,11 @@ const ClinicalLandingPage: React.FC = () => {
                   <Button 
                     onClick={() => {
                       setShowDemo(false);
-                      handleStartTrial();
+                      handleSignIn();
                     }}
                     className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3"
                   >
-                    Start Your Free Account
+                    Sign In
                   </Button>
                   <Button 
                     onClick={() => {

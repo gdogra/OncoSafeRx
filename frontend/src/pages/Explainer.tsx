@@ -163,7 +163,7 @@ const Explainer: React.FC = () => {
                 to="/auth"
                 className="inline-flex items-center px-8 py-4 bg-yellow-400 text-gray-900 font-semibold rounded-lg hover:bg-yellow-300 transition-colors"
               >
-                Start Free Trial
+                Sign In
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Link>
               <Link
@@ -439,7 +439,7 @@ const Explainer: React.FC = () => {
               to="/auth"
               className="inline-flex items-center px-8 py-4 bg-yellow-400 text-gray-900 font-semibold rounded-lg hover:bg-yellow-300 transition-colors"
             >
-              Start Your Free Trial
+              Sign In
               <ArrowRight className="h-5 w-5 ml-2" />
             </Link>
             <Link
@@ -451,7 +451,7 @@ const Explainer: React.FC = () => {
           </div>
           
           <p className="text-blue-100 text-sm mt-6">
-            No credit card required • Setup in under 5 minutes • HIPAA compliant
+            Setup in under 5 minutes • HIPAA compliant
           </p>
         </div>
       </div>

@@ -20,7 +20,7 @@ const LandingPage: React.FC = () => {
             <div className="flex items-center space-x-4">
               <Link to="/features" className="text-gray-600 hover:text-gray-900 dark:text-gray-100">Features</Link>
               <Link to="/auth" className="text-gray-600 hover:text-gray-900 dark:text-gray-100">Sign In</Link>
-              <Button>Start Free Trial</Button>
+              <Button>Sign In</Button>
             </div>
           </div>
         </div>
@@ -64,7 +64,7 @@ const LandingPage: React.FC = () => {
 
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3">
-                  Start Free Trial
+                  Sign In
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button variant="outline" size="lg" className="px-8 py-3">
@@ -281,7 +281,7 @@ const LandingPage: React.FC = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg">
-              Get Free Trial
+              Sign In
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button variant="outline" size="lg" className="px-8 py-4 text-lg">
@@ -296,7 +296,7 @@ const LandingPage: React.FC = () => {
             </div>
             <div className="flex items-center">
               <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-              30-day free trial
+              Full access for healthcare professionals
             </div>
             <div className="flex items-center">
               <CheckCircle className="h-4 w-4 text-green-500 mr-2" />

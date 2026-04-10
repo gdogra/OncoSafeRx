@@ -107,7 +107,7 @@ const ExplainerBanner: React.FC<ExplainerBannerProps> = ({
                 to="/auth"
                 className="inline-flex items-center px-6 py-3 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-blue-600 transition-colors"
               >
-                Start Free Trial
+                Get Started Free
               </Link>
             </div>
           </div>

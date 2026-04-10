@@ -263,7 +263,7 @@ const Contact: React.FC = () => {
                     <option value="demo">Request Demo</option>
                     <option value="partnership">Partnership Opportunity</option>
                     <option value="support">Technical Support</option>
-                    <option value="billing">Billing & Pricing</option>
+                    <option value="general">General Inquiry</option>
                     <option value="security">Security & Compliance</option>
                     <option value="integration">System Integration</option>
                     <option value="research">Research Collaboration</option>

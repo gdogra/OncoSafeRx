@@ -48,7 +48,7 @@ const ClinicalLandingPage: React.FC = () => {
   };
 
   const handlePricing = () => {
-    navigate('/pricing');
+    navigate('/auth');
   };
 
   const handleTryDemo = () => {
@@ -58,10 +58,10 @@ const ClinicalLandingPage: React.FC = () => {
   return (
     <>
       {/* SEO Meta Tags */}
-      <title>OncoSafeRx - #1 Drug Interaction Platform for Healthcare Teams | 14-Day Free Trial</title>
+      <title>OncoSafeRx - #1 Drug Interaction Platform for Healthcare Teams | 14-Day Free Account</title>
       <meta 
         name="description" 
-        content="Join 500+ healthcare teams using OncoSafeRx to reduce medication errors by 67%. Real-time drug interaction alerts, automated safety protocols. Start your 14-day free trial today."
+        content="Join 500+ healthcare teams using OncoSafeRx to reduce medication errors by 67%. Real-time drug interaction alerts, automated safety protocols. Start your free account today."
       />
       <meta 
         name="keywords" 
@@ -83,10 +83,10 @@ const ClinicalLandingPage: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-6">
-                <button onClick={handlePricing} className="text-gray-600 hover:text-gray-900 font-medium">Pricing</button>
+                <button onClick={handlePricing} className="text-gray-600 hover:text-gray-900 font-medium">Sign Up Free</button>
                 <button onClick={handleTryDemo} className="text-gray-600 hover:text-gray-900 font-medium">Live Demo</button>
                 <Link to="/auth" className="text-gray-600 hover:text-gray-900 font-medium">Log In</Link>
-                <Button onClick={handleStartTrial} className="bg-green-600 hover:bg-green-700 font-semibold">Start Free Trial</Button>
+                <Button onClick={handleStartTrial} className="bg-green-600 hover:bg-green-700 font-semibold">Create Free Account</Button>
               </div>
             </div>
           </div>
@@ -135,7 +135,7 @@ const ClinicalLandingPage: React.FC = () => {
                     size="lg" 
                     className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 font-bold text-lg"
                   >
-                    Start 14-Day Free Trial
+                    Start 14-Day Free Account
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                   <Button 
@@ -151,7 +151,7 @@ const ClinicalLandingPage: React.FC = () => {
 
                 {/* Social Proof */}
                 <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
-                  <span>✨ No credit card required</span>
+                  <span>✨ No restrictions</span>
                   <span>•</span>
                   <span>⚡ Setup in 15 minutes</span>
                   <span>•</span>
@@ -289,136 +289,44 @@ const ClinicalLandingPage: React.FC = () => {
           </div>
         </section>
 
-        {/* Pricing Section */}
+        {/* Access Section */}
         <section className="py-20 bg-white dark:bg-gray-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                Choose Your Plan
+              <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+                Free for All Healthcare Professionals
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Start with our free trial. No credit card required. Upgrade anytime.
+              <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                OncoSafeRx is available to all verified healthcare professionals. Create an account to access the full platform.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {/* Starter Plan */}
-              <Card className="p-8 border border-gray-200 dark:border-gray-700">
-                <div className="text-center">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Starter</h3>
-                  <p className="text-gray-600 mb-6">Perfect for small practices</p>
+            <div className="max-w-2xl mx-auto">
+              <Card className="p-8 border-2 border-green-500 relative">
+                <div className="text-center mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Full Access</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">Everything you need for precision oncology</p>
                   <div className="mb-6">
-                    <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">$49</span>
-                    <span className="text-gray-600 dark:text-gray-400">/month</span>
+                    <span className="text-4xl font-bold text-green-600">Free</span>
+                    <span className="text-gray-600 dark:text-gray-400 ml-2">for all verified users</span>
                   </div>
-                  <Button onClick={handleStartTrial} variant="outline" className="w-full mb-6 font-semibold">Start Free Trial</Button>
+                  <Button onClick={handleStartTrial} className="w-full mb-6 bg-green-600 hover:bg-green-700 font-bold text-lg py-3">Create Free Account</Button>
                 </div>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>Up to 50 patients</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>Basic interaction alerts</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>Email support</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>Mobile app access</span>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Professional Plan - Popular */}
-              <Card className="p-8 border-2 border-green-500 relative bg-green-50">
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                    Most Popular
-                  </span>
-                </div>
-                <div className="text-center">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Professional</h3>
-                  <p className="text-gray-600 mb-6">For growing healthcare teams</p>
-                  <div className="mb-6">
-                    <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">$149</span>
-                    <span className="text-gray-600 dark:text-gray-400">/month</span>
-                  </div>
-                  <Button onClick={handleStartTrial} className="w-full mb-6 bg-green-600 hover:bg-green-700 font-bold">Start Free Trial</Button>
-                </div>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>Up to 500 patients</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>Advanced AI analysis</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>EHR integration</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>Priority support</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>Custom reporting</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>API access</span>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Enterprise Plan */}
-              <Card className="p-8 border border-gray-200 dark:border-gray-700">
-                <div className="text-center">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Enterprise</h3>
-                  <p className="text-gray-600 mb-6">For large healthcare systems</p>
-                  <div className="mb-6">
-                    <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">Custom</span>
-                  </div>
-                  <Button onClick={handleContactSales} variant="outline" className="w-full mb-6 font-semibold">Contact Sales</Button>
-                </div>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>Unlimited patients</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>White-label solution</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>Custom integrations</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>Dedicated support</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>SLA guarantee</span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle className="h-4 w-4 text-green-500 mr-3" />
-                    <span>Training & onboarding</span>
-                  </div>
+                <div className="grid grid-cols-2 gap-3 text-sm text-gray-700 dark:text-gray-300">
+                  <div className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-3 shrink-0" /><span>Drug interaction checking</span></div>
+                  <div className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-3 shrink-0" /><span>80+ PGx gene-drug pairs</span></div>
+                  <div className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-3 shrink-0" /><span>FAERS safety signals</span></div>
+                  <div className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-3 shrink-0" /><span>Biomarker therapy matching</span></div>
+                  <div className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-3 shrink-0" /><span>Regimen safety analysis</span></div>
+                  <div className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-3 shrink-0" /><span>Clinical trial matching</span></div>
+                  <div className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-3 shrink-0" /><span>Treatment timeline</span></div>
+                  <div className="flex items-center"><CheckCircle className="h-4 w-4 text-green-500 mr-3 shrink-0" /><span>Cost estimation</span></div>
                 </div>
               </Card>
             </div>
 
-            {/* Pricing Footer */}
             <div className="text-center mt-12">
-              <p className="text-gray-600 mb-4">All plans include 14-day free trial • No setup fees • Cancel anytime</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">Role-based access ensures you see the tools relevant to your practice</p>
               <div className="flex justify-center items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
                 <div className="flex items-center">
                   <Shield className="h-4 w-4 mr-2" />
@@ -524,7 +432,7 @@ const ClinicalLandingPage: React.FC = () => {
                 Join 500+ Happy Customers
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <p className="text-gray-500 mt-4">Start your free trial today • No credit card required</p>
+              <p className="text-gray-500 mt-4">Create your free account today • No restrictions</p>
             </div>
           </div>
         </section>
@@ -589,10 +497,10 @@ const ClinicalLandingPage: React.FC = () => {
                 <div className="flex justify-between items-start cursor-pointer">
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      What's included in the free trial?
+                      What's included in the free account?
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400">
-                      The 14-day free trial includes full access to all features, unlimited patient records, EHR integration, and priority support. No credit card required, no setup fees, and you can upgrade or cancel anytime.
+                      The free account includes full access to all features, unlimited patient records, EHR integration, and priority support. Full access to all features for verified healthcare professionals.
                     </p>
                   </div>
                 </div>
@@ -635,7 +543,7 @@ const ClinicalLandingPage: React.FC = () => {
                   Contact Sales Team
                 </Button>
                 <Button onClick={handleStartTrial} className="bg-green-600 hover:bg-green-700 font-semibold">
-                  Start Free Trial
+                  Create Free Account
                 </Button>
               </div>
             </div>
@@ -651,7 +559,7 @@ const ClinicalLandingPage: React.FC = () => {
               </h2>
               <p className="text-xl text-green-100 mb-8 leading-relaxed">
                 Join 500+ healthcare teams using OncoSafeRx to improve patient safety. 
-                Start your free trial today and see results in 30 days.
+                Create your free account today and see results in 30 days.
               </p>
             </div>
 
@@ -673,7 +581,7 @@ const ClinicalLandingPage: React.FC = () => {
                   <span className="font-semibold">No Credit Card</span>
                 </div>
                 <p className="text-green-100 text-sm">
-                  14-day free trial with full access to all features. Cancel anytime.
+                  free account with full access to all features. Cancel anytime.
                 </p>
               </div>
               
@@ -695,7 +603,7 @@ const ClinicalLandingPage: React.FC = () => {
                 size="lg" 
                 className="bg-white text-green-700 hover:bg-gray-100 px-12 py-4 text-xl font-bold shadow-xl"
               >
-                Start Your Free Trial Now
+                Start Your Free Account Now
                 <ArrowRight className="ml-3 h-6 w-6" />
               </Button>
               
@@ -773,7 +681,7 @@ const ClinicalLandingPage: React.FC = () => {
               <div>
                 <h3 className="font-semibold text-white mb-4">Product</h3>
                 <ul className="space-y-3 text-sm">
-                  <li><Link to="/pricing" className="text-gray-400 hover:text-white">Pricing</Link></li>
+                  <li><Link to="/auth" className="text-gray-400 hover:text-white">Sign Up Free</Link></li>
                   <li><Link to="/demo" className="text-gray-400 hover:text-white">Live Demo</Link></li>
                   <li><Link to="/integrations" className="text-gray-400 hover:text-white">Integrations</Link></li>
                   <li><Link to="/api" className="text-gray-400 hover:text-white">API Docs</Link></li>
@@ -794,7 +702,7 @@ const ClinicalLandingPage: React.FC = () => {
             <div className="border-t border-gray-800 mt-12 pt-8">
               <div className="flex flex-col md:flex-row justify-between items-center">
                 <p className="text-gray-500 text-sm mb-4 md:mb-0">
-                  Start your free trial today • No credit card required
+                  Create your free account today • No restrictions
                 </p>
                 <div className="flex items-center space-x-6">
                   <Button 
@@ -802,7 +710,7 @@ const ClinicalLandingPage: React.FC = () => {
                     size="sm" 
                     className="bg-green-600 hover:bg-green-700 font-semibold"
                   >
-                    Start Free Trial
+                    Create Free Account
                   </Button>
                   <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
                     <span>SOC 2 Compliant</span>
@@ -846,7 +754,7 @@ const ClinicalLandingPage: React.FC = () => {
                     }}
                     className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3"
                   >
-                    Start Your Free Trial
+                    Start Your Free Account
                   </Button>
                   <Button 
                     onClick={() => {

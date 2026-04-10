@@ -19,11 +19,11 @@
 # Backend runs as a Netlify Function (replaces Render.com)
 [functions]
   directory = "netlify/functions"
-  node_bundler = "esbuild"
+  node_bundler = "nft"
   included_files = ["src/**", "data/**"]
 
 [functions.api]
-  external_node_modules = ["express", "pg", "ioredis", "pdfkit", "web-push", "prom-client", "bcryptjs", "xml2js"]
+  external_node_modules = ["express", "pg", "ioredis", "pdfkit", "web-push", "prom-client", "bcryptjs", "xml2js", "lightningcss", "vite", "@sentry/node"]
 
 # Route all /api/* to the Netlify Function
 [[redirects]]

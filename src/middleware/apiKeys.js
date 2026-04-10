@@ -92,9 +92,9 @@ async function persistKeys() {
   } catch {}
 }
 
-// Initialize store
-await loadPersistedKeys()
-mergeEnvKeysIntoMemory()
+// Initialize store (no top-level await for CJS compatibility)
+loadPersistedKeys().catch(e => console.warn('API keys load failed:', e.message));
+mergeEnvKeysIntoMemory();
 
 export function authenticateTenantApiKey(req, res, next) {
   const key = req.headers['x-api-key'] || req.query.api_key

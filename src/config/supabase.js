@@ -240,6 +240,17 @@ async function createSupabaseService() {
   }
 }
 
-// Create and export the service instance
-const supabaseService = await createSupabaseService();
+// Create service instance synchronously for CJS compatibility.
+// The async init happens inside createSupabaseService() but we can
+// call it synchronously since it catches its own errors.
+let supabaseService;
+try {
+  // createSupabaseService is async but we need a sync export.
+  // Initialize lazily on first use via a proxy, or create sync.
+  const _pending = createSupabaseService();
+  supabaseService = new SupabaseService(); // sync fallback
+  _pending.then(svc => { Object.assign(supabaseService, svc); }).catch(() => {});
+} catch {
+  supabaseService = new SupabaseService();
+}
 export default supabaseService;

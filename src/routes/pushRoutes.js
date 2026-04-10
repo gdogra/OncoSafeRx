@@ -84,7 +84,8 @@ async function saveSubscriptions() {
   } catch {}
 }
 
-await loadSubscriptions();
+// Load subscriptions on startup (no top-level await for CJS compatibility)
+loadSubscriptions().catch(e => console.warn('Push subscriptions load failed:', e.message));
 
 router.post('/subscribe', (req, res) => {
   try {

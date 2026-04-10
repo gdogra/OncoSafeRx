@@ -112,7 +112,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-await initSentry(app);
+// initSentry wrapped in try/catch — cannot use top-level await in CJS bundle
+try { initSentry(app); } catch (e) { console.warn('Sentry init skipped:', e.message); }
 const PORT = parseInt(process.env.PORT) || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const IS_PROD = NODE_ENV === 'production';
@@ -731,10 +732,11 @@ app.use((req, res, next) => {
 // In development, mount Vite dev server middleware so you don't need
 // a separate terminal/process for the frontend. Requests for the SPA
 // are served by Vite; API routes remain handled above.
-if (NODE_ENV === 'development' && process.env.USE_VITE !== 'false') {
+if (NODE_ENV === 'development' && process.env.USE_VITE !== 'false' && !process.env.NETLIFY) {
   try {
-    const { createServer: createViteServer } = await import('vite');
-    const vite = await createViteServer({
+    // Dynamic import — skipped entirely in serverless/production bundles
+    const viteModule = await import(/* webpackIgnore: true */ 'vite');
+    const vite = await viteModule.createServer({
       root: join(__dirname, '../frontend'),
       server: { middlewareMode: true },
       appType: 'custom',

@@ -180,8 +180,6 @@ const InteractionCheckerInner: React.FC = () => {
   }, [showPharmacogenomics]);
 
   // Persist AI predictions preference
-  useEffect(() => {
-
   const resolvePatientMedications = async (limit = 8, opts?: { includeInactive?: boolean }) => {
     if (!currentPatient) return { resolved: [] as Drug[], skipped: [] as string[] };
     const meds: any[] = Array.isArray(currentPatient.medications) ? currentPatient.medications : [];

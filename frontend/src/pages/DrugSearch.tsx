@@ -10,6 +10,7 @@ import SearchWithFavorites from '../components/Search/SearchWithFavorites';
 import ImprovedDrugSearch from '../components/DrugSearch/ImprovedDrugSearch';
 import AutocompleteSearch from '../components/DrugSearch/AutocompleteSearch';
 import FeatureErrorBoundary from '../components/ErrorBoundary/FeatureErrorBoundary';
+import AdverseEventProfile from '../components/FAERS/AdverseEventProfile';
 import Card from '../components/UI/Card';
 import Alert from '../components/UI/Alert';
 import Breadcrumbs from '../components/UI/Breadcrumbs';
@@ -341,6 +342,13 @@ const DrugSearchInner: React.FC = () => {
           </Card>
         ) : (
           <DrugCard drug={selectedDrug} showDetails={true} />
+        )}
+
+        {/* FAERS Safety Profile */}
+        {selectedDrug && selectedDrug.name && (
+          <div className="mt-4">
+            <AdverseEventProfile drugName={selectedDrug.generic_name || selectedDrug.name} />
+          </div>
         )}
 
         {/* Additional Actions */}

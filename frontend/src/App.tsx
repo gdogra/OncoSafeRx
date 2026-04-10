@@ -111,6 +111,7 @@ const ResearchParticipationHub = lazy(() => import('./components/Research/Resear
 const CareCoordinationHub = lazy(() => import('./components/Care/CareCoordinationHub'));
 const RealTimeCollaborationPlatform = lazy(() => import('./components/Collaboration/RealTimeCollaborationPlatform'));
 const PredictiveAnalyticsDashboard = lazy(() => import('./components/Analytics/PredictiveAnalyticsDashboard'));
+const PrecisionMedicine = lazy(() => import('./pages/PrecisionMedicine'));
 
 // Feature flag to disable patient UI routes (build-time)
 const PATIENTS_DISABLED = String((import.meta as any)?.env?.VITE_PATIENTS_DISABLED || '').toLowerCase() === 'true';
@@ -941,6 +942,13 @@ function AppWithAuth() {
                 } />
 {/* Removed duplicate route - moved to top */}
                 
+                {/* Precision Medicine — Biomarker Matcher + Regimen Safety */}
+                <Route path="/precision-medicine" element={
+                  <Layout>
+                    <PrecisionMedicine />
+                  </Layout>
+                } />
+
                 {/* Professional 404 Page - NO PROTECTED ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

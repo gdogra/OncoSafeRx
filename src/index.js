@@ -104,6 +104,7 @@ import continuousLearningRoutes from './routes/continuousLearningRoutes.js';
 import faersRoutes from './routes/faersRoutes.js';
 import biomarkerRoutes from './routes/biomarkerRoutes.js';
 import regimenInteractionRoutes from './routes/regimenInteractionRoutes.js';
+import nciTrialRoutes from './routes/nciTrialRoutes.js';
 import { join as pathJoin } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -684,6 +685,7 @@ app.use('/api/continuous-learning', continuousLearningRoutes);
 app.use('/api/faers', faersRoutes);
 app.use('/api/biomarkers', biomarkerRoutes);
 app.use('/api/regimen', regimenInteractionRoutes);
+app.use('/api/nci-trials', nciTrialRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/overrides', overrideRoutes);
 app.use('/', cdsHooksRoutes);

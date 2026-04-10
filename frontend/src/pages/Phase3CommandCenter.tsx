@@ -146,14 +146,14 @@ const Phase3CommandCenter: React.FC = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800">Core Systems</h3>
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Core Systems</h3>
               <div className="space-y-3">
                 <Card className="border-blue-200 bg-blue-50">
                   <div className="p-4 flex items-center">
                     <Atom className="h-8 w-8 text-blue-600 mr-3" />
                     <div>
                       <div className="font-medium">Quantum Drug Discovery</div>
-                      <div className="text-sm text-gray-600">Molecular simulation & optimization</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Molecular simulation & optimization</div>
                     </div>
                   </div>
                 </Card>
@@ -163,7 +163,7 @@ const Phase3CommandCenter: React.FC = () => {
                     <Globe className="h-8 w-8 text-purple-600 mr-3" />
                     <div>
                       <div className="font-medium">Global Intelligence Network</div>
-                      <div className="text-sm text-gray-600">Worldwide knowledge sharing</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Worldwide knowledge sharing</div>
                     </div>
                   </div>
                 </Card>
@@ -173,7 +173,7 @@ const Phase3CommandCenter: React.FC = () => {
                     <Activity className="h-8 w-8 text-green-600 mr-3" />
                     <div>
                       <div className="font-medium">Autonomous Trials</div>
-                      <div className="text-sm text-gray-600">AI-orchestrated clinical research</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">AI-orchestrated clinical research</div>
                     </div>
                   </div>
                 </Card>
@@ -181,14 +181,14 @@ const Phase3CommandCenter: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800">Analytics & Prediction</h3>
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Analytics & Prediction</h3>
               <div className="space-y-3">
                 <Card className="border-orange-200 bg-orange-50">
                   <div className="p-4 flex items-center">
                     <Users className="h-8 w-8 text-orange-600 mr-3" />
                     <div>
                       <div className="font-medium">Population Health</div>
-                      <div className="text-sm text-gray-600">Predictive population analytics</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Predictive population analytics</div>
                     </div>
                   </div>
                 </Card>
@@ -198,7 +198,7 @@ const Phase3CommandCenter: React.FC = () => {
                     <Satellite className="h-8 w-8 text-red-600 mr-3" />
                     <div>
                       <div className="font-medium">Disease Surveillance</div>
-                      <div className="text-sm text-gray-600">Real-time threat monitoring</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Real-time threat monitoring</div>
                     </div>
                   </div>
                 </Card>
@@ -208,7 +208,7 @@ const Phase3CommandCenter: React.FC = () => {
                     <BarChart3 className="h-8 w-8 text-indigo-600 mr-3" />
                     <div>
                       <div className="font-medium">Predictive Analytics</div>
-                      <div className="text-sm text-gray-600">AI-driven health forecasting</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">AI-driven health forecasting</div>
                     </div>
                   </div>
                 </Card>
@@ -216,7 +216,7 @@ const Phase3CommandCenter: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800">Global Impact Metrics</h3>
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Global Impact Metrics</h3>
               <div className="bg-gray-50 p-4 rounded-lg space-y-3">
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Countries Connected:</span>

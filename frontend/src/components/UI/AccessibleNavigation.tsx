@@ -202,7 +202,7 @@ export default function AccessibleNavigation({
         className={`
           flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors
           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
-          ${isItemActive ? activeClassName : 'text-gray-700 hover:bg-gray-50'}
+          ${isItemActive ? activeClassName : 'text-gray-700 hover:bg-gray-50 dark:bg-gray-800'}
           ${isFocused ? 'ring-2 ring-primary-500' : ''}
           ${itemClassName}
         `}
@@ -245,7 +245,7 @@ export default function AccessibleNavigation({
         {item.badge && (
           <span
             id={`nav-badge-${item.id}`}
-            className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+            className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:text-gray-200"
             aria-label={`${item.badge} items`}
           >
             {item.badge}

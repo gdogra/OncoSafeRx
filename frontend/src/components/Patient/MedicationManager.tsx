@@ -172,7 +172,7 @@ const MedicationManager: React.FC<MedicationManagerProps> = ({ patientId }) => {
       case 'good': return 'bg-blue-100 text-blue-800';
       case 'fair': return 'bg-yellow-100 text-yellow-800';
       case 'poor': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -186,8 +186,8 @@ const MedicationManager: React.FC<MedicationManagerProps> = ({ patientId }) => {
           <div className="flex items-center space-x-3">
             <Pill className="w-6 h-6 text-primary-600" />
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Medication Management</h2>
-              <p className="text-sm text-gray-600">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Medication Management</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 {currentPatient.demographics.firstName} {currentPatient.demographics.lastName} - Current medications and history
               </p>
             </div>
@@ -230,7 +230,7 @@ const MedicationManager: React.FC<MedicationManagerProps> = ({ patientId }) => {
               />
             </div>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
             {medications.length} medication{medications.length !== 1 ? 's' : ''} found
           </div>
         </div>
@@ -253,11 +253,11 @@ const MedicationManager: React.FC<MedicationManagerProps> = ({ patientId }) => {
           </Card>
         ) : (
           medications.map((medication) => (
-            <Card key={medication.id} className={`${!medication.isActive ? 'bg-gray-50 border-gray-200' : ''}`}>
+            <Card key={medication.id} className={`${!medication.isActive ? 'bg-gray-50 border-gray-200 dark:border-gray-700' : ''}`}>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">{medication.drugName}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{medication.drugName}</h3>
                     <div className="flex items-center space-x-2">
                       {medication.isActive ? (
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -265,7 +265,7 @@ const MedicationManager: React.FC<MedicationManagerProps> = ({ patientId }) => {
                           Active
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:text-gray-200">
                           <Clock className="w-3 h-3 mr-1" />
                           Inactive
                         </span>
@@ -280,37 +280,37 @@ const MedicationManager: React.FC<MedicationManagerProps> = ({ patientId }) => {
 
                   <div className="grid md:grid-cols-3 gap-4 text-sm">
                     <div>
-                      <span className="font-medium text-gray-700">Dosage & Frequency:</span>
-                      <p className="text-gray-900">{medication.dosage} {medication.frequency}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Dosage & Frequency:</span>
+                      <p className="text-gray-900 dark:text-gray-100">{medication.dosage} {medication.frequency}</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Route:</span>
-                      <p className="text-gray-900">{medication.route}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Route:</span>
+                      <p className="text-gray-900 dark:text-gray-100">{medication.route}</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Start Date:</span>
-                      <p className="text-gray-900">{new Date(medication.startDate).toLocaleDateString()}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Start Date:</span>
+                      <p className="text-gray-900 dark:text-gray-100">{new Date(medication.startDate).toLocaleDateString()}</p>
                     </div>
                   </div>
 
                   {medication.indication && (
                     <div className="mt-2 text-sm">
-                      <span className="font-medium text-gray-700">Indication:</span>
-                      <p className="text-gray-900">{medication.indication}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Indication:</span>
+                      <p className="text-gray-900 dark:text-gray-100">{medication.indication}</p>
                     </div>
                   )}
 
                   {medication.prescribedBy && (
                     <div className="mt-2 text-sm">
-                      <span className="font-medium text-gray-700">Prescribed by:</span>
-                      <p className="text-gray-900">{medication.prescribedBy}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Prescribed by:</span>
+                      <p className="text-gray-900 dark:text-gray-100">{medication.prescribedBy}</p>
                     </div>
                   )}
 
                   {medication.endDate && (
                     <div className="mt-2 text-sm">
-                      <span className="font-medium text-gray-700">End Date:</span>
-                      <p className="text-gray-900">{new Date(medication.endDate).toLocaleDateString()}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">End Date:</span>
+                      <p className="text-gray-900 dark:text-gray-100">{new Date(medication.endDate).toLocaleDateString()}</p>
                     </div>
                   )}
                 </div>
@@ -322,7 +322,7 @@ const MedicationManager: React.FC<MedicationManagerProps> = ({ patientId }) => {
                       className={`p-2 rounded-lg ${
                         medication.isActive 
                           ? 'text-green-600 hover:bg-green-50' 
-                          : 'text-gray-400 hover:bg-gray-50'
+                          : 'text-gray-400 hover:bg-gray-50 dark:bg-gray-800'
                       }`}
                     >
                       {medication.isActive ? <CheckCircle className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
@@ -355,8 +355,8 @@ const MedicationManager: React.FC<MedicationManagerProps> = ({ patientId }) => {
       {showAddForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {editingMedication ? 'Edit Medication' : 'Add New Medication'}
               </h3>
             </div>
@@ -497,7 +497,7 @@ const MedicationManager: React.FC<MedicationManagerProps> = ({ patientId }) => {
                     onChange={(e) => setNewMedication({ ...newMedication, isActive: e.target.checked })}
                     className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                   />
-                  <span className="text-sm font-medium text-gray-700">Active medication</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Active medication</span>
                 </label>
               </div>
             </div>
@@ -519,7 +519,7 @@ const MedicationManager: React.FC<MedicationManagerProps> = ({ patientId }) => {
                     adherence: 'good'
                   });
                 }}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 dark:bg-gray-800"
               >
                 Cancel
               </button>

@@ -122,7 +122,7 @@ export default function AdverseEventProfile({ drugName }: Props) {
             {activeTab === 'events' && (
               <div className="space-y-2">
                 {events.length === 0 ? (
-                  <p className="text-sm text-gray-500">No adverse event data available for this drug.</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No adverse event data available for this drug.</p>
                 ) : events.map(e => (
                   <div key={e.rank} className="flex items-center gap-3">
                     <span className="text-xs text-gray-400 w-5 text-right">{e.rank}</span>
@@ -131,7 +131,7 @@ export default function AdverseEventProfile({ drugName }: Props) {
                         <span className="text-sm text-gray-700 dark:text-gray-300 capitalize">
                           {e.event.toLowerCase()}
                         </span>
-                        <span className="text-xs text-gray-500">{e.count.toLocaleString()}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{e.count.toLocaleString()}</span>
                       </div>
                       <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                         <div
@@ -149,7 +149,7 @@ export default function AdverseEventProfile({ drugName }: Props) {
             {activeTab === 'outcomes' && (
               <div className="space-y-3">
                 {outcomes.length === 0 ? (
-                  <p className="text-sm text-gray-500">No serious outcome data available.</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No serious outcome data available.</p>
                 ) : outcomes.filter(o => o.count > 0).map(o => (
                   <div key={o.outcome} className="flex items-center justify-between">
                     <span className="text-sm text-gray-700 dark:text-gray-300">{o.outcome}</span>
@@ -173,13 +173,13 @@ export default function AdverseEventProfile({ drugName }: Props) {
                   Does NOT establish causation or interaction.
                 </p>
                 {concomitant.length === 0 ? (
-                  <p className="text-sm text-gray-500">No concomitant drug data available.</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No concomitant drug data available.</p>
                 ) : concomitant.map(c => (
                   <div key={c.rank} className="flex items-center justify-between py-1">
                     <span className="text-sm text-gray-700 dark:text-gray-300 capitalize">
                       {c.drug.toLowerCase()}
                     </span>
-                    <span className="text-xs text-gray-500">{c.coReportCount.toLocaleString()} co-reports</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{c.coReportCount.toLocaleString()} co-reports</span>
                   </div>
                 ))}
               </div>

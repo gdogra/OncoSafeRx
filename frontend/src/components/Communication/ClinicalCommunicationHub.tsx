@@ -387,8 +387,8 @@ const ClinicalCommunicationHub: React.FC = () => {
       case 'nurse': return 'text-green-600';
       case 'pharmacist': return 'text-purple-600';
       case 'ai_assistant': return 'text-orange-600';
-      case 'system': return 'text-gray-600';
-      default: return 'text-gray-600';
+      case 'system': return 'text-gray-600 dark:text-gray-400';
+      default: return 'text-gray-600 dark:text-gray-400';
     }
   };
 
@@ -407,8 +407,8 @@ const ClinicalCommunicationHub: React.FC = () => {
       case 'urgent': return 'border-l-4 border-red-500 bg-red-50';
       case 'high': return 'border-l-4 border-orange-500 bg-orange-50';
       case 'normal': return 'border-l-4 border-blue-500 bg-blue-50';
-      case 'low': return 'border-l-4 border-gray-500 bg-gray-50';
-      default: return 'border-l-4 border-gray-500 bg-gray-50';
+      case 'low': return 'border-l-4 border-gray-500 bg-gray-50 dark:bg-gray-800';
+      default: return 'border-l-4 border-gray-500 bg-gray-50 dark:bg-gray-800';
     }
   };
 
@@ -443,8 +443,8 @@ const ClinicalCommunicationHub: React.FC = () => {
               <MessageSquare className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Clinical Communication Hub</h1>
-              <p className="text-gray-600">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Clinical Communication Hub</h1>
+              <p className="text-gray-600 dark:text-gray-400">
                 Secure communication for {currentPatient.demographics.firstName} {currentPatient.demographics.lastName}
               </p>
             </div>
@@ -467,8 +467,8 @@ const ClinicalCommunicationHub: React.FC = () => {
                 <Video className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <div className="font-semibold text-gray-900">Video Call Active</div>
-                <div className="text-sm text-gray-600">
+                <div className="font-semibold text-gray-900 dark:text-gray-100">Video Call Active</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   {activeCall.call_type} - Started {new Date(activeCall.start_time).toLocaleTimeString()}
                 </div>
               </div>
@@ -495,10 +495,10 @@ const ClinicalCommunicationHub: React.FC = () => {
       <div className="flex-1 grid grid-cols-4 gap-4 h-0">
         {/* Channels Sidebar */}
         <Card className="col-span-1 p-0 flex flex-col">
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-gray-900">Channels</h3>
-              <button className="p-1 text-gray-400 hover:text-gray-600">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100">Channels</h3>
+              <button className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400">
                 <Plus className="w-4 h-4" />
               </button>
             </div>
@@ -543,7 +543,7 @@ const ClinicalCommunicationHub: React.FC = () => {
                     </div>
                   ))}
                   {channel.participants.length > 3 && (
-                    <span className="text-xs text-gray-500">+{channel.participants.length - 3}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">+{channel.participants.length - 3}</span>
                   )}
                 </div>
                 
@@ -557,7 +557,7 @@ const ClinicalCommunicationHub: React.FC = () => {
                   <span className={`text-xs px-2 py-1 rounded-full ${
                     channel.type === 'emergency' ? 'bg-red-100 text-red-600' :
                     channel.type === 'ai_consultation' ? 'bg-orange-100 text-orange-600' :
-                    'bg-gray-100 text-gray-600'
+                    'bg-gray-100 text-gray-600 dark:text-gray-400'
                   }`}>
                     {channel.type.replace('_', ' ')}
                   </span>
@@ -573,15 +573,15 @@ const ClinicalCommunicationHub: React.FC = () => {
         {/* Messages Area */}
         <Card className="col-span-3 p-0 flex flex-col">
           {/* Messages Header */}
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
                 {activeChannel && (
                   <>
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                       {channels.find(c => c.id === activeChannel)?.name}
                     </h3>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600">
+                    <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
                       <span>
                         {channels.find(c => c.id === activeChannel)?.participants.length} members
                       </span>
@@ -616,7 +616,7 @@ const ClinicalCommunicationHub: React.FC = () => {
               <div key={message.id} className={`flex space-x-3 ${getPriorityColor(message.priority)} p-3 rounded-lg`}>
                 <div className="flex-shrink-0">
                   <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-medium text-gray-600">
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
                       {message.sender.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
                     </span>
                   </div>
@@ -627,7 +627,7 @@ const ClinicalCommunicationHub: React.FC = () => {
                     <span className={`font-medium ${getRoleColor(message.sender.role)}`}>
                       {message.sender.name}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(message.timestamp).toLocaleTimeString()}
                     </span>
                     {getMessageIcon(message.type)}
@@ -642,7 +642,7 @@ const ClinicalCommunicationHub: React.FC = () => {
                     )}
                   </div>
                   
-                  <p className="text-gray-800">{message.content}</p>
+                  <p className="text-gray-800 dark:text-gray-200">{message.content}</p>
                   
                   {message.attachments && message.attachments.length > 0 && (
                     <div className="mt-2 space-y-1">
@@ -652,7 +652,7 @@ const ClinicalCommunicationHub: React.FC = () => {
                           <span className="text-sm text-blue-600 hover:underline cursor-pointer">
                             {attachment.name}
                           </span>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
                             ({(attachment.size / 1024).toFixed(1)} KB)
                           </span>
                         </div>
@@ -691,7 +691,7 @@ const ClinicalCommunicationHub: React.FC = () => {
           </div>
 
           {/* Message Input */}
-          <div className="p-4 border-t border-gray-200 bg-gray-50">
+          <div className="p-4 border-t border-gray-200 bg-gray-50 dark:bg-gray-800">
             {selectedFiles.length > 0 && (
               <div className="mb-3 flex flex-wrap gap-2">
                 {selectedFiles.map((file, idx) => (
@@ -721,7 +721,7 @@ const ClinicalCommunicationHub: React.FC = () => {
                 className={`p-2 rounded-lg ${
                   isRecording 
                     ? 'text-red-600 bg-red-50 hover:bg-red-100' 
-                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:bg-gray-800'
                 }`}
               >
                 {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
@@ -751,7 +751,7 @@ const ClinicalCommunicationHub: React.FC = () => {
               </button>
             </div>
             
-            <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
+            <div className="flex items-center justify-between mt-2 text-xs text-gray-500 dark:text-gray-400">
               <span>Messages are HIPAA-compliant and end-to-end encrypted</span>
               <div className="flex items-center space-x-2">
                 <span>Patient ID: {currentPatient.id}</span>

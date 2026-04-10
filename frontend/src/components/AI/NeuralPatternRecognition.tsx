@@ -322,7 +322,7 @@ export const NeuralPatternRecognition: React.FC = () => {
       case 'medium': return 'text-yellow-600 bg-yellow-100';
       case 'high': return 'text-orange-600 bg-orange-100';
       case 'critical': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -332,7 +332,7 @@ export const NeuralPatternRecognition: React.FC = () => {
       case 'medium': return 'text-yellow-600';
       case 'high': return 'text-orange-600';
       case 'critical': return 'text-red-600';
-      default: return 'text-gray-600';
+      default: return 'text-gray-600 dark:text-gray-400';
     }
   };
 
@@ -340,8 +340,8 @@ export const NeuralPatternRecognition: React.FC = () => {
     switch (trend) {
       case 'increasing': return <ArrowUp className="h-4 w-4 text-red-500" />;
       case 'decreasing': return <ArrowDown className="h-4 w-4 text-blue-500" />;
-      case 'stable': return <ChevronRight className="h-4 w-4 text-gray-500" />;
-      default: return <ChevronRight className="h-4 w-4 text-gray-500" />;
+      case 'stable': return <ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400" />;
+      default: return <ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400" />;
     }
   };
 
@@ -349,7 +349,7 @@ export const NeuralPatternRecognition: React.FC = () => {
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Neural Pattern Recognition</h1>
-        <p className="text-gray-600">AI-powered early detection through behavioral and physiological pattern analysis</p>
+        <p className="text-gray-600 dark:text-gray-400">AI-powered early detection through behavioral and physiological pattern analysis</p>
       </div>
 
       {/* Control Panel */}
@@ -358,9 +358,9 @@ export const NeuralPatternRecognition: React.FC = () => {
           <div className="flex items-center space-x-4">
             <div className="flex items-center">
               <Brain className="h-6 w-6 text-blue-600 mr-2" />
-              <span className="font-semibold text-gray-900">AI Monitoring Status</span>
+              <span className="font-semibold text-gray-900 dark:text-gray-100">AI Monitoring Status</span>
             </div>
-            <div className={`px-3 py-1 rounded-full text-sm font-medium ${isMonitoring ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+            <div className={`px-3 py-1 rounded-full text-sm font-medium ${isMonitoring ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800 dark:text-gray-200'}`}>
               {isMonitoring ? 'Active' : 'Inactive'}
             </div>
           </div>
@@ -413,7 +413,7 @@ export const NeuralPatternRecognition: React.FC = () => {
               className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
               }`}
             >
               <Icon className="h-5 w-5 mr-2" />
@@ -473,7 +473,7 @@ export const NeuralPatternRecognition: React.FC = () => {
               {behavioralMetrics.map(metric => (
                 <div key={metric.id} className="p-4 border border-gray-200 rounded-lg">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-medium text-gray-900">{metric.name}</h3>
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">{metric.name}</h3>
                     <div className="flex items-center">
                       {getTrendIcon(metric.trend)}
                       <span className={`ml-1 text-sm font-medium ${getSignificanceColor(metric.significance)}`}>
@@ -482,8 +482,8 @@ export const NeuralPatternRecognition: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-2xl font-bold text-gray-900">{metric.currentValue}</span>
-                    <span className="text-sm text-gray-500">Baseline: {metric.baseline}</span>
+                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">{metric.currentValue}</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Baseline: {metric.baseline}</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div 
@@ -512,10 +512,10 @@ export const NeuralPatternRecognition: React.FC = () => {
                   <div className="flex items-center">
                     <Brain className="h-5 w-5 text-blue-600 mr-3" />
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
                         {pattern.type.charAt(0).toUpperCase() + pattern.type.slice(1)} Pattern Detected
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         Anomaly Score: {(pattern.anomalyScore * 100).toFixed(1)}% | Confidence: {(pattern.confidence * 100).toFixed(1)}%
                       </p>
                     </div>
@@ -544,7 +544,7 @@ export const NeuralPatternRecognition: React.FC = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 capitalize">{pattern.type} Pattern</h3>
-                    <p className="text-sm text-gray-500">{new Date(pattern.timestamp).toLocaleString()}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(pattern.timestamp).toLocaleString()}</p>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${getRiskColor(pattern.riskLevel)}`}>
                     {pattern.riskLevel}
@@ -553,7 +553,7 @@ export const NeuralPatternRecognition: React.FC = () => {
 
                 <div className="space-y-3 mb-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Sleep Quality</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Sleep Quality</span>
                     <div className="flex items-center">
                       <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
                         <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${pattern.patterns.sleepQuality * 100}%` }}></div>
@@ -562,7 +562,7 @@ export const NeuralPatternRecognition: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Activity Level</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Activity Level</span>
                     <div className="flex items-center">
                       <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
                         <div className="bg-green-600 h-2 rounded-full" style={{ width: `${pattern.patterns.activityLevel * 100}%` }}></div>
@@ -571,7 +571,7 @@ export const NeuralPatternRecognition: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Speech Cadence</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Speech Cadence</span>
                     <div className="flex items-center">
                       <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
                         <div className="bg-purple-600 h-2 rounded-full" style={{ width: `${pattern.patterns.speechCadence * 100}%` }}></div>
@@ -580,7 +580,7 @@ export const NeuralPatternRecognition: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Cognitive Load</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Cognitive Load</span>
                     <div className="flex items-center">
                       <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
                         <div className="bg-orange-600 h-2 rounded-full" style={{ width: `${pattern.patterns.cognitiveLoad * 100}%` }}></div>
@@ -592,11 +592,11 @@ export const NeuralPatternRecognition: React.FC = () => {
 
                 <div className="border-t border-gray-200 pt-4">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-gray-600">Anomaly Score</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Anomaly Score</span>
                     <span className="text-sm font-bold text-red-600">{(pattern.anomalyScore * 100).toFixed(1)}%</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">AI Confidence</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">AI Confidence</span>
                     <span className="text-sm font-bold text-blue-600">{(pattern.confidence * 100).toFixed(1)}%</span>
                   </div>
                 </div>
@@ -613,27 +613,27 @@ export const NeuralPatternRecognition: React.FC = () => {
             <div key={constellation.id} className="bg-white rounded-lg border border-gray-200 p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900">{constellation.name}</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{constellation.name}</h3>
                   <p className="text-gray-600 mt-2">{constellation.description}</p>
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-orange-600">{(constellation.emergingRisk * 100).toFixed(0)}%</div>
-                  <div className="text-sm text-gray-500">Emerging Risk</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Emerging Risk</div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div className="text-center">
                   <div className="text-lg font-bold text-red-600">{(constellation.severity * 100).toFixed(0)}%</div>
-                  <div className="text-sm text-gray-500">Current Severity</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Current Severity</div>
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-bold text-blue-600">{(constellation.clinicalCorrelation * 100).toFixed(0)}%</div>
-                  <div className="text-sm text-gray-500">Clinical Correlation</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Clinical Correlation</div>
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-bold text-green-600">{constellation.detectionWindow}</div>
-                  <div className="text-sm text-gray-500">Detection Window</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Detection Window</div>
                 </div>
               </div>
 
@@ -643,7 +643,7 @@ export const NeuralPatternRecognition: React.FC = () => {
                   {constellation.patterns.map((pattern, index) => (
                     <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
                       <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                      <span className="text-sm text-gray-700">{pattern}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{pattern}</span>
                     </div>
                   ))}
                 </div>
@@ -662,29 +662,29 @@ export const NeuralPatternRecognition: React.FC = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 capitalize">{expression.emotion}</h3>
-                    <p className="text-sm text-gray-500">{expression.context}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{expression.context}</p>
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-bold text-purple-600">{(expression.intensity * 100).toFixed(0)}%</div>
-                    <div className="text-xs text-gray-500">Intensity</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Intensity</div>
                   </div>
                 </div>
 
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Duration</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Duration</span>
                     <span className="text-sm font-medium">{expression.duration}s</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Frequency</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Frequency</span>
                     <span className="text-sm font-medium">{expression.frequency} times</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">AI Confidence</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">AI Confidence</span>
                     <span className="text-sm font-medium text-blue-600">{(expression.aiConfidence * 100).toFixed(0)}%</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Detected</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Detected</span>
                     <span className="text-sm font-medium">{new Date(expression.timestamp).toLocaleTimeString()}</span>
                   </div>
                 </div>
@@ -721,7 +721,7 @@ export const NeuralPatternRecognition: React.FC = () => {
                     <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">
                       <div className="text-center">
                         <Camera className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-600">Camera not active</p>
+                        <p className="text-gray-600 dark:text-gray-400">Camera not active</p>
                       </div>
                     </div>
                   )}
@@ -741,19 +741,19 @@ export const NeuralPatternRecognition: React.FC = () => {
                     </div>
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Fatigue Indicators</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Fatigue Indicators</span>
                         <span className="text-sm font-medium text-yellow-600">Low</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Pain Signals</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Pain Signals</span>
                         <span className="text-sm font-medium text-green-600">None</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Stress Markers</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Stress Markers</span>
                         <span className="text-sm font-medium text-blue-600">Baseline</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Analysis Confidence</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Analysis Confidence</span>
                         <span className="text-sm font-medium text-blue-600">89%</span>
                       </div>
                     </div>
@@ -761,8 +761,8 @@ export const NeuralPatternRecognition: React.FC = () => {
                 ) : (
                   <div className="p-4 bg-gray-50 rounded-lg text-center">
                     <Pause className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-600">Monitoring paused</p>
-                    <p className="text-sm text-gray-500">Start monitoring to begin real-time analysis</p>
+                    <p className="text-gray-600 dark:text-gray-400">Monitoring paused</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Start monitoring to begin real-time analysis</p>
                   </div>
                 )}
               </div>

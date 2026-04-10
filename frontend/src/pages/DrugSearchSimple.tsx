@@ -22,7 +22,7 @@ const DrugSearchSimple: React.FC = () => {
       <div className="text-center space-y-2">
         <div className="flex items-center justify-center space-x-3">
           <Pill className="h-8 w-8 text-blue-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Drug Search</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Drug Search</h1>
         </div>
         <p className="text-gray-600 max-w-2xl mx-auto">
           Search our comprehensive database of medications. Click on any drug to view details and add it to your selection.
@@ -85,8 +85,8 @@ const DrugSearchSimple: React.FC = () => {
       )}
 
       {/* Debug Info */}
-      <Card className="bg-gray-50">
-        <div className="text-sm text-gray-600">
+      <Card className="bg-gray-50 dark:bg-gray-800">
+        <div className="text-sm text-gray-600 dark:text-gray-400">
           <div className="font-medium mb-2">Debug Information:</div>
           <div>• Selected drugs: {selection.selectedDrugs.length}</div>
           <div>• Current view: {selectedDrug ? 'Drug details' : 'Search'}</div>

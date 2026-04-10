@@ -139,7 +139,7 @@ const AdvancedDoseCalculator: React.FC<AdvancedDoseCalculatorProps> = ({
       case 'major': return 'text-orange-600 bg-orange-100 border-orange-200';
       case 'moderate': return 'text-yellow-600 bg-yellow-100 border-yellow-200';
       case 'minor': return 'text-blue-600 bg-blue-100 border-blue-200';
-      default: return 'text-gray-600 bg-gray-100 border-gray-200';
+      default: return 'text-gray-600 bg-gray-100 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -152,8 +152,8 @@ const AdvancedDoseCalculator: React.FC<AdvancedDoseCalculatorProps> = ({
             <Calculator className="w-6 h-6 text-blue-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Advanced Dose Calculator</h1>
-            <p className="text-gray-600">Precision dosing with clinical decision support</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Advanced Dose Calculator</h1>
+            <p className="text-gray-600 dark:text-gray-400">Precision dosing with clinical decision support</p>
           </div>
         </div>
         
@@ -174,8 +174,8 @@ const AdvancedDoseCalculator: React.FC<AdvancedDoseCalculatorProps> = ({
         <div className="lg:col-span-1 space-y-6">
           <Card>
             <div className="flex items-center space-x-2 mb-4">
-              <User className="w-5 h-5 text-gray-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Patient Information</h2>
+              <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Patient Information</h2>
             </div>
             
             <div className="space-y-4">
@@ -277,8 +277,8 @@ const AdvancedDoseCalculator: React.FC<AdvancedDoseCalculatorProps> = ({
           {/* Calculated Values */}
           <Card>
             <div className="flex items-center space-x-2 mb-4">
-              <Activity className="w-5 h-5 text-gray-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Calculated Values</h2>
+              <Activity className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Calculated Values</h2>
             </div>
             
             <div className="space-y-4">
@@ -316,8 +316,8 @@ const AdvancedDoseCalculator: React.FC<AdvancedDoseCalculatorProps> = ({
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <div className="flex items-center space-x-2 mb-4">
-              <Beaker className="w-5 h-5 text-gray-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Drug Selection & Dosing</h2>
+              <Beaker className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Drug Selection & Dosing</h2>
             </div>
 
             <div className="space-y-4">
@@ -331,11 +331,11 @@ const AdvancedDoseCalculator: React.FC<AdvancedDoseCalculatorProps> = ({
                       className={`p-3 text-left border rounded-lg transition-colors ${
                         selectedDrug === drug.name
                           ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                          : 'border-gray-200 hover:border-gray-300 dark:border-gray-600'
                       }`}
                     >
                       <div className="font-medium text-sm">{drug.name}</div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
                         {typeof drug.dose === 'number' ? `${drug.dose} ${drug.unit}` : drug.dose}
                       </div>
                     </button>
@@ -394,9 +394,9 @@ const AdvancedDoseCalculator: React.FC<AdvancedDoseCalculatorProps> = ({
           {calculation && (
             <Card>
               <div className="flex items-center space-x-2 mb-4">
-                <TrendingUp className="w-5 h-5 text-gray-600" />
-                <h2 className="text-lg font-semibold text-gray-900">Dose Calculation Results</h2>
-                <button className="ml-auto p-1 text-gray-400 hover:text-gray-600">
+                <TrendingUp className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Dose Calculation Results</h2>
+                <button className="ml-auto p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400">
                   <Copy className="w-4 h-4" />
                 </button>
               </div>

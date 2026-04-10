@@ -144,7 +144,7 @@ const VisitorAnalyticsDashboard: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-600 mb-1">{title}</p>
-            <p className="text-2xl font-bold text-gray-900">{value}</p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
             {change !== undefined && (
               <div className="mt-1">
                 {getChangeIndicator(change, change > 0)}
@@ -160,9 +160,9 @@ const VisitorAnalyticsDashboard: React.FC = () => {
   };
 
   const renderTopPages = () => (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900">Top Pages</h3>
+    <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Top Pages</h3>
       </div>
       <div className="p-6">
         <div className="space-y-4">
@@ -171,8 +171,8 @@ const VisitorAnalyticsDashboard: React.FC = () => {
               <div className="flex items-center space-x-3">
                 <span className="text-sm font-medium text-gray-500 w-6">{index + 1}</span>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{(page as any).path || page.url}</p>
-                  <p className="text-xs text-gray-500">{formatNumber(page.views)} views</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{(page as any).path || page.url}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{formatNumber(page.views)} views</p>
                 </div>
               </div>
               <div className="w-24 bg-gray-200 rounded-full h-2">
@@ -191,9 +191,9 @@ const VisitorAnalyticsDashboard: React.FC = () => {
   );
 
   const renderUserRoles = () => (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900">User Roles</h3>
+    <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">User Roles</h3>
       </div>
       <div className="p-6">
         <div className="space-y-3">
@@ -204,7 +204,7 @@ const VisitorAnalyticsDashboard: React.FC = () => {
                 <span className="text-sm font-medium text-gray-900 capitalize">{role.role}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">{role.count}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">{role.count}</span>
                 <div className="w-16 bg-gray-200 rounded-full h-2">
                   <div 
                     className="bg-green-600 h-2 rounded-full"
@@ -222,9 +222,9 @@ const VisitorAnalyticsDashboard: React.FC = () => {
   );
 
   const renderDeviceTypes = () => (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900">Device Types</h3>
+    <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Device Types</h3>
       </div>
       <div className="p-6">
         <div className="space-y-3">
@@ -239,7 +239,7 @@ const VisitorAnalyticsDashboard: React.FC = () => {
                   <span className="text-sm font-medium text-gray-900 capitalize">{device.type}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-600">{device.count}</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{device.count}</span>
                   <div className="w-16 bg-gray-200 rounded-full h-2">
                     <div 
                       className="bg-purple-600 h-2 rounded-full"
@@ -258,9 +258,9 @@ const VisitorAnalyticsDashboard: React.FC = () => {
   );
 
   const renderGeographicDistribution = () => (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900">Geographic Distribution</h3>
+    <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Geographic Distribution</h3>
       </div>
       <div className="p-6">
         <div className="space-y-3">
@@ -268,10 +268,10 @@ const VisitorAnalyticsDashboard: React.FC = () => {
             <div key={location.location} className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <MapPin className="w-4 h-4 text-orange-600" />
-                <span className="text-sm font-medium text-gray-900">{location.location}</span>
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{location.location}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">{location.count}</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">{location.count}</span>
                 <div className="w-16 bg-gray-200 rounded-full h-2">
                   <div 
                     className="bg-orange-600 h-2 rounded-full"
@@ -292,34 +292,34 @@ const VisitorAnalyticsDashboard: React.FC = () => {
     if (!currentSession) return null;
 
     return (
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Current Session</h3>
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Current Session</h3>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-gray-600">Session ID</p>
-              <p className="text-sm font-mono text-gray-900">{currentSession.sessionId.slice(0, 8)}...</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Session ID</p>
+              <p className="text-sm font-mono text-gray-900 dark:text-gray-100">{currentSession.sessionId.slice(0, 8)}...</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Device</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Device</p>
               <p className="text-sm text-gray-900 capitalize">{currentSession.deviceType}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Browser</p>
-              <p className="text-sm text-gray-900">{currentSession.browser}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Browser</p>
+              <p className="text-sm text-gray-900 dark:text-gray-100">{currentSession.browser}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Page Views</p>
-              <p className="text-sm text-gray-900">{currentSession.pageViews.length}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Page Views</p>
+              <p className="text-sm text-gray-900 dark:text-gray-100">{currentSession.pageViews.length}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">Start Time</p>
-              <p className="text-sm text-gray-900">{new Date(currentSession.startTime).toLocaleTimeString()}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Start Time</p>
+              <p className="text-sm text-gray-900 dark:text-gray-100">{new Date(currentSession.startTime).toLocaleTimeString()}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-600">User Role</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">User Role</p>
               <p className="text-sm text-gray-900 capitalize">{currentSession.userRole || 'Anonymous'}</p>
             </div>
           </div>
@@ -329,10 +329,10 @@ const VisitorAnalyticsDashboard: React.FC = () => {
   };
 
   const renderPrivacySettings = () => (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="px-6 py-4 border-b border-gray-200">
+    <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">Privacy Settings</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Privacy Settings</h3>
           <Shield className="w-5 h-5 text-green-600" />
         </div>
       </div>
@@ -354,8 +354,8 @@ const VisitorAnalyticsDashboard: React.FC = () => {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Anonymous Analytics</p>
-                <p className="text-xs text-gray-600">Track usage patterns without personal data</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Anonymous Analytics</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">Track usage patterns without personal data</p>
               </div>
               <div className="flex items-center space-x-2">
                 <span className="text-xs text-green-600">Enabled</span>
@@ -365,8 +365,8 @@ const VisitorAnalyticsDashboard: React.FC = () => {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Performance Monitoring</p>
-                <p className="text-xs text-gray-600">Monitor application performance and errors</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Performance Monitoring</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">Monitor application performance and errors</p>
               </div>
               <div className="flex items-center space-x-2">
                 <span className="text-xs text-green-600">Enabled</span>
@@ -376,8 +376,8 @@ const VisitorAnalyticsDashboard: React.FC = () => {
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">Location Tracking</p>
-                <p className="text-xs text-gray-600">Approximate geographic location (country/region only)</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Location Tracking</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">Approximate geographic location (country/region only)</p>
               </div>
               <div className="flex items-center space-x-2">
                 <button className="text-xs text-blue-600 hover:text-blue-800">
@@ -387,7 +387,7 @@ const VisitorAnalyticsDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-gray-200">
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
             <button 
               onClick={() => {
                 if (visitorTracking.isOptedOut()) {
@@ -416,7 +416,7 @@ const VisitorAnalyticsDashboard: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="flex items-center space-x-2">
           <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
-          <span className="text-gray-600">Loading analytics data...</span>
+          <span className="text-gray-600 dark:text-gray-400">Loading analytics data...</span>
         </div>
       </div>
     );
@@ -432,8 +432,8 @@ const VisitorAnalyticsDashboard: React.FC = () => {
               <BarChart3 className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Visitor Analytics</h1>
-              <p className="text-gray-600">Comprehensive visitor tracking and usage analytics</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Visitor Analytics</h1>
+              <p className="text-gray-600 dark:text-gray-400">Comprehensive visitor tracking and usage analytics</p>
             </div>
           </div>
           
@@ -496,7 +496,7 @@ const VisitorAnalyticsDashboard: React.FC = () => {
                 className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab.id
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -524,7 +524,7 @@ const VisitorAnalyticsDashboard: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Bounce Rate</p>
-                  <p className="text-2xl font-bold text-gray-900">{(analytics.bounceRate * 100).toFixed(1)}%</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{(analytics.bounceRate * 100).toFixed(1)}%</p>
                   {getChangeIndicator(-5.2, false)}
                 </div>
                 <div className="p-3 bg-orange-100 rounded-lg">
@@ -537,7 +537,7 @@ const VisitorAnalyticsDashboard: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Pages per Session</p>
-                  <p className="text-2xl font-bold text-gray-900">{(analytics.pageViews / analytics.totalVisitors).toFixed(1)}</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{(analytics.pageViews / analytics.totalVisitors).toFixed(1)}</p>
                   {getChangeIndicator(7.8, true)}
                 </div>
                 <div className="p-3 bg-green-100 rounded-lg">
@@ -550,7 +550,7 @@ const VisitorAnalyticsDashboard: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Return Visitors</p>
-                  <p className="text-2xl font-bold text-gray-900">{((analytics.totalVisitors - analytics.uniqueVisitors) / analytics.totalVisitors * 100).toFixed(1)}%</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{((analytics.totalVisitors - analytics.uniqueVisitors) / analytics.totalVisitors * 100).toFixed(1)}%</p>
                   {getChangeIndicator(3.4, true)}
                 </div>
                 <div className="p-3 bg-purple-100 rounded-lg">

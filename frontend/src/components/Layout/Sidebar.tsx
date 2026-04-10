@@ -760,7 +760,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <Link 
             to="/" 
             className={`flex items-center space-x-3 transition-opacity duration-200 ${
@@ -865,7 +865,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                       focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
                       ${isActive(path)
                         ? `bg-${roleConfig?.primaryColor || 'primary'}-50 text-${roleConfig?.primaryColor || 'primary'}-700 border-r-2 border-${roleConfig?.primaryColor || 'primary'}-700`
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-100'
                       }
                       ${!isOpen ? 'justify-center' : ''}
                       ${focusedItem === path ? 'ring-2 ring-primary-500' : ''}
@@ -876,7 +876,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                   >
                     <Icon className={`
                       flex-shrink-0 transition-all duration-200
-                      ${isActive(path) ? `text-${roleConfig?.primaryColor || 'primary'}-700` : 'text-gray-400 group-hover:text-gray-500'}
+                      ${isActive(path) ? `text-${roleConfig?.primaryColor || 'primary'}-700` : 'text-gray-400 group-hover:text-gray-500 dark:text-gray-400'}
                       ${isOpen ? 'w-5 h-5 mr-3' : 'w-6 h-6'}
                     `} />
                     
@@ -895,14 +895,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
                       <div className="ml-2">
                         {path === '/admin/users' && adminBadges.users && (
                           <Tooltip content={`Active ${adminBadges.users.active} of ${adminBadges.users.total}`}>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:text-gray-200">
                               {adminBadges.users.active}/{adminBadges.users.total}
                             </span>
                           </Tooltip>
                         )}
                         {path === '/admin/audit' && typeof adminBadges.auditTotal === 'number' && (
                           <Tooltip content={`Total audit entries: ${adminBadges.auditTotal}`}>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:text-gray-200">
                               {adminBadges.auditTotal}
                             </span>
                           </Tooltip>
@@ -927,7 +927,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
 
         {/* User section with logout */}
         {user && (
-          <div className="p-2 border-t border-gray-200">
+          <div className="p-2 border-t border-gray-200 dark:border-gray-700">
             <div className={`flex items-center ${isOpen ? 'justify-between' : 'justify-center'} mb-2`}>
               {isOpen && (
                 <Link
@@ -988,23 +988,23 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         )}
 
         {/* Toggle button for desktop */}
-        <div className="hidden lg:block p-2 border-t border-gray-200">
+        <div className="hidden lg:block p-2 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={onToggle}
             className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-gray-100 transition-colors"
             aria-label={isOpen ? 'Collapse sidebar' : 'Expand sidebar'}
           >
             {isOpen ? (
-              <ChevronLeft className="w-5 h-5 text-gray-500" />
+              <ChevronLeft className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             ) : (
-              <ChevronRight className="w-5 h-5 text-gray-500" />
+              <ChevronRight className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             )}
           </button>
         </div>
 
         {/* Footer info */}
         {isOpen && (
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
             <div className="text-xs text-gray-500 text-center">
               <div>Version 2.1.0</div>
               <div className="mt-1">© 2024 OncoSafeRx</div>

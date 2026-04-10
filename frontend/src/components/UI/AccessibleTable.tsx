@@ -265,7 +265,7 @@ function AccessibleTable<T>({
           </caption>
         )}
         
-        <thead className="bg-gray-50">
+        <thead className="bg-gray-50 dark:bg-gray-800">
           <tr role="row" aria-rowindex={1}>
             {selectable && (
               <th
@@ -299,7 +299,7 @@ function AccessibleTable<T>({
                   ref={(el) => (cellRefs.current[0][colIndex] = el)}
                   scope="col"
                   className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
-                    column.sortable ? 'cursor-pointer hover:bg-gray-100' : ''
+                    column.sortable ? 'cursor-pointer hover:bg-gray-100 dark:bg-gray-800' : ''
                   } ${isFocused ? 'ring-2 ring-primary-500' : ''}`}
                   style={{ width: column.width, textAlign: column.align }}
                   role="columnheader"
@@ -351,7 +351,7 @@ function AccessibleTable<T>({
             <tr role="row">
               <td
                 colSpan={columns.length + (selectable ? 1 : 0)}
-                className="px-6 py-12 text-center text-gray-500"
+                className="px-6 py-12 text-center text-gray-500 dark:text-gray-400"
                 role="cell"
               >
                 {emptyMessage}
@@ -365,7 +365,7 @@ function AccessibleTable<T>({
               return (
                 <tr
                   key={rowIndex}
-                  className={`${isSelected ? 'bg-primary-50' : 'hover:bg-gray-50'} ${rowClassName}`}
+                  className={`${isSelected ? 'bg-primary-50' : 'hover:bg-gray-50 dark:bg-gray-800'} ${rowClassName}`}
                   role="row"
                   aria-rowindex={rowIndex + 2}
                   aria-selected={selectable ? isSelected : undefined}

@@ -482,7 +482,7 @@ const MultiOmicsIntegration: React.FC = () => {
       case 'High': return 'bg-orange-100 text-orange-800 border-orange-300';
       case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
       case 'Low': return 'bg-green-100 text-green-800 border-green-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300 dark:border-gray-600';
     }
   };
 
@@ -528,7 +528,7 @@ const MultiOmicsIntegration: React.FC = () => {
       <div className="bg-white p-4 rounded-lg shadow-sm border">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Sample:</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sample:</label>
             <select
               value={currentSample}
               onChange={(e) => setCurrentSample(e.target.value)}
@@ -541,7 +541,7 @@ const MultiOmicsIntegration: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Analysis Mode:</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Analysis Mode:</label>
             <select
               value={analysisMode}
               onChange={(e) => setAnalysisMode(e.target.value as any)}
@@ -554,7 +554,7 @@ const MultiOmicsIntegration: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Omics Layers:</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Omics Layers:</label>
             <div className="flex gap-2">
               {['genomics', 'proteomics', 'metabolomics', 'epigenomics', 'single-cell'].map(layer => (
                 <label key={layer} className="flex items-center gap-1 text-sm">
@@ -599,7 +599,7 @@ const MultiOmicsIntegration: React.FC = () => {
             <div key={insight.id} className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg border">
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h4 className="font-semibold text-gray-900">{insight.title}</h4>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">{insight.title}</h4>
                   <div className="flex items-center gap-2 mt-1">
                     <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getPriorityColor(insight.priority)}`}>
                       {insight.priority} Priority
@@ -609,7 +609,7 @@ const MultiOmicsIntegration: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-bold text-purple-600">{insight.confidence}%</div>
-                  <div className="text-sm text-gray-600">Confidence</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Confidence</div>
                 </div>
               </div>
 
@@ -625,7 +625,7 @@ const MultiOmicsIntegration: React.FC = () => {
                         ></div>
                         <div className="flex-1">
                           <div className="text-sm font-medium">{evidence.type}</div>
-                          <div className="text-xs text-gray-600">{evidence.description}</div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400">{evidence.description}</div>
                         </div>
                         <div className="text-sm font-medium">{evidence.support}%</div>
                       </div>
@@ -643,7 +643,7 @@ const MultiOmicsIntegration: React.FC = () => {
                       <span className="font-medium">{insight.therapeuticRecommendation.expectedResponse}%</span>
                     </div>
                     <div className="mt-2">
-                      <div className="text-xs text-gray-600">Key Biomarkers:</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">Key Biomarkers:</div>
                       <div className="text-sm">{insight.therapeuticRecommendation.biomarkers.join(', ')}</div>
                     </div>
                   </div>
@@ -702,12 +702,12 @@ const MultiOmicsIntegration: React.FC = () => {
                     variant.actionability === 'FDA Approved' ? 'bg-green-100 text-green-800' :
                     variant.actionability === 'Guideline' ? 'bg-blue-100 text-blue-800' :
                     variant.actionability === 'Clinical Trial' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-gray-100 text-gray-800'
+                    'bg-gray-100 text-gray-800 dark:text-gray-200'
                   }`}>
                     {variant.actionability}
                   </span>
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   VAF: {(variant.alleleFrequency * 100).toFixed(1)}% | 
                   Expression: {variant.expression.toFixed(1)} | 
                   Methylation: {(variant.methylation * 100).toFixed(1)}%
@@ -729,11 +729,11 @@ const MultiOmicsIntegration: React.FC = () => {
                 <div className="flex items-center justify-between mb-2">
                   <div className="font-medium">{protein.protein}</div>
                   <div className="text-sm">
-                    <span className="text-gray-600">Expression: </span>
+                    <span className="text-gray-600 dark:text-gray-400">Expression: </span>
                     <span className="font-medium">{protein.expression.toFixed(1)}</span>
                   </div>
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   {protein.targetClass} | Druggability: {(protein.druggability * 100).toFixed(0)}%
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
@@ -773,12 +773,12 @@ const MultiOmicsIntegration: React.FC = () => {
                     cell.cellState === 'Stem-like' ? 'bg-red-100 text-red-800' :
                     cell.cellState === 'Proliferative' ? 'bg-yellow-100 text-yellow-800' :
                     cell.cellState === 'Senescent' ? 'bg-blue-100 text-blue-800' :
-                    'bg-gray-100 text-gray-800'
+                    'bg-gray-100 text-gray-800 dark:text-gray-200'
                   }`}>
                     {cell.cellState}
                   </span>
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   Cluster {cell.cluster} | Trajectory: {(cell.trajectory * 100).toFixed(0)}%
                 </div>
                 <div className="text-xs text-gray-500 mt-1">

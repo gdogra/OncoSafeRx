@@ -317,7 +317,7 @@ const MLAnalyticsDashboard: React.FC = () => {
       case 'better': return 'text-green-600 bg-green-50';
       case 'average': return 'text-blue-600 bg-blue-50';
       case 'worse': return 'text-red-600 bg-red-50';
-      default: return 'text-gray-600 bg-gray-50';
+      default: return 'text-gray-600 bg-gray-50 dark:bg-gray-800';
     }
   };
 
@@ -325,7 +325,7 @@ const MLAnalyticsDashboard: React.FC = () => {
     switch (direction) {
       case 'improving': return <TrendingUp className="w-4 h-4 text-green-600" />;
       case 'declining': return <TrendingDown className="w-4 h-4 text-red-600" />;
-      default: return <Activity className="w-4 h-4 text-gray-600" />;
+      default: return <Activity className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
     }
   };
 
@@ -353,8 +353,8 @@ const MLAnalyticsDashboard: React.FC = () => {
               <Brain className="w-6 h-6 text-purple-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">ML Analytics Dashboard</h1>
-              <p className="text-gray-600">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">ML Analytics Dashboard</h1>
+              <p className="text-gray-600 dark:text-gray-400">
                 Advanced machine learning insights for {currentPatient.demographics.firstName} {currentPatient.demographics.lastName}
               </p>
             </div>
@@ -380,11 +380,11 @@ const MLAnalyticsDashboard: React.FC = () => {
               <LoadingSpinner size="lg" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900">ML Processing in Progress</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">ML Processing in Progress</h3>
               <p className="text-gray-600 mb-2">
                 Running advanced machine learning models across multiple data sources...
               </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-gray-500">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs text-gray-500 dark:text-gray-400">
                 <div className="flex items-center space-x-1">
                   <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                   <span>Deep learning models</span>
@@ -442,7 +442,7 @@ const MLAnalyticsDashboard: React.FC = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <RefreshCw className="w-4 h-4 text-gray-400" />
-                <span className="text-sm text-gray-600">Auto-refresh:</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Auto-refresh:</span>
                 <button
                   onClick={() => setAutoRefresh(!autoRefresh)}
                   className={`relative w-12 h-6 rounded-full transition-colors ${
@@ -455,7 +455,7 @@ const MLAnalyticsDashboard: React.FC = () => {
                 </button>
               </div>
             </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
               <Database className="w-4 h-4" />
               <span>Last updated: {new Date().toLocaleTimeString()}</span>
             </div>
@@ -468,7 +468,7 @@ const MLAnalyticsDashboard: React.FC = () => {
         <Card>
           <div className="flex items-center space-x-2 mb-6">
             <Target className="w-6 h-6 text-blue-500" />
-            <h2 className="text-xl font-semibold text-gray-900">Predictive Models</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Predictive Models</h2>
             <Tooltip content="AI-powered predictive models trained on large clinical datasets">
               <Lightbulb className="w-4 h-4 text-gray-400" />
             </Tooltip>
@@ -477,16 +477,16 @@ const MLAnalyticsDashboard: React.FC = () => {
             {predictiveModels.map((model, index) => (
               <div key={index} className="p-4 border border-gray-200 rounded-lg bg-gradient-to-br from-white to-gray-50">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-gray-900">{model.name}</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">{model.name}</h3>
                   <div className="flex items-center space-x-1">
                     <Star className="w-3 h-3 text-yellow-500" />
-                    <span className="text-xs font-medium text-gray-600">{Math.round(model.accuracy * 100)}%</span>
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{Math.round(model.accuracy * 100)}%</span>
                   </div>
                 </div>
                 
                 <div className="mb-3">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-gray-600">Prediction:</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Prediction:</span>
                     <span className="font-bold text-lg text-blue-600">{model.prediction.value}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
@@ -503,19 +503,19 @@ const MLAnalyticsDashboard: React.FC = () => {
                 <div className="space-y-2 text-xs">
                   <div>
                     <span className="font-medium text-red-600">Risk factors:</span>
-                    <div className="text-gray-600">
+                    <div className="text-gray-600 dark:text-gray-400">
                       {model.prediction.risk_factors.slice(0, 2).map(factor => `• ${factor}`).join(' ')}
                     </div>
                   </div>
                   <div>
                     <span className="font-medium text-green-600">Protective factors:</span>
-                    <div className="text-gray-600">
+                    <div className="text-gray-600 dark:text-gray-400">
                       {model.prediction.protective_factors.slice(0, 2).map(factor => `• ${factor}`).join(' ')}
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-500">
+                <div className="mt-3 pt-3 border-t border-gray-200 text-xs text-gray-500 dark:text-gray-400">
                   <div>Training data: {model.training_data_size.toLocaleString()} patients</div>
                   <div>Last trained: {new Date(model.last_trained).toLocaleDateString()}</div>
                 </div>
@@ -530,7 +530,7 @@ const MLAnalyticsDashboard: React.FC = () => {
         <Card>
           <div className="flex items-center space-x-2 mb-6">
             <Users className="w-6 h-6 text-green-500" />
-            <h2 className="text-xl font-semibold text-gray-900">Population Benchmarks</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Population Benchmarks</h2>
             <Tooltip content="How this patient compares to similar patients in large clinical databases">
               <Award className="w-4 h-4 text-gray-400" />
             </Tooltip>
@@ -539,7 +539,7 @@ const MLAnalyticsDashboard: React.FC = () => {
             {populationBenchmarks.map((benchmark, index) => (
               <div key={index} className={`p-4 rounded-lg border ${getBenchmarkColor(benchmark.category)}`}>
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold text-gray-900">{benchmark.metric}</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">{benchmark.metric}</h3>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     benchmark.category === 'better' ? 'bg-green-100 text-green-800' :
                     benchmark.category === 'average' ? 'bg-blue-100 text-blue-800' :
@@ -552,20 +552,20 @@ const MLAnalyticsDashboard: React.FC = () => {
                 
                 <div className="grid grid-cols-3 gap-4 text-sm">
                   <div>
-                    <div className="text-gray-600">Patient</div>
+                    <div className="text-gray-600 dark:text-gray-400">Patient</div>
                     <div className="font-bold text-lg">{benchmark.patient_value}</div>
                   </div>
                   <div>
-                    <div className="text-gray-600">Population</div>
+                    <div className="text-gray-600 dark:text-gray-400">Population</div>
                     <div className="font-medium">{benchmark.population_mean}</div>
                   </div>
                   <div>
-                    <div className="text-gray-600">Percentile</div>
+                    <div className="text-gray-600 dark:text-gray-400">Percentile</div>
                     <div className="font-medium">{benchmark.population_percentile}th</div>
                   </div>
                 </div>
                 
-                <div className="mt-3 text-xs text-gray-500">
+                <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
                   Based on {benchmark.sample_size.toLocaleString()} similar patients
                 </div>
               </div>
@@ -579,7 +579,7 @@ const MLAnalyticsDashboard: React.FC = () => {
         <Card>
           <div className="flex items-center space-x-2 mb-6">
             <TrendingUp className="w-6 h-6 text-purple-500" />
-            <h2 className="text-xl font-semibold text-gray-900">Trend Analysis</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Trend Analysis</h2>
             <Tooltip content="AI-powered trend analysis and 30-day predictions">
               <Activity className="w-4 h-4 text-gray-400" />
             </Tooltip>
@@ -588,32 +588,32 @@ const MLAnalyticsDashboard: React.FC = () => {
             {trendAnalysis.map((trend, index) => (
               <div key={index} className="p-4 border border-gray-200 rounded-lg">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-gray-900">{trend.metric}</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">{trend.metric}</h3>
                   {getTrendIcon(trend.trend_direction)}
                 </div>
                 
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Current:</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Current:</span>
                     <span className="font-medium">{trend.current_value}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">30-day forecast:</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">30-day forecast:</span>
                     <span className="font-medium">{trend.prediction_30_days}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Change rate:</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Change rate:</span>
                     <span className={`font-medium ${
                       trend.rate_of_change > 0 ? 'text-green-600' :
-                      trend.rate_of_change < 0 ? 'text-red-600' : 'text-gray-600'
+                      trend.rate_of_change < 0 ? 'text-red-600' : 'text-gray-600 dark:text-gray-400'
                     }`}>
                       {trend.rate_of_change > 0 ? '+' : ''}{trend.rate_of_change}%
                     </span>
                   </div>
                 </div>
                 
-                <div className="mt-3 pt-3 border-t border-gray-200">
-                  <div className="flex items-center justify-between text-xs text-gray-500">
+                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                     <span>Confidence: {Math.round(trend.confidence * 100)}%</span>
                     <span>Period: {trend.time_period}</span>
                   </div>
@@ -656,7 +656,7 @@ const MLAnalyticsDashboard: React.FC = () => {
                   </div>
                   <div className="flex items-center space-x-1">
                     <Star className="w-3 h-3 text-yellow-500" />
-                    <span className="text-sm font-medium text-gray-600">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       Impact: {insight.impact_score}%
                     </span>
                   </div>
@@ -673,11 +673,11 @@ const MLAnalyticsDashboard: React.FC = () => {
                 <div className="grid md:grid-cols-2 gap-4 text-sm">
                   <div>
                     <div className="font-medium text-gray-700 mb-1">Model Used:</div>
-                    <p className="text-gray-600">{insight.model_used}</p>
+                    <p className="text-gray-600 dark:text-gray-400">{insight.model_used}</p>
                   </div>
                   <div>
                     <div className="font-medium text-gray-700 mb-1">Time Horizon:</div>
-                    <p className="text-gray-600">{insight.time_horizon}</p>
+                    <p className="text-gray-600 dark:text-gray-400">{insight.time_horizon}</p>
                   </div>
                 </div>
 
@@ -692,7 +692,7 @@ const MLAnalyticsDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="mt-3 text-xs text-gray-500">
+                <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
                   Last updated: {new Date(insight.last_updated).toLocaleString()}
                 </div>
               </div>
@@ -703,39 +703,39 @@ const MLAnalyticsDashboard: React.FC = () => {
 
       {/* Summary Statistics */}
       {mlInsights.length > 0 && (
-        <Card className="bg-gray-50">
+        <Card className="bg-gray-50 dark:bg-gray-800">
           <div className="flex items-center space-x-2 mb-4">
             <BarChart3 className="w-5 h-5 text-gray-400" />
-            <h3 className="text-lg font-semibold text-gray-900">ML Analysis Summary</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">ML Analysis Summary</h3>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold text-purple-600">{mlInsights.length}</div>
-              <div className="text-sm text-gray-600">Total Insights</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Total Insights</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-green-600">
                 {Math.round(mlInsights.reduce((sum, i) => sum + i.confidence, 0) / mlInsights.length)}%
               </div>
-              <div className="text-sm text-gray-600">Avg. Confidence</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Avg. Confidence</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-blue-600">
                 {Math.round(mlInsights.reduce((sum, i) => sum + i.impact_score, 0) / mlInsights.length)}%
               </div>
-              <div className="text-sm text-gray-600">Avg. Impact</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Avg. Impact</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-orange-600">
                 {mlInsights.filter(i => i.confidence >= 80).length}
               </div>
-              <div className="text-sm text-gray-600">High Confidence</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">High Confidence</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-red-600">
                 {mlInsights.filter(i => i.impact_score >= 85).length}
               </div>
-              <div className="text-sm text-gray-600">High Impact</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">High Impact</div>
             </div>
           </div>
         </Card>

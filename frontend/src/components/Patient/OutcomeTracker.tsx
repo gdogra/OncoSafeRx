@@ -195,7 +195,7 @@ const OutcomeTracker: React.FC<OutcomeTrackerProps> = ({ patientId }) => {
       case 'quality_of_life': return 'bg-blue-100 text-blue-800';
       case 'biomarker': return 'bg-purple-100 text-purple-800';
       case 'functional_status': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -266,8 +266,8 @@ const OutcomeTracker: React.FC<OutcomeTrackerProps> = ({ patientId }) => {
           <div className="flex items-center space-x-3">
             <TrendingUp className="w-6 h-6 text-primary-600" />
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Outcome Tracking</h2>
-              <p className="text-sm text-gray-600">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Outcome Tracking</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 {currentPatient.demographics.firstName} {currentPatient.demographics.lastName} - Treatment outcomes and response monitoring
               </p>
             </div>
@@ -286,7 +286,7 @@ const OutcomeTracker: React.FC<OutcomeTrackerProps> = ({ patientId }) => {
       <Card>
         <div className="flex items-center space-x-2 mb-4">
           <BarChart3 className="w-5 h-5 text-gray-400" />
-          <h3 className="text-lg font-semibold text-gray-900">Outcome Summary</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Outcome Summary</h3>
           <Tooltip content="Overview of tracked outcomes and current status">
             <Info className="w-4 h-4 text-gray-400" />
           </Tooltip>
@@ -332,7 +332,7 @@ const OutcomeTracker: React.FC<OutcomeTrackerProps> = ({ patientId }) => {
               <option value="functional_status">Functional Status</option>
             </select>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
             {filteredOutcomes.length} outcome{filteredOutcomes.length !== 1 ? 's' : ''} found
           </div>
         </div>
@@ -367,30 +367,30 @@ const OutcomeTracker: React.FC<OutcomeTrackerProps> = ({ patientId }) => {
                           {getOutcomeTypeIcon(outcome.type)}
                           <span className="ml-1 capitalize">{outcome.type.replace('_', ' ')}</span>
                         </span>
-                        <h3 className="text-lg font-semibold text-gray-900">{outcome.measurement}</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{outcome.measurement}</h3>
                         {getTrendIcon(trend)}
                       </div>
 
                       <div className="grid md:grid-cols-4 gap-4 text-sm">
                         <div>
-                          <span className="font-medium text-gray-700">Value:</span>
+                          <span className="font-medium text-gray-700 dark:text-gray-300">Value:</span>
                           <p className="text-gray-900 font-semibold">
                             {outcome.value} {outcome.unit && outcome.unit}
                           </p>
                         </div>
                         <div>
-                          <span className="font-medium text-gray-700">Date:</span>
-                          <p className="text-gray-900">{new Date(outcome.date).toLocaleDateString()}</p>
+                          <span className="font-medium text-gray-700 dark:text-gray-300">Date:</span>
+                          <p className="text-gray-900 dark:text-gray-100">{new Date(outcome.date).toLocaleDateString()}</p>
                         </div>
                         {outcome.treatmentRelated && (
                           <div>
-                            <span className="font-medium text-gray-700">Related Treatment:</span>
-                            <p className="text-gray-900">{outcome.treatmentRelated}</p>
+                            <span className="font-medium text-gray-700 dark:text-gray-300">Related Treatment:</span>
+                            <p className="text-gray-900 dark:text-gray-100">{outcome.treatmentRelated}</p>
                           </div>
                         )}
                         {trend && (
                           <div>
-                            <span className="font-medium text-gray-700">Trend:</span>
+                            <span className="font-medium text-gray-700 dark:text-gray-300">Trend:</span>
                             <p className={`font-medium capitalize ${
                               trend === 'improving' ? 'text-green-600' :
                               trend === 'worsening' ? 'text-red-600' : 'text-yellow-600'
@@ -403,8 +403,8 @@ const OutcomeTracker: React.FC<OutcomeTrackerProps> = ({ patientId }) => {
 
                       {outcome.notes && (
                         <div className="mt-2 text-sm">
-                          <span className="font-medium text-gray-700">Notes:</span>
-                          <p className="text-gray-900">{outcome.notes}</p>
+                          <span className="font-medium text-gray-700 dark:text-gray-300">Notes:</span>
+                          <p className="text-gray-900 dark:text-gray-100">{outcome.notes}</p>
                         </div>
                       )}
                     </div>
@@ -438,8 +438,8 @@ const OutcomeTracker: React.FC<OutcomeTrackerProps> = ({ patientId }) => {
       {showAddForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {editingOutcome ? 'Edit Outcome' : 'Add Outcome'}
               </h3>
             </div>
@@ -561,7 +561,7 @@ const OutcomeTracker: React.FC<OutcomeTrackerProps> = ({ patientId }) => {
                     treatmentRelated: ''
                   });
                 }}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 dark:bg-gray-800"
               >
                 Cancel
               </button>

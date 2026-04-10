@@ -46,7 +46,7 @@ const PgxUploader: React.FC<PgxUploaderProps> = ({ onPhenotypes }) => {
 
   return (
     <div className="space-y-3">
-      <p className="text-sm text-gray-600">Paste FHIR Observations (or a Bundle containing Observations). We will map common PGx genotypes to phenotypes.</p>
+      <p className="text-sm text-gray-600 dark:text-gray-400">Paste FHIR Observations (or a Bundle containing Observations). We will map common PGx genotypes to phenotypes.</p>
       <div>
         <input
           type="file"
@@ -77,7 +77,7 @@ const PgxUploader: React.FC<PgxUploaderProps> = ({ onPhenotypes }) => {
       </div>
       {error && <Alert type="error" title="Error">{error}</Alert>}
       {phenos && (
-        <div className="text-sm text-gray-700">
+        <div className="text-sm text-gray-700 dark:text-gray-300">
           {phenos.length === 0 && <div>No phenotypes detected.</div>}
           {phenos.map((p, idx) => (
             <div key={idx}>• {p.gene}: {p.phenotype}</div>

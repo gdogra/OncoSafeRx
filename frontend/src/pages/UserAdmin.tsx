@@ -413,7 +413,7 @@ const UserAdmin: React.FC = () => {
       researcher: 'bg-yellow-100 text-yellow-800',
       patient: 'bg-pink-100 text-pink-800'
     };
-    return colors[role] || 'bg-gray-100 text-gray-800';
+    return colors[role] || 'bg-gray-100 text-gray-800 dark:text-gray-200';
   };
 
   return (
@@ -423,7 +423,7 @@ const UserAdmin: React.FC = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">User Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">User Management</h1>
           <p className="text-gray-600 mt-1">Manage user accounts and permissions</p>
           <p className="text-sm text-blue-600">Current user: {user?.email} ({user?.role})</p>
         </div>
@@ -464,8 +464,8 @@ const UserAdmin: React.FC = () => {
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Users</p>
-              <p className="text-2xl font-bold text-gray-900">{pagination.total}</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Users</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{pagination.total}</p>
             </div>
             <Users className="w-8 h-8 text-blue-600" />
           </div>
@@ -473,7 +473,7 @@ const UserAdmin: React.FC = () => {
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Active Users</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Users</p>
               <p className="text-2xl font-bold text-green-600">
                 {users.filter(u => u.is_active).length}
               </p>
@@ -484,7 +484,7 @@ const UserAdmin: React.FC = () => {
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Inactive Users</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Inactive Users</p>
               <p className="text-2xl font-bold text-red-600">
                 {users.filter(u => !u.is_active).length}
               </p>
@@ -495,7 +495,7 @@ const UserAdmin: React.FC = () => {
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Admins</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Admins</p>
               <p className="text-2xl font-bold text-purple-600">
                 {users.filter(u => u.role === 'admin').length}
               </p>
@@ -540,7 +540,7 @@ const UserAdmin: React.FC = () => {
             <option value="inactive">Inactive</option>
           </select>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Sort by:</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Sort by:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
@@ -566,11 +566,11 @@ const UserAdmin: React.FC = () => {
       <Card className="p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Role Backfill Utility</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Role Backfill Utility</h3>
             <p className="text-gray-600 text-sm">Populate missing user roles from auth metadata (one-time utility)</p>
           </div>
           <div className="flex items-center gap-3">
-            <label className="flex items-center text-sm text-gray-700">
+            <label className="flex items-center text-sm text-gray-700 dark:text-gray-300">
               <input type="checkbox" className="mr-2" checked={backfillDryRun} onChange={(e) => setBackfillDryRun(e.target.checked)} />
               Dry Run
             </label>
@@ -580,14 +580,14 @@ const UserAdmin: React.FC = () => {
           </div>
         </div>
         {backfillResult && (
-          <div className="mt-3 text-sm text-gray-700">Scanned: {backfillResult.scanned} • {backfillDryRun ? 'Would update' : 'Updated'}: {backfillResult.updated}</div>
+          <div className="mt-3 text-sm text-gray-700 dark:text-gray-300">Scanned: {backfillResult.scanned} • {backfillDryRun ? 'Would update' : 'Updated'}: {backfillResult.updated}</div>
         )}
       </Card>
 
       {/* Users Table */}
       <Card>
         {/* Bulk Actions Toolbar */}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-3 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3 text-sm">
             <label className="flex items-center gap-2">
               <input
@@ -597,7 +597,7 @@ const UserAdmin: React.FC = () => {
               />
               <span>Select all</span>
             </label>
-            <span className="text-gray-600">Selected: {selectedIds.size}</span>
+            <span className="text-gray-600 dark:text-gray-400">Selected: {selectedIds.size}</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <button onClick={() => runBulk('activate')} disabled={selectedIds.size === 0} className="px-3 py-1 bg-green-600 text-white rounded disabled:opacity-50">Activate</button>
@@ -742,7 +742,7 @@ const UserAdmin: React.FC = () => {
 
         {/* Pagination */}
         <div className="px-6 py-3 border-t border-gray-200 flex items-center justify-between">
-          <div className="text-sm text-gray-700">
+          <div className="text-sm text-gray-700 dark:text-gray-300">
             {typeof pagination.total === 'number' && pagination.total > 0 ? (
               <>Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} users</>
             ) : (
@@ -750,7 +750,7 @@ const UserAdmin: React.FC = () => {
             )}
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm text-gray-700">
+            <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
               <span>Rows per page:</span>
               <select
                 value={pagination.limit}
@@ -927,7 +927,7 @@ const UserAdmin: React.FC = () => {
                     onChange={(e) => setEditForm(prev => ({ ...prev, is_active: e.target.checked }))}
                     className="mr-2"
                   />
-                  <span className="text-sm font-medium text-gray-700">Active</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Active</span>
                 </label>
               </div>
             </div>

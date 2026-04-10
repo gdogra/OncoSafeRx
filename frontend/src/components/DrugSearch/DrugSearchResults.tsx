@@ -225,7 +225,7 @@ const DrugSearchResults: React.FC<DrugSearchResultsProps> = ({
   if (!results) {
     return (
       <div className="text-center py-12">
-        <div className="text-gray-500">
+        <div className="text-gray-500 dark:text-gray-400">
           <Database className="w-12 h-12 mx-auto mb-4 text-gray-300" />
           <p className="text-lg font-medium">Search for drugs</p>
           <p className="text-sm">Enter a drug name to search our database and external sources</p>
@@ -260,13 +260,13 @@ const DrugSearchResults: React.FC<DrugSearchResultsProps> = ({
               <TrendingUp className="w-5 h-5 text-blue-600" />
               <span>Search Results for "{results.query}"</span>
             </h3>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Found {results.count} drug{results.count !== 1 ? 's' : ''} • Ranked by relevance and popularity
             </p>
           </div>
           
           {results.sources && (
-            <div className="flex items-center space-x-4 text-sm text-gray-500">
+            <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
               <Tooltip content="Results from local OncoSafeRx database">
                 <div className="flex items-center space-x-1 cursor-help">
                   <Database className="w-4 h-4" />
@@ -358,7 +358,7 @@ const DrugSearchResults: React.FC<DrugSearchResultsProps> = ({
                 case 'Generic Names': return 'text-blue-600 bg-blue-50 border-blue-200';
                 case 'Ingredients': return 'text-green-600 bg-green-50 border-green-200';
                 case 'Combinations': return 'text-orange-600 bg-orange-50 border-orange-200';
-                default: return 'text-gray-600 bg-gray-50 border-gray-200';
+                default: return 'text-gray-600 bg-gray-50 border-gray-200 dark:border-gray-700';
               }
             };
 
@@ -396,7 +396,7 @@ const DrugSearchResults: React.FC<DrugSearchResultsProps> = ({
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); togglePin(drug.rxcui, drug.name); setPinTick(t => t + 1); }}
-                          className={`absolute top-2 left-2 z-10 inline-flex items-center justify-center w-6 h-6 rounded-full border ${pins[drug.rxcui] ? 'bg-yellow-100 border-yellow-300 text-yellow-800' : 'bg-white border-gray-200 text-gray-500'} hover:bg-yellow-50`}
+                          className={`absolute top-2 left-2 z-10 inline-flex items-center justify-center w-6 h-6 rounded-full border ${pins[drug.rxcui] ? 'bg-yellow-100 border-yellow-300 text-yellow-800' : 'bg-white border-gray-200 text-gray-500 dark:text-gray-400'} hover:bg-yellow-50`}
                           aria-label={pins[drug.rxcui] ? 'Unpin' : 'Pin'}
                         >
                           <Star className="w-3 h-3" />
@@ -451,7 +451,7 @@ const DrugSearchResults: React.FC<DrugSearchResultsProps> = ({
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); togglePin(drug.rxcui, drug.name); setPinTick(t => t + 1); }}
-                  className={`absolute top-2 left-2 z-10 inline-flex items-center justify-center w-6 h-6 rounded-full border ${pins[drug.rxcui] ? 'bg-yellow-100 border-yellow-300 text-yellow-800' : 'bg-white border-gray-200 text-gray-500'} hover:bg-yellow-50`}
+                  className={`absolute top-2 left-2 z-10 inline-flex items-center justify-center w-6 h-6 rounded-full border ${pins[drug.rxcui] ? 'bg-yellow-100 border-yellow-300 text-yellow-800' : 'bg-white border-gray-200 text-gray-500 dark:text-gray-400'} hover:bg-yellow-50`}
                   aria-label={pins[drug.rxcui] ? 'Unpin' : 'Pin'}
                 >
                   <Star className="w-3 h-3" />

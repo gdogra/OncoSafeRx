@@ -338,7 +338,7 @@ const RealTimeClinicalSupport: React.FC = () => {
       case 'warning': return <AlertTriangle className="w-5 h-5 text-yellow-600" />;
       case 'info': return <Info className="w-5 h-5 text-blue-600" />;
       case 'success': return <CheckCircle className="w-5 h-5 text-green-600" />;
-      default: return <AlertCircle className="w-5 h-5 text-gray-600" />;
+      default: return <AlertCircle className="w-5 h-5 text-gray-600 dark:text-gray-400" />;
     }
   };
 
@@ -348,7 +348,7 @@ const RealTimeClinicalSupport: React.FC = () => {
       case 'warning': return 'bg-yellow-50 border-yellow-200';
       case 'info': return 'bg-blue-50 border-blue-200';
       case 'success': return 'bg-green-50 border-green-200';
-      default: return 'bg-gray-50 border-gray-200';
+      default: return 'bg-gray-50 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -357,7 +357,7 @@ const RealTimeClinicalSupport: React.FC = () => {
       case 'immediate': return 'bg-red-100 text-red-800';
       case 'urgent': return 'bg-yellow-100 text-yellow-800';
       case 'routine': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -396,8 +396,8 @@ const RealTimeClinicalSupport: React.FC = () => {
               <Zap className="w-6 h-6 text-green-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Real-Time Clinical Decision Support</h1>
-              <p className="text-gray-600">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Real-Time Clinical Decision Support</h1>
+              <p className="text-gray-600 dark:text-gray-400">
                 Active monitoring for {currentPatient.demographics.firstName} {currentPatient.demographics.lastName}
               </p>
             </div>
@@ -405,7 +405,7 @@ const RealTimeClinicalSupport: React.FC = () => {
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <div className={`w-3 h-3 rounded-full ${isMonitoring ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`}></div>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
                 {isMonitoring ? 'Monitoring Active' : 'Monitoring Paused'}
               </span>
             </div>
@@ -427,7 +427,7 @@ const RealTimeClinicalSupport: React.FC = () => {
         <Card className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
             <XCircle className="w-5 h-5 text-red-600" />
-            <span className="text-sm font-medium text-gray-600">Critical Alerts</span>
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Critical Alerts</span>
           </div>
           <div className="text-3xl font-bold text-red-600">{criticalAlertsCount}</div>
         </Card>
@@ -435,7 +435,7 @@ const RealTimeClinicalSupport: React.FC = () => {
         <Card className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
             <AlertTriangle className="w-5 h-5 text-yellow-600" />
-            <span className="text-sm font-medium text-gray-600">Warnings</span>
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Warnings</span>
           </div>
           <div className="text-3xl font-bold text-yellow-600">{warningAlertsCount}</div>
         </Card>
@@ -443,17 +443,17 @@ const RealTimeClinicalSupport: React.FC = () => {
         <Card className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
             <Lightbulb className="w-5 h-5 text-blue-600" />
-            <span className="text-sm font-medium text-gray-600">Recommendations</span>
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Recommendations</span>
           </div>
           <div className="text-3xl font-bold text-blue-600">{recommendations.length}</div>
         </Card>
         
         <Card className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <Clock className="w-5 h-5 text-gray-600" />
-            <span className="text-sm font-medium text-gray-600">Last Update</span>
+            <Clock className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Last Update</span>
           </div>
-          <div className="text-sm font-semibold text-gray-900">
+          <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
             {new Date().toLocaleTimeString()}
           </div>
         </Card>
@@ -465,7 +465,7 @@ const RealTimeClinicalSupport: React.FC = () => {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-2">
               <Bell className="w-6 h-6 text-red-500" />
-              <h2 className="text-xl font-semibold text-gray-900">Active Clinical Alerts</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Active Clinical Alerts</h2>
             </div>
             <div className="flex items-center space-x-2">
               <select
@@ -501,7 +501,7 @@ const RealTimeClinicalSupport: React.FC = () => {
                     <div className="flex items-center space-x-3 mb-2">
                       {getAlertIcon(alert.type)}
                       <div className="flex items-center space-x-2">
-                        <h3 className="font-semibold text-gray-900">{alert.title}</h3>
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">{alert.title}</h3>
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityBadge(alert.priority)}`}>
                           {alert.priority.toUpperCase()}
                         </span>
@@ -521,14 +521,14 @@ const RealTimeClinicalSupport: React.FC = () => {
 
                     <div className="mb-4">
                       <h4 className="font-medium text-gray-900 mb-2">Clinical Recommendations:</h4>
-                      <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
+                      <ul className="list-disc list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">
                         {alert.recommendations.map((rec, idx) => (
                           <li key={idx}>{rec}</li>
                         ))}
                       </ul>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs text-gray-500">
+                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                       <span>Source: {alert.source}</span>
                       <span>Triggered by: {alert.triggered_by}</span>
                       <span>{new Date(alert.timestamp).toLocaleTimeString()}</span>
@@ -570,7 +570,7 @@ const RealTimeClinicalSupport: React.FC = () => {
       <Card>
         <div className="flex items-center space-x-2 mb-6">
           <Lightbulb className="w-6 h-6 text-blue-500" />
-          <h2 className="text-xl font-semibold text-gray-900">Evidence-Based Recommendations</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Evidence-Based Recommendations</h2>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -583,7 +583,7 @@ const RealTimeClinicalSupport: React.FC = () => {
                     <span className={`px-2 py-1 text-xs font-medium rounded ${
                       rec.evidence_grade === 'Strong' ? 'bg-green-100 text-green-800' :
                       rec.evidence_grade === 'Moderate' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-gray-100 text-gray-800'
+                      'bg-gray-100 text-gray-800 dark:text-gray-200'
                     }`}>
                       {rec.evidence_grade} Evidence
                     </span>
@@ -608,8 +608,8 @@ const RealTimeClinicalSupport: React.FC = () => {
                   </ul>
                 </div>
                 
-                <div className="pt-2 border-t border-gray-200">
-                  <div className="flex justify-between text-xs text-gray-500">
+                <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                     <span>Source: {rec.guideline_source}</span>
                     <span>Follow-up: {rec.follow_up_timeline}</span>
                   </div>
@@ -623,8 +623,8 @@ const RealTimeClinicalSupport: React.FC = () => {
       {/* Workflow Context Panel */}
       <Card>
         <div className="flex items-center space-x-2 mb-4">
-          <Settings className="w-6 h-6 text-gray-500" />
-          <h2 className="text-xl font-semibold text-gray-900">Workflow Context</h2>
+          <Settings className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Workflow Context</h2>
         </div>
         
         <div className="grid md:grid-cols-4 gap-4">

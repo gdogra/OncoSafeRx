@@ -378,7 +378,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
       ) : selectedPatient ? (
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Your Profile</h3>
-          <p className="text-gray-700">
+          <p className="text-gray-700 dark:text-gray-300">
             {selectedPatient.firstName} {selectedPatient.lastName}
             {selectedPatient.mrn ? ` • MRN ${selectedPatient.mrn}` : ''}
           </p>
@@ -455,10 +455,10 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <FileText className="w-5 h-5 text-blue-600" />
                   <div>
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
                       {report.testType} - {report.platform}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {report.reportDate} • {report.laboratoryName}
                     </p>
                   </div>
@@ -483,7 +483,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
         <div className="text-center py-12">
           <Dna className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Report Selected</h3>
-          <p className="text-gray-500">Upload an NGS report to begin analysis</p>
+          <p className="text-gray-500 dark:text-gray-400">Upload an NGS report to begin analysis</p>
         </div>
       );
     }
@@ -493,7 +493,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
         {/* Report Summary */}
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Report Summary</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Report Summary</h3>
             <button
               onClick={handleAnalyze}
               disabled={analyzing}
@@ -551,7 +551,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Detected Variants</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Gene
@@ -572,14 +572,14 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {selectedReport.variants.map((variant) => (
-                  <tr key={variant.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <tr key={variant.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                       {variant.gene}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       {variant.variant}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       {variant.variantType}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -588,12 +588,12 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
                           ? 'bg-red-100 text-red-800'
                           : variant.clinicalSignificance === 'likely_pathogenic'
                           ? 'bg-orange-100 text-orange-800'
-                          : 'bg-gray-100 text-gray-800'
+                          : 'bg-gray-100 text-gray-800 dark:text-gray-200'
                       }`}>
                         {variant.clinicalSignificance}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       {(variant.alleleFrequency * 100).toFixed(1)}%
                     </td>
                   </tr>
@@ -610,7 +610,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
             
             <div className="mb-6">
               <h4 className="font-medium text-gray-900 mb-2">Executive Summary</h4>
-              <p className="text-gray-700">{analysisResults.executiveSummary}</p>
+              <p className="text-gray-700 dark:text-gray-300">{analysisResults.executiveSummary}</p>
             </div>
 
             <div>
@@ -619,7 +619,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
                 {analysisResults.keyRecommendations.map((rec, index) => (
                   <li key={index} className="flex items-start">
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-700">{rec}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{rec}</span>
                   </li>
                 ))}
               </ul>
@@ -636,7 +636,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
         <div className="text-center py-12">
           <Target className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Treatment Options</h3>
-          <p className="text-gray-500">Complete genomic analysis to see treatment recommendations</p>
+          <p className="text-gray-500 dark:text-gray-400">Complete genomic analysis to see treatment recommendations</p>
         </div>
       );
     }
@@ -647,8 +647,8 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
           <div key={index} className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{treatment.drug}</h3>
-                <p className="text-sm text-gray-600">{treatment.drugClass}</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{treatment.drug}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{treatment.drugClass}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -675,7 +675,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <h4 className="font-medium text-gray-900 mb-2">Mechanism of Action</h4>
-                <p className="text-gray-700">{treatment.mechanism}</p>
+                <p className="text-gray-700 dark:text-gray-300">{treatment.mechanism}</p>
               </div>
 
               <div>
@@ -691,7 +691,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
 
               <div>
                 <h4 className="font-medium text-gray-900 mb-2">Expected Response</h4>
-                <p className="text-gray-700">{treatment.expectedResponse}</p>
+                <p className="text-gray-700 dark:text-gray-300">{treatment.expectedResponse}</p>
               </div>
             </div>
           </div>
@@ -706,7 +706,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
         <div className="text-center py-12">
           <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Matching Trials</h3>
-          <p className="text-gray-500">Complete genomic analysis to find matching clinical trials</p>
+          <p className="text-gray-500 dark:text-gray-400">Complete genomic analysis to find matching clinical trials</p>
         </div>
       );
     }
@@ -717,8 +717,8 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
           <div key={index} className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{trial.title}</h3>
-                <p className="text-sm text-gray-600">NCT ID: {trial.nctId}</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{trial.title}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">NCT ID: {trial.nctId}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
@@ -737,7 +737,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <h4 className="font-medium text-gray-900 mb-2">Primary Endpoint</h4>
-                <p className="text-gray-700">{trial.primaryEndpoint}</p>
+                <p className="text-gray-700 dark:text-gray-300">{trial.primaryEndpoint}</p>
               </div>
 
               <div>
@@ -749,7 +749,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
                       style={{ width: `${trial.matchScore}%` }}
                     ></div>
                   </div>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     {trial.matchScore}%
                   </span>
                 </div>
@@ -760,7 +760,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
                   <h4 className="font-medium text-gray-900 mb-2">Match Reasons</h4>
                   <ul className="space-y-1">
                     {trial.matchReasons.map((reason, i) => (
-                      <li key={i} className="flex items-center text-sm text-gray-700">
+                      <li key={i} className="flex items-center text-sm text-gray-700 dark:text-gray-300">
                         <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
                         {reason}
                       </li>
@@ -774,13 +774,13 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
                 <div className="space-y-2">
                   {trial.locations.slice(0, 3).map((location, i) => (
                     <div key={i} className="flex items-center justify-between text-sm">
-                      <span className="text-gray-700">
+                      <span className="text-gray-700 dark:text-gray-300">
                         {location.facility}, {location.city}, {location.state}
                       </span>
                       <span className={`px-2 py-1 rounded text-xs ${
                         location.status === 'recruiting'
                           ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
+                          : 'bg-gray-100 text-gray-800 dark:text-gray-200'
                       }`}>
                         {location.status}
                       </span>
@@ -801,12 +801,12 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
         <div key={index} className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">{panel.name}</h3>
-              <p className="text-sm text-gray-600">{panel.methodology}</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{panel.name}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{panel.methodology}</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-600">Turnaround</p>
-              <p className="font-semibold text-gray-900">{panel.turnaroundTime} days</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Turnaround</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-100">{panel.turnaroundTime} days</p>
             </div>
           </div>
 
@@ -827,17 +827,17 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
               <div className="space-y-2">
                 {panel.biomarkers.slice(0, 5).map((biomarker, i) => (
                   <div key={i} className="flex items-center justify-between text-sm">
-                    <span className="text-gray-700">{biomarker.name}</span>
-                    <span className="text-gray-500">{biomarker.methodology}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{biomarker.name}</span>
+                    <span className="text-gray-500 dark:text-gray-400">{biomarker.methodology}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {panel.cost && (
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                <span className="font-medium text-gray-900">Estimated Cost</span>
-                <span className="text-lg font-semibold text-gray-900">${panel.cost}</span>
+              <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                <span className="font-medium text-gray-900 dark:text-gray-100">Estimated Cost</span>
+                <span className="text-lg font-semibold text-gray-900 dark:text-gray-100">${panel.cost}</span>
               </div>
             )}
           </div>
@@ -852,7 +852,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
         <div className="text-center py-12">
           <AlertTriangle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Hereditary Risks</h3>
-          <p className="text-gray-500">Complete genomic analysis to assess hereditary cancer risks</p>
+          <p className="text-gray-500 dark:text-gray-400">Complete genomic analysis to assess hereditary cancer risks</p>
         </div>
       );
     }
@@ -863,12 +863,12 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
           <div key={index} className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{risk.syndrome}</h3>
-                <p className="text-sm text-gray-600">{risk.gene} - {risk.variant}</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{risk.syndrome}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{risk.gene} - {risk.variant}</p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-600">Penetrance</p>
-                <p className="text-lg font-semibold text-gray-900">
+                <p className="text-sm text-gray-600 dark:text-gray-400">Penetrance</p>
+                <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                   {(risk.penetrance * 100).toFixed(0)}%
                 </p>
               </div>
@@ -881,7 +881,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
                   {risk.recommendations.map((rec, i) => (
                     <li key={i} className="flex items-start">
                       <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">{rec}</span>
+                      <span className="text-gray-700 dark:text-gray-300">{rec}</span>
                     </li>
                   ))}
                 </ul>
@@ -941,10 +941,10 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
         <div className="bg-white border border-gray-200 rounded p-4">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">PGx Report</h3>
-              <p className="text-sm text-gray-600">Version {pgxReport.version} • {pgxReport.count} recommendations</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">PGx Report</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Version {pgxReport.version} • {pgxReport.count} recommendations</p>
             </div>
-            <div className="text-right text-sm text-gray-500">
+            <div className="text-right text-sm text-gray-500 dark:text-gray-400">
               Last updated: {pgxReport.lastUpdated}
             </div>
           </div>
@@ -952,11 +952,11 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
             {(pgxReport.recommendations || []).map((rec: any, idx: number) => (
               <div key={idx} className="py-3">
                 <div className="flex items-center justify-between">
-                  <div className="font-medium text-gray-900">{rec.gene}</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">{rec.gene}</div>
                   <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">Level {rec.evidenceLevel}</span>
                 </div>
-                <div className="text-sm text-gray-700">Phenotype: {rec.phenotype}</div>
-                <div className="text-sm text-gray-700">Recommendation: {rec.recommendation}</div>
+                <div className="text-sm text-gray-700 dark:text-gray-300">Phenotype: {rec.phenotype}</div>
+                <div className="text-sm text-gray-700 dark:text-gray-300">Recommendation: {rec.recommendation}</div>
               </div>
             ))}
           </div>
@@ -1002,25 +1002,25 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-2">ROI Results</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
-              <div className="text-gray-500">Tests</div>
+              <div className="text-gray-500 dark:text-gray-400">Tests</div>
               <div className="text-gray-900 font-medium">{roiResult.outputs.tests}</div>
             </div>
             <div>
-              <div className="text-gray-500">Program Cost</div>
+              <div className="text-gray-500 dark:text-gray-400">Program Cost</div>
               <div className="text-gray-900 font-medium">${roiResult.outputs.programCost.toLocaleString()}</div>
             </div>
             <div>
-              <div className="text-gray-500">Savings</div>
+              <div className="text-gray-500 dark:text-gray-400">Savings</div>
               <div className="text-gray-900 font-medium">${roiResult.outputs.savings.toLocaleString()}</div>
             </div>
             <div>
-              <div className="text-gray-500">Net</div>
+              <div className="text-gray-500 dark:text-gray-400">Net</div>
               <div className={`font-medium ${roiResult.outputs.net >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                 ${roiResult.outputs.net.toLocaleString()}
               </div>
             </div>
             <div>
-              <div className="text-gray-500">ROI</div>
+              <div className="text-gray-500 dark:text-gray-400">ROI</div>
               <div className="text-gray-900 font-medium">{roiResult.outputs.roi !== null ? (roiResult.outputs.roi * 100).toFixed(1) + '%' : '—'}</div>
             </div>
           </div>
@@ -1034,7 +1034,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
       <div className="mb-8 flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Enhanced Genomics Analysis</h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Comprehensive NGS report processing and genomic analysis platform
           </p>
         </div>
@@ -1058,11 +1058,11 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
               className={`group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                 activeTab === id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
               }`}
             >
               <Icon className={`w-5 h-5 mr-2 ${
-                activeTab === id ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500'
+                activeTab === id ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500 dark:text-gray-400'
               }`} />
               <div className="text-left">
                 <div>{label}</div>
@@ -1095,12 +1095,12 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
           <aside className="fixed top-0 right-0 h-full w-full sm:w-[28rem] bg-white shadow-xl z-50 flex flex-col">
             <div className="p-4 border-b border-gray-200 flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">PGx Panel & Versions</h2>
-                <p className="text-xs text-gray-500">Evidence-driven, multi-specialty panel overview</p>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">PGx Panel & Versions</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Evidence-driven, multi-specialty panel overview</p>
               </div>
               <button
                 onClick={() => setShowMetaDrawer(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-300"
                 aria-label="Close"
               >
                 ×
@@ -1108,7 +1108,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
             </div>
             <div className="p-4 overflow-y-auto">
               {loadingMeta && (
-                <div className="text-sm text-gray-500">Loading…</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Loading…</div>
               )}
 
               {!loadingMeta && panelInfo && (
@@ -1120,7 +1120,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
                       <div className="text-xs font-medium text-gray-600 mb-1">Genes</div>
                       <div className="flex flex-wrap gap-2">
                         {(panelInfo.genes || []).map((g: any, i: number) => (
-                          <span key={i} className={`px-2 py-1 rounded text-xs border ${g.implemented ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+                          <span key={i} className={`px-2 py-1 rounded text-xs border ${g.implemented ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200 dark:border-gray-700'}`}>
                             {g.symbol}{g.implemented ? '' : ' (planned)'}
                           </span>
                         ))}
@@ -1130,7 +1130,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
                       <div className="text-xs font-medium text-gray-600 mb-1">HLA Alleles</div>
                       <div className="flex flex-wrap gap-2">
                         {(panelInfo.hla || []).map((h: any, i: number) => (
-                          <span key={i} className={`px-2 py-1 rounded text-xs border ${h.implemented ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+                          <span key={i} className={`px-2 py-1 rounded text-xs border ${h.implemented ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200 dark:border-gray-700'}`}>
                             {h.symbol}
                           </span>
                         ))}
@@ -1148,8 +1148,8 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
                     {(versionsInfo.changes || []).map((chg: any, i: number) => (
                       <div key={i} className="border border-gray-200 rounded p-3">
                         <div className="flex items-center justify-between">
-                          <div className="text-sm font-medium text-gray-900">{chg.version}</div>
-                          <div className="text-xs text-gray-500">{chg.date}</div>
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{chg.version}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{chg.date}</div>
                         </div>
                         <ul className="mt-2 list-disc list-inside text-sm text-gray-700 space-y-1">
                           {(chg.notes || []).map((n: string, j: number) => (
@@ -1201,7 +1201,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
                     <div className="flex gap-1">
                       <button
                         onClick={downloadPanelCsv}
-                        className="px-3 py-2 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
+                        className="px-3 py-2 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-800"
                       >
                         Export Panel CSV
                       </button>
@@ -1216,7 +1216,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
                     <div className="flex gap-1">
                       <button
                         onClick={downloadVersionsCsv}
-                        className="px-3 py-2 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
+                        className="px-3 py-2 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-800"
                       >
                         Export Versions CSV
                       </button>
@@ -1231,7 +1231,7 @@ const EnhancedGenomicsAnalysis: React.FC = () => {
                     <div className="flex gap-1">
                       <button
                         onClick={downloadBundleJson}
-                        className="px-3 py-2 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
+                        className="px-3 py-2 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-800"
                       >
                         Export Bundle JSON
                       </button>

@@ -28,7 +28,7 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
       case 'minor':
         return <Info className="w-5 h-5 text-blue-600" />;
       default:
-        return <Info className="w-5 h-5 text-gray-600" />;
+        return <Info className="w-5 h-5 text-gray-600 dark:text-gray-400" />;
     }
   };
 
@@ -41,12 +41,12 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
       case 'minor':
         return 'border-l-blue-500 bg-blue-50';
       default:
-        return 'border-l-gray-500 bg-gray-50';
+        return 'border-l-gray-500 bg-gray-50 dark:bg-gray-800';
     }
   };
 
   const getEvidenceColor = (level?: string) => {
-    if (!level) return 'bg-gray-100 text-gray-700';
+    if (!level) return 'bg-gray-100 text-gray-700 dark:text-gray-300';
     
     switch (level.toUpperCase()) {
       case 'A':
@@ -58,7 +58,7 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
       case 'D':
         return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-100 text-gray-700 dark:text-gray-300';
     }
   };
 
@@ -113,7 +113,7 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
                 ) : (
                   <Globe className="w-4 h-4 text-gray-400" />
                 )}
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   {source === 'stored' ? 'Database' : 'External Source'}
                 </span>
               </div>
@@ -143,7 +143,7 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
               <button
                 type="button"
                 aria-label="About these results"
-                className="p-1 text-gray-400 hover:text-gray-600"
+                className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400"
               >
                 <Info className="w-4 h-4" />
               </button>
@@ -152,13 +152,13 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
         </div>
 
         {/* Drug Pair */}
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-center space-x-4">
             <div className="text-center">
-              <p className="font-medium text-gray-900">
+              <p className="font-medium text-gray-900 dark:text-gray-100">
                 {interaction.drug1?.name || (interaction.drug1_rxcui ? `Drug ${interaction.drug1_rxcui}` : 'Drug Not Identified')}
               </p>
-              <p className="text-sm text-gray-500">RXCUI: {interaction.drug1_rxcui || 'Not available'}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">RXCUI: {interaction.drug1_rxcui || 'Not available'}</p>
               {findBrandLabel(interaction.drug1?.name, interaction.drug1_rxcui) && (
                 <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-700 mt-1">
                   {findBrandLabel(interaction.drug1?.name, interaction.drug1_rxcui)}
@@ -167,10 +167,10 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
             </div>
             <div className="text-2xl text-gray-400">×</div>
             <div className="text-center">
-              <p className="font-medium text-gray-900">
+              <p className="font-medium text-gray-900 dark:text-gray-100">
                 {interaction.drug2?.name || (interaction.drug2_rxcui ? `Drug ${interaction.drug2_rxcui}` : 'Drug Not Identified')}
               </p>
-              <p className="text-sm text-gray-500">RXCUI: {interaction.drug2_rxcui || 'Not available'}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">RXCUI: {interaction.drug2_rxcui || 'Not available'}</p>
               {findBrandLabel(interaction.drug2?.name, interaction.drug2_rxcui) && (
                 <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-700 mt-1">
                   {findBrandLabel(interaction.drug2?.name, interaction.drug2_rxcui)}
@@ -184,20 +184,20 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
         <div className="space-y-3">
           <div>
             <h4 className="font-medium text-gray-900 mb-2">Effect</h4>
-            <p className="text-gray-700">{interaction.effect}</p>
+            <p className="text-gray-700 dark:text-gray-300">{interaction.effect}</p>
           </div>
           
           {interaction.mechanism && (
             <div>
               <h4 className="font-medium text-gray-900 mb-2">Mechanism</h4>
-              <p className="text-gray-700">{interaction.mechanism}</p>
+              <p className="text-gray-700 dark:text-gray-300">{interaction.mechanism}</p>
             </div>
           )}
           
           {interaction.management && (
             <div>
               <h4 className="font-medium text-gray-900 mb-2">Management</h4>
-              <p className="text-gray-700">{interaction.management}</p>
+              <p className="text-gray-700 dark:text-gray-300">{interaction.management}</p>
             </div>
           )}
           
@@ -208,7 +208,7 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
                 {interaction.sources.map((source, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700"
+                    className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 dark:text-gray-300"
                   >
                     {source}
                   </span>

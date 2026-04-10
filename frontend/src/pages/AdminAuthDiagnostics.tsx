@@ -94,7 +94,7 @@ const AdminAuthDiagnostics: React.FC = () => {
           </button>
         </div>
         <pre className="mt-4 bg-gray-50 border border-gray-200 rounded p-3 text-xs overflow-auto">{JSON.stringify(result, null, 2)}</pre>
-        <div className="mt-4 text-sm text-gray-700">
+        <div className="mt-4 text-sm text-gray-700 dark:text-gray-300">
           <p className="font-medium mb-1">Expected for success:</p>
           <ul className="list-disc list-inside">
             <li>probeDashboard.status = 200</li>

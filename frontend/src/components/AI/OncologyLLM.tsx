@@ -585,7 +585,7 @@ How can I assist you today?`,
       <div className="bg-white p-4 rounded-lg border">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">AI Model:</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">AI Model:</label>
             <select
               value={selectedModel}
               onChange={(e) => setSelectedModel(e.target.value)}
@@ -600,7 +600,7 @@ How can I assist you today?`,
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Mode:</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Mode:</label>
             <select
               value={conversationMode}
               onChange={(e) => setConversationMode(e.target.value as any)}
@@ -639,32 +639,32 @@ How can I assist you today?`,
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Knowledge Base</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-blue-50 p-4 rounded-lg">
-              <div className="text-sm text-gray-600">Clinical Literature</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Clinical Literature</div>
               <div className="text-2xl font-bold text-blue-600">
                 {knowledgeBase.literature.papers.toLocaleString()}
               </div>
-              <div className="text-xs text-gray-500">Papers & Guidelines</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Papers & Guidelines</div>
             </div>
             <div className="bg-green-50 p-4 rounded-lg">
-              <div className="text-sm text-gray-600">Drug Database</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Drug Database</div>
               <div className="text-2xl font-bold text-green-600">
                 {knowledgeBase.drugs.total.toLocaleString()}
               </div>
-              <div className="text-xs text-gray-500">Approved Drugs</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Approved Drugs</div>
             </div>
             <div className="bg-purple-50 p-4 rounded-lg">
-              <div className="text-sm text-gray-600">Genomic Data</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Genomic Data</div>
               <div className="text-2xl font-bold text-purple-600">
                 {knowledgeBase.genomics.variants.toLocaleString()}
               </div>
-              <div className="text-xs text-gray-500">Genetic Variants</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Genetic Variants</div>
             </div>
             <div className="bg-orange-50 p-4 rounded-lg">
-              <div className="text-sm text-gray-600">Clinical Trials</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Clinical Trials</div>
               <div className="text-2xl font-bold text-orange-600">
                 {knowledgeBase.clinical.trials.toLocaleString()}
               </div>
-              <div className="text-xs text-gray-500">Active Trials</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Active Trials</div>
             </div>
           </div>
         </div>
@@ -681,7 +681,7 @@ How can I assist you today?`,
                   ? 'bg-indigo-600 text-white' 
                   : message.type === 'system'
                   ? 'bg-gray-100 text-gray-800 border-l-4 border-gray-400'
-                  : 'bg-gray-50 text-gray-800'
+                  : 'bg-gray-50 text-gray-800 dark:text-gray-200'
               }`}>
                 {message.type === 'assistant' && (
                   <div className="flex items-center gap-2 mb-3">
@@ -693,7 +693,7 @@ How can I assist you today?`,
                       </span>
                     )}
                     {message.confidence && (
-                      <span className="text-xs text-gray-600">
+                      <span className="text-xs text-gray-600 dark:text-gray-400">
                         {message.confidence}% confidence
                       </span>
                     )}
@@ -724,12 +724,12 @@ How can I assist you today?`,
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="font-medium text-blue-600">{source.title}</div>
-                              <div className="text-gray-600">
+                              <div className="text-gray-600 dark:text-gray-400">
                                 {source.authors.slice(0, 3).join(', ')}
                                 {source.authors.length > 3 && ' et al.'} 
                                 ({source.year})
                               </div>
-                              <div className="text-gray-600">{source.journal}</div>
+                              <div className="text-gray-600 dark:text-gray-400">{source.journal}</div>
                               <div className="text-xs text-gray-500 mt-1">{source.excerpt}</div>
                             </div>
                             <div className="ml-3 text-right">
@@ -774,7 +774,7 @@ How can I assist you today?`,
                   </div>
                 )}
 
-                <div className="mt-3 text-xs text-gray-500">
+                <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
                   {new Date(message.timestamp).toLocaleString()}
                 </div>
               </div>
@@ -786,7 +786,7 @@ How can I assist you today?`,
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="flex items-center gap-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600"></div>
-                  <span className="text-gray-600">OncoLLM is thinking...</span>
+                  <span className="text-gray-600 dark:text-gray-400">OncoLLM is thinking...</span>
                 </div>
               </div>
             </div>
@@ -844,19 +844,19 @@ How can I assist you today?`,
               <h4 className="font-medium text-gray-900 mb-3">Model Details</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Version:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Version:</span>
                   <span className="font-medium">{currentModel.version}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Last Training:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Last Training:</span>
                   <span className="font-medium">{currentModel.training_data.last_training}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Papers Trained:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Papers Trained:</span>
                   <span className="font-medium">{currentModel.training_data.papers.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Clinical Trials:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Clinical Trials:</span>
                   <span className="font-medium">{currentModel.training_data.clinical_trials.toLocaleString()}</span>
                 </div>
               </div>

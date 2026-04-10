@@ -68,7 +68,7 @@ const ClinicalLandingPage: React.FC = () => {
         content="drug interaction software, medication safety platform, healthcare SaaS, clinical decision support, pharmacy management software"
       />
       
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white dark:bg-gray-900">
         {/* Clinical Navigation */}
         <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -78,7 +78,7 @@ const ClinicalLandingPage: React.FC = () => {
                   <span className="text-white font-bold text-base">OS</span>
                 </div>
                 <div>
-                  <span className="text-xl font-bold text-gray-900">OncoSafeRx</span>
+                  <span className="text-xl font-bold text-gray-900 dark:text-gray-100">OncoSafeRx</span>
                   <div className="text-xs text-gray-500 font-medium">Clinical Decision Support</div>
                 </div>
               </div>
@@ -115,15 +115,15 @@ const ClinicalLandingPage: React.FC = () => {
 
                 {/* Key Benefits */}
                 <div className="space-y-3 mb-8">
-                  <div className="flex items-center text-gray-700">
+                  <div className="flex items-center text-gray-700 dark:text-gray-300">
                     <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                     <span><strong>Instant Setup</strong> - Deploy in under 15 minutes</span>
                   </div>
-                  <div className="flex items-center text-gray-700">
+                  <div className="flex items-center text-gray-700 dark:text-gray-300">
                     <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                     <span><strong>94% Accuracy Rate</strong> - AI-powered interaction detection</span>
                   </div>
-                  <div className="flex items-center text-gray-700">
+                  <div className="flex items-center text-gray-700 dark:text-gray-300">
                     <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
                     <span><strong>SOC 2 Compliant</strong> - Enterprise-grade security</span>
                   </div>
@@ -150,7 +150,7 @@ const ClinicalLandingPage: React.FC = () => {
                 </div>
 
                 {/* Social Proof */}
-                <div className="flex items-center space-x-6 text-sm text-gray-500">
+                <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
                   <span>✨ No credit card required</span>
                   <span>•</span>
                   <span>⚡ Setup in 15 minutes</span>
@@ -178,7 +178,7 @@ const ClinicalLandingPage: React.FC = () => {
                   <div className="p-6 bg-gradient-to-br from-blue-50 to-green-50">
                     <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-semibold text-gray-900">Drug Interaction Analysis</h3>
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">Drug Interaction Analysis</h3>
                         <div className="flex items-center text-green-600 text-sm font-medium">
                           <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                           Live Analysis
@@ -189,8 +189,8 @@ const ClinicalLandingPage: React.FC = () => {
                         <div className="flex items-center p-3 bg-orange-50 rounded border-l-4 border-orange-400">
                           <AlertTriangle className="h-5 w-5 text-orange-600 mr-3" />
                           <div className="flex-1">
-                            <div className="font-medium text-gray-900">Moderate Interaction Detected</div>
-                            <div className="text-sm text-gray-600">Warfarin + Ibuprofen may increase bleeding risk</div>
+                            <div className="font-medium text-gray-900 dark:text-gray-100">Moderate Interaction Detected</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">Warfarin + Ibuprofen may increase bleeding risk</div>
                           </div>
                           <div className="text-orange-600 font-bold text-sm">Level 3</div>
                         </div>
@@ -198,8 +198,8 @@ const ClinicalLandingPage: React.FC = () => {
                         <div className="flex items-center p-3 bg-green-50 rounded border-l-4 border-green-400">
                           <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
                           <div className="flex-1">
-                            <div className="font-medium text-gray-900">Alternative Recommended</div>
-                            <div className="text-sm text-gray-600">Consider acetaminophen instead</div>
+                            <div className="font-medium text-gray-900 dark:text-gray-100">Alternative Recommended</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">Consider acetaminophen instead</div>
                           </div>
                           <div className="text-green-600 font-bold text-sm">Safe</div>
                         </div>
@@ -221,17 +221,17 @@ const ClinicalLandingPage: React.FC = () => {
                 </Card>
 
                 {/* Floating metrics */}
-                <div className="absolute -top-4 -right-4 bg-white rounded-lg shadow-lg p-4 border border-gray-200">
+                <div className="absolute -top-4 -right-4 bg-white rounded-lg shadow-lg p-4 border border-gray-200 dark:border-gray-700">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-600">2.3s</div>
-                    <div className="text-xs text-gray-600">Avg Response</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Avg Response</div>
                   </div>
                 </div>
 
-                <div className="absolute -bottom-4 -left-4 bg-white rounded-lg shadow-lg p-4 border border-gray-200">
+                <div className="absolute -bottom-4 -left-4 bg-white rounded-lg shadow-lg p-4 border border-gray-200 dark:border-gray-700">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-600">94%</div>
-                    <div className="text-xs text-gray-600">Accuracy Rate</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400">Accuracy Rate</div>
                   </div>
                 </div>
               </div>
@@ -240,7 +240,7 @@ const ClinicalLandingPage: React.FC = () => {
         </section>
 
         {/* Social Proof & Customer Logos */}
-        <section className="py-16 bg-gray-50 border-t border-gray-200">
+        <section className="py-16 bg-gray-50 border-t border-gray-200 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <p className="text-gray-600 font-medium mb-8">Trusted by 500+ healthcare organizations worldwide</p>
             
@@ -271,26 +271,26 @@ const ClinicalLandingPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div className="text-center">
                 <div className="text-3xl font-bold text-blue-600 mb-2">500+</div>
-                <div className="text-gray-600">Healthcare Teams</div>
+                <div className="text-gray-600 dark:text-gray-400">Healthcare Teams</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-green-600 mb-2">67%</div>
-                <div className="text-gray-600">Error Reduction</div>
+                <div className="text-gray-600 dark:text-gray-400">Error Reduction</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-purple-600 mb-2">2.3s</div>
-                <div className="text-gray-600">Response Time</div>
+                <div className="text-gray-600 dark:text-gray-400">Response Time</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-orange-600 mb-2">99.9%</div>
-                <div className="text-gray-600">Uptime</div>
+                <div className="text-gray-600 dark:text-gray-400">Uptime</div>
               </div>
             </div>
           </div>
         </section>
 
         {/* Pricing Section */}
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-white dark:bg-gray-900">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold text-gray-900 mb-6">
@@ -303,13 +303,13 @@ const ClinicalLandingPage: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {/* Starter Plan */}
-              <Card className="p-8 border border-gray-200">
+              <Card className="p-8 border border-gray-200 dark:border-gray-700">
                 <div className="text-center">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Starter</h3>
                   <p className="text-gray-600 mb-6">Perfect for small practices</p>
                   <div className="mb-6">
-                    <span className="text-4xl font-bold text-gray-900">$49</span>
-                    <span className="text-gray-600">/month</span>
+                    <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">$49</span>
+                    <span className="text-gray-600 dark:text-gray-400">/month</span>
                   </div>
                   <Button onClick={handleStartTrial} variant="outline" className="w-full mb-6 font-semibold">Start Free Trial</Button>
                 </div>
@@ -344,8 +344,8 @@ const ClinicalLandingPage: React.FC = () => {
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Professional</h3>
                   <p className="text-gray-600 mb-6">For growing healthcare teams</p>
                   <div className="mb-6">
-                    <span className="text-4xl font-bold text-gray-900">$149</span>
-                    <span className="text-gray-600">/month</span>
+                    <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">$149</span>
+                    <span className="text-gray-600 dark:text-gray-400">/month</span>
                   </div>
                   <Button onClick={handleStartTrial} className="w-full mb-6 bg-green-600 hover:bg-green-700 font-bold">Start Free Trial</Button>
                 </div>
@@ -378,12 +378,12 @@ const ClinicalLandingPage: React.FC = () => {
               </Card>
 
               {/* Enterprise Plan */}
-              <Card className="p-8 border border-gray-200">
+              <Card className="p-8 border border-gray-200 dark:border-gray-700">
                 <div className="text-center">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Enterprise</h3>
                   <p className="text-gray-600 mb-6">For large healthcare systems</p>
                   <div className="mb-6">
-                    <span className="text-4xl font-bold text-gray-900">Custom</span>
+                    <span className="text-4xl font-bold text-gray-900 dark:text-gray-100">Custom</span>
                   </div>
                   <Button onClick={handleContactSales} variant="outline" className="w-full mb-6 font-semibold">Contact Sales</Button>
                 </div>
@@ -419,7 +419,7 @@ const ClinicalLandingPage: React.FC = () => {
             {/* Pricing Footer */}
             <div className="text-center mt-12">
               <p className="text-gray-600 mb-4">All plans include 14-day free trial • No setup fees • Cancel anytime</p>
-              <div className="flex justify-center items-center space-x-6 text-sm text-gray-500">
+              <div className="flex justify-center items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
                 <div className="flex items-center">
                   <Shield className="h-4 w-4 mr-2" />
                   <span>SOC 2 Compliant</span>
@@ -438,20 +438,20 @@ const ClinicalLandingPage: React.FC = () => {
         </section>
 
         {/* Customer Testimonials */}
-        <section className="py-20 bg-gray-50">
+        <section className="py-20 bg-gray-50 dark:bg-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
                 Loved by Healthcare Teams Worldwide
               </h2>
-              <p className="text-xl text-gray-600">
+              <p className="text-xl text-gray-600 dark:text-gray-400">
                 See how OncoSafeRx is transforming medication safety for healthcare professionals
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Testimonial 1 */}
-              <Card className="p-8 bg-white">
+              <Card className="p-8 bg-white dark:bg-gray-900">
                 <div className="flex mb-4">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
@@ -465,14 +465,14 @@ const ClinicalLandingPage: React.FC = () => {
                     <span className="font-bold text-blue-700 text-lg">SM</span>
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">Dr. Sarah Martinez</div>
-                    <div className="text-sm text-gray-600">Chief Pharmacist, City Medical Center</div>
+                    <div className="font-semibold text-gray-900 dark:text-gray-100">Dr. Sarah Martinez</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Chief Pharmacist, City Medical Center</div>
                   </div>
                 </div>
               </Card>
 
               {/* Testimonial 2 */}
-              <Card className="p-8 bg-white">
+              <Card className="p-8 bg-white dark:bg-gray-900">
                 <div className="flex mb-4">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
@@ -486,14 +486,14 @@ const ClinicalLandingPage: React.FC = () => {
                     <span className="font-bold text-green-700 text-lg">JC</span>
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">Dr. James Chen</div>
-                    <div className="text-sm text-gray-600">Medical Director, Regional Healthcare</div>
+                    <div className="font-semibold text-gray-900 dark:text-gray-100">Dr. James Chen</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Medical Director, Regional Healthcare</div>
                   </div>
                 </div>
               </Card>
 
               {/* Testimonial 3 */}
-              <Card className="p-8 bg-white">
+              <Card className="p-8 bg-white dark:bg-gray-900">
                 <div className="flex mb-4">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
@@ -507,8 +507,8 @@ const ClinicalLandingPage: React.FC = () => {
                     <span className="font-bold text-purple-700 text-lg">AL</span>
                   </div>
                   <div>
-                    <div className="font-semibold text-gray-900">Dr. Anna Lopez</div>
-                    <div className="text-sm text-gray-600">VP of Quality, Metro Health System</div>
+                    <div className="font-semibold text-gray-900 dark:text-gray-100">Dr. Anna Lopez</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">VP of Quality, Metro Health System</div>
                   </div>
                 </div>
               </Card>
@@ -530,13 +530,13 @@ const ClinicalLandingPage: React.FC = () => {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-white dark:bg-gray-900">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
                 Frequently Asked Questions
               </h2>
-              <p className="text-xl text-gray-600">
+              <p className="text-xl text-gray-600 dark:text-gray-400">
                 Everything you need to know about OncoSafeRx
               </p>
             </div>
@@ -549,7 +549,7 @@ const ClinicalLandingPage: React.FC = () => {
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       How quickly can we get started with OncoSafeRx?
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-400">
                       Most healthcare teams are up and running within 15 minutes. Our simple setup wizard guides you through account creation, EHR integration, and team onboarding. No technical expertise required.
                     </p>
                   </div>
@@ -563,7 +563,7 @@ const ClinicalLandingPage: React.FC = () => {
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       Is OncoSafeRx HIPAA compliant?
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-400">
                       Yes, OncoSafeRx is fully HIPAA compliant and SOC 2 Type II certified. All data is encrypted in transit and at rest, with comprehensive audit logs and access controls. We sign BAAs with all customers.
                     </p>
                   </div>
@@ -577,7 +577,7 @@ const ClinicalLandingPage: React.FC = () => {
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       Can OncoSafeRx integrate with our existing EHR system?
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-400">
                       We integrate with 20+ major EHR systems including Epic, Cerner, Allscripts, and more. Our API allows for real-time data sync and can be customized for specific workflows. Implementation typically takes 1-2 weeks.
                     </p>
                   </div>
@@ -591,7 +591,7 @@ const ClinicalLandingPage: React.FC = () => {
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       What's included in the free trial?
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-400">
                       The 14-day free trial includes full access to all features, unlimited patient records, EHR integration, and priority support. No credit card required, no setup fees, and you can upgrade or cancel anytime.
                     </p>
                   </div>
@@ -605,7 +605,7 @@ const ClinicalLandingPage: React.FC = () => {
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       How accurate is the drug interaction detection?
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-400">
                       Our AI-powered system achieves 94% accuracy in detecting clinically significant drug interactions. We continuously update our database with the latest clinical evidence and FDA safety communications.
                     </p>
                   </div>
@@ -619,7 +619,7 @@ const ClinicalLandingPage: React.FC = () => {
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       What kind of support do you provide?
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-400">
                       Professional plans include priority email and phone support with 4-hour response times. Enterprise customers get dedicated account management, training sessions, and 99.9% uptime SLA.
                     </p>
                   </div>
@@ -764,9 +764,9 @@ const ClinicalLandingPage: React.FC = () => {
                   Reduce medication errors and improve patient safety.
                 </p>
                 <div className="flex items-center space-x-4 text-sm">
-                  <span className="text-gray-500">© 2024 OncoSafeRx</span>
-                  <span className="text-gray-600">|</span>
-                  <span className="text-gray-500">Healthcare SaaS Platform</span>
+                  <span className="text-gray-500 dark:text-gray-400">© 2024 OncoSafeRx</span>
+                  <span className="text-gray-600 dark:text-gray-400">|</span>
+                  <span className="text-gray-500 dark:text-gray-400">Healthcare SaaS Platform</span>
                 </div>
               </div>
               
@@ -804,7 +804,7 @@ const ClinicalLandingPage: React.FC = () => {
                   >
                     Start Free Trial
                   </Button>
-                  <div className="flex items-center space-x-4 text-xs text-gray-500">
+                  <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
                     <span>SOC 2 Compliant</span>
                     <span>•</span>
                     <span>HIPAA Ready</span>
@@ -822,7 +822,7 @@ const ClinicalLandingPage: React.FC = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg max-w-4xl w-full m-4 max-h-[90vh] overflow-auto">
               <div className="flex justify-between items-center p-6 border-b">
-                <h2 className="text-2xl font-bold text-gray-900">OncoSafeRx Platform Demo</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">OncoSafeRx Platform Demo</h2>
                 <button
                   onClick={() => setShowDemo(false)}
                   className="text-gray-500 hover:text-gray-700 text-2xl"

@@ -162,10 +162,10 @@ function AppWithAuth() {
   // Wait for AuthProvider to finish initialization before rendering
   if (state.isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-800">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sm text-gray-600">Initializing...</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Initializing...</p>
         </div>
       </div>
     );
@@ -180,7 +180,7 @@ function AppWithAuth() {
         <PatientProvider>
           <SelectionProvider>
             <ComparisonProvider>
-            <Suspense fallback={<div className="p-4 text-sm text-gray-500">Loading…</div>}>
+            <Suspense fallback={<div className="p-4 text-sm text-gray-500 dark:text-gray-400">Loading…</div>}>
               <Routes>
                 {/* Public routes */}
                 <Route path="/auth" element={<AuthPage />} />
@@ -220,7 +220,7 @@ function AppWithAuth() {
                     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                       <div className="bg-white p-8 rounded-lg shadow-lg">
                         <h1 className="text-2xl font-bold text-gray-900 mb-4">Test Route Working!</h1>
-                        <p className="text-gray-600">This confirms routing is working.</p>
+                        <p className="text-gray-600 dark:text-gray-400">This confirms routing is working.</p>
                       </div>
                     </div>
                   } />

@@ -165,9 +165,9 @@ const CompetitiveAdvantage: React.FC = () => {
         <div className="mb-8">
           <div className="flex items-center mb-4">
             <Zap className="h-8 w-8 text-yellow-500 mr-3" />
-            <h1 className="text-3xl font-bold text-gray-900">Competitive Advantage Features</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Competitive Advantage Features</h1>
           </div>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-gray-600 dark:text-gray-400">
             Three breakthrough capabilities that separate OncoSafeRx from traditional drug interaction platforms
           </p>
         </div>
@@ -189,8 +189,8 @@ const CompetitiveAdvantage: React.FC = () => {
                     <Icon className="h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-gray-900">{advantage.title}</h3>
-                    <p className="text-sm text-gray-600">{advantage.subtitle}</p>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{advantage.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{advantage.subtitle}</p>
                   </div>
                 </div>
 
@@ -198,7 +198,7 @@ const CompetitiveAdvantage: React.FC = () => {
                   {advantage.benefits.map((benefit, benefitIdx) => (
                     <div key={benefitIdx} className="flex items-center text-sm">
                       <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-gray-700">{benefit}</span>
+                      <span className="text-gray-700 dark:text-gray-300">{benefit}</span>
                     </div>
                   ))}
                 </div>
@@ -206,8 +206,8 @@ const CompetitiveAdvantage: React.FC = () => {
                 <div className="space-y-2">
                   {advantage.metrics.map((metric, metricIdx) => (
                     <div key={metricIdx} className="flex justify-between text-sm">
-                      <span className="text-gray-600">{metric.label}:</span>
-                      <span className="font-semibold text-gray-900">{metric.value}</span>
+                      <span className="text-gray-600 dark:text-gray-400">{metric.label}:</span>
+                      <span className="font-semibold text-gray-900 dark:text-gray-100">{metric.value}</span>
                     </div>
                   ))}
                 </div>
@@ -227,22 +227,22 @@ const CompetitiveAdvantage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 font-semibold text-gray-900">Feature</th>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="text-left py-3 px-4 font-semibold text-gray-900 dark:text-gray-100">Feature</th>
                     <th className="text-center py-3 px-4 font-semibold text-green-700 bg-green-50">OncoSafeRx</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-600">Lexicomp</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-600">Micromedex</th>
-                    <th className="text-center py-3 px-4 font-semibold text-gray-600">Epic</th>
+                    <th className="text-center py-3 px-4 font-semibold text-gray-600 dark:text-gray-400">Lexicomp</th>
+                    <th className="text-center py-3 px-4 font-semibold text-gray-600 dark:text-gray-400">Micromedex</th>
+                    <th className="text-center py-3 px-4 font-semibold text-gray-600 dark:text-gray-400">Epic</th>
                   </tr>
                 </thead>
                 <tbody>
                   {competitorComparison.map((row, idx) => (
                     <tr key={idx} className="border-b border-gray-100">
-                      <td className="py-3 px-4 font-medium text-gray-900">{row.feature}</td>
+                      <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{row.feature}</td>
                       <td className="py-3 px-4 text-center bg-green-50 font-semibold">{row.oncosafe}</td>
-                      <td className="py-3 px-4 text-center text-gray-600">{row.lexicomp}</td>
-                      <td className="py-3 px-4 text-center text-gray-600">{row.micromedex}</td>
-                      <td className="py-3 px-4 text-center text-gray-600">{row.epic}</td>
+                      <td className="py-3 px-4 text-center text-gray-600 dark:text-gray-400">{row.lexicomp}</td>
+                      <td className="py-3 px-4 text-center text-gray-600 dark:text-gray-400">{row.micromedex}</td>
+                      <td className="py-3 px-4 text-center text-gray-600 dark:text-gray-400">{row.epic}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -284,7 +284,7 @@ const CompetitiveAdvantage: React.FC = () => {
                     className={`flex items-center space-x-2 px-4 py-2 rounded-md font-medium transition-all ${
                       activeTab === tab.id
                         ? 'bg-white text-blue-600 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-900'
+                        : 'text-gray-600 hover:text-gray-900 dark:text-gray-100'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -297,7 +297,7 @@ const CompetitiveAdvantage: React.FC = () => {
             {/* Tab Content */}
             {loading ? (
               <div className="text-center py-8">
-                <div className="text-gray-500">Loading competitive advantage features...</div>
+                <div className="text-gray-500 dark:text-gray-400">Loading competitive advantage features...</div>
               </div>
             ) : (
               <>
@@ -324,7 +324,7 @@ const CompetitiveAdvantage: React.FC = () => {
                                   {Math.round(match.matchScore)}% Match
                                 </div>
                               </div>
-                              <div className="text-xs text-gray-600">
+                              <div className="text-xs text-gray-600 dark:text-gray-400">
                                 📍 {match.trial.locations[0]?.distance?.toFixed(1)} mi • 
                                 👥 {match.trial.currentEnrollment}/{match.trial.estimatedEnrollment} enrolled
                               </div>
@@ -366,15 +366,15 @@ const CompetitiveAdvantage: React.FC = () => {
                           <h4 className="font-medium text-gray-900 mb-3">CYP2D6 Polymorphism Detected</h4>
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Genotype:</span>
+                              <span className="text-gray-600 dark:text-gray-400">Genotype:</span>
                               <span className="font-medium">*1/*4 (Intermediate Metabolizer)</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Drug affected:</span>
+                              <span className="text-gray-600 dark:text-gray-400">Drug affected:</span>
                               <span className="font-medium">Tamoxifen</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Expected impact:</span>
+                              <span className="text-gray-600 dark:text-gray-400">Expected impact:</span>
                               <span className="font-medium text-yellow-600">Reduced efficacy</span>
                             </div>
                           </div>
@@ -384,16 +384,16 @@ const CompetitiveAdvantage: React.FC = () => {
                         <div className="border border-gray-200 rounded-lg p-4">
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Genetic adjustment:</span>
+                              <span className="text-gray-600 dark:text-gray-400">Genetic adjustment:</span>
                               <span className="font-medium">{(dosingRecommendation.adjustmentFactors.geneticAdjustment * 100).toFixed(0)}%</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Age adjustment:</span>
+                              <span className="text-gray-600 dark:text-gray-400">Age adjustment:</span>
                               <span className="font-medium">{(dosingRecommendation.adjustmentFactors.ageAdjustment * 100).toFixed(0)}%</span>
                             </div>
                             <div className="flex justify-between border-t border-gray-200 pt-2">
                               <span className="text-gray-600 font-semibold">Final dose:</span>
-                              <span className="font-bold text-gray-900">{dosingRecommendation.recommendedDose.amount} {dosingRecommendation.recommendedDose.frequency}</span>
+                              <span className="font-bold text-gray-900 dark:text-gray-100">{dosingRecommendation.recommendedDose.amount} {dosingRecommendation.recommendedDose.frequency}</span>
                             </div>
                           </div>
                         </div>
@@ -431,15 +431,15 @@ const CompetitiveAdvantage: React.FC = () => {
                         <div className="border border-gray-200 rounded-lg p-4">
                           <div className="space-y-3 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Complete Response:</span>
+                              <span className="text-gray-600 dark:text-gray-400">Complete Response:</span>
                               <span className="font-medium">{(outcomePrediction.efficacy.responseProbability.completeResponse * 100).toFixed(0)}%</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Partial Response:</span>
+                              <span className="text-gray-600 dark:text-gray-400">Partial Response:</span>
                               <span className="font-medium">{(outcomePrediction.efficacy.responseProbability.partialResponse * 100).toFixed(0)}%</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Median PFS:</span>
+                              <span className="text-gray-600 dark:text-gray-400">Median PFS:</span>
                               <span className="font-medium">{outcomePrediction.efficacy.survivalPrediction.medianPFS} months</span>
                             </div>
                             <div className="flex justify-between border-t border-gray-200 pt-2">
@@ -455,15 +455,15 @@ const CompetitiveAdvantage: React.FC = () => {
                         <div className="border border-gray-200 rounded-lg p-4">
                           <div className="space-y-3 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Grade 3+ Events:</span>
+                              <span className="text-gray-600 dark:text-gray-400">Grade 3+ Events:</span>
                               <span className="font-medium">{(outcomePrediction.safety.adverseEventRisk.grade3Plus * 100).toFixed(0)}%</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Hospitalization:</span>
+                              <span className="text-gray-600 dark:text-gray-400">Hospitalization:</span>
                               <span className="font-medium">{(outcomePrediction.safety.adverseEventRisk.hospitalization * 100).toFixed(0)}%</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Discontinuation:</span>
+                              <span className="text-gray-600 dark:text-gray-400">Discontinuation:</span>
                               <span className="font-medium">{(outcomePrediction.safety.adverseEventRisk.treatmentDiscontinuation * 100).toFixed(0)}%</span>
                             </div>
                           </div>
@@ -475,11 +475,11 @@ const CompetitiveAdvantage: React.FC = () => {
                         <div className="border border-gray-200 rounded-lg p-4">
                           <div className="space-y-3 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Monthly Cost:</span>
+                              <span className="text-gray-600 dark:text-gray-400">Monthly Cost:</span>
                               <span className="font-medium">${outcomePrediction.costEffectiveness.treatmentCost.totalMonthlyCost.toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Cost/QALY:</span>
+                              <span className="text-gray-600 dark:text-gray-400">Cost/QALY:</span>
                               <span className="font-medium">${outcomePrediction.costEffectiveness.costPerQALY.toLocaleString()}</span>
                             </div>
                             <div className="flex justify-between border-t border-gray-200 pt-2">
@@ -508,7 +508,7 @@ const CompetitiveAdvantage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Market Differentiation</h3>
-                <ul className="space-y-3 text-gray-700">
+                <ul className="space-y-3 text-gray-700 dark:text-gray-300">
                   <li className="flex items-start">
                     <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
                     <span><strong>Only platform</strong> with real-time trial integration</span>
@@ -531,21 +531,21 @@ const CompetitiveAdvantage: React.FC = () => {
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Impact</h3>
                 <div className="space-y-4">
-                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Trial enrollment revenue per patient</span>
+                      <span className="text-gray-600 dark:text-gray-400">Trial enrollment revenue per patient</span>
                       <span className="font-bold text-green-600">$45,000</span>
                     </div>
                   </div>
-                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Reduced AE costs per patient</span>
+                      <span className="text-gray-600 dark:text-gray-400">Reduced AE costs per patient</span>
                       <span className="font-bold text-green-600">$12,500</span>
                     </div>
                   </div>
-                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between">
-                      <span className="text-gray-600">Improved outcome value</span>
+                      <span className="text-gray-600 dark:text-gray-400">Improved outcome value</span>
                       <span className="font-bold text-green-600">$8,300</span>
                     </div>
                   </div>

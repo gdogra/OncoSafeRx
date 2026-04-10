@@ -323,14 +323,14 @@ const AuthDiagnostics: React.FC = () => {
 
       <div className="space-y-6">
         <div className="bg-white border border-gray-200 rounded p-4">
-          <div className="mb-3 text-xs text-gray-600">
+          <div className="mb-3 text-xs text-gray-600 dark:text-gray-400">
             App auth: {authState.isAuthenticated ? 'Authenticated' : 'Not authenticated'} • User: {authState.user?.email || 'n/a'} • Role: {authState.user?.role || 'n/a'}
             {!sessionToken && (
               <div className="mt-1 text-yellow-700">No Supabase session detected (using app-level auth). This is normal in development bypass.</div>
             )}
           </div>
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-lg font-medium text-gray-900">Session</h2>
+            <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">Session</h2>
             <div className="flex gap-2">
               <button onClick={refresh} className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded">Refresh</button>
               {sessionToken && (
@@ -339,7 +339,7 @@ const AuthDiagnostics: React.FC = () => {
             </div>
           </div>
           {loading ? (
-            <div className="text-sm text-gray-500">Loading…</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Loading…</div>
           ) : sessionToken ? (
             <div className="text-sm">
               {sessionError && (
@@ -347,19 +347,19 @@ const AuthDiagnostics: React.FC = () => {
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <div className="text-gray-500">Subject (sub)</div>
+                  <div className="text-gray-500 dark:text-gray-400">Subject (sub)</div>
                   <div className="font-medium text-gray-900 break-all">{claims?.sub || '—'}</div>
                 </div>
                 <div>
-                  <div className="text-gray-500">Email</div>
-                  <div className="font-medium text-gray-900">{claims?.email || '—'}</div>
+                  <div className="text-gray-500 dark:text-gray-400">Email</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">{claims?.email || '—'}</div>
                 </div>
                 <div>
-                  <div className="text-gray-500">Expires</div>
-                  <div className="font-medium text-gray-900">{exp?.toISOString() || '—'} {secondsLeft !== null && `(in ${secondsLeft}s)`}</div>
+                  <div className="text-gray-500 dark:text-gray-400">Expires</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">{exp?.toISOString() || '—'} {secondsLeft !== null && `(in ${secondsLeft}s)`}</div>
                 </div>
                 <div>
-                  <div className="text-gray-500">Issuer</div>
+                  <div className="text-gray-500 dark:text-gray-400">Issuer</div>
                   <div className="font-medium text-gray-900 break-all">{claims?.iss || '—'}</div>
                 </div>
               </div>
@@ -382,7 +382,7 @@ const AuthDiagnostics: React.FC = () => {
               {serverVerify.error && <div className="text-red-700">{serverVerify.error}</div>}
             </div>
           ) : (
-            <div className="text-sm text-gray-500">Waiting…</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Waiting…</div>
           )}
         </div>
 
@@ -406,7 +406,7 @@ const AuthDiagnostics: React.FC = () => {
               <button onClick={deleteDemoProfile} disabled={deleteLoading} className="px-3 py-1.5 text-sm bg-red-600 text-white rounded disabled:opacity-50">
                 {deleteLoading ? 'Deleting…' : 'Delete Demo Profile Row'}
               </button>
-              {(syncMsg || resetMsg || deleteMsg) && <div className="text-xs text-gray-600">{syncMsg || resetMsg || deleteMsg}</div>}
+              {(syncMsg || resetMsg || deleteMsg) && <div className="text-xs text-gray-600 dark:text-gray-400">{syncMsg || resetMsg || deleteMsg}</div>}
             </div>
             </>
           ) : (
@@ -425,10 +425,10 @@ const AuthDiagnostics: React.FC = () => {
                 <button onClick={createDemoSession} disabled={sessionLoading} className="px-3 py-1.5 text-sm bg-purple-600 text-white rounded disabled:opacity-50">
                   {sessionLoading ? 'Creating…' : 'Create Auth Session'}
                 </button>
-                {(syncMsg || resetMsg || createMsg || sessionMsg) && <div className="text-xs text-gray-600">{syncMsg || resetMsg || createMsg || sessionMsg}</div>}
+                {(syncMsg || resetMsg || createMsg || sessionMsg) && <div className="text-xs text-gray-600 dark:text-gray-400">{syncMsg || resetMsg || createMsg || sessionMsg}</div>}
               </div>
               {!sessionToken && (
-                <div className="mt-2 text-xs text-gray-500">Tip: No Supabase session detected. The server demo endpoint will be used to insert a profile row (dev-only).</div>
+                <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">Tip: No Supabase session detected. The server demo endpoint will be used to insert a profile row (dev-only).</div>
               )}
             </div>
           )}
@@ -456,7 +456,7 @@ const AuthDiagnostics: React.FC = () => {
               )}
             </div>
           ) : (
-            <div className="text-sm text-gray-500">Loading…</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Loading…</div>
           )}
         </div>
       </div>

@@ -68,7 +68,7 @@ const AuthCallback: React.FC = () => {
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
             Completing sign-in...
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Please wait while we finish setting up your account.
           </p>
         </div>
@@ -87,7 +87,7 @@ const AuthCallback: React.FC = () => {
           <p className="text-gray-600 mb-4">
             {error}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             You will be redirected to the sign-in page in a few seconds.
           </p>
         </div>

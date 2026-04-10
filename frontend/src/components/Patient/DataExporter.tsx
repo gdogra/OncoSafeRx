@@ -331,13 +331,13 @@ CONFIDENTIAL MEDICAL INFORMATION
           <div className="flex items-center space-x-3">
             <Download className="w-6 h-6 text-primary-600" />
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Data Export & Sharing</h2>
-              <p className="text-sm text-gray-600">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Data Export & Sharing</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Export {currentPatient.demographics.firstName} {currentPatient.demographics.lastName}'s data for reporting, backup, or sharing
               </p>
             </div>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
             Export size: {getDataSize()}
           </div>
         </div>
@@ -364,7 +364,7 @@ CONFIDENTIAL MEDICAL INFORMATION
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <Settings className="w-5 h-5 text-gray-400" />
-              <h3 className="text-lg font-semibold text-gray-900">Select Data to Export</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Select Data to Export</h3>
             </div>
             <button
               onClick={selectAll}
@@ -388,7 +388,7 @@ CONFIDENTIAL MEDICAL INFORMATION
                     <span className="font-medium text-gray-900 capitalize">
                       {section.replace(/([A-Z])/g, ' $1').trim()}
                     </span>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       {getSectionCount(section as keyof typeof selectedSections)} item{getSectionCount(section as keyof typeof selectedSections) !== 1 ? 's' : ''}
                     </div>
                   </div>
@@ -407,7 +407,7 @@ CONFIDENTIAL MEDICAL INFORMATION
         <Card>
           <div className="flex items-center space-x-2 mb-4">
             <Share2 className="w-5 h-5 text-gray-400" />
-            <h3 className="text-lg font-semibold text-gray-900">Export Options</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Export Options</h3>
           </div>
 
           <div className="space-y-4">
@@ -429,7 +429,7 @@ CONFIDENTIAL MEDICAL INFORMATION
                         ? 'border-primary-500 bg-primary-50 text-primary-700'
                         : disabled
                         ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
-                        : 'border-gray-200 hover:border-gray-300'
+                        : 'border-gray-200 hover:border-gray-300 dark:border-gray-600'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -455,7 +455,7 @@ CONFIDENTIAL MEDICAL INFORMATION
                     className={`flex items-center space-x-2 p-3 border rounded-lg text-left transition-colors ${
                       shareMethod === value
                         ? 'border-primary-500 bg-primary-50 text-primary-700'
-                        : 'border-gray-200 hover:border-gray-300'
+                        : 'border-gray-200 hover:border-gray-300 dark:border-gray-600'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -486,7 +486,7 @@ CONFIDENTIAL MEDICAL INFORMATION
                   onChange={(e) => setIncludeTimestamp(e.target.checked)}
                   className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
                 />
-                <span className="text-sm text-gray-700">Include timestamp in export</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">Include timestamp in export</span>
               </label>
             </div>
           </div>
@@ -497,8 +497,8 @@ CONFIDENTIAL MEDICAL INFORMATION
       <Card>
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Ready to Export</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Ready to Export</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               {Object.values(selectedSections).filter(Boolean).length} section{Object.values(selectedSections).filter(Boolean).length !== 1 ? 's' : ''} selected • {exportFormat.toUpperCase()} format • {shareMethod} method
             </p>
           </div>

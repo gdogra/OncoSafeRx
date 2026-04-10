@@ -208,7 +208,7 @@ const ClinicalDecisionSupportPage: React.FC = () => {
   // Show a minimal loader until patient state hydrates
   if (!hydrated) {
     return (
-      <div className="p-6 text-center text-gray-500">Loading patient context…</div>
+      <div className="p-6 text-center text-gray-500 dark:text-gray-400">Loading patient context…</div>
     );
   }
 

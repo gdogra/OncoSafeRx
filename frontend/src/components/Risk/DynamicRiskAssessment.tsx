@@ -438,7 +438,7 @@ const DynamicRiskAssessment: React.FC = () => {
       case 'high': return 'text-orange-700 bg-orange-100 border-orange-300';
       case 'moderate': return 'text-yellow-700 bg-yellow-100 border-yellow-300';
       case 'low': return 'text-green-700 bg-green-100 border-green-300';
-      default: return 'text-gray-700 bg-gray-100 border-gray-300';
+      default: return 'text-gray-700 bg-gray-100 border-gray-300 dark:border-gray-600';
     }
   };
 
@@ -456,7 +456,7 @@ const DynamicRiskAssessment: React.FC = () => {
     switch (trend) {
       case 'increasing': return <TrendingUp className="h-4 w-4 text-red-500" />;
       case 'decreasing': return <TrendingDown className="h-4 w-4 text-green-500" />;
-      default: return <Activity className="h-4 w-4 text-gray-500" />;
+      default: return <Activity className="h-4 w-4 text-gray-500 dark:text-gray-400" />;
     }
   };
 
@@ -465,7 +465,7 @@ const DynamicRiskAssessment: React.FC = () => {
       case 'completed': return <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'executing': return <Activity className="h-4 w-4 text-blue-500 animate-pulse" />;
       case 'failed': return <XCircle className="h-4 w-4 text-red-500" />;
-      default: return <Clock className="h-4 w-4 text-gray-500" />;
+      default: return <Clock className="h-4 w-4 text-gray-500 dark:text-gray-400" />;
     }
   };
 
@@ -509,7 +509,7 @@ const DynamicRiskAssessment: React.FC = () => {
       <div className="bg-white p-4 rounded-lg shadow-sm border">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Assessment Mode:</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Assessment Mode:</label>
             <select
               value={assessmentMode}
               onChange={(e) => setAssessmentMode(e.target.value as any)}
@@ -521,7 +521,7 @@ const DynamicRiskAssessment: React.FC = () => {
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Time Horizon:</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Time Horizon:</label>
             <select
               value={selectedTimeHorizon}
               onChange={(e) => setSelectedTimeHorizon(e.target.value as any)}
@@ -535,7 +535,7 @@ const DynamicRiskAssessment: React.FC = () => {
             </select>
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Category:</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Category:</label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -561,7 +561,7 @@ const DynamicRiskAssessment: React.FC = () => {
             </label>
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Alert Threshold:</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Alert Threshold:</label>
             <input
               type="range"
               min="0"
@@ -578,7 +578,7 @@ const DynamicRiskAssessment: React.FC = () => {
       {/* Active Alerts */}
       {riskProfile.alerts.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-gray-900">Active Alerts</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Active Alerts</h2>
           {riskProfile.alerts.map((alert) => (
             <div key={alert.id} className={`p-4 border-l-4 rounded-lg ${getAlertColor(alert.level)}`}>
               <div className="flex items-start justify-between">
@@ -597,7 +597,7 @@ const DynamicRiskAssessment: React.FC = () => {
                       <div key={index} className="flex items-center gap-2 text-sm">
                         {getStatusIcon(action.status)}
                         <span>{action.action}</span>
-                        <span className="text-gray-500">- ETA: {action.eta}</span>
+                        <span className="text-gray-500 dark:text-gray-400">- ETA: {action.eta}</span>
                       </div>
                     ))}
                   </div>
@@ -661,7 +661,7 @@ const DynamicRiskAssessment: React.FC = () => {
             <div key={factor.id} className="bg-gray-50 p-4 rounded-lg">
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h4 className="font-medium text-gray-900">{factor.name}</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">{factor.name}</h4>
                   <div className="flex items-center gap-2 mt-1">
                     <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getSeverityColor(factor.severity)}`}>
                       {factor.severity}
@@ -672,21 +672,21 @@ const DynamicRiskAssessment: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-bold text-red-600">{factor.probability}%</div>
-                  <div className="text-sm text-gray-600">Probability</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Probability</div>
                 </div>
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Impact:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Impact:</span>
                   <span className="font-medium">{factor.impact}%</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Time Horizon:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Time Horizon:</span>
                   <span className="font-medium">{factor.timeHorizon}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Evidence Level:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Evidence Level:</span>
                   <span className="font-medium">Level {factor.evidence.level}</span>
                 </div>
               </div>
@@ -716,7 +716,7 @@ const DynamicRiskAssessment: React.FC = () => {
             <div key={model.id} className="bg-gradient-to-br from-blue-50 to-purple-50 p-4 rounded-lg">
               <div className="flex items-start justify-between mb-3">
                 <div>
-                  <h4 className="font-semibold text-gray-900">{model.name}</h4>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">{model.name}</h4>
                   <p className="text-sm text-gray-600 capitalize">{model.type} prediction</p>
                 </div>
                 <Brain className="h-6 w-6 text-blue-600" />
@@ -725,15 +725,15 @@ const DynamicRiskAssessment: React.FC = () => {
               <div className="grid grid-cols-3 gap-3 mb-4">
                 <div className="text-center">
                   <div className="text-lg font-bold text-blue-600">{model.accuracy}%</div>
-                  <div className="text-xs text-gray-600">Accuracy</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Accuracy</div>
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-bold text-green-600">{model.sensitivity}%</div>
-                  <div className="text-xs text-gray-600">Sensitivity</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Sensitivity</div>
                 </div>
                 <div className="text-center">
                   <div className="text-lg font-bold text-purple-600">{model.specificity}%</div>
-                  <div className="text-xs text-gray-600">Specificity</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">Specificity</div>
                 </div>
               </div>
 
@@ -744,7 +744,7 @@ const DynamicRiskAssessment: React.FC = () => {
                     <span className="text-sm font-medium">{model.prediction.outcome}</span>
                     <span className="text-sm font-bold text-blue-600">{model.prediction.probability}%</span>
                   </div>
-                  <div className="flex justify-between text-sm text-gray-600">
+                  <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
                     <span>Confidence: {model.prediction.confidence}%</span>
                     <span>Timeframe: {model.prediction.timeframe}</span>
                   </div>
@@ -758,7 +758,7 @@ const DynamicRiskAssessment: React.FC = () => {
                     <div key={index} className="flex items-center justify-between text-sm">
                       <span>{feature.name}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-600">{feature.currentValue}</span>
+                        <span className="text-gray-600 dark:text-gray-400">{feature.currentValue}</span>
                         <div className="w-12 bg-gray-200 rounded-full h-1">
                           <div 
                             className="bg-blue-600 h-1 rounded-full" 
@@ -784,7 +784,7 @@ const DynamicRiskAssessment: React.FC = () => {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h4 className="font-medium text-gray-900">{intervention.name}</h4>
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100">{intervention.name}</h4>
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                       intervention.priority === 'urgent' ? 'bg-red-100 text-red-800' :
                       intervention.priority === 'high' ? 'bg-orange-100 text-orange-800' :
@@ -796,7 +796,7 @@ const DynamicRiskAssessment: React.FC = () => {
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                       intervention.status === 'active' ? 'bg-green-100 text-green-800' :
                       intervention.status === 'recommended' ? 'bg-blue-100 text-blue-800' :
-                      intervention.status === 'completed' ? 'bg-gray-100 text-gray-800' :
+                      intervention.status === 'completed' ? 'bg-gray-100 text-gray-800 dark:text-gray-200' :
                       'bg-red-100 text-red-800'
                     }`}>
                       {intervention.status}
@@ -804,21 +804,21 @@ const DynamicRiskAssessment: React.FC = () => {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-600">Type:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Type:</span>
                       <span className="ml-2 font-medium capitalize">{intervention.type}</span>
                     </div>
                     <div>
-                      <span className="text-gray-600">Effectiveness:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Effectiveness:</span>
                       <span className="ml-2 font-medium">{intervention.effectiveness}%</span>
                     </div>
                     <div>
-                      <span className="text-gray-600">Timeline:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Timeline:</span>
                       <span className="ml-2 font-medium">{intervention.implementation.timeline}</span>
                     </div>
                   </div>
                   {intervention.implementation.resources.length > 0 && (
                     <div className="mt-2 text-sm">
-                      <span className="text-gray-600">Resources needed:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Resources needed:</span>
                       <span className="ml-2">{intervention.implementation.resources.join(', ')}</span>
                     </div>
                   )}

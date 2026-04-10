@@ -69,10 +69,10 @@ const AccessibilityToolbar: React.FC = () => {
               <div className="flex items-center space-x-2">
                 {isHighContrast ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 <div>
-                  <label htmlFor="high-contrast" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="high-contrast" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     High Contrast
                   </label>
-                  <p className="text-xs text-gray-500">Increase color contrast</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Increase color contrast</p>
                 </div>
               </div>
               <button
@@ -98,10 +98,10 @@ const AccessibilityToolbar: React.FC = () => {
               <div className="flex items-center space-x-2">
                 <MousePointer className="w-4 h-4" />
                 <div>
-                  <label htmlFor="reduced-motion" className="text-sm font-medium text-gray-700">
+                  <label htmlFor="reduced-motion" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Reduce Motion
                   </label>
-                  <p className="text-xs text-gray-500">Minimize animations</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Minimize animations</p>
                 </div>
               </div>
               <button
@@ -126,7 +126,7 @@ const AccessibilityToolbar: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2 mb-2">
                 <Type className="w-4 h-4" />
-                <label className="text-sm font-medium text-gray-700">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Text Size
                 </label>
               </div>
@@ -141,7 +141,7 @@ const AccessibilityToolbar: React.FC = () => {
                     className={`p-2 text-sm rounded-md border transition-colors focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 ${
                       fontSize === option.value
                         ? 'bg-primary-100 border-primary-500 text-primary-700'
-                        : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                        : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100 dark:bg-gray-800'
                     }`}
                     aria-pressed={fontSize === option.value}
                   >
@@ -165,7 +165,7 @@ const AccessibilityToolbar: React.FC = () => {
               >
                 <Keyboard className="w-4 h-4" />
                 <span>View Keyboard Shortcuts</span>
-                <span className="ml-auto text-xs text-gray-500">F1</span>
+                <span className="ml-auto text-xs text-gray-500 dark:text-gray-400">F1</span>
               </button>
             </div>
 

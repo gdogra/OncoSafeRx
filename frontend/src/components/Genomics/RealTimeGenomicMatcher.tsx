@@ -289,7 +289,7 @@ const RealTimeGenomicMatcher: React.FC = () => {
       'A': 'bg-green-100 text-green-800',
       'B': 'bg-blue-100 text-blue-800',
       'C': 'bg-yellow-100 text-yellow-800',
-      'D': 'bg-gray-100 text-gray-800'
+      'D': 'bg-gray-100 text-gray-800 dark:text-gray-200'
     };
     return colors[level as keyof typeof colors] || colors['D'];
   };
@@ -299,7 +299,7 @@ const RealTimeGenomicMatcher: React.FC = () => {
       case 'high': return 'text-red-600 bg-red-100';
       case 'medium': return 'text-yellow-600 bg-yellow-100';
       case 'low': return 'text-green-600 bg-green-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -310,8 +310,8 @@ const RealTimeGenomicMatcher: React.FC = () => {
         <div className="flex items-center space-x-3">
           <Zap className="w-8 h-8 text-yellow-500" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Real-Time Genomic Matcher</h1>
-            <p className="text-gray-600">Instant drug-gene interaction analysis with AI-powered recommendations</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Real-Time Genomic Matcher</h1>
+            <p className="text-gray-600 dark:text-gray-400">Instant drug-gene interaction analysis with AI-powered recommendations</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -341,7 +341,7 @@ const RealTimeGenomicMatcher: React.FC = () => {
                 className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
-            <div className="flex items-center space-x-4 text-sm text-gray-600">
+            <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
               <div className="flex items-center space-x-1">
                 <CheckCircle className="w-4 h-4 text-green-500" />
                 <span>VCF Format</span>
@@ -370,8 +370,8 @@ const RealTimeGenomicMatcher: React.FC = () => {
             <div className="flex items-center space-x-3">
               <LoadingSpinner size="sm" />
               <div>
-                <h3 className="font-medium text-gray-900">Processing Genomic Data</h3>
-                <p className="text-sm text-gray-600">{processingStage}</p>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">Processing Genomic Data</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{processingStage}</p>
               </div>
             </div>
             <div className="mt-4 w-full bg-gray-200 rounded-full h-2">
@@ -396,7 +396,7 @@ const RealTimeGenomicMatcher: React.FC = () => {
               {variants.map((variant, index) => (
                 <div key={index} className="border rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-gray-900">{variant.gene}</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{variant.gene}</span>
                     <span className={`text-xs px-2 py-1 rounded-full ${getImpactColor(variant.impact)}`}>
                       {variant.impact} impact
                     </span>
@@ -427,7 +427,7 @@ const RealTimeGenomicMatcher: React.FC = () => {
                     {matches.confidence}% confidence
                   </span>
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   {matches.matches.length} drugs analyzed in {matches.processingTime}ms
                 </div>
               </div>
@@ -458,8 +458,8 @@ const RealTimeGenomicMatcher: React.FC = () => {
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h4 className="text-lg font-semibold text-gray-900">{match.drugName}</h4>
-                      <p className="text-sm text-gray-600">RxCUI: {match.rxcui}</p>
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{match.drugName}</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">RxCUI: {match.rxcui}</p>
                     </div>
                     <div className="text-right">
                       <span className={`text-lg font-bold px-3 py-1 rounded-full ${getMatchScoreColor(match.matchScore)}`}>
@@ -474,11 +474,11 @@ const RealTimeGenomicMatcher: React.FC = () => {
                   <div className="space-y-3">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-gray-600">Efficacy Prediction</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Efficacy Prediction</p>
                         <p className="text-lg font-semibold text-green-600">{match.efficacyPrediction}%</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Safety Score</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Safety Score</p>
                         <p className="text-lg font-semibold text-blue-600">{match.safetyScore}%</p>
                       </div>
                     </div>
@@ -493,7 +493,7 @@ const RealTimeGenomicMatcher: React.FC = () => {
                     </div>
 
                     <div className="pt-2 border-t">
-                      <p className="text-sm text-gray-700">{match.clinicalRecommendation}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">{match.clinicalRecommendation}</p>
                     </div>
 
                     {match.contraindications.length > 0 && (
@@ -524,7 +524,7 @@ const RealTimeGenomicMatcher: React.FC = () => {
                       {selectedDrug.genomicFactors.map((factor, index) => (
                         <div key={index} className="border rounded-lg p-4">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium text-gray-900">{factor.gene}</span>
+                            <span className="font-medium text-gray-900 dark:text-gray-100">{factor.gene}</span>
                             <Dna className="w-4 h-4 text-green-600" />
                           </div>
                           <p className="text-sm text-gray-600 mb-2">{factor.impact}</p>

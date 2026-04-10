@@ -153,7 +153,7 @@ const FeedbackAdmin: React.FC = () => {
             {migration?.supabaseEnabled ? (
               <span className="text-green-700">Supabase on</span>
             ) : (
-              <span className="text-gray-700">Supabase off</span>
+              <span className="text-gray-700 dark:text-gray-300">Supabase off</span>
             )}
             {migration?.ran && (
               <span className="ml-2 inline-flex items-center">
@@ -201,25 +201,25 @@ const FeedbackAdmin: React.FC = () => {
           <div className="text-3xl font-bold text-primary-600">
             {loading ? '...' : (analytics?.totalFeedback || 0)}
           </div>
-          <div className="text-sm text-gray-600">Total Feedback</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">Total Feedback</div>
         </Card>
         <Card className="text-center">
           <div className="text-3xl font-bold text-blue-600">
             {loading ? '...' : (analytics?.totalTickets || 0)}
           </div>
-          <div className="text-sm text-gray-600">Active Tickets</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">Active Tickets</div>
         </Card>
         <Card className="text-center">
           <div className="text-3xl font-bold text-green-600">
             {loading ? '...' : (analytics?.sprintPlan?.currentSprint?.length || 0)}
           </div>
-          <div className="text-sm text-gray-600">Current Sprint</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">Current Sprint</div>
         </Card>
         <Card className="text-center">
           <div className="text-3xl font-bold text-purple-600">
             {loading ? '...' : (analytics?.sprintPlan?.nextSprint?.length || 0)}
           </div>
-          <div className="text-sm text-gray-600">Next Sprint</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">Next Sprint</div>
         </Card>
       </div>
 
@@ -269,7 +269,7 @@ const FeedbackAdmin: React.FC = () => {
                     {feedback.priority}
                   </span>
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-gray-400">
                   {feedback.type} • {feedback.category} • {new Date(feedback.timestamp).toLocaleDateString()}
                 </div>
               </div>
@@ -301,7 +301,7 @@ const FeedbackAdmin: React.FC = () => {
       {/* RBAC Seed Status */}
       <Card>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-gray-900">RBAC Seeding Status</h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">RBAC Seeding Status</h2>
           <button
             onClick={refreshSeedStatus}
             className="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
@@ -312,15 +312,15 @@ const FeedbackAdmin: React.FC = () => {
         <div className="grid md:grid-cols-3 gap-4 text-sm">
           <div>
             <div className="font-medium text-gray-800 mb-1">Tenant</div>
-            <div className="text-gray-600">{seedStatus?.tenantId || 'unknown'}</div>
+            <div className="text-gray-600 dark:text-gray-400">{seedStatus?.tenantId || 'unknown'}</div>
           </div>
           <div>
             <div className="font-medium text-gray-800 mb-1">IDs Assigned</div>
-            <div className="text-gray-600">{seedStatus?.totalAssigned ?? 0}</div>
+            <div className="text-gray-600 dark:text-gray-400">{seedStatus?.totalAssigned ?? 0}</div>
           </div>
           <div>
             <div className="font-medium text-gray-800 mb-1">Emails Resolved/Unresolved</div>
-            <div className="text-gray-600">{seedStatus ? `${seedStatus.totalResolved}/${seedStatus.totalUnresolved}` : '0/0'}</div>
+            <div className="text-gray-600 dark:text-gray-400">{seedStatus ? `${seedStatus.totalResolved}/${seedStatus.totalUnresolved}` : '0/0'}</div>
           </div>
         </div>
 
@@ -408,7 +408,7 @@ const FeedbackAdmin: React.FC = () => {
         <div className="grid md:grid-cols-3 gap-6">
           <div className="space-y-3">
             <h3 className="font-medium text-green-900">1. Collection</h3>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
               <p>Users submit feedback through the floating feedback button throughout the application.</p>
               <div className="mt-2 p-2 bg-green-50 rounded">
                 <strong>Automated:</strong> Type detection, priority assignment, effort estimation
@@ -418,7 +418,7 @@ const FeedbackAdmin: React.FC = () => {
           
           <div className="space-y-3">
             <h3 className="font-medium text-blue-900">2. Classification</h3>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
               <p>ML-style classification assigns tickets to appropriate categories and estimates work required.</p>
               <div className="mt-2 p-2 bg-blue-50 rounded">
                 <strong>Output:</strong> Categorized tickets with priority, effort, and labels
@@ -428,7 +428,7 @@ const FeedbackAdmin: React.FC = () => {
           
           <div className="space-y-3">
             <h3 className="font-medium text-purple-900">3. Sprint Planning</h3>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
               <p>Automated sprint capacity calculation distributes tickets across current and future sprints.</p>
               <div className="mt-2 p-2 bg-purple-50 rounded">
                 <strong>Result:</strong> Ready-to-implement sprint backlog

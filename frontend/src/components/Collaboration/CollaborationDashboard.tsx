@@ -136,8 +136,8 @@ const CollaborationDashboard: React.FC = () => {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Unread Messages</p>
-                <p className="text-2xl font-bold text-gray-900">{unreadCount}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Unread Messages</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{unreadCount}</p>
               </div>
               <MessageCircle className="w-8 h-8 text-blue-600" />
             </div>
@@ -146,8 +146,8 @@ const CollaborationDashboard: React.FC = () => {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Pending Tasks</p>
-                <p className="text-2xl font-bold text-gray-900">{pendingTasks}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending Tasks</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{pendingTasks}</p>
               </div>
               <CheckSquare className="w-8 h-8 text-orange-600" />
             </div>
@@ -156,8 +156,8 @@ const CollaborationDashboard: React.FC = () => {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Upcoming Boards</p>
-                <p className="text-2xl font-bold text-gray-900">{upcomingBoards}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Upcoming Boards</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{upcomingBoards}</p>
               </div>
               <Calendar className="w-8 h-8 text-green-600" />
             </div>
@@ -166,8 +166,8 @@ const CollaborationDashboard: React.FC = () => {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Consultations</p>
-                <p className="text-2xl font-bold text-gray-900">{pendingConsultations}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Consultations</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{pendingConsultations}</p>
               </div>
               <FileText className="w-8 h-8 text-purple-600" />
             </div>
@@ -182,8 +182,8 @@ const CollaborationDashboard: React.FC = () => {
               <div key={board.id} className="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg">
                 <Calendar className="w-5 h-5 text-blue-600" />
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900">{board.name}</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{board.name}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {new Date(board.scheduledDate).toLocaleDateString()} • {board.cases.length} cases
                   </p>
                 </div>
@@ -192,7 +192,7 @@ const CollaborationDashboard: React.FC = () => {
                     ? 'bg-blue-100 text-blue-800'
                     : board.status === 'completed'
                     ? 'bg-green-100 text-green-800'
-                    : 'bg-gray-100 text-gray-800'
+                    : 'bg-gray-100 text-gray-800 dark:text-gray-200'
                 }`}>
                   {board.status}
                 </span>
@@ -207,34 +207,34 @@ const CollaborationDashboard: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <button 
               onClick={() => setActiveTab('tumor-boards')}
-              className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+              className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 dark:bg-gray-800"
             >
               <Plus className="w-5 h-5 text-blue-600" />
-              <span className="font-medium text-gray-900">Schedule Board</span>
+              <span className="font-medium text-gray-900 dark:text-gray-100">Schedule Board</span>
             </button>
             
             <button 
               onClick={() => setActiveTab('consultations')}
-              className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+              className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 dark:bg-gray-800"
             >
               <FileText className="w-5 h-5 text-green-600" />
-              <span className="font-medium text-gray-900">Request Consult</span>
+              <span className="font-medium text-gray-900 dark:text-gray-100">Request Consult</span>
             </button>
             
             <button 
               onClick={() => setActiveTab('communications')}
-              className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+              className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 dark:bg-gray-800"
             >
               <MessageCircle className="w-5 h-5 text-purple-600" />
-              <span className="font-medium text-gray-900">Start Discussion</span>
+              <span className="font-medium text-gray-900 dark:text-gray-100">Start Discussion</span>
             </button>
             
             <button 
               onClick={() => setActiveTab('teams')}
-              className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+              className="flex items-center space-x-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 dark:bg-gray-800"
             >
               <Users className="w-5 h-5 text-orange-600" />
-              <span className="font-medium text-gray-900">Manage Team</span>
+              <span className="font-medium text-gray-900 dark:text-gray-100">Manage Team</span>
             </button>
           </div>
         </div>
@@ -245,10 +245,10 @@ const CollaborationDashboard: React.FC = () => {
   const renderTeamsTab = () => (
     <div className="space-y-6">
       {/* Team List */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Teams</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Teams</h3>
             <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               <Plus className="w-4 h-4 mr-2" />
               Create Team
@@ -258,21 +258,21 @@ const CollaborationDashboard: React.FC = () => {
         
         <div className="divide-y divide-gray-200">
           {teams.map(team => (
-            <div key={team.id} className="p-6 hover:bg-gray-50">
+            <div key={team.id} className="p-6 hover:bg-gray-50 dark:bg-gray-800">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h4 className="text-lg font-medium text-gray-900">{team.name}</h4>
+                  <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100">{team.name}</h4>
                   <p className="text-sm text-gray-600 mt-1">{team.description}</p>
                   
                   <div className="flex items-center space-x-4 mt-3">
                     <div className="flex items-center space-x-1">
                       <Users className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{team.members.length} members</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{team.members.length} members</span>
                     </div>
                     
                     <div className="flex items-center space-x-1">
                       <Activity className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
                         {team.patients.length} patients
                       </span>
                     </div>
@@ -280,7 +280,7 @@ const CollaborationDashboard: React.FC = () => {
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       team.isActive 
                         ? 'bg-green-100 text-green-800'
-                        : 'bg-gray-100 text-gray-800'
+                        : 'bg-gray-100 text-gray-800 dark:text-gray-200'
                     }`}>
                       {team.isActive ? 'Active' : 'Inactive'}
                     </span>
@@ -301,7 +301,7 @@ const CollaborationDashboard: React.FC = () => {
                   ))}
                   {team.members.length > 3 && (
                     <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center border-2 border-white">
-                      <span className="text-xs font-medium text-gray-600">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
                         +{team.members.length - 3}
                       </span>
                     </div>
@@ -318,10 +318,10 @@ const CollaborationDashboard: React.FC = () => {
   const renderTumorBoardsTab = () => (
     <div className="space-y-6">
       {/* Upcoming Boards */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Tumor Boards</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Tumor Boards</h3>
             <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               <Plus className="w-4 h-4 mr-2" />
               Schedule Board
@@ -331,11 +331,11 @@ const CollaborationDashboard: React.FC = () => {
         
         <div className="divide-y divide-gray-200">
           {tumorBoards.map(board => (
-            <div key={board.id} className="p-6 hover:bg-gray-50">
+            <div key={board.id} className="p-6 hover:bg-gray-50 dark:bg-gray-800">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3">
-                    <h4 className="text-lg font-medium text-gray-900">{board.name}</h4>
+                    <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100">{board.name}</h4>
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       board.status === 'scheduled' 
                         ? 'bg-blue-100 text-blue-800'
@@ -343,13 +343,13 @@ const CollaborationDashboard: React.FC = () => {
                         ? 'bg-green-100 text-green-800'
                         : board.status === 'in_progress'
                         ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-gray-100 text-gray-800'
+                        : 'bg-gray-100 text-gray-800 dark:text-gray-200'
                     }`}>
                       {board.status.replace('_', ' ')}
                     </span>
                   </div>
                   
-                  <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                  <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
                     <div className="flex items-center space-x-1">
                       <Calendar className="w-4 h-4" />
                       <span>{new Date(board.scheduledDate).toLocaleDateString()}</span>
@@ -400,10 +400,10 @@ const CollaborationDashboard: React.FC = () => {
   const renderCommunicationsTab = () => (
     <div className="space-y-6">
       {/* Communication Threads */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Messages</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Messages</h3>
             <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               <Plus className="w-4 h-4 mr-2" />
               New Discussion
@@ -417,19 +417,19 @@ const CollaborationDashboard: React.FC = () => {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
-                    <h4 className="text-lg font-medium text-gray-900">{thread.subject}</h4>
+                    <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100">{thread.subject}</h4>
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       thread.priority === 'high' 
                         ? 'bg-red-100 text-red-800'
                         : thread.priority === 'medium'
                         ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-gray-100 text-gray-800'
+                        : 'bg-gray-100 text-gray-800 dark:text-gray-200'
                     }`}>
                       {thread.priority}
                     </span>
                   </div>
                   
-                  <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                  <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
                     <span>{thread.participants.length} participants</span>
                     <span>{thread.messages.length} messages</span>
                     <span>{new Date(thread.lastActivity).toLocaleDateString()}</span>
@@ -452,7 +452,7 @@ const CollaborationDashboard: React.FC = () => {
                       ? 'bg-green-100 text-green-800'
                       : thread.status === 'resolved'
                       ? 'bg-blue-100 text-blue-800'
-                      : 'bg-gray-100 text-gray-800'
+                      : 'bg-gray-100 text-gray-800 dark:text-gray-200'
                   }`}>
                     {thread.status}
                   </span>
@@ -465,7 +465,7 @@ const CollaborationDashboard: React.FC = () => {
             <div className="p-12 text-center">
               <MessageCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Messages</h3>
-              <p className="text-gray-500">Start a new discussion to collaborate with your team</p>
+              <p className="text-gray-500 dark:text-gray-400">Start a new discussion to collaborate with your team</p>
             </div>
           )}
         </div>
@@ -476,10 +476,10 @@ const CollaborationDashboard: React.FC = () => {
   const renderConsultationsTab = () => (
     <div className="space-y-6">
       {/* Consultation Requests */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Consultations</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Consultations</h3>
             <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               <Plus className="w-4 h-4 mr-2" />
               Request Consultation
@@ -489,11 +489,11 @@ const CollaborationDashboard: React.FC = () => {
         
         <div className="divide-y divide-gray-200">
           {consultations.map(consult => (
-            <div key={consult.id} className="p-6 hover:bg-gray-50">
+            <div key={consult.id} className="p-6 hover:bg-gray-50 dark:bg-gray-800">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
-                    <h4 className="text-lg font-medium text-gray-900">
+                    <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100">
                       {consult.specialtyRequested} Consultation
                     </h4>
                     <span className={`px-2 py-1 text-xs rounded-full ${
@@ -501,7 +501,7 @@ const CollaborationDashboard: React.FC = () => {
                         ? 'bg-red-100 text-red-800'
                         : consult.urgency === 'urgent'
                         ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-gray-100 text-gray-800'
+                        : 'bg-gray-100 text-gray-800 dark:text-gray-200'
                     }`}>
                       {consult.urgency}
                     </span>
@@ -509,7 +509,7 @@ const CollaborationDashboard: React.FC = () => {
                   
                   <p className="text-sm text-gray-600 mt-1">{consult.clinicalQuestion}</p>
                   
-                  <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                  <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
                     <span>Patient: {consult.patientId}</span>
                     <span>Requested: {new Date(consult.createdDate).toLocaleDateString()}</span>
                     {consult.responseDeadline && (
@@ -525,7 +525,7 @@ const CollaborationDashboard: React.FC = () => {
                     ? 'bg-blue-100 text-blue-800'
                     : consult.status === 'completed'
                     ? 'bg-green-100 text-green-800'
-                    : 'bg-gray-100 text-gray-800'
+                    : 'bg-gray-100 text-gray-800 dark:text-gray-200'
                 }`}>
                   {consult.status.replace('_', ' ')}
                 </span>
@@ -537,7 +537,7 @@ const CollaborationDashboard: React.FC = () => {
             <div className="p-12 text-center">
               <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No Consultations</h3>
-              <p className="text-gray-500">Request specialty consultations when needed</p>
+              <p className="text-gray-500 dark:text-gray-400">Request specialty consultations when needed</p>
             </div>
           )}
         </div>
@@ -553,64 +553,64 @@ const CollaborationDashboard: React.FC = () => {
       <div className="space-y-6">
         {/* Task Summary */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="bg-white p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {userTasks.filter(t => t.status === 'pending').length}
               </p>
-              <p className="text-sm text-gray-600">Pending</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Pending</p>
             </div>
           </div>
           
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="bg-white p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="text-center">
               <p className="text-2xl font-bold text-blue-600">
                 {userTasks.filter(t => t.status === 'in_progress').length}
               </p>
-              <p className="text-sm text-gray-600">In Progress</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">In Progress</p>
             </div>
           </div>
           
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="bg-white p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="text-center">
               <p className="text-2xl font-bold text-green-600">
                 {userTasks.filter(t => t.status === 'completed').length}
               </p>
-              <p className="text-sm text-gray-600">Completed</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Completed</p>
             </div>
           </div>
           
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="bg-white p-4 rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="text-center">
               <p className="text-2xl font-bold text-red-600">
                 {userTasks.filter(t => t.status === 'overdue').length}
               </p>
-              <p className="text-sm text-gray-600">Overdue</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Overdue</p>
             </div>
           </div>
         </div>
 
         {/* Task List */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">My Tasks</h3>
+        <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">My Tasks</h3>
           </div>
           
           <div className="divide-y divide-gray-200">
             {userTasks.map(task => (
-              <div key={task.id} className="p-6 hover:bg-gray-50">
+              <div key={task.id} className="p-6 hover:bg-gray-50 dark:bg-gray-800">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h4 className="text-lg font-medium text-gray-900">{task.description}</h4>
+                    <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100">{task.description}</h4>
                     
-                    <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                    <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
                       <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
                       <span className={`px-2 py-1 text-xs rounded-full ${
                         task.priority === 'high' 
                           ? 'bg-red-100 text-red-800'
                           : task.priority === 'medium'
                           ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-gray-100 text-gray-800'
+                          : 'bg-gray-100 text-gray-800 dark:text-gray-200'
                       }`}>
                         {task.priority}
                       </span>
@@ -640,7 +640,7 @@ const CollaborationDashboard: React.FC = () => {
               <div className="p-12 text-center">
                 <CheckSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No Tasks</h3>
-                <p className="text-gray-500">You have no assigned tasks at this time</p>
+                <p className="text-gray-500 dark:text-gray-400">You have no assigned tasks at this time</p>
               </div>
             )}
           </div>
@@ -654,7 +654,7 @@ const CollaborationDashboard: React.FC = () => {
       <div className="flex items-center justify-center min-h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading collaboration data...</p>
+          <p className="text-gray-600 dark:text-gray-400">Loading collaboration data...</p>
         </div>
       </div>
     );
@@ -664,7 +664,7 @@ const CollaborationDashboard: React.FC = () => {
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Collaboration Dashboard</h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           Coordinate multidisciplinary care and manage team communications
         </p>
       </div>
@@ -679,11 +679,11 @@ const CollaborationDashboard: React.FC = () => {
               className={`group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                 activeTab === id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
               }`}
             >
               <Icon className={`w-5 h-5 mr-2 ${
-                activeTab === id ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500'
+                activeTab === id ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500 dark:text-gray-400'
               }`} />
               <div className="text-left">
                 <div>{label}</div>

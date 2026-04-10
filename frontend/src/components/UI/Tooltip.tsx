@@ -128,7 +128,7 @@ const Tooltip: React.FC<TooltipProps> = ({
       case 'clinical':
         return <Info className={`${iconClasses} text-purple-600`} />;
       default:
-        return <Info className={`${iconClasses} text-gray-600`} />;
+        return <Info className={`${iconClasses} text-gray-600 dark:text-gray-400`} />;
     }
   };
 

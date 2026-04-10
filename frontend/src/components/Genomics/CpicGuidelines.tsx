@@ -29,7 +29,7 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
   };
 
   const getEvidenceColor = (level?: string) => {
-    if (!level) return 'bg-gray-100 text-gray-700';
+    if (!level) return 'bg-gray-100 text-gray-700 dark:text-gray-300';
     
     switch (level.toUpperCase()) {
       case 'A':
@@ -41,7 +41,7 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
       case 'D':
         return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-100 text-gray-700 dark:text-gray-300';
     }
   };
 
@@ -68,7 +68,7 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               {guideline.gene} - {guideline.drug}
             </h3>
             {guideline.geneName && (
@@ -96,21 +96,21 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
         {guideline.phenotype && (
           <div className="bg-gray-50 rounded-lg p-3">
             <h4 className="font-medium text-gray-900 mb-1">Phenotype</h4>
-            <p className="text-sm text-gray-700">{guideline.phenotype}</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300">{guideline.phenotype}</p>
           </div>
         )}
 
         {/* Recommendation */}
         <div className="bg-blue-50 rounded-lg p-3">
           <h4 className="font-medium text-gray-900 mb-1">Recommendation</h4>
-          <p className="text-sm text-gray-700">{guideline.recommendation}</p>
+          <p className="text-sm text-gray-700 dark:text-gray-300">{guideline.recommendation}</p>
         </div>
 
         {/* Clinical Implications */}
         {guideline.implications && (
           <div>
             <h4 className="font-medium text-gray-900 mb-1">Clinical Implications</h4>
-            <p className="text-sm text-gray-700">{guideline.implications}</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300">{guideline.implications}</p>
           </div>
         )}
 
@@ -118,7 +118,7 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
         {guideline.dosageAdjustment && (
           <div className="bg-yellow-50 rounded-lg p-3">
             <h4 className="font-medium text-gray-900 mb-1">Dosage Adjustment</h4>
-            <p className="text-sm text-gray-700">{guideline.dosageAdjustment}</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300">{guideline.dosageAdjustment}</p>
           </div>
         )}
 
@@ -130,7 +130,7 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
               {guideline.sources.map((source, idx) => (
                 <span
                   key={idx}
-                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700"
+                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 dark:text-gray-300"
                 >
                   {source}
                 </span>
@@ -150,7 +150,7 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <div className="flex items-center space-x-2 mb-1">
-                <label htmlFor="gene" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="gene" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Gene Symbol
                 </label>
                 <Tooltip content="Search by pharmacogene symbols like CYP2D6, CYP2C19, TPMT, DPYD, UGT1A1, or SLCO1B1. These genes encode enzymes that metabolize medications">
@@ -169,7 +169,7 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
             
             <div>
               <div className="flex items-center space-x-2 mb-1">
-                <label htmlFor="drug" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="drug" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Drug Name
                 </label>
                 <Tooltip content="Search by drug name (generic or brand) like clopidogrel, warfarin, fluorouracil, or irinotecan. Use standard drug nomenclature or common names">
@@ -212,7 +212,7 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
       {guidelines === null ? (
         <div className="text-center py-12">
           <BookOpen className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-          <p className="text-lg font-medium text-gray-500">CPIC Guidelines</p>
+          <p className="text-lg font-medium text-gray-500 dark:text-gray-400">CPIC Guidelines</p>
           <p className="text-sm text-gray-400">Search for pharmacogenomic guidelines or load all available guidelines</p>
         </div>
       ) : guidelines.count === 0 ? (
@@ -224,14 +224,14 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
           {/* Results Summary */}
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="flex items-center space-x-2 mb-2">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 CPIC Guidelines ({guidelines.count})
               </h3>
               <Tooltip content="Clinical Pharmacogenetics Implementation Consortium guidelines provide evidence-based recommendations for gene-drug interactions. Each guideline includes phenotype definitions, therapeutic recommendations, and dosing adjustments">
                 <Info className="w-4 h-4 text-gray-400" />
               </Tooltip>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               {geneQuery || drugQuery 
                 ? `Results for ${geneQuery ? `gene: ${geneQuery}` : ''}${geneQuery && drugQuery ? ', ' : ''}${drugQuery ? `drug: ${drugQuery}` : ''}`
                 : 'All available CPIC guidelines'

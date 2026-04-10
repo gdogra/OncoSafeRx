@@ -197,7 +197,7 @@ const EnterpriseAIDashboard: React.FC = () => {
       case 'error':
         return 'text-red-600';
       default:
-        return 'text-gray-600';
+        return 'text-gray-600 dark:text-gray-400';
     }
   };
 
@@ -245,7 +245,7 @@ const EnterpriseAIDashboard: React.FC = () => {
         <Card className="p-6 border-l-4 border-l-blue-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">ML Model Accuracy</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">ML Model Accuracy</p>
               <p className="text-2xl font-bold text-blue-600">94.2%</p>
             </div>
             <Brain className="h-8 w-8 text-blue-600" />
@@ -256,7 +256,7 @@ const EnterpriseAIDashboard: React.FC = () => {
         <Card className="p-6 border-l-4 border-l-green-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Response Time</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Response Time</p>
               <p className="text-2xl font-bold text-green-600">&lt;100ms</p>
             </div>
             <Zap className="h-8 w-8 text-green-600" />
@@ -267,7 +267,7 @@ const EnterpriseAIDashboard: React.FC = () => {
         <Card className="p-6 border-l-4 border-l-purple-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Active Users</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Users</p>
               <p className="text-2xl font-bold text-purple-600">15,847</p>
             </div>
             <Users className="h-8 w-8 text-purple-600" />
@@ -278,7 +278,7 @@ const EnterpriseAIDashboard: React.FC = () => {
         <Card className="p-6 border-l-4 border-l-orange-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Cost Savings</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Cost Savings</p>
               <p className="text-2xl font-bold text-orange-600">$9.9M</p>
             </div>
             <TrendingUp className="h-8 w-8 text-orange-600" />
@@ -309,15 +309,15 @@ const EnterpriseAIDashboard: React.FC = () => {
                 
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Accuracy:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Accuracy:</span>
                     <span className="font-medium">{(model.accuracy * 100).toFixed(1)}%</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Version:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Version:</span>
                     <span className="font-medium">{model.version}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Response Time:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Response Time:</span>
                     <span className="font-medium">{model.averageResponseTime}</span>
                   </div>
                 </div>
@@ -329,19 +329,19 @@ const EnterpriseAIDashboard: React.FC = () => {
             <h4 className="font-medium mb-3">System Performance</h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <span className="text-gray-600">CPU Usage:</span>
+                <span className="text-gray-600 dark:text-gray-400">CPU Usage:</span>
                 <span className="ml-2 font-medium">{modelStatus.systemHealth.cpuUsage}</span>
               </div>
               <div>
-                <span className="text-gray-600">Memory:</span>
+                <span className="text-gray-600 dark:text-gray-400">Memory:</span>
                 <span className="ml-2 font-medium">{modelStatus.systemHealth.memoryUsage}</span>
               </div>
               <div>
-                <span className="text-gray-600">Uptime:</span>
+                <span className="text-gray-600 dark:text-gray-400">Uptime:</span>
                 <span className="ml-2 font-medium">{modelStatus.systemHealth.uptime}</span>
               </div>
               <div>
-                <span className="text-gray-600">RPS:</span>
+                <span className="text-gray-600 dark:text-gray-400">RPS:</span>
                 <span className="ml-2 font-medium">{modelStatus.systemHealth.requestsPerSecond}</span>
               </div>
             </div>
@@ -399,7 +399,7 @@ const EnterpriseAIDashboard: React.FC = () => {
           
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <h4 className="font-medium mb-2">Treatment Optimization</h4>
-            <p className="text-gray-700">
+            <p className="text-gray-700 dark:text-gray-300">
               <strong>Recommended Regimen:</strong> {demoResults.aiInsights.treatmentOptimization.recommendedRegimen}
             </p>
             <p className="text-sm text-gray-600 mt-1">
@@ -418,7 +418,7 @@ const EnterpriseAIDashboard: React.FC = () => {
         
         <div className="space-y-4">
           {recentAnalyses.map((analysis) => (
-            <div key={analysis.analysisId} className="border rounded-lg p-4 hover:bg-gray-50">
+            <div key={analysis.analysisId} className="border rounded-lg p-4 hover:bg-gray-50 dark:bg-gray-800">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -428,7 +428,7 @@ const EnterpriseAIDashboard: React.FC = () => {
                     <p className="font-medium">
                       Patient {analysis.patient.id} - {analysis.patient.cancerType}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       Age {analysis.patient.age} • {new Date(analysis.timestamp).toLocaleString()}
                     </p>
                   </div>
@@ -458,25 +458,25 @@ const EnterpriseAIDashboard: React.FC = () => {
               
               <div className="grid grid-cols-4 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-600">Interactions:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Interactions:</span>
                   <span className="ml-1 font-medium">
                     {analysis.aiInsights.drugInteractions.totalInteractions}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Adverse Events:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Adverse Events:</span>
                   <span className="ml-1 font-medium">
                     {analysis.aiInsights.adverseEvents.totalPredictions}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Alerts:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Alerts:</span>
                   <span className="ml-1 font-medium">
                     {analysis.aiInsights.clinicalAlerts.totalAlerts}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">Regimen:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Regimen:</span>
                   <span className="ml-1 font-medium">
                     {analysis.aiInsights.treatmentOptimization.recommendedRegimen}
                   </span>
@@ -500,7 +500,7 @@ const EnterpriseAIDashboard: React.FC = () => {
               <Brain className="h-8 w-8 text-blue-600" />
             </div>
             <h4 className="font-semibold mb-2">Advanced AI Models</h4>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Enterprise-grade ML models with 94%+ accuracy for clinical decision support
             </p>
           </div>
@@ -510,7 +510,7 @@ const EnterpriseAIDashboard: React.FC = () => {
               <Zap className="h-8 w-8 text-green-600" />
             </div>
             <h4 className="font-semibold mb-2">Real-time Processing</h4>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Sub-100ms response times for real-time clinical workflow integration
             </p>
           </div>
@@ -520,7 +520,7 @@ const EnterpriseAIDashboard: React.FC = () => {
               <CheckCircle className="h-8 w-8 text-purple-600" />
             </div>
             <h4 className="font-semibold mb-2">Clinical Validation</h4>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Evidence-based recommendations following NCCN, ASCO, and ESMO guidelines
             </p>
           </div>

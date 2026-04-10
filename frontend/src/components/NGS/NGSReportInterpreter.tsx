@@ -612,8 +612,8 @@ const NGSReportInterpreter: React.FC = () => {
       case 'Tier I': return 'bg-green-100 text-green-800 border-green-300';
       case 'Tier II': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
       case 'Tier III': return 'bg-orange-100 text-orange-800 border-orange-300';
-      case 'Tier IV': return 'bg-gray-100 text-gray-800 border-gray-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+      case 'Tier IV': return 'bg-gray-100 text-gray-800 border-gray-300 dark:border-gray-600';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300 dark:border-gray-600';
     }
   };
 
@@ -624,7 +624,7 @@ const NGSReportInterpreter: React.FC = () => {
       case 'VUS': return 'bg-yellow-100 text-yellow-800';
       case 'Likely Benign': return 'bg-blue-100 text-blue-800';
       case 'Benign': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -674,7 +674,7 @@ const NGSReportInterpreter: React.FC = () => {
       <div className="bg-white p-4 rounded-lg border">
         <div className="flex flex-wrap items-center gap-4 mb-4">
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Report:</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Report:</label>
             <select
               value={selectedReport}
               onChange={(e) => setSelectedReport(e.target.value)}
@@ -689,7 +689,7 @@ const NGSReportInterpreter: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">View:</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">View:</label>
             <select
               value={viewMode}
               onChange={(e) => setViewMode(e.target.value as any)}
@@ -703,7 +703,7 @@ const NGSReportInterpreter: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Sort by:</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Sort by:</label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
@@ -770,7 +770,7 @@ const NGSReportInterpreter: React.FC = () => {
               onChange={(e) => setFilterCriteria(prev => ({ ...prev, actionability: Number(e.target.value) }))}
               className="w-full"
             />
-            <span className="text-xs text-gray-500">{filterCriteria.actionability}%</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{filterCriteria.actionability}%</span>
           </div>
 
           <div>
@@ -803,19 +803,19 @@ const NGSReportInterpreter: React.FC = () => {
                     <h4 className="font-medium text-gray-900 mb-3">Report Information</h4>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Patient ID:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Patient ID:</span>
                         <span className="font-medium">{currentReport.patient_id}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Test Type:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Test Type:</span>
                         <span className="font-medium">{currentReport.test_type}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Laboratory:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Laboratory:</span>
                         <span className="font-medium">{currentReport.laboratory}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Report Date:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Report Date:</span>
                         <span className="font-medium">{currentReport.report_date}</span>
                       </div>
                     </div>
@@ -825,25 +825,25 @@ const NGSReportInterpreter: React.FC = () => {
                     <h4 className="font-medium text-gray-900 mb-3">Key Findings</h4>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Total Variants:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Total Variants:</span>
                         <span className="font-medium">{currentReport.variants.length}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Tier I Variants:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Tier I Variants:</span>
                         <span className="font-medium text-green-600">
                           {currentReport.actionability_scores.filter(s => s.tier === 'Tier I').length}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">TMB:</span>
+                        <span className="text-gray-600 dark:text-gray-400">TMB:</span>
                         <span className="font-medium">{currentReport.tumor_mutational_burden.value} {currentReport.tumor_mutational_burden.unit}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">MSI Status:</span>
+                        <span className="text-gray-600 dark:text-gray-400">MSI Status:</span>
                         <span className="font-medium">{currentReport.microsatellite_instability.status}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">HRD Status:</span>
+                        <span className="text-gray-600 dark:text-gray-400">HRD Status:</span>
                         <span className="font-medium">{currentReport.homologous_recombination_deficiency.status}</span>
                       </div>
                     </div>
@@ -853,7 +853,7 @@ const NGSReportInterpreter: React.FC = () => {
                     <h4 className="font-medium text-gray-900 mb-3">Quality Assessment</h4>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Overall Quality:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Overall Quality:</span>
                         <span className={`font-medium ${
                           currentReport.quality_metrics.overall_quality === 'Excellent' ? 'text-green-600' :
                           currentReport.quality_metrics.overall_quality === 'Good' ? 'text-blue-600' :
@@ -864,15 +864,15 @@ const NGSReportInterpreter: React.FC = () => {
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Mean Coverage:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Mean Coverage:</span>
                         <span className="font-medium">{currentReport.quality_metrics.coverage_metrics.mean_coverage.toFixed(0)}x</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Q30 Bases:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Q30 Bases:</span>
                         <span className="font-medium">{currentReport.quality_metrics.quality_metrics.q30_bases}%</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Coverage {'>'}100x:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Coverage {'>'}100x:</span>
                         <span className="font-medium">{currentReport.quality_metrics.coverage_metrics.percentage_100x}%</span>
                       </div>
                     </div>
@@ -933,7 +933,7 @@ const NGSReportInterpreter: React.FC = () => {
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
-                              <h4 className="font-medium text-gray-900">
+                              <h4 className="font-medium text-gray-900 dark:text-gray-100">
                                 {variant.gene} {variant.amino_acid_change}
                               </h4>
                               {actionability && (
@@ -950,20 +950,20 @@ const NGSReportInterpreter: React.FC = () => {
                             
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                               <div>
-                                <span className="text-gray-600">VAF:</span>
+                                <span className="text-gray-600 dark:text-gray-400">VAF:</span>
                                 <span className="ml-2 font-medium">{(variant.variant_allele_frequency * 100).toFixed(1)}%</span>
                               </div>
                               <div>
-                                <span className="text-gray-600">Coverage:</span>
+                                <span className="text-gray-600 dark:text-gray-400">Coverage:</span>
                                 <span className="ml-2 font-medium">{variant.read_depth}x</span>
                               </div>
                               <div>
-                                <span className="text-gray-600">Quality:</span>
+                                <span className="text-gray-600 dark:text-gray-400">Quality:</span>
                                 <span className="ml-2 font-medium">{variant.quality_score.toFixed(0)}</span>
                               </div>
                               {actionability && (
                                 <div>
-                                  <span className="text-gray-600">FDA Options:</span>
+                                  <span className="text-gray-600 dark:text-gray-400">FDA Options:</span>
                                   <span className="ml-2 font-medium text-green-600">{actionability.fda_approved_options}</span>
                                 </div>
                               )}
@@ -993,7 +993,7 @@ const NGSReportInterpreter: React.FC = () => {
                           {actionability && (
                             <div className="ml-4 text-right">
                               <div className="text-2xl font-bold text-blue-600">{actionability.overall_score.toFixed(0)}</div>
-                              <div className="text-sm text-gray-600">Actionability</div>
+                              <div className="text-sm text-gray-600 dark:text-gray-400">Actionability</div>
                             </div>
                           )}
                         </div>
@@ -1017,11 +1017,11 @@ const NGSReportInterpreter: React.FC = () => {
                     <div key={variant.id} className="border rounded-lg p-4">
                       <div className="flex items-start justify-between mb-4">
                         <div>
-                          <h4 className="text-lg font-medium text-gray-900">
+                          <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100">
                             {variant.gene} {variant.amino_acid_change}
                           </h4>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-sm text-gray-600">
+                            <span className="text-sm text-gray-600 dark:text-gray-400">
                               {variant.chromosome}:{variant.position} {variant.reference}{'>'}{variant.alternate}
                             </span>
                             {actionability && (
@@ -1039,14 +1039,14 @@ const NGSReportInterpreter: React.FC = () => {
                         {actionability && (
                           <div className="text-right">
                             <div className="text-xl font-bold text-blue-600">{actionability.overall_score.toFixed(1)}</div>
-                            <div className="text-sm text-gray-600">Actionability Score</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">Actionability Score</div>
                           </div>
                         )}
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                         <div className="bg-gray-50 p-3 rounded">
-                          <div className="text-sm text-gray-600">Variant Details</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">Variant Details</div>
                           <div className="text-xs space-y-1 mt-1">
                             <div>VAF: {(variant.variant_allele_frequency * 100).toFixed(1)}%</div>
                             <div>Depth: {variant.read_depth}x</div>
@@ -1057,7 +1057,7 @@ const NGSReportInterpreter: React.FC = () => {
 
                         {actionability && (
                           <div className="bg-gray-50 p-3 rounded">
-                            <div className="text-sm text-gray-600">Actionability Breakdown</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">Actionability Breakdown</div>
                             <div className="text-xs space-y-1 mt-1">
                               <div>Therapeutic: {actionability.therapeutic_actionability.toFixed(0)}%</div>
                               <div>Diagnostic: {actionability.diagnostic_actionability.toFixed(0)}%</div>
@@ -1069,7 +1069,7 @@ const NGSReportInterpreter: React.FC = () => {
 
                         {annotation && (
                           <div className="bg-gray-50 p-3 rounded">
-                            <div className="text-sm text-gray-600">Evidence</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">Evidence</div>
                             <div className="text-xs space-y-1 mt-1">
                               <div>Level: {annotation.evidence_level}</div>
                               <div>Therapeutic: {annotation.therapeutic_implications.length}</div>
@@ -1081,7 +1081,7 @@ const NGSReportInterpreter: React.FC = () => {
 
                         {actionability && (
                           <div className="bg-gray-50 p-3 rounded">
-                            <div className="text-sm text-gray-600">Treatment Options</div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">Treatment Options</div>
                             <div className="text-xs space-y-1 mt-1">
                               <div>FDA Approved: {actionability.fda_approved_options}</div>
                               <div>Clinical Trials: {actionability.clinical_trial_options}</div>
@@ -1149,7 +1149,7 @@ const NGSReportInterpreter: React.FC = () => {
                       <h4 className="font-medium text-gray-900 mb-3">{variant?.gene} Actionability Profile</h4>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Overall Score:</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Overall Score:</span>
                           <span className="text-lg font-bold text-blue-600">{score.overall_score.toFixed(1)}</span>
                         </div>
                         <div className="space-y-2">
@@ -1160,7 +1160,7 @@ const NGSReportInterpreter: React.FC = () => {
                             { label: 'Resistance', value: score.resistance_actionability, color: 'bg-red-500' }
                           ].map((metric) => (
                             <div key={metric.label} className="flex items-center justify-between">
-                              <span className="text-sm text-gray-600">{metric.label}:</span>
+                              <span className="text-sm text-gray-600 dark:text-gray-400">{metric.label}:</span>
                               <div className="flex items-center gap-2">
                                 <div className="w-20 bg-gray-200 rounded-full h-2">
                                   <div 
@@ -1314,19 +1314,19 @@ const NGSReportInterpreter: React.FC = () => {
               <h4 className="font-medium text-gray-900 mb-3">Engine Details</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Name:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Name:</span>
                   <span className="font-medium">{interpretationEngine.name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Version:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Version:</span>
                   <span className="font-medium">{interpretationEngine.version}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Annotation Accuracy:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Annotation Accuracy:</span>
                   <span className="font-medium">{interpretationEngine.confidence_metrics.annotation_accuracy}%</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Clinical Concordance:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Clinical Concordance:</span>
                   <span className="font-medium">{interpretationEngine.confidence_metrics.clinical_concordance}%</span>
                 </div>
               </div>
@@ -1337,7 +1337,7 @@ const NGSReportInterpreter: React.FC = () => {
               <div className="space-y-2 text-sm">
                 {interpretationEngine.databases.map((db, index) => (
                   <div key={index} className="flex justify-between">
-                    <span className="text-gray-600">{db.name}:</span>
+                    <span className="text-gray-600 dark:text-gray-400">{db.name}:</span>
                     <span className="font-medium">{db.version}</span>
                   </div>
                 ))}
@@ -1350,7 +1350,7 @@ const NGSReportInterpreter: React.FC = () => {
                 {interpretationEngine.algorithms.map((algo, index) => (
                   <div key={index} className="space-y-1">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">{algo.name}:</span>
+                      <span className="text-gray-600 dark:text-gray-400">{algo.name}:</span>
                       <span className="font-medium">{algo.accuracy}%</span>
                     </div>
                     <div className="text-xs text-gray-500 capitalize">{algo.type.replace('_', ' ')}</div>

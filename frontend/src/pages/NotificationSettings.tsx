@@ -79,15 +79,15 @@ const NotificationSettings: React.FC = () => {
           <div className="flex items-center space-x-3">
             <Bell className="w-6 h-6 text-blue-600" />
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Notification Settings</h2>
-              <p className="text-sm text-gray-600">Enable background notifications and in-app reminders.</p>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Notification Settings</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Enable background notifications and in-app reminders.</p>
             </div>
           </div>
         </div>
         <div className="mt-4 space-y-3">
-          <div className="text-sm text-gray-700">Support: {supported ? 'Supported' : 'Not Supported'}</div>
-          <div className="text-sm text-gray-700">Permission: {permission}</div>
-          <div className="flex items-center gap-2 text-sm text-gray-700">
+          <div className="text-sm text-gray-700 dark:text-gray-300">Support: {supported ? 'Supported' : 'Not Supported'}</div>
+          <div className="text-sm text-gray-700 dark:text-gray-300">Permission: {permission}</div>
+          <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
             <span>Status:</span>
             {subscribed ? (
               <span className="inline-flex items-center text-green-700"><CheckCircle className="w-4 h-4 mr-1" /> Subscribed</span>
@@ -95,7 +95,7 @@ const NotificationSettings: React.FC = () => {
               <span className="inline-flex items-center text-red-700"><XCircle className="w-4 h-4 mr-1" /> Not Subscribed</span>
             )}
           </div>
-          {status && <div className="text-sm text-gray-600">{status}</div>}
+          {status && <div className="text-sm text-gray-600 dark:text-gray-400">{status}</div>}
           <div className="mt-2 flex items-center gap-3">
             {!subscribed ? (
               <button disabled={busy || !supported} onClick={handleEnable} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-60">Enable Notifications</button>

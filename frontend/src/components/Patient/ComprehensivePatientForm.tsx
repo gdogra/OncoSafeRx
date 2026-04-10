@@ -314,7 +314,7 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
                   onChange={(e) => updateFormData('firstName', e.target.value)}
                   required
                   className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                    errors.firstName ? 'border-red-500' : 'border-gray-300'
+                    errors.firstName ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
                 />
                 {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
@@ -329,7 +329,7 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
                   onChange={(e) => updateFormData('lastName', e.target.value)}
                   required
                   className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                    errors.lastName ? 'border-red-500' : 'border-gray-300'
+                    errors.lastName ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
                 />
                 {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
@@ -347,7 +347,7 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
                   onChange={(e) => updateFormData('dateOfBirth', e.target.value)}
                   required
                   className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                    errors.dateOfBirth ? 'border-red-500' : 'border-gray-300'
+                    errors.dateOfBirth ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
                 />
                 {errors.dateOfBirth && <p className="text-red-500 text-xs mt-1">{errors.dateOfBirth}</p>}
@@ -361,7 +361,7 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
                   onChange={(e) => updateFormData('sex', e.target.value)}
                   required
                   className={`w-full border rounded-md px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                    errors.sex ? 'border-red-500' : 'border-gray-300'
+                    errors.sex ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                   }`}
                 >
                   <option value="male">Male</option>
@@ -1028,12 +1028,12 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">Create New Patient</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Create New Patient</h2>
             <button
               onClick={handleCancelInternal}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600 dark:text-gray-400"
             >
               <X className="w-6 h-6" />
             </button>
@@ -1042,7 +1042,7 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
         </div>
 
         {/* Section Navigation */}
-        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 dark:bg-gray-800">
           <div className="flex space-x-1 overflow-x-auto">
             {sections.map(({ id, label, icon: Icon }) => (
               <button
@@ -1051,7 +1051,7 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${
                   activeSection === id
                     ? 'bg-primary-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-100'
+                    : 'bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-800'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -1068,12 +1068,12 @@ const ComprehensivePatientForm: React.FC<ComprehensivePatientFormProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-gray-200 bg-gray-50">
+          <div className="p-6 border-t border-gray-200 bg-gray-50 dark:bg-gray-800">
             <div className="flex justify-between">
               <button
                 type="button"
                 onClick={handleCancelInternal}
-                className="px-6 py-2 border border-gray-300 text-gray-700 bg-white rounded-md hover:bg-gray-50"
+                className="px-6 py-2 border border-gray-300 text-gray-700 bg-white rounded-md hover:bg-gray-50 dark:bg-gray-800"
               >
                 Cancel
               </button>

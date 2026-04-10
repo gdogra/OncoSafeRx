@@ -97,12 +97,12 @@ const MeditationInteractive: React.FC = () => {
           {/* Session Info */}
           <Card className="p-6">
             <div className="text-center space-y-4">
-              <h1 className="text-2xl font-bold text-gray-900">Meditation for Cancer Patients</h1>
-              <p className="text-gray-600">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Meditation for Cancer Patients</h1>
+              <p className="text-gray-600 dark:text-gray-400">
                 Guided mindfulness and breathing exercises designed specifically for those on their cancer journey
               </p>
               
-              <div className="flex items-center justify-center gap-6 text-sm text-gray-600">
+              <div className="flex items-center justify-center gap-6 text-sm text-gray-600 dark:text-gray-400">
                 <div className="flex items-center gap-1">
                   <Timer className="w-4 h-4" />
                   <span>Customizable sessions</span>
@@ -160,7 +160,7 @@ const MeditationInteractive: React.FC = () => {
                     {['Head', 'Shoulders', 'Arms', 'Chest', 'Abdomen', 'Legs'].map((part, index) => (
                       <div 
                         key={part}
-                        className={`p-3 rounded text-sm ${isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'} transition-colors`}
+                        className={`p-3 rounded text-sm ${isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600 dark:text-gray-400'} transition-colors`}
                       >
                         {part}
                       </div>
@@ -244,7 +244,7 @@ const MeditationInteractive: React.FC = () => {
                       className={`p-2 text-sm rounded border transition-colors ${
                         selectedDuration === duration
                           ? 'bg-blue-100 border-blue-500 text-blue-700'
-                          : 'border-gray-300 hover:bg-gray-50'
+                          : 'border-gray-300 hover:bg-gray-50 dark:bg-gray-800'
                       } ${isActive ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {duration}m
@@ -273,7 +273,7 @@ const MeditationInteractive: React.FC = () => {
                         className={`w-full p-3 text-left rounded border transition-colors ${
                           selectedType === type.id
                             ? 'bg-blue-50 border-blue-500 text-blue-700'
-                            : 'border-gray-300 hover:bg-gray-50'
+                            : 'border-gray-300 hover:bg-gray-50 dark:bg-gray-800'
                         } ${isActive ? 'opacity-50 cursor-not-allowed' : ''}`}
                       >
                         <div className="flex items-center">
@@ -294,7 +294,7 @@ const MeditationInteractive: React.FC = () => {
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => setIsMuted(!isMuted)}
-                    className="p-2 border border-gray-300 rounded hover:bg-gray-50"
+                    className="p-2 border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-800"
                   >
                     {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                   </button>
@@ -315,7 +315,7 @@ const MeditationInteractive: React.FC = () => {
           {/* Benefits */}
           <Card className="p-4">
             <h3 className="font-semibold text-gray-900 mb-4">Benefits for Cancer Patients</h3>
-            <div className="space-y-3 text-sm text-gray-700">
+            <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
               <div className="flex items-start space-x-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                 <span>Reduces anxiety and stress</span>
@@ -342,7 +342,7 @@ const MeditationInteractive: React.FC = () => {
           {/* Quick Tips */}
           <Card className="p-4">
             <h3 className="font-semibold text-gray-900 mb-4">Getting Started</h3>
-            <div className="space-y-3 text-sm text-gray-700">
+            <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
               <p>• Find a quiet, comfortable space</p>
               <p>• Sit or lie down in a relaxed position</p>
               <p>• Close your eyes or soften your gaze</p>

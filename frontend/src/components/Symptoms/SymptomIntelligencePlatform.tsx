@@ -264,7 +264,7 @@ const SymptomIntelligencePlatform: React.FC = () => {
             <Share2 className="w-4 h-4" />
             <span>Share with Care Team</span>
           </button>
-          <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+          <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
             <Download className="w-4 h-4" />
             <span>Export Report</span>
           </button>
@@ -272,7 +272,7 @@ const SymptomIntelligencePlatform: React.FC = () => {
       </div>
 
       {/* Navigation */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="-mb-px flex space-x-8">
           {[
             { id: 'logger', label: 'Symptom Logger', icon: FileText },
@@ -286,7 +286,7 @@ const SymptomIntelligencePlatform: React.FC = () => {
               className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === id
                   ? 'border-purple-500 text-purple-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-300'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -361,7 +361,7 @@ const SymptomIntelligencePlatform: React.FC = () => {
                   <button
                     key={symptom}
                     onClick={() => setCurrentSymptom(symptom)}
-                    className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50"
+                    className="px-3 py-1 text-sm border border-gray-300 rounded-full hover:bg-gray-50 dark:bg-gray-800"
                   >
                     {symptom}
                   </button>
@@ -404,18 +404,18 @@ const SymptomIntelligencePlatform: React.FC = () => {
               {symptoms.map((entry) => (
                 <div key={entry.id} className="border rounded-lg p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {entry.timestamp.toLocaleString()}
                     </span>
                     <div className="flex items-center space-x-2">
                       <MapPin className="w-3 h-3 text-gray-400" />
-                      <span className="text-xs text-gray-500">{entry.location}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{entry.location}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
                     {entry.symptoms.map((symptom, idx) => (
                       <div key={idx} className="flex items-center justify-between">
-                        <span className="text-sm text-gray-800">{symptom.name}</span>
+                        <span className="text-sm text-gray-800 dark:text-gray-200">{symptom.name}</span>
                         <span className={`px-2 py-1 rounded-full text-xs ${getSeverityColor(symptom.severity)}`}>
                           {symptom.severity}/10
                         </span>
@@ -423,7 +423,7 @@ const SymptomIntelligencePlatform: React.FC = () => {
                     ))}
                   </div>
                   {entry.triggers && (
-                    <div className="mt-2 text-xs text-gray-600">
+                    <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
                       <span className="font-medium">Triggers:</span> {entry.triggers.join(', ')}
                     </div>
                   )}
@@ -443,32 +443,32 @@ const SymptomIntelligencePlatform: React.FC = () => {
               {patterns.map((pattern, index) => (
                 <div key={index} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-medium text-gray-900">{pattern.symptom}</h3>
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">{pattern.symptom}</h3>
                     <div className="flex items-center space-x-2">
                       {getTrendIcon(pattern.trend)}
-                      <span className="text-sm text-gray-600">{pattern.trend}</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{pattern.trend}</span>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 mb-3">
                     <div>
-                      <p className="text-xs text-gray-500">Frequency</p>
-                      <p className="text-lg font-semibold text-gray-900">{pattern.frequency}%</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Frequency</p>
+                      <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{pattern.frequency}%</p>
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500">Avg Severity</p>
-                      <p className="text-lg font-semibold text-gray-900">{pattern.averageSeverity}/10</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Avg Severity</p>
+                      <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{pattern.averageSeverity}/10</p>
                     </div>
                   </div>
 
                   <div className="mb-3">
                     <p className="text-xs font-medium text-gray-700 mb-1">Peak Times</p>
-                    <p className="text-sm text-gray-600">{pattern.peakTimes.join(', ')}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{pattern.peakTimes.join(', ')}</p>
                   </div>
 
                   <div className="mb-3">
                     <p className="text-xs font-medium text-gray-700 mb-1">Common Triggers</p>
-                    <p className="text-sm text-gray-600">{pattern.commonTriggers.join(', ')}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{pattern.commonTriggers.join(', ')}</p>
                   </div>
 
                   {pattern.correlation && (
@@ -509,7 +509,7 @@ const SymptomIntelligencePlatform: React.FC = () => {
                     <div className="flex-1">
                       <h3 className="font-medium text-gray-900 mb-1">{alert.message}</h3>
                       <p className="text-sm text-gray-700 mb-2">{alert.actionRequired}</p>
-                      <div className="flex items-center justify-between text-xs text-gray-500">
+                      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                         <span>Confidence: {alert.confidence}%</span>
                         <span>Timeframe: {alert.timeframe}</span>
                       </div>
@@ -533,22 +533,22 @@ const SymptomIntelligencePlatform: React.FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
                   <Heart className="w-8 h-8 mx-auto text-red-600 mb-2" />
-                  <p className="text-sm text-gray-600">Heart Rate</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Heart Rate</p>
                   <p className="text-lg font-bold">{biometrics[0].heartRate} bpm</p>
                 </div>
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
                   <Thermometer className="w-8 h-8 mx-auto text-orange-600 mb-2" />
-                  <p className="text-sm text-gray-600">Temperature</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Temperature</p>
                   <p className="text-lg font-bold">{biometrics[0].temperature}°C</p>
                 </div>
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
                   <Activity className="w-8 h-8 mx-auto text-blue-600 mb-2" />
-                  <p className="text-sm text-gray-600">Blood Pressure</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Blood Pressure</p>
                   <p className="text-lg font-bold">{biometrics[0].bloodPressure}</p>
                 </div>
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
                   <Zap className="w-8 h-8 mx-auto text-green-600 mb-2" />
-                  <p className="text-sm text-gray-600">O2 Saturation</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">O2 Saturation</p>
                   <p className="text-lg font-bold">{biometrics[0].oxygenSaturation}%</p>
                 </div>
               </div>
@@ -563,22 +563,22 @@ const SymptomIntelligencePlatform: React.FC = () => {
               <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
                 <CloudRain className="w-6 h-6 text-blue-600" />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">Weather Impact</p>
-                  <p className="text-xs text-gray-600">Symptoms tend to worsen on rainy days (65% correlation)</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Weather Impact</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Symptoms tend to worsen on rainy days (65% correlation)</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
                 <Moon className="w-6 h-6 text-purple-600" />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">Sleep Quality</p>
-                  <p className="text-xs text-gray-600">Better sleep correlates with 40% reduction in fatigue</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Sleep Quality</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Better sleep correlates with 40% reduction in fatigue</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg">
                 <Users className="w-6 h-6 text-orange-600" />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">Social Activity</p>
-                  <p className="text-xs text-gray-600">Social interactions improve mood scores by 25%</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Social Activity</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Social interactions improve mood scores by 25%</p>
                 </div>
               </div>
             </div>

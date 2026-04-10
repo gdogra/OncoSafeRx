@@ -336,7 +336,7 @@ const DrugSearchInner: React.FC = () => {
             <div className="flex items-center justify-center p-8">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading drug details...</p>
+                <p className="text-gray-600 dark:text-gray-400">Loading drug details...</p>
               </div>
             </div>
           </Card>
@@ -444,44 +444,44 @@ const DrugSearchInner: React.FC = () => {
           
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-violet-200">
+            <div className="bg-white dark:bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-violet-200">
               <div className="flex items-center space-x-2 text-violet-600 mb-2">
                 <Pill className="w-5 h-5" />
                 <span className="font-medium">Drug Database</span>
               </div>
-              <div className="text-2xl font-bold text-gray-900">50,000+</div>
-              <div className="text-sm text-gray-600">Medications</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">50,000+</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Medications</div>
             </div>
-            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-blue-200">
+            <div className="bg-white dark:bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-blue-200">
               <div className="flex items-center space-x-2 text-blue-600 mb-2">
                 <Activity className="w-5 h-5" />
                 <span className="font-medium">Interactions</span>
               </div>
-              <div className="text-2xl font-bold text-gray-900">2.5M+</div>
-              <div className="text-sm text-gray-600">Drug Pairs</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">2.5M+</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Drug Pairs</div>
             </div>
-            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-green-200">
+            <div className="bg-white dark:bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-green-200">
               <div className="flex items-center space-x-2 text-green-600 mb-2">
                 <Microscope className="w-5 h-5" />
                 <span className="font-medium">Clinical Trials</span>
               </div>
-              <div className="text-2xl font-bold text-gray-900">25,000+</div>
-              <div className="text-sm text-gray-600">Active Studies</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">25,000+</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Active Studies</div>
             </div>
-            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-purple-200">
+            <div className="bg-white dark:bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-purple-200">
               <div className="flex items-center space-x-2 text-purple-600 mb-2">
                 <Heart className="w-5 h-5" />
                 <span className="font-medium">Oncology Focus</span>
               </div>
-              <div className="text-2xl font-bold text-gray-900">5,000+</div>
-              <div className="text-sm text-gray-600">Cancer Drugs</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">5,000+</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Cancer Drugs</div>
             </div>
           </div>
           
           {pinnedList.length > 0 && (
             <div className="mt-6 flex items-center justify-center space-x-2">
               <Star className="w-5 h-5 text-yellow-500" />
-              <span className="text-lg font-medium text-gray-700">
+              <span className="text-lg font-medium text-gray-700 dark:text-gray-300">
                 {pinnedList.length} Pinned Medication{pinnedList.length !== 1 ? 's' : ''}
               </span>
             </div>
@@ -528,7 +528,7 @@ const DrugSearchInner: React.FC = () => {
               className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
                 searchMode === mode
                   ? 'bg-white text-violet-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-800'
+                  : 'text-gray-600 hover:text-gray-800 dark:text-gray-200'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -588,14 +588,14 @@ const DrugSearchInner: React.FC = () => {
           {searchQuery && String(searchQuery).trim().length >= 2 && (
             <div className="mt-4 bg-white border border-gray-200 rounded-lg shadow-sm">
               <div className="px-3 py-2 border-b flex items-center justify-between">
-                <div className="text-sm font-medium text-gray-700">Top matches</div>
+                <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Top matches</div>
                 {basicSuggestionsOffline && (
-                  <div className="text-[11px] text-gray-500">Using offline suggestions</div>
+                  <div className="text-[11px] text-gray-500 dark:text-gray-400">Using offline suggestions</div>
                 )}
               </div>
               <div className="p-3">
                 {basicSuggestionsLoading ? (
-                  <div className="text-xs text-gray-500">Analyzing…</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Analyzing…</div>
                 ) : basicSuggestions.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {basicSuggestions.map((s, i) => (
@@ -610,7 +610,7 @@ const DrugSearchInner: React.FC = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-xs text-gray-500">No matches</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">No matches</div>
                 )}
               </div>
             </div>
@@ -651,32 +651,32 @@ const DrugSearchInner: React.FC = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="p-4 cursor-pointer hover:bg-blue-50 border border-blue-200 rounded-lg bg-white">
+                <div className="p-4 cursor-pointer hover:bg-blue-50 border border-blue-200 rounded-lg bg-white dark:bg-gray-900">
                   <div className="flex items-center space-x-2 text-blue-600 mb-2">
                     <Target className="h-5 w-5" />
                     <span className="font-medium">Find Similar Drugs</span>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     "Find drugs similar to pembrolizumab for lung cancer"
                   </p>
                 </div>
                 
-                <div className="p-4 cursor-pointer hover:bg-green-50 border border-green-200 rounded-lg bg-white">
+                <div className="p-4 cursor-pointer hover:bg-green-50 border border-green-200 rounded-lg bg-white dark:bg-gray-900">
                   <div className="flex items-center space-x-2 text-green-600 mb-2">
                     <Activity className="h-5 w-5" />
                     <span className="font-medium">Biomarker Matching</span>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     "What drugs target HER2-positive breast cancer?"
                   </p>
                 </div>
                 
-                <div className="p-4 cursor-pointer hover:bg-purple-50 border border-purple-200 rounded-lg bg-white">
+                <div className="p-4 cursor-pointer hover:bg-purple-50 border border-purple-200 rounded-lg bg-white dark:bg-gray-900">
                   <div className="flex items-center space-x-2 text-purple-600 mb-2">
                     <Zap className="h-5 w-5" />
                     <span className="font-medium">Drug Interactions</span>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     "Check interactions between warfarin and chemotherapy"
                   </p>
                 </div>
@@ -691,7 +691,7 @@ const DrugSearchInner: React.FC = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <div className="flex items-center justify-between mt-4">
-                  <div className="flex items-center space-x-2 text-sm text-gray-500">
+                  <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                     <Info className="h-4 w-4" />
                     <span>AI responses are for educational purposes only</span>
                   </div>
@@ -731,7 +731,7 @@ const DrugSearchInner: React.FC = () => {
                       <h4 className="font-medium text-gray-900 mb-2">Suggestions:</h4>
                       <ul className="list-disc list-inside space-y-1">
                         {aiInsights.suggestions.map((suggestion, index) => (
-                          <li key={index} className="text-sm text-gray-600">{suggestion}</li>
+                          <li key={index} className="text-sm text-gray-600 dark:text-gray-400">{suggestion}</li>
                         ))}
                       </ul>
                     </div>
@@ -796,7 +796,7 @@ const DrugSearchInner: React.FC = () => {
           <div className="flex items-center space-x-3">
             <button
               type="button"
-              className={`text-xs px-2 py-1 rounded-full border ${filters.onlyPinned ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 'text-gray-600 bg-gray-50 border-gray-200 hover:text-gray-800'}`}
+              className={`text-xs px-2 py-1 rounded-full border ${filters.onlyPinned ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 'text-gray-600 bg-gray-50 border-gray-200 hover:text-gray-800 dark:text-gray-200'}`}
               onClick={() => updateFilters({ onlyPinned: !filters.onlyPinned } as unknown as Partial<typeof filters>)}
               aria-pressed={filters.onlyPinned}
               aria-label={`Show only pinned ${filters.onlyPinned ? 'on' : 'off'}`}
@@ -847,7 +847,7 @@ const DrugSearchInner: React.FC = () => {
             key={tty}
             type="button"
             onClick={() => updateFilters({ [tty]: !filters[tty as keyof typeof filters] } as Partial<typeof filters>)}
-            className={`px-2 py-1 rounded-full text-xs border ${filters[tty as keyof typeof filters] ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}
+            className={`px-2 py-1 rounded-full text-xs border ${filters[tty as keyof typeof filters] ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-gray-50 text-gray-600 border-gray-200 dark:border-gray-700'}`}
             aria-pressed={!!filters[tty as keyof typeof filters]}
             aria-label={`Filter ${tty} ${filters[tty as keyof typeof filters] ? 'on' : 'off'}`}
           >
@@ -857,7 +857,7 @@ const DrugSearchInner: React.FC = () => {
         <button
           type="button"
           onClick={() => updateFilters({ onlyOncology: !filters.onlyOncology } as unknown as Partial<typeof filters>)}
-          className={`px-2 py-1 rounded-full text-xs border ${filters.onlyOncology ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}
+          className={`px-2 py-1 rounded-full text-xs border ${filters.onlyOncology ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-gray-50 text-gray-600 border-gray-200 dark:border-gray-700'}`}
           aria-pressed={!!filters.onlyOncology}
           aria-label={`Oncology filter ${filters.onlyOncology ? 'on' : 'off'}`}
         >
@@ -866,7 +866,7 @@ const DrugSearchInner: React.FC = () => {
         <button
           type="button"
           onClick={() => updateFilters({ onlyPinned: !filters.onlyPinned } as unknown as Partial<typeof filters>)}
-          className={`px-2 py-1 rounded-full text-xs border ${filters.onlyPinned ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 'bg-gray-50 text-gray-600 border-gray-200'}`}
+          className={`px-2 py-1 rounded-full text-xs border ${filters.onlyPinned ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 'bg-gray-50 text-gray-600 border-gray-200 dark:border-gray-700'}`}
           aria-pressed={!!filters.onlyPinned}
           aria-label={`Pinned filter ${filters.onlyPinned ? 'on' : 'off'}`}
         >
@@ -875,7 +875,7 @@ const DrugSearchInner: React.FC = () => {
         <button
           type="button"
           onClick={() => updateFilters({ BN: false, SCD: false, SBD: false, IN: false, MIN: false, onlyOncology: false } as Partial<typeof filters>)}
-          className="px-2 py-1 rounded-full text-xs border bg-gray-50 text-gray-600 border-gray-200"
+          className="px-2 py-1 rounded-full text-xs border bg-gray-50 text-gray-600 border-gray-200 dark:border-gray-700"
         >
           Reset
         </button>

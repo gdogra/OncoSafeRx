@@ -88,7 +88,7 @@ const SortableRow: React.FC<SortableRowProps> = ({
       case 'minor':
         return 'bg-blue-50 border-blue-200';
       default:
-        return 'bg-white border-gray-200';
+        return 'bg-white border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -163,7 +163,7 @@ const SortableRow: React.FC<SortableRowProps> = ({
       <td className="px-4 py-3">
         <div className="flex items-center space-x-2">
           {getSeverityIcon()}
-          <span className="text-sm text-gray-700">
+          <span className="text-sm text-gray-700 dark:text-gray-300">
             {hasInteractions 
               ? `${interactionSeverity?.charAt(0).toUpperCase()}${interactionSeverity?.slice(1)} Risk`
               : 'No Interactions'
@@ -341,7 +341,7 @@ const DrugSelectionTable: React.FC<DrugSelectionTableProps> = ({
         <div className="p-8 text-center">
           <Pill className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Drugs Selected</h3>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Add medications using the search bar above to start building your drug list.
           </p>
         </div>
@@ -356,7 +356,7 @@ const DrugSelectionTable: React.FC<DrugSelectionTableProps> = ({
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
             <Pill className="h-6 w-6 text-blue-600" />
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
               Selected Medications ({drugs.length})
             </h3>
             {loading && (
@@ -366,7 +366,7 @@ const DrugSelectionTable: React.FC<DrugSelectionTableProps> = ({
           
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800"
           >
             <Filter className="h-4 w-4" />
             <span>Filters</span>
@@ -441,7 +441,7 @@ const DrugSelectionTable: React.FC<DrugSelectionTableProps> = ({
             onDragEnd={handleDragEnd}
           >
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-800">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8">
                     {/* Drag handle column */}
@@ -456,7 +456,7 @@ const DrugSelectionTable: React.FC<DrugSelectionTableProps> = ({
                     </div>
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:bg-gray-800"
                     onClick={() => handleSort('name')}
                   >
                     <div className="flex items-center space-x-1">
@@ -465,7 +465,7 @@ const DrugSelectionTable: React.FC<DrugSelectionTableProps> = ({
                     </div>
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:bg-gray-800"
                     onClick={() => handleSort('rxcui')}
                   >
                     <div className="flex items-center space-x-1">
@@ -477,7 +477,7 @@ const DrugSelectionTable: React.FC<DrugSelectionTableProps> = ({
                     Type
                   </th>
                   <th 
-                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:bg-gray-800"
                     onClick={() => handleSort('severity')}
                   >
                     <div className="flex items-center space-x-1">
@@ -513,7 +513,7 @@ const DrugSelectionTable: React.FC<DrugSelectionTableProps> = ({
         </div>
 
         {/* Table Footer */}
-        <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
+        <div className="mt-4 flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
           <div>
             Showing {processedDrugs.length} of {drugs.length} medications
           </div>

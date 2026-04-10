@@ -17,7 +17,7 @@ export default function DigitalBiomarkersTracker() {
         </div>
         <div>
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">Digital Biomarkers</h2>
-          <p className="text-sm text-gray-500">Patient-reported outcomes &amp; wearable data</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Patient-reported outcomes &amp; wearable data</p>
         </div>
       </div>
 

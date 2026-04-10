@@ -14,7 +14,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, showBack = true, class
 
   return (
     <div className={`flex items-center justify-between ${className}`}>
-      <nav className="text-sm text-gray-600">
+      <nav className="text-sm text-gray-600 dark:text-gray-400">
         {items.map((item, idx) => {
           const isLast = idx === items.length - 1;
           return (
@@ -22,7 +22,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, showBack = true, class
               {item.href && !isLast ? (
                 <Link to={item.href} className="hover:underline">{item.label}</Link>
               ) : (
-                <span className="text-gray-800">{item.label}</span>
+                <span className="text-gray-800 dark:text-gray-200">{item.label}</span>
               )}
               {!isLast && <span className="mx-1">/</span>}
             </span>
@@ -32,7 +32,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, showBack = true, class
       {showBack && (
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-50 text-gray-700"
+          className="inline-flex items-center px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-50 text-gray-700 dark:text-gray-300"
         >
           Back
         </button>

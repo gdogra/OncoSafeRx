@@ -101,7 +101,7 @@ export default function ConnectivityStatus({ apiBase, align = 'right', compact =
     <div className={`inline-flex items-center gap-2 text-xs ${compact ? '' : 'bg-gray-50 border border-gray-200 rounded px-2 py-1'}`} style={{ justifySelf: align }}>
       <span className={`inline-block w-2.5 h-2.5 rounded-full ${dotClass}`} />
       {!compact && (
-        <span className="text-gray-700">
+        <span className="text-gray-700 dark:text-gray-300">
           {status === 'online' && 'RxNorm: Online'}
           {status === 'offline' && 'RxNorm: Offline (fallback)'}
           {status === 'error' && 'RxNorm: Error'}

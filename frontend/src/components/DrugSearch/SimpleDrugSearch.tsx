@@ -89,7 +89,7 @@ const SimpleDrugSearch: React.FC<SimpleDrugSearchProps> = ({
       {/* Main Search Bar */}
       <div className="flex items-center space-x-2 mb-4">
         <Search className="w-6 h-6 text-primary-600" />
-        <h2 className="text-xl font-semibold text-gray-900">Search Medications</h2>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Search Medications</h2>
       </div>
 
       <DrugSearchBar
@@ -105,8 +105,8 @@ const SimpleDrugSearch: React.FC<SimpleDrugSearchProps> = ({
       {/* Quick Access Shortcuts */}
       <div className="space-y-4">
         <div className="flex items-center space-x-2">
-          <Tag className="w-4 h-4 text-gray-500" />
-          <span className="text-sm font-medium text-gray-700">Quick Access by Category:</span>
+          <Tag className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Access by Category:</span>
         </div>
 
         <div
@@ -121,9 +121,9 @@ const SimpleDrugSearch: React.FC<SimpleDrugSearchProps> = ({
             const IconComponent = categoryIcons[category as keyof typeof categoryIcons];
             return (
               <div key={category} className="space-y-2">
-                <div className="flex items-center space-x-2 pb-2 border-b border-gray-200">
+                <div className="flex items-center space-x-2 pb-2 border-b border-gray-200 dark:border-gray-700">
                   <IconComponent className="w-4 h-4 text-primary-600" />
-                  <span className="text-sm font-medium text-gray-800">{category}</span>
+                  <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{category}</span>
                 </div>
                 <div className="space-y-1">
                   {drugs.map((drug) => (

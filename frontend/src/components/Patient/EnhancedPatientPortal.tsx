@@ -206,7 +206,7 @@ const EnhancedPatientPortal: React.FC = () => {
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">Please log in to access your patient portal.</p>
+        <p className="text-gray-500 dark:text-gray-400">Please log in to access your patient portal.</p>
       </div>
     );
   }
@@ -216,7 +216,7 @@ const EnhancedPatientPortal: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             Welcome back, {user.firstName}
           </h1>
           <p className="text-gray-600 mt-1">
@@ -244,7 +244,7 @@ const EnhancedPatientPortal: React.FC = () => {
           <Card key={index} className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">{card.title}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{card.title}</p>
                 <p className="text-2xl font-bold text-gray-900 mt-1">{card.value}</p>
                 <p className="text-sm text-gray-500 mt-1">{card.change}</p>
               </div>
@@ -257,7 +257,7 @@ const EnhancedPatientPortal: React.FC = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="-mb-px flex space-x-8">
           {[
             { id: 'overview', label: 'Overview', icon: Eye },
@@ -272,7 +272,7 @@ const EnhancedPatientPortal: React.FC = () => {
               className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -299,13 +299,13 @@ const EnhancedPatientPortal: React.FC = () => {
                     phase.status === 'completed' ? 'bg-green-500' : 'bg-gray-300'
                   }`} />
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">{phase.name}</h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">{phase.name}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       {phase.startDate.toLocaleDateString()} - 
                       {phase.endDate ? phase.endDate.toLocaleDateString() : 'Ongoing'}
                     </p>
                     <div className="mt-2">
-                      <div className="text-xs text-gray-500">Efficacy Score</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Efficacy Score</div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
                           className="bg-green-500 h-2 rounded-full" 
@@ -330,8 +330,8 @@ const EnhancedPatientPortal: React.FC = () => {
               {symptoms.slice(0, 5).map((symptom) => (
                 <div key={symptom.id} className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-gray-900">{symptom.symptom}</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{symptom.symptom}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       {symptom.timestamp.toLocaleString()}
                     </p>
                   </div>
@@ -360,7 +360,7 @@ const EnhancedPatientPortal: React.FC = () => {
               {genomicInsights.map((insight) => (
                 <div key={insight.id} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-gray-900">{insight.gene}</h3>
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">{insight.gene}</h3>
                     <span className={`px-2 py-1 rounded-full text-xs ${
                       insight.significance === 'high' ? 'bg-red-100 text-red-800' :
                       insight.significance === 'medium' ? 'bg-yellow-100 text-yellow-800' :
@@ -391,19 +391,19 @@ const EnhancedPatientPortal: React.FC = () => {
               {symptoms.map((symptom) => (
                 <div key={symptom.id} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-gray-900">{symptom.symptom}</h3>
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">{symptom.symptom}</h3>
                     <span className="text-lg font-bold">{symptom.severity}/10</span>
                   </div>
                   <p className="text-sm text-gray-600 mb-2">
                     {symptom.timestamp.toLocaleString()}
                   </p>
                   {symptom.notes && (
-                    <p className="text-sm text-gray-800">{symptom.notes}</p>
+                    <p className="text-sm text-gray-800 dark:text-gray-200">{symptom.notes}</p>
                   )}
                   {symptom.triggers && (
                     <div className="mt-2">
-                      <span className="text-xs text-gray-500">Triggers: </span>
-                      <span className="text-xs text-gray-700">{symptom.triggers.join(', ')}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">Triggers: </span>
+                      <span className="text-xs text-gray-700 dark:text-gray-300">{symptom.triggers.join(', ')}</span>
                     </div>
                   )}
                 </div>
@@ -419,22 +419,22 @@ const EnhancedPatientPortal: React.FC = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
                   <Scale className="w-8 h-8 mx-auto text-blue-600 mb-2" />
-                  <p className="text-sm text-gray-600">Weight</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Weight</p>
                   <p className="text-lg font-bold">{vitals.weight} kg</p>
                 </div>
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
                   <Heart className="w-8 h-8 mx-auto text-red-600 mb-2" />
-                  <p className="text-sm text-gray-600">Heart Rate</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Heart Rate</p>
                   <p className="text-lg font-bold">{vitals.heartRate} bpm</p>
                 </div>
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
                   <Thermometer className="w-8 h-8 mx-auto text-orange-600 mb-2" />
-                  <p className="text-sm text-gray-600">Temperature</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Temperature</p>
                   <p className="text-lg font-bold">{vitals.temperature}°C</p>
                 </div>
                 <div className="text-center p-3 bg-gray-50 rounded-lg">
                   <Zap className="w-8 h-8 mx-auto text-yellow-600 mb-2" />
-                  <p className="text-sm text-gray-600">Energy</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Energy</p>
                   <p className="text-lg font-bold">{vitals.energyLevel}/10</p>
                 </div>
               </div>
@@ -452,21 +452,21 @@ const EnhancedPatientPortal: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
               <Moon className="w-12 h-12 mx-auto text-purple-600 mb-3" />
-              <h3 className="font-medium text-gray-900">Sleep Quality</h3>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100">Sleep Quality</h3>
               <p className="text-2xl font-bold text-purple-600">{vitals?.sleepQuality}/10</p>
-              <p className="text-sm text-gray-600">7.2 hrs avg</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">7.2 hrs avg</p>
             </div>
             <div className="text-center">
               <Brain className="w-12 h-12 mx-auto text-blue-600 mb-3" />
-              <h3 className="font-medium text-gray-900">Mood Score</h3>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100">Mood Score</h3>
               <p className="text-2xl font-bold text-blue-600">{vitals?.moodScore}/10</p>
-              <p className="text-sm text-gray-600">Stable trend</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Stable trend</p>
             </div>
             <div className="text-center">
               <Shield className="w-12 h-12 mx-auto text-green-600 mb-3" />
-              <h3 className="font-medium text-gray-900">Pain Level</h3>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100">Pain Level</h3>
               <p className="text-2xl font-bold text-green-600">{vitals?.painLevel}/10</p>
-              <p className="text-sm text-gray-600">Manageable</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Manageable</p>
             </div>
           </div>
         </Card>
@@ -483,24 +483,24 @@ const EnhancedPatientPortal: React.FC = () => {
               <div className="w-16 h-16 bg-blue-100 rounded-full mx-auto mb-3 flex items-center justify-center">
                 <User className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="font-medium text-gray-900">Dr. Sarah Johnson</h3>
-              <p className="text-sm text-gray-600">Oncologist</p>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100">Dr. Sarah Johnson</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Oncologist</p>
               <p className="text-xs text-gray-500 mt-1">Next: Oct 20, 2:30 PM</p>
             </div>
             <div className="border rounded-lg p-4 text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-3 flex items-center justify-center">
                 <User className="w-8 h-8 text-green-600" />
               </div>
-              <h3 className="font-medium text-gray-900">Maria Rodriguez</h3>
-              <p className="text-sm text-gray-600">Nurse Navigator</p>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100">Maria Rodriguez</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Nurse Navigator</p>
               <p className="text-xs text-gray-500 mt-1">Available 24/7</p>
             </div>
             <div className="border rounded-lg p-4 text-center">
               <div className="w-16 h-16 bg-purple-100 rounded-full mx-auto mb-3 flex items-center justify-center">
                 <Users className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="font-medium text-gray-900">Genetic Twins</h3>
-              <p className="text-sm text-gray-600">3 matches found</p>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100">Genetic Twins</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">3 matches found</p>
               <p className="text-xs text-gray-500 mt-1">Similar genomic profile</p>
             </div>
           </div>

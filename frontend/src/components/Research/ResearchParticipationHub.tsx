@@ -174,9 +174,9 @@ export const ResearchParticipationHub: React.FC = () => {
     switch (status) {
       case 'Recruiting': return 'text-green-600 bg-green-100';
       case 'Not Recruiting': return 'text-yellow-600 bg-yellow-100';
-      case 'Completed': return 'text-gray-600 bg-gray-100';
+      case 'Completed': return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
       case 'Suspended': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -186,8 +186,8 @@ export const ResearchParticipationHub: React.FC = () => {
       case 'Phase II': return 'text-purple-600 bg-purple-100';
       case 'Phase III': return 'text-green-600 bg-green-100';
       case 'Phase IV': return 'text-orange-600 bg-orange-100';
-      case 'Observational': return 'text-gray-600 bg-gray-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'Observational': return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
+      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -221,19 +221,19 @@ export const ResearchParticipationHub: React.FC = () => {
       <p className="text-gray-600 mb-4 line-clamp-2">{study.description}</p>
       
       <div className="grid grid-cols-2 gap-4 text-sm">
-        <div className="flex items-center text-gray-500">
+        <div className="flex items-center text-gray-500 dark:text-gray-400">
           <MapPin className="h-4 w-4 mr-2" />
           {study.location}
         </div>
-        <div className="flex items-center text-gray-500">
+        <div className="flex items-center text-gray-500 dark:text-gray-400">
           <Users className="h-4 w-4 mr-2" />
           {study.participantCount}/{study.maxParticipants} enrolled
         </div>
-        <div className="flex items-center text-gray-500">
+        <div className="flex items-center text-gray-500 dark:text-gray-400">
           <Clock className="h-4 w-4 mr-2" />
           {study.estimatedDuration}
         </div>
-        <div className="flex items-center text-gray-500">
+        <div className="flex items-center text-gray-500 dark:text-gray-400">
           <Award className="h-4 w-4 mr-2" />
           {study.compensation}
         </div>
@@ -244,7 +244,7 @@ export const ResearchParticipationHub: React.FC = () => {
   const StudyDetailModal: React.FC<{ study: ResearchStudy; onClose: () => void }> = ({ study, onClose }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-start">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">{study.title}</h2>
@@ -261,7 +261,7 @@ export const ResearchParticipationHub: React.FC = () => {
                 </div>
               </div>
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:text-gray-400">
               ✕
             </button>
           </div>
@@ -270,7 +270,7 @@ export const ResearchParticipationHub: React.FC = () => {
         <div className="p-6 space-y-6">
           <div>
             <h3 className="text-lg font-semibold mb-3">Study Description</h3>
-            <p className="text-gray-700">{study.description}</p>
+            <p className="text-gray-700 dark:text-gray-300">{study.description}</p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -281,7 +281,7 @@ export const ResearchParticipationHub: React.FC = () => {
                   <FileText className="h-5 w-5 text-gray-400 mr-3" />
                   <div>
                     <p className="font-medium">{study.institution}</p>
-                    <p className="text-sm text-gray-500">Sponsor: {study.sponsor}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Sponsor: {study.sponsor}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -292,7 +292,7 @@ export const ResearchParticipationHub: React.FC = () => {
                   <Calendar className="h-5 w-5 text-gray-400 mr-3" />
                   <div>
                     <p>Started: {new Date(study.startDate).toLocaleDateString()}</p>
-                    <p className="text-sm text-gray-500">Est. completion: {new Date(study.estimatedCompletion).toLocaleDateString()}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Est. completion: {new Date(study.estimatedCompletion).toLocaleDateString()}</p>
                   </div>
                 </div>
                 <div className="flex items-center">
@@ -393,11 +393,11 @@ export const ResearchParticipationHub: React.FC = () => {
           
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="text-lg font-semibold mb-2">Primary Outcome</h3>
-            <p className="text-gray-700">{study.primaryOutcome}</p>
+            <p className="text-gray-700 dark:text-gray-300">{study.primaryOutcome}</p>
           </div>
         </div>
         
-        <div className="p-6 border-t border-gray-200 bg-gray-50">
+        <div className="p-6 border-t border-gray-200 bg-gray-50 dark:bg-gray-800">
           <div className="flex gap-3">
             <button 
               onClick={async () => {
@@ -439,14 +439,14 @@ export const ResearchParticipationHub: React.FC = () => {
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Research Participation Hub</h1>
-        <p className="text-gray-600">Discover and participate in cutting-edge cancer research studies tailored to your profile</p>
+        <p className="text-gray-600 dark:text-gray-400">Discover and participate in cutting-edge cancer research studies tailored to your profile</p>
       </div>
 
       {/* Loading State */}
       {loading && (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-          <span className="ml-3 text-gray-600">Loading research data...</span>
+          <span className="ml-3 text-gray-600 dark:text-gray-400">Loading research data...</span>
         </div>
       )}
 
@@ -482,7 +482,7 @@ export const ResearchParticipationHub: React.FC = () => {
                 className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === id
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                 }`}
               >
                 <Icon className="h-5 w-5 mr-2" />
@@ -654,25 +654,25 @@ export const ResearchParticipationHub: React.FC = () => {
             <div key={participation.studyId} className="bg-white border border-gray-200 rounded-lg p-6">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{participation.studyTitle}</h3>
-                  <p className="text-sm text-gray-500">Enrolled: {new Date(participation.enrollmentDate).toLocaleDateString()}</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{participation.studyTitle}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Enrolled: {new Date(participation.enrollmentDate).toLocaleDateString()}</p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                   participation.status === 'Active' ? 'bg-green-100 text-green-800' :
                   participation.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
-                  'bg-gray-100 text-gray-800'
+                  'bg-gray-100 text-gray-800 dark:text-gray-200'
                 }`}>
                   {participation.status}
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-500">Last Update: </span>
+                  <span className="text-gray-500 dark:text-gray-400">Last Update: </span>
                   <span>{new Date(participation.lastUpdate).toLocaleDateString()}</span>
                 </div>
                 {participation.nextAppointment && (
                   <div>
-                    <span className="text-gray-500">Next Appointment: </span>
+                    <span className="text-gray-500 dark:text-gray-400">Next Appointment: </span>
                     <span className="font-medium">{new Date(participation.nextAppointment).toLocaleDateString()}</span>
                   </div>
                 )}

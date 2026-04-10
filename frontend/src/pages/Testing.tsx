@@ -81,7 +81,7 @@ const Testing: React.FC = () => {
       case 'Easy': return 'text-green-700 bg-green-100';
       case 'Medium': return 'text-yellow-700 bg-yellow-100';
       case 'Hard': return 'text-red-700 bg-red-100';
-      default: return 'text-gray-700 bg-gray-100';
+      default: return 'text-gray-700 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -91,7 +91,7 @@ const Testing: React.FC = () => {
       case 'blue': return 'text-blue-600 bg-blue-100';
       case 'green': return 'text-green-600 bg-green-100';
       case 'purple': return 'text-purple-600 bg-purple-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -112,7 +112,7 @@ const Testing: React.FC = () => {
       <Card className="p-6">
         <div className="flex items-center space-x-2 mb-6">
           <TestTube className="w-6 h-6 text-primary-600" />
-          <h2 className="text-xl font-semibold text-gray-900">Test Scenarios</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Test Scenarios</h2>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
@@ -181,7 +181,7 @@ const Testing: React.FC = () => {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-2">
               <FileText className="w-6 h-6 text-primary-600" />
-              <h2 className="text-xl font-semibold text-gray-900">Test History</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Test History</h2>
             </div>
             <button
               onClick={() => setTestHistory([])}
@@ -202,8 +202,8 @@ const Testing: React.FC = () => {
                       {scenario && <scenario.icon className="w-4 h-4" />}
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">{scenario?.title || 'Unknown Test'}</h4>
-                      <div className="flex items-center space-x-3 text-sm text-gray-600">
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">{scenario?.title || 'Unknown Test'}</h4>
+                      <div className="flex items-center space-x-3 text-sm text-gray-600 dark:text-gray-400">
                         <span>Persona: {test.persona}</span>
                         <span>•</span>
                         <span>{new Date(test.timestamp).toLocaleString()}</span>

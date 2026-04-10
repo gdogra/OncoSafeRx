@@ -118,7 +118,7 @@ export default function RegimenChecker() {
       moderate: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
       minor: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
     };
-    return colors[severity] || 'bg-gray-100 text-gray-700';
+    return colors[severity] || 'bg-gray-100 text-gray-700 dark:text-gray-300';
   };
 
   return (
@@ -130,7 +130,7 @@ export default function RegimenChecker() {
         </div>
         <div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">Regimen Safety Analyzer</h2>
-          <p className="text-sm text-gray-500">Check interactions, cumulative toxicity, and PGx alerts for your complete treatment plan</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Check interactions, cumulative toxicity, and PGx alerts for your complete treatment plan</p>
         </div>
       </div>
 
@@ -307,7 +307,7 @@ export default function RegimenChecker() {
                         {tox.count} agents
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500">{tox.drugs.join(', ')}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{tox.drugs.join(', ')}</p>
                     <p className="text-xs text-blue-600 mt-1">{tox.monitoring}</p>
                   </div>
                 ))}

@@ -159,7 +159,7 @@ const Protocols: React.FC = () => {
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">
           <FileText className="w-8 h-8 text-primary-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Clinical Protocols & Trials</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Clinical Protocols & Trials</h1>
         </div>
         <p className="text-lg text-gray-600 max-w-3xl mx-auto">
           Access evidence-based oncology treatment protocols and discover relevant clinical trials for precision medicine.
@@ -176,7 +176,7 @@ const Protocols: React.FC = () => {
       {/* Search and Filters */}
       <Card>
         <div className="space-y-4" data-tour="protocols-filters">
-          <h2 className="text-xl font-semibold text-gray-900">Search Protocols</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Search Protocols</h2>
           <div className="grid md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Cancer Type</label>
@@ -235,7 +235,7 @@ const Protocols: React.FC = () => {
             >
               <span>Reset Filters</span>
             </button>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
               Found <span className="font-semibold">{filteredProtocols.length}</span> protocols
             </div>
           </div>
@@ -244,7 +244,7 @@ const Protocols: React.FC = () => {
 
       {/* Treatment Protocols */}
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-gray-900">Oncology Treatment Protocols</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Oncology Treatment Protocols</h2>
         
         <div className="grid gap-6" data-tour="protocols-list">
           {filteredProtocols.map((protocol, index) => (
@@ -252,14 +252,14 @@ const Protocols: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900">{protocol.name}</h3>
-                    <p className="text-gray-600">{protocol.indication}</p>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{protocol.name}</h3>
+                    <p className="text-gray-600 dark:text-gray-400">{protocol.indication}</p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
                       {protocol.source}
                     </span>
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:text-gray-200">
                       {protocol.stage}
                     </span>
                   </div>
@@ -268,19 +268,19 @@ const Protocols: React.FC = () => {
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
                     <h4 className="font-medium text-gray-900 mb-1">Cancer Type</h4>
-                    <p className="text-sm text-gray-600">{protocol.cancerType}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{protocol.cancerType}</p>
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-900 mb-1">Duration</h4>
-                    <p className="text-sm text-gray-600">{protocol.duration}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{protocol.duration}</p>
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-900 mb-1">Response Rate</h4>
-                    <p className="text-sm text-gray-600">{protocol.responseRate}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{protocol.responseRate}</p>
                   </div>
                   <div>
                     <h4 className="font-medium text-gray-900 mb-1">Drugs</h4>
-                    <p className="text-sm text-gray-600">{protocol.drugs.length} medications</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{protocol.drugs.length} medications</p>
                   </div>
                 </div>
 
@@ -298,8 +298,8 @@ const Protocols: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                     <span>Last updated: 2 weeks ago</span>
                     <span>Evidence level: A</span>
                   </div>
@@ -319,7 +319,7 @@ const Protocols: React.FC = () => {
 
       {/* Clinical Trials */}
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-gray-900">Relevant Clinical Trials</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Relevant Clinical Trials</h2>
         
         <div className="grid gap-6">
           {filteredTrials.map((trial, index) => (
@@ -327,7 +327,7 @@ const Protocols: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{trial.title}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{trial.title}</h3>
                     <p className="text-sm text-gray-600 mt-1">ClinicalTrials.gov ID: {trial.id}</p>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -345,20 +345,20 @@ const Protocols: React.FC = () => {
                 <div className="grid md:grid-cols-3 gap-4">
                   <div className="flex items-center space-x-2">
                     <Users className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">{trial.participants}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{trial.participants}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Calendar className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">{trial.condition}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{trial.condition}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <TrendingUp className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">{trial.drugs.join(', ')}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{trial.drugs.join(', ')}</span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                     <span>Updated: 1 week ago</span>
                     <span>Locations: Multiple sites</span>
                   </div>

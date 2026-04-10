@@ -451,7 +451,7 @@ const PatientTimeline: React.FC = () => {
     const statusClasses = status === 'completed' ? 'text-green-600' :
                          status === 'current' ? 'text-blue-600' :
                          status === 'predicted' ? 'text-purple-600' :
-                         'text-gray-500';
+                         'text-gray-500 dark:text-gray-400';
 
     switch (type) {
       case 'diagnosis': return <AlertTriangle className={`${baseClasses} ${statusClasses}`} />;
@@ -469,7 +469,7 @@ const PatientTimeline: React.FC = () => {
       case 'improving': return <TrendingUp className="w-4 h-4 text-green-500" />;
       case 'declining': return <TrendingUp className="w-4 h-4 text-red-500 transform rotate-180" />;
       case 'stable': return <TrendingUp className="w-4 h-4 text-blue-500 transform rotate-90" />;
-      default: return <Clock className="w-4 h-4 text-gray-500" />;
+      default: return <Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />;
     }
   };
 
@@ -487,8 +487,8 @@ const PatientTimeline: React.FC = () => {
       case 'completed': return 'bg-green-100 text-green-800';
       case 'current': return 'bg-blue-100 text-blue-800';
       case 'predicted': return 'bg-purple-100 text-purple-800';
-      case 'planned': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'planned': return 'bg-gray-100 text-gray-800 dark:text-gray-200';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -513,8 +513,8 @@ const PatientTimeline: React.FC = () => {
         <div className="flex items-center space-x-3">
           <Calendar className="w-8 h-8 text-blue-600" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Patient Timeline & Predictions</h1>
-            <p className="text-gray-600">AI-powered treatment journey with outcome forecasting</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Patient Timeline & Predictions</h1>
+            <p className="text-gray-600 dark:text-gray-400">AI-powered treatment journey with outcome forecasting</p>
           </div>
         </div>
         <div className="flex items-center space-x-4">
@@ -546,18 +546,18 @@ const PatientTimeline: React.FC = () => {
               <div className="flex items-center space-x-2 mb-4">
                 <Clock className="w-5 h-5 text-green-600" />
                 <h3 className="text-lg font-semibold">Short-term Outlook</h3>
-                <span className="text-sm text-gray-600">({patientOutlook.short_term.timeframe})</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">({patientOutlook.short_term.timeframe})</span>
               </div>
               <div className="text-center mb-4">
                 <div className="text-3xl font-bold text-green-600">
                   {patientOutlook.short_term.overall_prognosis}%
                 </div>
-                <p className="text-sm text-gray-600">Overall prognosis</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Overall prognosis</p>
               </div>
               <div className="space-y-2">
                 {patientOutlook.short_term.key_predictions.map((pred, index) => (
                   <div key={index} className="flex justify-between text-sm">
-                    <span className="text-gray-700">{pred.event}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{pred.event}</span>
                     <span className="font-medium">{pred.probability}%</span>
                   </div>
                 ))}
@@ -570,18 +570,18 @@ const PatientTimeline: React.FC = () => {
               <div className="flex items-center space-x-2 mb-4">
                 <Target className="w-5 h-5 text-blue-600" />
                 <h3 className="text-lg font-semibold">Medium-term Outlook</h3>
-                <span className="text-sm text-gray-600">({patientOutlook.medium_term.timeframe})</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">({patientOutlook.medium_term.timeframe})</span>
               </div>
               <div className="text-center mb-4">
                 <div className="text-3xl font-bold text-blue-600">
                   {patientOutlook.medium_term.overall_prognosis}%
                 </div>
-                <p className="text-sm text-gray-600">Overall prognosis</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Overall prognosis</p>
               </div>
               <div className="space-y-2">
                 {patientOutlook.medium_term.key_predictions.map((pred, index) => (
                   <div key={index} className="flex justify-between text-sm">
-                    <span className="text-gray-700">{pred.event}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{pred.event}</span>
                     <span className="font-medium">{pred.probability}%</span>
                   </div>
                 ))}
@@ -594,18 +594,18 @@ const PatientTimeline: React.FC = () => {
               <div className="flex items-center space-x-2 mb-4">
                 <Heart className="w-5 h-5 text-purple-600" />
                 <h3 className="text-lg font-semibold">Long-term Outlook</h3>
-                <span className="text-sm text-gray-600">({patientOutlook.long_term.timeframe})</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">({patientOutlook.long_term.timeframe})</span>
               </div>
               <div className="text-center mb-4">
                 <div className="text-3xl font-bold text-purple-600">
                   {patientOutlook.long_term.overall_prognosis}%
                 </div>
-                <p className="text-sm text-gray-600">Overall prognosis</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Overall prognosis</p>
               </div>
               <div className="space-y-2">
                 {patientOutlook.long_term.key_predictions.map((pred, index) => (
                   <div key={index} className="flex justify-between text-sm">
-                    <span className="text-gray-700">{pred.event}</span>
+                    <span className="text-gray-700 dark:text-gray-300">{pred.event}</span>
                     <span className="font-medium">{pred.probability}%</span>
                   </div>
                 ))}
@@ -629,7 +629,7 @@ const PatientTimeline: React.FC = () => {
                 <div 
                   key={event.id}
                   className={`border-l-4 pl-4 py-3 cursor-pointer transition-all ${getImportanceColor(event.importance)} ${
-                    selectedEvent?.id === event.id ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'
+                    selectedEvent?.id === event.id ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50 dark:bg-gray-800'
                   }`}
                   onClick={() => setSelectedEvent(event)}
                 >
@@ -637,8 +637,8 @@ const PatientTimeline: React.FC = () => {
                     <div className="flex items-center space-x-3">
                       {getEventIcon(event.type, event.status)}
                       <div>
-                        <h4 className="font-medium text-gray-900">{event.title}</h4>
-                        <p className="text-sm text-gray-600">{new Date(event.date).toLocaleDateString()}</p>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100">{event.title}</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{new Date(event.date).toLocaleDateString()}</p>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -652,12 +652,12 @@ const PatientTimeline: React.FC = () => {
                   {event.outcome && (
                     <div className="mt-2 ml-8">
                       <div className="flex items-center space-x-4 text-sm">
-                        <span className="text-gray-600">{event.outcome.metric}:</span>
+                        <span className="text-gray-600 dark:text-gray-400">{event.outcome.metric}:</span>
                         <span className="font-medium">{event.outcome.value}%</span>
                         {event.outcome.predicted && (
                           <span className="text-blue-600">(predicted: {event.outcome.predicted}%)</span>
                         )}
-                        <span className="text-gray-500">confidence: {event.outcome.confidence}%</span>
+                        <span className="text-gray-500 dark:text-gray-400">confidence: {event.outcome.confidence}%</span>
                       </div>
                     </div>
                   )}
@@ -678,7 +678,7 @@ const PatientTimeline: React.FC = () => {
 
               <div className="space-y-6">
                 <div>
-                  <h4 className="font-semibold text-gray-900">{selectedEvent.title}</h4>
+                  <h4 className="font-semibold text-gray-900 dark:text-gray-100">{selectedEvent.title}</h4>
                   <p className="text-gray-600 mt-1">{selectedEvent.description}</p>
                   <p className="text-sm text-gray-500 mt-1">
                     {new Date(selectedEvent.date).toLocaleDateString()} • {selectedEvent.status}
@@ -690,7 +690,7 @@ const PatientTimeline: React.FC = () => {
                     <h5 className="font-medium text-gray-900 mb-2">Outcome Metrics</h5>
                     <div className="bg-gray-50 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-gray-600">{selectedEvent.outcome.metric}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{selectedEvent.outcome.metric}</span>
                         <div className="flex items-center space-x-2">
                           {getTrendIcon(selectedEvent.outcome.trend)}
                           <span className="font-medium">{selectedEvent.outcome.value}%</span>
@@ -711,7 +711,7 @@ const PatientTimeline: React.FC = () => {
                     <div className="grid grid-cols-2 gap-3">
                       {Object.entries(selectedEvent.biomarkers).map(([marker, value]) => (
                         <div key={marker} className="bg-gray-50 rounded-lg p-2">
-                          <div className="text-sm text-gray-600">{marker}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{marker}</div>
                           <div className="font-medium">{value}</div>
                         </div>
                       ))}
@@ -728,10 +728,10 @@ const PatientTimeline: React.FC = () => {
                           <div className="flex justify-between items-center">
                             <div>
                               <div className="font-medium">{med.name}</div>
-                              <div className="text-sm text-gray-600">{med.dosage}</div>
+                              <div className="text-sm text-gray-600 dark:text-gray-400">{med.dosage}</div>
                             </div>
                             <div className="text-right">
-                              <div className="text-sm text-gray-600">Response</div>
+                              <div className="text-sm text-gray-600 dark:text-gray-400">Response</div>
                               <div className="font-medium text-green-600">{med.response}%</div>
                             </div>
                           </div>
@@ -746,13 +746,13 @@ const PatientTimeline: React.FC = () => {
                     <h5 className="font-medium text-gray-900 mb-2">Quality of Life</h5>
                     <div className="bg-gray-50 rounded-lg p-3">
                       <div className="flex justify-between items-center mb-3">
-                        <span className="text-sm text-gray-600">Overall Score</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Overall Score</span>
                         <span className="text-lg font-bold text-blue-600">{selectedEvent.qualityOfLife.score}/100</span>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         {Object.entries(selectedEvent.qualityOfLife.factors).map(([factor, score]) => (
                           <div key={factor} className="flex justify-between text-sm">
-                            <span className="text-gray-600">{factor}</span>
+                            <span className="text-gray-600 dark:text-gray-400">{factor}</span>
                             <span className="font-medium">{score}</span>
                           </div>
                         ))}
@@ -787,7 +787,7 @@ const PatientTimeline: React.FC = () => {
                       {selectedEvent.nextActions.map((action, index) => (
                         <li key={index} className="flex items-center space-x-2 text-sm">
                           <CheckCircle className="w-3 h-3 text-green-500" />
-                          <span className="text-gray-700">{action}</span>
+                          <span className="text-gray-700 dark:text-gray-300">{action}</span>
                         </li>
                       ))}
                     </ul>
@@ -812,14 +812,14 @@ const PatientTimeline: React.FC = () => {
               {predictiveMilestones.map((milestone, index) => (
                 <div key={index} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-medium text-gray-900">{milestone.event}</h4>
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100">{milestone.event}</h4>
                     <div className="flex items-center space-x-2">
                       {milestone.impact === 'positive' ? (
                         <TrendingUp className="w-4 h-4 text-green-500" />
                       ) : milestone.impact === 'negative' ? (
                         <TrendingUp className="w-4 h-4 text-red-500 transform rotate-180" />
                       ) : (
-                        <Clock className="w-4 h-4 text-gray-500" />
+                        <Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                       )}
                       <span className="font-semibold text-blue-600">{milestone.probability}%</span>
                     </div>
@@ -827,7 +827,7 @@ const PatientTimeline: React.FC = () => {
                   <div className="text-sm text-gray-600 mb-2">
                     Expected: {new Date(milestone.date).toLocaleDateString()}
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
                     Confidence: {milestone.confidence}%
                   </div>
                   {milestone.alternatives && (
@@ -836,7 +836,7 @@ const PatientTimeline: React.FC = () => {
                       <div className="space-y-1">
                         {milestone.alternatives.map((alt, altIndex) => (
                           <div key={altIndex} className="flex justify-between text-xs">
-                            <span className="text-gray-600">{alt.scenario}</span>
+                            <span className="text-gray-600 dark:text-gray-400">{alt.scenario}</span>
                             <span className="font-medium">{alt.probability}%</span>
                           </div>
                         ))}
@@ -872,15 +872,15 @@ const PatientTimeline: React.FC = () => {
                   {treatmentJourney.upcoming_decisions.map((decision, index) => (
                     <div key={index} className="border rounded-lg p-3">
                       <div className="flex justify-between items-center mb-2">
-                        <h5 className="font-medium text-gray-900">{decision.decision_point}</h5>
-                        <span className="text-sm text-gray-600">
+                        <h5 className="font-medium text-gray-900 dark:text-gray-100">{decision.decision_point}</h5>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
                           {new Date(decision.date).toLocaleDateString()}
                         </span>
                       </div>
                       <div className="space-y-2">
                         {decision.options.map((option, optIndex) => (
                           <div key={optIndex} className="flex justify-between items-center text-sm">
-                            <span className="text-gray-700">{option.option}</span>
+                            <span className="text-gray-700 dark:text-gray-300">{option.option}</span>
                             <div className="flex items-center space-x-2">
                               <span className="text-green-600">{option.predicted_outcome}%</span>
                               <span className="text-blue-600 font-medium">
@@ -900,7 +900,7 @@ const PatientTimeline: React.FC = () => {
                 <div className="space-y-2">
                   {treatmentJourney.response_trajectory.map((point, index) => (
                     <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
                         {new Date(point.date).toLocaleDateString()}
                       </span>
                       <div className="flex space-x-4 text-sm">

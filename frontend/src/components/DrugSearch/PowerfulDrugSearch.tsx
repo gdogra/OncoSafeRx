@@ -301,7 +301,7 @@ const PowerfulDrugSearch: React.FC<PowerfulDrugSearchProps> = ({
           <div className="relative">
             <div className="flex items-center space-x-2 mb-2">
               <Search className="w-5 h-5 text-gray-400" />
-              <h2 className="text-lg font-semibold text-gray-900">Powerful Drug Search</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Powerful Drug Search</h2>
               <Zap className="w-4 h-4 text-yellow-500" />
             </div>
             
@@ -333,7 +333,7 @@ const PowerfulDrugSearch: React.FC<PowerfulDrugSearchProps> = ({
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
                 <Sparkles className="w-4 h-4 text-purple-500" />
-                <span className="text-sm font-medium text-gray-700">Smart Suggestions</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Smart Suggestions</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {smartSuggestions.map((suggestion, index) => (
@@ -345,7 +345,7 @@ const PowerfulDrugSearch: React.FC<PowerfulDrugSearchProps> = ({
                   >
                     {suggestion.icon}
                     <span className="font-medium">{suggestion.query}</span>
-                    <span className="text-gray-500">• {suggestion.description}</span>
+                    <span className="text-gray-500 dark:text-gray-400">• {suggestion.description}</span>
                   </button>
                 ))}
               </div>
@@ -442,7 +442,7 @@ const PowerfulDrugSearch: React.FC<PowerfulDrugSearchProps> = ({
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">Filters</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Filters</label>
                 <div className="space-y-1">
                   <label className="flex items-center">
                     <input
@@ -451,7 +451,7 @@ const PowerfulDrugSearch: React.FC<PowerfulDrugSearchProps> = ({
                       onChange={(e) => handleFilterChange('hasInteractions', e.target.checked)}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="ml-2 text-sm text-gray-700">Has known interactions</span>
+                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Has known interactions</span>
                   </label>
                   <label className="flex items-center">
                     <input
@@ -460,7 +460,7 @@ const PowerfulDrugSearch: React.FC<PowerfulDrugSearchProps> = ({
                       onChange={(e) => handleFilterChange('hasGenomics', e.target.checked)}
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="ml-2 text-sm text-gray-700">Has genomic data</span>
+                    <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Has genomic data</span>
                   </label>
                 </div>
               </div>
@@ -477,8 +477,8 @@ const PowerfulDrugSearch: React.FC<PowerfulDrugSearchProps> = ({
             {searchHistory.length > 0 && (
               <div>
                 <div className="flex items-center space-x-2 mb-3">
-                  <Clock className="w-4 h-4 text-gray-500" />
-                  <h3 className="font-medium text-gray-900">Recent Searches</h3>
+                  <Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100">Recent Searches</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {searchHistory.slice(0, 6).map((term, index) => {
@@ -509,7 +509,7 @@ const PowerfulDrugSearch: React.FC<PowerfulDrugSearchProps> = ({
               <div>
                 <div className="flex items-center space-x-2 mb-3">
                   <Star className="w-4 h-4 text-yellow-500" />
-                  <h3 className="font-medium text-gray-900">Recently Used</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100">Recently Used</h3>
                 </div>
                 <div className="space-y-2">
                   {recentDrugs.map((drug, index) => {
@@ -527,7 +527,7 @@ const PowerfulDrugSearch: React.FC<PowerfulDrugSearchProps> = ({
                         <Pill className="w-4 h-4 text-blue-500 flex-shrink-0" />
                         <div className="min-w-0 flex-1">
                           <div className="font-medium text-gray-900 truncate">{drug.name}</div>
-                          <div className="text-sm text-gray-500">RXCUI: {drug.rxcui}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">RXCUI: {drug.rxcui}</div>
                         </div>
                       </button>
                     );

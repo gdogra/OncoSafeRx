@@ -21,7 +21,7 @@ const MobileCard: React.FC<MobileCardProps> = ({
   const baseClasses = "bg-white rounded-lg transition-all duration-200";
   
   const variantClasses = {
-    default: "shadow-sm border border-gray-200",
+    default: "shadow-sm border border-gray-200 dark:border-gray-700",
     compact: "shadow-sm border border-gray-100",
     elevated: "shadow-md border-0",
     bordered: "border-2 border-gray-200 shadow-none"

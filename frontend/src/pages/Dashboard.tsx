@@ -380,7 +380,7 @@ const Dashboard: React.FC = () => {
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">
           <Activity className="w-10 h-10 text-primary-600" />
-          <h1 className="text-4xl font-bold text-gray-900">{headerText.title}</h1>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">{headerText.title}</h1>
         </div>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-4">
           {headerText.subtitle}
@@ -427,9 +427,9 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
                 <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-gray-500">{stat.label}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.label}</p>
                   <div className="flex items-baseline">
-                    <p className="text-lg font-semibold text-gray-900">{stat.value}</p>
+                    <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{stat.value}</p>
                     <p className={`ml-2 text-sm font-medium ${
                       stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
                     }`}>
@@ -489,7 +489,7 @@ const Dashboard: React.FC = () => {
                     </p>
                     <div className="space-y-2">
                       {feature.features.map((feat, featIndex) => (
-                        <div key={featIndex} className="flex items-center text-sm text-gray-500">
+                        <div key={featIndex} className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                           <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full mr-2"></div>
                           {feat}
                         </div>
@@ -513,7 +513,7 @@ const Dashboard: React.FC = () => {
              userRole === 'caregiver' ? 'Additional Tools' : 
              'Core Platform Features'}
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             {userRole === 'patient' ? 'More resources to support your care journey' :
              userRole === 'caregiver' ? 'Additional tools for comprehensive care support' :
              'Comprehensive oncology tools and clinical decision support'}
@@ -542,7 +542,7 @@ const Dashboard: React.FC = () => {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">{feature.title}</h3>
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{feature.title}</h3>
                           {feature.badge && feature.badge !== 'AI-Powered' && (
                             <span className="px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-full font-medium">
                               {feature.badge}
@@ -613,17 +613,17 @@ const Dashboard: React.FC = () => {
           <div className="space-y-3">
             <div className="flex items-center space-x-3 text-sm">
               <div className="w-2 h-2 bg-primary-600 rounded-full"></div>
-              <span className="text-gray-600">Updated CPIC guidelines for CYP2D6</span>
+              <span className="text-gray-600 dark:text-gray-400">Updated CPIC guidelines for CYP2D6</span>
               <span className="text-gray-400">2 days ago</span>
             </div>
             <div className="flex items-center space-x-3 text-sm">
               <div className="w-2 h-2 bg-green-600 rounded-full"></div>
-              <span className="text-gray-600">New FDA drug safety alerts integrated</span>
+              <span className="text-gray-600 dark:text-gray-400">New FDA drug safety alerts integrated</span>
               <span className="text-gray-400">1 week ago</span>
             </div>
             <div className="flex items-center space-x-3 text-sm">
               <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-              <span className="text-gray-600">Enhanced interaction checking algorithms</span>
+              <span className="text-gray-600 dark:text-gray-400">Enhanced interaction checking algorithms</span>
               <span className="text-gray-400">2 weeks ago</span>
             </div>
           </div>
@@ -634,7 +634,7 @@ const Dashboard: React.FC = () => {
           <div className="space-y-4">
             <div>
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-600">Database Coverage</span>
+                <span className="text-gray-600 dark:text-gray-400">Database Coverage</span>
                 <span className="font-medium">95%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
@@ -643,7 +643,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div>
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-600">Interaction Accuracy</span>
+                <span className="text-gray-600 dark:text-gray-400">Interaction Accuracy</span>
                 <span className="font-medium">92%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
@@ -652,7 +652,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div>
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-600">Genomic Guidelines</span>
+                <span className="text-gray-600 dark:text-gray-400">Genomic Guidelines</span>
                 <span className="font-medium">88%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">

@@ -239,7 +239,7 @@ const DrugDatabase: React.FC = () => {
         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
           viewMode === 'grid'
             ? 'bg-white text-gray-900 shadow-sm'
-            : 'text-gray-500 hover:text-gray-700'
+            : 'text-gray-500 hover:text-gray-700 dark:text-gray-300'
         }`}
       >
         <Grid className="w-4 h-4" />
@@ -249,7 +249,7 @@ const DrugDatabase: React.FC = () => {
         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
           viewMode === 'list'
             ? 'bg-white text-gray-900 shadow-sm'
-            : 'text-gray-500 hover:text-gray-700'
+            : 'text-gray-500 hover:text-gray-700 dark:text-gray-300'
         }`}
       >
         <List className="w-4 h-4" />
@@ -259,7 +259,7 @@ const DrugDatabase: React.FC = () => {
         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center space-x-1 ${
           viewMode === 'comparison'
             ? 'bg-white text-gray-900 shadow-sm'
-            : 'text-gray-500 hover:text-gray-700'
+            : 'text-gray-500 hover:text-gray-700 dark:text-gray-300'
         }`}
       >
         <BarChart3 className="w-4 h-4" />
@@ -276,7 +276,7 @@ const DrugDatabase: React.FC = () => {
     <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
       <div className="flex items-center gap-2 mb-3">
         <Search className="w-5 h-5 text-gray-400" />
-        <h2 className="text-lg font-semibold text-gray-900">Search the Drug Database</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Search the Drug Database</h2>
       </div>
       <SearchWithFavorites onSearch={handleSearch} data-tour="drug-database-search" />
     </div>
@@ -286,8 +286,8 @@ const DrugDatabase: React.FC = () => {
     <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between mb-3">
         <div>
-          <h3 className="font-medium text-gray-900">{drug.name}</h3>
-          <p className="text-sm text-gray-600">{drug.genericName}</p>
+          <h3 className="font-medium text-gray-900 dark:text-gray-100">{drug.name}</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{drug.genericName}</p>
           <span className="inline-block mt-1 px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded">
             {drug.category}
           </span>
@@ -311,7 +311,7 @@ const DrugDatabase: React.FC = () => {
       
       <div className="space-y-2">
         <div>
-          <span className="text-xs font-medium text-gray-700">Indications:</span>
+          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Indications:</span>
           <div className="flex flex-wrap gap-1 mt-1">
             {drug.indications?.slice(0, 3).map((indication, index) => (
               <span key={index} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
@@ -319,13 +319,13 @@ const DrugDatabase: React.FC = () => {
               </span>
             ))}
             {drug.indications && drug.indications.length > 3 && (
-              <span className="text-xs text-gray-500">+{drug.indications.length - 3} more</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">+{drug.indications.length - 3} more</span>
             )}
           </div>
         </div>
         
         <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-gray-500 dark:text-gray-400">
             {drug.sideEffects?.length || 0} side effects
           </div>
           <button
@@ -362,7 +362,7 @@ const DrugDatabase: React.FC = () => {
                 )}
               </div>
               <p className="text-sm text-gray-600 truncate">{drug.mechanism}</p>
-              <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500">
+              <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500 dark:text-gray-400">
                 <span>{drug.indications?.length || 0} indications</span>
                 <span>{drug.sideEffects?.length || 0} side effects</span>
                 <span>{drug.contraindications?.length || 0} contraindications</span>
@@ -398,7 +398,7 @@ const DrugDatabase: React.FC = () => {
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">
           <Database className="w-8 h-8 text-blue-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Drug Information Database</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Drug Information Database</h1>
         </div>
         <p className="text-lg text-gray-600 max-w-3xl mx-auto">
           Comprehensive drug information with advanced search, detailed profiles, and comparison tools.
@@ -419,7 +419,7 @@ const DrugDatabase: React.FC = () => {
         {categoryStats.map((stat) => (
           <div key={stat.category} className="bg-white border border-gray-200 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-2xl font-bold text-gray-900">{stat.count}</span>
+              <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.count}</span>
               {stat.trending && <TrendingUp className="w-4 h-4 text-green-500" />}
             </div>
             <div className="text-sm text-gray-600 mb-1">{stat.category}</div>
@@ -441,7 +441,7 @@ const DrugDatabase: React.FC = () => {
       {/* Results Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
             {searchResults.length > 0 ? `Search Results (${searchResults.length})` : 'Featured Drugs'}
           </h2>
           {comparisonDrugs.length > 0 && (
@@ -499,7 +499,7 @@ const DrugDatabase: React.FC = () => {
             <div className="text-center py-12">
               <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
-              <p className="text-gray-600">Try adjusting your search terms or filters.</p>
+              <p className="text-gray-600 dark:text-gray-400">Try adjusting your search terms or filters.</p>
             </div>
           )}
         </div>

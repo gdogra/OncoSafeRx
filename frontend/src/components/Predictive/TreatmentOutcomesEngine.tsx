@@ -488,7 +488,7 @@ const TreatmentOutcomesEngine: React.FC = () => {
       case 'strong': return 'bg-green-100 text-green-800 border-green-200';
       case 'moderate': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'weak': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -496,8 +496,8 @@ const TreatmentOutcomesEngine: React.FC = () => {
     switch (impact) {
       case 'positive': return <ArrowUp className="w-4 h-4 text-green-600" />;
       case 'negative': return <ArrowDown className="w-4 h-4 text-red-600" />;
-      case 'neutral': return <Minus className="w-4 h-4 text-gray-600" />;
-      default: return <Activity className="w-4 h-4 text-gray-600" />;
+      case 'neutral': return <Minus className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
+      default: return <Activity className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
     }
   };
 
@@ -505,8 +505,8 @@ const TreatmentOutcomesEngine: React.FC = () => {
     switch (status) {
       case 'better': return <TrendingUp className="w-4 h-4 text-green-600" />;
       case 'worse': return <TrendingDown className="w-4 h-4 text-red-600" />;
-      case 'similar': return <Minus className="w-4 h-4 text-gray-600" />;
-      default: return <Activity className="w-4 h-4 text-gray-600" />;
+      case 'similar': return <Minus className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
+      default: return <Activity className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
     }
   };
 
@@ -538,8 +538,8 @@ const TreatmentOutcomesEngine: React.FC = () => {
               <Brain className="w-6 h-6 text-purple-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Predictive Analytics Engine</h1>
-              <p className="text-gray-600">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Predictive Analytics Engine</h1>
+              <p className="text-gray-600 dark:text-gray-400">
                 AI-powered treatment outcome predictions for {currentPatient.demographics.firstName} {currentPatient.demographics.lastName}
               </p>
             </div>
@@ -561,36 +561,36 @@ const TreatmentOutcomesEngine: React.FC = () => {
       <Card>
         <div className="flex items-center space-x-2 mb-6">
           <Microscope className="w-6 h-6 text-blue-500" />
-          <h2 className="text-xl font-semibold text-gray-900">AI Models Performance</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">AI Models Performance</h2>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
           {models.map((model) => (
             <div key={model.id} className="border border-gray-200 rounded-lg p-4">
               <div className="flex items-center space-x-2 mb-3">
                 {getPredictionIcon(model.type)}
-                <h3 className="font-semibold text-gray-900">{model.name}</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">{model.name}</h3>
               </div>
               
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Accuracy:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Accuracy:</span>
                   <span className="font-medium">{(model.accuracy * 100).toFixed(1)}%</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">AUC:</span>
+                  <span className="text-gray-600 dark:text-gray-400">AUC:</span>
                   <span className="font-medium">{model.performance_metrics.auc.toFixed(3)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Training Size:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Training Size:</span>
                   <span className="font-medium">{model.training_size.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Version:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Version:</span>
                   <span className="font-medium">v{model.version}</span>
                 </div>
               </div>
               
-              <div className="mt-3 pt-3 border-t border-gray-200">
+              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                 <div className="text-xs text-gray-600 mb-1">Key Features:</div>
                 <div className="flex flex-wrap gap-1">
                   {model.features_used.slice(0, 3).map((feature, idx) => (
@@ -615,7 +615,7 @@ const TreatmentOutcomesEngine: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-2">
             <Target className="w-6 h-6 text-green-500" />
-            <h2 className="text-xl font-semibold text-gray-900">Treatment Outcome Predictions</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Treatment Outcome Predictions</h2>
           </div>
           <div className="flex items-center space-x-2">
             <select
@@ -638,11 +638,11 @@ const TreatmentOutcomesEngine: React.FC = () => {
               key={prediction.id}
               onClick={() => setSelectedPrediction(prediction.id)}
               className={`border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md ${
-                selectedPrediction === prediction.id ? 'ring-2 ring-purple-500 bg-purple-50' : 'border-gray-200'
+                selectedPrediction === prediction.id ? 'ring-2 ring-purple-500 bg-purple-50' : 'border-gray-200 dark:border-gray-700'
               }`}
             >
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-gray-900">{prediction.treatment_option.name}</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">{prediction.treatment_option.name}</h3>
                 <div className={`px-2 py-1 rounded-full text-xs font-medium border ${getRecommendationColor(prediction.recommendations.level)}`}>
                   {prediction.recommendations.level}
                 </div>
@@ -650,15 +650,15 @@ const TreatmentOutcomesEngine: React.FC = () => {
               
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Overall Survival:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Overall Survival:</span>
                   <span className="font-medium">{prediction.predictions.overall_survival_months.toFixed(1)} months</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Response Rate:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Response Rate:</span>
                   <span className="font-medium">{(prediction.predictions.response_probability * 100).toFixed(0)}%</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Toxicity Risk:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Toxicity Risk:</span>
                   <span className={`font-medium ${
                     prediction.predictions.toxicity_risk.grade_3_4_probability < 0.3 ? 'text-green-600' :
                     prediction.predictions.toxicity_risk.grade_3_4_probability < 0.5 ? 'text-yellow-600' : 'text-red-600'
@@ -667,14 +667,14 @@ const TreatmentOutcomesEngine: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">QoL Score:</span>
+                  <span className="text-gray-600 dark:text-gray-400">QoL Score:</span>
                   <span className="font-medium">{prediction.predictions.quality_of_life_score}/10</span>
                 </div>
               </div>
               
-              <div className="mt-3 pt-3 border-t border-gray-200">
+              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                 <div className="text-xs text-gray-600 mb-1">Regimen:</div>
-                <p className="text-xs text-gray-800">{prediction.treatment_option.regimen}</p>
+                <p className="text-xs text-gray-800 dark:text-gray-200">{prediction.treatment_option.regimen}</p>
               </div>
             </div>
           ))}
@@ -695,16 +695,16 @@ const TreatmentOutcomesEngine: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <div className="text-gray-600">Overall Survival:</div>
+                        <div className="text-gray-600 dark:text-gray-400">Overall Survival:</div>
                         <div className="font-semibold text-blue-900">
                           {selectedPredictionData.predictions.overall_survival_months.toFixed(1)} months
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
                           95% CI: {selectedPredictionData.confidence_interval.lower.toFixed(1)}-{selectedPredictionData.confidence_interval.upper.toFixed(1)}
                         </div>
                       </div>
                       <div>
-                        <div className="text-gray-600">Progression-Free:</div>
+                        <div className="text-gray-600 dark:text-gray-400">Progression-Free:</div>
                         <div className="font-semibold text-blue-900">
                           {selectedPredictionData.predictions.progression_free_survival_months.toFixed(1)} months
                         </div>
@@ -719,13 +719,13 @@ const TreatmentOutcomesEngine: React.FC = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <div className="text-gray-600">Overall Response:</div>
+                        <div className="text-gray-600 dark:text-gray-400">Overall Response:</div>
                         <div className="font-semibold text-green-900">
                           {(selectedPredictionData.predictions.response_probability * 100).toFixed(0)}%
                         </div>
                       </div>
                       <div>
-                        <div className="text-gray-600">Complete Response:</div>
+                        <div className="text-gray-600 dark:text-gray-400">Complete Response:</div>
                         <div className="font-semibold text-green-900">
                           {(selectedPredictionData.predictions.complete_response_probability * 100).toFixed(0)}%
                         </div>
@@ -739,7 +739,7 @@ const TreatmentOutcomesEngine: React.FC = () => {
                       <h4 className="font-medium text-yellow-900">Toxicity Risk</h4>
                     </div>
                     <div className="mb-3">
-                      <div className="text-sm text-gray-600">Grade 3-4 Toxicity Risk:</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Grade 3-4 Toxicity Risk:</div>
                       <div className="font-semibold text-yellow-900">
                         {(selectedPredictionData.predictions.toxicity_risk.grade_3_4_probability * 100).toFixed(0)}%
                       </div>
@@ -747,7 +747,7 @@ const TreatmentOutcomesEngine: React.FC = () => {
                     <div className="space-y-2">
                       {selectedPredictionData.predictions.toxicity_risk.specific_toxicities.map((toxicity, idx) => (
                         <div key={idx} className="flex justify-between text-sm">
-                          <span className="text-gray-600">{toxicity.name}:</span>
+                          <span className="text-gray-600 dark:text-gray-400">{toxicity.name}:</span>
                           <span className={`font-medium ${
                             toxicity.severity === 'mild' ? 'text-green-600' :
                             toxicity.severity === 'moderate' ? 'text-yellow-600' : 'text-red-600'
@@ -772,7 +772,7 @@ const TreatmentOutcomesEngine: React.FC = () => {
                         <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                           <div className="flex items-center space-x-2">
                             {getImpactIcon(factor.impact)}
-                            <span className="text-sm text-gray-800">{factor.factor}</span>
+                            <span className="text-sm text-gray-800 dark:text-gray-200">{factor.factor}</span>
                           </div>
                           <div className="text-sm font-medium">
                             Weight: {(factor.weight * 100).toFixed(0)}%
@@ -803,15 +803,15 @@ const TreatmentOutcomesEngine: React.FC = () => {
                     <div className="bg-gray-50 p-3 rounded">
                       <div className="text-sm">
                         <div className="flex justify-between mb-1">
-                          <span className="text-gray-600">Cohort Size:</span>
+                          <span className="text-gray-600 dark:text-gray-400">Cohort Size:</span>
                           <span className="font-medium">{selectedPredictionData.similar_patients.count} patients</span>
                         </div>
                         <div className="flex justify-between mb-1">
-                          <span className="text-gray-600">Median Survival:</span>
+                          <span className="text-gray-600 dark:text-gray-400">Median Survival:</span>
                           <span className="font-medium">{selectedPredictionData.similar_patients.outcomes.median_survival} months</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Response Rate:</span>
+                          <span className="text-gray-600 dark:text-gray-400">Response Rate:</span>
                           <span className="font-medium">{(selectedPredictionData.similar_patients.outcomes.response_rate * 100).toFixed(0)}%</span>
                         </div>
                       </div>
@@ -828,26 +828,26 @@ const TreatmentOutcomesEngine: React.FC = () => {
       <Card>
         <div className="flex items-center space-x-2 mb-6">
           <Users className="w-6 h-6 text-orange-500" />
-          <h2 className="text-xl font-semibold text-gray-900">Population Comparison</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Population Comparison</h2>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
           {populationComparisons.map((comparison, index) => (
             <div key={index} className="border border-gray-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-medium text-gray-900">{comparison.metric}</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">{comparison.metric}</h3>
                 {getComparisonIcon(comparison.status)}
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Patient:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Patient:</span>
                   <span className="font-semibold">{comparison.patient_value}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Population:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Population:</span>
                   <span className="font-medium">{comparison.population_median}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Percentile:</span>
+                  <span className="text-gray-600 dark:text-gray-400">Percentile:</span>
                   <span className={`font-medium ${
                     comparison.percentile > 70 ? 'text-green-600' :
                     comparison.percentile > 30 ? 'text-yellow-600' : 'text-red-600'
@@ -855,7 +855,7 @@ const TreatmentOutcomesEngine: React.FC = () => {
                     {comparison.percentile}th
                   </span>
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-gray-400">
                   Cohort: {comparison.cohort_size.toLocaleString()} patients
                 </div>
               </div>
@@ -868,7 +868,7 @@ const TreatmentOutcomesEngine: React.FC = () => {
       <Card>
         <div className="flex items-center space-x-2 mb-6">
           <Stethoscope className="w-6 h-6 text-indigo-500" />
-          <h2 className="text-xl font-semibold text-gray-900">Matching Clinical Trials</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Matching Clinical Trials</h2>
         </div>
         <div className="space-y-4">
           {clinicalTrials.map((trial) => (
@@ -876,7 +876,7 @@ const TreatmentOutcomesEngine: React.FC = () => {
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-900 mb-1">{trial.title}</h3>
-                  <div className="flex items-center space-x-4 text-sm text-gray-600">
+                  <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
                     <span>Phase {trial.phase}</span>
                     <span>•</span>
                     <span className="capitalize">{trial.status}</span>
@@ -897,19 +897,19 @@ const TreatmentOutcomesEngine: React.FC = () => {
               
               <div className="grid md:grid-cols-4 gap-4 text-sm">
                 <div>
-                  <div className="text-gray-600">Primary Endpoint:</div>
+                  <div className="text-gray-600 dark:text-gray-400">Primary Endpoint:</div>
                   <div className="font-medium">{trial.primary_endpoint}</div>
                 </div>
                 <div>
-                  <div className="text-gray-600">Location:</div>
+                  <div className="text-gray-600 dark:text-gray-400">Location:</div>
                   <div className="font-medium">{trial.location}</div>
                 </div>
                 <div>
-                  <div className="text-gray-600">Completion:</div>
+                  <div className="text-gray-600 dark:text-gray-400">Completion:</div>
                   <div className="font-medium">{new Date(trial.estimated_completion).toLocaleDateString()}</div>
                 </div>
                 <div>
-                  <div className="text-gray-600">Predicted Benefit:</div>
+                  <div className="text-gray-600 dark:text-gray-400">Predicted Benefit:</div>
                   <div className={`font-medium ${
                     trial.predicted_benefit > 0.7 ? 'text-green-600' :
                     trial.predicted_benefit > 0.5 ? 'text-yellow-600' : 'text-red-600'

@@ -130,7 +130,7 @@ const AIRecommendations: React.FC = () => {
         <div>
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
           <p className="text-2xl font-bold text-gray-900 mb-1">{value}</p>
-          <p className="text-sm text-gray-500">{subtitle}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>
         </div>
       </div>
     );
@@ -143,7 +143,7 @@ const AIRecommendations: React.FC = () => {
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">
           <Brain className="w-8 h-8 text-purple-600" />
-          <h1 className="text-3xl font-bold text-gray-900">AI & Interoperability Hub</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">AI & Interoperability Hub</h1>
           <Globe className="w-6 h-6 text-blue-600" />
         </div>
         <p className="text-lg text-gray-600 max-w-3xl mx-auto">
@@ -188,7 +188,7 @@ const AIRecommendations: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="flex space-x-8">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -199,7 +199,7 @@ const AIRecommendations: React.FC = () => {
                 className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                   activeTab === tab.id
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -293,12 +293,12 @@ const AIRecommendations: React.FC = () => {
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium text-gray-900 flex items-center space-x-2">
-                  <Settings className="w-5 h-5 text-gray-500" />
+                  <Settings className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   <span>AI Model Information</span>
                 </h3>
                 <div className="flex items-center space-x-2">
                   {getStatusIcon(systemStatus.ai.status)}
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     Last updated: {new Date(systemStatus.ai.lastUpdate).toLocaleString()}
                   </span>
                 </div>
@@ -391,7 +391,7 @@ const AIRecommendations: React.FC = () => {
                 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">API Response Time</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">API Response Time</span>
                     <span className="font-medium">{systemStatus.performance.responseTime}ms</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
@@ -399,7 +399,7 @@ const AIRecommendations: React.FC = () => {
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Throughput (req/min)</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Throughput (req/min)</span>
                     <span className="font-medium">{systemStatus.performance.throughput.toLocaleString()}</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
@@ -407,7 +407,7 @@ const AIRecommendations: React.FC = () => {
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Error Rate</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Error Rate</span>
                     <span className="font-medium text-green-600">{systemStatus.interoperability.errorRate}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
@@ -452,7 +452,7 @@ const AIRecommendations: React.FC = () => {
             {/* Recent System Events */}
             <div className="bg-white border border-gray-200 rounded-lg p-6">
               <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center space-x-2">
-                <Clock className="w-5 h-5 text-gray-500" />
+                <Clock className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 <span>Recent System Events</span>
               </h3>
               

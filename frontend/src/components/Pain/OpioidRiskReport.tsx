@@ -356,7 +356,7 @@ const OpioidRiskReport: React.FC = () => {
       case 'very_high':
         return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -451,7 +451,7 @@ const OpioidRiskReport: React.FC = () => {
   return (
     <div className="space-y-6 print-content">
       {/* Print header (visible only in print) */}
-      <div className="print-only print-header text-xs text-gray-700">
+      <div className="print-only print-header text-xs text-gray-700 dark:text-gray-300">
         <div className="max-w-7xl mx-auto px-6 py-2 flex justify-between">
           <div>
             <div className="font-semibold">Opioid Risk & Pain Management Report</div>
@@ -470,22 +470,22 @@ const OpioidRiskReport: React.FC = () => {
               <Shield className="w-6 h-6 text-red-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Opioid Risk & Pain Management Report</h1>
-              <p className="text-gray-600">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Opioid Risk & Pain Management Report</h1>
+              <p className="text-gray-600 dark:text-gray-400">
                 Comprehensive addiction risk assessment for {currentPatient.demographics.firstName} {currentPatient.demographics.lastName}
               </p>
             </div>
           </div>
           <div className="flex items-center space-x-2 no-print">
-            <button onClick={handleExport} className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+            <button onClick={handleExport} className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
               <Download className="w-4 h-4" />
               <span>Export Report</span>
             </button>
-            <button onClick={handleExportCsv} className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+            <button onClick={handleExportCsv} className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
               <Download className="w-4 h-4" />
               <span>Export MME CSV</span>
             </button>
-            <button onClick={handlePrint} className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+            <button onClick={handlePrint} className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
               <Printer className="w-4 h-4" />
               <span>Print</span>
             </button>
@@ -506,8 +506,8 @@ const OpioidRiskReport: React.FC = () => {
       <div className="grid md:grid-cols-4 gap-4 print-section">
         <Card className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <Target className="w-5 h-5 text-gray-600" />
-            <span className="text-sm font-medium text-gray-600">Overall Risk</span>
+            <Target className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Overall Risk</span>
           </div>
           <div className={`text-2xl font-bold px-3 py-1 rounded-full inline-block ${getRiskColor(riskAssessment.overallRisk)}`}>
             {riskAssessment.overallRisk.replace('_', ' ').toUpperCase()}
@@ -516,18 +516,18 @@ const OpioidRiskReport: React.FC = () => {
         
         <Card className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <Calculator className="w-5 h-5 text-gray-600" />
-            <span className="text-sm font-medium text-gray-600">Risk Score</span>
+            <Calculator className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Risk Score</span>
           </div>
-          <div className="text-2xl font-bold text-gray-900">
+          <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {riskAssessment.riskScore}/{riskAssessment.maxScore}
           </div>
         </Card>
         
         <Card className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <Activity className="w-5 h-5 text-gray-600" />
-            <span className="text-sm font-medium text-gray-600">Total MME</span>
+            <Activity className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Total MME</span>
           </div>
           <div className={`text-2xl font-bold ${totalMME > 90 ? 'text-red-600' : totalMME > 50 ? 'text-yellow-600' : 'text-green-600'}`}>
             {totalMME.toFixed(1)}
@@ -536,8 +536,8 @@ const OpioidRiskReport: React.FC = () => {
         
         <Card className="text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <Dna className="w-5 h-5 text-gray-600" />
-            <span className="text-sm font-medium text-gray-600">CYP2D6 Status</span>
+            <Dna className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">CYP2D6 Status</span>
           </div>
           <div className="text-lg font-semibold text-orange-600">
             Poor Metabolizer
@@ -553,7 +553,7 @@ const OpioidRiskReport: React.FC = () => {
         >
           <div className="flex items-center space-x-2">
             <Dna className="w-6 h-6 text-purple-500" />
-            <h2 className="text-xl font-semibold text-gray-900">Pharmacogenomic Results</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Pharmacogenomic Results</h2>
           </div>
           {expandedSections.genetic ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
         </div>
@@ -589,7 +589,7 @@ const OpioidRiskReport: React.FC = () => {
                           <h4 className="font-semibold text-gray-900 capitalize">
                             {result.drug} {result.brandName && `(${result.brandName})`}
                           </h4>
-                          <div className="flex items-center space-x-4 text-sm text-gray-600">
+                          <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
                             <span>Metabolizer: {result.metabolizerStatus}</span>
                             {result.isProdrug && (
                               <span className="px-2 py-1 bg-orange-100 text-orange-600 rounded text-xs">
@@ -638,7 +638,7 @@ const OpioidRiskReport: React.FC = () => {
         >
           <div className="flex items-center space-x-2">
             <AlertTriangle className="w-6 h-6 text-orange-500" />
-            <h2 className="text-xl font-semibold text-gray-900">Addiction Risk Assessment</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Addiction Risk Assessment</h2>
           </div>
           {expandedSections.risk ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
         </div>
@@ -653,8 +653,8 @@ const OpioidRiskReport: React.FC = () => {
                     <div key={index} className="flex items-start space-x-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
                       <AlertTriangle className="w-5 h-5 text-orange-600 mt-0.5" />
                       <div>
-                        <p className="font-medium text-gray-900">{factor.factor}</p>
-                        <p className="text-sm text-gray-600">{factor.description}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{factor.factor}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{factor.description}</p>
                         <span className="inline-block mt-1 px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs">
                           Weight: {factor.weight}
                         </span>
@@ -670,7 +670,7 @@ const OpioidRiskReport: React.FC = () => {
                   {riskAssessment.recommendations.map((rec, index) => (
                     <div key={index} className="flex items-start space-x-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                       <Info className="w-5 h-5 text-blue-600 mt-0.5" />
-                      <p className="text-sm text-gray-700">{rec}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">{rec}</p>
                     </div>
                   ))}
                 </div>
@@ -688,7 +688,7 @@ const OpioidRiskReport: React.FC = () => {
         >
           <div className="flex items-center space-x-2">
             <Calculator className="w-6 h-6 text-blue-500" />
-            <h2 className="text-xl font-semibold text-gray-900">Morphine Milligram Equivalent (MME) Calculator</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Morphine Milligram Equivalent (MME) Calculator</h2>
           </div>
           {expandedSections.mme ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
         </div>
@@ -711,7 +711,7 @@ const OpioidRiskReport: React.FC = () => {
             {mmeCalculations.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Medication
@@ -733,28 +733,28 @@ const OpioidRiskReport: React.FC = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {mmeCalculations.map((calc, index) => (
                       <tr key={index}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
                           {calc.medication}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                           {calc.dose} mg
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                           {calc.frequency}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                           {calc.conversionFactor}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 dark:text-gray-100">
                           {calc.dailyMME.toFixed(1)}
                         </td>
                       </tr>
                     ))}
-                    <tr className="bg-gray-50">
-                      <td colSpan={4} className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                    <tr className="bg-gray-50 dark:bg-gray-800">
+                      <td colSpan={4} className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-gray-100">
                         Total Daily MME:
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-lg font-bold text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-lg font-bold text-gray-900 dark:text-gray-100">
                         {totalMME.toFixed(1)}
                       </td>
                     </tr>
@@ -764,7 +764,7 @@ const OpioidRiskReport: React.FC = () => {
             ) : (
               <div className="text-center py-8">
                 <Pill className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                <p className="text-gray-500">No opioid medications found in current medication list</p>
+                <p className="text-gray-500 dark:text-gray-400">No opioid medications found in current medication list</p>
               </div>
             )}
           </div>
@@ -779,7 +779,7 @@ const OpioidRiskReport: React.FC = () => {
         >
           <div className="flex items-center space-x-2">
             <FileText className="w-6 h-6 text-green-500" />
-            <h2 className="text-xl font-semibold text-gray-900">Clinical Summary & Recommendations</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Clinical Summary & Recommendations</h2>
           </div>
           {expandedSections.recommendations ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
         </div>
@@ -843,7 +843,7 @@ const OpioidRiskReport: React.FC = () => {
               <div className="grid md:grid-cols-2 gap-4 text-sm">
                 <div>
                   <h4 className="font-medium mb-2">Clinical Monitoring:</h4>
-                  <ul className="space-y-1 list-disc list-inside text-gray-700">
+                  <ul className="space-y-1 list-disc list-inside text-gray-700 dark:text-gray-300">
                     <li>Pain and function assessments</li>
                     <li>Signs of misuse or diversion</li>
                     <li>Mental health status</li>
@@ -852,7 +852,7 @@ const OpioidRiskReport: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-medium mb-2">Laboratory/Tools:</h4>
-                  <ul className="space-y-1 list-disc list-inside text-gray-700">
+                  <ul className="space-y-1 list-disc list-inside text-gray-700 dark:text-gray-300">
                     <li>PDMP checks before prescribing</li>
                     <li>Urine drug testing as indicated</li>
                     <li>Risk assessment tools (ORT, SOAPP)</li>
@@ -865,7 +865,7 @@ const OpioidRiskReport: React.FC = () => {
         )}
       </Card>
       {/* Print footer (visible only in print) */}
-      <div className="print-only print-footer text-[10px] text-gray-600">
+      <div className="print-only print-footer text-[10px] text-gray-600 dark:text-gray-400">
         <div className="max-w-7xl mx-auto px-6 py-1 flex justify-between">
           <div>Generated by OncoSafeRx</div>
           <div>Confidential — For clinical use only</div>

@@ -573,12 +573,12 @@ const AuthPage: React.FC = () => {
             <div className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center">
               <Activity className="w-7 h-7 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">OncoSafeRx</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">OncoSafeRx</h1>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
             {mode === 'signin' ? 'Welcome back' : 'Create your account'}
           </h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             {mode === 'signin' 
               ? 'Sign in to access precision oncology tools' 
               : 'Join the precision oncology platform'
@@ -602,7 +602,7 @@ const AuthPage: React.FC = () => {
               className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
                 mode === 'signin'
                   ? 'bg-white text-primary-600 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-300'
               }`}
             >
               Sign In
@@ -612,7 +612,7 @@ const AuthPage: React.FC = () => {
               className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
                 mode === 'signup'
                   ? 'bg-white text-primary-600 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  : 'text-gray-500 hover:text-gray-700 dark:text-gray-300'
               }`}
             >
               Create Account
@@ -623,7 +623,7 @@ const AuthPage: React.FC = () => {
           {mode === 'signin' && (
             <form onSubmit={handleSignin} className="space-y-6">
               {authModeInfo && (
-                <div className="text-xs text-gray-500">{authModeInfo}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{authModeInfo}</div>
               )}
               {import.meta.env.MODE !== 'production' && (
                 <div className="flex items-center justify-between text-xs text-gray-600 bg-gray-50 p-2 rounded">
@@ -632,7 +632,7 @@ const AuthPage: React.FC = () => {
                       type="checkbox"
                       checked={useProxy}
                       onChange={(e) => setUseProxy(e.target.checked)}
-                      className="rounded border-gray-300"
+                      className="rounded border-gray-300 dark:border-gray-600"
                     />
                     <span>Use server auth proxy on failure</span>
                   </label>
@@ -641,7 +641,7 @@ const AuthPage: React.FC = () => {
                       type="checkbox"
                       checked={forceProxy}
                       onChange={(e) => setForceProxy(e.target.checked)}
-                      className="rounded border-gray-300"
+                      className="rounded border-gray-300 dark:border-gray-600"
                     />
                     <span>Force proxy-first</span>
                   </label>
@@ -664,7 +664,7 @@ const AuthPage: React.FC = () => {
                 </div>
               )}
               <div>
-                <label htmlFor="signin-email" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="signin-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Email Address
                 </label>
                 <div className="mt-1 relative">
@@ -676,7 +676,7 @@ const AuthPage: React.FC = () => {
                     value={loginData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                      errors.email ? 'border-red-300' : 'border-gray-300'
+                      errors.email ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
                     }`}
                     placeholder="Enter your email"
                   />
@@ -688,7 +688,7 @@ const AuthPage: React.FC = () => {
               </div>
 
               <div>
-                <label htmlFor="signin-password" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="signin-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Password
                 </label>
                 <div className="mt-1 relative">
@@ -700,14 +700,14 @@ const AuthPage: React.FC = () => {
                     value={loginData.password}
                     onChange={(e) => handleInputChange('password', e.target.value)}
                     className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                      errors.password ? 'border-red-300' : 'border-gray-300'
+                      errors.password ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
                     }`}
                     placeholder="Enter your password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 h-4 w-4 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-2.5 h-4 w-4 text-gray-400 hover:text-gray-600 dark:text-gray-400"
                   >
                     {showPassword ? <EyeOff /> : <Eye />}
                   </button>
@@ -735,7 +735,7 @@ const AuthPage: React.FC = () => {
                     type="checkbox"
                     className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
                   />
-                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-100">
                     Remember me
                   </label>
                 </div>
@@ -784,7 +784,7 @@ const AuthPage: React.FC = () => {
 
               {showOtp && (
                 <div className="space-y-2 p-3 border border-violet-200 rounded-md bg-violet-50">
-                  <label htmlFor="otp-code" className="block text-sm font-medium text-gray-700">Enter verification code</label>
+                  <label htmlFor="otp-code" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Enter verification code</label>
                   <input
                     id="otp-code"
                     type="text"
@@ -837,8 +837,8 @@ const AuthPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex justify-between mt-2">
-                  <span className="text-xs text-gray-500">Account Info</span>
-                  <span className="text-xs text-gray-500">Professional Details</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Account Info</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Professional Details</span>
                 </div>
               </div>
 
@@ -847,7 +847,7 @@ const AuthPage: React.FC = () => {
                 <>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         First Name *
                       </label>
                       <div className="mt-1">
@@ -858,7 +858,7 @@ const AuthPage: React.FC = () => {
                           value={signupData.firstName}
                           onChange={(e) => handleInputChange('firstName', e.target.value)}
                           className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                            errors.firstName ? 'border-red-300' : 'border-gray-300'
+                            errors.firstName ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
                           }`}
                         />
                       </div>
@@ -868,7 +868,7 @@ const AuthPage: React.FC = () => {
                     </div>
 
                     <div>
-                      <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Last Name *
                       </label>
                       <div className="mt-1">
@@ -879,7 +879,7 @@ const AuthPage: React.FC = () => {
                           value={signupData.lastName}
                           onChange={(e) => handleInputChange('lastName', e.target.value)}
                           className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                            errors.lastName ? 'border-red-300' : 'border-gray-300'
+                            errors.lastName ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
                           }`}
                         />
                       </div>
@@ -890,7 +890,7 @@ const AuthPage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Email Address *
                     </label>
                     <div className="mt-1 relative">
@@ -901,7 +901,7 @@ const AuthPage: React.FC = () => {
                         value={signupData.email}
                         onChange={(e) => handleInputChange('email', e.target.value)}
                         className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                          errors.email ? 'border-red-300' : 'border-gray-300'
+                          errors.email ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
                         }`}
                       />
                       <Mail className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
@@ -912,7 +912,7 @@ const AuthPage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Phone Number *
                     </label>
                     <div className="mt-1">
@@ -924,13 +924,13 @@ const AuthPage: React.FC = () => {
                         placeholder="Enter your phone number"
                       />
                     </div>
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                       Required for account verification via SMS
                     </p>
                   </div>
 
                   <div>
-                    <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Password *
                     </label>
                     <div className="mt-1 relative">
@@ -941,13 +941,13 @@ const AuthPage: React.FC = () => {
                         value={signupData.password}
                         onChange={(e) => handleInputChange('password', e.target.value)}
                         className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                          errors.password ? 'border-red-300' : 'border-gray-300'
+                          errors.password ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
                         }`}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-2.5 h-4 w-4 text-gray-400 hover:text-gray-600"
+                        className="absolute right-3 top-2.5 h-4 w-4 text-gray-400 hover:text-gray-600 dark:text-gray-400"
                       >
                         {showPassword ? <EyeOff /> : <Eye />}
                       </button>
@@ -1005,7 +1005,7 @@ const AuthPage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Confirm Password *
                     </label>
                     <div className="mt-1 relative">
@@ -1016,13 +1016,13 @@ const AuthPage: React.FC = () => {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                          errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                          errors.confirmPassword ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
                         }`}
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-2.5 h-4 w-4 text-gray-400 hover:text-gray-600"
+                        className="absolute right-3 top-2.5 h-4 w-4 text-gray-400 hover:text-gray-600 dark:text-gray-400"
                       >
                         {showConfirmPassword ? <EyeOff /> : <Eye />}
                       </button>
@@ -1039,7 +1039,7 @@ const AuthPage: React.FC = () => {
                 <>
                   <div>
                     <div className="flex items-center space-x-2 mb-2">
-                      <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="role" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         I am a *
                       </label>
                       <Tooltip 
@@ -1054,7 +1054,7 @@ const AuthPage: React.FC = () => {
                       value={signupData.role}
                       onChange={(e) => handleInputChange('role', e.target.value)}
                       className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                        errors.role ? 'border-red-300' : 'border-gray-300'
+                        errors.role ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
                       }`}
                     >
                       <option value="">Select your role...</option>
@@ -1079,7 +1079,7 @@ const AuthPage: React.FC = () => {
 
                   {signupData.role === 'oncologist' && (
                     <div>
-                      <label htmlFor="specialty" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="specialty" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Specialty *
                       </label>
                       <select
@@ -1087,7 +1087,7 @@ const AuthPage: React.FC = () => {
                         value={signupData.specialty || ''}
                         onChange={(e) => handleInputChange('specialty', e.target.value)}
                         className={`mt-1 block w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                          errors.specialty ? 'border-red-300' : 'border-gray-300'
+                          errors.specialty ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
                         }`}
                       >
                         <option value="">Select specialty...</option>
@@ -1105,7 +1105,7 @@ const AuthPage: React.FC = () => {
 
                   {(signupData.role !== 'patient' && signupData.role !== 'caregiver') && (
                     <div>
-                      <label htmlFor="institution" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="institution" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Institution/Hospital
                       </label>
                       <div className="mt-1 relative">
@@ -1123,7 +1123,7 @@ const AuthPage: React.FC = () => {
 
                   {(signupData.role === 'oncologist' || signupData.role === 'pharmacist') && (
                     <div>
-                      <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="licenseNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         License Number *
                       </label>
                       <div className="mt-1 relative">
@@ -1133,7 +1133,7 @@ const AuthPage: React.FC = () => {
                           value={signupData.licenseNumber || ''}
                           onChange={(e) => handleInputChange('licenseNumber', e.target.value)}
                           className={`block w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                            errors.licenseNumber ? 'border-red-300' : 'border-gray-300'
+                            errors.licenseNumber ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
                           }`}
                         />
                         <Award className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
@@ -1146,7 +1146,7 @@ const AuthPage: React.FC = () => {
 
                   {(signupData.role !== 'patient' && signupData.role !== 'caregiver') && (
                     <div>
-                      <label htmlFor="yearsExperience" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="yearsExperience" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Years of Experience
                       </label>
                       <div className="mt-1 relative">
@@ -1167,11 +1167,11 @@ const AuthPage: React.FC = () => {
                   {/* Demographics section - only for patients and caregivers */}
                   {(signupData.role === 'patient' || signupData.role === 'caregiver') && (
                     <div className="space-y-4 border-t pt-4">
-                      <h3 className="text-sm font-medium text-gray-900">Demographics</h3>
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Demographics</h3>
                     
                       {/* Age - required for patients, optional for caregivers */}
                       <div>
-                        <label htmlFor="age" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="age" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                           Age {signupData.role === 'patient' && <span className="text-red-500">*</span>}
                         </label>
                         <div className="mt-1">
@@ -1193,7 +1193,7 @@ const AuthPage: React.FC = () => {
 
                       {/* Date of Birth */}
                       <div>
-                        <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                           Date of Birth
                         </label>
                         <div className="mt-1">
@@ -1210,7 +1210,7 @@ const AuthPage: React.FC = () => {
                     {/* Height with unit conversion */}
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                           Height
                         </label>
                         <div className="flex bg-gray-100 rounded-md p-1">
@@ -1220,7 +1220,7 @@ const AuthPage: React.FC = () => {
                             className={`px-2 py-1 text-xs rounded ${
                               heightUnit === 'cm' 
                                 ? 'bg-white text-gray-900 shadow-sm' 
-                                : 'text-gray-600 hover:text-gray-900'
+                                : 'text-gray-600 hover:text-gray-900 dark:text-gray-100'
                             }`}
                           >
                             cm
@@ -1231,7 +1231,7 @@ const AuthPage: React.FC = () => {
                             className={`px-2 py-1 text-xs rounded ${
                               heightUnit === 'ft-in' 
                                 ? 'bg-white text-gray-900 shadow-sm' 
-                                : 'text-gray-600 hover:text-gray-900'
+                                : 'text-gray-600 hover:text-gray-900 dark:text-gray-100'
                             }`}
                           >
                             ft/in
@@ -1309,7 +1309,7 @@ const AuthPage: React.FC = () => {
                       {/* Weight with unit conversion */}
                       <div>
                       <div className="flex items-center justify-between mb-2">
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                           Weight
                         </label>
                         <div className="flex bg-gray-100 rounded-md p-1">
@@ -1319,7 +1319,7 @@ const AuthPage: React.FC = () => {
                             className={`px-2 py-1 text-xs rounded ${
                               weightUnit === 'kg' 
                                 ? 'bg-white text-gray-900 shadow-sm' 
-                                : 'text-gray-600 hover:text-gray-900'
+                                : 'text-gray-600 hover:text-gray-900 dark:text-gray-100'
                             }`}
                           >
                             kg
@@ -1330,7 +1330,7 @@ const AuthPage: React.FC = () => {
                             className={`px-2 py-1 text-xs rounded ${
                               weightUnit === 'lbs' 
                                 ? 'bg-white text-gray-900 shadow-sm' 
-                                : 'text-gray-600 hover:text-gray-900'
+                                : 'text-gray-600 hover:text-gray-900 dark:text-gray-100'
                             }`}
                           >
                             lbs
@@ -1363,7 +1363,7 @@ const AuthPage: React.FC = () => {
 
                     {/* Sex */}
                     <div>
-                      <label htmlFor="sex" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="sex" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Sex
                       </label>
                       <div className="mt-1">
@@ -1384,7 +1384,7 @@ const AuthPage: React.FC = () => {
 
                     {/* Ethnicity */}
                     <div>
-                      <label htmlFor="ethnicity" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="ethnicity" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Ethnicity
                       </label>
                       <div className="mt-1">
@@ -1410,7 +1410,7 @@ const AuthPage: React.FC = () => {
 
                     {/* Primary Language */}
                     <div>
-                      <label htmlFor="primaryLanguage" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="primaryLanguage" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Primary Language
                       </label>
                       <div className="mt-1">
@@ -1427,7 +1427,7 @@ const AuthPage: React.FC = () => {
 
                     {/* Emergency Contact */}
                     <div>
-                      <label htmlFor="emergencyContact" className="block text-sm font-medium text-gray-700">
+                      <label htmlFor="emergencyContact" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                         Emergency Contact
                       </label>
                       <div className="mt-1">
@@ -1444,7 +1444,7 @@ const AuthPage: React.FC = () => {
 
                     {/* Address */}
                     <div className="space-y-3">
-                      <label className="block text-sm font-medium text-gray-700">Address</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Address</label>
                       
                       {/* Country selection first to adapt other fields */}
                       <div>
@@ -1558,7 +1558,7 @@ const AuthPage: React.FC = () => {
                         errors.terms ? 'border-red-300' : ''
                       }`}
                     />
-                    <label htmlFor="accept-terms" className="ml-2 block text-sm text-gray-900">
+                    <label htmlFor="accept-terms" className="ml-2 block text-sm text-gray-900 dark:text-gray-100">
                       I accept the{' '}
                       <a href="#" className="text-primary-600 hover:text-primary-500">
                         Terms of Service
@@ -1616,7 +1616,7 @@ const AuthPage: React.FC = () => {
       {/* Footer */}
       <div className="mt-8 text-center space-y-4">
         
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-gray-500 dark:text-gray-400">
           By using OncoSafeRx, you agree to our terms and privacy policy.
           <br />
           This platform is for healthcare professionals only.
@@ -1675,7 +1675,7 @@ const ForgotPasswordLink: React.FC = () => {
   }
 
   return (
-    <div className="mt-4 p-4 border border-gray-200 rounded-md bg-gray-50">
+    <div className="mt-4 p-4 border border-gray-200 rounded-md bg-gray-50 dark:bg-gray-800">
       <h3 className="text-sm font-medium text-gray-900 mb-2">Reset Password</h3>
       <form onSubmit={handleForgotPassword} className="space-y-3">
         <div>

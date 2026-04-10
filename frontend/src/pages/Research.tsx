@@ -188,9 +188,9 @@ const Research: React.FC = () => {
                   </div>
                 </div>
                 <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-gray-500">{metric.label}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{metric.label}</p>
                   <div className="flex items-baseline">
-                    <p className="text-lg font-semibold text-gray-900">{metric.value}</p>
+                    <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{metric.value}</p>
                     <p className={`ml-2 text-sm font-medium ${
                       metric.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
                     }`}>
@@ -211,22 +211,22 @@ const Research: React.FC = () => {
           <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">New subject enrolled in ONCO-2024-001</p>
-              <p className="text-xs text-gray-600">2 hours ago</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">New subject enrolled in ONCO-2024-001</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">2 hours ago</p>
             </div>
           </div>
           <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">Safety report generated for Phase II study</p>
-              <p className="text-xs text-gray-600">5 hours ago</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Safety report generated for Phase II study</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">5 hours ago</p>
             </div>
           </div>
           <div className="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg">
             <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">Protocol amendment approved for ONCO-2024-003</p>
-              <p className="text-xs text-gray-600">1 day ago</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Protocol amendment approved for ONCO-2024-003</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">1 day ago</p>
             </div>
           </div>
         </div>
@@ -237,7 +237,7 @@ const Research: React.FC = () => {
   const renderStudies = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">Active Clinical Studies</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Active Clinical Studies</h3>
         <div className="flex items-center space-x-3">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -260,11 +260,11 @@ const Research: React.FC = () => {
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-2">
-                  <h4 className="text-lg font-semibold text-gray-900">{study.title}</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{study.title}</h4>
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                     study.status === 'Recruiting' ? 'bg-green-100 text-green-800' :
                     study.status === 'Active' ? 'bg-blue-100 text-blue-800' :
-                    'bg-gray-100 text-gray-800'
+                    'bg-gray-100 text-gray-800 dark:text-gray-200'
                   }`}>
                     {study.status}
                   </span>
@@ -277,7 +277,7 @@ const Research: React.FC = () => {
                 
                 <div className="grid md:grid-cols-3 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-600">Enrollment:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Enrollment:</span>
                     <div className="font-medium">{study.subjects}/{study.targetSubjects} subjects</div>
                     <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
                       <div 
@@ -287,11 +287,11 @@ const Research: React.FC = () => {
                     </div>
                   </div>
                   <div>
-                    <span className="text-gray-600">Start Date:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Start Date:</span>
                     <div className="font-medium">{new Date(study.startDate).toLocaleDateString()}</div>
                   </div>
                   <div>
-                    <span className="text-gray-600">Primary Endpoint:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Primary Endpoint:</span>
                     <div className="font-medium">{study.primaryEndpoint}</div>
                   </div>
                 </div>
@@ -340,45 +340,45 @@ const Research: React.FC = () => {
       <Card>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Data Export & Reports</h3>
         <div className="grid md:grid-cols-2 gap-4">
-          <button className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+          <button className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
             <div className="flex items-center space-x-3">
               <Database className="w-5 h-5 text-purple-600" />
               <div className="text-left">
-                <div className="font-medium text-gray-900">Subject Demographics</div>
-                <div className="text-sm text-gray-600">Export demographic data across all studies</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">Subject Demographics</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Export demographic data across all studies</div>
               </div>
             </div>
             <Download className="w-4 h-4 text-gray-400" />
           </button>
           
-          <button className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+          <button className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
             <div className="flex items-center space-x-3">
               <Activity className="w-5 h-5 text-purple-600" />
               <div className="text-left">
-                <div className="font-medium text-gray-900">Safety Data</div>
-                <div className="text-sm text-gray-600">Adverse events and safety signals</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">Safety Data</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Adverse events and safety signals</div>
               </div>
             </div>
             <Download className="w-4 h-4 text-gray-400" />
           </button>
           
-          <button className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+          <button className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
             <div className="flex items-center space-x-3">
               <TrendingUp className="w-5 h-5 text-purple-600" />
               <div className="text-left">
-                <div className="font-medium text-gray-900">Efficacy Outcomes</div>
-                <div className="text-sm text-gray-600">Treatment response and survival data</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">Efficacy Outcomes</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Treatment response and survival data</div>
               </div>
             </div>
             <Download className="w-4 h-4 text-gray-400" />
           </button>
           
-          <button className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+          <button className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
             <div className="flex items-center space-x-3">
               <Microscope className="w-5 h-5 text-purple-600" />
               <div className="text-left">
-                <div className="font-medium text-gray-900">Biomarker Data</div>
-                <div className="text-sm text-gray-600">Genomic and molecular profiling results</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">Biomarker Data</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Genomic and molecular profiling results</div>
               </div>
             </div>
             <Download className="w-4 h-4 text-gray-400" />
@@ -402,7 +402,7 @@ const Research: React.FC = () => {
                 <div className="flex-1">
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">{analytic.title}</h4>
                   <p className="text-gray-600 text-sm mb-3">{analytic.description}</p>
-                  <p className="text-xs text-gray-500">{analytic.status}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{analytic.status}</p>
                 </div>
               </div>
             </Card>
@@ -422,12 +422,12 @@ const Research: React.FC = () => {
           <div className="sticky top-0 bg-white border-b border-gray-200 p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">{selectedStudy.title}</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedStudy.title}</h2>
                 <p className="text-gray-600 mt-1">Study ID: {selectedStudy.id}</p>
               </div>
               <button
                 onClick={() => setShowStudyModal(false)}
-                className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+                className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 dark:bg-gray-800"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -441,10 +441,10 @@ const Research: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <div className={`w-3 h-3 rounded-full ${
                     selectedStudy.status === 'Recruiting' ? 'bg-green-500' :
-                    selectedStudy.status === 'Active' ? 'bg-blue-500' : 'bg-gray-500'
+                    selectedStudy.status === 'Active' ? 'bg-blue-500' : 'bg-gray-50 dark:bg-gray-8000'
                   }`}></div>
                   <div>
-                    <div className="text-sm text-gray-600">Status</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Status</div>
                     <div className="font-semibold">{selectedStudy.status}</div>
                   </div>
                 </div>
@@ -454,7 +454,7 @@ const Research: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <Users className="w-5 h-5 text-purple-600" />
                   <div>
-                    <div className="text-sm text-gray-600">Enrollment</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Enrollment</div>
                     <div className="font-semibold">{selectedStudy.subjects}/{selectedStudy.targetSubjects}</div>
                   </div>
                 </div>
@@ -464,7 +464,7 @@ const Research: React.FC = () => {
                 <div className="flex items-center space-x-3">
                   <Calendar className="w-5 h-5 text-purple-600" />
                   <div>
-                    <div className="text-sm text-gray-600">Start Date</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Start Date</div>
                     <div className="font-semibold">{new Date(selectedStudy.startDate).toLocaleDateString()}</div>
                   </div>
                 </div>
@@ -477,17 +477,17 @@ const Research: React.FC = () => {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Study Information</h3>
                 <div className="space-y-3">
                   <div>
-                    <span className="text-sm font-medium text-gray-600">Phase:</span>
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Phase:</span>
                     <span className="ml-2 px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full">
                       {selectedStudy.phase}
                     </span>
                   </div>
                   <div>
-                    <span className="text-sm font-medium text-gray-600">Primary Endpoint:</span>
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Primary Endpoint:</span>
                     <p className="text-sm text-gray-900 mt-1">{selectedStudy.primaryEndpoint}</p>
                   </div>
                   <div>
-                    <span className="text-sm font-medium text-gray-600">Sponsor:</span>
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Sponsor:</span>
                     <p className="text-sm text-gray-900 mt-1">{selectedStudy.sponsor}</p>
                   </div>
                 </div>
@@ -508,7 +508,7 @@ const Research: React.FC = () => {
                       ></div>
                     </div>
                   </div>
-                  <div className="text-xs text-gray-600">
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
                     {selectedStudy.targetSubjects - selectedStudy.subjects} subjects remaining to reach target enrollment
                   </div>
                 </div>
@@ -522,29 +522,29 @@ const Research: React.FC = () => {
                 <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
                   <CheckCircle className="w-4 h-4 text-green-600" />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">New subject enrolled</p>
-                    <p className="text-xs text-gray-600">2 hours ago</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">New subject enrolled</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">2 hours ago</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
                   <FileText className="w-4 h-4 text-blue-600" />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Safety report submitted</p>
-                    <p className="text-xs text-gray-600">1 day ago</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Safety report submitted</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">1 day ago</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg">
                   <AlertCircle className="w-4 h-4 text-yellow-600" />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Protocol deviation reported</p>
-                    <p className="text-xs text-gray-600">3 days ago</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Protocol deviation reported</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">3 days ago</p>
                   </div>
                 </div>
               </div>
             </Card>
 
             {/* Action Buttons */}
-            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
               <button
                 onClick={() => handleDownloadStudyReport(selectedStudy.id)}
                 disabled={downloadStatus[selectedStudy.id] === 'downloading'}
@@ -587,7 +587,7 @@ const Research: React.FC = () => {
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">
           <BarChart3 className="w-8 h-8 text-purple-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Research Platform</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Research Platform</h1>
         </div>
         <p className="text-lg text-gray-600 max-w-3xl mx-auto">
           Comprehensive research data management, analytics, and clinical study oversight
@@ -595,8 +595,8 @@ const Research: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="border-b border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="border-b border-gray-200 dark:border-gray-700">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -607,7 +607,7 @@ const Research: React.FC = () => {
                   className={`group inline-flex items-center space-x-2 py-4 px-6 border-b-2 font-medium text-sm ${
                     activeTab === tab.id
                       ? 'border-purple-500 text-purple-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                   }`}
                 >
                   <Icon className="w-4 h-4" />

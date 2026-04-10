@@ -25,8 +25,8 @@ const AuthEmailConfirm: React.FC = () => {
           <div className="flex items-center justify-center">
             <CheckCircle className="w-10 h-10 text-green-600" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Email Confirmed</h1>
-          <p className="text-gray-600">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Email Confirmed</h1>
+          <p className="text-gray-600 dark:text-gray-400">
             Your email has been successfully verified for your OncoSafeRx account.
           </p>
           <div className="bg-blue-50 border border-blue-200 rounded p-3 text-blue-900 text-sm text-left">

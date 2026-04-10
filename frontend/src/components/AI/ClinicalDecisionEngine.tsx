@@ -186,7 +186,7 @@ const ClinicalDecisionEngine: React.FC = () => {
       case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'low': return 'bg-blue-100 text-blue-800 border-blue-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -246,8 +246,8 @@ const ClinicalDecisionEngine: React.FC = () => {
               <Brain className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">AI Clinical Decision Engine</h1>
-              <p className="text-gray-600">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">AI Clinical Decision Engine</h1>
+              <p className="text-gray-600 dark:text-gray-400">
                 Advanced AI analysis for {currentPatient.demographics.firstName} {currentPatient.demographics.lastName}
               </p>
             </div>
@@ -269,11 +269,11 @@ const ClinicalDecisionEngine: React.FC = () => {
           <div className="flex items-center space-x-4">
             <LoadingSpinner size="lg" />
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">AI Analysis in Progress</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">AI Analysis in Progress</h3>
+              <p className="text-gray-600 dark:text-gray-400">
                 Analyzing patient data across multiple clinical databases and AI models...
               </p>
-              <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+              <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
                 <span>• Drug interaction screening</span>
                 <span>• Genomic analysis</span>
                 <span>• Safety risk assessment</span>
@@ -289,7 +289,7 @@ const ClinicalDecisionEngine: React.FC = () => {
         <Card>
           <div className="flex items-center space-x-2 mb-6">
             <Lightbulb className="w-6 h-6 text-yellow-500" />
-            <h2 className="text-xl font-semibold text-gray-900">AI Insights</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">AI Insights</h2>
             <Tooltip content="Machine learning insights based on patient data and clinical outcomes database">
               <Info className="w-4 h-4 text-gray-400" />
             </Tooltip>
@@ -302,14 +302,14 @@ const ClinicalDecisionEngine: React.FC = () => {
                   <span className="font-medium text-gray-900 capitalize">{insight.category.replace('_', ' ')}</span>
                   <div className="ml-auto flex items-center space-x-1">
                     <Star className="w-3 h-3 text-yellow-500" />
-                    <span className="text-xs font-medium text-gray-600">{insight.impact_score}%</span>
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400">{insight.impact_score}%</span>
                   </div>
                 </div>
                 <p className="text-sm text-gray-800 mb-3">{insight.insight}</p>
                 <div className="space-y-1">
-                  <div className="text-xs font-medium text-gray-600">Key Data Points:</div>
+                  <div className="text-xs font-medium text-gray-600 dark:text-gray-400">Key Data Points:</div>
                   {insight.data_points.slice(0, 3).map((point, idx) => (
-                    <div key={idx} className="text-xs text-gray-500">• {point}</div>
+                    <div key={idx} className="text-xs text-gray-500 dark:text-gray-400">• {point}</div>
                   ))}
                 </div>
               </div>
@@ -323,7 +323,7 @@ const ClinicalDecisionEngine: React.FC = () => {
         <Card>
           <div className="flex items-center space-x-2 mb-6">
             <BarChart3 className="w-6 h-6 text-purple-500" />
-            <h2 className="text-xl font-semibold text-gray-900">Predictive Models</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Predictive Models</h2>
             <Tooltip content="AI-powered predictive analytics for treatment outcomes and safety">
               <Info className="w-4 h-4 text-gray-400" />
             </Tooltip>
@@ -332,7 +332,7 @@ const ClinicalDecisionEngine: React.FC = () => {
             {predictiveModels.map((model, index) => (
               <div key={index} className="p-4 border border-gray-200 rounded-lg">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-gray-900">{model.model_name}</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">{model.model_name}</h3>
                   <div className="flex items-center space-x-2">
                     <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div 
@@ -340,7 +340,7 @@ const ClinicalDecisionEngine: React.FC = () => {
                         style={{ width: `${model.probability * 100}%` }}
                       />
                     </div>
-                    <span className="text-sm font-medium text-gray-600">
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
                       {Math.round(model.probability * 100)}%
                     </span>
                   </div>
@@ -350,13 +350,13 @@ const ClinicalDecisionEngine: React.FC = () => {
                   <div>
                     <div className="text-sm font-medium text-red-600 mb-1">Risk Factors:</div>
                     {model.risk_factors.map((factor, idx) => (
-                      <div key={idx} className="text-sm text-gray-600">• {factor}</div>
+                      <div key={idx} className="text-sm text-gray-600 dark:text-gray-400">• {factor}</div>
                     ))}
                   </div>
                   <div>
                     <div className="text-sm font-medium text-green-600 mb-1">Protective Factors:</div>
                     {model.protective_factors.map((factor, idx) => (
-                      <div key={idx} className="text-sm text-gray-600">• {factor}</div>
+                      <div key={idx} className="text-sm text-gray-600 dark:text-gray-400">• {factor}</div>
                     ))}
                   </div>
                 </div>
@@ -396,7 +396,7 @@ const ClinicalDecisionEngine: React.FC = () => {
                 <option value="low">Low</option>
               </select>
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
               {filteredRecommendations.length} recommendation{filteredRecommendations.length !== 1 ? 's' : ''}
             </div>
           </div>
@@ -435,14 +435,14 @@ const ClinicalDecisionEngine: React.FC = () => {
                     <span className="ml-1 capitalize">{recommendation.priority}</span>
                   </span>
                   <div className="flex items-center space-x-1">
-                    <span className="text-xs font-medium text-gray-500">Confidence:</span>
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Confidence:</span>
                     <span className="text-xs font-bold text-blue-600">{recommendation.confidence_score}%</span>
                   </div>
                   <span className={`px-2 py-1 rounded text-xs font-medium ${
                     recommendation.evidence_level === 'A' ? 'bg-green-100 text-green-800' :
                     recommendation.evidence_level === 'B' ? 'bg-blue-100 text-blue-800' :
                     recommendation.evidence_level === 'C' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-gray-100 text-gray-800'
+                    'bg-gray-100 text-gray-800 dark:text-gray-200'
                   }`}>
                     Level {recommendation.evidence_level}
                   </span>
@@ -460,12 +460,12 @@ const ClinicalDecisionEngine: React.FC = () => {
                   <div className="mb-3">
                     <div className="text-sm font-medium text-gray-700 mb-1">Recommended Actions:</div>
                     {recommendation.alternatives.map((alt, idx) => (
-                      <div key={idx} className="text-sm text-gray-600">• {alt}</div>
+                      <div key={idx} className="text-sm text-gray-600 dark:text-gray-400">• {alt}</div>
                     ))}
                   </div>
                 )}
 
-                <div className="flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                   <span>Source: {recommendation.source}</span>
                   {recommendation.references && (
                     <div className="flex items-center space-x-2">
@@ -492,35 +492,35 @@ const ClinicalDecisionEngine: React.FC = () => {
 
       {/* Summary Stats */}
       {recommendations.length > 0 && (
-        <Card className="bg-gray-50">
+        <Card className="bg-gray-50 dark:bg-gray-800">
           <div className="flex items-center space-x-2 mb-4">
             <BarChart3 className="w-5 h-5 text-gray-400" />
-            <h3 className="text-lg font-semibold text-gray-900">Analysis Summary</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Analysis Summary</h3>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-red-600">
                 {recommendations.filter(r => r.priority === 'critical').length}
               </div>
-              <div className="text-sm text-gray-600">Critical</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Critical</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-orange-600">
                 {recommendations.filter(r => r.priority === 'high').length}
               </div>
-              <div className="text-sm text-gray-600">High Priority</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">High Priority</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">
                 {recommendations.filter(r => r.action_required).length}
               </div>
-              <div className="text-sm text-gray-600">Action Required</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Action Required</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">
                 {Math.round(recommendations.reduce((sum, r) => sum + r.confidence_score, 0) / recommendations.length)}%
               </div>
-              <div className="text-sm text-gray-600">Avg. Confidence</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Avg. Confidence</div>
             </div>
           </div>
         </Card>

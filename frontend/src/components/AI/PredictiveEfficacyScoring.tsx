@@ -203,8 +203,8 @@ const PredictiveEfficacyScoring: React.FC = () => {
         <div className="flex items-center space-x-3">
           <Brain className="w-8 h-8 text-purple-600" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Predictive Efficacy Scoring</h1>
-            <p className="text-gray-600">AI-powered treatment efficacy predictions with confidence intervals</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Predictive Efficacy Scoring</h1>
+            <p className="text-gray-600 dark:text-gray-400">AI-powered treatment efficacy predictions with confidence intervals</p>
           </div>
         </div>
         <div className="flex items-center space-x-4">
@@ -236,8 +236,8 @@ const PredictiveEfficacyScoring: React.FC = () => {
             <div className="flex items-center space-x-3">
               <LoadingSpinner size="sm" />
               <div>
-                <h3 className="font-medium text-gray-900">AI Model Processing</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">AI Model Processing</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Analyzing genomic factors, clinical data, real-world evidence, and biomarkers...
                 </p>
               </div>
@@ -257,7 +257,7 @@ const PredictiveEfficacyScoring: React.FC = () => {
               </div>
               <div className="flex justify-between text-sm">
                 <span>Biomarker Integration</span>
-                <span className="text-gray-500">Pending</span>
+                <span className="text-gray-500 dark:text-gray-400">Pending</span>
               </div>
             </div>
           </div>
@@ -280,8 +280,8 @@ const PredictiveEfficacyScoring: React.FC = () => {
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{prediction.drugName}</h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{prediction.drugName}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       CI: {formatConfidenceInterval(prediction.confidenceInterval)}
                     </p>
                   </div>
@@ -312,7 +312,7 @@ const PredictiveEfficacyScoring: React.FC = () => {
 
                 <div className="mt-4 pt-4 border-t">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Net Benefit</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Net Benefit</span>
                     <span className={`font-semibold ${
                       prediction.riskBenefit.netBenefit > 0 ? 'text-green-600' : 'text-red-600'
                     }`}>
@@ -448,10 +448,10 @@ const PredictiveEfficacyScoring: React.FC = () => {
                     {selectedPrediction.comparators.map((comp, index) => (
                       <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div>
-                          <span className="font-medium text-gray-900">{comp.drug}</span>
-                          <p className="text-sm text-gray-600">{comp.evidence}</p>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">{comp.drug}</span>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{comp.evidence}</p>
                         </div>
-                        <span className="text-lg font-bold text-gray-600">{comp.efficacy}%</span>
+                        <span className="text-lg font-bold text-gray-600 dark:text-gray-400">{comp.efficacy}%</span>
                       </div>
                     ))}
                   </div>
@@ -517,7 +517,7 @@ const PredictiveEfficacyScoring: React.FC = () => {
                     <div className={`text-xs px-2 py-1 rounded-full ${
                       source.quality === 'high' ? 'bg-green-100 text-green-800' :
                       source.quality === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-gray-100 text-gray-800'
+                      'bg-gray-100 text-gray-800 dark:text-gray-200'
                     }`}>
                       {source.quality} quality
                     </div>

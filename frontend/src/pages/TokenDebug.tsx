@@ -12,7 +12,7 @@ const TokenDebug: React.FC = () => {
       ]} />
       
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Authentication Token Debug</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Authentication Token Debug</h1>
         <p className="text-gray-600 mt-1">Analyze JWT tokens and authentication state for troubleshooting</p>
       </div>
 

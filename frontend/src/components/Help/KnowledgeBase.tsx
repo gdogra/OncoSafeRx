@@ -65,7 +65,7 @@ const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({ className = '' }) => {
       case 'advanced':
         return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -99,7 +99,7 @@ const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({ className = '' }) => {
           
           <div className="mb-4">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">{selectedArticle.title}</h1>
-            <div className="flex items-center space-x-4 text-sm text-gray-600">
+            <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
               <div className="flex items-center space-x-1">
                 <Clock className="w-4 h-4" />
                 <span>{selectedArticle.estimatedReadTime} min read</span>
@@ -152,9 +152,9 @@ const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({ className = '' }) => {
             {React.createElement(iconMap[category.icon as keyof typeof iconMap] || Book, {
               className: "w-8 h-8 text-blue-600"
             })}
-            <h1 className="text-3xl font-bold text-gray-900">{category.name}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{category.name}</h1>
           </div>
-          <p className="text-lg text-gray-600">{category.description}</p>
+          <p className="text-lg text-gray-600 dark:text-gray-400">{category.description}</p>
         </div>
 
         <div className="space-y-4">
@@ -178,7 +178,7 @@ const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({ className = '' }) => {
                   </div>
                   <div className="flex items-center space-x-2">
                     {article.tags.map((tag) => (
-                      <span key={tag} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                      <span key={tag} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 dark:text-gray-300">
                         <Tag className="w-3 h-3 mr-1" />
                         {tag}
                       </span>
@@ -199,7 +199,7 @@ const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({ className = '' }) => {
     <div className={`max-w-4xl mx-auto ${className}`}>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Knowledge Base</h1>
-        <p className="text-lg text-gray-600">Comprehensive guides and documentation for OncoSafeRx</p>
+        <p className="text-lg text-gray-600 dark:text-gray-400">Comprehensive guides and documentation for OncoSafeRx</p>
       </div>
 
       {/* Search */}
@@ -249,7 +249,7 @@ const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({ className = '' }) => {
                       </div>
                       <div className="flex items-center space-x-2">
                         {article.tags.map((tag) => (
-                          <span key={tag} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700">
+                          <span key={tag} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 dark:text-gray-300">
                             <Tag className="w-3 h-3 mr-1" />
                             {tag}
                           </span>

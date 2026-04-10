@@ -185,7 +185,7 @@ const FederatedLearningEngine: React.FC = () => {
       case 'active': return <CheckCircle className="w-4 h-4 text-green-500" />;
       case 'syncing': return <Activity className="w-4 h-4 text-blue-500 animate-pulse" />;
       case 'offline': return <AlertTriangle className="w-4 h-4 text-red-500" />;
-      default: return <AlertTriangle className="w-4 h-4 text-gray-500" />;
+      default: return <AlertTriangle className="w-4 h-4 text-gray-500 dark:text-gray-400" />;
     }
   };
 
@@ -194,7 +194,7 @@ const FederatedLearningEngine: React.FC = () => {
       case 'compliant': return <CheckCircle className="w-4 h-4 text-green-500" />;
       case 'warning': return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
       case 'violation': return <AlertTriangle className="w-4 h-4 text-red-500" />;
-      default: return <AlertTriangle className="w-4 h-4 text-gray-500" />;
+      default: return <AlertTriangle className="w-4 h-4 text-gray-500 dark:text-gray-400" />;
     }
   };
 
@@ -205,8 +205,8 @@ const FederatedLearningEngine: React.FC = () => {
         <div className="flex items-center space-x-3">
           <Shield className="w-8 h-8 text-green-600" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Federated Learning Engine</h1>
-            <p className="text-gray-600">Privacy-first collaborative AI for precision oncology</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Federated Learning Engine</h1>
+            <p className="text-gray-600 dark:text-gray-400">Privacy-first collaborative AI for precision oncology</p>
           </div>
         </div>
         <div className="flex items-center space-x-4">
@@ -232,7 +232,7 @@ const FederatedLearningEngine: React.FC = () => {
             <div className="p-6">
               <div className="flex items-center space-x-2 mb-2">
                 <Brain className="w-5 h-5 text-blue-600" />
-                <span className="text-sm font-medium text-gray-600">Global Model Accuracy</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Global Model Accuracy</span>
               </div>
               <div className="text-2xl font-bold text-blue-600">
                 {learningMetrics.global_model_accuracy.toFixed(1)}%
@@ -247,7 +247,7 @@ const FederatedLearningEngine: React.FC = () => {
             <div className="p-6">
               <div className="flex items-center space-x-2 mb-2">
                 <Users className="w-5 h-5 text-purple-600" />
-                <span className="text-sm font-medium text-gray-600">Total Patients</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Patients</span>
               </div>
               <div className="text-2xl font-bold text-purple-600">
                 {learningMetrics.total_patients.toLocaleString()}
@@ -262,7 +262,7 @@ const FederatedLearningEngine: React.FC = () => {
             <div className="p-6">
               <div className="flex items-center space-x-2 mb-2">
                 <Shield className="w-5 h-5 text-green-600" />
-                <span className="text-sm font-medium text-gray-600">Privacy Preservation</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Privacy Preservation</span>
               </div>
               <div className="text-2xl font-bold text-green-600">
                 {learningMetrics.privacy_preservation.toFixed(1)}%
@@ -277,7 +277,7 @@ const FederatedLearningEngine: React.FC = () => {
             <div className="p-6">
               <div className="flex items-center space-x-2 mb-2">
                 <Activity className="w-5 h-5 text-orange-600" />
-                <span className="text-sm font-medium text-gray-600">Convergence Progress</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Convergence Progress</span>
               </div>
               <div className="text-2xl font-bold text-orange-600">
                 {learningMetrics.convergence_progress}%
@@ -304,7 +304,7 @@ const FederatedLearningEngine: React.FC = () => {
                 <div 
                   key={node.id}
                   className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                    selectedNode?.id === node.id ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50'
+                    selectedNode?.id === node.id ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50 dark:bg-gray-800'
                   }`}
                   onClick={() => setSelectedNode(node)}
                 >
@@ -312,27 +312,27 @@ const FederatedLearningEngine: React.FC = () => {
                     <div className="flex items-center space-x-3">
                       {getStatusIcon(node.status)}
                       <div>
-                        <h4 className="font-medium text-gray-900">{node.name}</h4>
-                        <p className="text-sm text-gray-600">{node.location}</p>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100">{node.name}</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{node.location}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-medium text-gray-900">{node.patients.toLocaleString()}</div>
-                      <div className="text-xs text-gray-500">patients</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{node.patients.toLocaleString()}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">patients</div>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-3 gap-4 mt-3">
                     <div>
-                      <div className="text-sm text-gray-600">Contribution</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Contribution</div>
                       <div className="font-medium text-blue-600">{node.contribution_score}%</div>
                     </div>
                     <div>
-                      <div className="text-sm text-gray-600">Data Quality</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Data Quality</div>
                       <div className="font-medium text-green-600">{node.data_quality}%</div>
                     </div>
                     <div>
-                      <div className="text-sm text-gray-600">Privacy</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Privacy</div>
                       <div className={`font-medium ${
                         node.privacy_level === 'maximum' ? 'text-green-600' : 'text-blue-600'
                       }`}>
@@ -360,22 +360,22 @@ const FederatedLearningEngine: React.FC = () => {
                   <h4 className="font-semibold text-gray-900 mb-3">{selectedNode.name}</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <div className="text-sm text-gray-600">Location</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Location</div>
                       <div className="font-medium">{selectedNode.location}</div>
                     </div>
                     <div>
-                      <div className="text-sm text-gray-600">Status</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Status</div>
                       <div className="flex items-center space-x-2">
                         {getStatusIcon(selectedNode.status)}
                         <span className="font-medium capitalize">{selectedNode.status}</span>
                       </div>
                     </div>
                     <div>
-                      <div className="text-sm text-gray-600">Patients</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Patients</div>
                       <div className="font-medium">{selectedNode.patients.toLocaleString()}</div>
                     </div>
                     <div>
-                      <div className="text-sm text-gray-600">Last Sync</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Last Sync</div>
                       <div className="font-medium">
                         {new Date(selectedNode.last_sync).toLocaleTimeString()}
                       </div>
@@ -453,7 +453,7 @@ const FederatedLearningEngine: React.FC = () => {
                       <span className="font-medium text-gray-900 capitalize">
                         {audit.type.replace('_', ' ')}
                       </span>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
                         Node: {nodes.find(n => n.id === audit.node_id)?.name || audit.node_id}
                       </span>
                     </div>
@@ -461,7 +461,7 @@ const FederatedLearningEngine: React.FC = () => {
                       <span className="text-sm font-medium text-green-600">
                         Privacy Score: {audit.privacy_score}%
                       </span>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
                         {new Date(audit.timestamp).toLocaleTimeString()}
                       </span>
                     </div>
@@ -485,22 +485,22 @@ const FederatedLearningEngine: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="text-center p-4 bg-blue-50 rounded-lg">
               <div className="text-2xl mb-2">🔐</div>
-              <h4 className="font-medium text-gray-900">Differential Privacy</h4>
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">Differential Privacy</h4>
               <p className="text-sm text-gray-600 mt-1">Mathematical privacy guarantees</p>
             </div>
             <div className="text-center p-4 bg-green-50 rounded-lg">
               <div className="text-2xl mb-2">🛡️</div>
-              <h4 className="font-medium text-gray-900">Secure Aggregation</h4>
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">Secure Aggregation</h4>
               <p className="text-sm text-gray-600 mt-1">Encrypted gradient sharing</p>
             </div>
             <div className="text-center p-4 bg-purple-50 rounded-lg">
               <div className="text-2xl mb-2">🔒</div>
-              <h4 className="font-medium text-gray-900">Homomorphic Encryption</h4>
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">Homomorphic Encryption</h4>
               <p className="text-sm text-gray-600 mt-1">Computation on encrypted data</p>
             </div>
             <div className="text-center p-4 bg-yellow-50 rounded-lg">
               <div className="text-2xl mb-2">✅</div>
-              <h4 className="font-medium text-gray-900">Zero-Knowledge Proofs</h4>
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">Zero-Knowledge Proofs</h4>
               <p className="text-sm text-gray-600 mt-1">Verify without revealing</p>
             </div>
           </div>

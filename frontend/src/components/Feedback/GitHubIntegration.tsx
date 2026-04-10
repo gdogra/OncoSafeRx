@@ -136,8 +136,8 @@ const GitHubIntegration: React.FC<GitHubIntegrationProps> = ({ onConfigChange })
               <Github className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">GitHub Issues Integration</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">GitHub Issues Integration</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Automatically create GitHub issues from user feedback
               </p>
             </div>
@@ -157,8 +157,8 @@ const GitHubIntegration: React.FC<GitHubIntegrationProps> = ({ onConfigChange })
           {/* Enable/Disable Toggle */}
           <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
             <div>
-              <h4 className="font-medium text-gray-900">Enable GitHub Integration</h4>
-              <p className="text-sm text-gray-600">
+              <h4 className="font-medium text-gray-900 dark:text-gray-100">Enable GitHub Integration</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 When enabled, feedback will automatically create GitHub issues
               </p>
             </div>
@@ -315,7 +315,7 @@ const GitHubIntegration: React.FC<GitHubIntegrationProps> = ({ onConfigChange })
         )}
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+        <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex space-x-3">
             <button
               onClick={handleClear}

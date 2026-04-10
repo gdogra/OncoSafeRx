@@ -81,7 +81,7 @@ const BreakthroughFeatures: React.FC = () => {
       case 'High': return 'text-orange-600 bg-orange-100 border-orange-200';
       case 'Medium': return 'text-yellow-600 bg-yellow-100 border-yellow-200';
       case 'Low': return 'text-blue-600 bg-blue-100 border-blue-200';
-      default: return 'text-gray-600 bg-gray-100 border-gray-200';
+      default: return 'text-gray-600 bg-gray-100 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -91,7 +91,7 @@ const BreakthroughFeatures: React.FC = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Phase 1 Breakthrough Features</h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-gray-600 dark:text-gray-400">
             Market-leading AI capabilities that set OncoSafeRx apart from all competitors
           </p>
         </div>
@@ -109,8 +109,8 @@ const BreakthroughFeatures: React.FC = () => {
                   <Brain className="h-7 w-7 text-purple-600" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">AI Biomarker Engine</div>
-                  <div className="text-sm text-gray-600">Real-time genomic interpretation</div>
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">AI Biomarker Engine</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Real-time genomic interpretation</div>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
@@ -118,8 +118,8 @@ const BreakthroughFeatures: React.FC = () => {
                   <Shield className="h-7 w-7 text-green-600" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Predictive Toxicity Prevention</div>
-                  <div className="text-sm text-gray-600">Prevent adverse events before they occur</div>
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">Predictive Toxicity Prevention</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Prevent adverse events before they occur</div>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
@@ -127,8 +127,8 @@ const BreakthroughFeatures: React.FC = () => {
                   <FileCheck className="h-7 w-7 text-blue-600" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Regulatory Automation</div>
-                  <div className="text-sm text-gray-600">Automated compliance and reporting</div>
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">Regulatory Automation</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Automated compliance and reporting</div>
                 </div>
               </div>
             </div>
@@ -137,7 +137,7 @@ const BreakthroughFeatures: React.FC = () => {
 
         {/* Feature Tabs */}
         <div className="mb-8">
-          <div className="border-b border-gray-200">
+          <div className="border-b border-gray-200 dark:border-gray-700">
             <nav className="-mb-px flex space-x-8">
               {[
                 { id: 'biomarker', name: 'AI Biomarker Engine', icon: Brain, count: biomarkerData?.recommendations.firstLine.length || 0 },
@@ -150,7 +150,7 @@ const BreakthroughFeatures: React.FC = () => {
                   className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
                     activeTab === tab.id
                       ? 'border-purple-500 text-purple-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                   }`}
                 >
                   <tab.icon className="h-5 w-5 mr-2" />
@@ -169,7 +169,7 @@ const BreakthroughFeatures: React.FC = () => {
         {/* Tab Content */}
         {loading ? (
           <Card className="p-8 text-center">
-            <div className="text-gray-500">Loading breakthrough features...</div>
+            <div className="text-gray-500 dark:text-gray-400">Loading breakthrough features...</div>
           </Card>
         ) : (
           <>
@@ -185,20 +185,20 @@ const BreakthroughFeatures: React.FC = () => {
                     </h3>
                     <div className="space-y-3">
                       <div>
-                        <div className="text-sm font-medium text-gray-700">Actionable Mutations</div>
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Actionable Mutations</div>
                         <div className="text-lg font-bold text-green-600">
                           {biomarkerData.keyFindings.actionableMutations.length}
                         </div>
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-700">Resistance Mutations</div>
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Resistance Mutations</div>
                         <div className="text-lg font-bold text-orange-600">
                           {biomarkerData.keyFindings.resistanceMutations.length}
                         </div>
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-700">TMB Status</div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">TMB Status</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
                           {biomarkerData.liquidBiopsy?.tumorMutationalBurden.classification}
                         </div>
                       </div>
@@ -213,19 +213,19 @@ const BreakthroughFeatures: React.FC = () => {
                     </h3>
                     <div className="space-y-3">
                       <div>
-                        <div className="text-sm font-medium text-gray-700">First-line Options</div>
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">First-line Options</div>
                         <div className="text-lg font-bold text-blue-600">
                           {biomarkerData.recommendations.firstLine.length}
                         </div>
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-700">Clinical Trials</div>
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Clinical Trials</div>
                         <div className="text-lg font-bold text-green-600">
                           {biomarkerData.recommendations.clinical_trials.length}
                         </div>
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-700">Evidence Level</div>
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Evidence Level</div>
                         <div className="text-sm font-semibold text-purple-600">
                           {biomarkerData.recommendations.firstLine[0]?.evidenceLevel}
                         </div>
@@ -241,20 +241,20 @@ const BreakthroughFeatures: React.FC = () => {
                     </h3>
                     <div className="space-y-3">
                       <div>
-                        <div className="text-sm font-medium text-gray-700">Expected Duration</div>
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Expected Duration</div>
                         <div className="text-lg font-bold text-blue-600">
                           {biomarkerData.resistancePrediction.expectedDurationOfResponse.toFixed(1)} months
                         </div>
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-700">Resistance Risk</div>
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Resistance Risk</div>
                         <div className="text-lg font-bold text-orange-600">
                           {(biomarkerData.resistancePrediction.primaryResistanceProbability * 100).toFixed(0)}%
                         </div>
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-700">Alternative Targets</div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Alternative Targets</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
                           {biomarkerData.resistancePrediction.alternativeTargets.length} identified
                         </div>
                       </div>
@@ -270,7 +270,7 @@ const BreakthroughFeatures: React.FC = () => {
                       <div key={idx} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center">
-                            <h4 className="font-semibold text-gray-900">{rec.drug}</h4>
+                            <h4 className="font-semibold text-gray-900 dark:text-gray-100">{rec.drug}</h4>
                             <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
                               {rec.evidenceLevel}
                             </span>
@@ -283,12 +283,12 @@ const BreakthroughFeatures: React.FC = () => {
                         <p className="text-gray-700 mb-3">{rec.rationale}</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                           <div>
-                            <div className="font-medium text-gray-700">Primary Biomarker:</div>
-                            <div className="text-gray-600">{rec.biomarkerSupport.primaryBiomarker}</div>
+                            <div className="font-medium text-gray-700 dark:text-gray-300">Primary Biomarker:</div>
+                            <div className="text-gray-600 dark:text-gray-400">{rec.biomarkerSupport.primaryBiomarker}</div>
                           </div>
                           <div>
-                            <div className="font-medium text-gray-700">Monitoring Strategy:</div>
-                            <div className="text-gray-600">{rec.resistance.monitoringStrategy}</div>
+                            <div className="font-medium text-gray-700 dark:text-gray-300">Monitoring Strategy:</div>
+                            <div className="text-gray-600 dark:text-gray-400">{rec.resistance.monitoringStrategy}</div>
                           </div>
                         </div>
                       </div>
@@ -305,22 +305,22 @@ const BreakthroughFeatures: React.FC = () => {
                   <Card className="p-6 text-center">
                     <Shield className="h-8 w-8 text-green-600 mx-auto mb-2" />
                     <div className="text-2xl font-bold text-green-600">98.5%</div>
-                    <div className="text-sm text-gray-600">Prevention Accuracy</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Prevention Accuracy</div>
                   </Card>
                   <Card className="p-6 text-center">
                     <AlertTriangle className="h-8 w-8 text-orange-600 mx-auto mb-2" />
                     <div className="text-2xl font-bold text-orange-600">{toxicityAlerts.length}</div>
-                    <div className="text-sm text-gray-600">Active Alerts</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Active Alerts</div>
                   </Card>
                   <Card className="p-6 text-center">
                     <Clock className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                     <div className="text-2xl font-bold text-blue-600">5.2 days</div>
-                    <div className="text-sm text-gray-600">Early Warning</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Early Warning</div>
                   </Card>
                   <Card className="p-6 text-center">
                     <TrendingUp className="h-8 w-8 text-purple-600 mx-auto mb-2" />
                     <div className="text-2xl font-bold text-purple-600">34%</div>
-                    <div className="text-sm text-gray-600">Hospitalization Reduction</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Hospitalization Reduction</div>
                   </Card>
                 </div>
 
@@ -366,7 +366,7 @@ const BreakthroughFeatures: React.FC = () => {
                           </ul>
                         </div>
 
-                        <Button size="sm" className="bg-white text-gray-800 hover:bg-gray-100">
+                        <Button size="sm" className="bg-white text-gray-800 hover:bg-gray-100 dark:bg-gray-800">
                           View Detailed Protocol
                         </Button>
                       </div>
@@ -383,22 +383,22 @@ const BreakthroughFeatures: React.FC = () => {
                   <Card className="p-6 text-center">
                     <FileCheck className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                     <div className="text-2xl font-bold text-blue-600">87%</div>
-                    <div className="text-sm text-gray-600">Compliance Score</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Compliance Score</div>
                   </Card>
                   <Card className="p-6 text-center">
                     <Database className="h-8 w-8 text-green-600 mx-auto mb-2" />
                     <div className="text-2xl font-bold text-green-600">{safetySignals.length}</div>
-                    <div className="text-sm text-gray-600">Safety Signals</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Safety Signals</div>
                   </Card>
                   <Card className="p-6 text-center">
                     <Calendar className="h-8 w-8 text-orange-600 mx-auto mb-2" />
                     <div className="text-2xl font-bold text-orange-600">3</div>
-                    <div className="text-sm text-gray-600">Upcoming Deadlines</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Upcoming Deadlines</div>
                   </Card>
                   <Card className="p-6 text-center">
                     <BarChart3 className="h-8 w-8 text-purple-600 mx-auto mb-2" />
                     <div className="text-2xl font-bold text-purple-600">100%</div>
-                    <div className="text-sm text-gray-600">Automation Rate</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Automation Rate</div>
                   </Card>
                 </div>
 
@@ -410,26 +410,26 @@ const BreakthroughFeatures: React.FC = () => {
                       <div key={idx} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex items-center justify-between mb-3">
                           <div>
-                            <h4 className="font-semibold text-gray-900">{signal.signal.drug}</h4>
-                            <div className="text-sm text-gray-600">{signal.signal.adverse_event}</div>
+                            <h4 className="font-semibold text-gray-900 dark:text-gray-100">{signal.signal.drug}</h4>
+                            <div className="text-sm text-gray-600 dark:text-gray-400">{signal.signal.adverse_event}</div>
                           </div>
                           <div className="text-right">
-                            <div className="text-sm font-medium text-gray-700">Signal Strength</div>
+                            <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Signal Strength</div>
                             <div className="text-lg font-bold text-red-600">{signal.signal.signal_strength}</div>
                           </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 text-sm">
                           <div>
-                            <div className="font-medium text-gray-700">Cases:</div>
-                            <div className="text-gray-600">{signal.analysis.case_count}</div>
+                            <div className="font-medium text-gray-700 dark:text-gray-300">Cases:</div>
+                            <div className="text-gray-600 dark:text-gray-400">{signal.analysis.case_count}</div>
                           </div>
                           <div>
-                            <div className="font-medium text-gray-700">ROR:</div>
-                            <div className="text-gray-600">{signal.analysis.disproportionality.ror}</div>
+                            <div className="font-medium text-gray-700 dark:text-gray-300">ROR:</div>
+                            <div className="text-gray-600 dark:text-gray-400">{signal.analysis.disproportionality.ror}</div>
                           </div>
                           <div>
-                            <div className="font-medium text-gray-700">Clinical Significance:</div>
+                            <div className="font-medium text-gray-700 dark:text-gray-300">Clinical Significance:</div>
                             <div className={`font-medium ${
                               signal.evaluation.clinical_significance === 'High' ? 'text-red-600' :
                               signal.evaluation.clinical_significance === 'Medium' ? 'text-orange-600' :
@@ -477,22 +477,22 @@ const BreakthroughFeatures: React.FC = () => {
               <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-3">
                 <CheckCircle className="h-7 w-7 text-green-600" />
               </div>
-              <div className="font-semibold text-gray-900">Market Leadership Achieved</div>
-              <div className="text-sm text-gray-600">3 breakthrough features deployed</div>
+              <div className="font-semibold text-gray-900 dark:text-gray-100">Market Leadership Achieved</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">3 breakthrough features deployed</div>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
                 <Users className="h-7 w-7 text-blue-600" />
               </div>
-              <div className="font-semibold text-gray-900">Competitive Moat Created</div>
-              <div className="text-sm text-gray-600">Unique AI capabilities</div>
+              <div className="font-semibold text-gray-900 dark:text-gray-100">Competitive Moat Created</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Unique AI capabilities</div>
             </div>
             <div className="text-center">
               <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3">
                 <TrendingUp className="h-7 w-7 text-purple-600" />
               </div>
-              <div className="font-semibold text-gray-900">Revenue Ready</div>
-              <div className="text-sm text-gray-600">$50M ARR potential</div>
+              <div className="font-semibold text-gray-900 dark:text-gray-100">Revenue Ready</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">$50M ARR potential</div>
             </div>
           </div>
         </Card>

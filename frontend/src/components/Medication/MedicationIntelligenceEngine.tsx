@@ -273,7 +273,7 @@ const MedicationIntelligenceEngine: React.FC = () => {
       case 'severe': return 'text-red-600 bg-red-50';
       case 'moderate': return 'text-yellow-600 bg-yellow-50';
       case 'mild': return 'text-green-600 bg-green-50';
-      default: return 'text-gray-600 bg-gray-50';
+      default: return 'text-gray-600 bg-gray-50 dark:bg-gray-800';
     }
   };
 
@@ -317,17 +317,17 @@ const MedicationIntelligenceEngine: React.FC = () => {
         <div className="flex space-x-3">
           <div className="text-center">
             <p className="text-2xl font-bold text-green-600">{adherenceStats.overall}%</p>
-            <p className="text-xs text-gray-500">Overall Adherence</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Overall Adherence</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-bold text-blue-600">{adherenceStats.thisWeek}%</p>
-            <p className="text-xs text-gray-500">This Week</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">This Week</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="-mb-px flex space-x-8">
           {[
             { id: 'reminders', label: 'Smart Reminders', icon: Bell },
@@ -341,7 +341,7 @@ const MedicationIntelligenceEngine: React.FC = () => {
               className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-300'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -359,7 +359,7 @@ const MedicationIntelligenceEngine: React.FC = () => {
             <Card className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">On Time</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">On Time</p>
                   <p className="text-2xl font-bold text-green-600">{adherenceStats.onTime}%</p>
                 </div>
                 <CheckCircle className="w-8 h-8 text-green-600" />
@@ -368,7 +368,7 @@ const MedicationIntelligenceEngine: React.FC = () => {
             <Card className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Missed Doses</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Missed Doses</p>
                   <p className="text-2xl font-bold text-red-600">{adherenceStats.missed}%</p>
                 </div>
                 <AlertTriangle className="w-8 h-8 text-red-600" />
@@ -377,7 +377,7 @@ const MedicationIntelligenceEngine: React.FC = () => {
             <Card className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">This Week</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">This Week</p>
                   <p className="text-2xl font-bold text-blue-600">{adherenceStats.thisWeek}%</p>
                 </div>
                 <Calendar className="w-8 h-8 text-blue-600" />
@@ -386,7 +386,7 @@ const MedicationIntelligenceEngine: React.FC = () => {
             <Card className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Trend</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Trend</p>
                   <p className="text-2xl font-bold text-green-600">+5%</p>
                 </div>
                 <TrendingUp className="w-8 h-8 text-green-600" />
@@ -403,33 +403,33 @@ const MedicationIntelligenceEngine: React.FC = () => {
                 <div key={medication.id} className="border rounded-lg p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <h3 className="font-semibold text-gray-900">{medication.name}</h3>
-                      <p className="text-sm text-gray-600">{medication.genericName}</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">{medication.name}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{medication.genericName}</p>
                     </div>
                     <div className="flex items-center space-x-2">
                       {getRouteIcon(medication.route)}
-                      <span className="text-sm text-gray-600">{medication.dosage}</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{medication.dosage}</span>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
-                      <span className="font-medium text-gray-700">Frequency: </span>
-                      <span className="text-gray-600">{medication.frequency}</span>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Frequency: </span>
+                      <span className="text-gray-600 dark:text-gray-400">{medication.frequency}</span>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Purpose: </span>
-                      <span className="text-gray-600">{medication.purpose}</span>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Purpose: </span>
+                      <span className="text-gray-600 dark:text-gray-400">{medication.purpose}</span>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Prescribed by: </span>
-                      <span className="text-gray-600">{medication.prescribedBy}</span>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Prescribed by: </span>
+                      <span className="text-gray-600 dark:text-gray-400">{medication.prescribedBy}</span>
                     </div>
                   </div>
 
                   <div className="mt-3">
                     <span className="font-medium text-gray-700 text-sm">Timing: </span>
-                    <span className="text-sm text-gray-600">{medication.timingInstructions}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{medication.timingInstructions}</span>
                   </div>
 
                   {medication.foodRestrictions.length > 0 && (
@@ -468,8 +468,8 @@ const MedicationIntelligenceEngine: React.FC = () => {
                       <div className="flex items-center space-x-3">
                         {getTimeIcon(reminder.scheduledTime)}
                         <div>
-                          <h3 className="font-medium text-gray-900">{medication?.name}</h3>
-                          <p className="text-sm text-gray-600">
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100">{medication?.name}</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
                             {reminder.scheduledTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </p>
                         </div>
@@ -509,7 +509,7 @@ const MedicationIntelligenceEngine: React.FC = () => {
               <div className="text-center py-12">
                 <Bell className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No Pending Reminders</h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-400">
                   You're all caught up! No medication reminders are currently pending.
                 </p>
               </div>
@@ -606,8 +606,8 @@ const MedicationIntelligenceEngine: React.FC = () => {
                       {scanResult.alternativeMatches.map((match, idx) => (
                         <div key={idx} className="border rounded-lg p-3">
                           <div className="flex items-center justify-between">
-                            <span className="font-medium text-gray-900">{match.name}</span>
-                            <span className="text-sm text-gray-600">{match.dosage}</span>
+                            <span className="font-medium text-gray-900 dark:text-gray-100">{match.name}</span>
+                            <span className="text-sm text-gray-600 dark:text-gray-400">{match.dosage}</span>
                           </div>
                         </div>
                       ))}
@@ -657,7 +657,7 @@ const MedicationIntelligenceEngine: React.FC = () => {
                             'bg-blue-50 border-blue-200'
                           }`}>
                             <div className="flex items-center justify-between mb-2">
-                              <span className="font-medium text-gray-900">{interaction.drugName}</span>
+                              <span className="font-medium text-gray-900 dark:text-gray-100">{interaction.drugName}</span>
                               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(interaction.severity)}`}>
                                 {interaction.severity}
                               </span>
@@ -665,9 +665,9 @@ const MedicationIntelligenceEngine: React.FC = () => {
                             <p className="text-sm text-gray-700 mb-2">{interaction.description}</p>
                             <div className="bg-white p-2 rounded">
                               <span className="font-medium text-gray-900 text-sm">Recommendation: </span>
-                              <span className="text-sm text-gray-700">{interaction.recommendation}</span>
+                              <span className="text-sm text-gray-700 dark:text-gray-300">{interaction.recommendation}</span>
                             </div>
-                            <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+                            <div className="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                               <span>Evidence Level: {interaction.evidenceLevel}</span>
                             </div>
                           </div>
@@ -704,11 +704,11 @@ const MedicationIntelligenceEngine: React.FC = () => {
                     
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div className="text-center p-3 bg-gray-50 rounded">
-                        <p className="text-sm text-gray-600">Efficacy</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Efficacy</p>
                         <p className="text-xl font-bold text-green-600">{response.efficacyScore}%</p>
                       </div>
                       <div className="text-center p-3 bg-gray-50 rounded">
-                        <p className="text-sm text-gray-600">Adherence</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Adherence</p>
                         <p className={`text-xl font-bold ${getAdherenceColor(response.adherenceRate)}`}>
                           {response.adherenceRate}%
                         </p>
@@ -717,7 +717,7 @@ const MedicationIntelligenceEngine: React.FC = () => {
 
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Side Effect Severity</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Side Effect Severity</span>
                         <span className={`text-sm font-medium ${
                           response.sideEffectSeverity <= 3 ? 'text-green-600' :
                           response.sideEffectSeverity <= 6 ? 'text-yellow-600' : 'text-red-600'
@@ -726,7 +726,7 @@ const MedicationIntelligenceEngine: React.FC = () => {
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-sm text-gray-600">Quality of Life Impact</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Quality of Life Impact</span>
                         <span className={`text-sm font-medium ${
                           response.qualityOfLifeImpact >= 70 ? 'text-green-600' :
                           response.qualityOfLifeImpact >= 50 ? 'text-yellow-600' : 'text-red-600'
@@ -743,7 +743,7 @@ const MedicationIntelligenceEngine: React.FC = () => {
               <div className="text-center py-12">
                 <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No Response Data</h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-400">
                   Start tracking your medication responses to see efficacy and side effect analysis here.
                 </p>
               </div>
@@ -761,8 +761,8 @@ const MedicationIntelligenceEngine: React.FC = () => {
                     <div key={idx} className="border rounded-lg p-4 bg-yellow-50 border-yellow-200">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h3 className="font-medium text-gray-900">{medication?.name}</h3>
-                          <p className="text-sm text-gray-600">Dose adjustment recommended</p>
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100">{medication?.name}</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Dose adjustment recommended</p>
                         </div>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                           adjustment.confidence >= 80 ? 'bg-green-100 text-green-800' :
@@ -776,7 +776,7 @@ const MedicationIntelligenceEngine: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                         <div>
                           <span className="font-medium text-gray-700 text-sm">Current: </span>
-                          <span className="text-sm text-gray-600">{adjustment.currentDose}</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">{adjustment.currentDose}</span>
                         </div>
                         <div>
                           <span className="font-medium text-gray-700 text-sm">Recommended: </span>
@@ -786,13 +786,13 @@ const MedicationIntelligenceEngine: React.FC = () => {
 
                       <div className="mb-3">
                         <span className="font-medium text-gray-700 text-sm">Reason: </span>
-                        <span className="text-sm text-gray-600">{adjustment.reason}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{adjustment.reason}</span>
                       </div>
 
                       {adjustment.responsePattern && (
                         <div className="mb-3">
                           <span className="font-medium text-gray-700 text-sm">Pattern Detected: </span>
-                          <span className="text-sm text-gray-600">{adjustment.responsePattern}</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">{adjustment.responsePattern}</span>
                         </div>
                       )}
 
@@ -811,7 +811,7 @@ const MedicationIntelligenceEngine: React.FC = () => {
               <div className="text-center py-12">
                 <Target className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No Dose Recommendations</h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-400">
                   AI analysis hasn't detected any dose adjustments needed at this time. Your current medication regimen appears optimal.
                 </p>
               </div>

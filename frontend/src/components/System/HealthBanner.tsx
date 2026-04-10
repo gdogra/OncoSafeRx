@@ -59,7 +59,7 @@ const HealthBanner: React.FC<{ className?: string }>= ({ className = '' }) => {
             </div>
           )}
         </div>
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-gray-500 dark:text-gray-400">
           {health?.timestamp ? new Date(health.timestamp).toLocaleString() : ''}
         </div>
       </div>

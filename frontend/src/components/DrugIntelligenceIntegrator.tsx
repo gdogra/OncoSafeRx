@@ -340,7 +340,7 @@ const DrugIntelligenceIntegrator: React.FC = () => {
               Query: {typeof data.query === 'string' ? data.query : JSON.stringify(data.query)}
             </div>
           )}
-          <div className="text-sm text-gray-700">
+          <div className="text-sm text-gray-700 dark:text-gray-300">
             {JSON.stringify(data.data, null, 2).slice(0, 200)}...
           </div>
         </div>
@@ -354,7 +354,7 @@ const DrugIntelligenceIntegrator: React.FC = () => {
         Enter a drug to fetch information from RxNorm, DailyMed, FDA, PubMed, and ClinicalTrials. Compare sources side‑by‑side, then switch to the Interactions tab to check a drug pair.
       </TipCard>
       <div className="border-b pb-4">
-        <h2 className="text-2xl font-bold text-gray-900">Drug Intelligence Integrator</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Drug Intelligence Integrator</h2>
         <p className="text-gray-600 mt-1">
           Real-time access to DailyMed, OpenFDA, ClinicalTrials.gov, PubMed, and RxNorm APIs
         </p>
@@ -370,14 +370,14 @@ const DrugIntelligenceIntegrator: React.FC = () => {
       )}
 
       <div className="bg-white rounded-lg shadow-sm border">
-        <div className="border-b border-gray-200">
+        <div className="border-b border-gray-200 dark:border-gray-700">
           <nav className="flex">
             <button
               onClick={() => setActiveTab('drug-info')}
               className={`px-6 py-3 text-sm font-medium border-b-2 ${
                 activeTab === 'drug-info'
                   ? 'border-blue-500 text-blue-600 bg-blue-50'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
               }`}
             >
               Comprehensive Drug Info
@@ -387,7 +387,7 @@ const DrugIntelligenceIntegrator: React.FC = () => {
               className={`px-6 py-3 text-sm font-medium border-b-2 ${
                 activeTab === 'interactions'
                   ? 'border-blue-500 text-blue-600 bg-blue-50'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
               }`}
             >
               Drug Interactions
@@ -420,7 +420,7 @@ const DrugIntelligenceIntegrator: React.FC = () => {
                     </button>
                   </div>
                   {nameSuggestions.length > 0 && (
-                    <div className="mb-4 border border-gray-200 rounded-md divide-y bg-white">
+                    <div className="mb-4 border border-gray-200 rounded-md divide-y bg-white dark:bg-gray-900">
                       {nameSuggestions.map((sug) => (
                         <button
                           key={sug}
@@ -480,7 +480,7 @@ const DrugIntelligenceIntegrator: React.FC = () => {
                   {(drug1Suggestions.length > 0 || drug2Suggestions.length > 0) && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       {drug1Suggestions.length > 0 && (
-                        <div className="border border-gray-200 rounded-md divide-y bg-white">
+                        <div className="border border-gray-200 rounded-md divide-y bg-white dark:bg-gray-900">
                           {drug1Suggestions.map((sug) => (
                             <button
                               key={`d1-${sug}`}
@@ -493,7 +493,7 @@ const DrugIntelligenceIntegrator: React.FC = () => {
                         </div>
                       )}
                       {drug2Suggestions.length > 0 && (
-                        <div className="border border-gray-200 rounded-md divide-y bg-white">
+                        <div className="border border-gray-200 rounded-md divide-y bg-white dark:bg-gray-900">
                           {drug2Suggestions.map((sug) => (
                             <button
                               key={`d2-${sug}`}

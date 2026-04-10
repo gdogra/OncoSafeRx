@@ -9,8 +9,8 @@ const ArticleLabResults: React.FC = () => {
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Educational Resources', href: '/education' }, { label: 'Understanding Your Lab Results' }]} />
 
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Understanding Your Lab Results</h1>
-        <span className="text-sm text-gray-600">Type: ARTICLE • 8 min read</span>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Understanding Your Lab Results</h1>
+        <span className="text-sm text-gray-600 dark:text-gray-400">Type: ARTICLE • 8 min read</span>
       </div>
 
       <Card>
@@ -24,7 +24,7 @@ const ArticleLabResults: React.FC = () => {
             </div>
           </div>
 
-          <h2 className="flex items-center space-x-2"><Beaker className="w-5 h-5 text-gray-700" /><span>Common Blood Tests</span></h2>
+          <h2 className="flex items-center space-x-2"><Beaker className="w-5 h-5 text-gray-700 dark:text-gray-300" /><span>Common Blood Tests</span></h2>
           <ul>
             <li><strong>CBC (Complete Blood Count):</strong> Hemoglobin, hematocrit, white blood cells (WBC), and platelets. Low WBC may increase infection risk; low platelets may increase bleeding risk.</li>
             <li><strong>CMP (Comprehensive Metabolic Panel):</strong> Kidney (creatinine, BUN) and liver (ALT, AST, bilirubin) function; electrolytes (sodium, potassium).</li>
@@ -48,7 +48,7 @@ const ArticleLabResults: React.FC = () => {
 
           <div className="mt-6 p-4 rounded-lg bg-gray-50 border border-gray-200 flex items-start space-x-3">
             <BookOpen className="w-5 h-5 text-gray-700 mt-0.5" />
-            <div className="text-sm text-gray-700">
+            <div className="text-sm text-gray-700 dark:text-gray-300">
               This article is informational and not a substitute for medical advice. Always discuss lab results with your clinician.
             </div>
           </div>

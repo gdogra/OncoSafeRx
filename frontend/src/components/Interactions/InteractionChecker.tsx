@@ -794,7 +794,7 @@ const InteractionCheckerInner: React.FC = () => {
 
   // Show minimal loader until patient context hydration completes
   if (!hydrated) {
-    return <div className="p-6 text-center text-gray-500">Loading patient context…</div>;
+    return <div className="p-6 text-center text-gray-500 dark:text-gray-400">Loading patient context…</div>;
   }
 
   // Derive a single coherent patient display source to avoid mismatched fields
@@ -823,7 +823,7 @@ const InteractionCheckerInner: React.FC = () => {
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">
           <AlertTriangle className="w-8 h-8 text-warning-600" />
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             {authState?.user?.role === 'patient' || authState?.user?.role === 'caregiver'
               ? 'Drug Interaction Checker'
               : 'Advanced Drug Interaction Analysis'}
@@ -892,7 +892,7 @@ const InteractionCheckerInner: React.FC = () => {
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Select Medications</h2>
         {importNote && (
-          <div className="mb-3 text-xs text-gray-600">{importNote}</div>
+          <div className="mb-3 text-xs text-gray-600 dark:text-gray-400">{importNote}</div>
         )}
         
         <div data-tour="interactions-add-drug">
@@ -900,21 +900,21 @@ const InteractionCheckerInner: React.FC = () => {
         </div>
 
         <div className="mt-3 flex items-center gap-4 flex-wrap">
-          <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+          <label className="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
             <input
               type="checkbox"
               checked={usePatientMeds}
               onChange={(e) => { setUsePatientMeds(e.target.checked); setImportNote(null); }}
-              className="rounded border-gray-300"
+              className="rounded border-gray-300 dark:border-gray-600"
             />
             Always use My Medications (personalized)
           </label>
-          <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+          <label className="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
             <input
               type="checkbox"
               checked={includeInactive}
               onChange={(e) => { setIncludeInactive(e.target.checked); setImportNote(null); }}
-              className="rounded border-gray-300"
+              className="rounded border-gray-300 dark:border-gray-600"
             />
             Include previous/inactive medications
           </label>
@@ -1024,16 +1024,16 @@ const InteractionCheckerInner: React.FC = () => {
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                 >
                   <div>
-                    <span className="font-medium text-gray-900">{drug.name}</span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">{drug.name}</span>
                     {drug.generic_name && drug.generic_name !== drug.name && (
                       <span className="text-sm text-gray-600 ml-2">({drug.generic_name})</span>
                     )}
                     {drug.originBrand && (
-                      <div className="text-xs text-gray-600">
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
                         {String(drug.originBrand)}{drug.originRegion ? ` (${drug.originRegion})` : ''}
                       </div>
                     )}
-                    <div className="text-xs text-gray-500">RXCUI: {drug.rxcui}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">RXCUI: {drug.rxcui}</div>
                   </div>
                   <button
                     onClick={() => handleRemoveAt(i)}
@@ -1049,12 +1049,12 @@ const InteractionCheckerInner: React.FC = () => {
 
         {/* Action Buttons */}
         <div className="mt-6 flex flex-col sm:flex-row gap-4 items-start">
-          <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+          <label className="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
             <input
               type="checkbox"
               checked={consolidateFormulations}
               onChange={(e) => setConsolidateFormulations(e.target.checked)}
-              className="rounded border-gray-300"
+              className="rounded border-gray-300 dark:border-gray-600"
             />
             Consolidate formulations (same base drug)
           </label>
@@ -1123,7 +1123,7 @@ const InteractionCheckerInner: React.FC = () => {
                   Try Again
                 </button>
                 {errorDetails.type === 'network' && (
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     Check your internet connection and try again
                   </span>
                 )}
@@ -1143,12 +1143,12 @@ const InteractionCheckerInner: React.FC = () => {
         <div ref={resultsRef} className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
-              <h2 className="text-xl font-semibold text-gray-900">Interaction Analysis</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Interaction Analysis</h2>
               <Tooltip content="Comprehensive analysis of drug-drug interactions from curated clinical databases including severity classification and evidence-based recommendations">
                 <Info className="w-4 h-4 text-gray-400" />
               </Tooltip>
             </div>
-            <div className="flex items-center space-x-4 text-sm text-gray-600">
+            <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
               {results.sources && (
                 <>
                   <Tooltip content="Results from OncoSafeRx curated interaction database with clinically validated drug pairs">
@@ -1189,7 +1189,7 @@ const InteractionCheckerInner: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="text-xl font-semibold text-gray-900">Alternatives (beta)</h2>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Alternatives (beta)</h2>
                 <Tooltip content="AI-powered drug alternative suggestions to reduce interaction risk while maintaining therapeutic efficacy. Considers patient factors, formulary status, and pharmacogenomics.">
                   <Info className="w-4 h-4 text-gray-400" />
                 </Tooltip>
@@ -1320,7 +1320,7 @@ const InteractionCheckerInner: React.FC = () => {
                   {s.best && (
                     <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full shadow">Best</div>
                   )}
-                  <div className="text-sm text-gray-700">
+                  <div className="text-sm text-gray-700 dark:text-gray-300">
                     Consider replacing <strong>{s.forDrug?.name}</strong> (with {s.withDrug?.name})
                     with <strong>{s.alternative?.name}</strong>.
                   </div>
@@ -1343,7 +1343,7 @@ const InteractionCheckerInner: React.FC = () => {
                     </div>
                   )}
                   {(s.costHint || s.formulary) && (
-                    <div className="mt-1 text-xs text-gray-600">{s.costHint ? s.costHint : ''} {s.formulary ? `• ${s.formulary}` : ''}</div>
+                    <div className="mt-1 text-xs text-gray-600 dark:text-gray-400">{s.costHint ? s.costHint : ''} {s.formulary ? `• ${s.formulary}` : ''}</div>
                   )}
                   {s.citations?.length > 0 && (
                     <div className="text-xs text-gray-500 mt-1 space-x-2">
@@ -1369,7 +1369,7 @@ const InteractionCheckerInner: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Dna className="w-5 h-5 text-purple-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Pharmacogenomics Analysis</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Pharmacogenomics Analysis</h3>
               <Tooltip content="Add genetic phenotypes to get personalized dosing recommendations and identify potential genetic-based drug responses">
                 <Info className="w-4 h-4 text-gray-400" />
               </Tooltip>
@@ -1405,7 +1405,7 @@ const InteractionCheckerInner: React.FC = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Brain className="w-5 h-5 text-purple-600" />
-              <h3 className="text-lg font-semibold text-gray-900">AI Clinical Intelligence</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">AI Clinical Intelligence</h3>
               <div className="flex items-center space-x-1">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                 <span className="text-xs text-green-600 font-medium">99.2% Accuracy</span>

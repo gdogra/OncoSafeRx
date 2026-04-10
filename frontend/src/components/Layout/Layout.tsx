@@ -77,17 +77,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between lg:hidden">
             <button
               onClick={toggleSidebar}
-              className="p-2 rounded-md hover:bg-gray-100"
+              className="p-2 rounded-md hover:bg-gray-100 dark:bg-gray-800"
               aria-label="Open sidebar"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <h1 className="text-lg font-semibold text-gray-900">OncoSafeRx</h1>
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">OncoSafeRx</h1>
             <div className="flex items-center gap-2">
               {envLabel && (
-                <span className="px-2 py-0.5 rounded-full text-xs font-medium border bg-gray-50 text-gray-700 border-gray-200" title={`Environment: ${envLabel}`}>
+                <span className="px-2 py-0.5 rounded-full text-xs font-medium border bg-gray-50 text-gray-700 border-gray-200 dark:border-gray-700" title={`Environment: ${envLabel}`}>
                   {envLabel}
                 </span>
               )}
@@ -96,7 +96,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   className={`px-2 py-0.5 rounded-full text-xs font-medium border ${
                     role === 'admin' || role === 'super_admin'
                       ? 'bg-red-50 text-red-700 border-red-200'
-                      : 'bg-gray-50 text-gray-700 border-gray-200'
+                      : 'bg-gray-50 text-gray-700 border-gray-200 dark:border-gray-700'
                   }`}
                   title={`Role: ${role}`}
                 >
@@ -105,9 +105,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               )}
               {(role === 'admin' || role === 'super_admin') && (
                 <>
-                  <Link to="/admin" className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-50" title="Admin Home">
+                  <Link to="/admin" className="inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium border border-gray-300 rounded-md bg-white hover:bg-gray-50 dark:bg-gray-800" title="Admin Home">
                     <Shield className="w-3.5 h-3.5 text-red-600" />
-                    <span className="text-gray-800">Admin</span>
+                    <span className="text-gray-800 dark:text-gray-200">Admin</span>
                   </Link>
                   <AdminApiStatus />
                 </>
@@ -127,14 +127,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             {!isMobile && (
               <div className="flex justify-end items-center gap-3 mb-4">
                 {envLabel && (
-                  <span className="px-2.5 py-1 rounded-full text-xs font-medium border bg-gray-50 text-gray-700 border-gray-200" title={`Environment: ${envLabel}`}>{envLabel}</span>
+                  <span className="px-2.5 py-1 rounded-full text-xs font-medium border bg-gray-50 text-gray-700 border-gray-200 dark:border-gray-700" title={`Environment: ${envLabel}`}>{envLabel}</span>
                 )}
                 {role && (
                   <span
                     className={`px-2.5 py-1 rounded-full text-xs font-medium border ${
                       role === 'admin' || role === 'super_admin'
                         ? 'bg-red-50 text-red-700 border-red-200'
-                        : 'bg-gray-50 text-gray-700 border-gray-200'
+                        : 'bg-gray-50 text-gray-700 border-gray-200 dark:border-gray-700'
                     }`}
                     title={`Role: ${role}`}
                   >
@@ -143,9 +143,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 )}
                 {(role === 'admin' || role === 'super_admin') && (
                   <>
-                    <Link to="/admin" className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-gray-300 rounded-md text-xs bg-white hover:bg-gray-50" title="Admin Home">
+                    <Link to="/admin" className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-gray-300 rounded-md text-xs bg-white hover:bg-gray-50 dark:bg-gray-800" title="Admin Home">
                       <Shield className="w-4 h-4 text-red-600" />
-                      <span className="text-gray-800">Admin</span>
+                      <span className="text-gray-800 dark:text-gray-200">Admin</span>
                     </Link>
                     <AdminApiStatus />
                   </>
@@ -167,7 +167,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       alert('Onboarding tour will open shortly.');
                     } catch {}
                   }}
-                  className="px-2.5 py-1 border border-gray-300 rounded-md text-xs bg-white hover:bg-gray-50"
+                  className="px-2.5 py-1 border border-gray-300 rounded-md text-xs bg-white hover:bg-gray-50 dark:bg-gray-800"
                   title="Open onboarding tour"
                 >
                   Tour
@@ -195,13 +195,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 © 2024 OncoSafeRx. Built for precision oncology and pharmacogenomics.
               </div>
               <div className="flex space-x-6">
-                <a href="#" className="text-sm text-gray-500 hover:text-gray-900">
+                <a href="#" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-100">
                   Privacy Policy
                 </a>
-                <a href="/terms-of-service" className="text-sm text-gray-500 hover:text-gray-900">
+                <a href="/terms-of-service" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-100">
                   Terms of Service
                 </a>
-                <a href="/privacy-policy" className="text-sm text-gray-500 hover:text-gray-900">
+                <a href="/privacy-policy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-gray-100">
                   Privacy Policy
                 </a>
               </div>
@@ -231,7 +231,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Auth path indicator (dev/debug) */}
       {String((import.meta as any)?.env?.VITE_SHOW_AUTH_PATH || '') === 'true' && (
-        <div className="fixed bottom-3 left-3 z-50 text-xs text-gray-700 bg-white/90 border border-gray-200 rounded px-2 py-1 shadow-sm">
+        <div className="fixed bottom-3 left-3 z-50 text-xs text-gray-700 bg-white dark:bg-gray-900/90 border border-gray-200 rounded px-2 py-1 shadow-sm">
           {(() => {
             try {
               const raw = window.localStorage.getItem('osrx_auth_path');

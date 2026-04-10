@@ -298,20 +298,20 @@ const RegulatoryComplianceSystem: React.FC = () => {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Active Frameworks</p>
-              <p className="text-2xl font-bold text-gray-900">{frameworks.filter(f => f.status === 'active').length}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Active Frameworks</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{frameworks.filter(f => f.status === 'active').length}</p>
             </div>
             <FileCheck className="w-8 h-8 text-green-600" />
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Audit Violations</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Audit Violations</p>
               <p className="text-2xl font-bold text-red-600">
                 {auditLogs.filter(log => log.complianceStatus === 'violation').length}
               </p>
@@ -320,10 +320,10 @@ const RegulatoryComplianceSystem: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Pending Reports</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Pending Reports</p>
               <p className="text-2xl font-bold text-orange-600">
                 {reports.filter(report => report.status === 'draft').length}
               </p>
@@ -332,11 +332,11 @@ const RegulatoryComplianceSystem: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Last Audit</p>
-              <p className="text-sm font-medium text-gray-900">Jan 15, 2024</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Last Audit</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Jan 15, 2024</p>
             </div>
             <Calendar className="w-8 h-8 text-blue-600" />
           </div>
@@ -344,9 +344,9 @@ const RegulatoryComplianceSystem: React.FC = () => {
       </div>
 
       {/* Recent Violations */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Recent Compliance Issues</h3>
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Compliance Issues</h3>
         </div>
         <div className="p-6">
           {auditLogs.filter(log => log.complianceStatus !== 'compliant').slice(0, 3).map(log => (
@@ -361,16 +361,16 @@ const RegulatoryComplianceSystem: React.FC = () => {
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-medium text-gray-900">{log.action.replace(/_/g, ' ')}</h4>
-                  <span className="text-xs text-gray-500">
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">{log.action.replace(/_/g, ' ')}</h4>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
                     {new Date(log.timestamp).toLocaleDateString()}
                   </span>
                 </div>
                 <p className="text-sm text-gray-600 mt-1">{log.details}</p>
                 <div className="flex items-center space-x-2 mt-2">
-                  <span className="text-xs text-gray-500">User: {log.userName}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">User: {log.userName}</span>
                   <span className="text-xs text-gray-400">•</span>
-                  <span className="text-xs text-gray-500">Frameworks: {log.regulatoryFramework.join(', ')}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Frameworks: {log.regulatoryFramework.join(', ')}</span>
                 </div>
               </div>
             </div>
@@ -379,9 +379,9 @@ const RegulatoryComplianceSystem: React.FC = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Actions</h3>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -458,12 +458,12 @@ const RegulatoryComplianceSystem: React.FC = () => {
 
       {/* Audit Log Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Audit Trail</h3>
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Audit Trail</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Timestamp
@@ -487,20 +487,20 @@ const RegulatoryComplianceSystem: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {auditLogs.map(log => (
-                <tr key={log.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <tr key={log.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                     {new Date(log.timestamp).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <User className="w-4 h-4 text-gray-400 mr-2" />
-                      <span className="text-sm text-gray-900">{log.userName}</span>
+                      <span className="text-sm text-gray-900 dark:text-gray-100">{log.userName}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                     {log.action.replace(/_/g, ' ')}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {log.resourceType} ({log.resourceId})
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -512,7 +512,7 @@ const RegulatoryComplianceSystem: React.FC = () => {
                       {log.complianceStatus}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {log.regulatoryFramework.join(', ')}
                   </td>
                 </tr>
@@ -527,19 +527,19 @@ const RegulatoryComplianceSystem: React.FC = () => {
   const renderFrameworks = () => (
     <div className="space-y-6">
       {frameworks.map(framework => (
-        <div key={framework.id} className="bg-white rounded-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div key={framework.id} className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{framework.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{framework.name}</h3>
                 <p className="text-sm text-gray-600 mt-1">{framework.description}</p>
                 <div className="flex items-center space-x-4 mt-2">
-                  <span className="text-xs text-gray-500">Version: {framework.version}</span>
-                  <span className="text-xs text-gray-500">Jurisdiction: {framework.jurisdiction}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Version: {framework.version}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Jurisdiction: {framework.jurisdiction}</span>
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                     framework.status === 'active' ? 'bg-green-100 text-green-800' :
                     framework.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-gray-100 text-gray-800'
+                    'bg-gray-100 text-gray-800 dark:text-gray-200'
                   }`}>
                     {framework.status}
                   </span>
@@ -556,7 +556,7 @@ const RegulatoryComplianceSystem: React.FC = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
-                        <h5 className="text-sm font-medium text-gray-900">{requirement.title}</h5>
+                        <h5 className="text-sm font-medium text-gray-900 dark:text-gray-100">{requirement.title}</h5>
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                           requirement.severity === 'critical' ? 'bg-red-100 text-red-800' :
                           requirement.severity === 'high' ? 'bg-orange-100 text-orange-800' :
@@ -573,7 +573,7 @@ const RegulatoryComplianceSystem: React.FC = () => {
                       requirement.status === 'compliant' ? 'bg-green-100 text-green-800' :
                       requirement.status === 'partial' ? 'bg-yellow-100 text-yellow-800' :
                       requirement.status === 'non-compliant' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
+                      'bg-gray-100 text-gray-800 dark:text-gray-200'
                     }`}>
                       {requirement.status.replace('-', ' ')}
                     </span>
@@ -631,7 +631,7 @@ const RegulatoryComplianceSystem: React.FC = () => {
           
           <button 
             onClick={() => exportComplianceData('csv')}
-            className="flex flex-col items-center p-6 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
+            className="flex flex-col items-center p-6 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200 dark:border-gray-700"
           >
             <Download className="w-12 h-12 text-gray-600 mb-3" />
             <h4 className="font-medium text-gray-900 mb-1">Raw Data Export</h4>
@@ -650,10 +650,10 @@ const RegulatoryComplianceSystem: React.FC = () => {
       </div>
 
       {/* Available Reports */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Available Reports</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Available Reports</h3>
             <div className="flex items-center space-x-2">
               <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm">
                 <option value="all">All Report Types</option>
@@ -662,7 +662,7 @@ const RegulatoryComplianceSystem: React.FC = () => {
                 <option value="gdpr">GDPR Reports</option>
                 <option value="custom">Custom Reports</option>
               </select>
-              <RefreshCw className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600" />
+              <RefreshCw className="w-4 h-4 text-gray-400 cursor-pointer hover:text-gray-600 dark:text-gray-400" />
             </div>
           </div>
         </div>
@@ -674,7 +674,7 @@ const RegulatoryComplianceSystem: React.FC = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
-                      <h4 className="font-medium text-gray-900">{report.title}</h4>
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">{report.title}</h4>
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         report.status === 'final' ? 'bg-green-100 text-green-800' :
                         report.status === 'draft' ? 'bg-yellow-100 text-yellow-800' :
@@ -686,7 +686,7 @@ const RegulatoryComplianceSystem: React.FC = () => {
                         report.reportType === 'hipaa' ? 'bg-blue-100 text-blue-800' :
                         report.reportType === 'fda' ? 'bg-green-100 text-green-800' :
                         report.reportType === 'gdpr' ? 'bg-purple-100 text-purple-800' :
-                        'bg-gray-100 text-gray-800'
+                        'bg-gray-100 text-gray-800 dark:text-gray-200'
                       }`}>
                         {report.reportType.toUpperCase()}
                       </span>
@@ -722,7 +722,7 @@ const RegulatoryComplianceSystem: React.FC = () => {
                                       {finding.severity}
                                     </span>
                                   </div>
-                                  <h6 className="text-sm font-medium text-gray-900">{finding.title}</h6>
+                                  <h6 className="text-sm font-medium text-gray-900 dark:text-gray-100">{finding.title}</h6>
                                   <p className="text-xs text-gray-600 mt-1">{finding.description}</p>
                                 </div>
                               </div>
@@ -809,10 +809,10 @@ const RegulatoryComplianceSystem: React.FC = () => {
   const renderPolicies = () => (
     <div className="space-y-6">
       {/* Policy Categories */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Organizational Policies & Procedures</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Organizational Policies & Procedures</h3>
             <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               <Upload className="w-4 h-4" />
               <span>Upload Policy</span>
@@ -848,10 +848,10 @@ const RegulatoryComplianceSystem: React.FC = () => {
       </div>
 
       {/* Policy Documents */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Policy Documents</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Policy Documents</h3>
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -935,12 +935,12 @@ const RegulatoryComplianceSystem: React.FC = () => {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
-                      <h4 className="font-medium text-gray-900">{policy.title}</h4>
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">{policy.title}</h4>
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         policy.status === 'Active' ? 'bg-green-100 text-green-800' :
                         policy.status === 'Under Review' ? 'bg-yellow-100 text-yellow-800' :
                         policy.status === 'Pending Approval' ? 'bg-blue-100 text-blue-800' :
-                        'bg-gray-100 text-gray-800'
+                        'bg-gray-100 text-gray-800 dark:text-gray-200'
                       }`}>
                         {policy.status}
                       </span>
@@ -951,7 +951,7 @@ const RegulatoryComplianceSystem: React.FC = () => {
                     
                     <p className="text-sm text-gray-600 mb-3">{policy.description}</p>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs text-gray-500">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs text-gray-500 dark:text-gray-400">
                       <div>
                         <span className="font-medium">Category:</span> {policy.category}
                       </div>
@@ -1000,8 +1000,8 @@ const RegulatoryComplianceSystem: React.FC = () => {
             ].map((item, index) => (
               <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded">
                 <div>
-                  <h4 className="text-sm font-medium text-gray-900">{item.name}</h4>
-                  <p className="text-xs text-gray-600">Due: {item.dueDate}</p>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.name}</h4>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Due: {item.dueDate}</p>
                 </div>
                 <div className="text-right">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -1021,7 +1021,7 @@ const RegulatoryComplianceSystem: React.FC = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Policy Training Status</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Overall Training Completion</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Overall Training Completion</span>
               <span className="text-sm font-medium">87%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
@@ -1035,7 +1035,7 @@ const RegulatoryComplianceSystem: React.FC = () => {
                 { policy: 'Incident Response', completion: 74 }
               ].map((item, index) => (
                 <div key={index} className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">{item.policy}</span>
+                  <span className="text-gray-600 dark:text-gray-400">{item.policy}</span>
                   <span className="font-medium">{item.completion}%</span>
                 </div>
               ))}
@@ -1051,7 +1051,7 @@ const RegulatoryComplianceSystem: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="flex items-center space-x-2">
           <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
-          <span className="text-gray-600">Loading compliance data...</span>
+          <span className="text-gray-600 dark:text-gray-400">Loading compliance data...</span>
         </div>
       </div>
     );
@@ -1066,8 +1066,8 @@ const RegulatoryComplianceSystem: React.FC = () => {
             <Shield className="w-6 h-6 text-blue-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Regulatory Compliance & Documentation</h1>
-            <p className="text-gray-600">Comprehensive regulatory compliance management and audit system</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Regulatory Compliance & Documentation</h1>
+            <p className="text-gray-600 dark:text-gray-400">Comprehensive regulatory compliance management and audit system</p>
           </div>
         </div>
       </div>
@@ -1090,7 +1090,7 @@ const RegulatoryComplianceSystem: React.FC = () => {
                 className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab.id
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                 }`}
               >
                 <Icon className="w-4 h-4" />

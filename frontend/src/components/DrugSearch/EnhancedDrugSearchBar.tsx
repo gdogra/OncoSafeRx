@@ -246,9 +246,9 @@ const EnhancedDrugSearchBar: React.FC<EnhancedDrugSearchBarProps> = ({
         <li>Use partial names (e.g., "pembro" for pembrolizumab)</li>
         <li>Case doesn't matter (e.g., "WARFARIN" = "warfarin")</li>
       </ul>
-      <div className="mt-2 pt-2 border-t border-gray-200">
+      <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
         <div className="font-semibold">Drug Types Supported:</div>
-        <div className="text-gray-600">Oncology drugs, supportive care, anticoagulants, and more</div>
+        <div className="text-gray-600 dark:text-gray-400">Oncology drugs, supportive care, anticoagulants, and more</div>
       </div>
     </div>
   );
@@ -367,7 +367,7 @@ const EnhancedDrugSearchBar: React.FC<EnhancedDrugSearchBarProps> = ({
 
       {/* Recent searches indicator */}
       {searchHistory.length > 0 && (
-        <div className="mt-2 flex items-center text-xs text-gray-500">
+        <div className="mt-2 flex items-center text-xs text-gray-500 dark:text-gray-400">
           <Pill className="w-3 h-3 mr-1" />
           <span>Recent: {searchHistory.slice(0, 3).map((d: Drug) => d.name).join(', ')}</span>
           {searchHistory.length > 3 && <span> and {searchHistory.length - 3} more...</span>}

@@ -44,10 +44,10 @@ const AuthCheckEmail: React.FC = () => {
           <div className="flex items-center justify-center">
             <Mail className="w-10 h-10 text-primary-600" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {isSuccess ? 'Account Created Successfully!' : 'Check your email'}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             {isSuccess ? (
               <>
                 Your OncoSafeRx account has been created and you can start using the platform immediately. 

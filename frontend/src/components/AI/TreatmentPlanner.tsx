@@ -781,7 +781,7 @@ const TreatmentPlanner: React.FC = () => {
       case 'Phase 2': return 'bg-green-100 text-green-800';
       case 'Phase 3': return 'bg-purple-100 text-purple-800';
       case 'Phase 4': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -798,7 +798,7 @@ const TreatmentPlanner: React.FC = () => {
       case 'Normal': return 'bg-green-100 text-green-800';
       case 'Rapid': return 'bg-blue-100 text-blue-800';
       case 'Ultrarapid': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -807,7 +807,7 @@ const TreatmentPlanner: React.FC = () => {
       case 'High': return 'bg-red-100 text-red-800 border-red-200';
       case 'Moderate': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'Low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -818,7 +818,7 @@ const TreatmentPlanner: React.FC = () => {
       case 'Increased': return 'bg-blue-100 text-blue-800';
       case 'Alternative': return 'bg-orange-100 text-orange-800';
       case 'Avoid': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -1016,8 +1016,8 @@ const TreatmentPlanner: React.FC = () => {
     return (
       <div className="relative h-64 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border">
         <div className="flex items-center justify-between mb-4">
-          <h6 className="font-semibold text-gray-900">Treatment Response Timeline</h6>
-          <div className="flex items-center space-x-2 text-xs text-gray-600">
+          <h6 className="font-semibold text-gray-900 dark:text-gray-100">Treatment Response Timeline</h6>
+          <div className="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-400">
             <div className="flex items-center space-x-1">
               <div className="w-3 h-3 bg-green-500 rounded-full"></div>
               <span>Response Rate</span>
@@ -1037,7 +1037,7 @@ const TreatmentPlanner: React.FC = () => {
           {/* Grid lines */}
           <div className="absolute inset-0 grid grid-rows-5 opacity-20">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="border-t border-gray-300"></div>
+              <div key={i} className="border-t border-gray-300 dark:border-gray-600"></div>
             ))}
           </div>
           
@@ -1125,18 +1125,18 @@ const TreatmentPlanner: React.FC = () => {
     return (
       <div className="p-4 bg-gradient-to-br from-gray-50 to-blue-50 rounded-lg border">
         <div className="flex items-center justify-between mb-4">
-          <h6 className="font-semibold text-gray-900">Outcome Predictions vs Targets</h6>
-          <div className="text-xs text-gray-600">Genomic Compatibility: {protocol.genomicCompatibility}%</div>
+          <h6 className="font-semibold text-gray-900 dark:text-gray-100">Outcome Predictions vs Targets</h6>
+          <div className="text-xs text-gray-600 dark:text-gray-400">Genomic Compatibility: {protocol.genomicCompatibility}%</div>
         </div>
         
         <div className="space-y-4">
           {outcomes.map((outcome, index) => (
             <div key={index} className="relative">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-medium text-gray-700">{outcome.label}</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{outcome.label}</span>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm font-bold text-gray-900">{outcome.value}%</span>
-                  <span className="text-xs text-gray-500">Target: {outcome.target}%</span>
+                  <span className="text-sm font-bold text-gray-900 dark:text-gray-100">{outcome.value}%</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Target: {outcome.target}%</span>
                 </div>
               </div>
               
@@ -1193,16 +1193,16 @@ const TreatmentPlanner: React.FC = () => {
     return (
       <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border">
         <div className="flex items-center justify-between mb-4">
-          <h6 className="font-semibold text-gray-900">Biomarker Trends</h6>
-          <div className="text-xs text-gray-600">Predicted trajectory over 24 months</div>
+          <h6 className="font-semibold text-gray-900 dark:text-gray-100">Biomarker Trends</h6>
+          <div className="text-xs text-gray-600 dark:text-gray-400">Predicted trajectory over 24 months</div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {Object.entries(biomarkers).map(([biomarker, data]: [string, any]) => (
             <div key={biomarker} className="bg-white p-3 rounded border">
               <div className="flex items-center justify-between mb-2">
-                <h6 className="font-medium text-gray-900">{biomarker}</h6>
-                <span className="text-xs text-gray-600">Baseline: {data.baseline}</span>
+                <h6 className="font-medium text-gray-900 dark:text-gray-100">{biomarker}</h6>
+                <span className="text-xs text-gray-600 dark:text-gray-400">Baseline: {data.baseline}</span>
               </div>
               
               <div className="relative h-20">
@@ -1223,11 +1223,11 @@ const TreatmentPlanner: React.FC = () => {
                 
                 {/* Baseline reference line */}
                 <div className="absolute w-full border-t border-dashed border-gray-400 opacity-50" style={{ top: '60px' }}>
-                  <span className="absolute -left-12 -top-2 text-xs text-gray-500">Baseline</span>
+                  <span className="absolute -left-12 -top-2 text-xs text-gray-500 dark:text-gray-400">Baseline</span>
                 </div>
               </div>
               
-              <div className="mt-2 text-xs text-gray-600">
+              <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
                 Current trend: {data.predicted[data.predicted.length - 1] < data.baseline ? 
                   <span className="text-green-600">Improving ↓</span> : 
                   <span className="text-red-600">Worsening ↑</span>
@@ -1273,7 +1273,7 @@ const TreatmentPlanner: React.FC = () => {
     return (
       <div className="p-4 bg-gradient-to-br from-red-50 to-orange-50 rounded-lg border">
         <div className="flex items-center justify-between mb-4">
-          <h6 className="font-semibold text-gray-900">Genomic Risk Heat Map</h6>
+          <h6 className="font-semibold text-gray-900 dark:text-gray-100">Genomic Risk Heat Map</h6>
           <div className="flex items-center space-x-2 text-xs">
             <span>Low</span>
             <div className="flex space-x-1">
@@ -1317,7 +1317,7 @@ const TreatmentPlanner: React.FC = () => {
           ))}
         </div>
         
-        <div className="mt-4 text-xs text-gray-600">
+        <div className="mt-4 text-xs text-gray-600 dark:text-gray-400">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <strong>High Risk Factors:</strong>
@@ -1347,7 +1347,7 @@ const TreatmentPlanner: React.FC = () => {
       case 'high': return <AlertTriangle className="w-4 h-4 text-red-500" />;
       case 'medium': return <Clock className="w-4 h-4 text-yellow-500" />;
       case 'low': return <CheckCircle className="w-4 h-4 text-green-500" />;
-      default: return <Activity className="w-4 h-4 text-gray-500" />;
+      default: return <Activity className="w-4 h-4 text-gray-500 dark:text-gray-400" />;
     }
   };
 
@@ -1356,7 +1356,7 @@ const TreatmentPlanner: React.FC = () => {
       'I': 'bg-green-100 text-green-800',
       'II': 'bg-blue-100 text-blue-800',
       'III': 'bg-yellow-100 text-yellow-800',
-      'IV': 'bg-gray-100 text-gray-800'
+      'IV': 'bg-gray-100 text-gray-800 dark:text-gray-200'
     };
     return colors[level as keyof typeof colors] || colors['IV'];
   };
@@ -1425,8 +1425,8 @@ const TreatmentPlanner: React.FC = () => {
         <div className="flex items-center space-x-3">
           <Brain className="w-8 h-8 text-purple-600" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">AI Treatment Planner</h1>
-            <p className="text-gray-600">Step-by-step genomic-optimized treatment planning</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">AI Treatment Planner</h1>
+            <p className="text-gray-600 dark:text-gray-400">Step-by-step genomic-optimized treatment planning</p>
           </div>
         </div>
         <div className="flex items-center space-x-4">
@@ -1458,8 +1458,8 @@ const TreatmentPlanner: React.FC = () => {
       <Card>
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">Treatment Planning Workflow</h2>
-            <span className="text-sm text-gray-500">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Treatment Planning Workflow</h2>
+            <span className="text-sm text-gray-500 dark:text-gray-400">
               Step {getCurrentStepIndex() + 1} of {wizardSteps.length}
             </span>
           </div>
@@ -1485,7 +1485,7 @@ const TreatmentPlanner: React.FC = () => {
                     </div>
                     <div className="text-center mt-2">
                       <div className={`text-sm font-medium ${
-                        isActive ? 'text-purple-600' : isCompleted ? 'text-green-600' : 'text-gray-500'
+                        isActive ? 'text-purple-600' : isCompleted ? 'text-green-600' : 'text-gray-500 dark:text-gray-400'
                       }`}>
                         {step.title}
                       </div>
@@ -1520,7 +1520,7 @@ const TreatmentPlanner: React.FC = () => {
               <span className="text-sm">← Previous</span>
             </button>
             
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
               {wizardSteps[getCurrentStepIndex()].description}
             </div>
             
@@ -1578,13 +1578,13 @@ const TreatmentPlanner: React.FC = () => {
                 {getPriorityIcon(insight.priority)}
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-1">
-                    <h4 className="font-medium text-gray-900">{insight.title}</h4>
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100">{insight.title}</h4>
                     <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                       {insight.confidence}% confidence
                     </span>
                   </div>
                   <p className="text-sm text-gray-600 mb-1">{insight.description}</p>
-                  <p className="text-xs text-gray-500">Source: {insight.source}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Source: {insight.source}</p>
                 </div>
                 {insight.actionable && (
                   <button className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
@@ -1621,8 +1621,8 @@ const TreatmentPlanner: React.FC = () => {
             <div className="flex items-center space-x-3">
               <Calculator className="w-6 h-6 text-purple-600" />
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">Treatment Simulator</h3>
-                <p className="text-sm text-gray-600">Explore "what-if" scenarios and optimize treatment plans</p>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Treatment Simulator</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Explore "what-if" scenarios and optimize treatment plans</p>
               </div>
             </div>
             <button
@@ -1678,7 +1678,7 @@ const TreatmentPlanner: React.FC = () => {
                           }))}
                           className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                         />
-                        <span className="text-sm text-gray-700">Add enhanced supportive care</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Add enhanced supportive care</span>
                       </label>
                       
                       <label className="flex items-center space-x-2">
@@ -1691,7 +1691,7 @@ const TreatmentPlanner: React.FC = () => {
                           }))}
                           className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                         />
-                        <span className="text-sm text-gray-700">Modified infusion schedule</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Modified infusion schedule</span>
                       </label>
                       
                       <label className="flex items-center space-x-2">
@@ -1704,7 +1704,7 @@ const TreatmentPlanner: React.FC = () => {
                           }))}
                           className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                         />
-                        <span className="text-sm text-gray-700">Add combination therapy</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Add combination therapy</span>
                       </label>
                     </div>
                   </div>
@@ -1736,10 +1736,10 @@ const TreatmentPlanner: React.FC = () => {
                     {simulationState.isRunning && (
                       <div>
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-gray-700">
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             Simulation Progress
                           </span>
-                          <span className="text-sm text-gray-600">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">
                             {simulationState.currentStep}/{simulationState.totalSteps}
                           </span>
                         </div>
@@ -1766,7 +1766,7 @@ const TreatmentPlanner: React.FC = () => {
                       <div key={scenario.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                         <div className="flex items-start justify-between mb-3">
                           <div>
-                            <h5 className="font-medium text-gray-900">{scenario.name}</h5>
+                            <h5 className="font-medium text-gray-900 dark:text-gray-100">{scenario.name}</h5>
                             <p className="text-sm text-gray-600 mt-1">{scenario.description}</p>
                           </div>
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -1782,21 +1782,21 @@ const TreatmentPlanner: React.FC = () => {
 
                         <div className="space-y-2 mb-4">
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">Response Rate:</span>
+                            <span className="text-gray-600 dark:text-gray-400">Response Rate:</span>
                             <span className="font-medium text-green-600">{scenario.predictedOutcomes.responseRate}%</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">Quality of Life:</span>
+                            <span className="text-gray-600 dark:text-gray-400">Quality of Life:</span>
                             <span className="font-medium text-blue-600">{scenario.predictedOutcomes.qualityOfLife}%</span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">Toxicity Reduction:</span>
+                            <span className="text-gray-600 dark:text-gray-400">Toxicity Reduction:</span>
                             <span className={`font-medium ${scenario.predictedOutcomes.toxicityReduction >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                               {scenario.predictedOutcomes.toxicityReduction >= 0 ? '+' : ''}{scenario.predictedOutcomes.toxicityReduction}%
                             </span>
                           </div>
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">Confidence:</span>
+                            <span className="text-gray-600 dark:text-gray-400">Confidence:</span>
                             <span className="font-medium text-purple-600">{scenario.predictedOutcomes.confidence}%</span>
                           </div>
                         </div>
@@ -1821,7 +1821,7 @@ const TreatmentPlanner: React.FC = () => {
                   <h4 className="font-semibold text-gray-900 mb-4">Scenario Comparison</h4>
                   <div className="overflow-x-auto">
                     <table className="min-w-full border border-gray-200 rounded-lg">
-                      <thead className="bg-gray-50">
+                      <thead className="bg-gray-50 dark:bg-gray-800">
                         <tr>
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Metric
@@ -1838,28 +1838,28 @@ const TreatmentPlanner: React.FC = () => {
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
                         <tr>
-                          <td className="px-4 py-3 text-sm font-medium text-gray-900">Response Rate</td>
-                          <td className="px-4 py-3 text-sm text-gray-600">{simulationState.comparison.baseline.expectedOutcome.responseRate}%</td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">Response Rate</td>
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{simulationState.comparison.baseline.expectedOutcome.responseRate}%</td>
                           {simulationState.comparison.scenarios.map((scenario) => (
-                            <td key={`${scenario.id}-response`} className="px-4 py-3 text-sm text-gray-600">
+                            <td key={`${scenario.id}-response`} className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                               {scenario.predictedOutcomes.responseRate}%
                             </td>
                           ))}
                         </tr>
                         <tr>
-                          <td className="px-4 py-3 text-sm font-medium text-gray-900">Quality of Life</td>
-                          <td className="px-4 py-3 text-sm text-gray-600">{simulationState.comparison.baseline.expectedOutcome.qualityOfLife}%</td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">Quality of Life</td>
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{simulationState.comparison.baseline.expectedOutcome.qualityOfLife}%</td>
                           {simulationState.comparison.scenarios.map((scenario) => (
-                            <td key={`${scenario.id}-qol`} className="px-4 py-3 text-sm text-gray-600">
+                            <td key={`${scenario.id}-qol`} className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                               {scenario.predictedOutcomes.qualityOfLife}%
                             </td>
                           ))}
                         </tr>
                         <tr>
-                          <td className="px-4 py-3 text-sm font-medium text-gray-900">Survival Benefit</td>
-                          <td className="px-4 py-3 text-sm text-gray-600">{simulationState.comparison.baseline.expectedOutcome.survivalBenefit}%</td>
+                          <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">Survival Benefit</td>
+                          <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{simulationState.comparison.baseline.expectedOutcome.survivalBenefit}%</td>
                           {simulationState.comparison.scenarios.map((scenario) => (
-                            <td key={`${scenario.id}-survival`} className="px-4 py-3 text-sm text-gray-600">
+                            <td key={`${scenario.id}-survival`} className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                               {scenario.predictedOutcomes.survivalBenefit}%
                             </td>
                           ))}
@@ -1882,8 +1882,8 @@ const TreatmentPlanner: React.FC = () => {
             <div className="flex items-center space-x-3">
               <Microscope className="w-6 h-6 text-indigo-600" />
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">Genomic Biomarker Analysis</h3>
-                <p className="text-sm text-gray-600">Comprehensive pharmacogenomics and biomarker assessment</p>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Genomic Biomarker Analysis</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Comprehensive pharmacogenomics and biomarker assessment</p>
               </div>
             </div>
             <div className="flex space-x-2">
@@ -1911,7 +1911,7 @@ const TreatmentPlanner: React.FC = () => {
           {genomicAnalysisLoading && (
             <div className="flex items-center justify-center py-8">
               <LoadingSpinner size="lg" />
-              <span className="ml-3 text-lg text-gray-600">Running comprehensive pharmacogenomic analysis...</span>
+              <span className="ml-3 text-lg text-gray-600 dark:text-gray-400">Running comprehensive pharmacogenomic analysis...</span>
             </div>
           )}
 
@@ -1964,9 +1964,9 @@ const TreatmentPlanner: React.FC = () => {
                     <div key={gene} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h5 className="font-semibold text-gray-900">{data.gene}</h5>
+                          <h5 className="font-semibold text-gray-900 dark:text-gray-100">{data.gene}</h5>
                           <div className="flex items-center space-x-2 mt-1">
-                            <span className="text-sm text-gray-600">Genotype: {data.genotype}</span>
+                            <span className="text-sm text-gray-600 dark:text-gray-400">Genotype: {data.genotype}</span>
                             <span className={`text-xs font-medium px-2 py-1 rounded ${getMetabolizerColor(data.phenotype)}`}>
                               {data.phenotype} Metabolizer
                             </span>
@@ -1974,7 +1974,7 @@ const TreatmentPlanner: React.FC = () => {
                         </div>
                         <div className="text-right">
                           <div className="text-lg font-bold text-purple-600">{data.activityScore}</div>
-                          <div className="text-xs text-gray-500">Activity Score</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Activity Score</div>
                         </div>
                       </div>
 
@@ -2001,7 +2001,7 @@ const TreatmentPlanner: React.FC = () => {
                                   {rec.recommendation}
                                 </span>
                               </div>
-                              <p className="text-gray-600">{rec.rationale}</p>
+                              <p className="text-gray-600 dark:text-gray-400">{rec.rationale}</p>
                               {rec.dosageAdjustment && (
                                 <p className="text-indigo-600 font-medium mt-1">Dose: {rec.dosageAdjustment}</p>
                               )}
@@ -2025,17 +2025,17 @@ const TreatmentPlanner: React.FC = () => {
                     <div key={index} className={`p-4 rounded-lg border-2 ${getRiskLevelColor(risk.riskLevel)}`}>
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h5 className="font-semibold text-gray-900">{risk.allele}</h5>
+                          <h5 className="font-semibold text-gray-900 dark:text-gray-100">{risk.allele}</h5>
                           <div className="flex items-center space-x-2 mt-1">
-                            <span className="text-sm text-gray-600">Risk Type: {risk.riskType}</span>
+                            <span className="text-sm text-gray-600 dark:text-gray-400">Risk Type: {risk.riskType}</span>
                             <span className={`text-xs font-medium px-2 py-1 rounded ${getRiskLevelColor(risk.riskLevel)}`}>
                               {risk.riskLevel} Risk
                             </span>
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-sm font-medium text-gray-700">Affected Drugs:</div>
-                          <div className="text-xs text-gray-600">{risk.drugs.join(', ')}</div>
+                          <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Affected Drugs:</div>
+                          <div className="text-xs text-gray-600 dark:text-gray-400">{risk.drugs.join(', ')}</div>
                         </div>
                       </div>
                       
@@ -2066,7 +2066,7 @@ const TreatmentPlanner: React.FC = () => {
                     {genomicProfile.pharmacogenomics.otherBiomarkers.map((biomarker, index) => (
                       <div key={index} className="border rounded-lg p-4">
                         <div className="flex items-start justify-between mb-2">
-                          <h5 className="font-semibold text-gray-900">{biomarker.gene}</h5>
+                          <h5 className="font-semibold text-gray-900 dark:text-gray-100">{biomarker.gene}</h5>
                           <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
                             {biomarker.variant}
                           </span>
@@ -2121,7 +2121,7 @@ const TreatmentPlanner: React.FC = () => {
                       <h5 className="font-medium text-gray-900 mb-2">Drug-Specific Genomic Assessment:</h5>
                       <div className="overflow-x-auto">
                         <table className="min-w-full border border-gray-200 rounded-lg">
-                          <thead className="bg-gray-50">
+                          <thead className="bg-gray-50 dark:bg-gray-800">
                             <tr>
                               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Drug</th>
                               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Risk Level</th>
@@ -2133,15 +2133,15 @@ const TreatmentPlanner: React.FC = () => {
                           <tbody className="bg-white divide-y divide-gray-200">
                             {pharmacogenomicResults.drugAnalysis.map((analysis: any, index: number) => (
                               <tr key={index}>
-                                <td className="px-4 py-3 text-sm font-medium text-gray-900">{analysis.drug}</td>
+                                <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">{analysis.drug}</td>
                                 <td className="px-4 py-3">
                                   <span className={`text-xs font-medium px-2 py-1 rounded ${getRiskLevelColor(analysis.riskAssessment.overallRisk)}`}>
                                     {analysis.riskAssessment.overallRisk}
                                   </span>
                                 </td>
-                                <td className="px-4 py-3 text-sm text-gray-600">{analysis.riskAssessment.efficacyPrediction}%</td>
-                                <td className="px-4 py-3 text-sm text-gray-600">{analysis.riskAssessment.toxicityRisk}%</td>
-                                <td className="px-4 py-3 text-sm text-gray-600">
+                                <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{analysis.riskAssessment.efficacyPrediction}%</td>
+                                <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">{analysis.riskAssessment.toxicityRisk}%</td>
+                                <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                                   {pharmacogenomicResults.clinicalDecisionSupport.dosingGuidance.find((d: any) => d.drug === analysis.drug)?.recommendedDose || 'Standard'}
                                 </td>
                               </tr>
@@ -2165,8 +2165,8 @@ const TreatmentPlanner: React.FC = () => {
             <div className="flex items-center space-x-3">
               <TestTube className="w-6 h-6 text-green-600" />
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">Clinical Trial Matcher</h3>
-                <p className="text-sm text-gray-600">Find trials matching your treatment plan and patient profile</p>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Clinical Trial Matcher</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Find trials matching your treatment plan and patient profile</p>
               </div>
             </div>
             <div className="flex space-x-2">
@@ -2218,7 +2218,7 @@ const TreatmentPlanner: React.FC = () => {
           {trialMatchLoading && (
             <div className="flex items-center justify-center py-8">
               <LoadingSpinner size="lg" />
-              <span className="ml-3 text-lg text-gray-600">Analyzing patient profile and searching trials...</span>
+              <span className="ml-3 text-lg text-gray-600 dark:text-gray-400">Analyzing patient profile and searching trials...</span>
             </div>
           )}
 
@@ -2251,14 +2251,14 @@ const TreatmentPlanner: React.FC = () => {
                           <div className={`text-lg font-bold ${getEligibilityScoreColor(trial.eligibilityScore)}`}>
                             {trial.eligibilityScore}%
                           </div>
-                          <div className="text-xs text-gray-500">Match Score</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Match Score</div>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                           <h6 className="text-sm font-medium text-gray-700 mb-1">Location & Contact:</h6>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
                             <div className="flex items-center space-x-1">
                               <MapPin className="w-3 h-3" />
                               <span>{trial.location.name}</span>
@@ -2276,7 +2276,7 @@ const TreatmentPlanner: React.FC = () => {
                         
                         <div>
                           <h6 className="text-sm font-medium text-gray-700 mb-1">Enrollment Status:</h6>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
                             <div className="flex items-center space-x-1">
                               <Users className="w-3 h-3" />
                               <span>{trial.enrollmentStatus.current}/{trial.enrollmentStatus.target} enrolled</span>
@@ -2310,7 +2310,7 @@ const TreatmentPlanner: React.FC = () => {
 
                       <div className="mb-4">
                         <h6 className="text-sm font-medium text-gray-700 mb-1">Key Eligibility:</h6>
-                        <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                        <div className="grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-400">
                           <div><strong>Age:</strong> {trial.keyEligibility.ageRange}</div>
                           <div><strong>Performance:</strong> {trial.keyEligibility.performanceStatus}</div>
                           <div><strong>Prior Tx:</strong> {trial.keyEligibility.priorTreatments}</div>
@@ -2498,7 +2498,7 @@ const TreatmentPlanner: React.FC = () => {
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{protocol.name}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{protocol.name}</h3>
                   <div className="flex items-center space-x-2 mt-1">
                     <span className={`text-xs px-2 py-1 rounded-full ${getEvidenceBadge(protocol.evidenceLevel)}`}>
                       Evidence Level {protocol.evidenceLevel}
@@ -2514,11 +2514,11 @@ const TreatmentPlanner: React.FC = () => {
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-600">Response Rate</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Response Rate</p>
                     <p className="text-lg font-semibold text-green-600">{protocol.expectedOutcome.responseRate}%</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Confidence</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Confidence</p>
                     <p className="text-lg font-semibold text-blue-600">{protocol.expectedOutcome.confidence}%</p>
                   </div>
                 </div>
@@ -2528,7 +2528,7 @@ const TreatmentPlanner: React.FC = () => {
                   <div className="space-y-1">
                     {protocol.drugs.slice(0, 2).map((drug, index) => (
                       <div key={index} className="flex items-center justify-between text-sm">
-                        <span className="text-gray-900">{drug.name}</span>
+                        <span className="text-gray-900 dark:text-gray-100">{drug.name}</span>
                         <div className="flex items-center space-x-2">
                           <span className="text-green-600">{drug.efficacyPrediction}%</span>
                           <Shield className="w-3 h-3 text-blue-500" />
@@ -2540,8 +2540,8 @@ const TreatmentPlanner: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between pt-2 border-t">
-                  <span className="text-sm text-gray-600">Duration: {protocol.duration}</span>
-                  <span className="text-sm font-medium text-gray-900">${protocol.cost.toLocaleString()}</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Duration: {protocol.duration}</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">${protocol.cost.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -2567,7 +2567,7 @@ const TreatmentPlanner: React.FC = () => {
                   {selectedProtocol.drugs.map((drug, index) => (
                     <div key={index} className="border rounded-lg p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <h5 className="font-medium text-gray-900">{drug.name}</h5>
+                        <h5 className="font-medium text-gray-900 dark:text-gray-100">{drug.name}</h5>
                         <div className="flex items-center space-x-2">
                           <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">
                             Efficacy: {drug.efficacyPrediction}%
@@ -2580,7 +2580,7 @@ const TreatmentPlanner: React.FC = () => {
                       <p className="text-sm text-gray-600 mb-1">
                         <strong>Dosing:</strong> {drug.dosing}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         <strong>Genomic Optimization:</strong> {drug.genomicOptimization}
                       </p>
                     </div>
@@ -2650,15 +2650,15 @@ const TreatmentPlanner: React.FC = () => {
             <div className="flex items-center space-x-3">
               <BarChart3 className="w-6 h-6 text-indigo-600" />
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">Enhanced Visualizations</h3>
-                <p className="text-sm text-gray-600">Interactive charts and analytics for treatment insights</p>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Enhanced Visualizations</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Interactive charts and analytics for treatment insights</p>
               </div>
             </div>
             <div className="flex space-x-2">
               <button
                 onClick={() => setAnimatedCharts(!animatedCharts)}
                 className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm ${
-                  animatedCharts ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600'
+                  animatedCharts ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600 dark:text-gray-400'
                 }`}
               >
                 <Eye className="w-4 h-4" />
@@ -2681,7 +2681,7 @@ const TreatmentPlanner: React.FC = () => {
             <div className="space-y-6">
               {/* Visualization Selector */}
               <div className="flex items-center space-x-2 mb-6">
-                <span className="text-sm font-medium text-gray-700">View:</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">View:</span>
                 <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
                   {[
                     { key: 'timeline', label: 'Timeline', icon: TimelineIcon },
@@ -2695,7 +2695,7 @@ const TreatmentPlanner: React.FC = () => {
                       className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm transition-colors ${
                         selectedVisualization === key
                           ? 'bg-white text-indigo-700 shadow-sm'
-                          : 'text-gray-600 hover:text-gray-900'
+                          : 'text-gray-600 hover:text-gray-900 dark:text-gray-100'
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -2710,12 +2710,12 @@ const TreatmentPlanner: React.FC = () => {
                 {selectedVisualization === 'timeline' && predictionResults && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-semibold text-gray-900">Treatment Response Timeline</h4>
+                      <h4 className="font-semibold text-gray-900 dark:text-gray-100">Treatment Response Timeline</h4>
                       <div className="flex space-x-2">
                         <button
                           onClick={() => setTimelineView('overview')}
                           className={`px-3 py-1 rounded text-sm ${
-                            timelineView === 'overview' ? 'bg-blue-100 text-blue-700' : 'text-gray-600'
+                            timelineView === 'overview' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 dark:text-gray-400'
                           }`}
                         >
                           Overview
@@ -2723,7 +2723,7 @@ const TreatmentPlanner: React.FC = () => {
                         <button
                           onClick={() => setTimelineView('detailed')}
                           className={`px-3 py-1 rounded text-sm ${
-                            timelineView === 'detailed' ? 'bg-blue-100 text-blue-700' : 'text-gray-600'
+                            timelineView === 'detailed' ? 'bg-blue-100 text-blue-700' : 'text-gray-600 dark:text-gray-400'
                           }`}
                         >
                           Detailed
@@ -2736,29 +2736,29 @@ const TreatmentPlanner: React.FC = () => {
 
                 {selectedVisualization === 'outcomes' && selectedProtocol && (
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-gray-900">Outcome Predictions Analysis</h4>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">Outcome Predictions Analysis</h4>
                     <OutcomePredictionChart protocol={selectedProtocol} />
                   </div>
                 )}
 
                 {selectedVisualization === 'biomarkers' && predictionResults && (
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-gray-900">Biomarker Trend Analysis</h4>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">Biomarker Trend Analysis</h4>
                     <BiomarkerTrendChart data={predictionResults} />
                   </div>
                 )}
 
                 {selectedVisualization === 'risk-matrix' && genomicProfile && (
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-gray-900">Genomic Risk Assessment</h4>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">Genomic Risk Assessment</h4>
                     <RiskMatrix genomicProfile={genomicProfile} />
                   </div>
                 )}
               </div>
 
               {/* Chart Controls */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                <div className="flex items-center space-x-4 text-sm text-gray-600">
+              <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
                   <div className="flex items-center space-x-2">
                     <MousePointer className="w-4 h-4" />
                     <span>Interactive elements enabled</span>
@@ -2775,7 +2775,7 @@ const TreatmentPlanner: React.FC = () => {
                   <button
                     onClick={() => setChartInteractions(!chartInteractions)}
                     className={`px-3 py-1 rounded text-sm ${
-                      chartInteractions ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                      chartInteractions ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600 dark:text-gray-400'
                     }`}
                   >
                     {chartInteractions ? 'Interactive' : 'Static'}
@@ -2835,7 +2835,7 @@ const TreatmentPlanner: React.FC = () => {
                           {risk.risk}% risk
                         </span>
                       </div>
-                      <p className="text-xs text-gray-600">{risk.mitigation}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{risk.mitigation}</p>
                     </div>
                   ))}
                 </div>
@@ -2857,8 +2857,8 @@ const TreatmentPlanner: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Welcome to AI Treatment Planner!</h3>
-                  <p className="text-sm text-gray-600">Let's get you started with genomic-optimized treatment planning</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Welcome to AI Treatment Planner!</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Let's get you started with genomic-optimized treatment planning</p>
                 </div>
               </div>
 
@@ -2887,7 +2887,7 @@ const TreatmentPlanner: React.FC = () => {
               <div className="flex items-center justify-between mt-6">
                 <button
                   onClick={() => setIsFirstTime(false)}
-                  className="text-sm text-gray-500 hover:text-gray-700"
+                  className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-300"
                 >
                   Don't show again
                 </button>

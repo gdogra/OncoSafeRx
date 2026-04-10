@@ -171,7 +171,7 @@ const ResearcherDashboard: React.FC = () => {
       case 'pending':
         return 'text-yellow-600 bg-yellow-50';
       default:
-        return 'text-gray-600 bg-gray-50';
+        return 'text-gray-600 bg-gray-50 dark:bg-gray-800';
     }
   };
 
@@ -184,7 +184,7 @@ const ResearcherDashboard: React.FC = () => {
       case 'low':
         return 'text-green-600 bg-green-50 border-green-200';
       default:
-        return 'text-gray-600 bg-gray-50 border-gray-200';
+        return 'text-gray-600 bg-gray-50 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -225,8 +225,8 @@ const ResearcherDashboard: React.FC = () => {
         <div className="mb-8">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Research Dashboard</h1>
-              <p className="mt-1 text-sm text-gray-500">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Research Dashboard</h1>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Welcome back, {profile.position} at {profile.institution}
               </p>
             </div>
@@ -251,8 +251,8 @@ const ResearcherDashboard: React.FC = () => {
                   <Activity className="h-6 w-6 text-blue-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Active Trials</p>
-                  <p className="text-2xl font-bold text-gray-900">{analytics.trials_active}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Active Trials</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analytics.trials_active}</p>
                 </div>
               </div>
             </CardContent>
@@ -265,8 +265,8 @@ const ResearcherDashboard: React.FC = () => {
                   <Users className="h-6 w-6 text-green-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Total Enrolled</p>
-                  <p className="text-2xl font-bold text-gray-900">{analytics.total_enrollment}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Enrolled</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analytics.total_enrollment}</p>
                 </div>
               </div>
             </CardContent>
@@ -279,8 +279,8 @@ const ResearcherDashboard: React.FC = () => {
                   <FileText className="h-6 w-6 text-purple-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Publications</p>
-                  <p className="text-2xl font-bold text-gray-900">{analytics.publications_this_year}</p>
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Publications</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analytics.publications_this_year}</p>
                 </div>
               </div>
             </CardContent>
@@ -293,8 +293,8 @@ const ResearcherDashboard: React.FC = () => {
                   <DollarSign className="h-6 w-6 text-yellow-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-500">Total Funding</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Funding</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     ${(analytics.total_funding / 1000000).toFixed(1)}M
                   </p>
                 </div>
@@ -339,7 +339,7 @@ const ResearcherDashboard: React.FC = () => {
                       <Progress value={analytics.collaboration_score} className="mt-1" />
                     </div>
                     <div className="pt-2">
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         Based on publications, citations, and research network
                       </p>
                     </div>
@@ -359,7 +359,7 @@ const ResearcherDashboard: React.FC = () => {
                     {compliance_alerts.length === 0 ? (
                       <div className="text-center py-4">
                         <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                        <p className="text-sm text-gray-600">All compliance requirements up to date</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">All compliance requirements up to date</p>
                       </div>
                     ) : (
                       compliance_alerts.slice(0, 3).map((alert) => (
@@ -406,7 +406,7 @@ const ResearcherDashboard: React.FC = () => {
                           </Badge>
                         </div>
                         <div className="mt-2">
-                          <div className="flex justify-between text-xs text-gray-500">
+                          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                             <span>Enrollment</span>
                             <span>{trial.current_enrollment}/{trial.target_enrollment}</span>
                           </div>
@@ -439,7 +439,7 @@ const ResearcherDashboard: React.FC = () => {
                           </Badge>
                         </div>
                         <div className="mt-2">
-                          <div className="flex justify-between text-xs text-gray-500">
+                          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                             <span>Discovery Progress</span>
                             <span>{study.discovery_progress}%</span>
                           </div>
@@ -474,7 +474,7 @@ const ResearcherDashboard: React.FC = () => {
                           </div>
                         </div>
                         <div className="mt-2">
-                          <div className="flex justify-between text-xs text-gray-500">
+                          <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                             <span>Milestones</span>
                             <span>{grant.milestones_completed}/{grant.total_milestones}</span>
                           </div>
@@ -515,19 +515,19 @@ const ResearcherDashboard: React.FC = () => {
                       
                       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                         <div>
-                          <p className="text-gray-500">Cancer Type</p>
+                          <p className="text-gray-500 dark:text-gray-400">Cancer Type</p>
                           <p className="font-medium">{trial.cancer_type}</p>
                         </div>
                         <div>
-                          <p className="text-gray-500">Enrollment</p>
+                          <p className="text-gray-500 dark:text-gray-400">Enrollment</p>
                           <p className="font-medium">{trial.current_enrollment}/{trial.target_enrollment}</p>
                         </div>
                         <div>
-                          <p className="text-gray-500">Start Date</p>
+                          <p className="text-gray-500 dark:text-gray-400">Start Date</p>
                           <p className="font-medium">{new Date(trial.start_date).toLocaleDateString()}</p>
                         </div>
                         <div>
-                          <p className="text-gray-500">Est. Completion</p>
+                          <p className="text-gray-500 dark:text-gray-400">Est. Completion</p>
                           <p className="font-medium">{new Date(trial.estimated_completion).toLocaleDateString()}</p>
                         </div>
                       </div>
@@ -573,11 +573,11 @@ const ResearcherDashboard: React.FC = () => {
                       
                       <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                         <div>
-                          <p className="text-gray-500">Sample Size</p>
+                          <p className="text-gray-500 dark:text-gray-400">Sample Size</p>
                           <p className="font-medium">{study.sample_size}</p>
                         </div>
                         <div>
-                          <p className="text-gray-500">Discovery Progress</p>
+                          <p className="text-gray-500 dark:text-gray-400">Discovery Progress</p>
                           <p className="font-medium">{study.discovery_progress}%</p>
                         </div>
                       </div>
@@ -623,15 +623,15 @@ const ResearcherDashboard: React.FC = () => {
                       
                       <div className="grid grid-cols-3 gap-4 text-sm">
                         <div>
-                          <p className="text-gray-500">Publication Date</p>
+                          <p className="text-gray-500 dark:text-gray-400">Publication Date</p>
                           <p className="font-medium">{new Date(publication.publication_date).toLocaleDateString()}</p>
                         </div>
                         <div>
-                          <p className="text-gray-500">Impact Factor</p>
+                          <p className="text-gray-500 dark:text-gray-400">Impact Factor</p>
                           <p className="font-medium">{publication.impact_factor || 'N/A'}</p>
                         </div>
                         <div>
-                          <p className="text-gray-500">Citations</p>
+                          <p className="text-gray-500 dark:text-gray-400">Citations</p>
                           <p className="font-medium">{publication.citation_count || 0}</p>
                         </div>
                       </div>
@@ -677,11 +677,11 @@ const ResearcherDashboard: React.FC = () => {
                       
                       <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                         <div>
-                          <p className="text-gray-500">Start Date</p>
+                          <p className="text-gray-500 dark:text-gray-400">Start Date</p>
                           <p className="font-medium">{new Date(grant.start_date).toLocaleDateString()}</p>
                         </div>
                         <div>
-                          <p className="text-gray-500">End Date</p>
+                          <p className="text-gray-500 dark:text-gray-400">End Date</p>
                           <p className="font-medium">{new Date(grant.end_date).toLocaleDateString()}</p>
                         </div>
                       </div>
@@ -729,7 +729,7 @@ const ResearcherDashboard: React.FC = () => {
                           {insight.action_items.length > 0 && (
                             <div className="mt-4">
                               <p className="text-sm font-medium text-gray-700 mb-2">Recommended Actions:</p>
-                              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600">
+                              <ul className="list-disc list-inside space-y-1 text-sm text-gray-600 dark:text-gray-400">
                                 {insight.action_items.map((item, index) => (
                                   <li key={index}>{item}</li>
                                 ))}

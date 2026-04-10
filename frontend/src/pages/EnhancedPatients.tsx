@@ -131,7 +131,7 @@ const EnhancedPatients: React.FC = () => {
       return { status: 'Follow-up', color: 'bg-blue-100 text-blue-800' };
     }
     
-    return { status: 'Inactive', color: 'bg-gray-100 text-gray-800' };
+    return { status: 'Inactive', color: 'bg-gray-100 text-gray-800 dark:text-gray-200' };
   };
 
   const PatientCard: React.FC<{ patient: Patient }> = ({ patient }) => {
@@ -154,7 +154,7 @@ const EnhancedPatients: React.FC = () => {
               <User className="w-6 h-6 text-blue-600" />
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {patient.firstName} {patient.lastName}
               </h3>
               <div className="text-sm text-gray-600 space-y-1">
@@ -170,7 +170,7 @@ const EnhancedPatients: React.FC = () => {
               {status.status}
             </span>
             {patient.ecogPerformanceStatus !== undefined && (
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
                 ECOG: {patient.ecogPerformanceStatus}
               </span>
             )}
@@ -178,22 +178,22 @@ const EnhancedPatients: React.FC = () => {
         </div>
         
         {latestLab && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
             <div className="grid grid-cols-4 gap-2 text-xs">
               <div>
-                <div className="text-gray-500">Hgb</div>
+                <div className="text-gray-500 dark:text-gray-400">Hgb</div>
                 <div className="font-medium">{latestLab.hemoglobin}</div>
               </div>
               <div>
-                <div className="text-gray-500">ANC</div>
+                <div className="text-gray-500 dark:text-gray-400">ANC</div>
                 <div className="font-medium">{latestLab.anc}</div>
               </div>
               <div>
-                <div className="text-gray-500">Plt</div>
+                <div className="text-gray-500 dark:text-gray-400">Plt</div>
                 <div className="font-medium">{latestLab.platelets}</div>
               </div>
               <div>
-                <div className="text-gray-500">Date</div>
+                <div className="text-gray-500 dark:text-gray-400">Date</div>
                 <div className="font-medium">{new Date(latestLab.date).toLocaleDateString()}</div>
               </div>
             </div>
@@ -225,7 +225,7 @@ const EnhancedPatients: React.FC = () => {
                 <User className="w-8 h-8 text-blue-600" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {patient.firstName} {patient.lastName}
                 </h2>
                 <div className="text-gray-600 space-y-1">
@@ -263,28 +263,28 @@ const EnhancedPatients: React.FC = () => {
               <div className="space-y-4">
                 {patient.ecogPerformanceStatus !== undefined && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">ECOG Performance Status</span>
+                    <span className="text-gray-600 dark:text-gray-400">ECOG Performance Status</span>
                     <span className="font-medium">{patient.ecogPerformanceStatus}</span>
                   </div>
                 )}
                 
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Height</span>
+                  <span className="text-gray-600 dark:text-gray-400">Height</span>
                   <span className="font-medium">{patient.height} cm</span>
                 </div>
                 
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Weight</span>
+                  <span className="text-gray-600 dark:text-gray-400">Weight</span>
                   <span className="font-medium">{patient.weight} kg</span>
                 </div>
                 
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Creatinine</span>
+                  <span className="text-gray-600 dark:text-gray-400">Creatinine</span>
                   <span className="font-medium">{patient.renalFunction?.creatinine || 'N/A'} mg/dL</span>
                 </div>
                 
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Bilirubin</span>
+                  <span className="text-gray-600 dark:text-gray-400">Bilirubin</span>
                   <span className="font-medium">{patient.hepaticFunction?.bilirubin || 'N/A'} mg/dL</span>
                 </div>
               </div>
@@ -301,8 +301,8 @@ const EnhancedPatients: React.FC = () => {
                 {patient.currentMedications?.map((med, index) => (
                   <div key={index} className="p-3 bg-gray-50 rounded-lg">
                     <div className="font-medium">{med.name}</div>
-                    <div className="text-sm text-gray-600">{med.dose} • {med.frequency}</div>
-                    <div className="text-xs text-gray-500">Started: {new Date(med.startDate).toLocaleDateString()}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">{med.dose} • {med.frequency}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Started: {new Date(med.startDate).toLocaleDateString()}</div>
                   </div>
                 ))}
                 
@@ -323,10 +323,10 @@ const EnhancedPatients: React.FC = () => {
                 <div className="space-y-3">
                   {patient.biomarkers?.map((biomarker, index) => (
                     <div key={index} className="flex justify-between items-center">
-                      <span className="text-gray-600">{biomarker.name}</span>
+                      <span className="text-gray-600 dark:text-gray-400">{biomarker.name}</span>
                       <div className="text-right">
                         <div className="font-medium">{biomarker.value}</div>
-                        <div className="text-xs text-gray-500">{new Date(biomarker.date).toLocaleDateString()}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{new Date(biomarker.date).toLocaleDateString()}</div>
                       </div>
                     </div>
                   ))}
@@ -348,7 +348,7 @@ const EnhancedPatients: React.FC = () => {
                 {patient.treatmentHistory?.map((course, index) => (
                   <div key={index} className="p-4 border border-gray-200 rounded-lg">
                     <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-medium text-gray-900">{course.regimenName}</h4>
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">{course.regimenName}</h4>
                       {course.response && (
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                           course.response === 'CR' || course.response === 'PR' 
@@ -398,12 +398,12 @@ const EnhancedPatients: React.FC = () => {
                 <div className="overflow-x-auto">
                   <table className="min-w-full">
                     <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="text-left py-2 text-sm font-medium text-gray-600">Date</th>
-                        <th className="text-left py-2 text-sm font-medium text-gray-600">Hgb</th>
-                        <th className="text-left py-2 text-sm font-medium text-gray-600">ANC</th>
-                        <th className="text-left py-2 text-sm font-medium text-gray-600">Platelets</th>
-                        <th className="text-left py-2 text-sm font-medium text-gray-600">WBC</th>
+                      <tr className="border-b border-gray-200 dark:border-gray-700">
+                        <th className="text-left py-2 text-sm font-medium text-gray-600 dark:text-gray-400">Date</th>
+                        <th className="text-left py-2 text-sm font-medium text-gray-600 dark:text-gray-400">Hgb</th>
+                        <th className="text-left py-2 text-sm font-medium text-gray-600 dark:text-gray-400">ANC</th>
+                        <th className="text-left py-2 text-sm font-medium text-gray-600 dark:text-gray-400">Platelets</th>
+                        <th className="text-left py-2 text-sm font-medium text-gray-600 dark:text-gray-400">WBC</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -456,7 +456,7 @@ const EnhancedPatients: React.FC = () => {
       <div className="space-y-6">
         <Card>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
               Treatment Timeline - {patient.firstName} {patient.lastName}
             </h2>
             <button 
@@ -474,15 +474,15 @@ const EnhancedPatients: React.FC = () => {
                   {getSeverityIcon(event.severity)}
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-medium text-gray-900">{event.title}</h4>
-                      <span className="text-sm text-gray-500">{new Date(event.date).toLocaleDateString()}</span>
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">{event.title}</h4>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{new Date(event.date).toLocaleDateString()}</span>
                     </div>
                     <p className="text-sm text-gray-600 mt-1">{event.description}</p>
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-2 ${
                       event.type === 'treatment' ? 'bg-blue-100 text-blue-800' :
                       event.type === 'toxicity' ? 'bg-red-100 text-red-800' :
                       event.type === 'response' ? 'bg-green-100 text-green-800' :
-                      'bg-gray-100 text-gray-800'
+                      'bg-gray-100 text-gray-800 dark:text-gray-200'
                     }`}>
                       {event.type.replace('_', ' ')}
                     </span>
@@ -561,10 +561,10 @@ const EnhancedPatients: React.FC = () => {
       return (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-gray-900">Create New Patient</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Create New Patient</h2>
             <button 
               onClick={() => { try { localStorage.removeItem(DRAFT_KEY); } catch {}; handleCancelCreate(); }}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-300"
             >
               <X className="w-6 h-6" />
             </button>
@@ -699,8 +699,8 @@ const EnhancedPatients: React.FC = () => {
             <Users className="w-6 h-6 text-blue-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Patient Management</h1>
-            <p className="text-gray-600">Comprehensive patient care and treatment tracking</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Patient Management</h1>
+            <p className="text-gray-600 dark:text-gray-400">Comprehensive patient care and treatment tracking</p>
           </div>
         </div>
         
@@ -720,31 +720,31 @@ const EnhancedPatients: React.FC = () => {
           <Card padding="sm">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{stats.totalPatients}</div>
-              <div className="text-sm text-gray-600">Total Patients</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Total Patients</div>
             </div>
           </Card>
           <Card padding="sm">
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">{stats.activePatients}</div>
-              <div className="text-sm text-gray-600">Active</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Active</div>
             </div>
           </Card>
           <Card padding="sm">
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">{stats.patientsOnTreatment}</div>
-              <div className="text-sm text-gray-600">On Treatment</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">On Treatment</div>
             </div>
           </Card>
           <Card padding="sm">
             <div className="text-center">
               <div className="text-2xl font-bold text-orange-600">{stats.completedTreatments}</div>
-              <div className="text-sm text-gray-600">Completed Tx</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Completed Tx</div>
             </div>
           </Card>
           <Card padding="sm">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-600">{stats.averageAge}</div>
-              <div className="text-sm text-gray-600">Avg Age</div>
+              <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">{stats.averageAge}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Avg Age</div>
             </div>
           </Card>
         </div>
@@ -763,7 +763,7 @@ const EnhancedPatients: React.FC = () => {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+          <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-800">
             <Filter className="w-4 h-4" />
             <span>Filter</span>
           </button>

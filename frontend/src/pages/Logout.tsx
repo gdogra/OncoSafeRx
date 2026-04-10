@@ -51,7 +51,7 @@ const Logout: React.FC = () => {
         
         <div className="bg-gray-100 rounded-lg p-4 text-left text-sm mb-4">
           <div className="font-medium text-gray-900 mb-2">Logout Steps:</div>
-          <div className="space-y-1 text-gray-600">
+          <div className="space-y-1 text-gray-600 dark:text-gray-400">
             <div>✓ Clearing Supabase session</div>
             <div>✓ Clearing AuthContext</div>
             <div>✓ Clearing browser storage</div>

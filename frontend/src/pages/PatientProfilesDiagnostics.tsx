@@ -73,7 +73,7 @@ const PatientProfilesDiagnostics: React.FC = () => {
       <h1 className="text-2xl font-semibold text-gray-900 mb-2">Patient Profiles Diagnostics</h1>
       <p className="text-sm text-gray-600 mb-6">Joined view of patients and patient_profiles to verify synchronization.</p>
       {loading && (
-        <div className="text-sm text-gray-600">Loading…</div>
+        <div className="text-sm text-gray-600 dark:text-gray-400">Loading…</div>
       )}
       {error && (
         <div className="text-sm text-red-600">{error}</div>
@@ -81,17 +81,17 @@ const PatientProfilesDiagnostics: React.FC = () => {
       {!loading && !error && (
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">Patient ID</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">Name</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">MRN</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">Meds</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">Allergies</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">Comorbidities</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">Genetics</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">Updated</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-700">Actions</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Patient ID</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Name</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-300">MRN</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Meds</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Allergies</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Comorbidities</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Genetics</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Updated</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -105,15 +105,15 @@ const PatientProfilesDiagnostics: React.FC = () => {
                 const genetics = Array.isArray(profile?.genetic_profile) ? profile.genetic_profile.length : 0;
                 const updated = profile?.updated_at || patient?.updated_at || '';
                 return (
-                  <tr key={id} className="hover:bg-gray-50">
+                  <tr key={id} className="hover:bg-gray-50 dark:bg-gray-800">
                     <td className="px-3 py-2 text-gray-900 font-mono text-xs">{id}</td>
-                    <td className="px-3 py-2 text-gray-900">{name || '—'}</td>
-                    <td className="px-3 py-2 text-gray-700">{mrn || '—'}</td>
+                    <td className="px-3 py-2 text-gray-900 dark:text-gray-100">{name || '—'}</td>
+                    <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{mrn || '—'}</td>
                     <td className="px-3 py-2">{meds}</td>
                     <td className="px-3 py-2">{allergies}</td>
                     <td className="px-3 py-2">{comorbid}</td>
                     <td className="px-3 py-2">{genetics}</td>
-                    <td className="px-3 py-2 text-gray-600">{updated ? new Date(updated).toLocaleString() : '—'}</td>
+                    <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{updated ? new Date(updated).toLocaleString() : '—'}</td>
                     <td className="px-3 py-2 space-x-2">
                       <button
                         onClick={() => refreshOne(id)}
@@ -137,7 +137,7 @@ const PatientProfilesDiagnostics: React.FC = () => {
               })}
               {items.length === 0 && (
                 <tr>
-                  <td className="px-3 py-6 text-center text-gray-500" colSpan={8}>No patients found.</td>
+                  <td className="px-3 py-6 text-center text-gray-500 dark:text-gray-400" colSpan={8}>No patients found.</td>
                 </tr>
               )}
             </tbody>

@@ -134,7 +134,7 @@ const RealWorldAnalytics: React.FC<RealWorldAnalyticsProps> = ({
         <Card>
           <div className="flex items-center space-x-3 mb-6">
             <div className="w-6 h-6 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-            <h2 className="text-xl font-semibold text-gray-900">Loading Real-World Analytics...</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Loading Real-World Analytics...</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => (
@@ -157,8 +157,8 @@ const RealWorldAnalytics: React.FC<RealWorldAnalyticsProps> = ({
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
             <TrendingUp className="w-6 h-6 text-primary-600" />
-            <h2 className="text-xl font-semibold text-gray-900">Real-World Analytics Dashboard</h2>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Real-World Analytics Dashboard</h2>
+            <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
               <Brain className="w-4 h-4" />
               <span>AI-Enhanced Insights</span>
             </div>
@@ -166,7 +166,7 @@ const RealWorldAnalytics: React.FC<RealWorldAnalyticsProps> = ({
           <div className="flex items-center space-x-3">
             <button
               onClick={async () => { setLoading(true); setData(await fetchAnalytics()); setLoading(false); }}
-              className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+              className="flex items-center space-x-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 dark:bg-gray-800"
             >
               <RefreshCw className="w-4 h-4" />
               <span>Refresh</span>
@@ -241,19 +241,19 @@ const RealWorldAnalytics: React.FC<RealWorldAnalyticsProps> = ({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
               <div className="text-3xl font-bold text-primary-600">{keyMetrics.totalPrescriptions.toLocaleString()}</div>
-              <div className="text-sm text-gray-500">Total Prescriptions</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Total Prescriptions</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-green-600">{keyMetrics.averageEfficacy}%</div>
-              <div className="text-sm text-gray-500">Average Efficacy</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Average Efficacy</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-blue-600">{keyMetrics.totalPatients.toLocaleString()}</div>
-              <div className="text-sm text-gray-500">Total Patients</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Total Patients</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-purple-600">{keyMetrics.averageResponseRate}%</div>
-              <div className="text-sm text-gray-500">Response Rate</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Response Rate</div>
             </div>
           </div>
         )}
@@ -339,8 +339,8 @@ const RealWorldAnalytics: React.FC<RealWorldAnalyticsProps> = ({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {data.interactionTrends.map((trend, index) => (
             <div key={trend.severity} className="text-center p-4 bg-gray-50 rounded-lg">
-              <div className="text-2xl font-bold text-gray-900">{trend.count}</div>
-              <div className="text-sm text-gray-500">{trend.severity} Interactions</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{trend.count}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{trend.severity} Interactions</div>
               <div className={`text-xs mt-2 flex items-center justify-center space-x-1 ${
                 trend.trend < 0 ? 'text-green-600' : 'text-red-600'
               }`}>
@@ -357,7 +357,7 @@ const RealWorldAnalytics: React.FC<RealWorldAnalyticsProps> = ({
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Real-World Evidence Studies</h3>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Study</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Population</th>
@@ -368,10 +368,10 @@ const RealWorldAnalytics: React.FC<RealWorldAnalyticsProps> = ({
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {data.realWorldEvidence.map((study, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">{study.study}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{study.population.toLocaleString()} patients</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{study.primaryEndpoint}</td>
+                <tr key={index} className="hover:bg-gray-50 dark:bg-gray-800">
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">{study.study}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{study.population.toLocaleString()} patients</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{study.primaryEndpoint}</td>
                   <td className="px-6 py-4 text-sm text-gray-900 font-medium">{study.result}%</td>
                   <td className="px-6 py-4 text-sm">
                     <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
@@ -389,12 +389,12 @@ const RealWorldAnalytics: React.FC<RealWorldAnalyticsProps> = ({
       <Card>
         <div className="flex items-center space-x-2 mb-4">
           <Brain className="w-5 h-5 text-primary-600" />
-          <h3 className="text-lg font-semibold text-gray-900">AI-Generated Insights</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">AI-Generated Insights</h3>
         </div>
         <div className="grid md:grid-cols-2 gap-6">
           <div>
             <h4 className="font-medium text-gray-900 mb-2">Key Findings</h4>
-            <ul className="space-y-2 text-sm text-gray-600">
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <li className="flex items-start space-x-2">
                 <AlertTriangle className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
                 <span>PD-L1 high patients show 89% response rate, significantly above average</span>
@@ -411,7 +411,7 @@ const RealWorldAnalytics: React.FC<RealWorldAnalyticsProps> = ({
           </div>
           <div>
             <h4 className="font-medium text-gray-900 mb-2">Recommendations</h4>
-            <ul className="space-y-2 text-sm text-gray-600">
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <li className="flex items-start space-x-2">
                 <Activity className="w-4 h-4 text-purple-500 flex-shrink-0 mt-0.5" />
                 <span>Consider genetic testing for BRCA1/2 in appropriate patient populations</span>

@@ -239,7 +239,7 @@ const DrugMechanismDashboard: React.FC<DrugMechanismDashboardProps> = ({
       <div className={`bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-8 border border-blue-200 text-center ${className}`}>
         <Atom className="w-12 h-12 text-blue-600 mx-auto mb-4" />
         <h3 className="text-xl font-bold text-gray-900 mb-2">Drug Mechanism Visualization</h3>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           Add drugs to visualize their molecular mechanisms, pathway interactions, and treatment dynamics
         </p>
       </div>
@@ -252,7 +252,7 @@ const DrugMechanismDashboard: React.FC<DrugMechanismDashboardProps> = ({
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 border-b border-gray-200 rounded-t-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+            <div className="p-2 bg-white dark:bg-gray-900/20 rounded-lg backdrop-blur-sm">
               <Atom className="w-6 h-6 text-white" />
             </div>
             <div className="text-white">
@@ -265,14 +265,14 @@ const DrugMechanismDashboard: React.FC<DrugMechanismDashboardProps> = ({
           <div className="flex items-center space-x-3">
             <button
               onClick={exportVisualization}
-              className="flex items-center space-x-1 px-3 py-1.5 bg-white/20 text-white text-sm rounded-lg hover:bg-white/30 transition-colors"
+              className="flex items-center space-x-1 px-3 py-1.5 bg-white dark:bg-gray-900/20 text-white text-sm rounded-lg hover:bg-white dark:bg-gray-900/30 transition-colors"
             >
               <Download className="w-4 h-4" />
               <span>Export</span>
             </button>
             <button
               onClick={() => setShowAdvancedControls(!showAdvancedControls)}
-              className="flex items-center space-x-1 px-3 py-1.5 bg-white/20 text-white text-sm rounded-lg hover:bg-white/30 transition-colors"
+              className="flex items-center space-x-1 px-3 py-1.5 bg-white dark:bg-gray-900/20 text-white text-sm rounded-lg hover:bg-white dark:bg-gray-900/30 transition-colors"
             >
               <Settings className="w-4 h-4" />
               <span>Settings</span>
@@ -283,7 +283,7 @@ const DrugMechanismDashboard: React.FC<DrugMechanismDashboardProps> = ({
 
       {/* Advanced Controls */}
       {showAdvancedControls && (
-        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -331,14 +331,14 @@ const DrugMechanismDashboard: React.FC<DrugMechanismDashboardProps> = ({
                 onChange={(e) => setSimulationSpeed(parseFloat(e.target.value))}
                 className="w-full"
               />
-              <span className="text-sm text-gray-600">{simulationSpeed}x</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">{simulationSpeed}x</span>
             </div>
           </div>
         </div>
       )}
 
       {/* Tab Navigation */}
-      <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
+      <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 dark:border-gray-700">
         <div className="flex space-x-1">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -349,7 +349,7 @@ const DrugMechanismDashboard: React.FC<DrugMechanismDashboardProps> = ({
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center space-x-2 ${
                   activeTab === tab.id 
                     ? `bg-${tab.color}-100 text-${tab.color}-700 shadow-sm` 
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:bg-gray-800'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -366,7 +366,7 @@ const DrugMechanismDashboard: React.FC<DrugMechanismDashboardProps> = ({
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
               <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-3"></div>
-              <p className="text-gray-600">Running molecular analysis...</p>
+              <p className="text-gray-600 dark:text-gray-400">Running molecular analysis...</p>
               <p className="text-sm text-gray-500 mt-1">Quantum simulations in progress</p>
             </div>
           </div>
@@ -553,7 +553,7 @@ const DrugMechanismDashboard: React.FC<DrugMechanismDashboardProps> = ({
                               <div className="flex items-center space-x-2">
                                 <span className={`px-2 py-1 text-xs rounded-full ${
                                   node.state === 'active' ? 'bg-green-100 text-green-700' :
-                                  node.state === 'inactive' ? 'bg-gray-100 text-gray-700' :
+                                  node.state === 'inactive' ? 'bg-gray-100 text-gray-700 dark:text-gray-300' :
                                   node.state === 'upregulated' ? 'bg-red-100 text-red-700' :
                                   'bg-blue-100 text-blue-700'
                                 }`}>
@@ -598,7 +598,7 @@ const DrugMechanismDashboard: React.FC<DrugMechanismDashboardProps> = ({
                         ref={canvasRef}
                         width={800}
                         height={400}
-                        className="w-full border border-green-300 rounded-lg bg-white"
+                        className="w-full border border-green-300 rounded-lg bg-white dark:bg-gray-900"
                         style={{ maxHeight: '400px' }}
                       />
                       <p className="text-center text-sm text-green-600 mt-2">

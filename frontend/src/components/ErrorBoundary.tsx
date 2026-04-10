@@ -44,7 +44,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 }
 
 const DefaultErrorFallback: React.FC<{ error: Error }> = ({ error }) => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-800">
     <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
       <div className="flex items-center space-x-3 mb-4">
         <div className="flex-shrink-0">
@@ -53,8 +53,8 @@ const DefaultErrorFallback: React.FC<{ error: Error }> = ({ error }) => (
           </svg>
         </div>
         <div>
-          <h3 className="text-lg font-medium text-gray-900">Something went wrong</h3>
-          <p className="text-sm text-gray-500">An unexpected error occurred</p>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Something went wrong</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">An unexpected error occurred</p>
         </div>
       </div>
       

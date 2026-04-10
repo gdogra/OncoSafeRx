@@ -190,7 +190,7 @@ const TreatmentSimulationLab: React.FC = () => {
       case 'mild': return 'text-green-600 bg-green-50';
       case 'moderate': return 'text-yellow-600 bg-yellow-50';
       case 'severe': return 'text-red-600 bg-red-50';
-      default: return 'text-gray-600 bg-gray-50';
+      default: return 'text-gray-600 bg-gray-50 dark:bg-gray-800';
     }
   };
 
@@ -215,7 +215,7 @@ const TreatmentSimulationLab: React.FC = () => {
       case 'low': return 'text-green-600';
       case 'medium': return 'text-yellow-600';
       case 'high': return 'text-red-600';
-      default: return 'text-gray-600';
+      default: return 'text-gray-600 dark:text-gray-400';
     }
   };
 
@@ -254,7 +254,7 @@ const TreatmentSimulationLab: React.FC = () => {
               </>
             )}
           </button>
-          <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+          <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
             <Download className="w-4 h-4" />
             <span>Export Results</span>
           </button>
@@ -262,7 +262,7 @@ const TreatmentSimulationLab: React.FC = () => {
       </div>
 
       {/* Navigation */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="-mb-px flex space-x-8">
           {[
             { id: 'scenarios', label: 'Treatment Scenarios', icon: Target },
@@ -277,7 +277,7 @@ const TreatmentSimulationLab: React.FC = () => {
               className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === id
                   ? 'border-purple-500 text-purple-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-300'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -291,7 +291,7 @@ const TreatmentSimulationLab: React.FC = () => {
       {loading && (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
-          <span className="ml-3 text-gray-600">Loading simulation data...</span>
+          <span className="ml-3 text-gray-600 dark:text-gray-400">Loading simulation data...</span>
         </div>
       )}
 
@@ -344,7 +344,7 @@ const TreatmentSimulationLab: React.FC = () => {
                 onClick={() => setSelectedScenario(scenario)}
               >
                 <div className="flex items-start justify-between mb-4">
-                  <h3 className="font-semibold text-gray-900">{scenario.name}</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">{scenario.name}</h3>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     scenario.confidence >= 80 ? 'bg-green-100 text-green-800' :
                     scenario.confidence >= 60 ? 'bg-yellow-100 text-yellow-800' :
@@ -358,11 +358,11 @@ const TreatmentSimulationLab: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className="text-center p-2 bg-gray-50 rounded">
-                    <p className="text-xs text-gray-500">Response Rate</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Response Rate</p>
                     <p className="text-lg font-bold text-green-600">{scenario.outcomeMetrics.responseRate}%</p>
                   </div>
                   <div className="text-center p-2 bg-gray-50 rounded">
-                    <p className="text-xs text-gray-500">Quality of Life</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Quality of Life</p>
                     <p className="text-lg font-bold text-blue-600">{scenario.outcomeMetrics.qualityOfLife}%</p>
                   </div>
                 </div>
@@ -379,7 +379,7 @@ const TreatmentSimulationLab: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
                     {scenario.treatments.length} treatment{scenario.treatments.length !== 1 ? 's' : ''}
                   </span>
                   <span className={`text-xs font-medium ${
@@ -406,7 +406,7 @@ const TreatmentSimulationLab: React.FC = () => {
                 {Object.entries(selectedScenario.outcomeMetrics).map(([key, value]) => (
                   <div key={key} className="text-center p-3 bg-gray-50 rounded-lg">
                     <p className="text-xs text-gray-500 capitalize">{key.replace(/([A-Z])/g, ' $1')}</p>
-                    <p className="text-lg font-bold text-gray-900">{value}%</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{value}%</p>
                   </div>
                 ))}
               </div>
@@ -420,18 +420,18 @@ const TreatmentSimulationLab: React.FC = () => {
                       <p className="text-sm text-gray-600 mb-2">{treatment.mechanism}</p>
                       <div className="space-y-2">
                         <div>
-                          <span className="text-xs font-medium text-gray-700">Expected Efficacy: </span>
+                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Expected Efficacy: </span>
                           <span className={`text-xs font-medium ${getEffectColor(treatment.expectedEfficacy)}`}>
                             {treatment.expectedEfficacy}%
                           </span>
                         </div>
                         <div>
-                          <span className="text-xs font-medium text-gray-700">Time to Effect: </span>
-                          <span className="text-xs text-gray-600">{treatment.timeToEffect} weeks</span>
+                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Time to Effect: </span>
+                          <span className="text-xs text-gray-600 dark:text-gray-400">{treatment.timeToEffect} weeks</span>
                         </div>
                         <div>
-                          <span className="text-xs font-medium text-gray-700">Duration: </span>
-                          <span className="text-xs text-gray-600">{treatment.duration} weeks</span>
+                          <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Duration: </span>
+                          <span className="text-xs text-gray-600 dark:text-gray-400">{treatment.duration} weeks</span>
                         </div>
                       </div>
                     </div>
@@ -443,12 +443,12 @@ const TreatmentSimulationLab: React.FC = () => {
                   {selectedScenario.treatments[0]?.sideEffectProfile.map((sideEffect, idx) => (
                     <div key={idx} className="border rounded-lg p-3 mb-3">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-gray-900">{sideEffect.name}</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{sideEffect.name}</span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(sideEffect.severity)}`}>
                           {sideEffect.severity}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-xs text-gray-600">
+                      <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
                         <span>{sideEffect.probability}% probability</span>
                         <span>{sideEffect.timeframe}</span>
                       </div>
@@ -491,8 +491,8 @@ const TreatmentSimulationLab: React.FC = () => {
                         <Target className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{protein}</p>
-                        <p className="text-sm text-gray-600">Tap to view details and pathway links</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{protein}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Tap to view details and pathway links</p>
                       </div>
                     </button>
                   ))}
@@ -501,8 +501,8 @@ const TreatmentSimulationLab: React.FC = () => {
                   <div className="mt-4 p-4 border rounded-lg bg-white shadow-sm">
                     <div className="flex items-start justify-between">
                       <div>
-                        <div className="text-sm text-gray-500">Molecular Target</div>
-                        <div className="text-lg font-semibold text-gray-900">{selectedTarget}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">Molecular Target</div>
+                        <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">{selectedTarget}</div>
                       </div>
                       <button onClick={() => setSelectedTarget(null)} className="text-xs border rounded px-2 py-1">Close</button>
                     </div>
@@ -510,11 +510,11 @@ const TreatmentSimulationLab: React.FC = () => {
                       {(selectedScenario?.treatments?.[0]?.name || 'The selected drug')} binds to {selectedTarget} to modulate its activity.
                       This interaction can change downstream signaling responsible for efficacy and side effects.
                     </div>
-                    <div className="mt-3 text-xs text-gray-600">Explore:</div>
+                    <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">Explore:</div>
                     <div className="mt-1 flex flex-wrap gap-2">
-                      <a href={`https://www.uniprot.org/uniprotkb?query=${encodeURIComponent(selectedTarget)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100">UniProt</a>
-                      <a href={`https://reactome.org/content/query?q=${encodeURIComponent(selectedTarget)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100">Reactome</a>
-                      <a href={`https://www.ncbi.nlm.nih.gov/gene/?term=${encodeURIComponent(selectedTarget)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100">NCBI Gene</a>
+                      <a href={`https://www.uniprot.org/uniprotkb?query=${encodeURIComponent(selectedTarget)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100 dark:bg-gray-800">UniProt</a>
+                      <a href={`https://reactome.org/content/query?q=${encodeURIComponent(selectedTarget)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100 dark:bg-gray-800">Reactome</a>
+                      <a href={`https://www.ncbi.nlm.nih.gov/gene/?term=${encodeURIComponent(selectedTarget)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100 dark:bg-gray-800">NCBI Gene</a>
                     </div>
                   </div>
                 )}
@@ -537,8 +537,8 @@ const TreatmentSimulationLab: React.FC = () => {
                         <Zap className="w-5 h-5 text-green-600" />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{enzyme}</p>
-                        <p className="text-sm text-gray-600">Tap to view role in metabolism</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{enzyme}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Tap to view role in metabolism</p>
                       </div>
                     </button>
                   ))}
@@ -547,8 +547,8 @@ const TreatmentSimulationLab: React.FC = () => {
                   <div className="mt-4 p-4 border rounded-lg bg-white shadow-sm">
                     <div className="flex items-start justify-between">
                       <div>
-                        <div className="text-sm text-gray-500">Metabolizing Enzyme</div>
-                        <div className="text-lg font-semibold text-gray-900">{selectedEnzyme}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">Metabolizing Enzyme</div>
+                        <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">{selectedEnzyme}</div>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
@@ -560,7 +560,7 @@ const TreatmentSimulationLab: React.FC = () => {
                               await navigator.clipboard.writeText(text);
                             } catch {}
                           }}
-                          className="text-xs border rounded px-2 py-1 bg-gray-50 hover:bg-gray-100"
+                          className="text-xs border rounded px-2 py-1 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800"
                           title="Copy summary"
                         >Copy</button>
                         <button onClick={() => setSelectedEnzyme(null)} className="text-xs border rounded px-2 py-1">Close</button>
@@ -572,18 +572,18 @@ const TreatmentSimulationLab: React.FC = () => {
                     <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="border rounded p-2">
                         <div className="text-xs font-medium text-gray-900 mb-1">Common Inhibitors</div>
-                        <div className="text-xs text-gray-700">{(enzymeKB[selectedEnzyme]?.inhibitors || []).join(', ') || '—'}</div>
+                        <div className="text-xs text-gray-700 dark:text-gray-300">{(enzymeKB[selectedEnzyme]?.inhibitors || []).join(', ') || '—'}</div>
                       </div>
                       <div className="border rounded p-2">
                         <div className="text-xs font-medium text-gray-900 mb-1">Common Inducers</div>
-                        <div className="text-xs text-gray-700">{(enzymeKB[selectedEnzyme]?.inducers || []).join(', ') || '—'}</div>
+                        <div className="text-xs text-gray-700 dark:text-gray-300">{(enzymeKB[selectedEnzyme]?.inducers || []).join(', ') || '—'}</div>
                       </div>
                     </div>
-                    <div className="mt-3 text-xs text-gray-600">Explore:</div>
+                    <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">Explore:</div>
                     <div className="mt-1 flex flex-wrap gap-2">
-                      <a href={`https://go.drugbank.com/unearth/q?searcher=targets&query=${encodeURIComponent(selectedEnzyme)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100">DrugBank</a>
-                      <a href={`https://www.reactome.org/content/query?q=${encodeURIComponent(selectedEnzyme)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100">Reactome</a>
-                      <a href={`https://www.genecards.org/Search/Keyword?queryString=${encodeURIComponent(selectedEnzyme)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100">GeneCards</a>
+                      <a href={`https://go.drugbank.com/unearth/q?searcher=targets&query=${encodeURIComponent(selectedEnzyme)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100 dark:bg-gray-800">DrugBank</a>
+                      <a href={`https://www.reactome.org/content/query?q=${encodeURIComponent(selectedEnzyme)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100 dark:bg-gray-800">Reactome</a>
+                      <a href={`https://www.genecards.org/Search/Keyword?queryString=${encodeURIComponent(selectedEnzyme)}`} target="_blank" rel="noreferrer" className="text-xs px-2 py-1 border rounded bg-gray-50 hover:bg-gray-100 dark:bg-gray-800">GeneCards</a>
                     </div>
                   </div>
                 )}
@@ -663,7 +663,7 @@ const TreatmentSimulationLab: React.FC = () => {
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
                   No Body Systems Analysis Available
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-400">
                   No body systems analysis found. Please select a treatment scenario to view impact analysis.
                 </p>
               </div>
@@ -674,7 +674,7 @@ const TreatmentSimulationLab: React.FC = () => {
                   system.affectedByTreatment ? 'bg-yellow-50 border-yellow-200' : 'bg-green-50 border-green-200'
                 }`}>
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-medium text-gray-900">{system.name}</h3>
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">{system.name}</h3>
                     <span className={`text-sm font-medium ${getImpactColor(system.impactLevel)}`}>
                       {system.impactLevel} impact
                     </span>
@@ -682,12 +682,12 @@ const TreatmentSimulationLab: React.FC = () => {
                   
                   <div className="mb-3">
                     <p className="text-xs font-medium text-gray-700 mb-1">Organs Involved:</p>
-                    <p className="text-sm text-gray-600">{system.organs.join(', ')}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{system.organs.join(', ')}</p>
                   </div>
 
                   <div className="mb-3">
                     <p className="text-xs font-medium text-gray-700 mb-1">Expected Changes:</p>
-                    <ul className="text-sm text-gray-600">
+                    <ul className="text-sm text-gray-600 dark:text-gray-400">
                       {system.expectedChanges.map((change, changeIdx) => (
                         <li key={changeIdx} className="flex items-start space-x-2">
                           <span className="text-xs mt-1">•</span>
@@ -699,7 +699,7 @@ const TreatmentSimulationLab: React.FC = () => {
 
                   <div className="flex items-center space-x-2">
                     <Clock className="w-4 h-4 text-gray-400" />
-                    <span className="text-xs text-gray-600">
+                    <span className="text-xs text-gray-600 dark:text-gray-400">
                       Effects typically seen in {system.timeToEffect} weeks
                     </span>
                   </div>
@@ -720,7 +720,7 @@ const TreatmentSimulationLab: React.FC = () => {
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 No Prediction Models Available
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 No predictive models found. Please select a treatment scenario to generate outcome predictions.
               </p>
             </div>
@@ -736,7 +736,7 @@ const TreatmentSimulationLab: React.FC = () => {
                   <h3 className="font-medium text-gray-900 mb-3">Tumor Response</h3>
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-600">Tumor Size Reduction</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Tumor Size Reduction</span>
                       <span className="text-sm font-medium text-green-600">
                         {100 - model.tumorSize[model.tumorSize.length - 1]}% reduction
                       </span>
@@ -791,7 +791,7 @@ const TreatmentSimulationLab: React.FC = () => {
                       <div className="space-y-1">
                         {values.map((value, valueIdx) => (
                           <div key={valueIdx} className="flex items-center justify-between text-sm">
-                            <span className="text-gray-600">Week {model.timePoints[valueIdx]}</span>
+                            <span className="text-gray-600 dark:text-gray-400">Week {model.timePoints[valueIdx]}</span>
                             <span className={`font-medium ${
                               value < values[0] * 0.5 ? 'text-green-600' :
                               value < values[0] * 0.8 ? 'text-yellow-600' : 'text-red-600'

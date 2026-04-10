@@ -250,7 +250,7 @@ const ProtocolsAndRegimens: React.FC = () => {
       <Icon className="h-5 w-5" />
       <div className="text-left">
         <div className="font-semibold">{label}</div>
-        <div className={`text-xs ${activeTab === tab ? 'text-blue-100' : 'text-gray-500'}`}>
+        <div className={`text-xs ${activeTab === tab ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'}`}>
           {description}
         </div>
       </div>
@@ -391,7 +391,7 @@ const ProtocolsAndRegimens: React.FC = () => {
                 <div className="p-6" onClick={() => handleProtocolClick(protocol)}>
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="text-lg font-bold text-gray-900">{protocol.name}</h3>
+                      <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">{protocol.name}</h3>
                       <p className="text-sm text-blue-600">{protocol.cancerType}</p>
                     </div>
                     <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">
@@ -401,7 +401,7 @@ const ProtocolsAndRegimens: React.FC = () => {
                   
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm font-medium text-gray-700">Components:</p>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Components:</p>
                       <div className="flex flex-wrap gap-1 mt-1">
                         {protocol.drugs.map((drug, drugIndex) => (
                           <span key={drugIndex} className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
@@ -413,22 +413,22 @@ const ProtocolsAndRegimens: React.FC = () => {
                     
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="font-medium text-gray-700">Duration</p>
-                        <p className="text-gray-600">{protocol.duration}</p>
+                        <p className="font-medium text-gray-700 dark:text-gray-300">Duration</p>
+                        <p className="text-gray-600 dark:text-gray-400">{protocol.duration}</p>
                       </div>
                       <div>
-                        <p className="font-medium text-gray-700">Response Rate</p>
+                        <p className="font-medium text-gray-700 dark:text-gray-300">Response Rate</p>
                         <p className="text-green-600 font-medium">{protocol.responseRate}</p>
                       </div>
                     </div>
                     
                     <div className="pt-2 border-t border-gray-100">
-                      <p className="text-xs text-gray-500">{protocol.indication}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{protocol.indication}</p>
                     </div>
                   </div>
                   
                   <div className="mt-4 flex items-center justify-between">
-                    <span className="text-xs text-gray-500">Source: {protocol.source}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">Source: {protocol.source}</span>
                     <ExternalLink className="h-4 w-4 text-gray-400" />
                   </div>
                 </div>
@@ -441,7 +441,7 @@ const ProtocolsAndRegimens: React.FC = () => {
                   <div className="p-8 text-center">
                     <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No Protocols Found</h3>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 dark:text-gray-400">
                       Try adjusting your filters to find relevant treatment protocols.
                     </p>
                   </div>
@@ -514,13 +514,13 @@ const ProtocolsAndRegimens: React.FC = () => {
                         className={`p-4 rounded-lg border cursor-pointer transition-all ${
                           selected?.id === regimen.id
                             ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
+                            : 'border-gray-200 hover:border-gray-300 dark:border-gray-600'
                         }`}
                       >
                         <div className="flex items-start justify-between">
                           <div>
-                            <h4 className="font-medium text-gray-900">{regimen.name}</h4>
-                            <p className="text-sm text-gray-600">{regimen.indication}</p>
+                            <h4 className="font-medium text-gray-900 dark:text-gray-100">{regimen.name}</h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{regimen.indication}</p>
                             {regimen.cycleLengthDays && (
                               <p className="text-xs text-gray-500 mt-1">
                                 Cycle: {regimen.cycleLengthDays} days
@@ -537,7 +537,7 @@ const ProtocolsAndRegimens: React.FC = () => {
                     <div className="text-center py-8">
                       <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                       <h4 className="text-lg font-medium text-gray-900 mb-2">No Regimens Found</h4>
-                      <p className="text-gray-600">
+                      <p className="text-gray-600 dark:text-gray-400">
                         Try adjusting your search criteria.
                       </p>
                     </div>
@@ -551,8 +551,8 @@ const ProtocolsAndRegimens: React.FC = () => {
                   {selected ? (
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-lg font-medium text-gray-900">{selected.name}</h3>
-                        <p className="text-gray-600">{selected.indication}</p>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{selected.name}</h3>
+                        <p className="text-gray-600 dark:text-gray-400">{selected.indication}</p>
                         {selected.cycleLengthDays && (
                           <p className="text-sm text-gray-500 mt-1">
                             Cycle Length: {selected.cycleLengthDays} days
@@ -567,8 +567,8 @@ const ProtocolsAndRegimens: React.FC = () => {
                             {selected.components.map((component, index) => (
                               <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                 <div>
-                                  <p className="font-medium text-gray-900">{component.name}</p>
-                                  <p className="text-sm text-gray-600">{component.dose}</p>
+                                  <p className="font-medium text-gray-900 dark:text-gray-100">{component.name}</p>
+                                  <p className="text-sm text-gray-600 dark:text-gray-400">{component.dose}</p>
                                 </div>
                                 <button
                                   onClick={() => setSelectedDrugForCalculator(component)}
@@ -634,7 +634,7 @@ const ProtocolsAndRegimens: React.FC = () => {
                                 <p className="text-sm font-medium text-gray-900 mb-1">
                                   {adjustment.criterion}
                                 </p>
-                                <p className="text-sm text-gray-700">
+                                <p className="text-sm text-gray-700 dark:text-gray-300">
                                   <strong>Action:</strong> {adjustment.action}
                                 </p>
                               </div>
@@ -647,7 +647,7 @@ const ProtocolsAndRegimens: React.FC = () => {
                     <div className="text-center py-12">
                       <Pill className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                       <h4 className="text-lg font-medium text-gray-900 mb-2">Select a Regimen</h4>
-                      <p className="text-gray-600">
+                      <p className="text-gray-600 dark:text-gray-400">
                         Choose a regimen from the list to view detailed information and dosing calculations.
                       </p>
                     </div>
@@ -683,13 +683,13 @@ const ProtocolsAndRegimens: React.FC = () => {
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+              <div className="absolute inset-0 bg-gray-50 dark:bg-gray-8000 opacity-75"></div>
             </div>
             
             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
                     Dose Calculator - {selectedDrugForCalculator.name}
                   </h3>
                   <button
@@ -697,7 +697,7 @@ const ProtocolsAndRegimens: React.FC = () => {
                       setShowEnhancedCalculator(false);
                       setSelectedDrugForCalculator(null);
                     }}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-gray-400 hover:text-gray-600 dark:text-gray-400"
                   >
                     ×
                   </button>

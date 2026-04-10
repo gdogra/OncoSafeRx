@@ -16,10 +16,10 @@ const TrialsMap: React.FC<TrialsMapProps> = ({ trials = [], selectedTrial, onTri
           <button
             key={t?.nct_id || t?.nctId || idx}
             onClick={() => onTrialSelect?.(t)}
-            className={`text-left p-2 rounded border ${selectedTrial === t ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'}`}
+            className={`text-left p-2 rounded border ${selectedTrial === t ? 'border-blue-400 bg-blue-50' : 'border-gray-200 hover:bg-gray-50 dark:bg-gray-800'}`}
           >
-            <div className="font-medium text-gray-900">{t?.title || 'Trial'}</div>
-            <div className="text-xs text-gray-600">{t?.nct_id || t?.nctId || ''}</div>
+            <div className="font-medium text-gray-900 dark:text-gray-100">{t?.title || 'Trial'}</div>
+            <div className="text-xs text-gray-600 dark:text-gray-400">{t?.nct_id || t?.nctId || ''}</div>
           </button>
         ))}
       </div>

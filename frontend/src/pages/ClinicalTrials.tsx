@@ -68,7 +68,7 @@ const ClinicalTrials: React.FC = () => {
       case 'Low': return 'text-green-600 bg-green-100';
       case 'Moderate': return 'text-yellow-600 bg-yellow-100';
       case 'High': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -78,7 +78,7 @@ const ClinicalTrials: React.FC = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Clinical Trials Integration</h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-gray-600 dark:text-gray-400">
             Real-time trial matching with drug interaction analysis
           </p>
         </div>
@@ -96,8 +96,8 @@ const ClinicalTrials: React.FC = () => {
                   <Search className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Real-time Matching</div>
-                  <div className="text-sm text-gray-600">Instant trial eligibility scoring</div>
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">Real-time Matching</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Instant trial eligibility scoring</div>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
@@ -105,8 +105,8 @@ const ClinicalTrials: React.FC = () => {
                   <AlertTriangle className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Drug Interaction Analysis</div>
-                  <div className="text-sm text-gray-600">Trial protocol safety screening</div>
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">Drug Interaction Analysis</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Trial protocol safety screening</div>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
@@ -114,8 +114,8 @@ const ClinicalTrials: React.FC = () => {
                   <Activity className="h-5 w-5 text-purple-600" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">Outcome Tracking</div>
-                  <div className="text-sm text-gray-600">Revenue opportunity identification</div>
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">Outcome Tracking</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Revenue opportunity identification</div>
                 </div>
               </div>
             </div>
@@ -128,16 +128,16 @@ const ClinicalTrials: React.FC = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Current Patient Profile</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <div className="text-sm text-gray-500">Demographics</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Demographics</div>
                 <div className="font-medium">{patientProfile.age}yo {patientProfile.gender}</div>
-                <div className="text-sm text-gray-600">ECOG PS: {patientProfile.performanceStatus}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">ECOG PS: {patientProfile.performanceStatus}</div>
               </div>
               <div>
-                <div className="text-sm text-gray-500">Diagnosis</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Diagnosis</div>
                 <div className="font-medium">{patientProfile.diagnosis.join(', ')}</div>
               </div>
               <div>
-                <div className="text-sm text-gray-500">Current Medications</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Current Medications</div>
                 <div className="font-medium">{patientProfile.currentMedications.length} active drugs</div>
                 <Button 
                   variant="outline" 
@@ -162,7 +162,7 @@ const ClinicalTrials: React.FC = () => {
             
             {loading ? (
               <Card className="p-8 text-center">
-                <div className="text-gray-500">Analyzing trial eligibility...</div>
+                <div className="text-gray-500 dark:text-gray-400">Analyzing trial eligibility...</div>
               </Card>
             ) : (
               <div className="space-y-4">
@@ -177,7 +177,7 @@ const ClinicalTrials: React.FC = () => {
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900 mb-2">{match.trial.title}</h3>
-                        <div className="flex items-center space-x-4 text-sm text-gray-600">
+                        <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
                           <span className="font-medium text-blue-600">{match.trial.nctId}</span>
                           <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
                             {match.trial.phase}
@@ -195,23 +195,23 @@ const ClinicalTrials: React.FC = () => {
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div className="flex items-center space-x-2">
                         <Building className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">{match.trial.sponsor}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{match.trial.sponsor}</span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <MapPin className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
                           {match.trial.locations[0]?.distance?.toFixed(1)} mi away
                         </span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Users className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
                           {match.trial.currentEnrollment}/{match.trial.estimatedEnrollment} enrolled
                         </span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Calendar className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">{match.trial.status}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{match.trial.status}</span>
                       </div>
                     </div>
 
@@ -257,7 +257,7 @@ const ClinicalTrials: React.FC = () => {
             {selectedTrial ? (
               <Card className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">{selectedTrial.title}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{selectedTrial.title}</h3>
                   <Button className="bg-green-600 hover:bg-green-700">
                     <ExternalLink className="h-4 w-4 mr-2" />
                     Refer Patient
@@ -269,19 +269,19 @@ const ClinicalTrials: React.FC = () => {
                     <h4 className="font-semibold text-gray-900 mb-2">Study Information</h4>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
-                        <div className="text-gray-500">NCT ID</div>
+                        <div className="text-gray-500 dark:text-gray-400">NCT ID</div>
                         <div className="font-medium text-blue-600">{selectedTrial.nctId}</div>
                       </div>
                       <div>
-                        <div className="text-gray-500">Phase</div>
+                        <div className="text-gray-500 dark:text-gray-400">Phase</div>
                         <div className="font-medium">{selectedTrial.phase}</div>
                       </div>
                       <div>
-                        <div className="text-gray-500">Status</div>
+                        <div className="text-gray-500 dark:text-gray-400">Status</div>
                         <div className="font-medium">{selectedTrial.status}</div>
                       </div>
                       <div>
-                        <div className="text-gray-500">Sponsor</div>
+                        <div className="text-gray-500 dark:text-gray-400">Sponsor</div>
                         <div className="font-medium">{selectedTrial.sponsor}</div>
                       </div>
                     </div>
@@ -289,7 +289,7 @@ const ClinicalTrials: React.FC = () => {
 
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-2">Primary Endpoint</h4>
-                    <p className="text-gray-700">{selectedTrial.primaryEndpoint}</p>
+                    <p className="text-gray-700 dark:text-gray-300">{selectedTrial.primaryEndpoint}</p>
                   </div>
 
                   <div>
@@ -298,7 +298,7 @@ const ClinicalTrials: React.FC = () => {
                       {selectedTrial.interventions.map((intervention, idx) => (
                         <div key={idx} className="flex items-center">
                           <Activity className="h-4 w-4 text-blue-500 mr-2" />
-                          <span className="text-gray-700">{intervention}</span>
+                          <span className="text-gray-700 dark:text-gray-300">{intervention}</span>
                         </div>
                       ))}
                     </div>
@@ -311,9 +311,9 @@ const ClinicalTrials: React.FC = () => {
                         <div key={idx} className="flex items-center justify-between">
                           <div className="flex items-center">
                             <MapPin className="h-4 w-4 text-gray-400 mr-2" />
-                            <span className="text-gray-700">{location.facility}</span>
+                            <span className="text-gray-700 dark:text-gray-300">{location.facility}</span>
                           </div>
-                          <span className="text-sm text-gray-500">
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
                             {location.distance?.toFixed(1)} mi
                           </span>
                         </div>
@@ -349,7 +349,7 @@ const ClinicalTrials: React.FC = () => {
               </Card>
             ) : (
               <Card className="p-8 text-center">
-                <div className="text-gray-500">Select a trial to view detailed information</div>
+                <div className="text-gray-500 dark:text-gray-400">Select a trial to view detailed information</div>
               </Card>
             )}
           </div>

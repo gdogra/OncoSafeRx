@@ -26,7 +26,7 @@ const DrugCard: React.FC<DrugCardProps> = ({ drug, onClick, showDetails = false,
   };
 
   const getSeverityColor = (tty?: string) => {
-    if (!tty) return 'bg-gray-100 text-gray-700';
+    if (!tty) return 'bg-gray-100 text-gray-700 dark:text-gray-300';
     
     switch (tty.toLowerCase()) {
       case 'scd':
@@ -36,7 +36,7 @@ const DrugCard: React.FC<DrugCardProps> = ({ drug, onClick, showDetails = false,
       case 'bpck':
         return 'bg-warning-100 text-warning-700';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-100 text-gray-700 dark:text-gray-300';
     }
   };
 
@@ -62,7 +62,7 @@ const DrugCard: React.FC<DrugCardProps> = ({ drug, onClick, showDetails = false,
       {drug.tty && <div>Type: {formatTty(drug.tty)}</div>}
       {drug.generic_name && <div>Generic: {drug.generic_name}</div>}
       {drug.therapeutic_class && <div>Class: {drug.therapeutic_class}</div>}
-      <div className="mt-2 pt-2 border-t border-gray-200">
+      <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
         <div className="text-gray-300">{onClick ? 'Click for more details' : 'Drug details'}</div>
       </div>
     </div>
@@ -154,7 +154,7 @@ const DrugCard: React.FC<DrugCardProps> = ({ drug, onClick, showDetails = false,
             <div className="flex items-center space-x-4 mt-2">
               <div className="flex items-center space-x-1">
                 <Tag className="w-3 h-3 text-gray-400" />
-                <span className="text-xs text-gray-500">RXCUI: {drug.rxcui}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">RXCUI: {drug.rxcui}</span>
                 {showTooltips && (
                   <Tooltip
                     content="RxNorm Concept Unique Identifier - A unique identifier for this medication in the RxNorm database"
@@ -196,29 +196,29 @@ const DrugCard: React.FC<DrugCardProps> = ({ drug, onClick, showDetails = false,
               <div className="mt-3 space-y-2">
                 {drug.generic_name && drug.generic_name !== drug.name && (
                   <div>
-                    <span className="text-sm font-medium text-gray-700">Generic: </span>
-                    <span className="text-sm text-gray-600">{drug.generic_name}</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Generic: </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{drug.generic_name}</span>
                   </div>
                 )}
                 
                 {drug.therapeutic_class && (
                   <div>
-                    <span className="text-sm font-medium text-gray-700">Class: </span>
-                    <span className="text-sm text-gray-600">{drug.therapeutic_class}</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Class: </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{drug.therapeutic_class}</span>
                   </div>
                 )}
                 
                 {drug.indication && (
                   <div>
-                    <span className="text-sm font-medium text-gray-700">Indication: </span>
-                    <span className="text-sm text-gray-600">{drug.indication}</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Indication: </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{drug.indication}</span>
                   </div>
                 )}
 
                 {drug.brand_names && drug.brand_names.length > 0 && (
                   <div>
-                    <span className="text-sm font-medium text-gray-700">Brand Names: </span>
-                    <span className="text-sm text-gray-600">{drug.brand_names.join(', ')}</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Brand Names: </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{drug.brand_names.join(', ')}</span>
                   </div>
                 )}
               </div>
@@ -238,7 +238,7 @@ const DrugCard: React.FC<DrugCardProps> = ({ drug, onClick, showDetails = false,
           <button
             type="button"
             onClick={() => { togglePin(drug.rxcui, drug.name); }}
-            className={`inline-flex items-center px-3 py-1.5 text-xs rounded ${pinned ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-700'} hover:bg-gray-200`}
+            className={`inline-flex items-center px-3 py-1.5 text-xs rounded ${pinned ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-700 dark:text-gray-300'} hover:bg-gray-200`}
             aria-pressed={pinned}
             aria-label={pinned ? 'Unpin drug' : 'Pin drug'}
           >

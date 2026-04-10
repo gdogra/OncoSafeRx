@@ -268,7 +268,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
           onFocus={() => setIsOpen(true)}
           placeholder={placeholder}
           disabled={disabled || loading}
-          className="block w-full pl-9 pr-12 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm placeholder-gray-400 disabled:bg-gray-50 disabled:text-gray-500"
+          className="block w-full pl-9 pr-12 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm placeholder-gray-400 disabled:bg-gray-50 disabled:text-gray-500 dark:text-gray-400"
           autoComplete="off"
           spellCheck="false"
         />
@@ -282,7 +282,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
             <button
               type="button"
               onClick={handleClear}
-              className="p-1 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600"
+              className="p-1 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 dark:text-gray-400"
             >
               <X className="h-4 w-4" />
             </button>
@@ -291,7 +291,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
           <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className="p-1 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600"
+            className="p-1 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 dark:text-gray-400"
           >
             <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
           </button>
@@ -306,12 +306,12 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
           {loading && (
             <div className="p-4 text-center">
               <LoadingSpinner size="sm" />
-              <p className="mt-2 text-sm text-gray-500">Searching...</p>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Searching...</p>
             </div>
           )}
           
           {!loading && filteredOptions.length === 0 && searchTerm.length >= minChars && (
-            <div className="p-4 text-center text-sm text-gray-500">
+            <div className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
               {noResultsText}
               {allowCustom && (
                 <div className="mt-2">
@@ -331,7 +331,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
               {Object.entries(groupedOptions).map(([category, categoryOptions]) => (
                 <div key={category}>
                   {groupByCategory && category && (
-                    <div className="px-3 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50">
+                    <div className="px-3 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wide bg-gray-50 dark:bg-gray-800">
                       {category}
                     </div>
                   )}
@@ -345,7 +345,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
                         key={`${option.value}-${index}`}
                         onClick={() => handleSelect(option)}
                         className={`w-full px-3 py-2 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none ${
-                          isHighlighted ? 'bg-blue-50 text-blue-900' : 'text-gray-900'
+                          isHighlighted ? 'bg-blue-50 text-blue-900' : 'text-gray-900 dark:text-gray-100'
                         }`}
                       >
                         <div className="flex items-center justify-between">

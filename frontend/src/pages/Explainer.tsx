@@ -141,12 +141,12 @@ const Explainer: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center">
-            <div className="inline-flex items-center px-4 py-2 bg-white/20 rounded-full text-sm font-medium mb-6">
+            <div className="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-900/20 rounded-full text-sm font-medium mb-6">
               <Award className="h-4 w-4 mr-2" />
               Trusted by 500+ Healthcare Organizations
             </div>
@@ -178,24 +178,24 @@ const Explainer: React.FC = () => {
       </div>
 
       {/* Stats Section */}
-      <div className="py-16 bg-gray-50">
+      <div className="py-16 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-4xl font-bold text-blue-600 mb-2">1,142+</div>
-              <div className="text-gray-600">Drug Interactions</div>
+              <div className="text-gray-600 dark:text-gray-400">Drug Interactions</div>
             </div>
             <div>
               <div className="text-4xl font-bold text-green-600 mb-2">500+</div>
-              <div className="text-gray-600">Healthcare Organizations</div>
+              <div className="text-gray-600 dark:text-gray-400">Healthcare Organizations</div>
             </div>
             <div>
               <div className="text-4xl font-bold text-purple-600 mb-2">24/7</div>
-              <div className="text-gray-600">Clinical Support</div>
+              <div className="text-gray-600 dark:text-gray-400">Clinical Support</div>
             </div>
             <div>
               <div className="text-4xl font-bold text-orange-600 mb-2">95%</div>
-              <div className="text-gray-600">Safety Improvement</div>
+              <div className="text-gray-600 dark:text-gray-400">Safety Improvement</div>
             </div>
           </div>
         </div>
@@ -221,13 +221,13 @@ const Explainer: React.FC = () => {
                     className={`w-full text-left p-4 rounded-lg border transition-all ${
                       activeDemo === key 
                         ? 'border-blue-500 bg-blue-50' 
-                        : 'border-gray-200 hover:border-gray-300'
+                        : 'border-gray-200 hover:border-gray-300 dark:border-gray-600'
                     }`}
                   >
                     <div className="flex items-center">
                       <Play className="h-5 w-5 text-blue-600 mr-3" />
                       <div>
-                        <h3 className="font-semibold text-gray-900">{demo.title}</h3>
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">{demo.title}</h3>
                         <p className="text-sm text-gray-600 mt-1">{demo.description}</p>
                       </div>
                     </div>
@@ -246,7 +246,7 @@ const Explainer: React.FC = () => {
                 <h4 className="font-semibold text-gray-900 mb-2">
                   {demoScreenshots[activeDemo as keyof typeof demoScreenshots].title}
                 </h4>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-400">
                   {demoScreenshots[activeDemo as keyof typeof demoScreenshots].description}
                 </p>
               </div>
@@ -256,7 +256,7 @@ const Explainer: React.FC = () => {
       </div>
 
       {/* Features Grid */}
-      <div className="py-20 bg-gray-50">
+      <div className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Comprehensive Clinical Tools</h2>
@@ -273,7 +273,7 @@ const Explainer: React.FC = () => {
                     <feature.icon className="h-6 w-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">{feature.title}</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">{feature.title}</h3>
                     <div className="text-sm text-blue-600 font-medium">{feature.stat}</div>
                   </div>
                 </div>
@@ -306,8 +306,8 @@ const Explainer: React.FC = () => {
                     <userType.icon className="h-8 w-8 text-purple-600" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900">{userType.type}</h3>
-                    <p className="text-gray-600">{userType.description}</p>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{userType.type}</h3>
+                    <p className="text-gray-600 dark:text-gray-400">{userType.description}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -345,8 +345,8 @@ const Explainer: React.FC = () => {
                 <Quote className="h-8 w-8 text-blue-200 mb-4" />
                 <p className="text-gray-700 mb-6 italic">"{testimonial.quote}"</p>
                 <div>
-                  <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                  <div className="text-sm text-gray-600">{testimonial.role}</div>
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">{testimonial.name}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">{testimonial.role}</div>
                 </div>
               </Card>
             ))}
@@ -355,7 +355,7 @@ const Explainer: React.FC = () => {
       </div>
 
       {/* Security & Compliance */}
-      <div className="py-20 bg-gray-50">
+      <div className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Enterprise-Grade Security</h2>
@@ -370,21 +370,21 @@ const Explainer: React.FC = () => {
                 <Shield className="h-10 w-10 text-green-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">HIPAA Compliant</h3>
-              <p className="text-gray-600">Full compliance with healthcare data protection regulations</p>
+              <p className="text-gray-600 dark:text-gray-400">Full compliance with healthcare data protection regulations</p>
             </div>
             <div className="text-center">
               <div className="p-4 bg-blue-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                 <Globe className="h-10 w-10 text-blue-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Global Standards</h3>
-              <p className="text-gray-600">Meets international healthcare compliance requirements</p>
+              <p className="text-gray-600 dark:text-gray-400">Meets international healthcare compliance requirements</p>
             </div>
             <div className="text-center">
               <div className="p-4 bg-purple-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
                 <Clock className="h-10 w-10 text-purple-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">24/7 Monitoring</h3>
-              <p className="text-gray-600">Continuous security monitoring and threat detection</p>
+              <p className="text-gray-600 dark:text-gray-400">Continuous security monitoring and threat detection</p>
             </div>
           </div>
         </div>
@@ -406,29 +406,29 @@ const Explainer: React.FC = () => {
               <div className="flex items-start">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3" />
                 <div>
-                  <div className="font-semibold text-gray-900">Free 30-Day Trial</div>
-                  <div className="text-gray-600">Full access to all features</div>
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">Free 30-Day Trial</div>
+                  <div className="text-gray-600 dark:text-gray-400">Full access to all features</div>
                 </div>
               </div>
               <div className="flex items-start">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3" />
                 <div>
-                  <div className="font-semibold text-gray-900">Personal Onboarding</div>
-                  <div className="text-gray-600">Dedicated setup assistance</div>
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">Personal Onboarding</div>
+                  <div className="text-gray-600 dark:text-gray-400">Dedicated setup assistance</div>
                 </div>
               </div>
               <div className="flex items-start">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3" />
                 <div>
-                  <div className="font-semibold text-gray-900">24/7 Clinical Support</div>
-                  <div className="text-gray-600">Always available when you need help</div>
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">24/7 Clinical Support</div>
+                  <div className="text-gray-600 dark:text-gray-400">Always available when you need help</div>
                 </div>
               </div>
               <div className="flex items-start">
                 <CheckCircle className="h-5 w-5 text-green-500 mt-1 mr-3" />
                 <div>
-                  <div className="font-semibold text-gray-900">No Long-Term Contracts</div>
-                  <div className="text-gray-600">Cancel anytime, no hidden fees</div>
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">No Long-Term Contracts</div>
+                  <div className="text-gray-600 dark:text-gray-400">Cancel anytime, no hidden fees</div>
                 </div>
               </div>
             </div>

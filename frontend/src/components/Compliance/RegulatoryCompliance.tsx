@@ -522,7 +522,7 @@ const RegulatoryCompliance: React.FC = () => {
       case 'In Progress': return 'text-yellow-700 bg-yellow-100 border-yellow-300';
       case 'Non-Compliant': return 'text-red-700 bg-red-100 border-red-300';
       case 'Under Review': return 'text-purple-700 bg-purple-100 border-purple-300';
-      default: return 'text-gray-700 bg-gray-100 border-gray-300';
+      default: return 'text-gray-700 bg-gray-100 border-gray-300 dark:border-gray-600';
     }
   };
 
@@ -532,7 +532,7 @@ const RegulatoryCompliance: React.FC = () => {
       case 'Medium': return 'text-yellow-700 bg-yellow-100';
       case 'High': return 'text-red-700 bg-red-100';
       case 'Critical': return 'text-red-900 bg-red-200';
-      default: return 'text-gray-700 bg-gray-100';
+      default: return 'text-gray-700 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -560,7 +560,7 @@ const RegulatoryCompliance: React.FC = () => {
       <div className="bg-white p-4 rounded-lg border">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">View:</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">View:</label>
             <select
               value={viewMode}
               onChange={(e) => setViewMode(e.target.value as any)}
@@ -575,7 +575,7 @@ const RegulatoryCompliance: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Status:</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Status:</label>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
@@ -590,7 +590,7 @@ const RegulatoryCompliance: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">Risk Level:</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Risk Level:</label>
             <select
               value={filterRisk}
               onChange={(e) => setFilterRisk(e.target.value)}
@@ -620,8 +620,8 @@ const RegulatoryCompliance: React.FC = () => {
               <div className="flex items-center gap-3">
                 <Shield className="h-8 w-8 text-blue-600" />
                 <div>
-                  <div className="text-2xl font-bold text-gray-900">{frameworks.length}</div>
-                  <div className="text-sm text-gray-600">Active Frameworks</div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{frameworks.length}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Active Frameworks</div>
                 </div>
               </div>
             </div>
@@ -630,10 +630,10 @@ const RegulatoryCompliance: React.FC = () => {
               <div className="flex items-center gap-3">
                 <CheckCircle className="h-8 w-8 text-green-600" />
                 <div>
-                  <div className="text-2xl font-bold text-gray-900">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {frameworks.filter(f => f.status === 'Compliant').length}
                   </div>
-                  <div className="text-sm text-gray-600">Compliant Systems</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Compliant Systems</div>
                 </div>
               </div>
             </div>
@@ -642,10 +642,10 @@ const RegulatoryCompliance: React.FC = () => {
               <div className="flex items-center gap-3">
                 <AlertTriangle className="h-8 w-8 text-yellow-600" />
                 <div>
-                  <div className="text-2xl font-bold text-gray-900">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {auditRecords.reduce((sum, audit) => sum + audit.findings.filter(f => f.status !== 'Closed').length, 0)}
                   </div>
-                  <div className="text-sm text-gray-600">Open Findings</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Open Findings</div>
                 </div>
               </div>
             </div>
@@ -654,10 +654,10 @@ const RegulatoryCompliance: React.FC = () => {
               <div className="flex items-center gap-3">
                 <Award className="h-8 w-8 text-purple-600" />
                 <div>
-                  <div className="text-2xl font-bold text-gray-900">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {frameworks.reduce((sum, f) => sum + f.certifications.filter(c => c.status === 'Valid').length, 0)}
                   </div>
-                  <div className="text-sm text-gray-600">Valid Certifications</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Valid Certifications</div>
                 </div>
               </div>
             </div>
@@ -711,7 +711,7 @@ const RegulatoryCompliance: React.FC = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-medium text-gray-900">{framework.name}</h4>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100">{framework.name}</h4>
                         <span className={`px-2 py-1 text-xs font-medium rounded border ${getStatusColor(framework.status)}`}>
                           {framework.status}
                         </span>
@@ -725,26 +725,26 @@ const RegulatoryCompliance: React.FC = () => {
                       
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-600">Category:</span>
+                          <span className="text-gray-600 dark:text-gray-400">Category:</span>
                           <span className="ml-2 font-medium">{framework.category}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Requirements:</span>
+                          <span className="text-gray-600 dark:text-gray-400">Requirements:</span>
                           <span className="ml-2 font-medium">{framework.requirements.length}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Last Audit:</span>
+                          <span className="text-gray-600 dark:text-gray-400">Last Audit:</span>
                           <span className="ml-2 font-medium">{framework.last_audit}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Next Audit:</span>
+                          <span className="text-gray-600 dark:text-gray-400">Next Audit:</span>
                           <span className="ml-2 font-medium">{framework.next_audit}</span>
                         </div>
                       </div>
 
                       <div className="mt-3">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm text-gray-600">Compliance Progress</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Compliance Progress</span>
                           <span className="text-sm font-medium">{framework.compliance_score.toFixed(1)}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -757,7 +757,7 @@ const RegulatoryCompliance: React.FC = () => {
 
                       {framework.certifications.length > 0 && (
                         <div className="mt-3">
-                          <span className="text-sm text-gray-600">Certifications: </span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Certifications: </span>
                           {framework.certifications.map((cert, index) => (
                             <span
                               key={index}
@@ -776,7 +776,7 @@ const RegulatoryCompliance: React.FC = () => {
                     
                     <div className="ml-4 text-right">
                       <div className="text-2xl font-bold text-blue-600">{framework.compliance_score.toFixed(0)}%</div>
-                      <div className="text-sm text-gray-600">Compliance</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Compliance</div>
                     </div>
                   </div>
                 </div>
@@ -790,27 +790,27 @@ const RegulatoryCompliance: React.FC = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Data Protection Metrics</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 <div className="bg-blue-50 p-3 rounded">
-                  <div className="text-sm text-gray-600">Processing Activities</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Processing Activities</div>
                   <div className="text-xl font-bold text-blue-600">{dataProtectionMetrics.data_processing_activities}</div>
                 </div>
                 <div className="bg-green-50 p-3 rounded">
-                  <div className="text-sm text-gray-600">Data Subjects</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Data Subjects</div>
                   <div className="text-xl font-bold text-green-600">{dataProtectionMetrics.data_subjects.toLocaleString()}</div>
                 </div>
                 <div className="bg-purple-50 p-3 rounded">
-                  <div className="text-sm text-gray-600">Consent Records</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Consent Records</div>
                   <div className="text-xl font-bold text-purple-600">{dataProtectionMetrics.consent_records.toLocaleString()}</div>
                 </div>
                 <div className="bg-yellow-50 p-3 rounded">
-                  <div className="text-sm text-gray-600">Privacy Requests</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Privacy Requests</div>
                   <div className="text-xl font-bold text-yellow-600">{dataProtectionMetrics.privacy_requests}</div>
                 </div>
                 <div className="bg-red-50 p-3 rounded">
-                  <div className="text-sm text-gray-600">Data Breaches</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Data Breaches</div>
                   <div className="text-xl font-bold text-red-600">{dataProtectionMetrics.data_breaches}</div>
                 </div>
                 <div className="bg-indigo-50 p-3 rounded">
-                  <div className="text-sm text-gray-600">Encryption Coverage</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Encryption Coverage</div>
                   <div className="text-xl font-bold text-indigo-600">{dataProtectionMetrics.encryption_coverage}%</div>
                 </div>
               </div>
@@ -824,7 +824,7 @@ const RegulatoryCompliance: React.FC = () => {
           {/* Framework Details */}
           <div className="bg-white p-6 rounded-lg border">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Framework Details</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Framework Details</h3>
               <select
                 value={selectedFramework}
                 onChange={(e) => setSelectedFramework(e.target.value)}
@@ -841,21 +841,21 @@ const RegulatoryCompliance: React.FC = () => {
                 <h4 className="font-medium text-gray-900 mb-3">Framework Information</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Region:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Region:</span>
                     <span className="font-medium">{currentFramework.region}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Category:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Category:</span>
                     <span className="font-medium">{currentFramework.category}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Status:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Status:</span>
                     <span className={`px-2 py-1 text-xs font-medium rounded ${getStatusColor(currentFramework.status)}`}>
                       {currentFramework.status}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Risk Level:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Risk Level:</span>
                     <span className={`px-2 py-1 text-xs font-medium rounded ${getRiskColor(currentFramework.risk_level)}`}>
                       {currentFramework.risk_level}
                     </span>
@@ -867,19 +867,19 @@ const RegulatoryCompliance: React.FC = () => {
                 <h4 className="font-medium text-gray-900 mb-3">Audit Schedule</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Last Audit:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Last Audit:</span>
                     <span className="font-medium">{currentFramework.last_audit}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Next Audit:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Next Audit:</span>
                     <span className="font-medium">{currentFramework.next_audit}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Requirements:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Requirements:</span>
                     <span className="font-medium">{currentFramework.requirements.length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Certifications:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Certifications:</span>
                     <span className="font-medium">{currentFramework.certifications.length}</span>
                   </div>
                 </div>
@@ -909,7 +909,7 @@ const RegulatoryCompliance: React.FC = () => {
                   <div key={requirement.id} className="bg-gray-50 p-4 rounded-lg">
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <h5 className="font-medium text-gray-900">{requirement.requirement}</h5>
+                        <h5 className="font-medium text-gray-900 dark:text-gray-100">{requirement.requirement}</h5>
                         <p className="text-sm text-gray-600 mt-1">{requirement.description}</p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -917,7 +917,7 @@ const RegulatoryCompliance: React.FC = () => {
                           requirement.status === 'Met' ? 'bg-green-100 text-green-800' :
                           requirement.status === 'Partially Met' ? 'bg-yellow-100 text-yellow-800' :
                           requirement.status === 'Not Met' ? 'bg-red-100 text-red-800' :
-                          'bg-gray-100 text-gray-800'
+                          'bg-gray-100 text-gray-800 dark:text-gray-200'
                         }`}>
                           {requirement.status}
                         </span>
@@ -934,22 +934,22 @@ const RegulatoryCompliance: React.FC = () => {
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                       <div>
-                        <span className="text-gray-600">Responsible Party:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Responsible Party:</span>
                         <span className="ml-2 font-medium">{requirement.responsible_party}</span>
                       </div>
                       <div>
-                        <span className="text-gray-600">Due Date:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Due Date:</span>
                         <span className="ml-2 font-medium">{requirement.due_date}</span>
                       </div>
                       <div>
-                        <span className="text-gray-600">Compliance:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Compliance:</span>
                         <span className="ml-2 font-medium">{requirement.compliance_percentage}%</span>
                       </div>
                     </div>
 
                     {requirement.evidence.length > 0 && (
                       <div className="mt-3">
-                        <span className="text-sm text-gray-600">Evidence: </span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Evidence: </span>
                         {requirement.evidence.map((evidence, index) => (
                           <span
                             key={index}
@@ -980,8 +980,8 @@ const RegulatoryCompliance: React.FC = () => {
               <div key={audit.id} className="bg-gray-50 p-4 rounded-lg">
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h4 className="font-medium text-gray-900">{audit.framework} Audit</h4>
-                    <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100">{audit.framework} Audit</h4>
+                    <div className="flex items-center gap-2 mt-1 text-sm text-gray-600 dark:text-gray-400">
                       <span>{audit.type}</span>
                       <span>•</span>
                       <span>{audit.auditor}</span>
@@ -1000,7 +1000,7 @@ const RegulatoryCompliance: React.FC = () => {
                 </div>
 
                 <div className="mb-3">
-                  <span className="text-sm text-gray-600">Scope: </span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Scope: </span>
                   <span className="text-sm font-medium">{audit.scope}</span>
                 </div>
 
@@ -1032,7 +1032,7 @@ const RegulatoryCompliance: React.FC = () => {
                             </span>
                           </div>
                           <p className="text-sm text-gray-700 mb-2">{finding.description}</p>
-                          <div className="text-xs text-gray-600">
+                          <div className="text-xs text-gray-600 dark:text-gray-400">
                             <div>Reference: {finding.requirement_reference}</div>
                             <div>Responsible: {finding.responsible_party} | Due: {finding.due_date}</div>
                             <div>Corrective Action: {finding.corrective_action}</div>
@@ -1043,7 +1043,7 @@ const RegulatoryCompliance: React.FC = () => {
                   </div>
                 )}
 
-                <div className="mt-3 text-sm text-gray-600">
+                <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
                   Next Audit: {audit.next_audit}
                 </div>
               </div>

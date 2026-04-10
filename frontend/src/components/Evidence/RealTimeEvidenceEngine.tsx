@@ -358,7 +358,7 @@ const RealTimeEvidenceEngine: React.FC = () => {
       case 'syncing': return 'text-yellow-600 bg-yellow-100';
       case 'error': return 'text-red-600 bg-red-100';
       case 'rate_limited': return 'text-orange-600 bg-orange-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -367,7 +367,7 @@ const RealTimeEvidenceEngine: React.FC = () => {
       case 'high': return 'text-red-600 bg-red-100';
       case 'medium': return 'text-yellow-600 bg-yellow-100';
       case 'low': return 'text-green-600 bg-green-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -375,7 +375,7 @@ const RealTimeEvidenceEngine: React.FC = () => {
     switch (direction) {
       case 'positive': return <TrendingUp className="h-4 w-4 text-green-600" />;
       case 'negative': return <AlertTriangle className="h-4 w-4 text-red-600" />;
-      default: return <Activity className="h-4 w-4 text-gray-600" />;
+      default: return <Activity className="h-4 w-4 text-gray-600 dark:text-gray-400" />;
     }
   };
 
@@ -451,7 +451,7 @@ const RealTimeEvidenceEngine: React.FC = () => {
 
       {/* Tab Navigation */}
       <div className="bg-white rounded-lg shadow-sm border overflow-hidden" data-tour="evidence-tabs">
-        <div className="border-b border-gray-200">
+        <div className="border-b border-gray-200 dark:border-gray-700">
           <nav className="flex">
             {[
               { id: 'sources', label: 'Evidence Sources', icon: Database },
@@ -467,7 +467,7 @@ const RealTimeEvidenceEngine: React.FC = () => {
                   className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 ${
                     activeTab === tab.id
                       ? 'border-blue-500 text-blue-600 bg-blue-50'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -487,7 +487,7 @@ const RealTimeEvidenceEngine: React.FC = () => {
                   <div key={source.id} className="bg-gray-50 p-4 rounded-lg">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <h3 className="font-medium text-gray-900">{source.name}</h3>
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{source.name}</h3>
                         <p className="text-sm text-gray-600 capitalize">{source.type.replace('_', ' ')}</p>
                       </div>
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(source.status)}`}>
@@ -496,23 +496,23 @@ const RealTimeEvidenceEngine: React.FC = () => {
                     </div>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Reliability:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Reliability:</span>
                         <span className="font-medium">{source.reliability}%</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Quality Score:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Quality Score:</span>
                         <span className="font-medium">{source.qualityScore}%</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Records:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Records:</span>
                         <span className="font-medium">{source.recordCount.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Update Freq:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Update Freq:</span>
                         <span className="font-medium">{source.updateFrequency}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Last Update:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Last Update:</span>
                         <span className="font-medium text-green-600">{source.lastUpdate}</span>
                       </div>
                     </div>
@@ -533,11 +533,11 @@ const RealTimeEvidenceEngine: React.FC = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <h3 className="font-medium text-gray-900">{update.drugName} - {update.indication}</h3>
+                          <h3 className="font-medium text-gray-900 dark:text-gray-100">{update.drugName} - {update.indication}</h3>
                           <div className="flex items-center gap-3 mt-1">
-                            <span className="text-sm text-gray-600">{update.source}</span>
+                            <span className="text-sm text-gray-600 dark:text-gray-400">{update.source}</span>
                             <span className="text-sm text-gray-400">•</span>
-                            <span className="text-sm text-gray-600">{update.timestamp}</span>
+                            <span className="text-sm text-gray-600 dark:text-gray-400">{update.timestamp}</span>
                             <span className={`px-2 py-1 text-xs font-medium rounded-full ${getImpactColor(update.impact)}`}>
                               {update.impact} impact
                             </span>
@@ -547,15 +547,15 @@ const RealTimeEvidenceEngine: React.FC = () => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-sm font-medium text-gray-900">{update.confidence}%</div>
-                          <div className="text-xs text-gray-500">Confidence</div>
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{update.confidence}%</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Confidence</div>
                         </div>
                       </div>
                       <p className="text-gray-700 text-sm">{update.summary}</p>
                       <div className="mt-3 flex items-center gap-4">
                         <div className="flex items-center gap-1">
                           <Target className="h-4 w-4 text-blue-500" />
-                          <span className="text-sm text-gray-600">Clinical Significance: {update.clinicalSignificance}%</span>
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Clinical Significance: {update.clinicalSignificance}%</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Award className="h-4 w-4 text-green-500" />
@@ -577,19 +577,19 @@ const RealTimeEvidenceEngine: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="bg-white p-4 rounded-lg text-center">
                     <div className="text-2xl font-bold text-blue-600">{drugEvidence.totalStudies}</div>
-                    <div className="text-sm text-gray-600">Total Studies</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Total Studies</div>
                   </div>
                   <div className="bg-white p-4 rounded-lg text-center">
                     <div className="text-2xl font-bold text-green-600">{drugEvidence.qualityScore}%</div>
-                    <div className="text-sm text-gray-600">Quality Score</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Quality Score</div>
                   </div>
                   <div className="bg-white p-4 rounded-lg text-center">
                     <div className="text-2xl font-bold text-purple-600">{drugEvidence.realWorldOutcomes.responseRate}%</div>
-                    <div className="text-sm text-gray-600">Response Rate</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Response Rate</div>
                   </div>
                   <div className="bg-white p-4 rounded-lg text-center">
                     <div className="text-2xl font-bold text-teal-600">{drugEvidence.safetyProfile.overallScore}</div>
-                    <div className="text-sm text-gray-600">Safety Score</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">Safety Score</div>
                   </div>
                 </div>
               </div>
@@ -635,7 +635,7 @@ const RealTimeEvidenceEngine: React.FC = () => {
                         <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                           <span className="text-sm font-medium">{biomarker.biomarker}</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-600">{biomarker.predictiveValue}%</span>
+                            <span className="text-sm text-gray-600 dark:text-gray-400">{biomarker.predictiveValue}%</span>
                             <div className="w-16 bg-gray-200 rounded-full h-2">
                               <div 
                                 className="bg-green-600 h-2 rounded-full" 
@@ -684,7 +684,7 @@ const RealTimeEvidenceEngine: React.FC = () => {
                         <div key={index} className="flex items-center justify-between p-2 bg-orange-50 rounded">
                           <span className="text-sm font-medium">{pattern.mutation}</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-600">{pattern.frequency}%</span>
+                            <span className="text-sm text-gray-600 dark:text-gray-400">{pattern.frequency}%</span>
                             <span className="text-sm text-orange-600">Impact: {pattern.impact}%</span>
                           </div>
                         </div>
@@ -702,26 +702,26 @@ const RealTimeEvidenceEngine: React.FC = () => {
                 <div key={model.id} className="bg-white p-6 rounded-lg border">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{model.name}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{model.name}</h3>
                       <p className="text-sm text-gray-600 capitalize">{model.type} prediction model</p>
                     </div>
                     <div className="text-right">
                       <div className="text-2xl font-bold text-blue-600">{model.accuracy}%</div>
-                      <div className="text-sm text-gray-600">Accuracy</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Accuracy</div>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div className="bg-gray-50 p-3 rounded">
-                      <div className="text-sm text-gray-600">Data Points</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Data Points</div>
                       <div className="font-semibold">{model.dataPoints.toLocaleString()}</div>
                     </div>
                     <div className="bg-gray-50 p-3 rounded">
-                      <div className="text-sm text-gray-600">Validation Score</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Validation Score</div>
                       <div className="font-semibold">{model.validationScore}%</div>
                     </div>
                     <div className="bg-gray-50 p-3 rounded">
-                      <div className="text-sm text-gray-600">Complexity</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Complexity</div>
                       <div className="font-semibold capitalize">{model.modelComplexity.replace('_', ' ')}</div>
                     </div>
                   </div>
@@ -736,7 +736,7 @@ const RealTimeEvidenceEngine: React.FC = () => {
                             <span className="text-lg font-bold text-blue-600">{prediction.probability}%</span>
                             <div className="flex items-center gap-1">
                               <Shield className="h-4 w-4 text-green-500" />
-                              <span className="text-sm text-gray-600">{prediction.confidence}% confidence</span>
+                              <span className="text-sm text-gray-600 dark:text-gray-400">{prediction.confidence}% confidence</span>
                             </div>
                           </div>
                         </div>
@@ -744,7 +744,7 @@ const RealTimeEvidenceEngine: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="mt-4 flex items-center gap-2 text-sm text-gray-600">
+                  <div className="mt-4 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <Clock className="h-4 w-4" />
                     Last training: {model.lastTraining}
                   </div>

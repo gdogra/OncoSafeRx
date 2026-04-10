@@ -30,7 +30,7 @@ const ChemoSideEffectsVideo: React.FC = () => {
               {/* Placeholder Video Player */}
               <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-900 to-purple-900">
                 <div className="text-center text-white">
-                  <div className="w-20 h-20 mx-auto mb-4 bg-white/20 rounded-full flex items-center justify-center">
+                  <div className="w-20 h-20 mx-auto mb-4 bg-white dark:bg-gray-900/20 rounded-full flex items-center justify-center">
                     {isPlaying ? (
                       <Pause className="w-8 h-8" />
                     ) : (
@@ -48,7 +48,7 @@ const ChemoSideEffectsVideo: React.FC = () => {
                   <div className="flex items-center space-x-3">
                     <button 
                       onClick={togglePlay}
-                      className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+                      className="w-10 h-10 bg-white dark:bg-gray-900/20 rounded-full flex items-center justify-center hover:bg-white dark:bg-gray-900/30 transition-colors"
                     >
                       {isPlaying ? (
                         <Pause className="w-5 h-5" />
@@ -58,23 +58,23 @@ const ChemoSideEffectsVideo: React.FC = () => {
                     </button>
                     <button 
                       onClick={toggleMute}
-                      className="w-8 h-8 flex items-center justify-center hover:bg-white/20 rounded transition-colors"
+                      className="w-8 h-8 flex items-center justify-center hover:bg-white dark:bg-gray-900/20 rounded transition-colors"
                     >
                       {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
                     </button>
                     <span className="text-sm">2:35 / 15:24</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <button className="w-8 h-8 flex items-center justify-center hover:bg-white/20 rounded transition-colors">
+                    <button className="w-8 h-8 flex items-center justify-center hover:bg-white dark:bg-gray-900/20 rounded transition-colors">
                       <Settings className="w-5 h-5" />
                     </button>
-                    <button className="w-8 h-8 flex items-center justify-center hover:bg-white/20 rounded transition-colors">
+                    <button className="w-8 h-8 flex items-center justify-center hover:bg-white dark:bg-gray-900/20 rounded transition-colors">
                       <Maximize className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
                 {/* Progress Bar */}
-                <div className="mt-3 w-full bg-white/20 rounded-full h-1">
+                <div className="mt-3 w-full bg-white dark:bg-gray-900/20 rounded-full h-1">
                   <div className="bg-blue-500 h-1 rounded-full" style={{ width: '17%' }}></div>
                 </div>
               </div>
@@ -85,7 +85,7 @@ const ChemoSideEffectsVideo: React.FC = () => {
           <Card className="p-6">
             <div className="space-y-4">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Managing Chemotherapy Side Effects</h1>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Managing Chemotherapy Side Effects</h1>
                 <p className="text-gray-600 mt-2">
                   Learn practical strategies to manage common chemotherapy side effects including nausea, 
                   fatigue, hair loss, and changes in appetite. Expert advice from oncology nurses and 
@@ -93,7 +93,7 @@ const ChemoSideEffectsVideo: React.FC = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-6 text-sm text-gray-600">
+              <div className="flex items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
                 <div className="flex items-center gap-1">
                   <Clock className="w-4 h-4" />
                   <span>15 minutes</span>
@@ -125,7 +125,7 @@ const ChemoSideEffectsVideo: React.FC = () => {
               {showTranscript && (
                 <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                   <h3 className="font-semibold text-gray-900 mb-3">Video Transcript</h3>
-                  <div className="space-y-3 text-sm text-gray-700">
+                  <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
                     <p>
                       <span className="text-blue-600 font-medium">[00:00]</span> Welcome to our comprehensive guide on managing chemotherapy side effects. 
                       I'm Dr. Sarah Chen, an oncology nurse with over 15 years of experience helping patients 
@@ -170,8 +170,8 @@ const ChemoSideEffectsVideo: React.FC = () => {
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{chapter.title}</p>
-                      <p className="text-xs text-gray-500">{chapter.time}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{chapter.title}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{chapter.time}</p>
                     </div>
                     <span className="text-xs text-gray-400">{chapter.duration}</span>
                   </div>
@@ -202,7 +202,7 @@ const ChemoSideEffectsVideo: React.FC = () => {
                 }
               ].map((resource, index) => (
                 <div key={index} className="p-3 border border-gray-200 rounded">
-                  <h4 className="text-sm font-medium text-gray-900">{resource.title}</h4>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">{resource.title}</h4>
                   <p className="text-xs text-blue-600 mt-1">{resource.type}</p>
                   <p className="text-xs text-gray-600 mt-1">{resource.description}</p>
                 </div>

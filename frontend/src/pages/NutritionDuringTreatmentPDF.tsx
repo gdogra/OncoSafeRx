@@ -28,10 +28,10 @@ const NutritionDuringTreatmentPDF: React.FC = () => {
           <div className="lg:col-span-1">
             <Card className="p-4 h-fit">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">Document Outline</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">Document Outline</h3>
                 <button
                   onClick={() => setShowOutline(false)}
-                  className="lg:hidden text-gray-400 hover:text-gray-600"
+                  className="lg:hidden text-gray-400 hover:text-gray-600 dark:text-gray-400"
                 >
                   ×
                 </button>
@@ -52,7 +52,7 @@ const NutritionDuringTreatmentPDF: React.FC = () => {
                     className={`w-full text-left p-2 rounded transition-colors ${
                       currentPage >= item.page && (index === 6 || currentPage < (index < 6 ? [3, 7, 12, 16, 20, 23][index + 1] : totalPages + 1))
                         ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-500'
-                        : 'hover:bg-gray-50 text-gray-700'
+                        : 'hover:bg-gray-50 text-gray-700 dark:text-gray-300'
                     }`}
                   >
                     <div className="flex justify-between">
@@ -72,10 +72,10 @@ const NutritionDuringTreatmentPDF: React.FC = () => {
           <Card className="p-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Nutrition During Cancer Treatment</h1>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Nutrition During Cancer Treatment</h1>
                 <p className="text-gray-600 mt-1">Comprehensive guide to maintaining nutrition throughout your treatment journey</p>
                 
-                <div className="flex items-center gap-4 mt-3 text-sm text-gray-600">
+                <div className="flex items-center gap-4 mt-3 text-sm text-gray-600 dark:text-gray-400">
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
                     <span>20 min read</span>
@@ -160,10 +160,10 @@ const NutritionDuringTreatmentPDF: React.FC = () => {
                     <ZoomIn className="w-4 h-4" />
                   </button>
                 </div>
-                <button className="p-2 border border-gray-300 rounded hover:bg-gray-50">
+                <button className="p-2 border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-800">
                   <RotateCw className="w-4 h-4" />
                 </button>
-                <button className="p-2 border border-gray-300 rounded hover:bg-gray-50">
+                <button className="p-2 border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-800">
                   <Search className="w-4 h-4" />
                 </button>
               </div>
@@ -181,7 +181,7 @@ const NutritionDuringTreatmentPDF: React.FC = () => {
                   transformOrigin: 'top center'
                 }}
               >
-                <div className="aspect-[8.5/11] border border-gray-300">
+                <div className="aspect-[8.5/11] border border-gray-300 dark:border-gray-600">
                   {/* Sample PDF Content based on current page */}
                   {currentPage === 1 && (
                     <div className="p-8 h-full flex flex-col">
@@ -192,7 +192,7 @@ const NutritionDuringTreatmentPDF: React.FC = () => {
                         <p className="text-lg text-gray-600 mb-2">
                           A Comprehensive Guide to Maintaining Your Health
                         </p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                           Published by OncoSafeRx Clinical Team
                         </p>
                       </div>
@@ -200,7 +200,7 @@ const NutritionDuringTreatmentPDF: React.FC = () => {
                       <div className="flex-1 space-y-6">
                         <div className="border-t border-gray-200 pt-6">
                           <h2 className="text-xl font-semibold text-gray-900 mb-4">What's Inside</h2>
-                          <ul className="space-y-3 text-gray-700">
+                          <ul className="space-y-3 text-gray-700 dark:text-gray-300">
                             <li>• Understanding how treatment affects nutrition</li>
                             <li>• Practical strategies for common side effects</li>
                             <li>• Meal planning and preparation tips</li>
@@ -223,7 +223,7 @@ const NutritionDuringTreatmentPDF: React.FC = () => {
 
                   {currentPage > 1 && (
                     <div className="p-8 h-full">
-                      <div className="flex justify-between items-center mb-6 text-sm text-gray-500">
+                      <div className="flex justify-between items-center mb-6 text-sm text-gray-500 dark:text-gray-400">
                         <span>Nutrition During Cancer Treatment</span>
                         <span>Page {currentPage}</span>
                       </div>
@@ -233,7 +233,7 @@ const NutritionDuringTreatmentPDF: React.FC = () => {
                           <h2 className="text-xl font-semibold text-gray-900 mb-4">
                             Understanding Nutritional Needs
                           </h2>
-                          <div className="space-y-4 text-gray-700">
+                          <div className="space-y-4 text-gray-700 dark:text-gray-300">
                             <p>
                               During cancer treatment, your body has increased nutritional needs to help 
                               maintain strength, support healing, and manage side effects. This section 
@@ -258,7 +258,7 @@ const NutritionDuringTreatmentPDF: React.FC = () => {
                           <h2 className="text-xl font-semibold text-gray-900 mb-4">
                             Managing Treatment Side Effects
                           </h2>
-                          <div className="space-y-4 text-gray-700">
+                          <div className="space-y-4 text-gray-700 dark:text-gray-300">
                             <p>
                               Common treatment side effects can impact your ability to eat and absorb nutrients. 
                               Here are strategies to manage the most frequent challenges:
@@ -282,7 +282,7 @@ const NutritionDuringTreatmentPDF: React.FC = () => {
                           <h2 className="text-xl font-semibold text-gray-900 mb-4">
                             Sample Content - Page {currentPage}
                           </h2>
-                          <p className="text-gray-700">
+                          <p className="text-gray-700 dark:text-gray-300">
                             This represents the content that would appear on page {currentPage} of the 
                             comprehensive nutrition guide. The full PDF contains detailed information, 
                             recipes, meal plans, and practical tips for maintaining nutrition during treatment.

@@ -12,7 +12,7 @@ const VideoManagingChemoSideEffects: React.FC = () => {
           <Play className="w-5 h-5 text-red-600" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Managing Chemotherapy Side Effects</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Managing Chemotherapy Side Effects</h1>
           <div className="text-sm text-gray-600 flex items-center space-x-3 mt-1">
             <span>Type: VIDEO</span>
             <span>•</span>
@@ -23,7 +23,7 @@ const VideoManagingChemoSideEffects: React.FC = () => {
 
       <Card>
         <div className="p-6 space-y-6">
-          <div className="flex items-center flex-wrap gap-4 text-sm text-gray-600">
+          <div className="flex items-center flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
             <div className="inline-flex items-center gap-1">
               <Tag className="w-4 h-4" /> <span>side-effects</span>
             </div>
@@ -35,7 +35,7 @@ const VideoManagingChemoSideEffects: React.FC = () => {
             </div>
           </div>
 
-          <p className="text-gray-800">
+          <p className="text-gray-800 dark:text-gray-200">
             Practical tips for dealing with common side effects like nausea, fatigue, and hair loss.
           </p>
 

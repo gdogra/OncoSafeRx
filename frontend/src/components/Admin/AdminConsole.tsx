@@ -524,8 +524,8 @@ const AdminConsole: React.FC = () => {
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Users</p>
-              <p className="text-2xl font-bold text-gray-900">{systemMetrics?.totalUsers}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total Users</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{systemMetrics?.totalUsers}</p>
             </div>
             <Users className="w-8 h-8 text-blue-600" />
           </div>
@@ -534,7 +534,7 @@ const AdminConsole: React.FC = () => {
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Online Now</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Online Now</p>
               <p className="text-2xl font-bold text-green-600">{systemMetrics?.onlineUsers}</p>
             </div>
             <Activity className="w-8 h-8 text-green-600" />
@@ -544,7 +544,7 @@ const AdminConsole: React.FC = () => {
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">System Uptime</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">System Uptime</p>
               <p className="text-2xl font-bold text-purple-600">{systemMetrics?.systemUptime}</p>
             </div>
             <Clock className="w-8 h-8 text-purple-600" />
@@ -554,7 +554,7 @@ const AdminConsole: React.FC = () => {
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Error Rate</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Error Rate</p>
               <p className="text-2xl font-bold text-orange-600">{(systemMetrics?.errorRate || 0 * 100).toFixed(2)}%</p>
             </div>
             <AlertTriangle className="w-8 h-8 text-orange-600" />
@@ -564,14 +564,14 @@ const AdminConsole: React.FC = () => {
 
       {/* System Performance */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">System Performance</h3>
+        <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">System Performance</h3>
           </div>
           <div className="p-6 space-y-4">
             <div>
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-600">Memory Usage</span>
+                <span className="text-gray-600 dark:text-gray-400">Memory Usage</span>
                 <span className="font-medium">{systemMetrics?.memoryUsage}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
@@ -584,7 +584,7 @@ const AdminConsole: React.FC = () => {
 
             <div>
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-600">CPU Usage</span>
+                <span className="text-gray-600 dark:text-gray-400">CPU Usage</span>
                 <span className="font-medium">{systemMetrics?.cpuUsage}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
@@ -597,20 +597,20 @@ const AdminConsole: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
               <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{systemMetrics?.databaseConnections}</p>
-                <p className="text-sm text-gray-600">DB Connections</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{systemMetrics?.databaseConnections}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">DB Connections</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-gray-900">{systemMetrics?.activeUsers}</p>
-                <p className="text-sm text-gray-600">Active Users</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{systemMetrics?.activeUsers}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Active Users</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
+        <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Activity</h3>
           </div>
           <div className="p-6">
             <div className="space-y-4">
@@ -619,8 +619,8 @@ const AdminConsole: React.FC = () => {
                   <CheckCircle className="w-4 h-4 text-green-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">System backup completed</p>
-                  <p className="text-xs text-gray-500">2 minutes ago</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">System backup completed</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">2 minutes ago</p>
                 </div>
               </div>
 
@@ -629,8 +629,8 @@ const AdminConsole: React.FC = () => {
                   <Users className="w-4 h-4 text-blue-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">New user registered</p>
-                  <p className="text-xs text-gray-500">15 minutes ago</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">New user registered</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">15 minutes ago</p>
                 </div>
               </div>
 
@@ -639,8 +639,8 @@ const AdminConsole: React.FC = () => {
                   <AlertTriangle className="w-4 h-4 text-orange-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">High memory usage detected</p>
-                  <p className="text-xs text-gray-500">1 hour ago</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">High memory usage detected</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">1 hour ago</p>
                 </div>
               </div>
 
@@ -649,8 +649,8 @@ const AdminConsole: React.FC = () => {
                   <BarChart3 className="w-4 h-4 text-purple-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Analytics report generated</p>
-                  <p className="text-xs text-gray-500">3 hours ago</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Analytics report generated</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">3 hours ago</p>
                 </div>
               </div>
             </div>
@@ -659,9 +659,9 @@ const AdminConsole: React.FC = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Actions</h3>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -713,9 +713,9 @@ const AdminConsole: React.FC = () => {
 
   const renderUsers = () => (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">User Management</h3>
         </div>
         <div className="p-6">
           <div className="text-center py-8">
@@ -738,17 +738,17 @@ const AdminConsole: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
             <div className="bg-gray-50 p-4 rounded-lg text-center">
               <p className="text-2xl font-bold text-blue-600">{systemMetrics?.totalUsers || 0}</p>
-              <p className="text-sm text-gray-600">Total Users</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total Users</p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg text-center">
               <p className="text-2xl font-bold text-green-600">{systemMetrics?.activeUsers || 0}</p>
-              <p className="text-sm text-gray-600">Active Users</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Active Users</p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg text-center">
               <p className="text-2xl font-bold text-purple-600">
                 {users.filter(u => u.roles.some(role => role.toLowerCase().includes('admin'))).length}
               </p>
-              <p className="text-sm text-gray-600">Admin Users</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Admin Users</p>
             </div>
           </div>
         </div>
@@ -799,7 +799,7 @@ const AdminConsole: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="flex items-center space-x-2">
           <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
-          <span className="text-gray-600">Loading admin console...</span>
+          <span className="text-gray-600 dark:text-gray-400">Loading admin console...</span>
         </div>
       </div>
     );
@@ -818,8 +818,8 @@ const AdminConsole: React.FC = () => {
             <Shield className="w-6 h-6 text-red-600" />
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-bold text-gray-900">Admin Console</h1>
-            <p className="text-gray-600">System administration and visitor analytics management</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Admin Console</h1>
+            <p className="text-gray-600 dark:text-gray-400">System administration and visitor analytics management</p>
             <button
               onClick={openWhatsNew}
               className="ml-2 inline-flex items-center px-2 py-1 text-xs bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded hover:opacity-90"
@@ -847,16 +847,16 @@ const AdminConsole: React.FC = () => {
       {whatsNewOpen && (
         <div className="fixed inset-0 z-50 flex">
           <div className="fixed inset-0 bg-black/40" onClick={() => setWhatsNewOpen(false)}></div>
-          <div className="relative ml-auto h-full w-full max-w-xl bg-white shadow-xl border-l border-gray-200">
+          <div className="relative ml-auto h-full w-full max-w-xl bg-white shadow-xl border-l border-gray-200 dark:border-gray-700">
             <div className="p-4 border-b flex items-center justify-between">
               <div>
-                <div className="text-sm text-gray-500">Release Notes</div>
-                <div className="text-lg font-semibold text-gray-900">{whatsNew?.version || 'Latest'} {whatsNew?.date ? `• ${whatsNew.date}` : ''}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Release Notes</div>
+                <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">{whatsNew?.version || 'Latest'} {whatsNew?.date ? `• ${whatsNew.date}` : ''}</div>
               </div>
               <button onClick={() => setWhatsNewOpen(false)} className="px-2 py-1 text-sm border rounded">Close</button>
             </div>
             <div className="p-4 space-y-4 overflow-y-auto h-[calc(100%-56px)]">
-              {whatsNewLoading && <div className="text-sm text-gray-600">Loading release notes…</div>}
+              {whatsNewLoading && <div className="text-sm text-gray-600 dark:text-gray-400">Loading release notes…</div>}
               {whatsNewError && <div className="text-sm text-red-600">{whatsNewError}</div>}
               {whatsNew && (
                 <>
@@ -923,7 +923,7 @@ const AdminConsole: React.FC = () => {
                 className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab.id
                     ? 'border-red-500 text-red-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -944,11 +944,11 @@ const AdminConsole: React.FC = () => {
         <div className="space-y-6">
           <div className="bg-white rounded border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold text-gray-900">Auth Diagnostics</h3>
-              <button onClick={loadAuthDiagnostics} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800">Refresh</button>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Auth Diagnostics</h3>
+              <button onClick={loadAuthDiagnostics} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 dark:text-gray-200">Refresh</button>
             </div>
             <p className="text-sm text-gray-600 mb-3">Checks token presence and backend verification paths for Supabase and backend JWTs.</p>
-            {authDiagLoading && (<div className="text-sm text-gray-600">Loading…</div>)}
+            {authDiagLoading && (<div className="text-sm text-gray-600 dark:text-gray-400">Loading…</div>)}
             {authDiagError && (<div className="text-sm text-red-600">{authDiagError}</div>)}
             {authDiag && (
               <div className="space-y-3">
@@ -958,7 +958,7 @@ const AdminConsole: React.FC = () => {
                     <ul className="text-sm text-gray-700 space-y-1">
                       <li>Token present: <span className={authDiag.tokenPresent ? 'text-green-600' : 'text-red-600'}>{String(!!authDiag.tokenPresent)}</span></li>
                       <li>Backend JWT valid: <span className={authDiag.backendJwtValid ? 'text-green-600' : 'text-red-600'}>{String(!!authDiag.backendJwtValid)}</span></li>
-                      <li>User hint: <span className="text-gray-800">{authDiag.userHint ? `${authDiag.userHint.email || authDiag.userHint.id} (${authDiag.userHint.role || authDiag.userHint.path})` : 'n/a'}</span></li>
+                      <li>User hint: <span className="text-gray-800 dark:text-gray-200">{authDiag.userHint ? `${authDiag.userHint.email || authDiag.userHint.id} (${authDiag.userHint.role || authDiag.userHint.path})` : 'n/a'}</span></li>
                     </ul>
                   </div>
                   <div className="p-3 border rounded">
@@ -966,8 +966,8 @@ const AdminConsole: React.FC = () => {
                     <ul className="text-sm text-gray-700 space-y-1">
                       <li>Supabase HS256 configured: <span className={authDiag.supabaseHs256Configured ? 'text-green-600' : 'text-red-600'}>{String(!!authDiag.supabaseHs256Configured)}</span></li>
                       <li>Service-role introspection: <span className={authDiag.supabaseIntrospectionConfigured ? 'text-green-600' : 'text-red-600'}>{String(!!authDiag.supabaseIntrospectionConfigured)}</span></li>
-                      <li>Fallback allowed (dev): <span className="text-gray-800">{String(!!authDiag.fallbackAllowed)}</span></li>
-                      <li>Query token allowed (dev): <span className="text-gray-800">{String(!!authDiag.allowQueryToken)}</span></li>
+                      <li>Fallback allowed (dev): <span className="text-gray-800 dark:text-gray-200">{String(!!authDiag.fallbackAllowed)}</span></li>
+                      <li>Query token allowed (dev): <span className="text-gray-800 dark:text-gray-200">{String(!!authDiag.allowQueryToken)}</span></li>
                     </ul>
                   </div>
                 </div>
@@ -990,19 +990,19 @@ const AdminConsole: React.FC = () => {
           <div className="bg-white rounded border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Tenant API Keys Health</h3>
             {!intHealth ? (
-              <p className="text-sm text-gray-600">Loading…</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Loading…</p>
             ) : (
               <div className="overflow-x-auto">
                 <div className="flex items-center justify-end mb-2">
-                  <label className="inline-flex items-center gap-2 text-xs text-gray-700">
+                  <label className="inline-flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
                     <input type="checkbox" checked={issuesOnly} onChange={e => setIssuesOnly(e.target.checked)} />
                     Show only issues (missing active or 0 requests in 24h)
                   </label>
-                  <button onClick={exportHealthCsv} className="ml-3 px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800">Export CSV</button>
+                  <button onClick={exportHealthCsv} className="ml-3 px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 dark:text-gray-200">Export CSV</button>
                 </div>
                 <table className="min-w-full text-sm">
                   <thead>
-                    <tr className="bg-gray-50 text-left text-gray-600">
+                    <tr className="bg-gray-50 text-left text-gray-600 dark:text-gray-400">
                       <th className="px-3 py-2">Tenant</th>
                       <th className="px-3 py-2">Active Keys</th>
                       <th className="px-3 py-2">Next Keys</th>
@@ -1081,7 +1081,7 @@ const AdminConsole: React.FC = () => {
                       )
                     })}
                     {intHealth.tenants.length === 0 && (
-                      <tr><td colSpan={4} className="px-3 py-4 text-center text-gray-600">No tenants configured</td></tr>
+                      <tr><td colSpan={4} className="px-3 py-4 text-center text-gray-600 dark:text-gray-400">No tenants configured</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -1093,11 +1093,11 @@ const AdminConsole: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Key Usage (phase)</h3>
             <div className="overflow-x-auto">
               <div className="flex items-center justify-end mb-2">
-                <button onClick={exportUsageCsv} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800">Export CSV</button>
+                <button onClick={exportUsageCsv} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 dark:text-gray-200">Export CSV</button>
               </div>
               <table className="min-w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 text-left text-gray-600">
+                  <tr className="bg-gray-50 text-left text-gray-600 dark:text-gray-400">
                     <th className="px-3 py-2">Tenant</th>
                     <th className="px-3 py-2">Active</th>
                     <th className="px-3 py-2">Next</th>
@@ -1116,7 +1116,7 @@ const AdminConsole: React.FC = () => {
                     </tr>
                   ))}
                   {Object.keys(intUsage).length === 0 && (
-                    <tr><td colSpan={4} className="px-3 py-4 text-center text-gray-600">No usage recorded</td></tr>
+                    <tr><td colSpan={4} className="px-3 py-4 text-center text-gray-600 dark:text-gray-400">No usage recorded</td></tr>
                   )}
                 </tbody>
               </table>
@@ -1141,7 +1141,7 @@ const AdminConsole: React.FC = () => {
 
           <div className="bg-white rounded border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold text-gray-900">Tenant Request Trends (last {seriesDays}d)</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Tenant Request Trends (last {seriesDays}d)</h3>
               <div className="flex items-center gap-2">
                 <select value={seriesDays} onChange={e => { setSeriesDays(parseInt(e.target.value as any)); loadIntegrations(); }} className="text-sm border border-gray-300 rounded px-2 py-1">
                   <option value={7}>7</option>
@@ -1149,11 +1149,11 @@ const AdminConsole: React.FC = () => {
                   <option value={30}>30</option>
                   <option value={60}>60</option>
                 </select>
-                <label className="inline-flex items-center gap-1 text-xs text-gray-700">
+                <label className="inline-flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300">
                   <input type="checkbox" checked={highlightZeros} onChange={e => setHighlightZeros(e.target.checked)} />
                   Highlight zeros
                 </label>
-                <label className="inline-flex items-center gap-1 text-xs text-gray-700">
+                <label className="inline-flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300">
                   <input type="checkbox" checked={hideNoActivity} onChange={e => setHideNoActivity(e.target.checked)} />
                   Hide no-activity tenants
                 </label>
@@ -1164,10 +1164,10 @@ const AdminConsole: React.FC = () => {
                       <option key={t} value={t}>{t}</option>
                     ))}
                   </select>
-                  <button onClick={exportSeriesCsvTenant} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800">Export Tenant</button>
-                  <button onClick={exportSeriesCsvAll} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800">Export All</button>
+                  <button onClick={exportSeriesCsvTenant} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 dark:text-gray-200">Export Tenant</button>
+                  <button onClick={exportSeriesCsvAll} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 dark:text-gray-200">Export All</button>
                 </div>
-                <button onClick={() => setSeriesExpanded(!seriesExpanded)} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800">{seriesExpanded ? 'Collapse' : 'Expand'}</button>
+                <button onClick={() => setSeriesExpanded(!seriesExpanded)} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 dark:text-gray-200">{seriesExpanded ? 'Collapse' : 'Expand'}</button>
               </div>
             </div>
             <div className={`grid gap-4 ${seriesExpanded ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
@@ -1179,7 +1179,7 @@ const AdminConsole: React.FC = () => {
                 .slice(0, seriesExpanded ? undefined : 6)
                 .map(([tenant, data]: any) => {
                 const zero24h = (intUsage[tenant]?.total24h || 0) === 0;
-                const cardBorder = zero24h ? 'border-yellow-300' : 'border-gray-200';
+                const cardBorder = zero24h ? 'border-yellow-300' : 'border-gray-200 dark:border-gray-700';
                 return (
                 <div key={tenant} className={`border ${cardBorder} rounded p-3`}>
                   <div className="text-sm font-medium text-gray-900 mb-1">{tenant}</div>
@@ -1196,7 +1196,7 @@ const AdminConsole: React.FC = () => {
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="mt-1 flex items-center gap-3 text-[10px] text-gray-600">
+                  <div className="mt-1 flex items-center gap-3 text-[10px] text-gray-600 dark:text-gray-400">
                     <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-blue-600"></span> Active</span>
                     <span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-purple-600"></span> Next</span>
                     {highlightZeros && (<span className="inline-flex items-center gap-1"><span className="inline-block w-2 h-2 rounded bg-red-500"></span> Zero day</span>)}
@@ -1204,7 +1204,7 @@ const AdminConsole: React.FC = () => {
                 </div>
               )})}
               {Object.keys(intSeries).length === 0 && (
-                <div className="text-sm text-gray-600">No time series data</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">No time series data</div>
               )}
             </div>
           </div>
@@ -1213,10 +1213,10 @@ const AdminConsole: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Rotate Keys</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <input placeholder="Tenant ID" value={intForm.tenant} onChange={e => setIntForm({ ...intForm, tenant: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm" />
-              <label className="flex items-center gap-2 text-sm text-gray-700">
+              <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                 <input type="checkbox" checked={intForm.promote} onChange={e => setIntForm({ ...intForm, promote: e.target.checked })} /> Promote after adding
               </label>
-              <label className="flex items-center gap-2 text-sm text-gray-700">
+              <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                 <input type="checkbox" checked={intForm.retireActive} onChange={e => setIntForm({ ...intForm, retireActive: e.target.checked })} /> Retire existing active (replace)
               </label>
               <textarea placeholder="Next keys (one per line or comma separated)" value={intForm.nextKeys} onChange={e => setIntForm({ ...intForm, nextKeys: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm md:col-span-2" rows={3} />
@@ -1237,11 +1237,11 @@ const AdminConsole: React.FC = () => {
               <textarea placeholder="Add keys (one per line or comma)" value={intUpdate.add} onChange={e => setIntUpdate({ ...intUpdate, add: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm" rows={3} />
               <textarea placeholder="Remove keys (one per line or comma)" value={intUpdate.remove} onChange={e => setIntUpdate({ ...intUpdate, remove: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm" rows={3} />
               <div className="md:col-span-2 flex items-center justify-between">
-                <label className="flex items-center gap-2 text-sm text-gray-700">
+                <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                   <input type="checkbox" checked={intForceDangerous} onChange={e => setIntForceDangerous(e.target.checked)} />
                   Force dangerous updates (allow removing all ACTIVE keys without NEXT)
                 </label>
-                <span className="text-xs text-gray-500">Use with caution</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Use with caution</span>
               </div>
             </div>
             <div className="mt-3">
@@ -1253,8 +1253,8 @@ const AdminConsole: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Current Config Snapshot</h3>
             <p className="text-sm text-gray-600 mb-3">Summary of tenants, health and usage for debugging. Keys are not displayed.</p>
             <div className="flex items-center justify-between mb-2">
-              <div className="text-xs text-gray-500">Source: /api/admin/integrations/keys/health and /usage</div>
-              <button onClick={loadIntegrations} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800">Refresh</button>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Source: /api/admin/integrations/keys/health and /usage</div>
+              <button onClick={loadIntegrations} className="px-2 py-1 rounded text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 dark:text-gray-200">Refresh</button>
             </div>
             <pre className="text-xs bg-gray-50 border border-gray-200 rounded p-3 overflow-auto max-h-80">
 {JSON.stringify({ health: intHealth, usage: intUsage }, null, 2)}
@@ -1270,7 +1270,7 @@ const AdminConsole: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="min-w-full">
                 <thead>
-                  <tr className="bg-gray-50 text-left text-sm text-gray-600">
+                  <tr className="bg-gray-50 text-left text-sm text-gray-600 dark:text-gray-400">
                     <th className="px-4 py-2">Email</th>
                     <th className="px-4 py-2">Name</th>
                     <th className="px-4 py-2">Role</th>
@@ -1295,7 +1295,7 @@ const AdminConsole: React.FC = () => {
                     </tr>
                   ))}
                   {roleUsers.length === 0 && (
-                    <tr><td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-600">No users</td></tr>
+                    <tr><td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-600 dark:text-gray-400">No users</td></tr>
                   )}
                 </tbody>
               </table>
@@ -1307,13 +1307,13 @@ const AdminConsole: React.FC = () => {
         <div className="space-y-6">
           <div className="text-center py-6">
             <Settings className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-            <h3 className="text-lg font-medium text-gray-900">System Tools</h3>
-            <p className="text-gray-600">Administrative utilities and maintenance tasks.</p>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">System Tools</h3>
+            <p className="text-gray-600 dark:text-gray-400">Administrative utilities and maintenance tasks.</p>
           </div>
 
           <div className="bg-white rounded border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-md font-semibold text-gray-900">Backfill User Profile Fields</h4>
+              <h4 className="text-md font-semibold text-gray-900 dark:text-gray-100">Backfill User Profile Fields</h4>
               <button
                 onClick={async () => {
                   try {
@@ -1360,7 +1360,7 @@ const AdminConsole: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="min-w-full">
                 <thead>
-                  <tr className="bg-gray-50 text-left text-sm text-gray-600">
+                  <tr className="bg-gray-50 text-left text-sm text-gray-600 dark:text-gray-400">
                     <th className="px-4 py-2">Time</th>
                     <th className="px-4 py-2">Actor</th>
                     <th className="px-4 py-2">Target</th>
@@ -1379,13 +1379,13 @@ const AdminConsole: React.FC = () => {
                     </tr>
                   ))}
                   {auditLogs.length === 0 && (
-                    <tr><td colSpan={5} className="px-4 py-6 text-center text-sm text-gray-600">No audit entries</td></tr>
+                    <tr><td colSpan={5} className="px-4 py-6 text-center text-sm text-gray-600 dark:text-gray-400">No audit entries</td></tr>
                   )}
                 </tbody>
               </table>
             </div>
             <div className="flex items-center justify-between mt-3">
-              <span className="text-sm text-gray-600">Page {auditPage} of {auditMeta.pages} • {auditMeta.total} entries</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Page {auditPage} of {auditMeta.pages} • {auditMeta.total} entries</span>
               <div className="space-x-2">
                 <button disabled={auditPage <= 1} onClick={() => { const p = Math.max(1, auditPage - 1); setAuditPage(p); loadAudit(p); }} className="px-2 py-1 text-sm border rounded disabled:opacity-50">Prev</button>
                 <button disabled={auditPage >= auditMeta.pages} onClick={() => { const p = Math.min(auditMeta.pages, auditPage + 1); setAuditPage(p); loadAudit(p); }} className="px-2 py-1 text-sm border rounded disabled:opacity-50">Next</button>
@@ -1401,7 +1401,7 @@ const AdminConsole: React.FC = () => {
             <p className="text-sm text-blue-800">Ensure a service worker is registered and VAPID keys are configured. Click to ping the server test endpoint.</p>
             <div className="mt-3 flex items-center gap-2">
               <button onClick={handleTestPush} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Send Test</button>
-              {pushStatus && <span className="text-sm text-gray-700">{pushStatus}</span>}
+              {pushStatus && <span className="text-sm text-gray-700 dark:text-gray-300">{pushStatus}</span>}
             </div>
           </div>
           <div className="p-4 bg-white border border-gray-200 rounded">
@@ -1419,7 +1419,7 @@ const AdminConsole: React.FC = () => {
                 <label className="block text-sm text-gray-700 mb-1">Body</label>
                 <textarea value={pushForm.body} onChange={(e) => setPushForm({ ...pushForm, body: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2" rows={3} placeholder="Background notification" />
               </div>
-              <label className="inline-flex items-center text-sm text-gray-700">
+              <label className="inline-flex items-center text-sm text-gray-700 dark:text-gray-300">
                 <input type="checkbox" checked={pushForm.requireInteraction} onChange={(e) => setPushForm({ ...pushForm, requireInteraction: e.target.checked })} className="mr-2" />
                 Require Interaction
               </label>
@@ -1442,7 +1442,7 @@ const AdminConsole: React.FC = () => {
                   <button onClick={() => removeSub(s.endpoint)} className="px-2 py-1 text-xs bg-red-600 text-white rounded">Remove</button>
                 </div>
               ))}
-              {subs.length === 0 && <div className="text-sm text-gray-600">No subscriptions</div>}
+              {subs.length === 0 && <div className="text-sm text-gray-600 dark:text-gray-400">No subscriptions</div>}
             </div>
           </div>
         </div>
@@ -1481,7 +1481,7 @@ const AdminConsole: React.FC = () => {
                   <input value={schedForm.endpoint || ''} onChange={(e) => setSchedForm({ ...schedForm, endpoint: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2" />
                 </div>
               )}
-              <label className="inline-flex items-center text-sm text-gray-700">
+              <label className="inline-flex items-center text-sm text-gray-700 dark:text-gray-300">
                 <input type="checkbox" checked={schedForm.requireInteraction} onChange={(e) => setSchedForm({ ...schedForm, requireInteraction: e.target.checked })} className="mr-2" />
                 Require Interaction
               </label>
@@ -1495,16 +1495,16 @@ const AdminConsole: React.FC = () => {
             <div className="space-y-2">
               {schedules.map(s => (
                 <div key={s.id} className="p-2 border rounded">
-                  <div className="text-sm font-medium text-gray-900">{s.title}</div>
-                  <div className="text-xs text-gray-600">{s.body}</div>
-                  <div className="text-xs text-gray-500">{s.status} • {new Date(s.scheduled_at).toLocaleString()}</div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{s.title}</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">{s.body}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{s.status} • {new Date(s.scheduled_at).toLocaleString()}</div>
                   <div className="mt-2 flex items-center gap-2">
                     <button onClick={() => sendScheduleNow(s.id)} className="px-2 py-1 text-xs bg-blue-600 text-white rounded">Send Now</button>
                     <button onClick={() => deleteSchedule(s.id)} className="px-2 py-1 text-xs bg-red-600 text-white rounded">Delete</button>
                   </div>
                 </div>
               ))}
-              {schedules.length === 0 && <div className="text-sm text-gray-600">No scheduled notifications</div>}
+              {schedules.length === 0 && <div className="text-sm text-gray-600 dark:text-gray-400">No scheduled notifications</div>}
             </div>
           </div>
         </div>

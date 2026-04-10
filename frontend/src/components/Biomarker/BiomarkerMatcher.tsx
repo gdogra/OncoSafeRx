@@ -106,7 +106,7 @@ export default function BiomarkerMatcher() {
         </div>
         <div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">Precision Therapy Matcher</h2>
-          <p className="text-sm text-gray-500">Match tumor biomarkers to FDA-approved targeted therapies</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Match tumor biomarkers to FDA-approved targeted therapies</p>
         </div>
       </div>
 
@@ -302,7 +302,7 @@ export default function BiomarkerMatcher() {
                           <span className="text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded">
                             Phase {trial.phase}
                           </span>
-                          <span className="text-xs text-gray-500">{trial.status}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">{trial.status}</span>
                           {trial.leadOrg && <span className="text-xs text-gray-400">• {trial.leadOrg}</span>}
                         </div>
                       </div>
@@ -327,7 +327,7 @@ export default function BiomarkerMatcher() {
           {results.targetedTherapies.length === 0 &&
            results.immunotherapies.length === 0 &&
            results.pgxAlerts.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               <Target className="h-8 w-8 mx-auto mb-2 text-gray-300" />
               <p className="text-sm">No matched therapies found for this biomarker profile.</p>
               <p className="text-xs mt-1">Consider clinical trial matching for investigational options.</p>

@@ -185,7 +185,7 @@ ${researchOpportunities.map(study => `
       case 'uncertain': return 'text-yellow-600 bg-yellow-50';
       case 'likely_benign': return 'text-blue-600 bg-blue-50';
       case 'benign': return 'text-green-600 bg-green-50';
-      default: return 'text-gray-600 bg-gray-50';
+      default: return 'text-gray-600 bg-gray-50 dark:bg-gray-800';
     }
   };
 
@@ -193,8 +193,8 @@ ${researchOpportunities.map(study => `
     switch (actionability) {
       case 'high': return <Zap className="w-4 h-4 text-red-600" />;
       case 'medium': return <Target className="w-4 h-4 text-yellow-600" />;
-      case 'low': return <Clock className="w-4 h-4 text-gray-600" />;
-      default: return <Clock className="w-4 h-4 text-gray-600" />;
+      case 'low': return <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
+      default: return <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
     }
   };
 
@@ -221,7 +221,7 @@ ${researchOpportunities.map(study => `
           </button>
           <button 
             onClick={() => handleExportReport()}
-            className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800"
           >
             <Download className="w-4 h-4" />
             <span>Export Report</span>
@@ -230,7 +230,7 @@ ${researchOpportunities.map(study => `
       </div>
 
       {/* Navigation */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="-mb-px flex space-x-8">
           {[
             { id: 'timeline', label: 'Genomic Timeline', icon: Calendar },
@@ -244,7 +244,7 @@ ${researchOpportunities.map(study => `
               className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
                 activeView === id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-300'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -261,7 +261,7 @@ ${researchOpportunities.map(study => `
           <Card className="p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Genetic Variants</h2>
             {genomicMarkers.length === 0 ? (
-              <p className="text-sm text-gray-600">No genetic variants available yet.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">No genetic variants available yet.</p>
             ) : (
             <div className="space-y-4">
               {genomicMarkers.map((marker) => (
@@ -269,7 +269,7 @@ ${researchOpportunities.map(study => `
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="font-semibold text-gray-900">{marker.gene}</h3>
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">{marker.gene}</h3>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSignificanceColor(marker.significance)}`}>
                           {marker.significance.replace('_', ' ')}
                         </span>
@@ -285,7 +285,7 @@ ${researchOpportunities.map(study => `
                         </div>
                       )}
                     </div>
-                    <div className="text-right text-xs text-gray-500">
+                    <div className="text-right text-xs text-gray-500 dark:text-gray-400">
                       Discovered: {marker.discoveryDate.toLocaleDateString()}
                     </div>
                   </div>
@@ -299,7 +299,7 @@ ${researchOpportunities.map(study => `
           <Card className="p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Genomics-Based Treatment Decisions</h2>
             {treatmentDecisions.length === 0 ? (
-              <p className="text-sm text-gray-600">No genomics-based treatment decisions recorded yet.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">No genomics-based treatment decisions recorded yet.</p>
             ) : (
             <div className="space-y-4">
               {treatmentDecisions.map((decision) => (
@@ -308,11 +308,11 @@ ${researchOpportunities.map(study => `
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900 mb-2">{decision.decision}</h3>
                       <div className="mb-3">
-                        <span className="text-sm font-medium text-gray-700">Genomic Basis: </span>
-                        <span className="text-sm text-gray-600">{decision.genomicBasis.join(', ')}</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Genomic Basis: </span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{decision.genomicBasis.join(', ')}</span>
                       </div>
                       <div className="mb-3">
-                        <span className="text-sm font-medium text-gray-700">Efficacy Prediction: </span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Efficacy Prediction: </span>
                         <span className="text-sm font-semibold text-green-600">{decision.efficacyPrediction}%</span>
                       </div>
                       {decision.outcome && (
@@ -327,7 +327,7 @@ ${researchOpportunities.map(study => `
                         <p className="text-sm text-gray-700 bg-gray-50 p-2 rounded">{decision.notes}</p>
                       )}
                     </div>
-                    <div className="text-right text-xs text-gray-500">
+                    <div className="text-right text-xs text-gray-500 dark:text-gray-400">
                       {decision.date.toLocaleDateString()}
                     </div>
                   </div>
@@ -346,7 +346,7 @@ ${researchOpportunities.map(study => `
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Family Risk Assessment</h2>
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Overall Family Risk Score</span>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Overall Family Risk Score</span>
                 <span className="text-2xl font-bold text-orange-600">{familyRisk.overallFamilyRisk}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
@@ -372,7 +372,7 @@ ${researchOpportunities.map(study => `
                   </div>
                   <div className="mb-3">
                     <p className="text-xs font-medium text-gray-700 mb-1">Recommended Screening:</p>
-                    <ul className="text-xs text-gray-600">
+                    <ul className="text-xs text-gray-600 dark:text-gray-400">
                       {relative.recommendedScreening.map((screening, idx) => (
                         <li key={idx}>• {screening}</li>
                       ))}
@@ -380,7 +380,7 @@ ${researchOpportunities.map(study => `
                   </div>
                   <div>
                     <p className="text-xs font-medium text-gray-700 mb-1">Shared Variants:</p>
-                    <p className="text-xs text-gray-600">{relative.sharedVariants.join(', ')}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">{relative.sharedVariants.join(', ')}</p>
                   </div>
                 </div>
               ))}
@@ -400,7 +400,7 @@ ${researchOpportunities.map(study => `
               Explore how different genetic variants would affect your treatment options
             </p>
             {scenarios.length === 0 ? (
-              <p className="text-sm text-gray-600">No scenarios to display.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">No scenarios to display.</p>
             ) : (
             <div className="space-y-6">
               {scenarios.map((scenario, index) => (
@@ -409,7 +409,7 @@ ${researchOpportunities.map(study => `
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <h4 className="text-sm font-medium text-gray-700 mb-2">Hypothetical Variants</h4>
-                      <ul className="text-sm text-gray-600">
+                      <ul className="text-sm text-gray-600 dark:text-gray-400">
                         {scenario.hypotheticalVariants.map((variant, idx) => (
                           <li key={idx} className="flex items-center space-x-2">
                             <Dna className="w-3 h-3" />
@@ -420,7 +420,7 @@ ${researchOpportunities.map(study => `
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-gray-700 mb-2">Treatment Changes</h4>
-                      <ul className="text-sm text-gray-600">
+                      <ul className="text-sm text-gray-600 dark:text-gray-400">
                         {scenario.treatmentChanges.map((change, idx) => (
                           <li key={idx} className="flex items-center space-x-2">
                             <Target className="w-3 h-3" />
@@ -431,7 +431,7 @@ ${researchOpportunities.map(study => `
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-gray-700 mb-2">Projected Outcomes</h4>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         <p>Efficacy: <span className="font-medium">{scenario.outcomeProjections.efficacy}%</span></p>
                         <p>Duration: <span className="font-medium">{scenario.outcomeProjections.duration}</span></p>
                         <p className="text-xs mt-1">Side effects: {scenario.outcomeProjections.sideEffects.join(', ')}</p>
@@ -457,26 +457,26 @@ ${researchOpportunities.map(study => `
               Clinical trials and research studies matching your genetic profile
             </p>
             {researchOpportunities.length === 0 ? (
-              <p className="text-sm text-gray-600">No research matches available.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">No research matches available.</p>
             ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {researchOpportunities.map((study, index) => (
                 <div key={index} className="border rounded-lg p-4">
                   <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-semibold text-gray-900">{study.studyTitle}</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">{study.studyTitle}</h3>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       study.participationStatus === 'eligible' ? 'bg-green-100 text-green-800' :
                       study.participationStatus === 'enrolled' ? 'bg-blue-100 text-blue-800' :
                       study.participationStatus === 'completed' ? 'bg-purple-100 text-purple-800' :
-                      'bg-gray-100 text-gray-800'
+                      'bg-gray-100 text-gray-800 dark:text-gray-200'
                     }`}>
                       {study.participationStatus.replace('_', ' ')}
                     </span>
                   </div>
                   <p className="text-sm text-gray-600 mb-2">{study.institution}</p>
                   <div className="mb-3">
-                    <span className="text-sm font-medium text-gray-700">Relevant Genes: </span>
-                    <span className="text-sm text-gray-600">{study.relevantGenes.join(', ')}</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Relevant Genes: </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{study.relevantGenes.join(', ')}</span>
                   </div>
                   <p className="text-sm text-gray-700 mb-3">{study.potentialImpact}</p>
                   {study.contactInfo && (

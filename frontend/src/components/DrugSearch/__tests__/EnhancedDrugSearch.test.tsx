@@ -112,11 +112,11 @@ describe('EnhancedDrugSearch', () => {
     await user.type(searchInput, 'tamoxifen');
 
     await waitFor(() => {
-      const drugCard = screen.getByText(/tamoxifen/i).closest('.bg-white');
+      const drugCard = screen.getByText(/tamoxifen/i).closest('.bg-white dark:bg-gray-900');
       expect(drugCard).toBeInTheDocument();
     });
 
-    const drugCard = screen.getByText(/tamoxifen/i).closest('.bg-white');
+    const drugCard = screen.getByText(/tamoxifen/i).closest('.bg-white dark:bg-gray-900');
     await user.click(drugCard!);
 
     await waitFor(() => {

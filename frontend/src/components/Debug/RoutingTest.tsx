@@ -14,7 +14,7 @@ const RoutingTest: React.FC = () => {
         
         <div className="space-y-4">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Current Location</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Current Location</h3>
             <div className="bg-gray-50 rounded-lg p-4 mt-2">
               <p><strong>Pathname:</strong> {location.pathname}</p>
               <p><strong>Search:</strong> {location.search}</p>
@@ -24,7 +24,7 @@ const RoutingTest: React.FC = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Current User</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Current User</h3>
             <div className="bg-gray-50 rounded-lg p-4 mt-2">
               <p><strong>Is Authenticated:</strong> {user ? 'Yes' : 'No'}</p>
               {user && (
@@ -38,7 +38,7 @@ const RoutingTest: React.FC = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Test Navigation</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Test Navigation</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
               <Link 
                 to="/visitor-analytics" 
@@ -80,7 +80,7 @@ const RoutingTest: React.FC = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">Browser Information</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Browser Information</h3>
             <div className="bg-gray-50 rounded-lg p-4 mt-2">
               <p><strong>URL:</strong> {window.location.href}</p>
               <p><strong>Origin:</strong> {window.location.origin}</p>

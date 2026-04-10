@@ -67,10 +67,10 @@ const AdminLogin: React.FC = () => {
           <div className="mx-auto h-16 w-16 bg-red-100 rounded-full flex items-center justify-center">
             <Shield className="h-8 w-8 text-red-600" />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-gray-100">
             Admin Console Access
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
             Sign in to your administrator account
           </p>
         </div>
@@ -153,7 +153,7 @@ const AdminLogin: React.FC = () => {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
                 Remember me for 30 days
               </label>
             </div>
@@ -207,7 +207,7 @@ const AdminLogin: React.FC = () => {
 
         {/* Footer */}
         <div className="text-center">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             OncoSafeRx Admin Console • Secure Healthcare Analytics Platform
           </p>
         </div>

@@ -18,7 +18,7 @@ const ArticleUnderstandingDiagnosis: React.FC = () => {
           <BookOpen className="w-5 h-5 text-green-600" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Understanding Your Cancer Diagnosis</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Understanding Your Cancer Diagnosis</h1>
           <div className="text-sm text-gray-600 flex items-center space-x-3 mt-1">
             <span>Type: ARTICLE</span>
             <span>•</span>
@@ -30,7 +30,7 @@ const ArticleUnderstandingDiagnosis: React.FC = () => {
       <Card>
         <div className="p-6 space-y-6">
           {/* Meta */}
-          <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
             <div className="inline-flex items-center gap-2 bg-gray-100 rounded px-2 py-1">
               <span className="uppercase tracking-wide text-xs">Type</span> <span className="font-medium">ARTICLE</span>
             </div>
@@ -49,12 +49,12 @@ const ArticleUnderstandingDiagnosis: React.FC = () => {
           </div>
 
           {/* Summary */}
-          <div className="text-gray-800">
+          <div className="text-gray-800 dark:text-gray-200">
             Learn about your specific type of cancer, how staging works, and what to expect during treatment and follow-up.
           </div>
 
           {/* Complete Article Content */}
-          <div className="space-y-8 text-gray-800">
+          <div className="space-y-8 text-gray-800 dark:text-gray-200">
             {/* Introduction */}
             <div>
               <p className="text-base leading-relaxed">

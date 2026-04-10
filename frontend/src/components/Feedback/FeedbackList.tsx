@@ -140,7 +140,7 @@ const FeedbackList: React.FC = () => {
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
-            <tr className="text-left bg-gray-50">
+            <tr className="text-left bg-gray-50 dark:bg-gray-800">
               <th className="px-3 py-2">Title</th>
               <th className="px-3 py-2">Type</th>
               <th className="px-3 py-2">Priority</th>
@@ -152,14 +152,14 @@ const FeedbackList: React.FC = () => {
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={6} className="px-3 py-6 text-center text-gray-500">
+                <td colSpan={6} className="px-3 py-6 text-center text-gray-500 dark:text-gray-400">
                   <RefreshCw className="w-5 h-5 inline mr-2 animate-spin" /> Loading...
                 </td>
               </tr>
             )}
             {!loading && filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-3 py-6 text-center text-gray-500">
+                <td colSpan={6} className="px-3 py-6 text-center text-gray-500 dark:text-gray-400">
                   <AlertTriangle className="w-5 h-5 inline mr-2" /> No feedback found
                 </td>
               </tr>
@@ -167,7 +167,7 @@ const FeedbackList: React.FC = () => {
             {!loading && filtered.map((fb) => (
               <tr key={fb.id} className="border-t">
                 <td className="px-3 py-2 align-top">
-                  <div className="font-medium text-gray-900">{fb.title}</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">{fb.title}</div>
                   <div className="text-gray-600 line-clamp-2">{fb.description}</div>
                   <div className="text-xs text-gray-500 mt-1">{fb.page || 'unknown'} • {fb.category}</div>
                 </td>
@@ -185,7 +185,7 @@ const FeedbackList: React.FC = () => {
                     {statuses.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </td>
-                <td className="px-3 py-2 align-top text-xs text-gray-500">{new Date(fb.timestamp).toLocaleString()}</td>
+                <td className="px-3 py-2 align-top text-xs text-gray-500 dark:text-gray-400">{new Date(fb.timestamp).toLocaleString()}</td>
                 <td className="px-3 py-2 align-top">
                   <div className="flex items-center space-x-2">
                     <button
@@ -216,7 +216,7 @@ const FeedbackList: React.FC = () => {
 
       {/* Pagination */}
       <div className="flex items-center justify-between mt-4 text-sm">
-        <div className="text-gray-600">Total: {total}</div>
+        <div className="text-gray-600 dark:text-gray-400">Total: {total}</div>
         <div className="flex items-center space-x-2">
           <button disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))} className="px-3 py-1 bg-gray-100 rounded disabled:opacity-50">Prev</button>
           <span>Page {page}</span>

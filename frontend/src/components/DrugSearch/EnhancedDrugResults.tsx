@@ -47,7 +47,7 @@ const CardTitle: React.FC<{ className?: string; children: React.ReactNode }> = (
 const Badge: React.FC<{ className?: string; variant?: 'outline' | 'solid'; children: React.ReactNode }> = ({ className, children, variant = 'solid' }) => (
   <span className={clsx(
     'inline-flex items-center px-2 py-0.5 rounded text-xs',
-    variant === 'outline' ? 'border border-gray-300 text-gray-700' : 'bg-gray-100 text-gray-800',
+    variant === 'outline' ? 'border border-gray-300 text-gray-700 dark:text-gray-300' : 'bg-gray-100 text-gray-800 dark:text-gray-200',
     className
   )}>{children}</span>
 );
@@ -60,8 +60,8 @@ const Button: React.FC<{ className?: string; variant?: 'default' | 'outline' | '
         'inline-flex items-center gap-1 rounded transition-colors',
         size === 'sm' ? 'px-2 py-1 text-sm' : 'px-3 py-2',
         variant === 'default' && 'bg-gray-900 text-white hover:bg-gray-800',
-        variant === 'outline' && 'border border-gray-300 text-gray-700 hover:bg-gray-50',
-        variant === 'ghost' && 'text-gray-600 hover:bg-gray-100',
+        variant === 'outline' && 'border border-gray-300 text-gray-700 hover:bg-gray-50 dark:bg-gray-800',
+        variant === 'ghost' && 'text-gray-600 hover:bg-gray-100 dark:bg-gray-800',
         disabled && 'opacity-50 cursor-not-allowed',
         className
       )}
@@ -257,7 +257,7 @@ const EnhancedDrugResults: React.FC<EnhancedDrugResultsProps> = ({
                 onChange={() => handleDrugToggle(drug.id)}
                 className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
               />
-              <CardTitle className="text-lg font-semibold text-gray-900">
+              <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {drug.name}
               </CardTitle>
               {drug.blackBoxWarning && (
@@ -411,18 +411,18 @@ const EnhancedDrugResults: React.FC<EnhancedDrugResultsProps> = ({
             {/* Clinical Data */}
             <div className="grid grid-cols-3 gap-4 text-center">
               <div className="p-2 bg-gray-50 rounded">
-                <div className="text-lg font-bold text-gray-900">{drug.clinicalTrials}</div>
-                <div className="text-xs text-gray-600">Clinical Trials</div>
+                <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{drug.clinicalTrials}</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">Clinical Trials</div>
               </div>
               <div className="p-2 bg-gray-50 rounded">
-                <div className="text-lg font-bold text-gray-900">{drug.publications}</div>
-                <div className="text-xs text-gray-600">Publications</div>
+                <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{drug.publications}</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">Publications</div>
               </div>
               <div className="p-2 bg-gray-50 rounded">
-                <div className="text-lg font-bold text-gray-900">
+                <div className="text-lg font-bold text-gray-900 dark:text-gray-100">
                   {drug.approvalDate ? new Date(drug.approvalDate).getFullYear() : 'N/A'}
                 </div>
-                <div className="text-xs text-gray-600">FDA Approval</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">FDA Approval</div>
               </div>
             </div>
 
@@ -505,8 +505,8 @@ const EnhancedDrugResults: React.FC<EnhancedDrugResultsProps> = ({
       {/* Results Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Search Results</h2>
-          <p className="text-gray-600">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Search Results</h2>
+          <p className="text-gray-600 dark:text-gray-400">
             Found {sortedAndFilteredDrugs.length} drug{sortedAndFilteredDrugs.length !== 1 ? 's' : ''}
           </p>
         </div>
@@ -594,11 +594,11 @@ const EnhancedDrugResults: React.FC<EnhancedDrugResultsProps> = ({
 
       {/* No Results */}
       {sortedAndFilteredDrugs.length === 0 && (
-        <Card className="border-gray-200">
+        <Card className="border-gray-200 dark:border-gray-700">
           <CardContent className="p-12 text-center">
             <Pill className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No drugs found</h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               Try adjusting your search criteria or filters to find more results.
             </p>
           </CardContent>

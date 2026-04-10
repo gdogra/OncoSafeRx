@@ -181,7 +181,7 @@ const PatientSupport: React.FC = () => {
       case 'counseling': return 'bg-purple-100 text-purple-600';
       case 'financial': return 'bg-orange-100 text-orange-600';
       case 'emergency': return 'bg-red-100 text-red-600';
-      default: return 'bg-gray-100 text-gray-600';
+      default: return 'bg-gray-100 text-gray-600 dark:text-gray-400';
     }
   };
 
@@ -199,7 +199,7 @@ const PatientSupport: React.FC = () => {
       </TipCard>
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Support & Communication</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Support & Communication</h1>
         <p className="text-gray-600 mt-1">Connect with your care team and access support resources</p>
       </div>
 
@@ -243,8 +243,8 @@ const PatientSupport: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="border-b border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="border-b border-gray-200 dark:border-gray-700">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -255,7 +255,7 @@ const PatientSupport: React.FC = () => {
                   className={`group inline-flex items-center space-x-2 py-4 px-6 border-b-2 font-medium text-sm ${
                     selectedTab === tab.id
                       ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -289,7 +289,7 @@ const PatientSupport: React.FC = () => {
                       
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">
-                          <h3 className="font-semibold text-gray-900">{member.name}</h3>
+                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">{member.name}</h3>
                           {member.isOnline && (
                             <span className="px-2 py-1 bg-green-100 text-green-600 text-xs rounded-full">Online</span>
                           )}
@@ -300,11 +300,11 @@ const PatientSupport: React.FC = () => {
                         <div className="space-y-2 text-sm">
                           <div className="flex items-center space-x-2">
                             <Clock className="w-4 h-4 text-gray-400" />
-                            <span className="text-gray-600">{member.availability}</span>
+                            <span className="text-gray-600 dark:text-gray-400">{member.availability}</span>
                           </div>
                           <div className="flex items-center space-x-2">
                             <MessageSquare className="w-4 h-4 text-gray-400" />
-                            <span className="text-gray-600">{member.contact}</span>
+                            <span className="text-gray-600 dark:text-gray-400">{member.contact}</span>
                           </div>
                         </div>
 
@@ -348,11 +348,11 @@ const PatientSupport: React.FC = () => {
                         
                         <div className="flex-1">
                           <div className="flex items-start justify-between mb-2">
-                            <h3 className="font-semibold text-gray-900">{resource.title}</h3>
+                            <h3 className="font-semibold text-gray-900 dark:text-gray-100">{resource.title}</h3>
                             {resource.rating && (
                               <div className="flex items-center space-x-1">
                                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                <span className="text-sm text-gray-600">{resource.rating}</span>
+                                <span className="text-sm text-gray-600 dark:text-gray-400">{resource.rating}</span>
                               </div>
                             )}
                           </div>

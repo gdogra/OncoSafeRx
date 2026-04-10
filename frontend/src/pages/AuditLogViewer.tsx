@@ -103,7 +103,7 @@ const AuditLogViewer: React.FC = () => {
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin', href: '/admin/console' }, { label: 'Audit Logs' }]} />
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Audit Logs</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Audit Logs</h1>
           <p className="text-gray-600 mt-1">Administrative actions and sensitive events</p>
         </div>
         <div className="flex gap-3">
@@ -169,16 +169,16 @@ const AuditLogViewer: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
-                <tr><td colSpan={5} className="px-6 py-6 text-center text-gray-600">Loading...</td></tr>
+                <tr><td colSpan={5} className="px-6 py-6 text-center text-gray-600 dark:text-gray-400">Loading...</td></tr>
               ) : logs.length === 0 ? (
-                <tr><td colSpan={5} className="px-6 py-6 text-center text-gray-500">No audit entries</td></tr>
+                <tr><td colSpan={5} className="px-6 py-6 text-center text-gray-500 dark:text-gray-400">No audit entries</td></tr>
               ) : (
                 logs.map((log) => (
-                  <tr key={log.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(log.created_at).toLocaleString()}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{log.actor_id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{log.target_user_id || '-'}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{log.action}</td>
+                  <tr key={log.id} className="hover:bg-gray-50 dark:bg-gray-800">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{new Date(log.created_at).toLocaleString()}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{log.actor_id}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">{log.target_user_id || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{log.action}</td>
                     <td className="px-6 py-4 text-xs text-gray-600 max-w-lg truncate">{(() => { try { return JSON.stringify(log.details) } catch { return '' } })()}</td>
                   </tr>
                 ))
@@ -187,10 +187,10 @@ const AuditLogViewer: React.FC = () => {
           </table>
         </div>
         <div className="flex items-center justify-between p-4">
-          <div className="text-sm text-gray-600">Total: {pagination.total}</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">Total: {pagination.total}</div>
           <div className="flex items-center gap-2">
             <button disabled={pagination.page <= 1} onClick={() => setPagination((p) => ({ ...p, page: p.page - 1 }))} className="px-3 py-1 bg-gray-100 rounded disabled:opacity-50">Prev</button>
-            <span className="text-sm text-gray-700">Page {pagination.page} / {Math.max(1, pagination.pages || Math.ceil((pagination.total || 0) / (pagination.limit || 50)))}</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">Page {pagination.page} / {Math.max(1, pagination.pages || Math.ceil((pagination.total || 0) / (pagination.limit || 50)))}</span>
             <button disabled={pagination.page >= (pagination.pages || 1)} onClick={() => setPagination((p) => ({ ...p, page: p.page + 1 }))} className="px-3 py-1 bg-gray-100 rounded disabled:opacity-50">Next</button>
           </div>
         </div>

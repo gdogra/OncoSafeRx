@@ -22,7 +22,7 @@ const AdminAccessDenied: React.FC = () => {
             <ArrowLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
-          <Link to="/admin/auth-diagnostics" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50">
+          <Link to="/admin/auth-diagnostics" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-gray-300 bg-white hover:bg-gray-50 dark:bg-gray-800">
             <Terminal className="w-4 h-4" />
             Auth Diagnostics
           </Link>

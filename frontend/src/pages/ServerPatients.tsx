@@ -848,8 +848,8 @@ const ServerPatients: React.FC = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-lg font-semibold text-gray-900">{name}</div>
-              <div className="text-sm text-gray-600">MRN: {mrn} • DOB: {dob}</div>
+              <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">{name}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">MRN: {mrn} • DOB: {dob}</div>
             </div>
             <div className="flex items-center gap-2">
               <button onClick={() => { selectAndClose(detailPatient); setDetailPatient(null); }} className="px-3 py-2 text-sm bg-blue-600 text-white rounded">Select</button>
@@ -857,7 +857,7 @@ const ServerPatients: React.FC = () => {
             </div>
           </div>
 
-          <div className="border-b border-gray-200">
+          <div className="border-b border-gray-200 dark:border-gray-700">
             <nav className="-mb-px flex space-x-4" aria-label="Tabs">
               {[
                 { id: 'demo', label: 'Demographics' },
@@ -869,7 +869,7 @@ const ServerPatients: React.FC = () => {
                 <button
                   key={t.id}
                   onClick={() => setDetailsTab(t.id as any)}
-                  className={`whitespace-nowrap py-2 px-3 border-b-2 text-sm font-medium ${detailsTab === (t.id as any) ? 'border-blue-600 text-blue-700' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                  className={`whitespace-nowrap py-2 px-3 border-b-2 text-sm font-medium ${detailsTab === (t.id as any) ? 'border-blue-600 text-blue-700' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'}`}
                 >
                   {t.label}
                 </button>
@@ -878,7 +878,7 @@ const ServerPatients: React.FC = () => {
           </div>
 
           <Card>
-            <div className="text-sm text-gray-800">
+            <div className="text-sm text-gray-800 dark:text-gray-200">
               {detailsTab === 'demo' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
@@ -912,9 +912,9 @@ const ServerPatients: React.FC = () => {
                       <div key={i} className="flex items-center justify-between border rounded px-3 py-2">
                         <div>
                           <div className="font-medium">{dn}</div>
-                          <div className="text-xs text-gray-500">{m?.dosage || m?.dose || '—'} • {m?.frequency || '—'} • {m?.route || '—'}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{m?.dosage || m?.dose || '—'} • {m?.frequency || '—'} • {m?.route || '—'}</div>
                         </div>
-                        <div className={`text-xs px-2 py-0.5 rounded ${m?.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>{m?.isActive ? 'Active' : 'Inactive'}</div>
+                        <div className={`text-xs px-2 py-0.5 rounded ${m?.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600 dark:text-gray-400'}`}>{m?.isActive ? 'Active' : 'Inactive'}</div>
                       </div>
                     );
                   })}
@@ -926,7 +926,7 @@ const ServerPatients: React.FC = () => {
                   {conds.map((c: any, i: number) => (
                     <div key={i} className="border rounded px-3 py-2">
                       <div className="font-medium">{c?.name || c?.condition || 'Unknown condition'}</div>
-                      <div className="text-xs text-gray-500">Status: {c?.status || '—'} {c?.icd10Code ? `• ICD-10: ${c.icd10Code}` : ''} {c?.stage ? `• Stage: ${c.stage}` : ''}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Status: {c?.status || '—'} {c?.icd10Code ? `• ICD-10: ${c.icd10Code}` : ''} {c?.stage ? `• Stage: ${c.stage}` : ''}</div>
                     </div>
                   ))}
                 </div>
@@ -957,7 +957,7 @@ const ServerPatients: React.FC = () => {
                     <div key={i} className="border rounded px-3 py-2 flex items-center justify-between">
                       <div>
                         <div className="font-medium">{l?.labType || 'Lab'}</div>
-                        <div className="text-xs text-gray-500">{l?.timestamp ? new Date(l.timestamp).toLocaleString() : '—'}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{l?.timestamp ? new Date(l.timestamp).toLocaleString() : '—'}</div>
                       </div>
                       <div className="text-sm">{l?.value ?? '—'} {l?.unit || ''}</div>
                     </div>
@@ -1050,7 +1050,7 @@ const ServerPatients: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Search className="w-5 h-5 text-gray-400" />
-          <h1 className="text-xl font-semibold text-gray-900">All Patients</h1>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">All Patients</h1>
         </div>
         {/* Always show create button in production */}
         <button
@@ -1065,7 +1065,7 @@ const ServerPatients: React.FC = () => {
       <Card>
         <div className="flex items-center space-x-2 mb-4">
           <Search className="w-5 h-5 text-gray-400" />
-          <h1 className="text-xl font-semibold text-gray-900">All Patients</h1>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">All Patients</h1>
         </div>
         
         {(patients.length === 0 && !loading) && (
@@ -1077,7 +1077,7 @@ const ServerPatients: React.FC = () => {
             <button onClick={() => setShowCreateForm(true)} className="px-3 py-1.5 bg-green-600 text-white rounded text-xs flex items-center gap-1" data-tour="patients-create-inline">
                 <Plus className="w-3.5 h-3.5" /> Create Patient
               </button>
-              <span className="text-xs text-blue-700">Tip: press <kbd className="px-1 py-0.5 border rounded bg-white">C</kbd> to create</span>
+              <span className="text-xs text-blue-700">Tip: press <kbd className="px-1 py-0.5 border rounded bg-white dark:bg-gray-900">C</kbd> to create</span>
             </div>
           </div>
         )}
@@ -1106,7 +1106,7 @@ const ServerPatients: React.FC = () => {
             />
             <button onClick={() => fetchPatients({ resetPage: true })} className="px-3 py-2 bg-blue-600 text-white rounded text-sm">Search</button>
             <button onClick={() => { setQuery(''); fetchPatients({ resetPage: true }); }} className="px-3 py-2 bg-white border rounded text-sm">Clear</button>
-            <button onClick={() => setShowFilters(!showFilters)} className={`px-3 py-2 border rounded text-sm flex items-center gap-1 ${showFilters ? 'bg-blue-50 border-blue-300 text-blue-700' : 'bg-white border-gray-300'}`}>
+            <button onClick={() => setShowFilters(!showFilters)} className={`px-3 py-2 border rounded text-sm flex items-center gap-1 ${showFilters ? 'bg-blue-50 border-blue-300 text-blue-700' : 'bg-white border-gray-300 dark:border-gray-600'}`}>
               <Filter className="w-4 h-4" /> Filters
             </button>
             <button onClick={() => fetchPatients()} className="px-3 py-2 bg-white border rounded text-sm flex items-center gap-1">
@@ -1173,7 +1173,7 @@ const ServerPatients: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center justify-between mt-4">
-                <div className="text-xs text-gray-600">
+                <div className="text-xs text-gray-600 dark:text-gray-400">
                   {(ageFilter || genderFilter || cancerTypeFilter) && (
                     <span>Active filters: {[ageFilter && 'Age', genderFilter && 'Gender', cancerTypeFilter && 'Cancer Type'].filter(Boolean).join(', ')}</span>
                   )}
@@ -1205,7 +1205,7 @@ const ServerPatients: React.FC = () => {
         {/* Current selection summary */}
         <div className="mb-3 text-sm text-gray-700 flex items-center gap-3">
           <span className="font-medium">Current selection:</span>
-          <span className="px-2 py-1 rounded bg-gray-100">
+          <span className="px-2 py-1 rounded bg-gray-100 dark:bg-gray-800">
             { patientState?.currentPatient
               ? `${patientState.currentPatient.demographics?.firstName || ''} ${patientState.currentPatient.demographics?.lastName || ''}`.trim() || 'Selected'
               : 'None' }
@@ -1213,7 +1213,7 @@ const ServerPatients: React.FC = () => {
           {patientState?.currentPatient && (
             <button
               onClick={() => { actions.setCurrentPatient(null as any); try { localStorage.removeItem('osrx_last_patient_id'); localStorage.removeItem('osrx_last_patient'); } catch {} }}
-              className="px-2 py-1 border rounded text-xs bg-white"
+              className="px-2 py-1 border rounded text-xs bg-white dark:bg-gray-900"
             >
               Clear
             </button>
@@ -1222,7 +1222,7 @@ const ServerPatients: React.FC = () => {
 
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">MRN</th>
@@ -1239,16 +1239,16 @@ const ServerPatients: React.FC = () => {
                 const dob = d.dateOfBirth ? new Date(d.dateOfBirth).toLocaleDateString() : '';
                 const updated = (p.data?.lastUpdated || p.lastUpdated) ? new Date(p.data?.lastUpdated || p.lastUpdated).toLocaleString() : '';
                 return (
-                  <tr key={p.id} className="hover:bg-gray-50">
+                  <tr key={p.id} className="hover:bg-gray-50 dark:bg-gray-800">
                     <td className="px-4 py-2 text-sm text-gray-900 cursor-pointer" onClick={() => setDetailPatient(p)}>{name || '—'}</td>
                     <td className="px-4 py-2 text-sm text-gray-600 cursor-pointer" onClick={() => setDetailPatient(p)}>{mrn || '—'}</td>
                     <td className="px-4 py-2 text-sm text-gray-600 cursor-pointer" onClick={() => setDetailPatient(p)}>{dob || '—'}</td>
                     <td className="px-4 py-2 text-sm text-gray-600 cursor-pointer" onClick={() => setDetailPatient(p)}>{updated || '—'}</td>
-                    <td className="px-4 py-2 text-sm text-gray-600">
+                    <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
                       <button onClick={() => selectAndClose(p)} className="inline-flex items-center px-2 py-1 mr-2 bg-blue-600 text-white rounded text-xs hover:bg-blue-700">
                         Select
                       </button>
-                      <button onClick={() => openEdit(p)} className="inline-flex items-center px-2 py-1 mr-2 bg-white border rounded text-xs hover:bg-gray-50">
+                      <button onClick={() => openEdit(p)} className="inline-flex items-center px-2 py-1 mr-2 bg-white border rounded text-xs hover:bg-gray-50 dark:bg-gray-800">
                         <Edit className="w-4 h-4 mr-1"/> Edit
                       </button>
                       <button 
@@ -1270,7 +1270,7 @@ const ServerPatients: React.FC = () => {
               {patients.length === 0 && !loading && (
                 <>
                   <tr>
-                    <td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-500">No patients found</td>
+                    <td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No patients found</td>
                   </tr>
                   <tr>
                     <td colSpan={4} className="px-4 py-4">
@@ -1291,7 +1291,7 @@ const ServerPatients: React.FC = () => {
               )}
               {loading && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-500">Loading…</td>
+                  <td colSpan={4} className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">Loading…</td>
                 </tr>
               )}
             </tbody>
@@ -1299,7 +1299,7 @@ const ServerPatients: React.FC = () => {
         </div>
 
         <div className="mt-4 flex items-center justify-between">
-          <div className="text-sm text-gray-600">Page {page} of {totalPages} • {total} total</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">Page {page} of {totalPages} • {total} total</div>
           <div className="flex items-center gap-2">
             <button disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))} className="px-2 py-1 bg-white border rounded disabled:opacity-50"><ChevronLeft className="w-4 h-4"/></button>
             <button disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} className="px-2 py-1 bg-white border rounded disabled:opacity-50"><ChevronRight className="w-4 h-4"/></button>
@@ -1312,7 +1312,7 @@ const ServerPatients: React.FC = () => {
           <div className="space-y-4">
             {saveError && <div className="mb-3 text-sm text-red-700">{saveError}</div>}
             
-            <div className="border-b border-gray-200">
+            <div className="border-b border-gray-200 dark:border-gray-700">
               <nav className="-mb-px flex space-x-4" aria-label="Tabs">
                 {[
                   { id: 'demo', label: 'Demographics' },
@@ -1324,7 +1324,7 @@ const ServerPatients: React.FC = () => {
                   <button
                     key={t.id}
                     onClick={() => setEditTab(t.id as any)}
-                    className={`whitespace-nowrap py-2 px-3 border-b-2 text-sm font-medium ${editTab === (t.id as any) ? 'border-blue-600 text-blue-700' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                    className={`whitespace-nowrap py-2 px-3 border-b-2 text-sm font-medium ${editTab === (t.id as any) ? 'border-blue-600 text-blue-700' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'}`}
                   >
                     {t.label}
                   </button>
@@ -1367,7 +1367,7 @@ const ServerPatients: React.FC = () => {
                 {editTab === 'meds' && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-medium text-gray-900">Medications</h3>
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Medications</h3>
                       <button 
                         onClick={() => {
                           const newMed = { drugName: '', dosage: '', frequency: '', route: '', isActive: true };
@@ -1556,7 +1556,7 @@ const ServerPatients: React.FC = () => {
                             }}
                             className="mr-2"
                           />
-                          <label className="text-xs text-gray-600">Active medication</label>
+                          <label className="text-xs text-gray-600 dark:text-gray-400">Active medication</label>
                         </div>
                       </div>
                     ))}
@@ -1569,7 +1569,7 @@ const ServerPatients: React.FC = () => {
                 {editTab === 'cond' && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-medium text-gray-900">Medical Conditions</h3>
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Medical Conditions</h3>
                       <button 
                         onClick={() => {
                           const newCond = { name: '', status: '', icd10Code: '', stage: '' };
@@ -1665,7 +1665,7 @@ const ServerPatients: React.FC = () => {
                 {editTab === 'allergies' && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-medium text-gray-900">Allergies</h3>
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Allergies</h3>
                       <button 
                         onClick={() => {
                           const newAllergy = { allergen: '', reaction: '', severity: '' };
@@ -1749,7 +1749,7 @@ const ServerPatients: React.FC = () => {
                 {editTab === 'labs' && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-medium text-gray-900">Lab Values</h3>
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">Lab Values</h3>
                       <button 
                         onClick={() => {
                           const newLab = { labType: '', value: '', unit: '', timestamp: new Date().toISOString().split('T')[0] };

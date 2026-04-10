@@ -202,7 +202,7 @@ const AuthOtpVerify: React.FC = () => {
           
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Verify Your Phone</h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               We sent a 6-digit verification code to{' '}
               <span className="font-medium">{formatPhoneDisplay(phone)}</span>
             </p>
@@ -225,7 +225,7 @@ const AuthOtpVerify: React.FC = () => {
                     onKeyDown={(e) => handleKeyDown(index, e)}
                     onPaste={handlePaste}
                     className={`w-12 h-12 text-center text-lg font-semibold border rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                      error ? 'border-red-300' : 'border-gray-300'
+                      error ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
                     }`}
                     disabled={isVerifying}
                   />
@@ -259,7 +259,7 @@ const AuthOtpVerify: React.FC = () => {
           </div>
 
           <div className="text-center space-y-2">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Didn't receive the code?
             </p>
             <div className="flex justify-center space-x-4">
@@ -285,7 +285,7 @@ const AuthOtpVerify: React.FC = () => {
               </button>
               <button
                 onClick={() => navigate('/auth')}
-                className="text-sm font-medium text-gray-600 hover:text-gray-700"
+                className="text-sm font-medium text-gray-600 hover:text-gray-700 dark:text-gray-300"
               >
                 <ArrowLeft className="w-3 h-3 mr-1 inline" />
                 Back to signup

@@ -43,7 +43,7 @@ const ThemeToggle: React.FC<{ className?: string }> = ({ className = '' }) => {
         aria-label={`Theme: ${label}`}
         className={`inline-flex items-center gap-2 px-2.5 py-1.5 border border-gray-300 rounded-md text-sm bg-white hover:bg-gray-50 ${className}`}
       >
-        <Icon className="w-4 h-4 text-gray-600" />
+        <Icon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
         <span className="text-gray-700 hidden sm:inline">{label}</span>
       </button>
     </Tooltip>

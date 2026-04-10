@@ -596,7 +596,7 @@ const MyMedications: React.FC = () => {
         case 'good': return 'text-blue-600 bg-blue-100';
         case 'fair': return 'text-yellow-600 bg-yellow-100';
         case 'poor': return 'text-red-600 bg-red-100';
-        default: return 'text-gray-600 bg-gray-100';
+        default: return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
       }
     }
     if (adherence >= 90) return 'text-green-600 bg-green-100';
@@ -636,7 +636,7 @@ const MyMedications: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Medications</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">My Medications</h1>
           <p className="text-gray-600 mt-1">Track your current medications and treatment plan</p>
         </div>
         <div className="flex items-center gap-2">
@@ -685,8 +685,8 @@ const MyMedications: React.FC = () => {
               <Pill className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Active Medications</p>
-              <p className="text-2xl font-bold text-gray-900">{activeMedications.length}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Active Medications</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{activeMedications.length}</p>
             </div>
           </div>
         </Card>
@@ -697,8 +697,8 @@ const MyMedications: React.FC = () => {
               <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Average Adherence</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Average Adherence</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {activeMedications.length > 0 ? 'Good' : 'N/A'}
               </p>
             </div>
@@ -711,8 +711,8 @@ const MyMedications: React.FC = () => {
               <Bell className="w-5 h-5 text-orange-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Next Dose</p>
-              <p className="text-lg font-semibold text-gray-900">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Next Dose</p>
+              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {activeMedications.find(med => med.nextDose) ? 'Today' : 'None scheduled'}
               </p>
             </div>
@@ -724,12 +724,12 @@ const MyMedications: React.FC = () => {
       {showAddForm && (
         <Card>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
               {editingMedication ? 'Edit Medication' : 'Add New Medication'}
             </h2>
             <button
               onClick={handleCancelAdd}
-              className="p-1 text-gray-400 hover:text-gray-600"
+              className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400"
             >
               <X className="w-5 h-5" />
             </button>
@@ -877,7 +877,7 @@ const MyMedications: React.FC = () => {
           <div className="flex justify-end space-x-3 mt-6">
             <button
               onClick={handleCancelAdd}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 dark:bg-gray-800"
             >
               Cancel
             </button>
@@ -899,8 +899,8 @@ const MyMedications: React.FC = () => {
       {/* Active Medications */}
       <Card>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Active Medications</h2>
-          <div className="flex items-center space-x-2 text-sm text-gray-600">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Active Medications</h2>
+          <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
             <Info className="w-4 h-4" />
             <span>Tap medication for details</span>
           </div>
@@ -909,11 +909,11 @@ const MyMedications: React.FC = () => {
         {activeMedications.length > 0 ? (
           <div className="space-y-4">
             {activeMedications.map((medication) => (
-              <div key={medication.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+              <div key={medication.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 dark:bg-gray-800">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">{medication.drug?.name || medication.name}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{medication.drug?.name || medication.name}</h3>
                       <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>
                       {medication.adherence && (
                         <span className={`px-2 py-1 text-xs rounded-full ${getAdherenceColor(medication.adherence)}`}>
@@ -932,22 +932,22 @@ const MyMedications: React.FC = () => {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-400">
                           <strong>Dosage:</strong> {medication.dosage}
                         </p>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-400">
                           <strong>Frequency:</strong> {medication.frequency == 'Other' && (medication as any).frequencyOther ? (medication as any).frequencyOther : medication.frequency}
                         </p>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-400">
                           <strong>Prescribed by:</strong> {medication.prescriber || medication.prescribedBy}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-400">
                           <strong>Started:</strong> {formatDate(medication.startDate)}
                         </p>
                         {medication.nextDose && (
-                          <p className="text-gray-600">
+                          <p className="text-gray-600 dark:text-gray-400">
                             <strong>Next dose:</strong> {formatDate(medication.nextDose)}
                           </p>
                         )}
@@ -1002,7 +1002,7 @@ const MyMedications: React.FC = () => {
         ) : (
           <div className="text-center py-8">
             <Pill className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-            <p className="text-gray-500">No active medications</p>
+            <p className="text-gray-500 dark:text-gray-400">No active medications</p>
           </div>
         )}
       </Card>
@@ -1013,11 +1013,11 @@ const MyMedications: React.FC = () => {
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Previous Medications</h2>
           <div className="space-y-4">
             {completedMedications.map((medication) => (
-              <div key={medication.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <div key={medication.id} className="border border-gray-200 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-lg font-medium text-gray-700">{medication.name}</h3>
+                      <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">{medication.name}</h3>
                       <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">Completed</span>
                       {medication.adherence && (
                         <span className={`px-2 py-1 text-xs rounded-full ${getAdherenceColor(medication.adherence)}`}>
@@ -1035,15 +1035,15 @@ const MyMedications: React.FC = () => {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                       <div>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-400">
                           <strong>Dosage:</strong> {medication.dosage}
                         </p>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-400">
                           <strong>Duration:</strong> {formatDate(medication.startDate)} - {medication.endDate ? formatDate(medication.endDate) : 'Ongoing'}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 dark:text-gray-400">
                           <strong>Prescribed by:</strong> {medication.prescriber || medication.prescribedBy}
                         </p>
                       </div>
@@ -1164,11 +1164,11 @@ const MyMedications: React.FC = () => {
       {showImportModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Download className="w-5 h-5 text-green-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">Import Medications from EHR</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Import Medications from EHR</h3>
                 </div>
                 <button
                   onClick={() => {
@@ -1177,7 +1177,7 @@ const MyMedications: React.FC = () => {
                     setSearchResults([]);
                     setSearchError(null);
                   }}
-                  className="p-1 text-gray-400 hover:text-gray-600"
+                  className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -1265,10 +1265,10 @@ const MyMedications: React.FC = () => {
                             <div className="flex items-center space-x-3">
                               <FileText className="w-5 h-5 text-gray-400" />
                               <div>
-                                <div className="font-medium text-gray-900">
+                                <div className="font-medium text-gray-900 dark:text-gray-100">
                                   {formatPatientName(patient)}
                                 </div>
-                                <div className="text-sm text-gray-600">
+                                <div className="text-sm text-gray-600 dark:text-gray-400">
                                   ID: {getPatientIdentifier(patient)} • 
                                   DOB: {patient.birthDate || 'Unknown'} • 
                                   Gender: {patient.gender || 'Unknown'}

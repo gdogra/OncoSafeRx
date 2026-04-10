@@ -654,7 +654,7 @@ const AdvancedTrials: React.FC = () => {
       case 'Phase 2': return 'bg-green-100 text-green-800';
       case 'Phase 3': return 'bg-purple-100 text-purple-800';
       case 'Phase 4': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -662,9 +662,9 @@ const AdvancedTrials: React.FC = () => {
     switch (status) {
       case 'Recruiting': return 'bg-green-100 text-green-800';
       case 'Active, not recruiting': return 'bg-yellow-100 text-yellow-800';
-      case 'Completed': return 'bg-gray-100 text-gray-800';
+      case 'Completed': return 'bg-gray-100 text-gray-800 dark:text-gray-200';
       case 'Suspended': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -709,7 +709,7 @@ const AdvancedTrials: React.FC = () => {
             </div>
             <button
               onClick={() => setExpandedTrialId(isExpanded ? null : trial.nct_id)}
-              className="ml-4 p-2 text-gray-400 hover:text-gray-600"
+              className="ml-4 p-2 text-gray-400 hover:text-gray-600 dark:text-gray-400"
             >
               {isExpanded ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
             </button>
@@ -731,14 +731,14 @@ const AdvancedTrials: React.FC = () => {
             </div>
             <div className="flex items-center space-x-2">
               <Users className="h-4 w-4 text-purple-500" />
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
                 {trial.enrollment_current}/{trial.enrollment_target}
               </span>
             </div>
             <div className="flex items-center space-x-2">
               <MapPin className="h-4 w-4 text-red-500" />
               <div className="flex flex-col">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
                   {trial.locations.length} site{trial.locations.length !== 1 ? 's' : ''}
                   {trial.distance && (
                     <span className="ml-1 font-medium text-blue-600">
@@ -780,9 +780,9 @@ const AdvancedTrials: React.FC = () => {
               {trial.locations.slice(0, 2).map((location, index) => (
                 <div key={index} className="flex items-start justify-between text-sm">
                   <div className="flex-1">
-                    <p className="font-medium text-gray-800">{location.name}</p>
-                    <p className="text-gray-600">{location.address}</p>
-                    <p className="text-gray-600">{location.city}, {location.state} {location.zip}</p>
+                    <p className="font-medium text-gray-800 dark:text-gray-200">{location.name}</p>
+                    <p className="text-gray-600 dark:text-gray-400">{location.address}</p>
+                    <p className="text-gray-600 dark:text-gray-400">{location.city}, {location.state} {location.zip}</p>
                     <div className="flex items-center space-x-2 mt-1">
                       <span className={`text-xs px-2 py-1 rounded ${getStatusColor(location.status)}`}>
                         {location.status}
@@ -861,7 +861,7 @@ const AdvancedTrials: React.FC = () => {
                         <span className="text-sm font-medium">{arm.name}</span>
                         <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">{arm.type}</span>
                       </div>
-                      <p className="text-sm text-gray-600">{arm.description}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{arm.description}</p>
                     </div>
                   ))}
                 </div>
@@ -912,11 +912,11 @@ const AdvancedTrials: React.FC = () => {
                       <div className="p-4 bg-blue-50">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900">{location.name}</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{location.name}</p>
                             <div className="mt-1 space-y-0.5">
-                              <p className="text-sm text-gray-600">{location.address}</p>
-                              <p className="text-sm text-gray-600">{location.city}, {location.state} {location.zip}</p>
-                              <p className="text-sm text-gray-500">{location.country}</p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">{location.address}</p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">{location.city}, {location.state} {location.zip}</p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">{location.country}</p>
                             </div>
                             <div className="flex items-center space-x-2 mt-2">
                               <span className={`text-xs font-medium px-2 py-1 rounded ${getStatusColor(location.status)}`}>
@@ -933,9 +933,9 @@ const AdvancedTrials: React.FC = () => {
                           {/* Contact Info */}
                           {location.contact && (
                             <div className="text-right ml-4">
-                              <p className="text-xs font-medium text-gray-700">{location.contact.name}</p>
-                              <p className="text-xs text-gray-500">{location.contact.phone}</p>
-                              <p className="text-xs text-gray-500">{location.contact.email}</p>
+                              <p className="text-xs font-medium text-gray-700 dark:text-gray-300">{location.contact.name}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{location.contact.phone}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{location.contact.email}</p>
                             </div>
                           )}
                         </div>
@@ -1015,10 +1015,10 @@ const AdvancedTrials: React.FC = () => {
                         {selectedLocationForDirections?.address === location.address && (
                           <div className="mt-3 border-t border-gray-200 pt-3">
                             <div className="flex items-center justify-between mb-2">
-                              <p className="text-xs font-medium text-gray-700">Interactive Map:</p>
+                              <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Interactive Map:</p>
                               <button 
                                 onClick={() => setSelectedLocationForDirections(null)}
-                                className="text-xs text-gray-500 hover:text-gray-700"
+                                className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-300"
                               >
                                 <Minimize2 className="h-3 w-3" />
                               </button>
@@ -1041,8 +1041,8 @@ const AdvancedTrials: React.FC = () => {
                             {/* Map Actions */}
                             <div className="mt-2 flex justify-between items-center text-xs">
                               <div className="flex space-x-2">
-                                <span className="text-gray-500">Coordinates:</span>
-                                <span className="font-mono text-gray-700">{location.lat.toFixed(4)}, {location.lon.toFixed(4)}</span>
+                                <span className="text-gray-500 dark:text-gray-400">Coordinates:</span>
+                                <span className="font-mono text-gray-700 dark:text-gray-300">{location.lat.toFixed(4)}, {location.lon.toFixed(4)}</span>
                               </div>
                               <div className="flex space-x-2">
                                 <button 
@@ -1068,22 +1068,22 @@ const AdvancedTrials: React.FC = () => {
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+              <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex items-center space-x-4">
                   <button className="flex items-center space-x-2 text-blue-600 hover:text-blue-800">
                     <ExternalLink className="h-4 w-4" />
                     <span className="text-sm">View on ClinicalTrials.gov</span>
                   </button>
-                  <button className="flex items-center space-x-2 text-gray-600 hover:text-gray-800">
+                  <button className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 dark:text-gray-200">
                     <Download className="h-4 w-4" />
                     <span className="text-sm">Download Summary</span>
                   </button>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button className="p-2 text-gray-400 hover:text-gray-600">
+                  <button className="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-400">
                     <Bookmark className="h-4 w-4" />
                   </button>
-                  <button className="p-2 text-gray-400 hover:text-gray-600">
+                  <button className="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-400">
                     <Share2 className="h-4 w-4" />
                   </button>
                 </div>
@@ -1123,7 +1123,7 @@ const AdvancedTrials: React.FC = () => {
                 onChange={(e) => setAiMatchingEnabled(e.target.checked)}
                 className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
               />
-              <span className="text-sm text-gray-700">Enable AI Matching</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">Enable AI Matching</span>
             </label>
           </div>
 
@@ -1327,7 +1327,7 @@ const AdvancedTrials: React.FC = () => {
                         min="1"
                         max="1000"
                         disabled={!userLocation}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 dark:bg-gray-800"
                       />
                     </div>
                     
@@ -1342,7 +1342,7 @@ const AdvancedTrials: React.FC = () => {
                   </div>
                   
                   {userLocation && (
-                    <div className="mt-2 text-xs text-gray-600">
+                    <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
                       Current location: {userLocation.lat.toFixed(4)}, {userLocation.lon.toFixed(4)}
                     </div>
                   )}
@@ -1380,7 +1380,7 @@ const AdvancedTrials: React.FC = () => {
                     onChange={(e) => setFilters(prev => ({ ...prev, showOnlyRecruiting: e.target.checked }))}
                     className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <label htmlFor="recruitingOnly" className="text-sm text-gray-700">
+                  <label htmlFor="recruitingOnly" className="text-sm text-gray-700 dark:text-gray-300">
                     Show only recruiting trials
                   </label>
                 </div>
@@ -1419,7 +1419,7 @@ const AdvancedTrials: React.FC = () => {
               {aiMatchingEnabled && (
                 <div className="flex items-center space-x-2">
                   <Sparkles className="h-5 w-5 text-yellow-500" />
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     {filteredTrials.filter(t => (t.score || 0) > 50).length} high-confidence matches
                   </span>
                 </div>
@@ -1427,7 +1427,7 @@ const AdvancedTrials: React.FC = () => {
               {userLocation && (
                 <div className="flex items-center space-x-2">
                   <MapPin className="h-5 w-5 text-blue-500" />
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     {filteredTrials.filter(t => t.distance && t.distance <= filters.maxDistance).length} within {filters.maxDistance} km
                   </span>
                 </div>
@@ -1451,14 +1451,14 @@ const AdvancedTrials: React.FC = () => {
         <Card>
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Trial Locations Map</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Trial Locations Map</h3>
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
                   {filteredTrials.reduce((acc, trial) => acc + trial.locations.length, 0)} locations
                 </span>
                 <button
                   onClick={() => setShowMap(false)}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-gray-400 hover:text-gray-600 dark:text-gray-400"
                 >
                   <Minimize2 className="h-5 w-5" />
                 </button>
@@ -1482,7 +1482,7 @@ const AdvancedTrials: React.FC = () => {
                       {filteredTrials.slice(0, 3).map((trial, index) => (
                         <div key={index} className="text-xs">
                           <p className="font-medium text-gray-700 truncate">{trial.locations[0]?.name}</p>
-                          <p className="text-gray-500">{trial.locations[0]?.city}, {trial.locations[0]?.state}</p>
+                          <p className="text-gray-500 dark:text-gray-400">{trial.locations[0]?.city}, {trial.locations[0]?.state}</p>
                           {trial.distance && (
                             <p className="text-blue-600">{trial.distance.toFixed(1)} km away</p>
                           )}
@@ -1537,8 +1537,8 @@ const AdvancedTrials: React.FC = () => {
               
               <div className="bg-gray-50 p-3 rounded">
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-gray-800">Other Status</span>
+                  <div className="w-3 h-3 bg-gray-50 dark:bg-gray-8000 rounded-full"></div>
+                  <span className="text-sm font-medium text-gray-800 dark:text-gray-200">Other Status</span>
                 </div>
                 <p className="text-xs text-gray-600 mt-1">
                   {filteredTrials.filter(t => t.status !== 'Recruiting' && t.status !== 'Active, not recruiting').reduce((acc, trial) => acc + trial.locations.length, 0)} locations
@@ -1560,7 +1560,7 @@ const AdvancedTrials: React.FC = () => {
               <h3 className="text-lg font-medium text-gray-900 mb-2">
                 {trials.length > 0 ? 'Refreshing Results...' : 'Loading Clinical Trials...'}
               </h3>
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 {trials.length > 0 
                   ? 'Fetching the latest trial information and updating match scores...'
                   : 'Connecting to clinical trial databases and analyzing matches...'

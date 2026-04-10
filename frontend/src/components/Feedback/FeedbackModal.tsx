@@ -90,7 +90,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
       type: 'question', 
       label: 'Question', 
       icon: HelpCircle, 
-      color: 'text-gray-600 bg-gray-100',
+      color: 'text-gray-600 bg-gray-100 dark:bg-gray-800',
       description: 'Ask a question about how to use something'
     },
     { 
@@ -150,7 +150,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
             <ThumbsUp className="w-8 h-8 text-green-600" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Thank you for your feedback!</h3>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Your feedback has been submitted and automatically categorized for our development team.
             We appreciate you helping us improve OncoSafeRx.
           </p>
@@ -177,7 +177,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
                   p-3 text-left border rounded-lg transition-all
                   ${formData.type === type 
                     ? 'border-primary-500 bg-primary-50' 
-                    : 'border-gray-200 hover:border-gray-300'
+                    : 'border-gray-200 hover:border-gray-300 dark:border-gray-600'
                   }
                 `}
               >
@@ -186,7 +186,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
                     <Icon className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-900">{label}</div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{label}</div>
                     <div className="text-xs text-gray-500 mt-1">{description}</div>
                   </div>
                 </div>
@@ -303,7 +303,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
               onChange={(e) => setFormData(prev => ({ ...prev, allowContact: e.target.checked }))}
               className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
             />
-            <label htmlFor="allowContact" className="text-sm text-gray-700">
+            <label htmlFor="allowContact" className="text-sm text-gray-700 dark:text-gray-300">
               Allow us to contact you for follow-up questions
             </label>
           </div>
@@ -336,7 +336,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({
         )}
 
         {/* Submit Button */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+        <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             type="button"
             onClick={onClose}

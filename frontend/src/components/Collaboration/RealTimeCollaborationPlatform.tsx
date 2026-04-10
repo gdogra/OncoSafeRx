@@ -365,8 +365,8 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
       case 'online': return 'bg-green-500';
       case 'away': return 'bg-yellow-500';
       case 'busy': return 'bg-red-500';
-      case 'offline': return 'bg-gray-500';
-      default: return 'bg-gray-500';
+      case 'offline': return 'bg-gray-50 dark:bg-gray-8000';
+      default: return 'bg-gray-50 dark:bg-gray-8000';
     }
   };
 
@@ -394,14 +394,14 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
           className={`w-full text-left p-3 rounded-lg transition-colors ${
             selectedChannel === channel.id 
               ? 'bg-blue-100 text-blue-900' 
-              : 'hover:bg-gray-100 text-gray-700'
+              : 'hover:bg-gray-100 text-gray-700 dark:text-gray-300'
           }`}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               {channel.type === 'emergency' && <AlertCircle className="h-4 w-4 mr-2 text-red-500" />}
               {channel.type === 'private' && <Shield className="h-4 w-4 mr-2 text-blue-500" />}
-              {channel.type === 'public' && <MessageSquare className="h-4 w-4 mr-2 text-gray-500" />}
+              {channel.type === 'public' && <MessageSquare className="h-4 w-4 mr-2 text-gray-500 dark:text-gray-400" />}
               <span className="font-medium">{channel.name}</span>
               {channel.isPinned && <Pin className="h-3 w-3 ml-1 text-yellow-500" />}
             </div>
@@ -425,20 +425,20 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
         </div>
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-1">
-            <span className="font-medium text-gray-900">{message.senderName}</span>
-            <span className="text-xs text-gray-500">{message.senderRole}</span>
-            <span className="text-xs text-gray-500">{formatTime(message.timestamp)}</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">{message.senderName}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{message.senderRole}</span>
+            <span className="text-xs text-gray-500 dark:text-gray-400">{formatTime(message.timestamp)}</span>
             {message.priority && (
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                 message.priority === 'urgent' ? 'bg-red-100 text-red-800' :
                 message.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                'bg-gray-100 text-gray-800'
+                'bg-gray-100 text-gray-800 dark:text-gray-200'
               }`}>
                 {message.priority}
               </span>
             )}
           </div>
-          <p className="text-gray-800">{message.content}</p>
+          <p className="text-gray-800 dark:text-gray-200">{message.content}</p>
           {message.reactions && message.reactions.length > 0 && (
             <div className="flex space-x-2 mt-2">
               {message.reactions.map((reaction, index) => (
@@ -454,13 +454,13 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
           )}
         </div>
         <div className="flex space-x-1">
-          <button className="p-1 text-gray-400 hover:text-gray-600">
+          <button className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400">
             <ThumbsUp className="h-4 w-4" />
           </button>
-          <button className="p-1 text-gray-400 hover:text-gray-600">
+          <button className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400">
             <MessageCircle className="h-4 w-4" />
           </button>
-          <button className="p-1 text-gray-400 hover:text-gray-600">
+          <button className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400">
             <MoreVertical className="h-4 w-4" />
           </button>
         </div>
@@ -472,10 +472,10 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
     <div className="space-y-2">
       <h3 className="font-semibold text-gray-900 text-sm mb-3">Team Members</h3>
       {users.map(user => (
-        <div key={user.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50">
+        <div key={user.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
           <div className="relative">
             <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-              <UserCheck className="h-4 w-4 text-gray-600" />
+              <UserCheck className="h-4 w-4 text-gray-600 dark:text-gray-400" />
             </div>
             <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 ${getStatusColor(user.status)} rounded-full border-2 border-white`}></div>
           </div>
@@ -499,7 +499,7 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Real-Time Collaboration Platform</h1>
-        <p className="text-gray-600">Seamless communication and coordination for care teams</p>
+        <p className="text-gray-600 dark:text-gray-400">Seamless communication and coordination for care teams</p>
       </div>
 
       {/* Navigation Tabs */}
@@ -518,7 +518,7 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
               className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
               }`}
             >
               <Icon className="h-5 w-5 mr-2" />
@@ -534,7 +534,7 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
           {/* Channels Sidebar */}
           <div className="col-span-3 bg-white rounded-lg border border-gray-200 p-4">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-gray-900">Channels</h2>
+              <h2 className="font-semibold text-gray-900 dark:text-gray-100">Channels</h2>
               <button className="p-1 text-gray-400 hover:text-blue-600">
                 <Plus className="h-4 w-4" />
               </button>
@@ -545,13 +545,13 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
           {/* Main Chat Area */}
           <div className="col-span-6 bg-white rounded-lg border border-gray-200 flex flex-col">
             {/* Chat Header */}
-            <div className="p-4 border-b border-gray-200">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                     {channels.find(c => c.id === selectedChannel)?.name}
                   </h3>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {channels.find(c => c.id === selectedChannel)?.participants.length} participants
                   </p>
                 </div>
@@ -578,7 +578,7 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
                 <MessageBubble key={message.id} message={message} />
               ))}
               {typingUsers.length > 0 && (
-                <div className="p-4 text-sm text-gray-500">
+                <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
                   {typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
                 </div>
               )}
@@ -586,7 +586,7 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
             </div>
 
             {/* Message Input */}
-            <div className="p-4 border-t border-gray-200">
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-2">
                 <button className="p-2 text-gray-400 hover:text-blue-600">
                   <Paperclip className="h-4 w-4" />
@@ -640,13 +640,13 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
               <div key={meeting.id} className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="font-semibold text-gray-900">{meeting.title}</h3>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">{meeting.title}</h3>
                     <p className="text-sm text-gray-600 mt-1">{meeting.description}</p>
                   </div>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     meeting.status === 'scheduled' ? 'bg-blue-100 text-blue-800' :
                     meeting.status === 'in_progress' ? 'bg-green-100 text-green-800' :
-                    meeting.status === 'completed' ? 'bg-gray-100 text-gray-800' :
+                    meeting.status === 'completed' ? 'bg-gray-100 text-gray-800 dark:text-gray-200' :
                     'bg-red-100 text-red-800'
                   }`}>
                     {meeting.status.replace('_', ' ').charAt(0).toUpperCase() + meeting.status.replace('_', ' ').slice(1)}
@@ -654,15 +654,15 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
                 </div>
 
                 <div className="space-y-3 text-sm">
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-gray-600 dark:text-gray-400">
                     <Calendar className="h-4 w-4 mr-2" />
                     {new Date(meeting.startTime).toLocaleDateString()}
                   </div>
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-gray-600 dark:text-gray-400">
                     <Clock className="h-4 w-4 mr-2" />
                     {new Date(meeting.startTime).toLocaleTimeString()} ({meeting.duration} min)
                   </div>
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-gray-600 dark:text-gray-400">
                     <Users className="h-4 w-4 mr-2" />
                     {meeting.participants.length} participants
                   </div>
@@ -679,7 +679,7 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
                         </li>
                       ))}
                       {meeting.agenda.length > 2 && (
-                        <li className="text-gray-500">+{meeting.agenda.length - 2} more items</li>
+                        <li className="text-gray-500 dark:text-gray-400">+{meeting.agenda.length - 2} more items</li>
                       )}
                     </ul>
                   </div>
@@ -734,25 +734,25 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
                   <div className="flex items-center">
                     <FileText className="h-8 w-8 text-blue-600 mr-3" />
                     <div>
-                      <h3 className="font-semibold text-gray-900">{doc.name}</h3>
-                      <p className="text-sm text-gray-500">v{doc.version}</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">{doc.name}</h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">v{doc.version}</p>
                     </div>
                   </div>
-                  <button className="p-1 text-gray-400 hover:text-gray-600">
+                  <button className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400">
                     <MoreVertical className="h-4 w-4" />
                   </button>
                 </div>
 
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-gray-600 dark:text-gray-400">
                     <UserCheck className="h-4 w-4 mr-2" />
                     Shared by {users.find(u => u.id === doc.sharedBy)?.name}
                   </div>
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-gray-600 dark:text-gray-400">
                     <Clock className="h-4 w-4 mr-2" />
                     {new Date(doc.lastModified).toLocaleDateString()}
                   </div>
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-gray-600 dark:text-gray-400">
                     <MessageCircle className="h-4 w-4 mr-2" />
                     {doc.comments} comments
                   </div>
@@ -801,7 +801,7 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
               <div className="bg-gray-50 rounded-lg h-64 flex items-center justify-center">
                 <div className="text-center">
                   <Edit3 className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-600">Interactive whiteboard for visual collaboration</p>
+                  <p className="text-gray-600 dark:text-gray-400">Interactive whiteboard for visual collaboration</p>
                   <button className="mt-3 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                     Start Whiteboard
                   </button>
@@ -814,7 +814,7 @@ export const RealTimeCollaborationPlatform: React.FC = () => {
               <div className="bg-gray-50 rounded-lg h-64 flex items-center justify-center">
                 <div className="text-center">
                   <Monitor className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-600">Share your screen with team members</p>
+                  <p className="text-gray-600 dark:text-gray-400">Share your screen with team members</p>
                   <button className="mt-3 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
                     Share Screen
                   </button>

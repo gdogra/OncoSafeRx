@@ -159,13 +159,13 @@ const ScientificDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
       {/* Scientific Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-mono text-gray-900">
+              <h1 className="text-2xl font-mono text-gray-900 dark:text-gray-100">
                 Evidence Explorer
               </h1>
               <p className="text-sm text-gray-600 mt-1">
@@ -201,7 +201,7 @@ const ScientificDashboard: React.FC = () => {
                 to={item.path}
                 className="p-3 bg-white border border-gray-200 rounded hover:border-gray-300 transition-colors"
               >
-                <div className="text-sm font-mono text-gray-900">{item.label}</div>
+                <div className="text-sm font-mono text-gray-900 dark:text-gray-100">{item.label}</div>
               </Link>
             ))}
           </div>
@@ -217,7 +217,7 @@ const ScientificDashboard: React.FC = () => {
                   <Link to={tool.link} className="block h-full">
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-4">
-                        <tool.icon className="w-6 h-6 text-gray-600" />
+                        <tool.icon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
                         <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded font-mono">
                           {tool.evidenceLevel}
                         </span>
@@ -226,7 +226,7 @@ const ScientificDashboard: React.FC = () => {
                       <h3 className="text-lg font-mono text-gray-900 mb-2">{tool.title}</h3>
                       <p className="text-sm text-gray-600 mb-4">{tool.description}</p>
                       
-                      <div className="space-y-2 text-xs text-gray-500">
+                      <div className="space-y-2 text-xs text-gray-500 dark:text-gray-400">
                         <div>
                           <span className="font-mono">Methodology:</span> {tool.methodology}
                         </div>
@@ -248,7 +248,7 @@ const ScientificDashboard: React.FC = () => {
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <div className="flex items-center mb-4">
               <HelpCircle className="w-5 h-5 text-gray-600 mr-2" />
-              <h3 className="text-lg font-mono text-gray-900">API Documentation</h3>
+              <h3 className="text-lg font-mono text-gray-900 dark:text-gray-100">API Documentation</h3>
             </div>
             <p className="text-sm text-gray-600 mb-4">
               Programmatic access to evidence databases and analysis tools for research integration.
@@ -258,8 +258,8 @@ const ScientificDashboard: React.FC = () => {
                 to="/help"
                 className="p-3 border border-gray-200 rounded hover:border-gray-300 transition-colors"
               >
-                <div className="text-sm font-mono text-gray-900">REST API Reference</div>
-                <div className="text-xs text-gray-500">Endpoints, authentication, rate limits</div>
+                <div className="text-sm font-mono text-gray-900 dark:text-gray-100">REST API Reference</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Endpoints, authentication, rate limits</div>
               </Link>
               <a
                 href="/api/openapi.yaml"
@@ -267,8 +267,8 @@ const ScientificDashboard: React.FC = () => {
                 rel="noopener noreferrer"
                 className="p-3 border border-gray-200 rounded hover:border-gray-300 transition-colors"
               >
-                <div className="text-sm font-mono text-gray-900">OpenAPI Specification</div>
-                <div className="text-xs text-gray-500">Machine-readable API schema</div>
+                <div className="text-sm font-mono text-gray-900 dark:text-gray-100">OpenAPI Specification</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Machine-readable API schema</div>
               </a>
             </div>
           </div>
@@ -276,7 +276,7 @@ const ScientificDashboard: React.FC = () => {
           {/* Citation Information */}
           <div className="bg-gray-100 border border-gray-200 rounded-lg p-6">
             <h3 className="text-lg font-mono text-gray-900 mb-4">Citation & Attribution</h3>
-            <div className="space-y-3 text-sm text-gray-700">
+            <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
               <div>
                 <strong>Recommended Citation:</strong> OncoSafeRx Evidence Explorer. Drug-Drug Interaction Database. 
                 Version {(import.meta as any)?.env?.VITE_APP_VERSION || '1.0.0'}. 

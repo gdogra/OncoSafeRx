@@ -119,7 +119,7 @@ const LoginWizard: React.FC = () => {
   }, [state?.isAuthenticated, storageKey, allowPublicRead]);
 
   const stepsForRole = (r: string): Step[] => {
-    const commonTail: Step = { id: 'profile', title: 'Profile & Alerts', description: 'Update your profile and notification preferences any time.', cta: { label: 'Open Profile', to: '/profile' }, icon: <User className="w-6 h-6 text-gray-700" /> };
+    const commonTail: Step = { id: 'profile', title: 'Profile & Alerts', description: 'Update your profile and notification preferences any time.', cta: { label: 'Open Profile', to: '/profile' }, icon: <User className="w-6 h-6 text-gray-700 dark:text-gray-300" /> };
     const welcome: Step = { id: 'welcome', title: 'Welcome to OncoSafeRx', description: 'A quick tour to help you get the most out of your tools.' };
     const search: Step = { id: 'search', title: 'Drug Search', description: 'Find drug details, indications, and safety insights.', cta: { label: 'Open Drug Search', to: '/search' }, icon: <Search className="w-6 h-6 text-primary-600" /> };
     const interactions: Step = { id: 'interactions', title: 'Interactions', description: 'Check interactions across multiple medications with severity and management guidance.', cta: { label: 'Open Interactions', to: '/interactions' }, icon: <ShieldAlert className="w-6 h-6 text-red-600" /> };
@@ -179,15 +179,15 @@ const LoginWizard: React.FC = () => {
   // Menu entries for tours
   const menu: Array<{ id: TourArea | 'comprehensive'; title: string; desc: string; icon: React.ReactNode }> = [
     { id: 'comprehensive', title: 'Full Product Tour', desc: 'Guided walkthrough of each major section with tips', icon: <Layers className="w-6 h-6 text-indigo-600" /> },
-    { id: 'overview', title: 'Overview', desc: 'High-level walkthrough of key features', icon: <Home className="w-6 h-6 text-gray-700" /> },
-    { id: 'role_sidebar', title: 'Full Sidebar Tour', desc: 'Walk through all features available to your role', icon: <Layers className="w-6 h-6 text-gray-600" /> },
+    { id: 'overview', title: 'Overview', desc: 'High-level walkthrough of key features', icon: <Home className="w-6 h-6 text-gray-700 dark:text-gray-300" /> },
+    { id: 'role_sidebar', title: 'Full Sidebar Tour', desc: 'Walk through all features available to your role', icon: <Layers className="w-6 h-6 text-gray-600 dark:text-gray-400" /> },
     { id: 'drug_info', title: 'Drug Information', desc: 'Search, labels, evidence synthesis', icon: <Database className="w-6 h-6 text-blue-600" /> },
     { id: 'interactions', title: 'Interactions', desc: 'Check and understand interaction risks', icon: <ShieldAlert className="w-6 h-6 text-red-600" /> },
     { id: 'patients', title: 'Patient Workflows', desc: 'Create patients and manage medications', icon: <Stethoscope className="w-6 h-6 text-emerald-600" /> },
     { id: 'genomics', title: 'Pharmacogenomics', desc: 'Genomic biomarkers and CPIC guidelines', icon: <Dna className="w-6 h-6 text-violet-600" /> },
     { id: 'clinical_trials', title: 'Clinical Trials', desc: 'Discover and screen relevant trials', icon: <TestTube className="w-6 h-6 text-amber-600" /> },
     { id: 'analytics', title: 'Analytics', desc: 'Usage, visitor, and evidence analytics', icon: <BarChart3 className="w-6 h-6 text-sky-600" /> },
-    { id: 'admin', title: 'Admin Console', desc: 'System settings, health, users, and audit', icon: <Layers className="w-6 h-6 text-gray-600" /> },
+    { id: 'admin', title: 'Admin Console', desc: 'System settings, health, users, and audit', icon: <Layers className="w-6 h-6 text-gray-600 dark:text-gray-400" /> },
   ];
 
   // Registry of path -> title/description for consistent messaging
@@ -370,7 +370,7 @@ const LoginWizard: React.FC = () => {
         return [
           { id: 'welcome', title: 'Welcome to OncoSafeRx', description: 'Pick any area to explore; you can always return to this menu.' },
           { id: 'nav', title: 'Navigation', description: 'Use the left sidebar to access key features.', target: 'nav a[href="/search"]' as any },
-          { id: 'profile', title: 'Profile & Alerts', description: 'Update your profile and notification preferences any time.', cta: { label: 'Open Profile', to: '/profile' }, icon: <User className="w-6 h-6 text-gray-700" /> },
+          { id: 'profile', title: 'Profile & Alerts', description: 'Update your profile and notification preferences any time.', cta: { label: 'Open Profile', to: '/profile' }, icon: <User className="w-6 h-6 text-gray-700 dark:text-gray-300" /> },
         ];
       case 'role_sidebar': {
         const steps = buildAllFromSidebar();
@@ -474,20 +474,20 @@ const LoginWizard: React.FC = () => {
     <div className="fixed inset-0 z-[1000]">
       <div className="absolute inset-0 bg-black/40" onClick={() => close(false)} />
       <div className="absolute inset-0 flex items-center justify-center p-4">
-        <div className="w-full max-w-3xl bg-white rounded-xl shadow-2xl border border-gray-200">
+        <div className="w-full max-w-3xl bg-white rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700">
           {/* Header */}
           <div className="p-4 border-b border-gray-200 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {mode === 'menu' ? <Home className="w-5 h-5 text-gray-700" /> : (step?.icon || null)}
-              <h3 className="text-lg font-semibold text-gray-900">{mode === 'menu' ? 'Welcome! Choose a tour' : step?.title}</h3>
+              {mode === 'menu' ? <Home className="w-5 h-5 text-gray-700 dark:text-gray-300" /> : (step?.icon || null)}
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{mode === 'menu' ? 'Welcome! Choose a tour' : step?.title}</h3>
             </div>
             <div className="flex items-center gap-2">
               {mode === 'tour' && (
-                <button onClick={() => { setMode('menu'); setStepIndex(0); }} className="inline-flex items-center px-2 py-1 text-xs rounded bg-gray-100 hover:bg-gray-200 text-gray-700" title="Back to tour menu">
+                <button onClick={() => { setMode('menu'); setStepIndex(0); }} className="inline-flex items-center px-2 py-1 text-xs rounded bg-gray-100 hover:bg-gray-200 text-gray-700 dark:text-gray-300" title="Back to tour menu">
                   <ChevronLeft className="w-4 h-4 mr-1" /> Menu
                 </button>
               )}
-              <button onClick={() => close(false)} className="p-1 text-gray-500 hover:text-gray-700" aria-label="Close wizard">
+              <button onClick={() => close(false)} className="p-1 text-gray-500 hover:text-gray-700 dark:text-gray-300" aria-label="Close wizard">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -524,24 +524,24 @@ const LoginWizard: React.FC = () => {
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-2">
                             {m.icon}
-                            <div className="font-medium text-gray-900">{m.title}</div>
+                            <div className="font-medium text-gray-900 dark:text-gray-100">{m.title}</div>
                           </div>
                           {totalCount > 0 && (
-                            <span className={`text-[11px] px-2 py-0.5 rounded-full border ${percent === 100 ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}
+                            <span className={`text-[11px] px-2 py-0.5 rounded-full border ${percent === 100 ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200 dark:border-gray-700'}`}
                               title={`Visited ${visitedCount} of ${totalCount}`}>
                               {visitedCount}/{totalCount}
                             </span>
                           )}
                         </div>
-                        <div className="text-xs text-gray-600">{m.desc}</div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">{m.desc}</div>
                       </button>
                     );
                   })}
                 </div>
                 <div className="flex items-center justify-between mt-4">
                   <div className="flex items-center gap-2">
-                    <input id="hide-permanently" type="checkbox" className="rounded border-gray-300" checked={hidePermanently} onChange={(e) => setHidePermanently(e.target.checked)} />
-                    <label htmlFor="hide-permanently" className="text-xs text-gray-600">Don’t show this tour again</label>
+                    <input id="hide-permanently" type="checkbox" className="rounded border-gray-300 dark:border-gray-600" checked={hidePermanently} onChange={(e) => setHidePermanently(e.target.checked)} />
+                    <label htmlFor="hide-permanently" className="text-xs text-gray-600 dark:text-gray-400">Don’t show this tour again</label>
                   </div>
                   <div className="flex items-center gap-2">
                     <button onClick={skip} className="text-sm px-3 py-1.5 bg-gray-100 text-gray-800 rounded hover:bg-gray-200">Close</button>
@@ -556,8 +556,8 @@ const LoginWizard: React.FC = () => {
                 <p className="text-gray-700 text-sm leading-6">{step.description}</p>
                 <div className="flex items-center justify-between mt-4">
                   <div className="flex items-center gap-2">
-                    <input id="hide-permanently" type="checkbox" className="rounded border-gray-300" checked={hidePermanently} onChange={(e) => setHidePermanently(e.target.checked)} />
-                    <label htmlFor="hide-permanently" className="text-xs text-gray-600">Don’t show this tour again</label>
+                    <input id="hide-permanently" type="checkbox" className="rounded border-gray-300 dark:border-gray-600" checked={hidePermanently} onChange={(e) => setHidePermanently(e.target.checked)} />
+                    <label htmlFor="hide-permanently" className="text-xs text-gray-600 dark:text-gray-400">Don’t show this tour again</label>
                   </div>
                   <div className="flex items-center gap-2">
                     <button onClick={() => { setMode('menu'); setStepIndex(0); }} className="text-sm px-3 py-1.5 bg-gray-100 text-gray-800 rounded hover:bg-gray-200">Menu</button>
@@ -575,7 +575,7 @@ const LoginWizard: React.FC = () => {
                     )}
                   </div>
                 </div>
-                <div className="mt-3 text-center text-xs text-gray-500">
+                <div className="mt-3 text-center text-xs text-gray-500 dark:text-gray-400">
                   Step {stepIndex + 1} of {steps.length}
                 </div>
                 {/* Contextual overlay if a target selector is provided */}

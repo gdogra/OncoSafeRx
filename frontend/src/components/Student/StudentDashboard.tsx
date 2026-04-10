@@ -163,7 +163,7 @@ export function StudentDashboard() {
       case 'uncommon':
         return 'bg-gradient-to-r from-green-500 to-emerald-500 text-white';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 

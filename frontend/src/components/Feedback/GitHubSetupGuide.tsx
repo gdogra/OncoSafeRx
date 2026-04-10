@@ -36,10 +36,10 @@ const GitHubSetupGuide: React.FC<GitHubSetupGuideProps> = ({ isOpen, onClose }) 
       title: 'Create or Choose Repository',
       content: (
         <div className="space-y-4">
-          <p className="text-gray-700">
+          <p className="text-gray-700 dark:text-gray-300">
             First, you'll need a GitHub repository where the issues will be created. This can be:
           </p>
-          <ul className="list-disc list-inside space-y-2 text-gray-700">
+          <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
             <li>Your main OncoSafeRx repository (if you have one)</li>
             <li>A dedicated feedback/issues repository</li>
             <li>Any repository where you want to track feedback</li>
@@ -59,7 +59,7 @@ const GitHubSetupGuide: React.FC<GitHubSetupGuideProps> = ({ isOpen, onClose }) 
       title: 'Create Personal Access Token',
       content: (
         <div className="space-y-4">
-          <p className="text-gray-700">
+          <p className="text-gray-700 dark:text-gray-300">
             Create a Personal Access Token (PAT) to authenticate with GitHub's API.
           </p>
           
@@ -110,7 +110,7 @@ const GitHubSetupGuide: React.FC<GitHubSetupGuideProps> = ({ isOpen, onClose }) 
       title: 'Set Up Repository Labels',
       content: (
         <div className="space-y-4">
-          <p className="text-gray-700">
+          <p className="text-gray-700 dark:text-gray-300">
             OncoSafeRx automatically creates labels for better issue organization. You can create these labels in advance:
           </p>
           
@@ -134,7 +134,7 @@ const GitHubSetupGuide: React.FC<GitHubSetupGuideProps> = ({ isOpen, onClose }) 
                     </div>
                     <button
                       onClick={() => copyToClipboard(label.name, label.name)}
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-gray-400 hover:text-gray-600 dark:text-gray-400"
                     >
                       {copiedText === label.name ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                     </button>
@@ -162,7 +162,7 @@ const GitHubSetupGuide: React.FC<GitHubSetupGuideProps> = ({ isOpen, onClose }) 
                     </div>
                     <button
                       onClick={() => copyToClipboard(label.name, label.name)}
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-gray-400 hover:text-gray-600 dark:text-gray-400"
                     >
                       {copiedText === label.name ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                     </button>
@@ -186,7 +186,7 @@ const GitHubSetupGuide: React.FC<GitHubSetupGuideProps> = ({ isOpen, onClose }) 
       title: 'Configure OncoSafeRx',
       content: (
         <div className="space-y-4">
-          <p className="text-gray-700">
+          <p className="text-gray-700 dark:text-gray-300">
             Now configure the GitHub integration in OncoSafeRx:
           </p>
           
@@ -232,7 +232,7 @@ const GitHubSetupGuide: React.FC<GitHubSetupGuideProps> = ({ isOpen, onClose }) 
       title: 'Test the Integration',
       content: (
         <div className="space-y-4">
-          <p className="text-gray-700">
+          <p className="text-gray-700 dark:text-gray-300">
             Once configured, test the integration to ensure everything works correctly:
           </p>
           
@@ -294,7 +294,7 @@ const GitHubSetupGuide: React.FC<GitHubSetupGuideProps> = ({ isOpen, onClose }) 
                     ? 'bg-primary-600 text-white'
                     : index < activeStep
                     ? 'bg-green-500 text-white'
-                    : 'bg-gray-200 text-gray-600'
+                    : 'bg-gray-200 text-gray-600 dark:text-gray-400'
                 }`}
               >
                 {index < activeStep ? <Check className="w-4 h-4" /> : index + 1}
@@ -317,8 +317,8 @@ const GitHubSetupGuide: React.FC<GitHubSetupGuideProps> = ({ isOpen, onClose }) 
               {activeStep === 4 && <Check className="w-5 h-5 text-primary-600" />}
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">{steps[activeStep].title}</h3>
-              <p className="text-sm text-gray-600">Step {activeStep + 1} of {steps.length}</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{steps[activeStep].title}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Step {activeStep + 1} of {steps.length}</p>
             </div>
           </div>
 
@@ -328,7 +328,7 @@ const GitHubSetupGuide: React.FC<GitHubSetupGuideProps> = ({ isOpen, onClose }) 
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+        <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={() => setActiveStep(Math.max(0, activeStep - 1))}
             disabled={activeStep === 0}
@@ -337,7 +337,7 @@ const GitHubSetupGuide: React.FC<GitHubSetupGuideProps> = ({ isOpen, onClose }) 
             Previous
           </button>
 
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-gray-500 dark:text-gray-400">
             {activeStep + 1} of {steps.length}
           </span>
 

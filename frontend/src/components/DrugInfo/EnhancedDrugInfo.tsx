@@ -127,19 +127,19 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="font-medium">Absorption:</span>
-                <p className="text-gray-600">Rapidly absorbed, bioavailability 85-95%</p>
+                <p className="text-gray-600 dark:text-gray-400">Rapidly absorbed, bioavailability 85-95%</p>
               </div>
               <div>
                 <span className="font-medium">Distribution:</span>
-                <p className="text-gray-600">Volume of distribution: 0.6-1.2 L/kg</p>
+                <p className="text-gray-600 dark:text-gray-400">Volume of distribution: 0.6-1.2 L/kg</p>
               </div>
               <div>
                 <span className="font-medium">Metabolism:</span>
-                <p className="text-gray-600">Hepatic via CYP3A4, CYP2D6</p>
+                <p className="text-gray-600 dark:text-gray-400">Hepatic via CYP3A4, CYP2D6</p>
               </div>
               <div>
                 <span className="font-medium">Elimination:</span>
-                <p className="text-gray-600">Half-life: 8-12 hours, renal excretion 60%</p>
+                <p className="text-gray-600 dark:text-gray-400">Half-life: 8-12 hours, renal excretion 60%</p>
               </div>
             </div>
           </div>
@@ -306,7 +306,7 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
     const statusConfig = {
       recruiting: { bg: 'bg-green-100', text: 'text-green-800', label: 'Recruiting' },
       active: { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Active' },
-      completed: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Completed' },
+      completed: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-800 dark:text-gray-200', label: 'Completed' },
       suspended: { bg: 'bg-red-100', text: 'text-red-800', label: 'Suspended' }
     };
     
@@ -330,21 +330,21 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
   return (
     <div className={`bg-white border border-gray-200 rounded-lg shadow-sm ${className}`}>
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center space-x-3 mb-2">
               <Pill className="w-6 h-6 text-blue-600" />
-              <h2 className="text-2xl font-bold text-gray-900">{drug.name}</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{drug.name}</h2>
               {drug.fdaApproved && (
                 <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
                   FDA Approved
                 </span>
               )}
             </div>
-            <p className="text-lg text-gray-600">{drug.genericName}</p>
+            <p className="text-lg text-gray-600 dark:text-gray-400">{drug.genericName}</p>
             {(drug as any).originBrand && (
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Imported brand: {(drug as any).originBrand}{(drug as any).originRegion ? ` (${(drug as any).originRegion})` : ''}
               </p>
             )}
@@ -356,7 +356,7 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
               </p>
             )}
             {drug.brandNames && drug.brandNames.length > 0 && (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Brand names: {drug.brandNames.join(', ')}
               </p>
             )}
@@ -373,7 +373,7 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="flex space-x-8 px-6">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -384,7 +384,7 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                 className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                   activeTab === tab.id
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -442,12 +442,12 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                   >
                     <div className="flex items-center space-x-3">
                       {getSeverityIcon(detail.severity || 'info')}
-                      <h3 className="font-medium text-gray-900">{detail.title}</h3>
+                      <h3 className="font-medium text-gray-900 dark:text-gray-100">{detail.title}</h3>
                     </div>
                     {expandedSections.has(detail.id) ? (
-                      <ChevronUp className="w-4 h-4 text-gray-500" />
+                      <ChevronUp className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     ) : (
-                      <ChevronDown className="w-4 h-4 text-gray-500" />
+                      <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                     )}
                   </button>
                   
@@ -455,12 +455,12 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                     <div className="px-4 pb-4">
                       <div className="border-t pt-4">
                         {typeof detail.content === 'string' ? (
-                          <p className="text-gray-700">{detail.content}</p>
+                          <p className="text-gray-700 dark:text-gray-300">{detail.content}</p>
                         ) : (
                           detail.content
                         )}
                         
-                        <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+                        <div className="mt-4 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                           <div>
                             Sources: {detail.sources.join(', ')}
                           </div>
@@ -481,8 +481,8 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
         {activeTab === 'clinical' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">Clinical Data & Evidence</h3>
-              <div className="text-sm text-gray-500">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Clinical Data & Evidence</h3>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 Comprehensive clinical information and evidence-based insights
               </div>
             </div>
@@ -502,7 +502,7 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                       <div className="mb-4">
                         <p className="text-sm font-medium text-blue-800 mb-2">Mechanism of Action:</p>
                         <div className="bg-white p-3 rounded border">
-                          <p className="text-sm text-gray-700">{drug.clinicalInsights.mechanismOfAction}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{drug.clinicalInsights.mechanismOfAction}</p>
                         </div>
                       </div>
                     )}
@@ -514,25 +514,25 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                           {drug.clinicalInsights.clinicalEfficacy.responseRate && (
                             <div className="bg-white p-3 rounded border">
                               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Response Rate</p>
-                              <p className="text-lg font-semibold text-gray-900">{drug.clinicalInsights.clinicalEfficacy.responseRate}</p>
+                              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{drug.clinicalInsights.clinicalEfficacy.responseRate}</p>
                             </div>
                           )}
                           {drug.clinicalInsights.clinicalEfficacy.medianPFS && (
                             <div className="bg-white p-3 rounded border">
                               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Median PFS</p>
-                              <p className="text-lg font-semibold text-gray-900">{drug.clinicalInsights.clinicalEfficacy.medianPFS}</p>
+                              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{drug.clinicalInsights.clinicalEfficacy.medianPFS}</p>
                             </div>
                           )}
                           {drug.clinicalInsights.clinicalEfficacy.medianOS && (
                             <div className="bg-white p-3 rounded border">
                               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Median OS</p>
-                              <p className="text-lg font-semibold text-gray-900">{drug.clinicalInsights.clinicalEfficacy.medianOS}</p>
+                              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{drug.clinicalInsights.clinicalEfficacy.medianOS}</p>
                             </div>
                           )}
                           {drug.clinicalInsights.clinicalEfficacy.evidenceLevel && (
                             <div className="bg-white p-3 rounded border">
                               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Evidence Level</p>
-                              <p className="text-lg font-semibold text-gray-900">{drug.clinicalInsights.clinicalEfficacy.evidenceLevel}</p>
+                              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{drug.clinicalInsights.clinicalEfficacy.evidenceLevel}</p>
                             </div>
                           )}
                         </div>
@@ -545,8 +545,8 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                         <div className="space-y-2">
                           {drug.clinicalInsights.patientSubgroups.map((subgroup: any, index: number) => (
                             <div key={index} className="bg-white p-3 rounded border">
-                              <p className="text-sm font-medium text-gray-900">{subgroup.criteria}</p>
-                              <p className="text-xs text-gray-600">{subgroup.efficacy}</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{subgroup.criteria}</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">{subgroup.efficacy}</p>
                               <p className="text-xs text-blue-600 font-medium">{subgroup.recommendation}</p>
                             </div>
                           ))}
@@ -560,15 +560,15 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div className="bg-white p-3 rounded border">
                             <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Satisfaction Score</p>
-                            <p className="text-lg font-semibold text-gray-900">{drug.clinicalData.realWorldInsights.patientReported.satisfactionScore}</p>
+                            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{drug.clinicalData.realWorldInsights.patientReported.satisfactionScore}</p>
                           </div>
                           <div className="bg-white p-3 rounded border">
                             <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Adherence Rate</p>
-                            <p className="text-lg font-semibold text-gray-900">{drug.clinicalData.realWorldInsights.patientReported.adherenceRate}</p>
+                            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{drug.clinicalData.realWorldInsights.patientReported.adherenceRate}</p>
                           </div>
                           <div className="bg-white p-3 rounded border">
                             <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">QoL Score</p>
-                            <p className="text-lg font-semibold text-gray-900">{drug.clinicalData.realWorldInsights.patientReported.qualityOfLifeScore}</p>
+                            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{drug.clinicalData.realWorldInsights.patientReported.qualityOfLifeScore}</p>
                           </div>
                         </div>
                         {drug.clinicalData.realWorldInsights.patientReported.commonConcerns && (
@@ -601,8 +601,8 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                           <p className="font-medium">Recommended Dose: {drug.clinicalData.clinicalDecisionSupport.doseGuidance.recommendedDose}</p>
                           {drug.clinicalData.clinicalDecisionSupport.doseGuidance.specialPopulations && (
                             <div className="mt-2">
-                              <p className="text-sm font-medium text-gray-600">Special Populations:</p>
-                              <ul className="list-disc list-inside text-sm text-gray-600">
+                              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Special Populations:</p>
+                              <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400">
                                 {drug.clinicalData.clinicalDecisionSupport.doseGuidance.specialPopulations.map((pop: string, index: number) => (
                                   <li key={index}>{pop}</li>
                                 ))}
@@ -619,8 +619,8 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                         <div className="space-y-2">
                           {drug.clinicalData.clinicalDecisionSupport.monitoringPlan.baseline && (
                             <div className="bg-white p-3 rounded border">
-                              <p className="font-medium text-gray-900">Baseline Monitoring:</p>
-                              <ul className="list-disc list-inside text-sm text-gray-600">
+                              <p className="font-medium text-gray-900 dark:text-gray-100">Baseline Monitoring:</p>
+                              <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400">
                                 {drug.clinicalData.clinicalDecisionSupport.monitoringPlan.baseline.map((item: string, index: number) => (
                                   <li key={index}>{item}</li>
                                 ))}
@@ -629,8 +629,8 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                           )}
                           {drug.clinicalData.clinicalDecisionSupport.monitoringPlan.ongoing && (
                             <div className="bg-white p-3 rounded border">
-                              <p className="font-medium text-gray-900">Ongoing Monitoring:</p>
-                              <ul className="list-disc list-inside text-sm text-gray-600">
+                              <p className="font-medium text-gray-900 dark:text-gray-100">Ongoing Monitoring:</p>
+                              <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400">
                                 {drug.clinicalData.clinicalDecisionSupport.monitoringPlan.ongoing.map((item: string, index: number) => (
                                   <li key={index}>{item}</li>
                                 ))}
@@ -645,7 +645,7 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                       <div>
                         <p className="text-sm font-medium text-green-800 mb-2">Contraindications:</p>
                         <div className="bg-white p-3 rounded border">
-                          <ul className="list-disc list-inside text-sm text-gray-600">
+                          <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400">
                             {drug.clinicalData.clinicalDecisionSupport.contraindications.map((item: string, index: number) => (
                               <li key={index}>{item}</li>
                             ))}
@@ -671,19 +671,19 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Annual Cost</p>
-                              <p className="text-lg font-semibold text-gray-900">
+                              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                               ${((drug as any)?.clinicalData?.realWorldEvidence?.costEffectiveness?.annualCost)?.toLocaleString?.() || ((drug as any)?.clinicalData?.realWorldEvidence?.costEffectiveness?.annualCost ?? 'N/A')}
                               </p>
                             </div>
                             <div>
                               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Cost per QALY</p>
-                              <p className="text-lg font-semibold text-gray-900">
+                              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                               ${((drug as any)?.clinicalData?.realWorldEvidence?.costEffectiveness?.costPerQALY)?.toLocaleString?.() || ((drug as any)?.clinicalData?.realWorldEvidence?.costEffectiveness?.costPerQALY ?? 'N/A')}
                               </p>
                             </div>
                             <div>
                               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Tier Status</p>
-                              <p className="text-lg font-semibold text-gray-900">
+                              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                                 {((drug as any)?.clinicalData?.realWorldEvidence?.costEffectiveness?.tierStatus) || 'N/A'}
                               </p>
                             </div>
@@ -701,7 +701,7 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                               <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                                 {key.replace(/([A-Z])/g, ' $1').trim()}
                               </p>
-                              <p className="text-sm text-gray-700">{value}</p>
+                              <p className="text-sm text-gray-700 dark:text-gray-300">{value}</p>
                             </div>
                           ))}
                         </div>
@@ -714,10 +714,10 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
 
             {/* Fallback message if no clinical data available */}
             {!(drug.clinicalInsights || drug.realWorldEvidence || drug.riskProfile || drug.monitoringRequirements || drug.clinicalDecisionSupport || drug.costEffectiveness) && (
-              <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+              <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
                 <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No Clinical Data Available</h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-400">
                   Enhanced clinical data is not available for this medication. Please refer to the Overview tab for basic information.
                 </p>
               </div>
@@ -732,16 +732,16 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                 <div className="p-4">
                   <div className="flex items-center space-x-3 mb-4">
                     {getSeverityIcon(detail.severity || 'info')}
-                    <h3 className="font-medium text-gray-900">{detail.title}</h3>
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">{detail.title}</h3>
                   </div>
                   
                   {typeof detail.content === 'string' ? (
-                    <p className="text-gray-700">{detail.content}</p>
+                    <p className="text-gray-700 dark:text-gray-300">{detail.content}</p>
                   ) : (
                     detail.content
                   )}
                   
-                  <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+                  <div className="mt-4 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                     <div>Sources: {detail.sources.join(', ')}</div>
                     <div className="flex items-center space-x-1">
                       <Clock className="w-3 h-3" />
@@ -757,8 +757,8 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
         {activeTab === 'trials' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">Active Clinical Trials</h3>
-              <span className="text-sm text-gray-500">{clinicalTrials.length} trials found</span>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Active Clinical Trials</h3>
+              <span className="text-sm text-gray-500 dark:text-gray-400">{clinicalTrials.length} trials found</span>
             </div>
             
             <div className="space-y-4">
@@ -767,26 +767,26 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h4 className="font-medium text-gray-900 mb-1">{trial.title}</h4>
-                      <p className="text-sm text-gray-600">{trial.condition}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{trial.condition}</p>
                     </div>
                     {getTrialStatusBadge(trial.status)}
                   </div>
                   
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
-                      <span className="font-medium text-gray-700">Phase:</span>
-                      <p className="text-gray-600">{trial.phase}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Phase:</span>
+                      <p className="text-gray-600 dark:text-gray-400">{trial.phase}</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Sponsor:</span>
-                      <p className="text-gray-600">{trial.sponsor}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Sponsor:</span>
+                      <p className="text-gray-600 dark:text-gray-400">{trial.sponsor}</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Enrollment:</span>
-                      <p className="text-gray-600">{trial.enrollmentTarget} patients</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Enrollment:</span>
+                      <p className="text-gray-600 dark:text-gray-400">{trial.enrollmentTarget} patients</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">NCT ID:</span>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">NCT ID:</span>
                       <a 
                         href={`https://clinicaltrials.gov/ct2/show/${trial.nctId}`}
                         target="_blank"
@@ -800,7 +800,7 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                   </div>
                   
                   <div className="mt-3 pt-3 border-t border-gray-100">
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       <span className="font-medium">Locations:</span> {trial.location}
                     </p>
                   </div>
@@ -813,8 +813,8 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
         {activeTab === 'guidelines' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium text-gray-900">Clinical Guidelines & Recommendations</h3>
-              <span className="text-sm text-gray-500">{guidelines.length} guidelines</span>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Clinical Guidelines & Recommendations</h3>
+              <span className="text-sm text-gray-500 dark:text-gray-400">{guidelines.length} guidelines</span>
             </div>
             
             <div className="space-y-4">
@@ -823,12 +823,12 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <div className="flex items-center space-x-2 mb-1">
-                        <h4 className="font-medium text-gray-900">{guideline.title}</h4>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100">{guideline.title}</h4>
                         <span className={`px-2 py-1 text-xs font-medium rounded ${
                           guideline.evidenceLevel === 'A' ? 'bg-green-100 text-green-800' :
                           guideline.evidenceLevel === 'B' ? 'bg-blue-100 text-blue-800' :
                           guideline.evidenceLevel === 'C' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
+                          'bg-gray-100 text-gray-800 dark:text-gray-200'
                         }`}>
                           Level {guideline.evidenceLevel}
                         </span>
@@ -839,7 +839,7 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
                   
                   <p className="text-gray-700 mb-3">{guideline.recommendation}</p>
                   
-                  <div className="flex items-center justify-between text-sm text-gray-500">
+                  <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
                     <span>Last reviewed: {guideline.lastReviewed}</span>
                     {guideline.url && (
                       <a 

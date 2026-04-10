@@ -131,7 +131,7 @@ const CareManagement: React.FC = () => {
       case 'stable': return 'bg-green-100 text-green-600';
       case 'improving': return 'bg-blue-100 text-blue-600';
       case 'concerning': return 'bg-red-100 text-red-600';
-      default: return 'bg-gray-100 text-gray-600';
+      default: return 'bg-gray-100 text-gray-600 dark:text-gray-400';
     }
   };
 
@@ -140,7 +140,7 @@ const CareManagement: React.FC = () => {
       case 'high': return 'bg-red-100 text-red-600';
       case 'medium': return 'bg-yellow-100 text-yellow-600';
       case 'low': return 'bg-green-100 text-green-600';
-      default: return 'bg-gray-100 text-gray-600';
+      default: return 'bg-gray-100 text-gray-600 dark:text-gray-400';
     }
   };
 
@@ -169,7 +169,7 @@ const CareManagement: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Care Management</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Care Management</h1>
           <p className="text-gray-600 mt-1">Coordinate and manage care for {patient.name}</p>
         </div>
         <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
@@ -187,7 +187,7 @@ const CareManagement: React.FC = () => {
           
           <div className="flex-1">
             <div className="flex items-center space-x-3 mb-2">
-              <h2 className="text-xl font-semibold text-gray-900">{patient.name}</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{patient.name}</h2>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(patient.status)}`}>
                 {patient.status}
               </span>
@@ -195,17 +195,17 @@ const CareManagement: React.FC = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
-                <p className="text-gray-600"><strong>Relationship:</strong> {patient.relationship}</p>
-                <p className="text-gray-600"><strong>Diagnosis:</strong> {patient.diagnosis}</p>
-                <p className="text-gray-600"><strong>Stage:</strong> {patient.stage}</p>
+                <p className="text-gray-600 dark:text-gray-400"><strong>Relationship:</strong> {patient.relationship}</p>
+                <p className="text-gray-600 dark:text-gray-400"><strong>Diagnosis:</strong> {patient.diagnosis}</p>
+                <p className="text-gray-600 dark:text-gray-400"><strong>Stage:</strong> {patient.stage}</p>
               </div>
               <div>
-                <p className="text-gray-600"><strong>Treatment:</strong> {patient.treatmentPlan}</p>
-                <p className="text-gray-600"><strong>Active Medications:</strong> {patient.medications}</p>
-                <p className="text-gray-600"><strong>Last Update:</strong> {new Date(patient.lastUpdate).toLocaleDateString()}</p>
+                <p className="text-gray-600 dark:text-gray-400"><strong>Treatment:</strong> {patient.treatmentPlan}</p>
+                <p className="text-gray-600 dark:text-gray-400"><strong>Active Medications:</strong> {patient.medications}</p>
+                <p className="text-gray-600 dark:text-gray-400"><strong>Last Update:</strong> {new Date(patient.lastUpdate).toLocaleDateString()}</p>
               </div>
               <div>
-                <p className="text-gray-600"><strong>Next Appointment:</strong></p>
+                <p className="text-gray-600 dark:text-gray-400"><strong>Next Appointment:</strong></p>
                 <p className="text-lg font-semibold text-blue-600">{new Date(patient.nextAppointment).toLocaleDateString()}</p>
               </div>
             </div>
@@ -221,7 +221,7 @@ const CareManagement: React.FC = () => {
               <Phone className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <h3 className="font-medium text-gray-900">Call Provider</h3>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100">Call Provider</h3>
               <p className="text-gray-600 text-sm">Quick contact</p>
             </div>
           </div>
@@ -233,7 +233,7 @@ const CareManagement: React.FC = () => {
               <Calendar className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <h3 className="font-medium text-gray-900">Schedule</h3>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100">Schedule</h3>
               <p className="text-gray-600 text-sm">Book appointment</p>
             </div>
           </div>
@@ -245,7 +245,7 @@ const CareManagement: React.FC = () => {
               <Pill className="w-5 h-5 text-purple-600" />
             </div>
             <div>
-              <h3 className="font-medium text-gray-900">Medications</h3>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100">Medications</h3>
               <p className="text-gray-600 text-sm">Manage meds</p>
             </div>
           </div>
@@ -257,7 +257,7 @@ const CareManagement: React.FC = () => {
               <Bell className="w-5 h-5 text-orange-600" />
             </div>
             <div>
-              <h3 className="font-medium text-gray-900">Reminders</h3>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100">Reminders</h3>
               <p className="text-gray-600 text-sm">Set alerts</p>
             </div>
           </div>
@@ -270,8 +270,8 @@ const CareManagement: React.FC = () => {
       </Alert>
 
       {/* Tabs */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="border-b border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="border-b border-gray-200 dark:border-gray-700">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -282,7 +282,7 @@ const CareManagement: React.FC = () => {
                   className={`group inline-flex items-center space-x-2 py-4 px-6 border-b-2 font-medium text-sm ${
                     selectedTab === tab.id
                       ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -305,8 +305,8 @@ const CareManagement: React.FC = () => {
                     {upcomingAppointments.slice(0, 3).map((appointment) => (
                       <div key={appointment.id} className="border-l-4 border-blue-500 pl-4">
                         <div className="flex items-center justify-between">
-                          <h4 className="font-medium text-gray-900">{appointment.type}</h4>
-                          <span className="text-sm text-gray-500">{new Date(appointment.date).toLocaleDateString()}</span>
+                          <h4 className="font-medium text-gray-900 dark:text-gray-100">{appointment.type}</h4>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">{new Date(appointment.date).toLocaleDateString()}</span>
                         </div>
                         <p className="text-gray-600 text-sm">{appointment.provider}</p>
                         <p className="text-gray-500 text-sm">{appointment.time}</p>
@@ -324,11 +324,11 @@ const CareManagement: React.FC = () => {
                       return (
                         <div key={task.id} className="flex items-start space-x-3">
                           <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mt-0.5">
-                            <Icon className="w-4 h-4 text-gray-600" />
+                            <Icon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center space-x-2">
-                              <h4 className="font-medium text-gray-900">{task.title}</h4>
+                              <h4 className="font-medium text-gray-900 dark:text-gray-100">{task.title}</h4>
                               <span className={`px-2 py-1 rounded text-xs ${getPriorityColor(task.priority)}`}>
                                 {task.priority}
                               </span>
@@ -369,7 +369,7 @@ const CareManagement: React.FC = () => {
           {selectedTab === 'appointments' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Upcoming Appointments</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Upcoming Appointments</h3>
                 <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                   Schedule New
                 </button>
@@ -384,9 +384,9 @@ const CareManagement: React.FC = () => {
                           <Stethoscope className="w-6 h-6 text-blue-600" />
                         </div>
                         <div>
-                          <h4 className="text-lg font-semibold text-gray-900">{appointment.type}</h4>
-                          <p className="text-gray-600">{appointment.provider}</p>
-                          <div className="mt-2 space-y-1 text-sm text-gray-500">
+                          <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{appointment.type}</h4>
+                          <p className="text-gray-600 dark:text-gray-400">{appointment.provider}</p>
+                          <div className="mt-2 space-y-1 text-sm text-gray-500 dark:text-gray-400">
                             <div className="flex items-center space-x-2">
                               <Calendar className="w-4 h-4" />
                               <span>{new Date(appointment.date).toLocaleDateString()} at {appointment.time}</span>
@@ -404,7 +404,7 @@ const CareManagement: React.FC = () => {
                         </div>
                       </div>
                       <div className="flex space-x-2">
-                        <button className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50">
+                        <button className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-800">
                           Reschedule
                         </button>
                         <button className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
@@ -436,7 +436,7 @@ const CareManagement: React.FC = () => {
           {selectedTab === 'tasks' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Care Tasks</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Care Tasks</h3>
                 <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                   Add Task
                 </button>
@@ -452,11 +452,11 @@ const CareManagement: React.FC = () => {
                       <Card key={task.id}>
                         <div className="flex items-start space-x-4">
                           <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <Icon className="w-5 h-5 text-gray-600" />
+                            <Icon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                           </div>
                           <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-1">
-                              <h5 className="font-medium text-gray-900">{task.title}</h5>
+                              <h5 className="font-medium text-gray-900 dark:text-gray-100">{task.title}</h5>
                               <span className={`px-2 py-1 rounded text-xs ${getPriorityColor(task.priority)}`}>
                                 {task.priority} priority
                               </span>
@@ -482,14 +482,14 @@ const CareManagement: React.FC = () => {
                     {completedTasks.map((task) => {
                       const Icon = getCategoryIcon(task.category);
                       return (
-                        <Card key={task.id} className="bg-gray-50">
+                        <Card key={task.id} className="bg-gray-50 dark:bg-gray-800">
                           <div className="flex items-start space-x-4">
                             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                               <CheckCircle className="w-5 h-5 text-green-600" />
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center space-x-2 mb-1">
-                                <h5 className="font-medium text-gray-700">{task.title}</h5>
+                                <h5 className="font-medium text-gray-700 dark:text-gray-300">{task.title}</h5>
                                 <span className="px-2 py-1 bg-green-100 text-green-600 rounded text-xs">
                                   Completed
                                 </span>

@@ -219,7 +219,7 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
       case 'major': return 'text-red-600 bg-red-50 border-red-200';
       case 'moderate': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
       case 'minor': return 'text-green-600 bg-green-50 border-green-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      default: return 'text-gray-600 bg-gray-50 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -237,8 +237,8 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
       case 'established': return 'text-blue-600 bg-blue-50';
       case 'probable': return 'text-indigo-600 bg-indigo-50';
       case 'possible': return 'text-purple-600 bg-purple-50';
-      case 'theoretical': return 'text-gray-600 bg-gray-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case 'theoretical': return 'text-gray-600 bg-gray-50 dark:bg-gray-800';
+      default: return 'text-gray-600 bg-gray-50 dark:bg-gray-800';
     }
   };
 
@@ -247,7 +247,7 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
       case 'high': return 'text-red-600 bg-red-50 border-red-200';
       case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
       case 'low': return 'text-green-600 bg-green-50 border-green-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      default: return 'text-gray-600 bg-gray-50 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -258,8 +258,8 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <AlertTriangle className="w-6 h-6 text-primary-600" />
-            <h2 className="text-xl font-semibold text-gray-900">Advanced Interaction Analysis</h2>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Advanced Interaction Analysis</h2>
+            <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
               <Brain className="w-4 h-4" />
               <span>AI-Enhanced</span>
             </div>
@@ -267,7 +267,7 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
           {loading && (
             <div className="flex items-center space-x-2">
               <div className="w-4 h-4 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-sm text-gray-500">Analyzing interactions...</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Analyzing interactions...</span>
             </div>
           )}
         </div>
@@ -277,19 +277,19 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
           <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-red-600">{severityStats.major}</div>
-              <div className="text-sm text-gray-500">Major</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Major</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-yellow-600">{severityStats.moderate}</div>
-              <div className="text-sm text-gray-500">Moderate</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Moderate</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">{severityStats.minor}</div>
-              <div className="text-sm text-gray-500">Minor</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Minor</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-primary-600">{recommendations.length}</div>
-              <div className="text-sm text-gray-500">Recommendations</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Recommendations</div>
             </div>
           </div>
         )}
@@ -302,8 +302,8 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
           {selectedDrugs.map(drug => (
             <div key={drug.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
               <div>
-                <div className="font-medium text-gray-900">{drug.name}</div>
-                <div className="text-sm text-gray-500">{drug.genericName}</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">{drug.name}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">{drug.genericName}</div>
               </div>
               <button
                 onClick={() => onDrugRemove(drug.id)}
@@ -321,7 +321,7 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
         <Card>
           <div className="flex items-center space-x-2 mb-4">
             <Brain className="w-5 h-5 text-primary-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Clinical Recommendations</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Clinical Recommendations</h3>
           </div>
           <div className="space-y-3">
             {recommendations.map((rec, index) => (
@@ -355,7 +355,7 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
       {interactions.length > 0 && (
         <Card>
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Drug Interactions ({filteredInteractions.length})</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Drug Interactions ({filteredInteractions.length})</h3>
             <div className="flex space-x-3">
               <select
                 value={selectedSeverity}
@@ -400,7 +400,7 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
                     )}
                   </div>
                   {interaction.prevalence && (
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
                       Prevalence: {interaction.prevalence}%
                     </div>
                   )}
@@ -459,7 +459,7 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
 
                 {interaction.references && (
                   <div className="mt-4 pt-4 border-t border-gray-100">
-                    <div className="flex items-center space-x-2 text-sm text-gray-500">
+                    <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                       <FileText className="w-4 h-4" />
                       <span>References:</span>
                       {interaction.references.map(ref => (
@@ -484,7 +484,7 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
         <Card>
           <div className="flex items-center mb-4">
             <Users className="w-5 h-5 text-primary-600 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900">Patient-Specific Considerations</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Patient-Specific Considerations</h3>
           </div>
           <div className="grid md:grid-cols-1 gap-6">
             <div>
@@ -540,7 +540,7 @@ const AdvancedInteractionChecker: React.FC<AdvancedInteractionCheckerProps> = ({
           <div className="text-center py-12">
             <Shield className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">Select Multiple Medications</h3>
-            <p className="text-gray-500">
+            <p className="text-gray-500 dark:text-gray-400">
               Add at least 2 medications to check for potential drug interactions
             </p>
           </div>

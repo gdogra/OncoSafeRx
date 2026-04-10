@@ -235,7 +235,7 @@ const FilterAutocomplete: React.FC<FilterAutocompleteProps> = ({
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
       >
-        <span className={`text-sm ${selectedValues.length === 0 ? 'text-gray-500' : 'text-gray-900'}`}>
+        <span className={`text-sm ${selectedValues.length === 0 ? 'text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
           {selectedValues.length === 0 
             ? placeholder 
             : `${selectedValues.length} selected`
@@ -272,13 +272,13 @@ const FilterAutocomplete: React.FC<FilterAutocompleteProps> = ({
                   key={option.value}
                   onMouseDown={(e) => { e.preventDefault(); /* avoid input blur swallowing click */ }}
                   onClick={() => handleOptionToggle(option.value)}
-                  className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-gray-50 focus:bg-gray-50"
+                  className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-gray-50 focus:bg-gray-50 dark:bg-gray-800"
                   disabled={maxSelection && selectedValues.length >= maxSelection && !selectedValues.includes(option.value)}
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2">
                       <span className={`text-sm font-medium ${
-                        selectedValues.includes(option.value) ? 'text-violet-700' : 'text-gray-900'
+                        selectedValues.includes(option.value) ? 'text-violet-700' : 'text-gray-900 dark:text-gray-100'
                       }`}>
                         {option.label}
                       </span>
@@ -308,7 +308,7 @@ const FilterAutocomplete: React.FC<FilterAutocompleteProps> = ({
                 </button>
               ))
             ) : (
-              <div className="px-3 py-4 text-center text-gray-500">
+              <div className="px-3 py-4 text-center text-gray-500 dark:text-gray-400">
                 <Search className="h-6 w-6 mx-auto mb-2 text-gray-300" />
                 <p className="text-sm">No options found</p>
               </div>

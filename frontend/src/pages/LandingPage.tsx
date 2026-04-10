@@ -15,11 +15,11 @@ const LandingPage: React.FC = () => {
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-2">
                 <span className="text-white font-bold text-sm">Rx</span>
               </div>
-              <span className="text-xl font-bold text-gray-900">OncoSafeRx</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-gray-100">OncoSafeRx</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link to="/features" className="text-gray-600 hover:text-gray-900">Features</Link>
-              <Link to="/auth" className="text-gray-600 hover:text-gray-900">Sign In</Link>
+              <Link to="/features" className="text-gray-600 hover:text-gray-900 dark:text-gray-100">Features</Link>
+              <Link to="/auth" className="text-gray-600 hover:text-gray-900 dark:text-gray-100">Sign In</Link>
               <Button>Start Free Trial</Button>
             </div>
           </div>
@@ -49,16 +49,16 @@ const LandingPage: React.FC = () => {
               {/* Key Stats */}
               <div className="grid grid-cols-3 gap-6 mb-8">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900">125k</div>
-                  <div className="text-sm text-gray-600">Preventable deaths annually</div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">125k</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Preventable deaths annually</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900">60%</div>
-                  <div className="text-sm text-gray-600">Error reduction</div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">60%</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Error reduction</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900">30s</div>
-                  <div className="text-sm text-gray-600">Review time vs 15min</div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">30s</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400">Review time vs 15min</div>
                 </div>
               </div>
 
@@ -73,7 +73,7 @@ const LandingPage: React.FC = () => {
               </div>
 
               {/* Trust Indicators */}
-              <div className="flex items-center space-x-6 text-sm text-gray-500">
+              <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
                 <div className="flex items-center">
                   <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
                   No setup fees
@@ -96,7 +96,7 @@ const LandingPage: React.FC = () => {
                   <div className="w-3 h-3 rounded-full bg-red-400"></div>
                   <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
                   <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                  <div className="flex-1 text-center text-sm text-gray-600">OncoSafeRx Platform</div>
+                  <div className="flex-1 text-center text-sm text-gray-600 dark:text-gray-400">OncoSafeRx Platform</div>
                 </div>
                 <div className="p-6">
                   <div className="space-y-4">
@@ -130,7 +130,7 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* Problem Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
@@ -148,7 +148,7 @@ const LandingPage: React.FC = () => {
                 <Shield className="h-8 w-8 text-red-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">125,000 Deaths</h3>
-              <p className="text-gray-600">Preventable deaths annually from drug interactions in the US alone</p>
+              <p className="text-gray-600 dark:text-gray-400">Preventable deaths annually from drug interactions in the US alone</p>
             </Card>
 
             <Card className="text-center p-8">
@@ -156,7 +156,7 @@ const LandingPage: React.FC = () => {
                 <Zap className="h-8 w-8 text-yellow-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">12+ Medications</h3>
-              <p className="text-gray-600">Average number of simultaneous medications cancer patients take</p>
+              <p className="text-gray-600 dark:text-gray-400">Average number of simultaneous medications cancer patients take</p>
             </Card>
 
             <Card className="text-center p-8">
@@ -164,7 +164,7 @@ const LandingPage: React.FC = () => {
                 <Users className="h-8 w-8 text-blue-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">15 Minutes</h3>
-              <p className="text-gray-600">Time oncologists spend researching drug interactions per complex case</p>
+              <p className="text-gray-600 dark:text-gray-400">Time oncologists spend researching drug interactions per complex case</p>
             </Card>
           </div>
         </div>
@@ -190,21 +190,21 @@ const LandingPage: React.FC = () => {
                   <CheckCircle className="h-6 w-6 text-green-500 mt-1 mr-4 flex-shrink-0" />
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Instant FDA-Compliant Drug Interaction Alerts</h3>
-                    <p className="text-gray-600">Real-time screening using RxNorm database with oncology-specific protocols</p>
+                    <p className="text-gray-600 dark:text-gray-400">Real-time screening using RxNorm database with oncology-specific protocols</p>
                   </div>
                 </div>
                 <div className="flex items-start">
                   <CheckCircle className="h-6 w-6 text-green-500 mt-1 mr-4 flex-shrink-0" />
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Personalized Dosing Based on Patient Genetics</h3>
-                    <p className="text-gray-600">Pharmacogenomic recommendations using CPIC guidelines for precision medicine</p>
+                    <p className="text-gray-600 dark:text-gray-400">Pharmacogenomic recommendations using CPIC guidelines for precision medicine</p>
                   </div>
                 </div>
                 <div className="flex items-start">
                   <CheckCircle className="h-6 w-6 text-green-500 mt-1 mr-4 flex-shrink-0" />
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Seamless EHR Integration</h3>
-                    <p className="text-gray-600">Works with Epic, Cerner, and Allscripts - no workflow disruption</p>
+                    <p className="text-gray-600 dark:text-gray-400">Works with Epic, Cerner, and Allscripts - no workflow disruption</p>
                   </div>
                 </div>
               </div>
@@ -224,7 +224,7 @@ const LandingPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className="text-center text-gray-600">
+                <div className="text-center text-gray-600 dark:text-gray-400">
                   Trusted by 50+ oncology practices nationwide
                 </div>
               </Card>
@@ -252,7 +252,7 @@ const LandingPage: React.FC = () => {
                   <Star key={i} className="h-5 w-5 fill-current" />
                 ))}
               </div>
-              <span className="ml-2 text-gray-600">5.0 from oncology professionals</span>
+              <span className="ml-2 text-gray-600 dark:text-gray-400">5.0 from oncology professionals</span>
             </div>
             <blockquote className="text-xl italic mb-6">
               "OncoSafeRx reduced our medication review time by 80% and caught several critical interactions 
@@ -262,7 +262,7 @@ const LandingPage: React.FC = () => {
               <div className="w-12 h-12 bg-gray-300 rounded-full mr-4"></div>
               <div>
                 <div className="font-semibold">Dr. Sarah Johnson, MD</div>
-                <div className="text-gray-600">Chief of Oncology, Regional Cancer Center</div>
+                <div className="text-gray-600 dark:text-gray-400">Chief of Oncology, Regional Cancer Center</div>
               </div>
             </div>
           </div>
@@ -270,7 +270,7 @@ const LandingPage: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
             Start Saving Lives Today
@@ -289,7 +289,7 @@ const LandingPage: React.FC = () => {
             </Button>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-8 text-sm text-gray-500">
+          <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-8 text-sm text-gray-500 dark:text-gray-400">
             <div className="flex items-center">
               <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
               No setup fees

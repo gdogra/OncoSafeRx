@@ -93,7 +93,7 @@ const AdminHome: React.FC = () => {
     { path: '/admin/users', label: 'User Management', desc: 'Manage user accounts and roles', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50', badge: stats ? `${stats.users.active}/${stats.users.total}` : null },
     { path: '/admin/audit', label: 'Audit Logs', desc: 'Administrative audit trail', icon: FileText, color: 'text-purple-600', bg: 'bg-purple-50', badge: auditTotal !== null ? String(auditTotal) : null },
     { path: '/admin/health', label: 'System Health', desc: 'Platform status and services', icon: Activity, color: 'text-green-600', bg: 'bg-green-50', badge: stats ? (stats.system.supabase ? 'Healthy' : 'Offline') : null },
-    { path: '/admin/settings', label: 'Admin Settings', desc: 'Maintenance and utilities', icon: SettingsIcon, color: 'text-gray-700', bg: 'bg-gray-100', badge: null as React.ReactNode },
+    { path: '/admin/settings', label: 'Admin Settings', desc: 'Maintenance and utilities', icon: SettingsIcon, color: 'text-gray-700 dark:text-gray-300', bg: 'bg-gray-100 dark:bg-gray-800', badge: null as React.ReactNode },
     { path: '/admin/feedback', label: 'Feedback Admin', desc: 'Triage feedback and integrations', icon: MessageSquare, color: 'text-indigo-600', bg: 'bg-indigo-50', badge: null as React.ReactNode },
     { path: '/visitor-analytics', label: 'Visitor Analytics', desc: 'Tracking metrics and top pages', icon: BarChart3, color: 'text-teal-600', bg: 'bg-teal-50', badge: analytics ? String(analytics.uniqueVisitors) : null },
     { path: '/admin/onboarding', label: 'Onboarding Analytics', desc: 'Tour usage and step engagement (local)', icon: Eye, color: 'text-violet-600', bg: 'bg-violet-50', badge: null as React.ReactNode },
@@ -105,7 +105,7 @@ const AdminHome: React.FC = () => {
       <AdminAuthBanner />
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin' }]} />
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Admin</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Admin</h1>
         <p className="text-gray-600 mt-1">Central hub for administrative tools and monitoring</p>
       </div>
 
@@ -114,7 +114,7 @@ const AdminHome: React.FC = () => {
           <Link key={path} to={path} className="block focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg">
             <Card className="p-6 h-full hover:shadow-md transition-shadow relative">
               {badge !== null && (
-                <span className="absolute top-3 right-3 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                <span className="absolute top-3 right-3 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:text-gray-200">
                   {badge}
                 </span>
               )}
@@ -123,16 +123,16 @@ const AdminHome: React.FC = () => {
                   <Icon className={`w-6 h-6 ${color}`} />
                 </div>
                 <div>
-                  <div className="text-lg font-semibold text-gray-900">{label}</div>
+                  <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">{label}</div>
                   <div className="text-sm text-gray-600 mt-1">{desc}</div>
                   {path === '/admin/health' && (
-                    <div className="mt-2 text-xs text-gray-600">
+                    <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
                       <div>Last Sync: {lastSyncAt ? new Date(lastSyncAt).toLocaleString() : '—'}</div>
                       <div>Recent Errors: {errorCount !== null ? errorCount : '—'}</div>
                     </div>
                   )}
                   {path === '/visitor-analytics' && (
-                    <div className="mt-2 text-xs text-gray-600">
+                    <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
                       <div>Unique Visitors (7d): {analytics ? analytics.uniqueVisitors : '—'}</div>
                       <div>Page Views (7d): {analytics ? analytics.pageViews : '—'}</div>
                     </div>
@@ -148,8 +148,8 @@ const AdminHome: React.FC = () => {
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Visitor Tracking (7 days)</h2>
-            <p className="text-sm text-gray-600">Quick glance at traffic and engagement</p>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Visitor Tracking (7 days)</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Quick glance at traffic and engagement</p>
           </div>
           <Link to="/visitor-analytics" className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700">
             <BarChart3 className="w-4 h-4" />
@@ -160,8 +160,8 @@ const AdminHome: React.FC = () => {
           <div className="border rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-gray-600">Total Visitors</div>
-                <div className="text-2xl font-bold text-gray-900">{analytics ? analytics.totalVisitors : '—'}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Total Visitors</div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analytics ? analytics.totalVisitors : '—'}</div>
               </div>
               <Users className="w-6 h-6 text-blue-600" />
             </div>
@@ -169,8 +169,8 @@ const AdminHome: React.FC = () => {
           <div className="border rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-gray-600">Unique Visitors</div>
-                <div className="text-2xl font-bold text-gray-900">{analytics ? analytics.uniqueVisitors : '—'}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Unique Visitors</div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analytics ? analytics.uniqueVisitors : '—'}</div>
               </div>
               <UserIcon />
             </div>
@@ -178,8 +178,8 @@ const AdminHome: React.FC = () => {
           <div className="border rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-gray-600">Page Views</div>
-                <div className="text-2xl font-bold text-gray-900">{analytics ? analytics.pageViews : '—'}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Page Views</div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{analytics ? analytics.pageViews : '—'}</div>
               </div>
               <Eye className="w-6 h-6 text-indigo-600" />
             </div>

@@ -120,12 +120,12 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
               onClick={() => setIsOpen(!isOpen)}
               disabled={disabled}
               className={`flex items-center space-x-2 px-3 py-2 border border-r-0 rounded-l-md bg-gray-50 hover:bg-gray-100 transition-colors ${
-                error ? 'border-red-300' : 'border-gray-300'
+                error ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
               } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               <span className="text-lg">{selectedCountry.flag}</span>
-              <span className="text-sm font-medium text-gray-700">{selectedCountry.dial}</span>
-              <ChevronDown className="w-4 h-4 text-gray-500" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{selectedCountry.dial}</span>
+              <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             </button>
 
             {/* Country Dropdown */}
@@ -149,8 +149,8 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
                       className="w-full text-left px-3 py-2 hover:bg-gray-100 flex items-center space-x-3"
                     >
                       <span className="text-lg">{country.flag}</span>
-                      <span className="text-sm font-medium text-gray-900">{country.dial}</span>
-                      <span className="text-sm text-gray-600">{country.name}</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{country.dial}</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{country.name}</span>
                     </button>
                   ))}
                 </div>
@@ -168,7 +168,7 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
               required={required}
               disabled={disabled}
               className={`block w-full border rounded-r-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                error ? 'border-red-300' : 'border-gray-300'
+                error ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
               } ${disabled ? 'bg-gray-50 cursor-not-allowed' : ''}`}
             />
             <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -190,7 +190,7 @@ const PhoneInput: React.FC<PhoneInputProps> = ({
         <p className="text-sm text-red-600">{error}</p>
       )}
       
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-gray-500 dark:text-gray-400">
         Complete international number: {value || `${selectedCountry.dial}...`}
       </p>
     </div>

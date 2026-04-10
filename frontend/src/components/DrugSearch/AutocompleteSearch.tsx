@@ -1252,7 +1252,7 @@ const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
       case 'biomarker': return <Activity className="h-4 w-4 text-green-500" />;
       case 'gene': return <Heart className="h-4 w-4 text-pink-500" />;
       case 'class': return <Users className="h-4 w-4 text-orange-500" />;
-      default: return <Search className="h-4 w-4 text-gray-500" />;
+      default: return <Search className="h-4 w-4 text-gray-500 dark:text-gray-400" />;
     }
   };
 
@@ -1298,7 +1298,7 @@ const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
           placeholder={placeholder}
           disabled={disabled || loading}
           className={`w-full pl-10 pr-10 py-3 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-500 ${
-            disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'
+            disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white dark:bg-gray-900'
           }`}
         />
         
@@ -1316,7 +1316,7 @@ const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-hidden">
           {/* Header */}
           {inputValue.trim() === '' && (
-            <div className="px-4 py-2 bg-gray-50 border-b text-sm text-gray-600">
+            <div className="px-4 py-2 bg-gray-50 border-b text-sm text-gray-600 dark:text-gray-400">
               {recentSearches.length > 0 ? 'Recent searches & Popular options' : 'Popular options'}
             </div>
           )}
@@ -1370,7 +1370,7 @@ const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
                     
                     {option.type === 'drug' && (
                       <div className="text-right flex-shrink-0">
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
                           {option.fdaApproved ? 'FDA Approved' : 'Investigational'}
                         </div>
                       </div>
@@ -1380,7 +1380,7 @@ const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
               ))}
             </ul>
           ) : (
-            <div className="px-4 py-6 text-center text-gray-500">
+            <div className="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
               <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
               <p>No matches found</p>
               <p className="text-xs mt-1">Try a different search term</p>

@@ -94,7 +94,7 @@ const AdminSettings: React.FC = () => {
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin', href: '/admin/console' }, { label: 'Admin Settings' }]} />
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Admin Settings</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Admin Settings</h1>
           <p className="text-gray-600 mt-1">Maintenance and utilities</p>
         </div>
       </div>
@@ -184,12 +184,12 @@ const AdminSettings: React.FC = () => {
             <h4 className="font-medium text-gray-900 mb-2">Unknown Brands</h4>
             <div className="border rounded-md divide-y">
               {unknown.length === 0 ? (
-                <div className="p-3 text-sm text-gray-500">No unknown brands logged.</div>
+                <div className="p-3 text-sm text-gray-500 dark:text-gray-400">No unknown brands logged.</div>
               ) : unknown.slice(0, 20).map((u) => (
                 <div key={u.term} className="p-3 flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-medium text-gray-900">{u.term}</div>
-                    <div className="text-xs text-gray-500">{u.count} hits</div>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{u.term}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{u.count} hits</div>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
@@ -218,10 +218,10 @@ const AdminSettings: React.FC = () => {
             <h4 className="font-medium text-gray-900 mb-2">Current Aliases</h4>
             <div className="border rounded-md divide-y max-h-64 overflow-auto">
               {Object.keys(aliases).length === 0 ? (
-                <div className="p-3 text-sm text-gray-500">No aliases configured.</div>
+                <div className="p-3 text-sm text-gray-500 dark:text-gray-400">No aliases configured.</div>
               ) : Object.entries(aliases).sort(([a],[b]) => a.localeCompare(b)).map(([k, v]) => (
                 <div key={k} className="p-3 flex items-center justify-between">
-                  <div className="text-sm text-gray-800">{k} → <span className="font-medium">{String(v || 'null')}</span></div>
+                  <div className="text-sm text-gray-800 dark:text-gray-200">{k} → <span className="font-medium">{String(v || 'null')}</span></div>
                 </div>
               ))}
             </div>

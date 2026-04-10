@@ -172,7 +172,7 @@ const PatientEducation: React.FC = () => {
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Educational Resources</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Educational Resources</h1>
         <p className="text-gray-600 mt-1">Learn about your condition, treatments, and how to manage your care</p>
       </div>
 
@@ -305,7 +305,7 @@ const PatientEducation: React.FC = () => {
           <div className="text-center py-12">
             <BookOpen className="w-12 h-12 mx-auto text-gray-300 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No resources found</h3>
-            <p className="text-gray-600">Try adjusting your search terms or category filters.</p>
+            <p className="text-gray-600 dark:text-gray-400">Try adjusting your search terms or category filters.</p>
           </div>
         </Card>
       )}
@@ -359,13 +359,13 @@ const PatientEducation: React.FC = () => {
       {/* Stories Modal */}
       <Modal isOpen={showStories} onClose={() => setShowStories(false)} title="Patient Success Stories" size="lg">
         <div className="space-y-4">
-          <p className="text-gray-700">Real-world experiences from patients navigating treatment and recovery.</p>
-          <ul className="list-disc pl-6 space-y-2 text-gray-700">
+          <p className="text-gray-700 dark:text-gray-300">Real-world experiences from patients navigating treatment and recovery.</p>
+          <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
             <li>Managing side effects during chemotherapy</li>
             <li>Finding support networks that work</li>
             <li>Returning to everyday life after treatment</li>
           </ul>
-          <p className="text-sm text-gray-500">This is a preview. Full stories will appear here.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">This is a preview. Full stories will appear here.</p>
         </div>
       </Modal>
 
@@ -378,17 +378,17 @@ const PatientEducation: React.FC = () => {
       >
         {activeArticle && (
           <div className="space-y-3">
-            <div className="text-sm text-gray-500">Type: {activeArticle.type.toUpperCase()} • {activeArticle.duration}</div>
-            <p className="text-gray-800">{activeArticle.description}</p>
-            <div className="text-sm text-gray-600">Category: {activeArticle.category}</div>
-            <div className="text-xs text-gray-500">Rating: {activeArticle.rating} • Views: {activeArticle.views.toLocaleString()}</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Type: {activeArticle.type.toUpperCase()} • {activeArticle.duration}</div>
+            <p className="text-gray-800 dark:text-gray-200">{activeArticle.description}</p>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Category: {activeArticle.category}</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Rating: {activeArticle.rating} • Views: {activeArticle.views.toLocaleString()}</div>
             {activeArticle.title === 'Understanding Your Lab Results' && (
-              <div className="text-sm text-gray-700">
+              <div className="text-sm text-gray-700 dark:text-gray-300">
                 Learn how to read common labs like CBC, CMP, and ANC. Trends over time matter more than a single value; always discuss results with your care team.
               </div>
             )}
             {activeArticle.title === 'Building Your Support Network' && (
-              <div className="text-sm text-gray-700">
+              <div className="text-sm text-gray-700 dark:text-gray-300">
                 Practical steps to involve friends and family, coordinate help, and access professional support resources.
               </div>
             )}

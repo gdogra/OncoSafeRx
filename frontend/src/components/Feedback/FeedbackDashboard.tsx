@@ -67,7 +67,7 @@ const FeedbackDashboard: React.FC<FeedbackDashboardProps> = ({ isOpen, onClose }
       medium: 'bg-yellow-100 text-yellow-800',
       low: 'bg-green-100 text-green-800'
     };
-    return colors[priority as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+    return colors[priority as keyof typeof colors] || 'bg-gray-100 text-gray-800 dark:text-gray-200';
   };
 
   const getTypeIcon = (type: string) => {
@@ -92,7 +92,7 @@ const FeedbackDashboard: React.FC<FeedbackDashboardProps> = ({ isOpen, onClose }
       <Modal isOpen={isOpen} onClose={onClose} title="Feedback Dashboard" size="xl">
         <div className="flex items-center justify-center py-8">
           <RefreshCw className="w-8 h-8 animate-spin text-primary-600" />
-          <span className="ml-2 text-gray-600">Loading analytics...</span>
+          <span className="ml-2 text-gray-600 dark:text-gray-400">Loading analytics...</span>
         </div>
       </Modal>
     );
@@ -102,7 +102,7 @@ const FeedbackDashboard: React.FC<FeedbackDashboardProps> = ({ isOpen, onClose }
     return (
       <Modal isOpen={isOpen} onClose={onClose} title="Feedback Dashboard" size="xl">
         <div className="text-center py-8">
-          <p className="text-gray-600">No feedback data available.</p>
+          <p className="text-gray-600 dark:text-gray-400">No feedback data available.</p>
         </div>
       </Modal>
     );
@@ -131,7 +131,7 @@ const FeedbackDashboard: React.FC<FeedbackDashboardProps> = ({ isOpen, onClose }
               <span>Export Data</span>
             </button>
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 dark:text-gray-400">
             Last updated: {new Date().toLocaleString()}
           </div>
         </div>
@@ -140,19 +140,19 @@ const FeedbackDashboard: React.FC<FeedbackDashboardProps> = ({ isOpen, onClose }
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="text-center">
             <div className="text-2xl font-bold text-primary-600">{totalFeedback}</div>
-            <div className="text-sm text-gray-600">Total Feedback</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Total Feedback</div>
           </Card>
           <Card className="text-center">
             <div className="text-2xl font-bold text-blue-600">{totalTickets}</div>
-            <div className="text-sm text-gray-600">Active Tickets</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Active Tickets</div>
           </Card>
           <Card className="text-center">
             <div className="text-2xl font-bold text-green-600">{sprintPlan.currentSprint.length}</div>
-            <div className="text-sm text-gray-600">Current Sprint</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Current Sprint</div>
           </Card>
           <Card className="text-center">
             <div className="text-2xl font-bold text-purple-600">{sprintPlan.nextSprint.length}</div>
-            <div className="text-sm text-gray-600">Next Sprint</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Next Sprint</div>
           </Card>
         </div>
 
@@ -231,7 +231,7 @@ const FeedbackDashboard: React.FC<FeedbackDashboardProps> = ({ isOpen, onClose }
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(item.priority)}`}>
                         {item.priority}
                       </span>
-                      <span className="text-xs text-gray-500">{item.effort}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{item.effort}</span>
                     </div>
                     <div className="text-xs font-medium mt-1">{getTypeIcon(item.type)} {item.type}</div>
                   </div>
@@ -252,7 +252,7 @@ const FeedbackDashboard: React.FC<FeedbackDashboardProps> = ({ isOpen, onClose }
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(item.priority)}`}>
                         {item.priority}
                       </span>
-                      <span className="text-xs text-gray-500">{item.effort}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{item.effort}</span>
                     </div>
                     <div className="text-xs font-medium mt-1">{getTypeIcon(item.type)} {item.type}</div>
                   </div>
@@ -268,12 +268,12 @@ const FeedbackDashboard: React.FC<FeedbackDashboardProps> = ({ isOpen, onClose }
               </h4>
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {sprintPlan.backlog.slice(0, 10).map((item: any, index: number) => (
-                  <div key={index} className="p-2 bg-gray-50 rounded border border-gray-200">
+                  <div key={index} className="p-2 bg-gray-50 rounded border border-gray-200 dark:border-gray-700">
                     <div className="flex items-center justify-between">
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(item.priority)}`}>
                         {item.priority}
                       </span>
-                      <span className="text-xs text-gray-500">{item.effort}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{item.effort}</span>
                     </div>
                     <div className="text-xs font-medium mt-1">{getTypeIcon(item.type)} {item.type}</div>
                   </div>
@@ -301,13 +301,13 @@ const FeedbackDashboard: React.FC<FeedbackDashboardProps> = ({ isOpen, onClose }
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
                       <span className="text-lg">{getTypeIcon(feedback.type)}</span>
-                      <span className="font-medium text-gray-900">{feedback.title}</span>
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{feedback.title}</span>
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(feedback.priority)}`}>
                         {feedback.priority}
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">{feedback.description.substring(0, 150)}...</p>
-                    <div className="flex items-center space-x-4 text-xs text-gray-500">
+                    <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
                       <span>📍 {feedback.page}</span>
                       <span>🕒 {new Date(feedback.timestamp).toLocaleDateString()}</span>
                       <span>🏷️ {feedback.category}</span>

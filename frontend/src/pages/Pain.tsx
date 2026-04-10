@@ -263,8 +263,8 @@ export default function Pain() {
           <Pill className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">Pain Management</h1>
-          <p className="text-sm text-gray-500">Opioid MME calculator and safety screening</p>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Pain Management</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Opioid MME calculator and safety screening</p>
         </div>
       </div>
 
@@ -302,7 +302,7 @@ export default function Pain() {
       {/* Medications input */}
       <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-base font-medium text-gray-900">Opioid Regimen</h2>
+          <h2 className="text-base font-medium text-gray-900 dark:text-gray-100">Opioid Regimen</h2>
           <button onClick={addMedication} className="inline-flex items-center px-2 py-1 text-sm rounded bg-gray-100 hover:bg-gray-200">
             <Plus className="w-4 h-4 mr-1" /> Add
           </button>
@@ -314,7 +314,7 @@ export default function Pain() {
             return (
             <div key={idx} className={`grid grid-cols-12 gap-2 items-end border rounded-md p-2 ${sevClass}`}>
               <div className="col-span-3">
-                <label className="text-xs text-gray-600">Medication</label>
+                <label className="text-xs text-gray-600 dark:text-gray-400">Medication</label>
                 <DrugAutocomplete
                   apiBase={apiBase}
                   value={m.name}
@@ -338,7 +338,7 @@ export default function Pain() {
                             <Tooltip content={`${r}: ${info.text}`} position="top">{badge}</Tooltip>
                           ) : badge}
                           {info?.url && (
-                            <a href={info.url} target="_blank" rel="noreferrer" className="text-gray-500 hover:text-gray-700" aria-label="Learn more">
+                            <a href={info.url} target="_blank" rel="noreferrer" className="text-gray-500 hover:text-gray-700 dark:text-gray-300" aria-label="Learn more">
                               <ExternalLink className="w-3 h-3" />
                             </a>
                           )}
@@ -349,7 +349,7 @@ export default function Pain() {
                 )}
               </div>
               <div className="col-span-2">
-                <label className="text-xs text-gray-600">Route</label>
+                <label className="text-xs text-gray-600 dark:text-gray-400">Route</label>
                 <select value={m.route || 'oral'} onChange={e => updateMedication(idx, { route: e.target.value as any })}
                   className="w-full border rounded px-2 py-1 text-sm">
                   <option value="oral">Oral</option>
@@ -361,17 +361,17 @@ export default function Pain() {
                 </select>
               </div>
               <div className="col-span-2">
-                <label className="text-xs text-gray-600">Dose mg per dose</label>
+                <label className="text-xs text-gray-600 dark:text-gray-400">Dose mg per dose</label>
                 <input type="number" value={m.doseMgPerDose ?? ''} onChange={e => updateMedication(idx, { doseMgPerDose: e.target.value === '' ? undefined : Number(e.target.value) })}
                   className="w-full border rounded px-2 py-1 text-sm" placeholder="e.g., 10" />
               </div>
               <div className="col-span-2">
-                <label className="text-xs text-gray-600">Doses per day</label>
+                <label className="text-xs text-gray-600 dark:text-gray-400">Doses per day</label>
                 <input type="number" value={m.dosesPerDay ?? ''} onChange={e => updateMedication(idx, { dosesPerDay: e.target.value === '' ? undefined : Number(e.target.value) })}
                   className="w-full border rounded px-2 py-1 text-sm" placeholder="e.g., 3" />
               </div>
               <div className="col-span-2">
-                <label className="text-xs text-gray-600">Fentanyl mcg/hr</label>
+                <label className="text-xs text-gray-600 dark:text-gray-400">Fentanyl mcg/hr</label>
                 <input type="number" value={m.strengthMcgPerHr ?? ''} onChange={e => updateMedication(idx, { strengthMcgPerHr: e.target.value === '' ? undefined : Number(e.target.value) })}
                   className="w-full border rounded px-2 py-1 text-sm" placeholder="e.g., 25" />
               </div>
@@ -400,31 +400,31 @@ export default function Pain() {
         <h2 className="text-base font-medium text-gray-900 mb-3">Patient Context</h2>
         <div className="grid grid-cols-12 gap-3">
           <div className="col-span-2">
-            <label className="text-xs text-gray-600">Age</label>
+            <label className="text-xs text-gray-600 dark:text-gray-400">Age</label>
             <input type="number" value={patient.age ?? ''} onChange={e => setPatient({ ...patient, age: e.target.value === '' ? undefined : Number(e.target.value) })}
               className="w-full border rounded px-2 py-1 text-sm" />
           </div>
           <div className="col-span-3">
-            <label className="text-xs text-gray-600">Renal clearance (CrCl mL/min)</label>
+            <label className="text-xs text-gray-600 dark:text-gray-400">Renal clearance (CrCl mL/min)</label>
             <input type="number" value={patient.renal_clearance ?? ''} onChange={e => setPatient({ ...patient, renal_clearance: e.target.value === '' ? undefined : Number(e.target.value) })}
               className="w-full border rounded px-2 py-1 text-sm" />
           </div>
           <div className="col-span-2 flex items-center space-x-2 mt-5">
             <input id="resp" type="checkbox" checked={!!patient.respiratory} onChange={e => setPatient({ ...patient, respiratory: e.target.checked })} />
-            <label htmlFor="resp" className="text-sm text-gray-700">Respiratory disease</label>
+            <label htmlFor="resp" className="text-sm text-gray-700 dark:text-gray-300">Respiratory disease</label>
           </div>
           <div className="col-span-2 flex items-center space-x-2 mt-5">
             <input id="osa" type="checkbox" checked={!!patient.sleep_apnea} onChange={e => setPatient({ ...patient, sleep_apnea: e.target.checked })} />
-            <label htmlFor="osa" className="text-sm text-gray-700">OSA</label>
+            <label htmlFor="osa" className="text-sm text-gray-700 dark:text-gray-300">OSA</label>
           </div>
           <div className="col-span-2 flex items-center space-x-2 mt-5">
             <input id="preg" type="checkbox" checked={!!patient.pregnancy} onChange={e => setPatient({ ...patient, pregnancy: e.target.checked })} />
-            <label htmlFor="preg" className="text-sm text-gray-700">Pregnancy</label>
+            <label htmlFor="preg" className="text-sm text-gray-700 dark:text-gray-300">Pregnancy</label>
           </div>
         </div>
         <div className="mt-3 grid grid-cols-12 gap-3">
           <div className="col-span-4">
-            <label className="text-xs text-gray-600">Phenotype: CYP2D6</label>
+            <label className="text-xs text-gray-600 dark:text-gray-400">Phenotype: CYP2D6</label>
             <select value={phenotypes.CYP2D6 || ''} onChange={e => setPhenotypes({ ...phenotypes, CYP2D6: e.target.value })}
               className="w-full border rounded px-2 py-1 text-sm">
               <option value="">Unknown</option>
@@ -457,10 +457,10 @@ export default function Pain() {
           <h3 className="text-sm font-semibold text-gray-900 mb-2">MME Result</h3>
           {mmeResult ? (
             <div>
-              <div className="text-2xl font-bold text-gray-900">{mmeResult.totalMME} MME/day</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{mmeResult.totalMME} MME/day</div>
               {/* Buprenorphine note */}
               {medications.some(m => /buprenorphine/i.test(m.name)) && (
-                <div className="mt-1 text-[12px] text-gray-600">Note: Buprenorphine is excluded from MME.</div>
+                <div className="mt-1 text-[12px] text-gray-600 dark:text-gray-400">Note: Buprenorphine is excluded from MME.</div>
               )}
               {mmeResult.riskFlags?.length > 0 && (
                 <ul className="mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">
@@ -475,7 +475,7 @@ export default function Pain() {
               <div className="mt-3">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-left text-gray-500">
+                    <tr className="text-left text-gray-500 dark:text-gray-400">
                       <th className="py-1">Medication</th>
                       <th className="py-1">Route</th>
                       <th className="py-1 text-right">MME/day</th>
@@ -494,13 +494,13 @@ export default function Pain() {
               </div>
             </div>
           ) : (
-            <div className="text-sm text-gray-500">No calculation yet.</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">No calculation yet.</div>
           )}
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-4">
           <h3 className="text-sm font-semibold text-gray-900 mb-2">Safety Findings</h3>
           {/* Legend */}
-          <div className="mb-2 flex items-center gap-3 text-xs text-gray-600">
+          <div className="mb-2 flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
             <div className="flex items-center gap-1"><span className="inline-block w-3 h-3 bg-red-200 border border-red-300 rounded"></span> Major risk</div>
             <div className="flex items-center gap-1"><span className="inline-block w-3 h-3 bg-amber-200 border border-amber-300 rounded"></span> Moderate risk</div>
           </div>
@@ -510,14 +510,14 @@ export default function Pain() {
                 <ul className="space-y-2">
                   {safetyResult.findings.map((f: any, i: number) => (
                     <li key={i} className="border rounded p-2">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {f.issue}{' '}
                         <span className={`ml-2 text-xs px-2 py-0.5 rounded ${f.severity === 'major' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{f.severity}</span>
                       </div>
                       {f.explanation && (
                         <div className="text-xs text-gray-600 mt-1">{f.explanation}</div>
                       )}
-                      <div className="text-sm text-gray-700">{f.recommendation}</div>
+                      <div className="text-sm text-gray-700 dark:text-gray-300">{f.recommendation}</div>
                       {Array.isArray(f.references) && f.references.length > 0 && (
                         <div className="mt-1 flex flex-wrap gap-2">
                           {f.references.map((ref: any, ri: number) => (
@@ -531,7 +531,7 @@ export default function Pain() {
                   ))}
                 </ul>
               ) : (
-                <div className="text-sm text-gray-500">No significant risks detected.</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">No significant risks detected.</div>
               )}
               {safetyResult.recommendations?.length > 0 && (
                 <ul className="mt-2 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded p-2">
@@ -540,12 +540,12 @@ export default function Pain() {
               )}
             </div>
           ) : (
-            <div className="text-sm text-gray-500">No safety screening yet.</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">No safety screening yet.</div>
           )}
         </div>
       </div>
 
-      <div className="mt-6 text-xs text-gray-500">
+      <div className="mt-6 text-xs text-gray-500 dark:text-gray-400">
         For clinical decision support only; verify with current guidelines.
       </div>
     </div>
@@ -615,8 +615,8 @@ function DrugAutocomplete({ apiBase, value, onChange, onSelect }: {
           {offlineSuggestions && (
             <div className="px-2 py-1 text-[11px] text-gray-600 bg-gray-50 border-b border-gray-100">Using offline suggestions (RxNorm unavailable)</div>
           )}
-          {loading && <div className="p-2 text-xs text-gray-500">Searching…</div>}
-          {!loading && items.length === 0 && <div className="p-2 text-xs text-gray-500">No matches</div>}
+          {loading && <div className="p-2 text-xs text-gray-500 dark:text-gray-400">Searching…</div>}
+          {!loading && items.length === 0 && <div className="p-2 text-xs text-gray-500 dark:text-gray-400">No matches</div>}
           {!loading && items.map((it, i) => (
             <button
               key={it.rxcui + i}
@@ -628,11 +628,11 @@ function DrugAutocomplete({ apiBase, value, onChange, onSelect }: {
                 setOpen(false);
               }}
               onClick={() => { onSelect(it); setQ(it.name); setOpen(false); }}
-              className="w-full text-left px-2 py-1 text-sm hover:bg-gray-100"
+              className="w-full text-left px-2 py-1 text-sm hover:bg-gray-100 dark:bg-gray-800"
             >
               <div className="flex justify-between">
                 <span>{it.name}</span>
-                <span className="text-[11px] text-gray-500">{it.rxcui}</span>
+                <span className="text-[11px] text-gray-500 dark:text-gray-400">{it.rxcui}</span>
               </div>
             </button>
           ))}

@@ -440,7 +440,7 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
       case 'training': return 'bg-blue-100 text-blue-800';
       case 'validation': return 'bg-yellow-100 text-yellow-800';
       case 'deprecated': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -448,8 +448,8 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
     switch (trend) {
       case 'increasing': return <ArrowUp className="h-4 w-4 text-green-600" />;
       case 'decreasing': return <ArrowDown className="h-4 w-4 text-red-600" />;
-      case 'stable': return <ChevronRight className="h-4 w-4 text-gray-600" />;
-      default: return <ChevronRight className="h-4 w-4 text-gray-600" />;
+      case 'stable': return <ChevronRight className="h-4 w-4 text-gray-600 dark:text-gray-400" />;
+      default: return <ChevronRight className="h-4 w-4 text-gray-600 dark:text-gray-400" />;
     }
   };
 
@@ -459,7 +459,7 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
       case 'high': return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -471,7 +471,7 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Predictive Analytics Dashboard</h1>
-        <p className="text-gray-600">Advanced insights and forecasting for improved patient outcomes</p>
+        <p className="text-gray-600 dark:text-gray-400">Advanced insights and forecasting for improved patient outcomes</p>
       </div>
 
       {/* Navigation Tabs */}
@@ -491,7 +491,7 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
               className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
               }`}
             >
               <Icon className="h-5 w-5 mr-2" />
@@ -597,7 +597,7 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
               <div className="space-y-3">
                 {models.slice(0, 3).map(model => (
                   <div key={model.id} className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">{model.name}</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{model.name}</span>
                     <div className="flex items-center">
                       <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
                         <div 
@@ -616,25 +616,25 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
               <h3 className="font-semibold text-gray-900 mb-4">Risk Alert Distribution</h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Critical Risk</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Critical Risk</span>
                   <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
                     {alerts.filter(a => a.priority === 'critical').length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">High Risk</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">High Risk</span>
                   <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
                     {alerts.filter(a => a.priority === 'high').length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Medium Risk</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Medium Risk</span>
                   <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
                     {alerts.filter(a => a.priority === 'medium').length}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Low Risk</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Low Risk</span>
                   <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
                     {alerts.filter(a => a.priority === 'low').length}
                   </span>
@@ -667,7 +667,7 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
               <div key={model.id} className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{model.name}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{model.name}</h3>
                     <p className="text-sm text-gray-600 mt-1">{model.description}</p>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${getModelStatusColor(model.status)}`}>
@@ -677,7 +677,7 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
-                    <p className="text-sm text-gray-500">Accuracy</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Accuracy</p>
                     <div className="flex items-center">
                       <div className="w-full bg-gray-200 rounded-full h-2 mr-2">
                         <div 
@@ -689,7 +689,7 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Confidence</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Confidence</p>
                     <div className="flex items-center">
                       <div className="w-full bg-gray-200 rounded-full h-2 mr-2">
                         <div 
@@ -704,15 +704,15 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
 
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Version:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Version:</span>
                     <span className="font-medium">{model.version}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Data Points:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Data Points:</span>
                     <span className="font-medium">{model.dataPoints.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Last Trained:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Last Trained:</span>
                     <span className="font-medium">{new Date(model.lastTrained).toLocaleDateString()}</span>
                   </div>
                 </div>
@@ -750,31 +750,31 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
               <div key={cohort.id} className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex justify-between items-start mb-6">
                   <div>
-                    <h3 className="text-xl font-semibold text-gray-900">{cohort.name}</h3>
-                    <p className="text-gray-600">{cohort.diagnosis} - {cohort.stage}</p>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{cohort.name}</h3>
+                    <p className="text-gray-600 dark:text-gray-400">{cohort.diagnosis} - {cohort.stage}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-bold text-blue-600">{cohort.size}</p>
-                    <p className="text-sm text-gray-500">patients</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">patients</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-green-600">{cohort.survivalRate}%</p>
-                    <p className="text-sm text-gray-500">Survival Rate</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Survival Rate</p>
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-bold text-blue-600">{cohort.responseRate}%</p>
-                    <p className="text-sm text-gray-500">Response Rate</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Response Rate</p>
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-bold text-purple-600">{cohort.averageAge}</p>
-                    <p className="text-sm text-gray-500">Avg Age</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Avg Age</p>
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-bold text-orange-600">{cohort.followUpMonths}</p>
-                    <p className="text-sm text-gray-500">Follow-up (mo)</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Follow-up (mo)</p>
                   </div>
                 </div>
 
@@ -857,14 +857,14 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
               <div key={trend.id} className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{trend.metric}</h3>
-                    <p className="text-sm text-gray-500">{trend.timeframe}</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{trend.metric}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{trend.timeframe}</p>
                   </div>
                   <div className="flex items-center">
                     {getTrendIcon(trend.trend)}
                     <span className={`ml-1 text-sm font-medium ${
                       trend.trend === 'increasing' ? 'text-green-600' :
-                      trend.trend === 'decreasing' ? 'text-red-600' : 'text-gray-600'
+                      trend.trend === 'decreasing' ? 'text-red-600' : 'text-gray-600 dark:text-gray-400'
                     }`}>
                       {Math.abs(trend.changePercent)}%
                     </span>
@@ -873,12 +873,12 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div>
-                    <p className="text-sm text-gray-500">Current Value</p>
-                    <p className="text-2xl font-bold text-gray-900">{trend.currentValue}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Current Value</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{trend.currentValue}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">Previous Value</p>
-                    <p className="text-xl font-semibold text-gray-600">{trend.previousValue}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Previous Value</p>
+                    <p className="text-xl font-semibold text-gray-600 dark:text-gray-400">{trend.previousValue}</p>
                   </div>
                 </div>
 
@@ -941,16 +941,16 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <div className="flex items-center mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">{alert.patientName}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{alert.patientName}</h3>
                       <span className={`ml-3 px-3 py-1 rounded-full text-sm font-medium ${getRiskPriorityColor(alert.priority)}`}>
                         {alert.priority} risk
                       </span>
                     </div>
-                    <p className="text-gray-600">{alert.riskType.replace('_', ' ').charAt(0).toUpperCase() + alert.riskType.replace('_', ' ').slice(1)} risk in {alert.timeframe}</p>
+                    <p className="text-gray-600 dark:text-gray-400">{alert.riskType.replace('_', ' ').charAt(0).toUpperCase() + alert.riskType.replace('_', ' ').slice(1)} risk in {alert.timeframe}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-2xl font-bold text-red-600">{alert.probability}%</p>
-                    <p className="text-sm text-gray-500">probability</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">probability</p>
                   </div>
                 </div>
 
@@ -960,7 +960,7 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
                     <div className="space-y-2">
                       {alert.factors.map((factor, index) => (
                         <div key={index} className="flex justify-between items-center">
-                          <span className="text-sm text-gray-700">{factor.factor}</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">{factor.factor}</span>
                           <div className="flex items-center">
                             <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
                               <div 
@@ -968,7 +968,7 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
                                 style={{ width: `${factor.weight * 100}%` }}
                               ></div>
                             </div>
-                            <span className="text-xs text-gray-500">{Math.round(factor.weight * 100)}%</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">{Math.round(factor.weight * 100)}%</span>
                           </div>
                         </div>
                       ))}
@@ -979,7 +979,7 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
                     <h4 className="font-medium text-gray-900 mb-3">Recommendations</h4>
                     <ul className="space-y-1">
                       {alert.recommendations.map((rec, index) => (
-                        <li key={index} className="flex items-center text-sm text-gray-700">
+                        <li key={index} className="flex items-center text-sm text-gray-700 dark:text-gray-300">
                           <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
                           {rec}
                         </li>
@@ -988,8 +988,8 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
-                  <div className="text-sm text-gray-500">
+                <div className="flex justify-between items-center pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
                     Created: {new Date(alert.createdAt).toLocaleString()}
                   </div>
                   <div className="flex space-x-2">
@@ -1039,7 +1039,7 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
               <div key={outcome.id} className="bg-white rounded-lg border border-gray-200 p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{outcome.name}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{outcome.name}</h3>
                     <p className="text-sm text-gray-500 capitalize">{outcome.category}</p>
                   </div>
                   <div className="flex items-center">
@@ -1058,10 +1058,10 @@ export const PredictiveAnalyticsDashboard: React.FC = () => {
 
                 <div className="mb-4">
                   <div className="flex justify-between items-baseline mb-2">
-                    <span className="text-3xl font-bold text-gray-900">{outcome.value}</span>
-                    <span className="text-lg text-gray-500">{outcome.unit}</span>
+                    <span className="text-3xl font-bold text-gray-900 dark:text-gray-100">{outcome.value}</span>
+                    <span className="text-lg text-gray-500 dark:text-gray-400">{outcome.unit}</span>
                   </div>
-                  <div className="flex items-center text-sm text-gray-600">
+                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                     <span>Benchmark: {outcome.benchmark}{outcome.unit}</span>
                     {outcome.value > outcome.benchmark ? (
                       <CheckCircle className="h-4 w-4 text-green-500 ml-2" />

@@ -55,7 +55,7 @@ const AdminApiStatus: React.FC<{ className?: string }>=({ className='' })=>{
       title="Admin API Diagnostics"
     >
       <span className={`inline-block w-2 h-2 rounded-full ${colorFor(status)}`} />
-      <span className="text-gray-800">Admin API</span>
+      <span className="text-gray-800 dark:text-gray-200">Admin API</span>
     </button>
   );
 

@@ -39,7 +39,7 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
   };
 
   const getEvidenceColor = (level?: string) => {
-    if (!level) return 'bg-gray-100 text-gray-700';
+    if (!level) return 'bg-gray-100 text-gray-700 dark:text-gray-300';
     
     switch (level.toUpperCase()) {
       case 'A':
@@ -51,7 +51,7 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
       case 'D':
         return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-100 text-gray-700 dark:text-gray-300';
     }
   };
 
@@ -102,7 +102,7 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
         <div className="space-y-4">
           <div>
             <div className="flex items-center space-x-2 mb-2">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Search Drug for Genomic Analysis
               </label>
               <Tooltip content="Search for medications to view their pharmacogenomic profile including gene-drug interactions, dosing recommendations, and clinical guidelines">
@@ -129,7 +129,7 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
       {analysis === null ? (
         <div className="text-center py-12">
           <Dna className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-          <p className="text-lg font-medium text-gray-500">Drug Genomics Analysis</p>
+          <p className="text-lg font-medium text-gray-500 dark:text-gray-400">Drug Genomics Analysis</p>
           <p className="text-sm text-gray-400">Search for a drug to view its pharmacogenomic profile</p>
         </div>
       ) : (
@@ -138,12 +138,12 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
           <Card>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">{analysis.drugName}</h3>
-                <p className="text-sm text-gray-600">RXCUI: {analysis.rxcui}</p>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{analysis.drugName}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">RXCUI: {analysis.rxcui}</p>
               </div>
               
               <div className="text-right">
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   <p>{analysis.geneCount} genes involved</p>
                   <p>{analysis.interactionCount} genomic interactions</p>
                 </div>
@@ -154,7 +154,7 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
             {analysis.genes.length > 0 && (
               <div>
                 <div className="flex items-center space-x-2 mb-2">
-                  <h4 className="font-medium text-gray-900">Associated Genes</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">Associated Genes</h4>
                   <Tooltip content="Pharmacogenes that influence this drug's metabolism, efficacy, or safety. Genetic variants in these genes may affect patient response">
                     <Info className="w-3 h-3 text-gray-400" />
                   </Tooltip>
@@ -182,7 +182,7 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
           ) : (
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
-                <h3 className="text-lg font-semibold text-gray-900">Genomic Recommendations</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Genomic Recommendations</h3>
                 <Tooltip content="Evidence-based clinical guidelines for gene-drug interactions from CPIC, FDA, and other authoritative sources. Includes dosing adjustments and therapeutic alternatives">
                   <Info className="w-4 h-4 text-gray-400" />
                 </Tooltip>
@@ -202,9 +202,9 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
                         <div className="flex items-center space-x-3">
                           {getSeverityIcon(severity)}
                           <div>
-                            <h4 className="text-lg font-semibold text-gray-900">{rec.gene}</h4>
+                            <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{rec.gene}</h4>
                             {rec.geneName && (
-                              <p className="text-sm text-gray-600">{rec.geneName}</p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">{rec.geneName}</p>
                             )}
                           </div>
                         </div>
@@ -222,7 +222,7 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
                       {rec.geneFunction && (
                         <div className="bg-gray-50 rounded-lg p-3">
                           <h5 className="font-medium text-gray-900 mb-1">Gene Function</h5>
-                          <p className="text-sm text-gray-700">{rec.geneFunction}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{rec.geneFunction}</p>
                         </div>
                       )}
 
@@ -230,21 +230,21 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
                       {rec.phenotype && (
                         <div>
                           <h5 className="font-medium text-gray-900 mb-1">Phenotype</h5>
-                          <p className="text-sm text-gray-700">{rec.phenotype}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{rec.phenotype}</p>
                         </div>
                       )}
 
                       {/* Recommendation */}
-                      <div className="bg-white rounded-lg p-3 border border-gray-200">
+                      <div className="bg-white rounded-lg p-3 border border-gray-200 dark:border-gray-700">
                         <h5 className="font-medium text-gray-900 mb-1">Clinical Recommendation</h5>
-                        <p className="text-sm text-gray-700">{rec.recommendation}</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">{rec.recommendation}</p>
                       </div>
 
                       {/* Clinical Implications */}
                       {rec.implications && (
                         <div>
                           <h5 className="font-medium text-gray-900 mb-1">Clinical Implications</h5>
-                          <p className="text-sm text-gray-700">{rec.implications}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{rec.implications}</p>
                         </div>
                       )}
 
@@ -252,7 +252,7 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
                       {rec.dosageAdjustment && (
                         <div className="bg-yellow-50 rounded-lg p-3">
                           <h5 className="font-medium text-gray-900 mb-1">Dosage Adjustment</h5>
-                          <p className="text-sm text-gray-700">{rec.dosageAdjustment}</p>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">{rec.dosageAdjustment}</p>
                         </div>
                       )}
 
@@ -264,7 +264,7 @@ const DrugGenomicsAnalysis: React.FC<DrugGenomicsAnalysisProps> = ({ analysis, o
                             {rec.sources.map((source, idx) => (
                               <span
                                 key={idx}
-                                className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700"
+                                className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 dark:text-gray-300"
                               >
                                 {source}
                               </span>

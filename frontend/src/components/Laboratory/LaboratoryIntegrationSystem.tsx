@@ -384,7 +384,7 @@ const LaboratoryIntegrationSystem: React.FC = () => {
       case 'normal':
         return 'text-green-600 bg-green-100';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -397,7 +397,7 @@ const LaboratoryIntegrationSystem: React.FC = () => {
       case 'routine':
         return 'text-blue-600 bg-blue-100 border-blue-200';
       default:
-        return 'text-gray-600 bg-gray-100 border-gray-200';
+        return 'text-gray-600 bg-gray-100 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -408,11 +408,11 @@ const LaboratoryIntegrationSystem: React.FC = () => {
       case 'syncing':
         return 'text-blue-600 bg-blue-100';
       case 'disconnected':
-        return 'text-gray-600 bg-gray-100';
+        return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
       case 'error':
         return 'text-red-600 bg-red-100';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -420,20 +420,20 @@ const LaboratoryIntegrationSystem: React.FC = () => {
     <div className="space-y-6">
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Active Alerts</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Active Alerts</p>
               <p className="text-2xl font-bold text-red-600">{labAlerts.filter(alert => !alert.acknowledgedBy).length}</p>
             </div>
             <AlertTriangle className="w-8 h-8 text-red-600" />
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Critical Results</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Critical Results</p>
               <p className="text-2xl font-bold text-orange-600">
                 {labResults.filter(result => result.status.includes('critical')).length}
               </p>
@@ -442,10 +442,10 @@ const LaboratoryIntegrationSystem: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Connected Systems</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Connected Systems</p>
               <p className="text-2xl font-bold text-green-600">
                 {labSystems.filter(system => system.connectionStatus === 'connected').length}
               </p>
@@ -454,10 +454,10 @@ const LaboratoryIntegrationSystem: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Monitoring Rules</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Monitoring Rules</p>
               <p className="text-2xl font-bold text-blue-600">{monitoringRules.filter(rule => rule.enabled).length}</p>
             </div>
             <Shield className="w-8 h-8 text-blue-600" />
@@ -466,9 +466,9 @@ const LaboratoryIntegrationSystem: React.FC = () => {
       </div>
 
       {/* Recent Critical Alerts */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Critical Laboratory Alerts</h3>
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Critical Laboratory Alerts</h3>
         </div>
         <div className="p-6">
           {labAlerts.filter(alert => alert.severity === 'immediate').slice(0, 3).map(alert => (
@@ -489,7 +489,7 @@ const LaboratoryIntegrationSystem: React.FC = () => {
                     )}
                   </div>
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-gray-400">
                   {new Date(alert.triggeredDate).toLocaleString()}
                 </div>
               </div>
@@ -508,22 +508,22 @@ const LaboratoryIntegrationSystem: React.FC = () => {
       </div>
 
       {/* System Status */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Laboratory System Status</h3>
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Laboratory System Status</h3>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {labSystems.map(system => (
               <div key={system.id} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-medium text-gray-900">{system.name}</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">{system.name}</h4>
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getConnectionStatusColor(system.connectionStatus)}`}>
                     {system.connectionStatus}
                   </span>
                 </div>
                 <p className="text-sm text-gray-600 mb-2">{system.vendor} {system.version}</p>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-gray-500 dark:text-gray-400">
                   <div>Type: {system.type}</div>
                   <div>Last sync: {new Date(system.lastSync).toLocaleString()}</div>
                   <div>Tests: {system.testsSupported.length} supported</div>
@@ -579,12 +579,12 @@ const LaboratoryIntegrationSystem: React.FC = () => {
 
       {/* Results Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Laboratory Results</h3>
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Laboratory Results</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-800">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Test</th>
@@ -597,25 +597,25 @@ const LaboratoryIntegrationSystem: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {labResults.map(result => (
-                <tr key={result.id} className="hover:bg-gray-50">
+                <tr key={result.id} className="hover:bg-gray-50 dark:bg-gray-800">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{result.patientName}</div>
-                      <div className="text-sm text-gray-500">{result.orderingPhysician}</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{result.patientName}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{result.orderingPhysician}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{result.testName}</div>
-                      <div className="text-sm text-gray-500">{result.testCode}</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{result.testName}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{result.testCode}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {result.value} {result.unit}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {result.referenceRange}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -623,10 +623,10 @@ const LaboratoryIntegrationSystem: React.FC = () => {
                       {result.status.replace('-', ' ')}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {new Date(result.resultDate).toLocaleDateString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {result.laboratory}
                   </td>
                 </tr>
@@ -657,7 +657,7 @@ const LaboratoryIntegrationSystem: React.FC = () => {
               <h4 className="text-base font-medium mb-1">{alert.testName}</h4>
               <p className="text-sm mb-3">{alert.message}</p>
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
               {new Date(alert.triggeredDate).toLocaleString()}
             </div>
           </div>
@@ -706,8 +706,8 @@ const LaboratoryIntegrationSystem: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
-            <div className="text-sm text-gray-500">
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
               {alert.acknowledgedBy ? (
                 <span>Acknowledged by {alert.acknowledgedBy} on {new Date(alert.acknowledgedDate!).toLocaleString()}</span>
               ) : (
@@ -735,9 +735,9 @@ const LaboratoryIntegrationSystem: React.FC = () => {
           <div className="flex items-start justify-between mb-4">
             <div className="flex-1">
               <div className="flex items-center space-x-3 mb-2">
-                <h3 className="text-lg font-semibold text-gray-900">{rule.name}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{rule.name}</h3>
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                  rule.enabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                  rule.enabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800 dark:text-gray-200'
                 }`}>
                   {rule.enabled ? 'Active' : 'Inactive'}
                 </span>
@@ -767,7 +767,7 @@ const LaboratoryIntegrationSystem: React.FC = () => {
                   </span>
                 ))}
                 {rule.associatedDrugs.length > 3 && (
-                  <span className="text-xs text-gray-500">+{rule.associatedDrugs.length - 3} more</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">+{rule.associatedDrugs.length - 3} more</span>
                 )}
               </div>
             </div>
@@ -781,14 +781,14 @@ const LaboratoryIntegrationSystem: React.FC = () => {
                   </span>
                 ))}
                 {rule.cancerTypes.length > 2 && (
-                  <span className="text-xs text-gray-500">+{rule.cancerTypes.length - 2} more</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">+{rule.cancerTypes.length - 2} more</span>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="flex items-center justify-between text-sm text-gray-500">
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
               <div>
                 Created by {rule.createdBy} • Frequency: {rule.frequency}
               </div>
@@ -807,7 +807,7 @@ const LaboratoryIntegrationSystem: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="flex items-center space-x-2">
           <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
-          <span className="text-gray-600">Loading laboratory integration data...</span>
+          <span className="text-gray-600 dark:text-gray-400">Loading laboratory integration data...</span>
         </div>
       </div>
     );
@@ -822,8 +822,8 @@ const LaboratoryIntegrationSystem: React.FC = () => {
             <TestTube className="w-6 h-6 text-blue-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Laboratory Integration & Monitoring</h1>
-            <p className="text-gray-600">Real-time lab result monitoring with intelligent alerting and clinical decision support</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Laboratory Integration & Monitoring</h1>
+            <p className="text-gray-600 dark:text-gray-400">Real-time lab result monitoring with intelligent alerting and clinical decision support</p>
           </div>
         </div>
       </div>
@@ -846,7 +846,7 @@ const LaboratoryIntegrationSystem: React.FC = () => {
                 className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab.id
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -871,7 +871,7 @@ const LaboratoryIntegrationSystem: React.FC = () => {
         <div className="space-y-6">
           {/* Add New System Button */}
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-gray-900">Laboratory System Configuration</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Laboratory System Configuration</h2>
             <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
               <Plus className="w-4 h-4 mr-2" />
               Add New System
@@ -889,8 +889,8 @@ const LaboratoryIntegrationSystem: React.FC = () => {
                       <Activity className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{system.name}</h3>
-                      <p className="text-sm text-gray-600">{system.vendor} {system.version}</p>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{system.name}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{system.vendor} {system.version}</p>
                     </div>
                   </div>
                   <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getConnectionStatusColor(system.connectionStatus)}`}>
@@ -902,36 +902,36 @@ const LaboratoryIntegrationSystem: React.FC = () => {
                 <div className="space-y-3 mb-4">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-500">Type:</span>
+                      <span className="text-gray-500 dark:text-gray-400">Type:</span>
                       <span className="ml-2 font-medium">{system.type}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Last Sync:</span>
+                      <span className="text-gray-500 dark:text-gray-400">Last Sync:</span>
                       <span className="ml-2 font-medium">{new Date(system.lastSync).toLocaleString()}</span>
                     </div>
                   </div>
                   
                   <div className="text-sm">
-                    <span className="text-gray-500">API Endpoint:</span>
+                    <span className="text-gray-500 dark:text-gray-400">API Endpoint:</span>
                     <span className="ml-2 font-mono text-xs bg-gray-100 px-2 py-1 rounded">
                       {system.apiEndpoint || 'Not configured'}
                     </span>
                   </div>
 
                   <div className="text-sm">
-                    <span className="text-gray-500">Protocol Support:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Protocol Support:</span>
                     <div className="ml-2 flex space-x-2 mt-1">
-                      <span className={`inline-flex px-2 py-1 text-xs rounded ${system.hl7Support ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                      <span className={`inline-flex px-2 py-1 text-xs rounded ${system.hl7Support ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600 dark:text-gray-400'}`}>
                         HL7 {system.hl7Support ? '✓' : '✗'}
                       </span>
-                      <span className={`inline-flex px-2 py-1 text-xs rounded ${system.fhirSupport ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                      <span className={`inline-flex px-2 py-1 text-xs rounded ${system.fhirSupport ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600 dark:text-gray-400'}`}>
                         FHIR {system.fhirSupport ? '✓' : '✗'}
                       </span>
                     </div>
                   </div>
 
                   <div className="text-sm">
-                    <span className="text-gray-500">Supported Tests:</span>
+                    <span className="text-gray-500 dark:text-gray-400">Supported Tests:</span>
                     <div className="ml-2 flex flex-wrap gap-1 mt-1">
                       {system.testsSupported.slice(0, 3).map(test => (
                         <span key={test} className="inline-flex px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
@@ -939,14 +939,14 @@ const LaboratoryIntegrationSystem: React.FC = () => {
                         </span>
                       ))}
                       {system.testsSupported.length > 3 && (
-                        <span className="text-xs text-gray-500">+{system.testsSupported.length - 3} more</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">+{system.testsSupported.length - 3} more</span>
                       )}
                     </div>
                   </div>
                 </div>
 
                 {/* System Actions */}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex space-x-2">
                     <button 
                       className="inline-flex items-center px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
@@ -997,21 +997,21 @@ const LaboratoryIntegrationSystem: React.FC = () => {
                   <Upload className="w-6 h-6" />
                 </div>
                 <h4 className="font-medium text-gray-900 mb-2">1. Connect System</h4>
-                <p className="text-sm text-gray-600">Configure API endpoints and authentication credentials for your laboratory system.</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Configure API endpoints and authentication credentials for your laboratory system.</p>
               </div>
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 text-green-600 rounded-lg mb-3">
                   <CheckCircle className="w-6 h-6" />
                 </div>
                 <h4 className="font-medium text-gray-900 mb-2">2. Test Integration</h4>
-                <p className="text-sm text-gray-600">Verify connectivity and validate data exchange with test transactions.</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Verify connectivity and validate data exchange with test transactions.</p>
               </div>
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 text-purple-600 rounded-lg mb-3">
                   <Target className="w-6 h-6" />
                 </div>
                 <h4 className="font-medium text-gray-900 mb-2">3. Configure Monitoring</h4>
-                <p className="text-sm text-gray-600">Set up automated monitoring rules and alert thresholds for critical values.</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Set up automated monitoring rules and alert thresholds for critical values.</p>
               </div>
             </div>
           </div>

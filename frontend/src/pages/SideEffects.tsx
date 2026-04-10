@@ -145,7 +145,7 @@ const SideEffects: React.FC = () => {
       case 'mild': return 'bg-green-100 text-green-800';
       case 'moderate': return 'bg-yellow-100 text-yellow-800';
       case 'severe': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -204,7 +204,7 @@ const SideEffects: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Side Effects Guide</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Side Effects Guide</h1>
           <p className="text-gray-600 mt-1">Understanding and managing treatment side effects</p>
         </div>
         <div className="flex space-x-3">
@@ -270,7 +270,7 @@ const SideEffects: React.FC = () => {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <h3 className="text-xl font-semibold text-gray-900">{sideEffect.name}</h3>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{sideEffect.name}</h3>
                     <span className={`px-2 py-1 text-xs rounded-full ${getSeverityColor(sideEffect.severity)}`}>
                       {sideEffect.severity}
                     </span>
@@ -278,7 +278,7 @@ const SideEffects: React.FC = () => {
                       {sideEffect.category}
                     </span>
                   </div>
-                  <p className="text-gray-600">{sideEffect.description}</p>
+                  <p className="text-gray-600 dark:text-gray-400">{sideEffect.description}</p>
                 </div>
               </div>
 
@@ -288,7 +288,7 @@ const SideEffects: React.FC = () => {
                   <h4 className="font-medium text-gray-900 mb-2">Common Causes</h4>
                   <ul className="space-y-1">
                     {sideEffect.commonCauses.map((cause, index) => (
-                      <li key={index} className="flex items-center space-x-2 text-sm text-gray-600">
+                      <li key={index} className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
                         <ChevronRight className="w-3 h-3" />
                         <span>{cause}</span>
                       </li>
@@ -301,7 +301,7 @@ const SideEffects: React.FC = () => {
                   <h4 className="font-medium text-gray-900 mb-2">Management Tips</h4>
                   <ul className="space-y-1">
                     {sideEffect.managementTips.map((tip, index) => (
-                      <li key={index} className="flex items-center space-x-2 text-sm text-gray-600">
+                      <li key={index} className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
                         <ChevronRight className="w-3 h-3" />
                         <span>{tip}</span>
                       </li>
@@ -335,7 +335,7 @@ const SideEffects: React.FC = () => {
           <div className="text-center py-12">
             <AlertTriangle className="w-12 h-12 mx-auto text-gray-300 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No side effects found</h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               Try adjusting your search terms or category filter.
             </p>
           </div>
@@ -352,7 +352,7 @@ const SideEffects: React.FC = () => {
               .map((report) => (
               <div key={report.id} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-lg font-medium text-gray-900">{report.sideEffect}</h3>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{report.sideEffect}</h3>
                   <div className="flex items-center space-x-2">
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       report.severity === 'severe' ? 'bg-red-100 text-red-600' :
@@ -364,14 +364,14 @@ const SideEffects: React.FC = () => {
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       report.status === 'reported' ? 'bg-blue-100 text-blue-600' :
                       report.status === 'reviewed' ? 'bg-orange-100 text-orange-600' :
-                      'bg-gray-100 text-gray-600'
+                      'bg-gray-100 text-gray-600 dark:text-gray-400'
                     }`}>
                       {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
                     </span>
                   </div>
                 </div>
                 <p className="text-gray-700 mb-2">{report.description}</p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-400">
                   <div>
                     <strong>Duration:</strong> {report.duration || 'Not specified'}
                   </div>
@@ -419,10 +419,10 @@ const SideEffects: React.FC = () => {
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <Card>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900">Report Side Effect</h2>
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Report Side Effect</h2>
                 <button
                   onClick={() => setShowReportForm(false)}
-                  className="p-1 text-gray-400 hover:text-gray-600"
+                  className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -500,7 +500,7 @@ const SideEffects: React.FC = () => {
               <div className="flex justify-end space-x-3 mt-6 pt-4 border-t">
                 <button
                   onClick={() => setShowReportForm(false)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 dark:bg-gray-800"
                 >
                   Cancel
                 </button>

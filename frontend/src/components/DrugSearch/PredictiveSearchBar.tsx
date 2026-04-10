@@ -286,7 +286,7 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
         key={suggestion.id}
         id={`${inputId}-option-${optionIndex}`}
         className={`px-4 py-3 cursor-pointer transition-colors ${
-          isSelected ? 'bg-primary-50 text-primary-700' : 'hover:bg-gray-50'
+          isSelected ? 'bg-primary-50 text-primary-700' : 'hover:bg-gray-50 dark:bg-gray-800'
         }`}
         onClick={() => handleSuggestionSelect(suggestion)}
         role="option"
@@ -299,7 +299,7 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
             suggestion.category === 'drug' ? 'bg-blue-100 text-blue-600' :
             suggestion.category === 'brand' ? 'bg-purple-100 text-purple-600' :
             suggestion.category === 'ingredient' ? 'bg-green-100 text-green-600' :
-            'bg-gray-100 text-gray-600'
+            'bg-gray-100 text-gray-600 dark:text-gray-400'
           }`}>
             {suggestion.confidence && suggestion.confidence > 0.8 ? (
               <Zap className="w-4 h-4" />
@@ -350,7 +350,7 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
         key={`history-${historyItem.query}-${historyItem.timestamp}`}
         id={`${inputId}-history-${index}`}
         className={`px-4 py-3 cursor-pointer transition-colors ${
-          isSelected ? 'bg-primary-50 text-primary-700' : 'hover:bg-gray-50'
+          isSelected ? 'bg-primary-50 text-primary-700' : 'hover:bg-gray-50 dark:bg-gray-800'
         }`}
         onClick={() => handleHistorySelect(historyItem)}
         role="option"
@@ -360,13 +360,13 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
       >
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-            <Clock className="w-4 h-4 text-gray-600" />
+            <Clock className="w-4 h-4 text-gray-600 dark:text-gray-400" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="font-medium text-gray-900 truncate">
               {historyItem.query}
             </div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
               {historyItem.resultCount > 0 && `${historyItem.resultCount} results • `}
               {new Date(historyItem.timestamp).toLocaleDateString()}
             </div>
@@ -421,7 +421,7 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
             <button
               type="button"
               onClick={handleClear}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-500"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-500 dark:text-gray-400"
               aria-label="Clear search"
             >
               <X className="h-5 w-5 text-gray-400" />
@@ -482,7 +482,7 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
 
           {/* No results */}
           {!isLoadingSuggestions && localValue.length >= 2 && suggestions.length === 0 && (
-            <div className="px-4 py-8 text-center text-gray-500" role="status" aria-live="polite">
+            <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400" role="status" aria-live="polite">
               <Search className="w-8 h-8 mx-auto mb-2 text-gray-400" aria-hidden="true" />
               <p className="text-sm">No suggestions found for "{localValue}"</p>
               <p className="text-xs mt-1">Try a different spelling or search term</p>

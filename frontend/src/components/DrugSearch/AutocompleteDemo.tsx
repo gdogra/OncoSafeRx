@@ -114,8 +114,8 @@ const AutocompleteDemo: React.FC = () => {
                 <div key={result.id} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
                   <Pill className="h-4 w-4 text-blue-500" />
                   <div>
-                    <div className="font-medium text-gray-900">{result.name}</div>
-                    <div className="text-sm text-gray-500">{result.category} • {result.description}</div>
+                    <div className="font-medium text-gray-900 dark:text-gray-100">{result.name}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{result.category} • {result.description}</div>
                   </div>
                 </div>
               ))}
@@ -129,8 +129,8 @@ const AutocompleteDemo: React.FC = () => {
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-2">
-              <Filter className="h-6 w-6 text-gray-600" />
-              <h2 className="text-xl font-bold text-gray-900">Advanced Filters</h2>
+              <Filter className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Advanced Filters</h2>
               {totalActiveFilters > 0 && (
                 <span className="px-3 py-1 bg-violet-100 text-violet-800 rounded-full text-sm font-medium">
                   {totalActiveFilters} active
@@ -158,7 +158,7 @@ const AutocompleteDemo: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2 mb-3">
                 <Pill className="h-5 w-5 text-red-500" />
-                <h3 className="font-medium text-gray-900">Therapeutic Class</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">Therapeutic Class</h3>
               </div>
               <FilterAutocomplete
                 options={THERAPEUTIC_CLASS_OPTIONS}
@@ -175,7 +175,7 @@ const AutocompleteDemo: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2 mb-3">
                 <Zap className="h-5 w-5 text-purple-500" />
-                <h3 className="font-medium text-gray-900">Mechanism of Action</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">Mechanism of Action</h3>
               </div>
               <FilterAutocomplete
                 options={MECHANISM_OPTIONS}
@@ -192,7 +192,7 @@ const AutocompleteDemo: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2 mb-3">
                 <Target className="h-5 w-5 text-blue-500" />
-                <h3 className="font-medium text-gray-900">Cancer Indications</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">Cancer Indications</h3>
               </div>
               <FilterAutocomplete
                 options={INDICATION_OPTIONS}
@@ -209,7 +209,7 @@ const AutocompleteDemo: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2 mb-3">
                 <Activity className="h-5 w-5 text-green-500" />
-                <h3 className="font-medium text-gray-900">Biomarker Targets</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">Biomarker Targets</h3>
               </div>
               <FilterAutocomplete
                 options={BIOMARKER_OPTIONS}
@@ -226,7 +226,7 @@ const AutocompleteDemo: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2 mb-3">
                 <CheckCircle className="h-5 w-5 text-green-500" />
-                <h3 className="font-medium text-gray-900">Approval Status</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">Approval Status</h3>
               </div>
               <FilterAutocomplete
                 options={APPROVAL_STATUS_OPTIONS}
@@ -243,7 +243,7 @@ const AutocompleteDemo: React.FC = () => {
             <div>
               <div className="flex items-center space-x-2 mb-3">
                 <Clock className="h-5 w-5 text-orange-500" />
-                <h3 className="font-medium text-gray-900">Clinical Trial Phase</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">Clinical Trial Phase</h3>
               </div>
               <FilterAutocomplete
                 options={CLINICAL_TRIAL_PHASE_OPTIONS}

@@ -176,7 +176,7 @@ export const CareCoordinationHub: React.FC = () => {
       <div className="max-w-7xl mx-auto p-6">
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading care coordination data...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading care coordination data...</p>
         </div>
       </div>
     );
@@ -361,8 +361,8 @@ export const CareCoordinationHub: React.FC = () => {
     switch (availability) {
       case 'available': return 'bg-green-500';
       case 'busy': return 'bg-yellow-500';
-      case 'offline': return 'bg-gray-500';
-      default: return 'bg-gray-500';
+      case 'offline': return 'bg-gray-50 dark:bg-gray-8000';
+      default: return 'bg-gray-50 dark:bg-gray-8000';
     }
   };
 
@@ -372,7 +372,7 @@ export const CareCoordinationHub: React.FC = () => {
       case 'medium': return 'text-yellow-600 bg-yellow-100';
       case 'high': return 'text-orange-600 bg-orange-100';
       case 'urgent': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -382,7 +382,7 @@ export const CareCoordinationHub: React.FC = () => {
       case 'in_progress': return 'text-blue-600 bg-blue-100';
       case 'completed': return 'text-green-600 bg-green-100';
       case 'cancelled': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -403,9 +403,9 @@ export const CareCoordinationHub: React.FC = () => {
             <div className={`absolute -bottom-1 -right-1 w-4 h-4 ${getAvailabilityColor(member.availability)} rounded-full border-2 border-white`}></div>
           </div>
           <div className="ml-3">
-            <h3 className="text-lg font-semibold text-gray-900">{member.name}</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{member.name}</h3>
             <p className="text-sm text-gray-600 capitalize">{member.role}</p>
-            <p className="text-xs text-gray-500">{member.specialty}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{member.specialty}</p>
           </div>
         </div>
         <div className="flex space-x-2">
@@ -422,15 +422,15 @@ export const CareCoordinationHub: React.FC = () => {
       </div>
       
       <div className="space-y-2 text-sm">
-        <div className="flex items-center text-gray-600">
+        <div className="flex items-center text-gray-600 dark:text-gray-400">
           <Hospital className="h-4 w-4 mr-2" />
           {member.hospital}
         </div>
-        <div className="flex items-center text-gray-600">
+        <div className="flex items-center text-gray-600 dark:text-gray-400">
           <Mail className="h-4 w-4 mr-2" />
           {member.email}
         </div>
-        <div className="flex items-center text-gray-600">
+        <div className="flex items-center text-gray-600 dark:text-gray-400">
           <Clock className="h-4 w-4 mr-2" />
           {member.yearsExperience} years experience
         </div>
@@ -474,11 +474,11 @@ export const CareCoordinationHub: React.FC = () => {
         </div>
         
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center text-gray-600">
+          <div className="flex items-center text-gray-600 dark:text-gray-400">
             <UserCheck className="h-4 w-4 mr-1" />
             {assignedMember?.name || 'Unassigned'}
           </div>
-          <div className="flex items-center text-gray-600">
+          <div className="flex items-center text-gray-600 dark:text-gray-400">
             <Calendar className="h-4 w-4 mr-1" />
             {new Date(task.dueDate).toLocaleDateString()}
           </div>
@@ -491,7 +491,7 @@ export const CareCoordinationHub: React.FC = () => {
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Care Coordination Hub</h1>
-        <p className="text-gray-600">Streamline care team collaboration and patient management</p>
+        <p className="text-gray-600 dark:text-gray-400">Streamline care team collaboration and patient management</p>
       </div>
 
       {/* Navigation Tabs */}
@@ -511,7 +511,7 @@ export const CareCoordinationHub: React.FC = () => {
               className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
               }`}
             >
               <Icon className="h-5 w-5 mr-2" />
@@ -581,13 +581,13 @@ export const CareCoordinationHub: React.FC = () => {
                     <IconComponent className={`h-5 w-5 ${iconColor} mr-3`} />
                     <div>
                       <p className="text-sm font-medium">{task.title}</p>
-                      <p className="text-xs text-gray-500">{new Date(task.createdAt).toLocaleString()}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(task.createdAt).toLocaleString()}</p>
                     </div>
                   </div>
                 );
               })}
               {careTasks.length === 0 && (
-                <div className="text-center py-4 text-gray-500">
+                <div className="text-center py-4 text-gray-500 dark:text-gray-400">
                   <p>No recent activity</p>
                 </div>
               )}
@@ -670,8 +670,8 @@ export const CareCoordinationHub: React.FC = () => {
             <div key={plan.id} className="bg-white rounded-lg border border-gray-200 p-6">
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900">{plan.patientName}</h3>
-                  <p className="text-gray-600">{plan.diagnosis} - {plan.stage}</p>
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{plan.patientName}</h3>
+                  <p className="text-gray-600 dark:text-gray-400">{plan.diagnosis} - {plan.stage}</p>
                   <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${
                     plan.treatmentPhase === 'active' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
                   }`}>
@@ -696,7 +696,7 @@ export const CareCoordinationHub: React.FC = () => {
                   <h4 className="font-medium text-gray-900 mb-2">Treatment Goals</h4>
                   <ul className="space-y-1">
                     {plan.goals.map((goal, index) => (
-                      <li key={index} className="flex items-center text-sm text-gray-600">
+                      <li key={index} className="flex items-center text-sm text-gray-600 dark:text-gray-400">
                         <Target className="h-3 w-3 mr-2 text-blue-500" />
                         {goal}
                       </li>
@@ -715,8 +715,8 @@ export const CareCoordinationHub: React.FC = () => {
                           milestone.status === 'delayed' ? 'bg-red-500' : 'bg-gray-300'
                         }`}></div>
                         <div>
-                          <p className="text-gray-900">{milestone.title}</p>
-                          <p className="text-gray-500">{new Date(milestone.targetDate).toLocaleDateString()}</p>
+                          <p className="text-gray-900 dark:text-gray-100">{milestone.title}</p>
+                          <p className="text-gray-500 dark:text-gray-400">{new Date(milestone.targetDate).toLocaleDateString()}</p>
                         </div>
                       </div>
                     ))}
@@ -727,11 +727,11 @@ export const CareCoordinationHub: React.FC = () => {
                   <h4 className="font-medium text-gray-900 mb-2">Key Information</h4>
                   <div className="space-y-2 text-sm">
                     <div>
-                      <span className="text-gray-500">Next Review:</span>
-                      <span className="ml-2 text-gray-900">{new Date(plan.nextReviewDate).toLocaleDateString()}</span>
+                      <span className="text-gray-500 dark:text-gray-400">Next Review:</span>
+                      <span className="ml-2 text-gray-900 dark:text-gray-100">{new Date(plan.nextReviewDate).toLocaleDateString()}</span>
                     </div>
                     <div>
-                      <span className="text-gray-500">Risk Factors:</span>
+                      <span className="text-gray-500 dark:text-gray-400">Risk Factors:</span>
                       <div className="flex flex-wrap gap-1 mt-1">
                         {plan.riskFactors.map((factor, index) => (
                           <span key={index} className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
@@ -765,7 +765,7 @@ export const CareCoordinationHub: React.FC = () => {
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center mb-2">
-                      <h3 className="font-semibold text-gray-900">{thread.subject}</h3>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">{thread.subject}</h3>
                       {thread.unreadCount > 0 && (
                         <span className="ml-2 bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
                           {thread.unreadCount} new
@@ -774,13 +774,13 @@ export const CareCoordinationHub: React.FC = () => {
                       <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
                         thread.priority === 'urgent' ? 'bg-red-100 text-red-800' :
                         thread.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                        'bg-gray-100 text-gray-800'
+                        'bg-gray-100 text-gray-800 dark:text-gray-200'
                       }`}>
                         {thread.priority}
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">{thread.lastMessage.content}</p>
-                    <div className="flex items-center text-xs text-gray-500">
+                    <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
                       <span>From: {careTeam.find(m => m.id === thread.lastMessage.sender)?.name}</span>
                       <span className="mx-2">•</span>
                       <span>{new Date(thread.lastMessage.timestamp).toLocaleString()}</span>
@@ -807,7 +807,7 @@ export const CareCoordinationHub: React.FC = () => {
                   <span className="text-xl font-bold text-green-600">85%</span>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-gray-600">On-time completion</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">On-time completion</p>
                   <p className="text-xs text-green-600">↑ 12% from last month</p>
                 </div>
               </div>
@@ -820,7 +820,7 @@ export const CareCoordinationHub: React.FC = () => {
                   <span className="text-lg font-bold text-blue-600">2.3h</span>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-gray-600">Team communication</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Team communication</p>
                   <p className="text-xs text-blue-600">↓ 30min from last month</p>
                 </div>
               </div>
@@ -833,7 +833,7 @@ export const CareCoordinationHub: React.FC = () => {
                   <span className="text-xl font-bold text-yellow-600">4.8</span>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-gray-600">Average rating</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Average rating</p>
                   <p className="text-xs text-yellow-600">↑ 0.3 from last month</p>
                 </div>
               </div>

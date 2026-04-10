@@ -268,8 +268,8 @@ const PracticeROIDashboard: React.FC = () => {
         <div className="flex items-center space-x-3">
           <DollarSign className="w-8 h-8 text-green-600" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Practice Analytics & ROI</h1>
-            <p className="text-gray-600">Precision medicine implementation impact and financial analysis</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Practice Analytics & ROI</h1>
+            <p className="text-gray-600 dark:text-gray-400">Precision medicine implementation impact and financial analysis</p>
           </div>
         </div>
         <div className="flex items-center space-x-4">
@@ -300,7 +300,7 @@ const PracticeROIDashboard: React.FC = () => {
             <div className="p-6">
               <div className="flex items-center space-x-2 mb-2">
                 <DollarSign className="w-5 h-5 text-green-600" />
-                <span className="text-sm font-medium text-gray-600">Cost Savings</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Cost Savings</span>
               </div>
               <div className="text-2xl font-bold text-green-600">
                 {formatCurrency(roiMetrics.costSavings)}
@@ -315,7 +315,7 @@ const PracticeROIDashboard: React.FC = () => {
             <div className="p-6">
               <div className="flex items-center space-x-2 mb-2">
                 <TrendingUp className="w-5 h-5 text-blue-600" />
-                <span className="text-sm font-medium text-gray-600">Revenue Increase</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Revenue Increase</span>
               </div>
               <div className="text-2xl font-bold text-blue-600">
                 {formatCurrency(roiMetrics.revenueIncrease)}
@@ -330,7 +330,7 @@ const PracticeROIDashboard: React.FC = () => {
             <div className="p-6">
               <div className="flex items-center space-x-2 mb-2">
                 <Users className="w-5 h-5 text-purple-600" />
-                <span className="text-sm font-medium text-gray-600">Precision Medicine Rate</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Precision Medicine Rate</span>
               </div>
               <div className="text-2xl font-bold text-purple-600">
                 {Math.round((roiMetrics.precisionMedicinePatients / roiMetrics.totalPatients) * 100)}%
@@ -345,7 +345,7 @@ const PracticeROIDashboard: React.FC = () => {
             <div className="p-6">
               <div className="flex items-center space-x-2 mb-2">
                 <Target className="w-5 h-5 text-orange-600" />
-                <span className="text-sm font-medium text-gray-600">Overall ROI</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Overall ROI</span>
               </div>
               <div className="text-2xl font-bold text-orange-600">
                 {Math.round(((roiMetrics.costSavings + roiMetrics.revenueIncrease) / roiMetrics.costSavings) * 100)}%
@@ -362,7 +362,7 @@ const PracticeROIDashboard: React.FC = () => {
       <Card>
         <div className="p-4">
           <div className="flex items-center space-x-4">
-            <span className="font-medium text-gray-900">Analysis View:</span>
+            <span className="font-medium text-gray-900 dark:text-gray-100">Analysis View:</span>
             {(['roi', 'cost', 'outcomes', 'implementation'] as const).map((metric) => (
               <button
                 key={metric}
@@ -497,11 +497,11 @@ const PracticeROIDashboard: React.FC = () => {
                 <div className="text-3xl font-bold text-green-600">
                   {formatCurrency(costAnalysis.savings.total)}
                 </div>
-                <p className="text-gray-600">Total savings per patient</p>
+                <p className="text-gray-600 dark:text-gray-400">Total savings per patient</p>
                 <div className="text-lg font-semibold text-green-600 mt-2">
                   -{costAnalysis.savings.percentage}%
                 </div>
-                <p className="text-sm text-gray-600">Cost reduction</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Cost reduction</p>
               </div>
 
               <ResponsiveContainer width="100%" height={200}>
@@ -549,11 +549,11 @@ const PracticeROIDashboard: React.FC = () => {
                   </div>
                   <div className="flex space-x-4">
                     <div className="flex-1">
-                      <div className="text-sm text-gray-600">Traditional</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Traditional</div>
                       <div className="text-lg font-semibold">{outcomeMetrics.responseRates.traditional}%</div>
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm text-gray-600">Precision</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Precision</div>
                       <div className="text-lg font-semibold text-green-600">{outcomeMetrics.responseRates.precision}%</div>
                     </div>
                   </div>
@@ -566,11 +566,11 @@ const PracticeROIDashboard: React.FC = () => {
                   </div>
                   <div className="flex space-x-4">
                     <div className="flex-1">
-                      <div className="text-sm text-gray-600">Traditional</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Traditional</div>
                       <div className="text-lg font-semibold">{outcomeMetrics.survivalBenefit.traditional} months</div>
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm text-gray-600">Precision</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Precision</div>
                       <div className="text-lg font-semibold text-green-600">{outcomeMetrics.survivalBenefit.precision} months</div>
                     </div>
                   </div>
@@ -583,11 +583,11 @@ const PracticeROIDashboard: React.FC = () => {
                   </div>
                   <div className="flex space-x-4">
                     <div className="flex-1">
-                      <div className="text-sm text-gray-600">Traditional</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Traditional</div>
                       <div className="text-lg font-semibold">{outcomeMetrics.qualityOfLife.traditional}/10</div>
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm text-gray-600">Precision</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Precision</div>
                       <div className="text-lg font-semibold text-green-600">{outcomeMetrics.qualityOfLife.precision}/10</div>
                     </div>
                   </div>
@@ -600,11 +600,11 @@ const PracticeROIDashboard: React.FC = () => {
                   </div>
                   <div className="flex space-x-4">
                     <div className="flex-1">
-                      <div className="text-sm text-gray-600">Traditional</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Traditional</div>
                       <div className="text-lg font-semibold">{outcomeMetrics.timeToTreatment.traditional} days</div>
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm text-gray-600">Precision</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">Precision</div>
                       <div className="text-lg font-semibold text-green-600">{outcomeMetrics.timeToTreatment.precision} days</div>
                     </div>
                   </div>
@@ -663,10 +663,10 @@ const PracticeROIDashboard: React.FC = () => {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-medium text-gray-900">{milestone.milestone}</h4>
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">{milestone.milestone}</h4>
                       <div className="flex items-center space-x-2">
                         <span className="text-sm text-blue-600 font-medium">+{milestone.impact}% impact</span>
-                        <span className="text-sm text-gray-500">{new Date(milestone.date).toLocaleDateString()}</span>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">{new Date(milestone.date).toLocaleDateString()}</span>
                       </div>
                     </div>
                     <div className="mt-2">
@@ -709,11 +709,11 @@ const PracticeROIDashboard: React.FC = () => {
                 <h4 className="font-medium text-gray-900 mb-3">Genomic Testing Rate</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">National Average</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">National Average</span>
                     <span>{benchmarkData.national_average.genomic_testing_rate}%</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Top Quartile</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Top Quartile</span>
                     <span>{benchmarkData.top_quartile.genomic_testing_rate}%</span>
                   </div>
                   <div className="flex justify-between font-semibold border-t pt-2">
@@ -732,11 +732,11 @@ const PracticeROIDashboard: React.FC = () => {
                 <h4 className="font-medium text-gray-900 mb-3">Precision Medicine Adoption</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">National Average</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">National Average</span>
                     <span>{benchmarkData.national_average.precision_medicine_adoption}%</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Top Quartile</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Top Quartile</span>
                     <span>{benchmarkData.top_quartile.precision_medicine_adoption}%</span>
                   </div>
                   <div className="flex justify-between font-semibold border-t pt-2">
@@ -755,11 +755,11 @@ const PracticeROIDashboard: React.FC = () => {
                 <h4 className="font-medium text-gray-900 mb-3">Average ROI</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">National Average</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">National Average</span>
                     <span>{benchmarkData.national_average.average_roi}%</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Top Quartile</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Top Quartile</span>
                     <span>{benchmarkData.top_quartile.average_roi}%</span>
                   </div>
                   <div className="flex justify-between font-semibold border-t pt-2">
@@ -778,11 +778,11 @@ const PracticeROIDashboard: React.FC = () => {
                 <h4 className="font-medium text-gray-900 mb-3">Cost Per Patient</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">National Average</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">National Average</span>
                     <span>{formatCurrency(benchmarkData.national_average.cost_per_patient)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Top Quartile</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Top Quartile</span>
                     <span>{formatCurrency(benchmarkData.top_quartile.cost_per_patient)}</span>
                   </div>
                   <div className="flex justify-between font-semibold border-t pt-2">

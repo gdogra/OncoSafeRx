@@ -140,7 +140,7 @@ const SearchWithFavorites: React.FC<SearchWithFavoritesProps> = ({
               className={`p-2 rounded-lg transition-colors ${
                 activeFiltersCount > 0
                   ? 'bg-blue-100 text-blue-600 hover:bg-blue-200'
-                  : 'hover:bg-gray-100 text-gray-400 hover:text-gray-600'
+                  : 'hover:bg-gray-100 text-gray-400 hover:text-gray-600 dark:text-gray-400'
               }`}
               title="Advanced Search & Filters"
             >
@@ -168,7 +168,7 @@ const SearchWithFavorites: React.FC<SearchWithFavoritesProps> = ({
                   <div>
                     <div className="flex items-center space-x-2 mb-2">
                       <Clock className="h-4 w-4 text-gray-400" />
-                      <span className="text-sm font-medium text-gray-700">Recent Searches</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Recent Searches</span>
                     </div>
                     <div className="space-y-1">
                       {recentSearches.slice(0, 5).map((search, index) => (
@@ -190,7 +190,7 @@ const SearchWithFavorites: React.FC<SearchWithFavoritesProps> = ({
                   <div>
                     <div className="flex items-center space-x-2 mb-2">
                       <Star className="h-4 w-4 text-yellow-500" />
-                      <span className="text-sm font-medium text-gray-700">Favorite Drugs</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Favorite Drugs</span>
                     </div>
                     <div className="space-y-1">
                       {favoritesByType.drug.slice(0, 3).map((fav) => (
@@ -211,7 +211,7 @@ const SearchWithFavorites: React.FC<SearchWithFavoritesProps> = ({
                 <div>
                   <div className="flex items-center space-x-2 mb-2">
                     <Bookmark className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-700">Quick Actions</span>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Actions</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <button
@@ -278,7 +278,7 @@ const SearchWithFavorites: React.FC<SearchWithFavoritesProps> = ({
 
           {/* No suggestions */}
           {showSuggestions && suggestions.length === 0 && query.length > 2 && (
-            <div className="p-4 text-center text-gray-500">
+            <div className="p-4 text-center text-gray-500 dark:text-gray-400">
               <p className="text-sm">No suggestions found</p>
               <button
                 onClick={() => setIsAdvancedSearchOpen(true)}

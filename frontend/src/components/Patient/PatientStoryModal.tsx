@@ -197,7 +197,7 @@ const PatientStoryModal: React.FC<PatientStoryModalProps> = ({ isOpen, onClose }
               onChange={(e) => setFormData(prev => ({ ...prev, anonymousSubmission: e.target.checked }))}
               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
-            <label htmlFor="anonymousSubmission" className="text-sm text-gray-700">
+            <label htmlFor="anonymousSubmission" className="text-sm text-gray-700 dark:text-gray-300">
               Submit this story anonymously
             </label>
           </div>
@@ -300,7 +300,7 @@ const PatientStoryModal: React.FC<PatientStoryModalProps> = ({ isOpen, onClose }
               onChange={(e) => setFormData(prev => ({ ...prev, allowContact: e.target.checked }))}
               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
-            <label htmlFor="allowContact" className="text-sm text-gray-700">
+            <label htmlFor="allowContact" className="text-sm text-gray-700 dark:text-gray-300">
               Allow us to contact you for follow-up questions or updates
             </label>
           </div>
@@ -333,7 +333,7 @@ const PatientStoryModal: React.FC<PatientStoryModalProps> = ({ isOpen, onClose }
               className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-0.5"
               required
             />
-            <label htmlFor="consentToPublish" className="text-sm text-gray-700">
+            <label htmlFor="consentToPublish" className="text-sm text-gray-700 dark:text-gray-300">
               <span className="font-medium">I consent to publish my story</span> on the OncoSafeRx platform to help other patients and caregivers. 
               I understand that my story may be edited for length and clarity, and that I can request its removal at any time by contacting support.
               <span className="text-red-500"> *</span>
@@ -352,7 +352,7 @@ const PatientStoryModal: React.FC<PatientStoryModalProps> = ({ isOpen, onClose }
         )}
 
         {/* Submit Button */}
-        <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+        <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             type="button"
             onClick={onClose}

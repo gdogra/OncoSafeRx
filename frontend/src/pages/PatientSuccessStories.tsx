@@ -23,7 +23,7 @@ const PatientSuccessStories: React.FC = () => {
       />
 
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Patient Success Stories</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Patient Success Stories</h1>
         <p className="text-gray-600 mt-1">Real-world experiences from patients navigating treatment and recovery.</p>
       </div>
 
@@ -36,7 +36,7 @@ const PatientSuccessStories: React.FC = () => {
                 <User className="w-6 h-6 text-blue-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-semibold text-gray-900">Managing side effects during chemotherapy</h2>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Managing side effects during chemotherapy</h2>
                 <div className="flex items-center gap-4 text-sm text-gray-600 mt-2">
                   <div className="inline-flex items-center gap-2">
                     <User className="w-4 h-4" /> <span>Alex R.</span>
@@ -51,12 +51,12 @@ const PatientSuccessStories: React.FC = () => {
               </div>
             </div>
 
-            <p className="text-gray-700">
+            <p className="text-gray-700 dark:text-gray-300">
               From nausea and fatigue to changes in appetite, chemotherapy can be hard on daily life. Here's how I learned to manage side effects and maintain some normalcy during treatment.
             </p>
 
             {expandedStory === 1 && (
-              <div className="space-y-4 text-gray-700">
+              <div className="space-y-4 text-gray-700 dark:text-gray-300">
                 <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
                   <Quote className="w-5 h-5 text-blue-600 mb-2" />
                   <p className="italic text-blue-800">"The hardest part wasn't the physical symptoms—it was feeling like I had lost control over my own body. Learning to work with the side effects instead of fighting them changed everything."</p>
@@ -140,7 +140,7 @@ const PatientSuccessStories: React.FC = () => {
                 <User className="w-6 h-6 text-purple-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-semibold text-gray-900">Finding support networks that work</h2>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Finding support networks that work</h2>
                 <div className="flex items-center gap-4 text-sm text-gray-600 mt-2">
                   <div className="inline-flex items-center gap-2">
                     <User className="w-4 h-4" /> <span>Priya S.</span>
@@ -155,12 +155,12 @@ const PatientSuccessStories: React.FC = () => {
               </div>
             </div>
 
-            <p className="text-gray-700">
+            <p className="text-gray-700 dark:text-gray-300">
               Whether in-person groups, online communities, or 1:1 peer connections, support can look different for everyone. Here's how I found the right support network for my personality and schedule.
             </p>
 
             {expandedStory === 2 && (
-              <div className="space-y-4 text-gray-700">
+              <div className="space-y-4 text-gray-700 dark:text-gray-300">
                 <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-400">
                   <Quote className="w-5 h-5 text-purple-600 mb-2" />
                   <p className="italic text-purple-800">"I thought I was the type of person who preferred to handle things alone. Cancer taught me that even introverts need support—we just need to find it in ways that feel authentic to us."</p>
@@ -268,7 +268,7 @@ const PatientSuccessStories: React.FC = () => {
                 <User className="w-6 h-6 text-green-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-semibold text-gray-900">Returning to everyday life after treatment</h2>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Returning to everyday life after treatment</h2>
                 <div className="flex items-center gap-4 text-sm text-gray-600 mt-2">
                   <div className="inline-flex items-center gap-2">
                     <User className="w-4 h-4" /> <span>Jordan M.</span>
@@ -283,12 +283,12 @@ const PatientSuccessStories: React.FC = () => {
               </div>
             </div>
 
-            <p className="text-gray-700">
+            <p className="text-gray-700 dark:text-gray-300">
               The transition after treatment can be emotional and complex. Here's how I paced my return to work, rebuilt my energy, and navigated follow-up care—while celebrating milestones along the way.
             </p>
 
             {expandedStory === 3 && (
-              <div className="space-y-4 text-gray-700">
+              <div className="space-y-4 text-gray-700 dark:text-gray-300">
                 <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-400">
                   <Quote className="w-5 h-5 text-green-600 mb-2" />
                   <p className="italic text-green-800">"Everyone told me I should be thrilled that treatment was over, and I was. But I was also terrified, exhausted, and unsure who I was now. Recovery isn't just about your body—it's about rebuilding your entire sense of self."</p>

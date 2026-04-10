@@ -68,7 +68,7 @@ const Contact: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -97,8 +97,8 @@ const Contact: React.FC = () => {
                 <div className="flex items-start">
                   <Mail className="h-5 w-5 text-blue-600 mt-1 mr-3" />
                   <div>
-                    <h3 className="font-medium text-gray-900">Email</h3>
-                    <p className="text-gray-600">support@oncosaferx.com</p>
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">Email</h3>
+                    <p className="text-gray-600 dark:text-gray-400">support@oncosaferx.com</p>
                     <p className="text-gray-600 text-sm">partnerships@oncosaferx.com</p>
                   </div>
                 </div>
@@ -106,8 +106,8 @@ const Contact: React.FC = () => {
                 <div className="flex items-start">
                   <Phone className="h-5 w-5 text-blue-600 mt-1 mr-3" />
                   <div>
-                    <h3 className="font-medium text-gray-900">Phone</h3>
-                    <p className="text-gray-600">+1 (555) 123-4567</p>
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">Phone</h3>
+                    <p className="text-gray-600 dark:text-gray-400">+1 (555) 123-4567</p>
                     <p className="text-gray-600 text-sm">Mon-Fri, 9AM-6PM EST</p>
                   </div>
                 </div>
@@ -115,8 +115,8 @@ const Contact: React.FC = () => {
                 <div className="flex items-start">
                   <MapPin className="h-5 w-5 text-blue-600 mt-1 mr-3" />
                   <div>
-                    <h3 className="font-medium text-gray-900">Address</h3>
-                    <p className="text-gray-600">
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">Address</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
                       123 Healthcare Innovation Drive<br />
                       Medical District, NY 10001<br />
                       United States
@@ -127,8 +127,8 @@ const Contact: React.FC = () => {
                 <div className="flex items-start">
                   <Clock className="h-5 w-5 text-blue-600 mt-1 mr-3" />
                   <div>
-                    <h3 className="font-medium text-gray-900">Business Hours</h3>
-                    <p className="text-gray-600">
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">Business Hours</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
                       Monday - Friday: 9:00 AM - 6:00 PM EST<br />
                       Saturday: 10:00 AM - 2:00 PM EST<br />
                       Sunday: Closed
@@ -317,8 +317,8 @@ const Contact: React.FC = () => {
                 </button>
               </form>
 
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <p className="text-sm text-gray-600">
+              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   By submitting this form, you agree to our privacy policy and terms of service. 
                   We respect your privacy and will never share your information with third parties.
                 </p>

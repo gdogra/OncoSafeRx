@@ -18,7 +18,7 @@ const AuthenticatedRoute: React.FC = () => {
   // Show dashboard to authenticated users
   return (
     <Layout>
-      <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="text-gray-500">Loading...</div></div>}>
+      <Suspense fallback={<div className="flex items-center justify-center h-64"><div className="text-gray-500 dark:text-gray-400">Loading...</div></div>}>
         <Dashboard />
       </Suspense>
     </Layout>

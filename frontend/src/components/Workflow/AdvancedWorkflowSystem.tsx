@@ -561,7 +561,7 @@ const AdvancedWorkflowSystem: React.FC = () => {
       case 'easy': return 'bg-green-100 text-green-800';
       case 'moderate': return 'bg-yellow-100 text-yellow-800';
       case 'complex': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -571,7 +571,7 @@ const AdvancedWorkflowSystem: React.FC = () => {
       case 'completed': return 'bg-green-100 text-green-800';
       case 'paused': return 'bg-yellow-100 text-yellow-800';
       case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -607,7 +607,7 @@ const AdvancedWorkflowSystem: React.FC = () => {
           {workflowInstances.filter(instance => instance.status === 'active').map(instance => (
             <div key={instance.id} className="border border-gray-200 rounded-lg p-3">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-medium text-gray-900">{instance.patientName}</h4>
+                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">{instance.patientName}</h4>
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(instance.status)}`}>
                   {instance.status}
                 </span>
@@ -620,7 +620,7 @@ const AdvancedWorkflowSystem: React.FC = () => {
                     style={{ width: `${instance.progress}%` }}
                   ></div>
                 </div>
-                <span className="text-xs text-gray-500">{instance.progress}%</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">{instance.progress}%</span>
               </div>
               <button onClick={() => continueWorkflow(instance)} className="mt-2 w-full px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors">
                 Continue Workflow
@@ -635,19 +635,19 @@ const AdvancedWorkflowSystem: React.FC = () => {
         <h3 className="text-sm font-semibold text-gray-900 mb-3">Mobile Optimization</h3>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Device Type</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Device Type</span>
             <span className="text-sm font-medium text-gray-900 capitalize">{deviceType}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Touch Optimized</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Touch Optimized</span>
             <CheckCircle className="w-4 h-4 text-green-500" />
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Offline Capable</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Offline Capable</span>
             <CheckCircle className="w-4 h-4 text-green-500" />
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">Voice Commands</span>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Voice Commands</span>
             <CheckCircle className="w-4 h-4 text-green-500" />
           </div>
         </div>
@@ -659,40 +659,40 @@ const AdvancedWorkflowSystem: React.FC = () => {
     <div className="space-y-6">
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Active Workflows</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Active Workflows</p>
               <p className="text-2xl font-bold text-blue-600">{workflowInstances.filter(i => i.status === 'active').length}</p>
             </div>
             <Workflow className="w-8 h-8 text-blue-600" />
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Completed Today</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Completed Today</p>
               <p className="text-2xl font-bold text-green-600">{workflowInstances.filter(i => i.status === 'completed').length}</p>
             </div>
             <CheckCircle className="w-8 h-8 text-green-600" />
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Templates Available</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Templates Available</p>
               <p className="text-2xl font-bold text-purple-600">{workflowTemplates.length}</p>
             </div>
             <Layers className="w-8 h-8 text-purple-600" />
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 border border-gray-200">
+        <div className="bg-white rounded-lg p-4 border border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Avg. Completion Time</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Completion Time</p>
               <p className="text-2xl font-bold text-orange-600">47m</p>
             </div>
             <Timer className="w-8 h-8 text-orange-600" />
@@ -701,9 +701,9 @@ const AdvancedWorkflowSystem: React.FC = () => {
       </div>
 
       {/* Active Workflows */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Active Workflows</h3>
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Active Workflows</h3>
         </div>
         <div className="p-6">
           {workflowInstances.filter(instance => instance.status === 'active').map(instance => (
@@ -711,13 +711,13 @@ const AdvancedWorkflowSystem: React.FC = () => {
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <h4 className="text-base font-medium text-gray-900">{instance.patientName}</h4>
+                    <h4 className="text-base font-medium text-gray-900 dark:text-gray-100">{instance.patientName}</h4>
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(instance.status)}`}>
                       {instance.status}
                     </span>
                   </div>
                   <p className="text-sm text-gray-600 mb-2">{instance.templateName}</p>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                  <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                     <span>Step {instance.currentStep} of {instance.stepStatuses.length}</span>
                     <span>Started: {new Date(instance.startedDate).toLocaleString()}</span>
                     <span>Assigned: {instance.assignedTo.join(', ')}</span>
@@ -727,8 +727,8 @@ const AdvancedWorkflowSystem: React.FC = () => {
               
               <div className="mb-3">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm text-gray-600">Progress</span>
-                  <span className="text-sm font-medium text-gray-900">{instance.progress}%</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Progress</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{instance.progress}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
@@ -758,9 +758,9 @@ const AdvancedWorkflowSystem: React.FC = () => {
       </div>
 
       {/* Popular Templates */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Popular Workflow Templates</h3>
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Popular Workflow Templates</h3>
         </div>
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -769,7 +769,7 @@ const AdvancedWorkflowSystem: React.FC = () => {
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h4 className="text-sm font-medium text-gray-900 mb-1">{template.name}</h4>
-                    <p className="text-xs text-gray-600">{template.description}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">{template.description}</p>
                   </div>
                   {template.mobileOptimized && (
                     <Smartphone className="w-4 h-4 text-green-500" aria-label="Mobile Optimized" />
@@ -782,11 +782,11 @@ const AdvancedWorkflowSystem: React.FC = () => {
                   </span>
                   <div className="flex items-center space-x-1">
                     <Star className="w-3 h-3 text-yellow-500" />
-                    <span className="text-xs text-gray-600">{template.rating}</span>
+                    <span className="text-xs text-gray-600 dark:text-gray-400">{template.rating}</span>
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                   <span>{template.usageCount} uses</span>
                   <span>{template.estimatedDuration}m</span>
                 </div>
@@ -847,7 +847,7 @@ const AdvancedWorkflowSystem: React.FC = () => {
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <div className="flex items-center space-x-2 mb-2">
-                  <h3 className="text-lg font-semibold text-gray-900">{template.name}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{template.name}</h3>
                   {template.mobileOptimized && (
                     <Smartphone className="w-4 h-4 text-green-500" aria-label="Mobile Optimized" />
                   )}
@@ -861,24 +861,24 @@ const AdvancedWorkflowSystem: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <span className="text-xs text-gray-500">Duration</span>
-                <p className="text-sm font-medium text-gray-900">{template.estimatedDuration} minutes</p>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Duration</span>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{template.estimatedDuration} minutes</p>
               </div>
               <div>
-                <span className="text-xs text-gray-500">Difficulty</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Difficulty</span>
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getDifficultyColor(template.difficulty)}`}>
                   {template.difficulty}
                 </span>
               </div>
               <div>
-                <span className="text-xs text-gray-500">Usage</span>
-                <p className="text-sm font-medium text-gray-900">{template.usageCount} times</p>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Usage</span>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{template.usageCount} times</p>
               </div>
               <div>
-                <span className="text-xs text-gray-500">Rating</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Rating</span>
                 <div className="flex items-center space-x-1">
                   <Star className="w-3 h-3 text-yellow-500" />
-                  <span className="text-sm font-medium text-gray-900">{template.rating}</span>
+                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{template.rating}</span>
                 </div>
               </div>
             </div>
@@ -902,18 +902,18 @@ const AdvancedWorkflowSystem: React.FC = () => {
                     <span className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 text-xs">
                       {index + 1}
                     </span>
-                    <span className="text-gray-600">{step.title}</span>
+                    <span className="text-gray-600 dark:text-gray-400">{step.title}</span>
                     <span className="text-gray-400">({step.estimatedTime}m)</span>
                   </div>
                 ))}
                 {template.steps.length > 3 && (
-                  <div className="text-xs text-gray-500">+{template.steps.length - 3} more steps</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">+{template.steps.length - 3} more steps</div>
                 )}
               </div>
             </div>
 
             <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
                 By {template.createdBy} • {new Date(template.lastModified).toLocaleDateString()}
               </div>
               <div className="flex items-center space-x-2">
@@ -939,7 +939,7 @@ const AdvancedWorkflowSystem: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="flex items-center space-x-2">
           <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
-          <span className="text-gray-600">Loading workflow system...</span>
+          <span className="text-gray-600 dark:text-gray-400">Loading workflow system...</span>
         </div>
       </div>
     );
@@ -954,8 +954,8 @@ const AdvancedWorkflowSystem: React.FC = () => {
             <Workflow className="w-6 h-6 text-purple-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Advanced Workflow & Mobile System</h1>
-            <p className="text-gray-600">Streamlined clinical workflows with mobile optimization for point-of-care efficiency</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Advanced Workflow & Mobile System</h1>
+            <p className="text-gray-600 dark:text-gray-400">Streamlined clinical workflows with mobile optimization for point-of-care efficiency</p>
           </div>
         </div>
       </div>
@@ -988,7 +988,7 @@ const AdvancedWorkflowSystem: React.FC = () => {
                   className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
                     activeTab === tab.id
                       ? 'border-purple-500 text-purple-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -1013,7 +1013,7 @@ const AdvancedWorkflowSystem: React.FC = () => {
               <div className="text-center py-12">
                 <Workflow className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No workflow instances yet</h3>
-                <p className="text-gray-600">Start one from Dashboard or Templates.</p>
+                <p className="text-gray-600 dark:text-gray-400">Start one from Dashboard or Templates.</p>
               </div>
             )}
             {workflowInstances.map(instance => (
@@ -1021,10 +1021,10 @@ const AdvancedWorkflowSystem: React.FC = () => {
                 <div className="flex items-center justify-between mb-2">
                   <div>
                     <div className="flex items-center space-x-2">
-                      <h4 className="font-medium text-gray-900">{instance.patientName}</h4>
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">{instance.patientName}</h4>
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(instance.status)}`}>{instance.status}</span>
                     </div>
-                    <div className="text-sm text-gray-600">{instance.templateName}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">{instance.templateName}</div>
                   </div>
                   <button onClick={() => continueWorkflow(instance)} className="px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors">Open</button>
                 </div>
@@ -1040,7 +1040,7 @@ const AdvancedWorkflowSystem: React.FC = () => {
           <div className="text-center py-12">
             <TrendingUp className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">Workflow Analytics</h3>
-            <p className="text-gray-600">Performance metrics and usage analytics will be shown here.</p>
+            <p className="text-gray-600 dark:text-gray-400">Performance metrics and usage analytics will be shown here.</p>
           </div>
         )}
       </div>
@@ -1051,38 +1051,38 @@ const AdvancedWorkflowSystem: React.FC = () => {
           <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">{selectedTemplate.name}</h3>
-                <p className="text-sm text-gray-600">{selectedTemplate.description}</p>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{selectedTemplate.name}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{selectedTemplate.description}</p>
               </div>
-              <button onClick={() => setSelectedTemplate(null)} className="text-gray-500 hover:text-gray-700">✕</button>
+              <button onClick={() => setSelectedTemplate(null)} className="text-gray-500 hover:text-gray-700 dark:text-gray-300">✕</button>
             </div>
             <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
               <div>
-                <span className="text-gray-500">Category</span>
+                <span className="text-gray-500 dark:text-gray-400">Category</span>
                 <div className="font-medium capitalize">{selectedTemplate.category.replace('-', ' ')}</div>
               </div>
               <div>
-                <span className="text-gray-500">Duration</span>
+                <span className="text-gray-500 dark:text-gray-400">Duration</span>
                 <div className="font-medium">{selectedTemplate.estimatedDuration} minutes</div>
               </div>
               <div>
-                <span className="text-gray-500">Difficulty</span>
+                <span className="text-gray-500 dark:text-gray-400">Difficulty</span>
                 <div className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getDifficultyColor(selectedTemplate.difficulty)}`}>{selectedTemplate.difficulty}</div>
               </div>
               <div>
-                <span className="text-gray-500">Specialties</span>
+                <span className="text-gray-500 dark:text-gray-400">Specialties</span>
                 <div className="font-medium">{selectedTemplate.specialties.join(', ')}</div>
               </div>
             </div>
             <div>
-              <span className="text-xs text-gray-500">Steps</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">Steps</span>
               <ol className="mt-2 space-y-2">
                 {selectedTemplate.steps.map((s, i) => (
                   <li key={s.id} className="flex items-start space-x-2 text-sm">
                     <span className="mt-0.5 inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 text-gray-700 text-xs">{i + 1}</span>
                     <div>
-                      <div className="font-medium text-gray-900">{s.title}</div>
-                      <div className="text-gray-600">{s.description}</div>
+                      <div className="font-medium text-gray-900 dark:text-gray-100">{s.title}</div>
+                      <div className="text-gray-600 dark:text-gray-400">{s.description}</div>
                     </div>
                   </li>
                 ))}
@@ -1258,18 +1258,18 @@ const DoseGuidancePanel: React.FC<{ template: any }> = ({ template }) => {
       <div className="mt-3 text-sm">
         <div className="text-xs text-gray-600 mb-1">Recommendations</div>
         {suggestions.length === 0 ? (
-          <div className="text-gray-600">No automatic holds suggested based on entered values. Verify per regimen policy.</div>
+          <div className="text-gray-600 dark:text-gray-400">No automatic holds suggested based on entered values. Verify per regimen policy.</div>
         ) : (
-          <ul className="list-disc ml-5 space-y-1 text-gray-800">
+          <ul className="list-disc ml-5 space-y-1 text-gray-800 dark:text-gray-200">
             {suggestions.map((s, i) => (<li key={i}>{s}</li>))}
           </ul>
         )}
         {template?.doseRules?.adjustments?.length > 0 && (
-          <div className="mt-2 text-xs text-gray-600">
+          <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
             <div className="font-medium text-gray-700 mb-1">Additional guidance:</div>
             <ul className="list-disc ml-5 space-y-1">
               {template.doseRules.adjustments.map((a: any, i: number) => (
-                <li key={i}><span className="text-gray-700">{a.condition}:</span> {a.recommendation}</li>
+                <li key={i}><span className="text-gray-700 dark:text-gray-300">{a.condition}:</span> {a.recommendation}</li>
               ))}
             </ul>
           </div>

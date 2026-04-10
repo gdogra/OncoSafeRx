@@ -174,7 +174,7 @@ const DrugSearchAndInteractionsInner: React.FC = () => {
       case 'low':
         return 'border-blue-200 bg-blue-50';
       default:
-        return 'border-gray-200 bg-gray-50';
+        return 'border-gray-200 bg-gray-50 dark:bg-gray-800';
     }
   };
 
@@ -307,8 +307,8 @@ const DrugSearchAndInteractionsInner: React.FC = () => {
                         {index + 1}
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{drug.name}</p>
-                        <p className="text-sm text-gray-500">RxCUI: {drug.rxcui}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{drug.name}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">RxCUI: {drug.rxcui}</p>
                       </div>
                     </div>
                     <button
@@ -322,7 +322,7 @@ const DrugSearchAndInteractionsInner: React.FC = () => {
                 ))}
                 
                 {selectedDrugs.length >= 2 && (
-                  <div className="pt-4 border-t border-gray-200">
+                  <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                     <button
                       onClick={checkInteractions}
                       disabled={interactionLoading}
@@ -352,8 +352,8 @@ const DrugSearchAndInteractionsInner: React.FC = () => {
           <div className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Activity className="h-5 w-5 text-purple-600" />
-              <h3 className="text-lg font-medium text-gray-900">Advanced Management</h3>
-              <span className="text-sm text-gray-500">• Drag to reorder • Filter & sort</span>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Advanced Management</h3>
+              <span className="text-sm text-gray-500 dark:text-gray-400">• Drag to reorder • Filter & sort</span>
             </div>
             
             <DrugSelectionTable
@@ -380,7 +380,7 @@ const DrugSearchAndInteractionsInner: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="h-5 w-5 text-red-600" />
-                <h3 className="text-lg font-medium text-gray-900">Interaction Analysis</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Interaction Analysis</h3>
               </div>
               <button
                 onClick={() => setShowAdvanced(!showAdvanced)}
@@ -394,7 +394,7 @@ const DrugSearchAndInteractionsInner: React.FC = () => {
               <div className="flex items-center justify-center p-8">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Checking interactions...</p>
+                  <p className="text-gray-600 dark:text-gray-400">Checking interactions...</p>
                 </div>
               </div>
             )}
@@ -471,17 +471,17 @@ const DrugSearchAndInteractionsInner: React.FC = () => {
               <div className="text-center p-4">
                 <Search className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                 <h4 className="font-medium text-gray-900 mb-1">Search Drugs</h4>
-                <p className="text-sm text-gray-600">Type medication names to find and add them</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Type medication names to find and add them</p>
               </div>
               <div className="text-center p-4">
                 <Zap className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
                 <h4 className="font-medium text-gray-900 mb-1">Check Interactions</h4>
-                <p className="text-sm text-gray-600">Automatic analysis when 2+ drugs are selected</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Automatic analysis when 2+ drugs are selected</p>
               </div>
               <div className="text-center p-4">
                 <Shield className="h-8 w-8 text-green-600 mx-auto mb-2" />
                 <h4 className="font-medium text-gray-900 mb-1">Get Recommendations</h4>
-                <p className="text-sm text-gray-600">Receive safety alerts and clinical guidance</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Receive safety alerts and clinical guidance</p>
               </div>
             </div>
           </div>

@@ -780,7 +780,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
       case 'B': return 'bg-blue-100 text-blue-800';
       case 'C': return 'bg-yellow-100 text-yellow-800';
       case 'D': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -789,7 +789,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
       case 'strong': return 'bg-green-100 text-green-800';
       case 'moderate': return 'bg-yellow-100 text-yellow-800';
       case 'weak': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -847,7 +847,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getEvidenceLevelColor(protocol.evidenceLevel)}`}>
                       Level {protocol.evidenceLevel}
                     </span>
-                    <span className="text-xs text-gray-500">{protocol.organization}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{protocol.organization}</span>
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">{protocol.title}</h3>
                   <p className="text-sm text-gray-600 mb-3">{protocol.description}</p>
@@ -864,7 +864,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                       </span>
                     ))}
                     {protocol.cancerTypes.length > 2 && (
-                      <span className="text-xs text-gray-500">+{protocol.cancerTypes.length - 2} more</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">+{protocol.cancerTypes.length - 2} more</span>
                     )}
                   </div>
                 </div>
@@ -873,23 +873,23 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center space-x-1">
                       <Star className="w-4 h-4 text-yellow-500" />
-                      <span className="text-gray-600">{protocol.metrics.adoptionRate}%</span>
+                      <span className="text-gray-600 dark:text-gray-400">{protocol.metrics.adoptionRate}%</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <TrendingUp className="w-4 h-4 text-green-500" />
-                      <span className="text-gray-600">+{protocol.metrics.outcomeImprovement}%</span>
+                      <span className="text-gray-600 dark:text-gray-400">+{protocol.metrics.outcomeImprovement}%</span>
                     </div>
                   </div>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
                     Updated {new Date(protocol.lastUpdated).toLocaleDateString()}
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs text-gray-500">{protocol.recommendations.length} recommendations</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{protocol.recommendations.length} recommendations</span>
                     <span className="text-xs text-gray-400">•</span>
-                    <span className="text-xs text-gray-500">{protocol.references.length} references</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{protocol.references.length} references</span>
                   </div>
                   <button 
                     onClick={() => setSelectedProtocol(protocol)}
@@ -932,10 +932,10 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                 <span className="inline-flex px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
                   {selectedProtocol.organization}
                 </span>
-                <span className="text-sm text-gray-500">Version {selectedProtocol.version}</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">Version {selectedProtocol.version}</span>
               </div>
               <h1 className="text-2xl font-bold text-gray-900 mb-2">{selectedProtocol.title}</h1>
-              <p className="text-gray-600">{selectedProtocol.description}</p>
+              <p className="text-gray-600 dark:text-gray-400">{selectedProtocol.description}</p>
             </div>
           </div>
 
@@ -944,7 +944,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
               <h4 className="text-sm font-medium text-gray-900 mb-2">Cancer Types</h4>
               <div className="space-y-1">
                 {selectedProtocol.cancerTypes.map(type => (
-                  <span key={type} className="block text-sm text-gray-600">{type}</span>
+                  <span key={type} className="block text-sm text-gray-600 dark:text-gray-400">{type}</span>
                 ))}
               </div>
             </div>
@@ -953,7 +953,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
               <h4 className="text-sm font-medium text-gray-900 mb-2">Treatment Phases</h4>
               <div className="space-y-1">
                 {selectedProtocol.treatmentPhase.map(phase => (
-                  <span key={phase} className="block text-sm text-gray-600">{phase}</span>
+                  <span key={phase} className="block text-sm text-gray-600 dark:text-gray-400">{phase}</span>
                 ))}
               </div>
             </div>
@@ -961,18 +961,18 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
             <div>
               <h4 className="text-sm font-medium text-gray-900 mb-2">Key Metrics</h4>
               <div className="space-y-1">
-                <div className="text-sm text-gray-600">Adoption: {selectedProtocol.metrics.adoptionRate}%</div>
-                <div className="text-sm text-gray-600">Improvement: +{selectedProtocol.metrics.outcomeImprovement}%</div>
-                <div className="text-sm text-gray-600">Safety: {selectedProtocol.metrics.safetyProfile}%</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Adoption: {selectedProtocol.metrics.adoptionRate}%</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Improvement: +{selectedProtocol.metrics.outcomeImprovement}%</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Safety: {selectedProtocol.metrics.safetyProfile}%</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Recommendations */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Clinical Recommendations</h3>
+        <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Clinical Recommendations</h3>
           </div>
           <div className="p-6 space-y-6">
             {selectedProtocol.recommendations.map(rec => (
@@ -992,11 +992,11 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div>
                     <h5 className="font-medium text-gray-900 mb-1">Implementation</h5>
-                    <p className="text-gray-600">{rec.implementation}</p>
+                    <p className="text-gray-600 dark:text-gray-400">{rec.implementation}</p>
                   </div>
                   <div>
                     <h5 className="font-medium text-gray-900 mb-1">Evidence Summary</h5>
-                    <p className="text-gray-600">{rec.evidenceSummary}</p>
+                    <p className="text-gray-600 dark:text-gray-400">{rec.evidenceSummary}</p>
                   </div>
                 </div>
                 
@@ -1016,15 +1016,15 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
         </div>
 
         {/* Implementation Guidance */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Implementation Guidance</h3>
+        <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Implementation Guidance</h3>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h4 className="text-sm font-medium text-gray-900 mb-3">Prerequisites</h4>
-                <ul className="space-y-2 text-sm text-gray-600">
+                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                   {selectedProtocol.implementation.prerequisites.map((item, index) => (
                     <li key={index} className="flex items-start space-x-2">
                       <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
@@ -1036,7 +1036,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
               
               <div>
                 <h4 className="text-sm font-medium text-gray-900 mb-3">Best Practices</h4>
-                <ul className="space-y-2 text-sm text-gray-600">
+                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                   {selectedProtocol.implementation.bestPractices.map((item, index) => (
                     <li key={index} className="flex items-start space-x-2">
                       <Star className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
@@ -1050,9 +1050,9 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
         </div>
 
         {/* References */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Supporting Evidence</h3>
+        <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Supporting Evidence</h3>
           </div>
           <div className="p-6 space-y-4">
             {selectedProtocol.references.map(ref => (
@@ -1070,14 +1070,14 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                       <span className="inline-flex px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
                         {ref.type.replace('-', ' ')}
                       </span>
-                      <span className="text-xs text-gray-500">Relevance: {ref.relevanceScore}%</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">Relevance: {ref.relevanceScore}%</span>
                     </div>
                     <h4 className="text-sm font-medium text-gray-900 mb-1">{ref.title}</h4>
-                    <p className="text-sm text-gray-600">{ref.authors} • {ref.journal} • {ref.year}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{ref.authors} • {ref.journal} • {ref.year}</p>
                     {ref.pmid && (
                       <div className="flex items-center space-x-2 mt-2">
-                        <span className="text-xs text-gray-500">PMID: {ref.pmid}</span>
-                        {ref.doi && <span className="text-xs text-gray-500">DOI: {ref.doi}</span>}
+                        <span className="text-xs text-gray-500 dark:text-gray-400">PMID: {ref.pmid}</span>
+                        {ref.doi && <span className="text-xs text-gray-500 dark:text-gray-400">DOI: {ref.doi}</span>}
                       </div>
                     )}
                   </div>
@@ -1096,8 +1096,8 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
       case 'completed': return 'bg-green-100 text-green-800';
       case 'in-progress': return 'bg-blue-100 text-blue-800';
       case 'planning': return 'bg-yellow-100 text-yellow-800';
-      case 'on-hold': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'on-hold': return 'bg-gray-100 text-gray-800 dark:text-gray-200';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -1116,7 +1116,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
       case 'high': return 'bg-red-100 text-red-800';
       case 'medium': return 'bg-yellow-100 text-yellow-800';
       case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -1125,7 +1125,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
       case 'resolved': return 'bg-green-100 text-green-800';
       case 'addressing': return 'bg-yellow-100 text-yellow-800';
       case 'identified': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -1144,8 +1144,8 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                 <Target className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Active Plans</h3>
-                <p className="text-sm text-gray-600">Currently implementing</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Active Plans</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Currently implementing</p>
               </div>
             </div>
             <div className="text-3xl font-bold text-blue-600">
@@ -1159,8 +1159,8 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                 <CheckCircle className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Completed</h3>
-                <p className="text-sm text-gray-600">Successfully implemented</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Completed</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Successfully implemented</p>
               </div>
             </div>
             <div className="text-3xl font-bold text-green-600">
@@ -1174,8 +1174,8 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                 <Timer className="w-5 h-5 text-yellow-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Avg Progress</h3>
-                <p className="text-sm text-gray-600">Across all plans</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Avg Progress</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Across all plans</p>
               </div>
             </div>
             <div className="text-3xl font-bold text-yellow-600">
@@ -1185,9 +1185,9 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
         </div>
 
         {/* Implementation Plans List */}
-        <div className="bg-white rounded-lg border border-gray-200">
+        <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Implementation Plans</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Implementation Plans</h3>
             <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               <Plus className="w-4 h-4" />
               <span>New Plan</span>
@@ -1207,11 +1207,11 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <StatusIcon className="w-5 h-5 text-gray-600" />
+                        <StatusIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(plan.status)}`}>
                           {plan.status.replace('-', ' ')}
                         </span>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
                           {new Date(plan.startDate).toLocaleDateString()} - {new Date(plan.targetDate).toLocaleDateString()}
                         </span>
                       </div>
@@ -1236,29 +1236,29 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-blue-600">{completedItems}/{totalItems}</div>
-                      <div className="text-xs text-gray-500">Checklist Items</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Checklist Items</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-600">{completedMilestones}/{totalMilestones}</div>
-                      <div className="text-xs text-gray-500">Milestones</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Milestones</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-orange-600">{plan.barriers.filter(b => b.status !== 'resolved').length}</div>
-                      <div className="text-xs text-gray-500">Active Barriers</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Active Barriers</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-purple-600">{plan.assignedTeam.length}</div>
-                      <div className="text-xs text-gray-500">Team Members</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Team Members</div>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center space-x-1">
-                        <Users2 className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm text-gray-600">{plan.assignedTeam.slice(0, 2).join(', ')}</span>
+                        <Users2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{plan.assignedTeam.slice(0, 2).join(', ')}</span>
                         {plan.assignedTeam.length > 2 && (
-                          <span className="text-sm text-gray-500">+{plan.assignedTeam.length - 2} more</span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">+{plan.assignedTeam.length - 2} more</span>
                         )}
                       </div>
                     </div>
@@ -1301,11 +1301,11 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
           <div className="flex items-start justify-between mb-6">
             <div className="flex-1">
               <div className="flex items-center space-x-3 mb-2">
-                <StatusIcon className="w-6 h-6 text-gray-600" />
+                <StatusIcon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
                 <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusColor(plan.status)}`}>
                   {plan.status.replace('-', ' ')}
                 </span>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   {new Date(plan.startDate).toLocaleDateString()} - {new Date(plan.targetDate).toLocaleDateString()}
                 </span>
               </div>
@@ -1339,8 +1339,8 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
               <div className="space-y-1">
                 {plan.assignedTeam.map(member => (
                   <div key={member} className="flex items-center space-x-2">
-                    <User className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">{member}</span>
+                    <User className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{member}</span>
                   </div>
                 ))}
               </div>
@@ -1348,7 +1348,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
             
             <div>
               <h4 className="text-sm font-medium text-gray-900 mb-2">Timeline</h4>
-              <div className="space-y-1 text-sm text-gray-600">
+              <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
                 <div>Started: {new Date(plan.startDate).toLocaleDateString()}</div>
                 <div>Target: {new Date(plan.targetDate).toLocaleDateString()}</div>
                 {plan.completionDate && (
@@ -1359,7 +1359,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
             
             <div>
               <h4 className="text-sm font-medium text-gray-900 mb-2">Key Metrics</h4>
-              <div className="space-y-1 text-sm text-gray-600">
+              <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
                 <div>Checklist: {plan.checklistItems.filter(item => item.isCompleted).length}/{plan.checklistItems.length}</div>
                 <div>Milestones: {plan.milestones.filter(m => m.isCompleted).length}/{plan.milestones.length}</div>
                 <div>Barriers: {plan.barriers.filter(b => b.status !== 'resolved').length} active</div>
@@ -1369,14 +1369,14 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
         </div>
 
         {/* Checklist Items */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Implementation Checklist</h3>
+        <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Implementation Checklist</h3>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-1 gap-4">
               {plan.checklistItems.map(item => (
-                <div key={item.id} className={`border rounded-lg p-4 ${item.isCompleted ? 'bg-green-50 border-green-200' : 'border-gray-200'}`}>
+                <div key={item.id} className={`border rounded-lg p-4 ${item.isCompleted ? 'bg-green-50 border-green-200' : 'border-gray-200 dark:border-gray-700'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
@@ -1393,11 +1393,11 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                           {item.category}
                         </span>
                       </div>
-                      <h4 className={`text-base font-medium mb-1 ${item.isCompleted ? 'text-green-900 line-through' : 'text-gray-900'}`}>
+                      <h4 className={`text-base font-medium mb-1 ${item.isCompleted ? 'text-green-900 line-through' : 'text-gray-900 dark:text-gray-100'}`}>
                         {item.title}
                       </h4>
                       <p className="text-sm text-gray-600 mb-2">{item.description}</p>
-                      <div className="flex items-center space-x-4 text-xs text-gray-500">
+                      <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
                         <span>Estimated: {item.estimatedHours}h</span>
                         {item.isCompleted && item.completedBy && (
                           <>
@@ -1417,9 +1417,9 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
         </div>
 
         {/* Milestones */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Milestones</h3>
+        <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Milestones</h3>
           </div>
           <div className="p-6">
             <div className="space-y-4">
@@ -1440,11 +1440,11 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                     )}
                   </div>
                   <div className="flex-1">
-                    <h4 className={`text-base font-medium mb-1 ${milestone.isCompleted ? 'text-green-900' : 'text-gray-900'}`}>
+                    <h4 className={`text-base font-medium mb-1 ${milestone.isCompleted ? 'text-green-900' : 'text-gray-900 dark:text-gray-100'}`}>
                       {milestone.title}
                     </h4>
                     <p className="text-sm text-gray-600 mb-2">{milestone.description}</p>
-                    <div className="flex items-center space-x-4 text-xs text-gray-500">
+                    <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
                       <span>Target: {new Date(milestone.targetDate).toLocaleDateString()}</span>
                       {milestone.isCompleted && milestone.completedDate && (
                         <>
@@ -1463,9 +1463,9 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
         {/* Barriers and Resources */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Barriers */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Implementation Barriers</h3>
+          <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Implementation Barriers</h3>
             </div>
             <div className="p-6 space-y-4">
               {plan.barriers.map(barrier => (
@@ -1485,7 +1485,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                     </div>
                   </div>
                   <p className="text-sm text-gray-900 mb-2">{barrier.description}</p>
-                  <div className="text-xs text-gray-600">
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
                     <div className="mb-1"><strong>Mitigation:</strong> {barrier.mitigationPlan}</div>
                     <div><strong>Owner:</strong> {barrier.owner}</div>
                   </div>
@@ -1495,9 +1495,9 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
           </div>
 
           {/* Resources */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Required Resources</h3>
+          <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Required Resources</h3>
             </div>
             <div className="p-6 space-y-4">
               {plan.resources.map(resource => (
@@ -1518,7 +1518,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                   </div>
                   <h4 className="text-sm font-medium text-gray-900 mb-1">{resource.title}</h4>
                   <p className="text-sm text-gray-600 mb-2">{resource.description}</p>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                     <span>Timeline: {resource.timeline}</span>
                     {resource.cost && <span>Cost: ${resource.cost.toLocaleString()}</span>}
                   </div>
@@ -1538,12 +1538,12 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
           <div key={org.id} className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">{org.abbreviation}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{org.abbreviation}</h3>
                 <p className="text-sm text-gray-600 mt-1">{org.name}</p>
               </div>
               <div className="flex items-center space-x-1">
                 <Award className="w-4 h-4 text-yellow-500" />
-                <span className="text-sm font-medium text-gray-900">{org.credibility}%</span>
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{org.credibility}%</span>
               </div>
             </div>
             
@@ -1579,14 +1579,14 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
     switch (trend) {
       case 'up': return <TrendingUp className="w-4 h-4 text-green-500" />;
       case 'down': return <TrendingUp className="w-4 h-4 text-red-500 transform rotate-180" />;
-      case 'stable': return <ArrowRight className="w-4 h-4 text-gray-500" />;
+      case 'stable': return <ArrowRight className="w-4 h-4 text-gray-500 dark:text-gray-400" />;
     }
   };
 
   const getTrendColor = (trend: number) => {
     if (trend > 0) return 'text-green-600';
     if (trend < 0) return 'text-red-600';
-    return 'text-gray-600';
+    return 'text-gray-600 dark:text-gray-400';
   };
 
   const renderAnalyticsTab = () => {
@@ -1602,8 +1602,8 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                 <Eye className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Active Users</h3>
-                <p className="text-sm text-gray-600">Monthly active</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Active Users</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Monthly active</p>
               </div>
             </div>
             <div className="text-3xl font-bold text-blue-600">{analyticsData.userEngagement.activeUsers}</div>
@@ -1616,8 +1616,8 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                 <Clock className="w-5 h-5 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Avg Session</h3>
-                <p className="text-sm text-gray-600">Minutes per visit</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Avg Session</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Minutes per visit</p>
               </div>
             </div>
             <div className="text-3xl font-bold text-green-600">{analyticsData.userEngagement.avgSessionTime}</div>
@@ -1630,8 +1630,8 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                 <Download className="w-5 h-5 text-yellow-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Downloads</h3>
-                <p className="text-sm text-gray-600">Total this month</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Downloads</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Total this month</p>
               </div>
             </div>
             <div className="text-3xl font-bold text-yellow-600">
@@ -1646,8 +1646,8 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                 <ThumbsUp className="w-5 h-5 text-purple-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Satisfaction</h3>
-                <p className="text-sm text-gray-600">User feedback</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Satisfaction</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">User feedback</p>
               </div>
             </div>
             <div className="text-3xl font-bold text-purple-600">{analyticsData.userEngagement.feedbackScore}/5</div>
@@ -1656,9 +1656,9 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
         </div>
 
         {/* Protocol Usage Analytics */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Protocol Usage Analytics</h3>
+        <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Protocol Usage Analytics</h3>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-1 gap-6">
@@ -1671,26 +1671,26 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                         <h4 className="text-base font-semibold text-gray-900 mb-1">
                           {protocol?.title || 'Unknown Protocol'}
                         </h4>
-                        <p className="text-sm text-gray-600">{protocol?.organization}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{protocol?.organization}</p>
                       </div>
                       <div className="flex items-center space-x-1">
                         {getTrendIcon(usage.trend)}
-                        <span className="text-sm text-gray-600">{usage.trend}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{usage.trend}</span>
                       </div>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="text-center">
                         <div className="text-2xl font-bold text-blue-600">{usage.views.toLocaleString()}</div>
-                        <div className="text-xs text-gray-500">Total Views</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Total Views</div>
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-green-600">{usage.downloads.toLocaleString()}</div>
-                        <div className="text-xs text-gray-500">Downloads</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Downloads</div>
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-purple-600">{usage.implementations}</div>
-                        <div className="text-xs text-gray-500">Implementations</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Implementations</div>
                       </div>
                     </div>
                   </div>
@@ -1701,16 +1701,16 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
         </div>
 
         {/* Outcome Metrics */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Clinical Outcome Metrics</h3>
+        <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Clinical Outcome Metrics</h3>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {analyticsData.outcomeMetrics.map((metric, index) => (
                 <div key={index} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-base font-semibold text-gray-900">{metric.metric}</h4>
+                    <h4 className="text-base font-semibold text-gray-900 dark:text-gray-100">{metric.metric}</h4>
                     <span className={`text-sm font-medium ${getTrendColor(metric.trend)}`}>
                       {metric.trend > 0 ? '+' : ''}{metric.trend}%
                     </span>
@@ -1722,8 +1722,8 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                       <span>Target</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-gray-900">{metric.current}</span>
-                      <span className="text-lg font-medium text-gray-600">{metric.target}</span>
+                      <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">{metric.current}</span>
+                      <span className="text-lg font-medium text-gray-600 dark:text-gray-400">{metric.target}</span>
                     </div>
                     
                     {/* Progress bar */}
@@ -1737,7 +1737,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="text-xs text-gray-500">{metric.period}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">{metric.period}</div>
                 </div>
               ))}
             </div>
@@ -1745,9 +1745,9 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
         </div>
 
         {/* Compliance Tracking */}
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Protocol Compliance Tracking</h3>
+        <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Protocol Compliance Tracking</h3>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-1 gap-4">
@@ -1760,13 +1760,13 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                         <h4 className="text-base font-semibold text-gray-900 mb-1">
                           {protocol?.title || 'Unknown Protocol'}
                         </h4>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
                           Last assessed: {new Date(compliance.lastAssessment).toLocaleDateString()}
                         </p>
                       </div>
                       <div className="text-right">
                         <div className="text-2xl font-bold text-green-600">{compliance.complianceRate}%</div>
-                        <div className="text-xs text-gray-500">Compliance Rate</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Compliance Rate</div>
                       </div>
                     </div>
                     
@@ -1785,7 +1785,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                       </div>
                       <div className="ml-4 text-center">
                         <div className="text-lg font-bold text-orange-600">{compliance.deviations}</div>
-                        <div className="text-xs text-gray-500">Deviations</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Deviations</div>
                       </div>
                     </div>
                   </div>
@@ -1798,9 +1798,9 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
         {/* User Engagement Details */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Most Viewed Categories */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Most Viewed Categories</h3>
+          <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Most Viewed Categories</h3>
             </div>
             <div className="p-6">
               <div className="space-y-4">
@@ -1811,11 +1811,11 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                         index === 0 ? 'bg-gold-100 text-gold-800' :
                         index === 1 ? 'bg-silver-100 text-silver-800' :
                         index === 2 ? 'bg-bronze-100 text-bronze-800' :
-                        'bg-gray-100 text-gray-800'
+                        'bg-gray-100 text-gray-800 dark:text-gray-200'
                       }`}>
                         {index + 1}
                       </div>
-                      <span className="text-sm font-medium text-gray-900">{category}</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{category}</span>
                     </div>
                     <div className="w-24 bg-gray-200 rounded-full h-2">
                       <div 
@@ -1830,9 +1830,9 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
           </div>
 
           {/* Usage Trends Chart Placeholder */}
-          <div className="bg-white rounded-lg border border-gray-200">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Usage Trends</h3>
+          <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Usage Trends</h3>
             </div>
             <div className="p-6">
               <div className="text-center py-12">
@@ -1845,15 +1845,15 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
         </div>
 
         {/* Export and Reporting */}
-        <div className="bg-white rounded-lg border border-gray-200">
+        <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
           <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Analytics Reports</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Analytics Reports</h3>
             <div className="flex items-center space-x-2">
               <button className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 <Download className="w-4 h-4" />
                 <span>Export Report</span>
               </button>
-              <button className="flex items-center space-x-1 px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+              <button className="flex items-center space-x-1 px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
                 <Settings className="w-4 h-4" />
                 <span>Configure</span>
               </button>
@@ -1864,17 +1864,17 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
               <div className="border border-gray-200 rounded-lg p-4 text-center">
                 <PieChart className="w-8 h-8 text-blue-600 mx-auto mb-2" />
                 <h4 className="text-sm font-medium text-gray-900 mb-1">Usage Summary</h4>
-                <p className="text-xs text-gray-600">Monthly protocol usage and adoption rates</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">Monthly protocol usage and adoption rates</p>
               </div>
               <div className="border border-gray-200 rounded-lg p-4 text-center">
                 <Activity className="w-8 h-8 text-green-600 mx-auto mb-2" />
                 <h4 className="text-sm font-medium text-gray-900 mb-1">Outcome Metrics</h4>
-                <p className="text-xs text-gray-600">Clinical outcomes and improvement tracking</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">Clinical outcomes and improvement tracking</p>
               </div>
               <div className="border border-gray-200 rounded-lg p-4 text-center">
                 <Gauge className="w-8 h-8 text-purple-600 mx-auto mb-2" />
                 <h4 className="text-sm font-medium text-gray-900 mb-1">Compliance Report</h4>
-                <p className="text-xs text-gray-600">Protocol adherence and deviation analysis</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">Protocol adherence and deviation analysis</p>
               </div>
             </div>
           </div>
@@ -1888,7 +1888,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
       <div className="flex items-center justify-center h-64">
         <div className="flex items-center space-x-2">
           <RefreshCw className="w-6 h-6 animate-spin text-blue-600" />
-          <span className="text-gray-600">Loading evidence-based protocols...</span>
+          <span className="text-gray-600 dark:text-gray-400">Loading evidence-based protocols...</span>
         </div>
       </div>
     );
@@ -1903,8 +1903,8 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
             <BookOpen className="w-6 h-6 text-green-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Evidence-Based Clinical Protocols</h1>
-            <p className="text-gray-600">Access current, evidence-based treatment guidelines from leading organizations</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Evidence-Based Clinical Protocols</h1>
+            <p className="text-gray-600 dark:text-gray-400">Access current, evidence-based treatment guidelines from leading organizations</p>
           </div>
         </div>
       </div>
@@ -1930,7 +1930,7 @@ const EvidenceBasedProtocolsSystem: React.FC = () => {
                     className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
                       activeTab === tab.id
                         ? 'border-green-500 text-green-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                     }`}
                   >
                     <Icon className="w-4 h-4" />

@@ -264,7 +264,7 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
       <Card>
         <div className="flex items-center space-x-2 mb-4">
           <Search className="w-5 h-5 text-gray-400" />
-          <h3 className="text-lg font-semibold text-gray-900">Patient Search</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Patient Search</h3>
           <Tooltip 
             content="Search for existing patients by name or MRN, or create a new patient profile. Focus on the search field to see all available patients."
             type="help"
@@ -307,7 +307,7 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
           <Tooltip content="Sync patients from server" position="bottom">
             <button
               onClick={() => actions.syncFromServer()}
-              className={`flex items-center space-x-2 ${isCompact ? 'px-2.5 py-1.5' : 'px-3 py-2'} bg-white border text-sm font-medium rounded-md hover:bg-gray-50`}
+              className={`flex items-center space-x-2 ${isCompact ? 'px-2.5 py-1.5' : 'px-3 py-2'} bg-white border text-sm font-medium rounded-md hover:bg-gray-50 dark:bg-gray-800`}
             >
               <RefreshCw className="w-4 h-4" />
               <span>Sync</span>
@@ -318,7 +318,7 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
         {/* Search Results */}
         {searchResults.length > 0 && (
           <div className="mt-4 space-y-2">
-            <h4 className="text-sm font-medium text-gray-700">
+            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
               {showAllPatients ? 'Available Patients:' : 'Search Results:'}
             </h4>
             {searchResults.map((patient) => (
@@ -329,14 +329,14 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-gray-900">
+                    <div className="font-medium text-gray-900 dark:text-gray-100">
                       {patient.demographics.firstName} {patient.demographics.lastName}
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       {calculateAge(patient.demographics.dateOfBirth)} years • {patient.demographics.sex} • MRN: {patient.demographics.mrn}
                     </div>
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
                     Last updated: {new Date(patient.lastUpdated).toLocaleDateString()}
                   </div>
                 </div>
@@ -346,7 +346,7 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
         )}
 
         {searchQuery.length >= 1 && searchResults.length === 0 && !isSearching && (
-          <div className="mt-4 text-sm text-gray-500">
+          <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
             No patients found matching "{searchQuery}"
           </div>
         )}
@@ -357,7 +357,7 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
         <Card>
           <div className="flex items-center space-x-2 mb-4">
             <Clock className="w-5 h-5 text-gray-400" />
-            <h3 className="text-lg font-semibold text-gray-900">Recent Patients</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Patients</h3>
             <Tooltip content="Recently accessed patient profiles for quick selection">
               <Info className="w-4 h-4 text-gray-400" />
             </Tooltip>
@@ -371,18 +371,18 @@ const PatientSelector: React.FC<PatientSelectorProps> = ({ mode = 'page', onSele
                 className={`p-3 border rounded-lg cursor-pointer transition-colors ${
                   currentPatient?.id === patient.id
                     ? 'border-primary-300 bg-primary-50'
-                    : 'border-gray-200 hover:bg-gray-50'
+                    : 'border-gray-200 hover:bg-gray-50 dark:bg-gray-800'
                 }`}
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-gray-600" />
+                    <User className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-gray-900 truncate">
                       {patient.demographics.firstName} {patient.demographics.lastName}
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       {calculateAge(patient.demographics.dateOfBirth)} years • MRN: {patient.demographics.mrn}
                     </div>
                   </div>

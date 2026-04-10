@@ -232,7 +232,7 @@ const CuratedInteractions: React.FC = () => {
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Curated Interactions' }]} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Curated Drug Interactions</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Curated Drug Interactions</h1>
         <div className="flex items-center space-x-2">
           <button onClick={() => exportFile('csv')} className="px-3 py-2 bg-primary-600 text-white rounded-md">Export CSV</button>
           <button onClick={() => exportFile('tsv')} className="px-3 py-2 bg-gray-700 text-white rounded-md">Export TSV</button>
@@ -304,7 +304,7 @@ const CuratedInteractions: React.FC = () => {
           <div className="flex items-end">
             <label className="inline-flex items-center space-x-2">
               <input type="checkbox" checked={resolveRx} onChange={e => setResolveRx(e.target.checked)} />
-              <span className="text-sm text-gray-700">Resolve RXCUIs</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">Resolve RXCUIs</span>
             </label>
           </div>
         </div>
@@ -375,7 +375,7 @@ const CuratedInteractions: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead>
-                  <tr className="text-left text-gray-600">
+                  <tr className="text-left text-gray-600 dark:text-gray-400">
                     <th className="py-2 pr-4">Drug 1</th>
                     <th className="py-2 pr-4">Drug 2</th>
                     <th className="py-2 pr-4">Severity</th>
@@ -410,7 +410,7 @@ const CuratedInteractions: React.FC = () => {
           <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold">Add Curated Interaction</h3>
-              <button onClick={() => setShowEditor(false)} className="text-gray-600">✕</button>
+              <button onClick={() => setShowEditor(false)} className="text-gray-600 dark:text-gray-400">✕</button>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -547,12 +547,12 @@ const CuratedInteractions: React.FC = () => {
               >Load DB Interactions</button>
             </div>
           </div>
-          <div id="db-interactions" className="text-sm text-gray-700">
+          <div id="db-interactions" className="text-sm text-gray-700 dark:text-gray-300">
             {(window as any).__osrx_db_interactions__ && Array.isArray((window as any).__osrx_db_interactions__) && ((window as any).__osrx_db_interactions__).length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm">
                   <thead>
-                    <tr className="text-left text-gray-600">
+                    <tr className="text-left text-gray-600 dark:text-gray-400">
                       <th className="py-2 pr-4">Drug 1</th>
                       <th className="py-2 pr-4">Drug 2</th>
                       <th className="py-2 pr-4">Severity</th>
@@ -574,7 +574,7 @@ const CuratedInteractions: React.FC = () => {
                 </table>
               </div>
             ) : (
-              <div className="text-gray-500">No DB interactions loaded yet.</div>
+              <div className="text-gray-500 dark:text-gray-400">No DB interactions loaded yet.</div>
             )}
           </div>
         </Card>
@@ -586,7 +586,7 @@ const CuratedInteractions: React.FC = () => {
             <h2 className="text-lg font-semibold">Results ({results.count}/{results.total})</h2>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <label className="text-xs text-gray-600">Filter table:</label>
+                <label className="text-xs text-gray-600 dark:text-gray-400">Filter table:</label>
                 <input
                   type="text"
                   placeholder="Search drugs, effects, mechanisms..."
@@ -600,7 +600,7 @@ const CuratedInteractions: React.FC = () => {
                 {textFilter && (
                   <button
                     onClick={() => setTextFilter('')}
-                    className="text-xs text-gray-500 hover:text-gray-700"
+                    className="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-300"
                     title="Clear filter"
                   >✕</button>
                 )}
@@ -688,7 +688,7 @@ const CuratedInteractions: React.FC = () => {
                     const a = it.drug_rxnorm?.[0];
                     const b = it.drug_rxnorm?.[1];
                     const sev = (it.severity || '').toLowerCase();
-                    const sevClass = sev==='major'||sev==='high' ? 'bg-red-100 text-red-800' : sev==='moderate' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-700';
+                    const sevClass = sev==='major'||sev==='high' ? 'bg-red-100 text-red-800' : sev==='moderate' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-700 dark:text-gray-300';
                     return (
                     <>
                     <tr key={idx} className="border-b align-top">
@@ -703,7 +703,7 @@ const CuratedInteractions: React.FC = () => {
                             const d = brandMeta.drug && nm === (drug || '').toLowerCase();
                             const label = dA ? brandMeta.drugA : d ? brandMeta.drug : undefined;
                             return label ? (
-                              <div className="text-[11px] text-gray-600">Brand: {label}</div>
+                              <div className="text-[11px] text-gray-600 dark:text-gray-400">Brand: {label}</div>
                             ) : null;
                           })()}
                           {(() => {
@@ -743,7 +743,7 @@ const CuratedInteractions: React.FC = () => {
                             const d = brandMeta.drug && nm === (drug || '').toLowerCase();
                             const label = dB ? brandMeta.drugB : d ? brandMeta.drug : undefined;
                             return label ? (
-                              <div className="text-[11px] text-gray-600">Brand: {label}</div>
+                              <div className="text-[11px] text-gray-600 dark:text-gray-400">Brand: {label}</div>
                             ) : null;
                           })()}
                           {(() => {
@@ -775,7 +775,7 @@ const CuratedInteractions: React.FC = () => {
                         <td className="py-2 pr-4 capitalize">
                           <span className={`px-2 py-0.5 rounded text-xs ${sevClass}`}>{it.severity || 'unknown'}</span>
                           {it.evidence_level && (
-                            <span className="ml-2 text-[11px] text-gray-500">Evidence {it.evidence_level}</span>
+                            <span className="ml-2 text-[11px] text-gray-500 dark:text-gray-400">Evidence {it.evidence_level}</span>
                           )}
                         </td>
                         <td className="py-2 pr-4">{it.effect || '-'}</td>
@@ -805,7 +805,7 @@ const CuratedInteractions: React.FC = () => {
                             const loading = trialLoading[key];
                             
                             if (loading) {
-                              return <span className="text-xs text-gray-500">Loading...</span>;
+                              return <span className="text-xs text-gray-500 dark:text-gray-400">Loading...</span>;
                             }
                             
                             if (trials && trials.length > 0) {
@@ -924,20 +924,20 @@ const CuratedInteractions: React.FC = () => {
                         </td>
                       </tr>
                       {expanded[idx] && (
-                        <tr className="border-b bg-gray-50">
+                        <tr className="border-b bg-gray-50 dark:bg-gray-800">
                           <td colSpan={8} className="p-3">
                             <div className="grid md:grid-cols-3 gap-3 text-sm">
                               <div>
                                 <div className="text-gray-500 text-xs">Mechanism</div>
-                                <div className="text-gray-800">{it.mechanism || '-'}</div>
+                                <div className="text-gray-800 dark:text-gray-200">{it.mechanism || '-'}</div>
                               </div>
                               <div>
                                 <div className="text-gray-500 text-xs">Effect</div>
-                                <div className="text-gray-800">{it.effect || '-'}</div>
+                                <div className="text-gray-800 dark:text-gray-200">{it.effect || '-'}</div>
                               </div>
                               <div>
                                 <div className="text-gray-500 text-xs">Management</div>
-                                <div className="text-gray-800">{it.management || '-'}</div>
+                                <div className="text-gray-800 dark:text-gray-200">{it.management || '-'}</div>
                               </div>
                             </div>
                           </td>
@@ -996,7 +996,7 @@ const CuratedInteractions: React.FC = () => {
             
             return (
               <div className="mt-6 flex items-center justify-between border-t pt-4">
-                <div className="text-sm text-gray-700">
+                <div className="text-sm text-gray-700 dark:text-gray-300">
                   Showing {startIndex + 1} to {endIndex} of {totalItems} interactions
                 </div>
                 <div className="flex items-center space-x-2">
@@ -1014,7 +1014,7 @@ const CuratedInteractions: React.FC = () => {
                   >
                     Previous
                   </button>
-                  <span className="text-sm text-gray-700">
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
                     Page {currentPage} of {totalPages}
                   </span>
                   <button

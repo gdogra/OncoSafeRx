@@ -440,7 +440,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
       <Card className="p-4">
         <div className="flex items-center space-x-2 mb-3">
           {icon}
-          <h4 className="font-medium text-gray-900">{title}</h4>
+          <h4 className="font-medium text-gray-900 dark:text-gray-100">{title}</h4>
         </div>
         <FilterAutocomplete
           options={options}
@@ -463,7 +463,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
       className={`px-4 py-2 text-sm font-medium rounded-lg ${
         isActive 
           ? 'bg-violet-100 text-violet-700 border border-violet-200' 
-          : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+          : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100 dark:bg-gray-800'
       }`}
     >
       {children}
@@ -515,7 +515,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
               <div className="p-3 border-b border-gray-100">
                 <div className="flex items-center space-x-2">
                   <Sparkles className="h-4 w-4 text-violet-600" />
-                  <span className="text-sm font-medium text-gray-700">AI Suggestions</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">AI Suggestions</span>
                 </div>
               </div>
               <div className="max-h-64 overflow-y-auto">
@@ -532,8 +532,8 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                       {suggestion.type === 'biomarker' && <Activity className="h-4 w-4 text-green-500" />}
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900">{suggestion.text}</div>
-                      <div className="text-xs text-gray-500">{suggestion.category}</div>
+                      <div className="font-medium text-gray-900 dark:text-gray-100">{suggestion.text}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">{suggestion.category}</div>
                       {suggestion.description && (
                         <div className="text-xs text-gray-400 mt-1">{suggestion.description}</div>
                       )}
@@ -549,7 +549,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
 
           {/* AI Mode Selector */}
           <div className="flex items-center space-x-2">
-            <span className="text-sm font-medium text-gray-700">AI Mode:</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">AI Mode:</span>
             <div className="flex bg-gray-100 rounded-lg p-1">
               {[
                 { mode: 'search', label: 'Smart Search', icon: Search },
@@ -562,7 +562,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                   className={`flex items-center space-x-2 px-3 py-1 rounded-md text-sm font-medium transition-all ${
                     aiMode === mode
                       ? 'bg-white text-violet-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-800'
+                      : 'text-gray-600 hover:text-gray-800 dark:text-gray-200'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -579,8 +579,8 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
-              <Filter className="h-5 w-5 text-gray-600" />
-              <h2 className="text-xl font-bold text-gray-900">Advanced Filters</h2>
+              <Filter className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Advanced Filters</h2>
               {getActiveFiltersCount() > 0 && (
                 <span className="px-2 py-1 bg-violet-100 text-violet-800 rounded-full text-sm font-medium">
                   {getActiveFiltersCount()} active
@@ -590,7 +590,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
             <div className="flex items-center space-x-2">
               <button
                 onClick={clearAllFilters}
-                className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800"
               >
                 Clear All
               </button>
@@ -659,7 +659,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
                         <Microscope className="h-4 w-4 text-blue-500" />
-                        <h4 className="font-medium text-gray-900">Molecular Features</h4>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100">Molecular Features</h4>
                       </div>
                       <div className="space-y-2">
                         <label className="flex items-center space-x-2 cursor-pointer">
@@ -669,7 +669,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                             onChange={(e) => handleFilterChange('hasGenomicFactors', e.target.checked)}
                             className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                           />
-                          <span className="text-sm text-gray-700">Has Genomic Factors</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">Has Genomic Factors</span>
                         </label>
                         <label className="flex items-center space-x-2 cursor-pointer">
                           <input
@@ -678,7 +678,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                             onChange={(e) => handleFilterChange('hasInteractions', e.target.checked)}
                             className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                           />
-                          <span className="text-sm text-gray-700">Has Drug Interactions</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">Has Drug Interactions</span>
                         </label>
                       </div>
                     </div>
@@ -698,7 +698,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
                         <Users className="h-4 w-4 text-purple-500" />
-                        <h4 className="font-medium text-gray-900">Patient Factors</h4>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100">Patient Factors</h4>
                       </div>
                       <div className="space-y-2">
                         <label className="flex items-center space-x-2 cursor-pointer">
@@ -708,7 +708,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                             onChange={(e) => handleFilterChange('requiresMonitoring', e.target.checked)}
                             className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                           />
-                          <span className="text-sm text-gray-700">Requires Monitoring</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">Requires Monitoring</span>
                         </label>
                         <label className="flex items-center space-x-2 cursor-pointer">
                           <input
@@ -717,7 +717,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                             onChange={(e) => handleFilterChange('isOncologyDrug', e.target.checked)}
                             className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                           />
-                          <span className="text-sm text-gray-700">Oncology Drugs Only</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">Oncology Drugs Only</span>
                         </label>
                       </div>
                     </div>
@@ -737,7 +737,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
                         <Globe className="h-4 w-4 text-blue-500" />
-                        <h4 className="font-medium text-gray-900">Regulatory Features</h4>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100">Regulatory Features</h4>
                       </div>
                       <div className="space-y-2">
                         <label className="flex items-center space-x-2 cursor-pointer">
@@ -747,7 +747,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                             onChange={(e) => handleFilterChange('isOrphanDrug', e.target.checked)}
                             className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                           />
-                          <span className="text-sm text-gray-700">Orphan Drug Status</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">Orphan Drug Status</span>
                         </label>
                       </div>
                     </div>
@@ -761,7 +761,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                     <div className="space-y-3">
                       <div className="flex items-center space-x-2">
                         <Shield className="h-4 w-4 text-red-500" />
-                        <h4 className="font-medium text-gray-900">Safety Alerts</h4>
+                        <h4 className="font-medium text-gray-900 dark:text-gray-100">Safety Alerts</h4>
                       </div>
                       <div className="space-y-2">
                         <label className="flex items-center space-x-2 cursor-pointer">
@@ -771,7 +771,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                             onChange={(e) => handleFilterChange('hasBlackBoxWarning', e.target.checked)}
                             className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                           />
-                          <span className="text-sm text-gray-700">Black Box Warning</span>
+                          <span className="text-sm text-gray-700 dark:text-gray-300">Black Box Warning</span>
                         </label>
                       </div>
                     </div>
@@ -803,7 +803,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
             <span>Export Results</span>
           </button>
         </div>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500 dark:text-gray-400">
           Powered by OncoSafeRx Neural Engine
         </div>
       </div>
@@ -814,14 +814,14 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
         {selectedRxcui && (
           <div className="mb-3 p-3 bg-white border border-gray-200 rounded-lg">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-medium text-gray-700">Variations for RXCUI {selectedRxcui}</div>
-              {variantLoading && <div className="text-xs text-gray-500">Loading…</div>}
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Variations for RXCUI {selectedRxcui}</div>
+              {variantLoading && <div className="text-xs text-gray-500 dark:text-gray-400">Loading…</div>}
             </div>
             {variantError && (
               <div className="text-xs text-red-600">{variantError}</div>
             )}
             {!variantError && variants.length === 0 && !variantLoading && (
-              <div className="text-xs text-gray-500">No variations found</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">No variations found</div>
             )}
             {variants.length > 0 && (
               <div className="flex flex-wrap gap-2">
@@ -844,31 +844,31 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
         {selectedRxcui && (
           <div className="mb-3 p-3 bg-white border border-gray-200 rounded-lg">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-sm font-medium text-gray-700">Details</div>
-              {detailsLoading && <div className="text-xs text-gray-500">Loading…</div>}
+              <div className="text-sm font-medium text-gray-700 dark:text-gray-300">Details</div>
+              {detailsLoading && <div className="text-xs text-gray-500 dark:text-gray-400">Loading…</div>}
             </div>
             {detailsError && <div className="text-xs text-red-600">{detailsError}</div>}
             {!detailsError && !detailsLoading && details && (
               <div className="text-sm text-gray-800 space-y-1">
-                <div><span className="text-gray-500">Name:</span> {details.name}</div>
+                <div><span className="text-gray-500 dark:text-gray-400">Name:</span> {details.name}</div>
                 {details.generic_name && (
-                  <div><span className="text-gray-500">Generic:</span> {details.generic_name}</div>
+                  <div><span className="text-gray-500 dark:text-gray-400">Generic:</span> {details.generic_name}</div>
                 )}
                 {Array.isArray(details.brand_names) && details.brand_names.length > 0 && (
-                  <div><span className="text-gray-500">Brands:</span> {details.brand_names.join(', ')}</div>
+                  <div><span className="text-gray-500 dark:text-gray-400">Brands:</span> {details.brand_names.join(', ')}</div>
                 )}
                 {Array.isArray(details.dosage_forms) && details.dosage_forms.length > 0 && (
-                  <div><span className="text-gray-500">Dosage forms:</span> {details.dosage_forms.join(', ')}</div>
+                  <div><span className="text-gray-500 dark:text-gray-400">Dosage forms:</span> {details.dosage_forms.join(', ')}</div>
                 )}
                 {Array.isArray(details.strengths) && details.strengths.length > 0 && (
-                  <div><span className="text-gray-500">Strengths:</span> {details.strengths.join(', ')}</div>
+                  <div><span className="text-gray-500 dark:text-gray-400">Strengths:</span> {details.strengths.join(', ')}</div>
                 )}
                 <div className="pt-2">
-                  <div className="text-xs text-gray-500">Interaction summary</div>
-                  {interactionLoading && <div className="text-xs text-gray-500">Checking…</div>}
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Interaction summary</div>
+                  {interactionLoading && <div className="text-xs text-gray-500 dark:text-gray-400">Checking…</div>}
                   {interactionError && <div className="text-xs text-red-600">{interactionError}</div>}
                   {!interactionLoading && !interactionError && interactionSummary && (
-                    <div className="flex gap-3 text-xs text-gray-700">
+                    <div className="flex gap-3 text-xs text-gray-700 dark:text-gray-300">
                       <span>Total: {interactionSummary.total}</span>
                       <span>Major: {interactionSummary.major}</span>
                       <span>Moderate: {interactionSummary.moderate}</span>
@@ -878,7 +878,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                   <div className="mt-2 flex items-center gap-2">
                     <button
                       type="button"
-                      className="text-xs px-3 py-1 border border-gray-300 rounded hover:bg-gray-50"
+                      className="text-xs px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-800"
                       onClick={() => {
                         try {
                           const key = 'osrx_interaction_basket';
@@ -909,7 +909,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
                     </button>
                     <button
                       type="button"
-                      className="text-xs px-3 py-1 border border-gray-300 rounded hover:bg-gray-50"
+                      className="text-xs px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-800"
                       onClick={() => {
                         try { localStorage.setItem('osrx_selected_drug', JSON.stringify(details)); } catch {}
                         setTimeout(() => navigate('/database'), 100);
@@ -926,7 +926,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
         {/* Inline results toolbar */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
-            <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <label className="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
               <input
                 type="checkbox"
                 checked={pinnedOnly}
@@ -940,14 +940,14 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
             <button
               type="button"
               onClick={() => { if (window.location.pathname !== '/interactions') setTimeout(() => navigate('/interactions'), 100); }}
-              className="text-sm px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="text-sm px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800"
             >
               Go to Interactions
             </button>
           </div>
         </div>
         {searchLoading && (
-          <div className="text-sm text-gray-600">Searching…</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">Searching…</div>
         )}
         {searchError && (
           <div className="text-sm text-red-600">{searchError}</div>

@@ -36,7 +36,7 @@ const DeployStatusPanel: React.FC = () => {
   return (
     <div className="border rounded-md p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-semibold text-gray-900">Deploy Status</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Deploy Status</h3>
         <button
           onClick={() => window.location.reload()}
           className="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
@@ -44,7 +44,7 @@ const DeployStatusPanel: React.FC = () => {
           Refresh
         </button>
       </div>
-      {loading && <div className="text-sm text-gray-600">Loading...</div>}
+      {loading && <div className="text-sm text-gray-600 dark:text-gray-400">Loading...</div>}
       {error && <div className="text-sm text-red-700">{error}</div>}
       {!loading && !error && (
         <div className="grid md:grid-cols-2 gap-4 text-sm">
@@ -52,7 +52,7 @@ const DeployStatusPanel: React.FC = () => {
           <div className="border rounded p-3">
             <div className="font-medium text-gray-800 mb-2">Netlify</div>
             {data?.warnings?.includes('netlify_not_configured') ? (
-              <div className="text-gray-600">Not configured (set NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID on the server)</div>
+              <div className="text-gray-600 dark:text-gray-400">Not configured (set NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID on the server)</div>
             ) : data?.netlify ? (
               <div className="space-y-1">
                 <div>Status: <span className="font-mono">{data.netlify.state}</span></div>
@@ -63,14 +63,14 @@ const DeployStatusPanel: React.FC = () => {
                 )}
               </div>
             ) : (
-              <div className="text-gray-600">Status unavailable</div>
+              <div className="text-gray-600 dark:text-gray-400">Status unavailable</div>
             )}
           </div>
           {/* Render */}
           <div className="border rounded p-3">
             <div className="font-medium text-gray-800 mb-2">Render</div>
             {data?.warnings?.includes('render_not_configured') ? (
-              <div className="text-gray-600">Render removed — backend runs as Netlify Function</div>
+              <div className="text-gray-600 dark:text-gray-400">Render removed — backend runs as Netlify Function</div>
             ) : data?.render ? (
               <div className="space-y-1">
                 <div>Status: <span className="font-mono">{data.render.status || data.render.deploy?.status || 'unknown'}</span></div>
@@ -81,13 +81,13 @@ const DeployStatusPanel: React.FC = () => {
                 )}
               </div>
             ) : (
-              <div className="text-gray-600">Status unavailable</div>
+              <div className="text-gray-600 dark:text-gray-400">Status unavailable</div>
             )}
           </div>
         </div>
       )}
       {!!data?.warnings?.length && (
-        <div className="mt-3 text-xs text-gray-500">Warnings: {data.warnings.join(', ')}</div>
+        <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">Warnings: {data.warnings.join(', ')}</div>
       )}
     </div>
   );

@@ -175,16 +175,16 @@ const AdminOnboardingAnalytics: React.FC = () => {
     <div className="space-y-6">
       <Card className="p-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold text-gray-900">Onboarding Analytics</h1>
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Onboarding Analytics</h1>
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-500" />
+            <Filter className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             <input
               placeholder="Filter by role (e.g., oncologist, patient)"
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
               className="border border-gray-300 rounded px-2 py-1 text-sm"
             />
-            <button onClick={exportCsv} className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50">
+            <button onClick={exportCsv} className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50 dark:bg-gray-800">
               <Download className="w-3.5 h-3.5" /> Export CSV
             </button>
             <button
@@ -194,7 +194,7 @@ const AdminOnboardingAnalytics: React.FC = () => {
                   window.location.reload();
                 }
               }}
-              className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50"
+              className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50 dark:bg-gray-800"
             >
               <Trash2 className="w-3.5 h-3.5" /> Clear archive
             </button>
@@ -209,50 +209,50 @@ const AdminOnboardingAnalytics: React.FC = () => {
             <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-teal-600" /> Server Metrics (7d)
             </h2>
-            <p className="text-sm text-gray-600">Aggregates from /api/analytics/metrics (enable via FRONTEND_SERVER_ANALYTICS=true)</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Aggregates from /api/analytics/metrics (enable via FRONTEND_SERVER_ANALYTICS=true)</p>
           </div>
-          <div className={`text-xs px-2 py-0.5 rounded ${serverEnabled ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-gray-50 text-gray-700 border border-gray-200'}`}>
+          <div className={`text-xs px-2 py-0.5 rounded ${serverEnabled ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-gray-50 text-gray-700 border border-gray-200 dark:border-gray-700'}`}>
             {serverEnabled ? 'Enabled' : 'Disabled'}
           </div>
         </div>
         <div className="mt-2 flex items-center gap-2 text-sm">
-          <span className="text-gray-600">Range:</span>
+          <span className="text-gray-600 dark:text-gray-400">Range:</span>
           <select value={range} onChange={(e) => setRange(e.target.value as any)} className="border border-gray-300 rounded px-2 py-1 text-sm">
             <option value="7d">Last 7 days</option>
             <option value="30d">Last 30 days</option>
           </select>
           {serverEnabled && (
             <>
-              <button onClick={exportServerTimeseriesCsv} className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50">
+              <button onClick={exportServerTimeseriesCsv} className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50 dark:bg-gray-800">
                 <Download className="w-3.5 h-3.5" /> Export Timeseries CSV
               </button>
-              <button onClick={exportServerTimeseriesByRoleCsv} className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50">
+              <button onClick={exportServerTimeseriesByRoleCsv} className="inline-flex items-center gap-1 px-2 py-1 text-xs border border-gray-300 rounded bg-white hover:bg-gray-50 dark:bg-gray-800">
                 <Download className="w-3.5 h-3.5" /> Export Timeseries by Role CSV
               </button>
             </>
           )}
         </div>
         {!serverEnabled && (
-          <div className="mt-3 text-xs text-gray-600">
+          <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">
             Set <code>FRONTEND_SERVER_ANALYTICS=true</code> on the server to post events; optionally override per-browser by setting <code>analytics_server_enabled</code> in localStorage.
           </div>
         )}
         {serverEnabled && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-3">
             <div className="border rounded p-3">
-              <div className="text-sm text-gray-600">Unique Visitors</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Unique Visitors</div>
               <div className="text-xl font-semibold">{serverMetrics?.uniqueVisitors ?? '—'}</div>
             </div>
             <div className="border rounded p-3">
-              <div className="text-sm text-gray-600">Page Views</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Page Views</div>
               <div className="text-xl font-semibold">{serverMetrics?.pageViews ?? '—'}</div>
             </div>
             <div className="border rounded p-3">
-              <div className="text-sm text-gray-600">Avg Session (s)</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Avg Session (s)</div>
               <div className="text-xl font-semibold">{serverMetrics?.averageSessionDuration ?? '—'}</div>
             </div>
             <div className="border rounded p-3">
-              <div className="text-sm text-gray-600">Bounce Rate (%)</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Bounce Rate (%)</div>
               <div className="text-xl font-semibold">{serverMetrics?.bounceRate ?? '—'}</div>
             </div>
           </div>
@@ -329,8 +329,8 @@ const AdminOnboardingAnalytics: React.FC = () => {
 
       <Card className="p-0 overflow-hidden">
         <table className="min-w-full text-sm">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr className="text-left text-gray-600">
+          <thead className="bg-gray-50 border-b border-gray-200 dark:border-gray-700">
+            <tr className="text-left text-gray-600 dark:text-gray-400">
               <th className="py-2 px-3">Time</th>
               <th className="py-2 px-3">Event</th>
               <th className="py-2 px-3">Role</th>
@@ -342,7 +342,7 @@ const AdminOnboardingAnalytics: React.FC = () => {
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-gray-500">No onboarding events</td>
+                <td colSpan={6} className="py-8 text-center text-gray-500 dark:text-gray-400">No onboarding events</td>
               </tr>
             )}
             {filtered.map((e, idx) => (

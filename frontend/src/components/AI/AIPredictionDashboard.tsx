@@ -199,7 +199,7 @@ const AIPredictionDashboard: React.FC<AIPredictionDashboardProps> = ({
       case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
       case 'grade2':
       case 'low': return 'text-blue-600 bg-blue-50 border-blue-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      default: return 'text-gray-600 bg-gray-50 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -243,7 +243,7 @@ const AIPredictionDashboard: React.FC<AIPredictionDashboardProps> = ({
       <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-4 border-b border-gray-200 rounded-t-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+            <div className="p-2 bg-white dark:bg-gray-900/20 rounded-lg backdrop-blur-sm">
               <Brain className="w-6 h-6 text-white" />
             </div>
             <div className="text-white">
@@ -266,7 +266,7 @@ const AIPredictionDashboard: React.FC<AIPredictionDashboardProps> = ({
       </div>
 
       {/* Revolutionary Tab Navigation */}
-      <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
+      <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 dark:border-gray-700">
         <div className="flex space-x-1">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -277,7 +277,7 @@ const AIPredictionDashboard: React.FC<AIPredictionDashboardProps> = ({
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center space-x-2 ${
                   activeTab === tab.id 
                     ? `bg-${tab.color}-100 text-${tab.color}-700 shadow-sm` 
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:bg-gray-800'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -293,7 +293,7 @@ const AIPredictionDashboard: React.FC<AIPredictionDashboardProps> = ({
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
               <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin mx-auto mb-3"></div>
-              <p className="text-gray-600">Running AI analysis across 47 models...</p>
+              <p className="text-gray-600 dark:text-gray-400">Running AI analysis across 47 models...</p>
               <p className="text-sm text-gray-500 mt-1">Quantum simulations • Real-world evidence • Predictive algorithms</p>
             </div>
           </div>
@@ -312,7 +312,7 @@ const AIPredictionDashboard: React.FC<AIPredictionDashboardProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <Shield className="w-5 h-5 text-red-600" />
-                  <h4 className="text-lg font-semibold text-gray-900">AI-Powered Adverse Event Prediction</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">AI-Powered Adverse Event Prediction</h4>
                   <Tooltip content="Using ensemble deep learning models trained on 2.3M patient outcomes">
                     <span className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium">
                       99.2% Accuracy
@@ -334,7 +334,7 @@ const AIPredictionDashboard: React.FC<AIPredictionDashboardProps> = ({
                         <p className="text-sm font-medium">
                           {prediction.timeToOnset.predicted_days} days to onset
                         </p>
-                        <p className="text-xs text-gray-600">
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
                           CI: {prediction.timeToOnset.confidence_interval[0]}-{prediction.timeToOnset.confidence_interval[1]} days
                         </p>
                       </div>
@@ -346,7 +346,7 @@ const AIPredictionDashboard: React.FC<AIPredictionDashboardProps> = ({
                         <div className="space-y-1">
                           {prediction.riskFactors.map((factor, i) => (
                             <div key={i} className="flex items-center justify-between text-sm">
-                              <span className={factor.modifiable ? 'text-blue-700' : 'text-gray-700'}>
+                              <span className={factor.modifiable ? 'text-blue-700' : 'text-gray-700 dark:text-gray-300'}>
                                 {factor.factor} {factor.modifiable && '(modifiable)'}
                               </span>
                               <span className="font-medium">{(factor.contribution * 100).toFixed(0)}%</span>
@@ -361,12 +361,12 @@ const AIPredictionDashboard: React.FC<AIPredictionDashboardProps> = ({
                           {prediction.preventionStrategies.map((strategy, i) => (
                             <div key={i} className="text-sm">
                               <div className="flex items-center justify-between">
-                                <span className="text-gray-700">{strategy.intervention}</span>
+                                <span className="text-gray-700 dark:text-gray-300">{strategy.intervention}</span>
                                 <span className="px-1 py-0.5 bg-green-100 text-green-700 text-xs rounded">
                                   {(strategy.effectivenessScore * 100).toFixed(0)}% effective
                                 </span>
                               </div>
-                              <p className="text-xs text-gray-600">Evidence Level {strategy.evidenceLevel}</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Evidence Level {strategy.evidenceLevel}</p>
                             </div>
                           ))}
                         </div>
@@ -390,7 +390,7 @@ const AIPredictionDashboard: React.FC<AIPredictionDashboardProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <TrendingUp className="w-5 h-5 text-green-600" />
-                  <h4 className="text-lg font-semibold text-gray-900">Multi-Omics Treatment Response Prediction</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Multi-Omics Treatment Response Prediction</h4>
                 </div>
 
                 <div className="bg-green-50 p-4 rounded-lg border border-green-200">
@@ -463,7 +463,7 @@ const AIPredictionDashboard: React.FC<AIPredictionDashboardProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <Atom className="w-5 h-5 text-purple-600" />
-                  <h4 className="text-lg font-semibold text-gray-900">Quantum-Enhanced Drug Discovery</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Quantum-Enhanced Drug Discovery</h4>
                   <Tooltip content="Using quantum computing simulations for molecular interactions">
                     <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">
                       Quantum AI
@@ -531,7 +531,7 @@ const AIPredictionDashboard: React.FC<AIPredictionDashboardProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <BarChart className="w-5 h-5 text-blue-600" />
-                  <h4 className="text-lg font-semibold text-gray-900">Real-World Evidence Learning</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Real-World Evidence Learning</h4>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -576,23 +576,23 @@ const AIPredictionDashboard: React.FC<AIPredictionDashboardProps> = ({
                   </div>
                 </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h6 className="font-medium text-gray-900 mb-2">Continuous Learning Status</h6>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
-                      <div className="text-gray-600">Model Version</div>
+                      <div className="text-gray-600 dark:text-gray-400">Model Version</div>
                       <div className="font-medium">{rweAnalysis.continuousLearning.modelVersion}</div>
                     </div>
                     <div>
-                      <div className="text-gray-600">Accuracy</div>
+                      <div className="text-gray-600 dark:text-gray-400">Accuracy</div>
                       <div className="font-medium">{(rweAnalysis.continuousLearning.performanceMetrics.accuracy * 100).toFixed(1)}%</div>
                     </div>
                     <div>
-                      <div className="text-gray-600">Precision</div>
+                      <div className="text-gray-600 dark:text-gray-400">Precision</div>
                       <div className="font-medium">{(rweAnalysis.continuousLearning.performanceMetrics.precision * 100).toFixed(1)}%</div>
                     </div>
                     <div>
-                      <div className="text-gray-600">F1 Score</div>
+                      <div className="text-gray-600 dark:text-gray-400">F1 Score</div>
                       <div className="font-medium">{(rweAnalysis.continuousLearning.performanceMetrics.f1Score * 100).toFixed(1)}%</div>
                     </div>
                   </div>
@@ -605,7 +605,7 @@ const AIPredictionDashboard: React.FC<AIPredictionDashboardProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <Activity className="w-5 h-5 text-indigo-600" />
-                  <h4 className="text-lg font-semibold text-gray-900">Live Patient Monitoring</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Live Patient Monitoring</h4>
                   <div className="flex items-center space-x-1 text-green-600">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                     <span className="text-sm">Live</span>

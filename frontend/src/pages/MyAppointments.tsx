@@ -333,9 +333,9 @@ const MyAppointments: React.FC = () => {
       case 'confirmed': return 'bg-green-100 text-green-600';
       case 'scheduled': return 'bg-blue-100 text-blue-600';
       case 'requested': return 'bg-yellow-100 text-yellow-600';
-      case 'completed': return 'bg-gray-100 text-gray-600';
+      case 'completed': return 'bg-gray-100 text-gray-600 dark:text-gray-400';
       case 'cancelled': return 'bg-red-100 text-red-600';
-      default: return 'bg-gray-100 text-gray-600';
+      default: return 'bg-gray-100 text-gray-600 dark:text-gray-400';
     }
   };
 
@@ -357,7 +357,7 @@ const MyAppointments: React.FC = () => {
       case 'lab': return 'bg-green-100 text-green-600';
       case 'imaging': return 'bg-orange-100 text-orange-600';
       case 'follow-up': return 'bg-teal-100 text-teal-600';
-      default: return 'bg-gray-100 text-gray-600';
+      default: return 'bg-gray-100 text-gray-600 dark:text-gray-400';
     }
   };
 
@@ -394,7 +394,7 @@ const MyAppointments: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Appointments</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">My Appointments</h1>
           <p className="text-gray-600 mt-1">Manage your upcoming and past appointments</p>
         </div>
         <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
@@ -410,7 +410,7 @@ const MyAppointments: React.FC = () => {
             <div>
               <p className="font-medium">{nextAppointment.title}</p>
               <p className="text-sm">{new Date(nextAppointment.date).toLocaleDateString()} at {nextAppointment.time}</p>
-              <p className="text-sm text-gray-600">{nextAppointment.provider}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{nextAppointment.provider}</p>
             </div>
             <div className="flex space-x-2">
               <button className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
@@ -438,8 +438,8 @@ const MyAppointments: React.FC = () => {
               <Calendar className="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Upcoming</p>
-              <p className="text-2xl font-bold text-gray-900">{upcomingAppointments.length}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Upcoming</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{upcomingAppointments.length}</p>
             </div>
           </div>
         </Card>
@@ -450,8 +450,8 @@ const MyAppointments: React.FC = () => {
               <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">This Month</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm text-gray-600 dark:text-gray-400">This Month</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {appointments.filter(apt => {
                   const aptDate = new Date(apt.date);
                   return aptDate.getMonth() === today.getMonth() && aptDate.getFullYear() === today.getFullYear();
@@ -467,8 +467,8 @@ const MyAppointments: React.FC = () => {
               <Bell className="w-5 h-5 text-orange-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-600">Reminders Set</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Reminders Set</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {appointments.filter(apt => apt.reminder).length}
               </p>
             </div>
@@ -485,7 +485,7 @@ const MyAppointments: React.FC = () => {
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
               selectedView === view
                 ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                : 'text-gray-600 hover:text-gray-900 dark:text-gray-100'
             }`}
           >
             {view.charAt(0).toUpperCase() + view.slice(1)} 
@@ -511,7 +511,7 @@ const MyAppointments: React.FC = () => {
                     
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">{appointment.title}</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{appointment.title}</h3>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
                           {appointment.status}
                         </span>
@@ -600,7 +600,7 @@ const MyAppointments: React.FC = () => {
                         {!appointment.rescheduleRequested ? (
                           <button 
                             onClick={() => handleReschedule(appointment.id)}
-                            className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50"
+                            className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50 dark:bg-gray-800"
                           >
                             Reschedule
                           </button>
@@ -619,7 +619,7 @@ const MyAppointments: React.FC = () => {
                     ) : (
                       <button 
                         onClick={() => handleViewDetails(appointment.id)}
-                        className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50"
+                        className="px-3 py-1 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50 dark:bg-gray-800"
                       >
                         View Details
                       </button>

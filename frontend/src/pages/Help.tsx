@@ -151,20 +151,20 @@ const Help: React.FC = () => {
       </Alert>
 
       {/* Contact Information */}
-      <Card className="bg-gray-50">
+      <Card className="bg-gray-50 dark:bg-gray-800">
         <div className="text-center">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Need More Help?</h3>
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <Mail className="w-6 h-6 mx-auto mb-2 text-gray-600" />
-              <p className="font-medium text-gray-900">Email Support</p>
-              <p className="text-sm text-gray-600">support@oncosaferx.com</p>
+              <Mail className="w-6 h-6 mx-auto mb-2 text-gray-600 dark:text-gray-400" />
+              <p className="font-medium text-gray-900 dark:text-gray-100">Email Support</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">support@oncosaferx.com</p>
               <p className="text-xs text-gray-500 mt-1">Response within 24 hours</p>
             </div>
             <div>
-              <ExternalLink className="w-6 h-6 mx-auto mb-2 text-gray-600" />
-              <p className="font-medium text-gray-900">Documentation</p>
-              <p className="text-sm text-gray-600">docs.oncosaferx.com</p>
+              <ExternalLink className="w-6 h-6 mx-auto mb-2 text-gray-600 dark:text-gray-400" />
+              <p className="font-medium text-gray-900 dark:text-gray-100">Documentation</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">docs.oncosaferx.com</p>
               <p className="text-xs text-gray-500 mt-1">Technical documentation</p>
             </div>
           </div>
@@ -226,7 +226,7 @@ const Help: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Navigation Tabs */}
         <div className="flex space-x-1 mb-8 bg-white rounded-lg p-1 shadow-sm">
@@ -235,7 +235,7 @@ const Help: React.FC = () => {
             className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               activeTab === 'overview'
                 ? 'bg-blue-600 text-white'
-                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:bg-gray-800'
             }`}
           >
             Help Overview
@@ -245,7 +245,7 @@ const Help: React.FC = () => {
             className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               activeTab === 'knowledge-base'
                 ? 'bg-blue-600 text-white'
-                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:bg-gray-800'
             }`}
           >
             Knowledge Base
@@ -255,7 +255,7 @@ const Help: React.FC = () => {
             className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               activeTab === 'support'
                 ? 'bg-blue-600 text-white'
-                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
+                : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:bg-gray-800'
             }`}
           >
             Support & Contact

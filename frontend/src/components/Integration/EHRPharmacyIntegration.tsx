@@ -215,8 +215,8 @@ const EHRPharmacyIntegration: React.FC = () => {
     switch (status) {
       case 'connected': return 'text-green-600 bg-green-50';
       case 'connecting': return 'text-yellow-600 bg-yellow-50';
-      case 'disconnected': return 'text-gray-600 bg-gray-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case 'disconnected': return 'text-gray-600 bg-gray-50 dark:bg-gray-800';
+      default: return 'text-gray-600 bg-gray-50 dark:bg-gray-800';
     }
   };
 
@@ -224,8 +224,8 @@ const EHRPharmacyIntegration: React.FC = () => {
     switch (status) {
       case 'connected': return <CheckCircle className="w-4 h-4 text-green-600" />;
       case 'connecting': return <Clock className="w-4 h-4 text-yellow-600" />;
-      case 'disconnected': return <AlertTriangle className="w-4 h-4 text-gray-600" />;
-      default: return <AlertTriangle className="w-4 h-4 text-gray-600" />;
+      case 'disconnected': return <AlertTriangle className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
+      default: return <AlertTriangle className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
     }
   };
 
@@ -245,11 +245,11 @@ const EHRPharmacyIntegration: React.FC = () => {
         <div className="flex items-center space-x-3">
           <div className="text-center">
             <div className={`w-3 h-3 rounded-full ${ehrConnected ? 'bg-green-500' : 'bg-gray-300'} mb-1`}></div>
-            <p className="text-xs text-gray-600">EHR</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">EHR</p>
           </div>
           <div className="text-center">
             <div className={`w-3 h-3 rounded-full ${pharmacyConnected ? 'bg-green-500' : 'bg-gray-300'} mb-1`}></div>
-            <p className="text-xs text-gray-600">Pharmacy</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">Pharmacy</p>
           </div>
         </div>
       </div>
@@ -268,7 +268,7 @@ const EHRPharmacyIntegration: React.FC = () => {
       )}
 
       {/* Navigation */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="-mb-px flex space-x-8">
           {[
             { id: 'ehr', label: 'EHR Systems', icon: Stethoscope },
@@ -282,7 +282,7 @@ const EHRPharmacyIntegration: React.FC = () => {
               className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-300'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -299,7 +299,7 @@ const EHRPharmacyIntegration: React.FC = () => {
           {syncStatus && (
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Sync Status</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Sync Status</h2>
                 <button
                   onClick={triggerManualSync}
                   disabled={loading}
@@ -313,24 +313,24 @@ const EHRPharmacyIntegration: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <Activity className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">Status</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Status</p>
                   <p className="font-semibold text-blue-900 capitalize">{syncStatus.status}</p>
                 </div>
                 <div className="text-center p-4 bg-green-50 rounded-lg">
                   <Clock className="w-6 h-6 text-green-600 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">Last Sync</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Last Sync</p>
                   <p className="font-semibold text-green-900">
                     {syncStatus.lastSync ? new Date(syncStatus.lastSync).toLocaleTimeString() : 'Never'}
                   </p>
                 </div>
                 <div className="text-center p-4 bg-yellow-50 rounded-lg">
                   <AlertTriangle className="w-6 h-6 text-yellow-600 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">Conflicts</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Conflicts</p>
                   <p className="font-semibold text-yellow-900">{syncStatus.conflicts}</p>
                 </div>
                 <div className="text-center p-4 bg-red-50 rounded-lg">
                   <Zap className="w-6 h-6 text-red-600 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600">Errors</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Errors</p>
                   <p className="font-semibold text-red-900">{syncStatus.errors}</p>
                 </div>
               </div>
@@ -340,7 +340,7 @@ const EHRPharmacyIntegration: React.FC = () => {
           {/* EHR Systems List */}
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Available EHR Systems</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Available EHR Systems</h2>
               {!syncStatus && (
                 <button
                   onClick={initializeSync}
@@ -359,7 +359,7 @@ const EHRPharmacyIntegration: React.FC = () => {
                     <div className="flex items-center space-x-3">
                       <Stethoscope className="w-6 h-6 text-blue-600" />
                       <div>
-                        <h3 className="font-medium text-gray-900">{system.name}</h3>
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{system.name}</h3>
                         <div className="flex items-center space-x-2 mt-1">
                           {getStatusIcon(system.status)}
                           <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(system.status)}`}>
@@ -372,8 +372,8 @@ const EHRPharmacyIntegration: React.FC = () => {
                     <div className="flex items-center space-x-4">
                       {system.medicationCount !== undefined && (
                         <div className="text-center">
-                          <p className="text-sm text-gray-600">Medications</p>
-                          <p className="font-semibold text-gray-900">{system.medicationCount}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Medications</p>
+                          <p className="font-semibold text-gray-900 dark:text-gray-100">{system.medicationCount}</p>
                         </div>
                       )}
                       
@@ -420,17 +420,17 @@ const EHRPharmacyIntegration: React.FC = () => {
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-3">
                       <Pill className="w-6 h-6 text-green-600" />
-                      <h3 className="font-medium text-gray-900">{provider.name}</h3>
+                      <h3 className="font-medium text-gray-900 dark:text-gray-100">{provider.name}</h3>
                     </div>
                     <span className={`px-2 py-1 text-xs rounded-full ${
-                      provider.available ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      provider.available ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800 dark:text-gray-200'
                     }`}>
                       {provider.available ? 'Available' : 'Unavailable'}
                     </span>
                   </div>
                   
                   <div className="space-y-2">
-                    <p className="text-sm text-gray-600">Services:</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Services:</p>
                     <div className="flex flex-wrap gap-2">
                       {provider.services.map((service, idx) => (
                         <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
@@ -451,7 +451,7 @@ const EHRPharmacyIntegration: React.FC = () => {
         <div className="space-y-6">
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Medication Price Comparison</h2>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Medication Price Comparison</h2>
               <button
                 onClick={checkMedicationPricing}
                 disabled={loading}
@@ -466,7 +466,7 @@ const EHRPharmacyIntegration: React.FC = () => {
                 {pricingResults.map((result, idx) => (
                   <div key={idx} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-medium text-gray-900">{result.pharmacyName}</h3>
+                      <h3 className="font-medium text-gray-900 dark:text-gray-100">{result.pharmacyName}</h3>
                       <span className={`px-2 py-1 text-xs rounded-full ${
                         result.availability ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
@@ -476,17 +476,17 @@ const EHRPharmacyIntegration: React.FC = () => {
                     
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
-                        <p className="text-gray-600">Cash Price</p>
+                        <p className="text-gray-600 dark:text-gray-400">Cash Price</p>
                         <p className="font-semibold">${result.cashPrice.toFixed(2)}</p>
                       </div>
                       {result.insurancePrice && (
                         <div>
-                          <p className="text-gray-600">Insurance Price</p>
+                          <p className="text-gray-600 dark:text-gray-400">Insurance Price</p>
                           <p className="font-semibold text-green-600">${result.insurancePrice.toFixed(2)}</p>
                         </div>
                       )}
                       <div>
-                        <p className="text-gray-600">Locations</p>
+                        <p className="text-gray-600 dark:text-gray-400">Locations</p>
                         <p className="font-semibold">{result.storeLocations.length} stores</p>
                       </div>
                     </div>
@@ -497,7 +497,7 @@ const EHRPharmacyIntegration: React.FC = () => {
               <div className="text-center py-12">
                 <DollarSign className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No Pricing Data</h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-gray-400">
                   Click "Check Prices" to compare medication costs across pharmacy networks.
                 </p>
               </div>

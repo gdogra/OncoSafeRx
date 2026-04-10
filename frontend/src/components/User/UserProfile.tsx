@@ -333,7 +333,7 @@ const UserProfile: React.FC = () => {
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-500">Please log in to view your profile.</p>
+        <p className="text-gray-500 dark:text-gray-400">Please log in to view your profile.</p>
       </div>
     );
   }
@@ -469,8 +469,8 @@ const UserProfile: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Profile</h1>
-          <p className="text-gray-600">Manage your account settings and preferences</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">User Profile</h1>
+          <p className="text-gray-600 dark:text-gray-400">Manage your account settings and preferences</p>
         </div>
         <div className="flex items-center space-x-3">
           <a
@@ -490,7 +490,7 @@ const UserProfile: React.FC = () => {
             )}
           </div>
           <Tooltip content="Upload profile picture" position="left">
-            <button onClick={onPickAvatar} className="p-2 text-gray-500 hover:text-gray-700">
+            <button onClick={onPickAvatar} className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-300">
               <Camera className="w-5 h-5" />
             </button>
           </Tooltip>
@@ -552,7 +552,7 @@ const UserProfile: React.FC = () => {
       )}
 
       {/* Navigation Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="-mb-px flex space-x-8">
           {tabs.map(({ id, label, icon: Icon }) => (
             <button
@@ -561,7 +561,7 @@ const UserProfile: React.FC = () => {
               className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === id
                   ? 'border-primary-500 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -575,7 +575,7 @@ const UserProfile: React.FC = () => {
       {activeTab === 'profile' && (
         <Card className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900">Profile Information</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Profile Information</h2>
             <Tooltip 
               content={isEditing ? "Save your profile changes" : "Edit your profile information"}
               position="bottom"
@@ -806,7 +806,7 @@ const UserProfile: React.FC = () => {
               <div className="grid md:grid-cols-3 gap-4 mb-4">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Height
                     </label>
                     <div className="flex bg-gray-100 rounded-md p-1">
@@ -816,7 +816,7 @@ const UserProfile: React.FC = () => {
                         className={`px-2 py-1 text-xs rounded ${
                           heightUnit === 'cm' 
                             ? 'bg-white text-gray-900 shadow-sm' 
-                            : 'text-gray-600 hover:text-gray-900'
+                            : 'text-gray-600 hover:text-gray-900 dark:text-gray-100'
                         }`}
                       >
                         cm
@@ -827,7 +827,7 @@ const UserProfile: React.FC = () => {
                         className={`px-2 py-1 text-xs rounded ${
                           heightUnit === 'ft-in' 
                             ? 'bg-white text-gray-900 shadow-sm' 
-                            : 'text-gray-600 hover:text-gray-900'
+                            : 'text-gray-600 hover:text-gray-900 dark:text-gray-100'
                         }`}
                       >
                         ft/in
@@ -919,7 +919,7 @@ const UserProfile: React.FC = () => {
 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Weight
                     </label>
                     <div className="flex bg-gray-100 rounded-md p-1">
@@ -929,7 +929,7 @@ const UserProfile: React.FC = () => {
                         className={`px-2 py-1 text-xs rounded ${
                           weightUnit === 'kg' 
                             ? 'bg-white text-gray-900 shadow-sm' 
-                            : 'text-gray-600 hover:text-gray-900'
+                            : 'text-gray-600 hover:text-gray-900 dark:text-gray-100'
                         }`}
                       >
                         kg
@@ -940,7 +940,7 @@ const UserProfile: React.FC = () => {
                         className={`px-2 py-1 text-xs rounded ${
                           weightUnit === 'lbs' 
                             ? 'bg-white text-gray-900 shadow-sm' 
-                            : 'text-gray-600 hover:text-gray-900'
+                            : 'text-gray-600 hover:text-gray-900 dark:text-gray-100'
                         }`}
                       >
                         lbs
@@ -992,7 +992,7 @@ const UserProfile: React.FC = () => {
                             : '')
                     }
                     disabled={true}
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-50 text-gray-600"
+                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-50 text-gray-600 dark:text-gray-400"
                     placeholder="Auto-calculated"
                   />
                 </div>
@@ -1082,7 +1082,7 @@ const UserProfile: React.FC = () => {
               {isEditing && (
                 <div className="space-y-4">
                   {(editedUser.allergies || []).map((allergy, index) => (
-                    <div key={index} className="border rounded-md p-4 bg-gray-50">
+                    <div key={index} className="border rounded-md p-4 bg-gray-50 dark:bg-gray-800">
                       <div className="flex justify-between items-start mb-3">
                         <h5 className="font-medium text-sm">Allergy {index + 1}</h5>
                         <button
@@ -1224,7 +1224,7 @@ const UserProfile: React.FC = () => {
                   setIsEditing(false);
                   setEditedUser(user);
                 }}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 dark:bg-gray-800"
               >
                 Cancel
               </button>
@@ -1253,7 +1253,7 @@ const UserProfile: React.FC = () => {
                       className={`p-3 border rounded-lg text-sm font-medium capitalize ${
                         editedPreferences.theme === theme
                           ? 'border-primary-500 bg-primary-50 text-primary-700'
-                          : 'border-gray-300 hover:bg-gray-50'
+                          : 'border-gray-300 hover:bg-gray-50 dark:bg-gray-800'
                       }`}
                     >
                       {theme}
@@ -1276,7 +1276,7 @@ const UserProfile: React.FC = () => {
                     { key: 'weeklyReports', label: 'Weekly reports' }
                   ].map(({ key, label }) => (
                     <div key={key} className="flex items-center justify-between">
-                      <span className="text-sm text-gray-700">{label}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{label}</span>
                       <input
                         type="checkbox"
                         checked={editedPreferences.notifications?.[key as keyof typeof editedPreferences.notifications] || false}
@@ -1324,7 +1324,7 @@ const UserProfile: React.FC = () => {
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-700">Compact mode</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Compact mode</span>
                     <input
                       type="checkbox"
                       checked={editedPreferences.dashboard?.compactMode || false}
@@ -1478,7 +1478,7 @@ const UserProfile: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowPasswords(prev => ({ ...prev, current: !prev.current }))}
-                      className="absolute right-3 top-2.5 w-4 h-4 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-2.5 w-4 h-4 text-gray-400 hover:text-gray-600 dark:text-gray-400"
                     >
                       {showPasswords.current ? <EyeOff /> : <Eye />}
                     </button>
@@ -1499,7 +1499,7 @@ const UserProfile: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowPasswords(prev => ({ ...prev, new: !prev.new }))}
-                      className="absolute right-3 top-2.5 w-4 h-4 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-2.5 w-4 h-4 text-gray-400 hover:text-gray-600 dark:text-gray-400"
                     >
                       {showPasswords.new ? <EyeOff /> : <Eye />}
                     </button>
@@ -1520,7 +1520,7 @@ const UserProfile: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setShowPasswords(prev => ({ ...prev, confirm: !prev.confirm }))}
-                      className="absolute right-3 top-2.5 w-4 h-4 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-2.5 w-4 h-4 text-gray-400 hover:text-gray-600 dark:text-gray-400"
                     >
                       {showPasswords.confirm ? <EyeOff /> : <Eye />}
                     </button>

@@ -66,7 +66,7 @@ const PatientDashboard: React.FC = () => {
     return (
       <div className="text-center py-12">
         <User className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-        <p className="text-lg font-medium text-gray-500">No Patient Selected</p>
+        <p className="text-lg font-medium text-gray-500 dark:text-gray-400">No Patient Selected</p>
         <p className="text-sm text-gray-400">Select a patient to view their clinical profile</p>
       </div>
     );
@@ -183,7 +183,7 @@ const PatientDashboard: React.FC = () => {
             </div>
             
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {currentPatient.demographics.firstName} {currentPatient.demographics.lastName}
               </h1>
               <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
@@ -207,7 +207,7 @@ const PatientDashboard: React.FC = () => {
 
           <div className="flex items-center space-x-2">
             <Tooltip content="Edit patient information">
-              <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+              <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 dark:bg-gray-800">
                 <Edit className="w-4 h-4" />
               </button>
             </Tooltip>
@@ -225,7 +225,7 @@ const PatientDashboard: React.FC = () => {
         {/* Quick Stats */}
         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-gray-50 rounded-lg p-3">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
               <Activity className="w-4 h-4" />
               <span>Height/Weight</span>
             </div>
@@ -234,14 +234,14 @@ const PatientDashboard: React.FC = () => {
               {currentPatient.demographics.weightKg ? `${currentPatient.demographics.weightKg} kg` : 'N/A'}
             </div>
             {currentPatient.demographics.heightCm && currentPatient.demographics.weightKg && (
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
                 BSA: {calculateBSA(currentPatient.demographics.heightCm, currentPatient.demographics.weightKg)?.toFixed(2)} m²
               </div>
             )}
           </div>
 
           <div className="bg-gray-50 rounded-lg p-3">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
               <Pill className="w-4 h-4" />
               <span>Active Medications</span>
             </div>
@@ -251,7 +251,7 @@ const PatientDashboard: React.FC = () => {
           </div>
 
           <div className="bg-gray-50 rounded-lg p-3">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
               <AlertTriangle className="w-4 h-4" />
               <span>Allergies</span>
             </div>
@@ -261,7 +261,7 @@ const PatientDashboard: React.FC = () => {
           </div>
 
           <div className="bg-gray-50 rounded-lg p-3">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
               <Clock className="w-4 h-4" />
               <span>Last Updated</span>
             </div>
@@ -273,8 +273,8 @@ const PatientDashboard: React.FC = () => {
       </Card>
 
       {/* Tabs */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="border-b border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="border-b border-gray-200 dark:border-gray-700">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -285,7 +285,7 @@ const PatientDashboard: React.FC = () => {
                   className={`group inline-flex items-center space-x-2 py-4 px-6 border-b-2 font-medium text-sm ${
                     activeTab === tab.id
                       ? 'border-primary-500 text-primary-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -305,7 +305,7 @@ const PatientDashboard: React.FC = () => {
                 <Card>
                   <div className="flex items-center space-x-2 mb-4">
                     <Phone className="w-5 h-5 text-gray-400" />
-                    <h3 className="text-lg font-semibold text-gray-900">Contact Information</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Contact Information</h3>
                   </div>
                   <div className="space-y-3">
                     {currentPatient.demographics.contact?.phone && (
@@ -333,7 +333,7 @@ const PatientDashboard: React.FC = () => {
                 <Card>
                   <div className="flex items-center space-x-2 mb-4">
                     <Stethoscope className="w-5 h-5 text-gray-400" />
-                    <h3 className="text-lg font-semibold text-gray-900">Recent Vitals</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Vitals</h3>
                     <Tooltip content="Most recent vital signs and performance status">
                       <Info className="w-4 h-4 text-gray-400" />
                     </Tooltip>
@@ -342,7 +342,7 @@ const PatientDashboard: React.FC = () => {
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       {getRecentVitals().bloodPressureSystolic && (
                         <div key="blood-pressure">
-                          <span className="text-gray-600">BP:</span>
+                          <span className="text-gray-600 dark:text-gray-400">BP:</span>
                           <span className="ml-1 font-medium">
                             {getRecentVitals().bloodPressureSystolic}/{getRecentVitals().bloodPressureDiastolic}
                           </span>
@@ -350,25 +350,25 @@ const PatientDashboard: React.FC = () => {
                       )}
                       {getRecentVitals().heartRate && (
                         <div key="heart-rate">
-                          <span className="text-gray-600">HR:</span>
+                          <span className="text-gray-600 dark:text-gray-400">HR:</span>
                           <span className="ml-1 font-medium">{getRecentVitals().heartRate} bpm</span>
                         </div>
                       )}
                       {getRecentVitals().temperature && (
                         <div key="temperature">
-                          <span className="text-gray-600">Temp:</span>
+                          <span className="text-gray-600 dark:text-gray-400">Temp:</span>
                           <span className="ml-1 font-medium">{getRecentVitals().temperature}°C</span>
                         </div>
                       )}
                       {getRecentVitals().performanceStatus !== undefined && (
                         <div key="performance-status">
-                          <span className="text-gray-600">ECOG:</span>
+                          <span className="text-gray-600 dark:text-gray-400">ECOG:</span>
                           <span className="ml-1 font-medium">{getRecentVitals().performanceStatus}</span>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500">No recent vitals recorded</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No recent vitals recorded</p>
                   )}
                 </Card>
               </div>
@@ -378,12 +378,12 @@ const PatientDashboard: React.FC = () => {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-2">
                     <AlertTriangle className="w-5 h-5 text-red-500" />
-                    <h3 className="text-lg font-semibold text-gray-900">Allergies</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Allergies</h3>
                     <Tooltip content="Known drug and environmental allergies with severity levels">
                       <Info className="w-4 h-4 text-gray-400" />
                     </Tooltip>
                   </div>
-                  <button className="p-1 text-gray-400 hover:text-gray-600">
+                  <button className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400">
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
@@ -396,19 +396,19 @@ const PatientDashboard: React.FC = () => {
                           allergy.severity === 'life-threatening' ? 'border-red-500 bg-red-50' :
                           allergy.severity === 'severe' ? 'border-orange-500 bg-orange-50' :
                           allergy.severity === 'moderate' ? 'border-yellow-500 bg-yellow-50' :
-                          'border-gray-500 bg-gray-50'
+                          'border-gray-500 bg-gray-50 dark:bg-gray-800'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div>
-                            <span className="font-medium text-gray-900">{allergy.allergen}</span>
+                            <span className="font-medium text-gray-900 dark:text-gray-100">{allergy.allergen}</span>
                             <span className="text-sm text-gray-600 ml-2">({allergy.allergenType})</span>
                           </div>
                           <span className={`text-xs px-2 py-1 rounded-full ${
                             allergy.severity === 'life-threatening' ? 'bg-red-100 text-red-800' :
                             allergy.severity === 'severe' ? 'bg-orange-100 text-orange-800' :
                             allergy.severity === 'moderate' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-gray-100 text-gray-800'
+                            'bg-gray-100 text-gray-800 dark:text-gray-200'
                           }`}>
                             {allergy.severity}
                           </span>
@@ -418,7 +418,7 @@ const PatientDashboard: React.FC = () => {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500">No known allergies</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No known allergies</p>
                 )}
               </Card>
 
@@ -426,7 +426,7 @@ const PatientDashboard: React.FC = () => {
               <Card>
                 <div className="flex items-center space-x-2 mb-4">
                   <TestTube className="w-5 h-5 text-gray-400" />
-                  <h3 className="text-lg font-semibold text-gray-900">Recent Lab Values</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Lab Values</h3>
                   <Tooltip content="Most recent laboratory test results with reference ranges">
                     <Info className="w-4 h-4 text-gray-400" />
                   </Tooltip>
@@ -434,7 +434,7 @@ const PatientDashboard: React.FC = () => {
                 {getRecentLabs().length > 0 ? (
                   <div className="overflow-hidden">
                     <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                      <thead className="bg-gray-50 dark:bg-gray-800">
                         <tr>
                           <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Test</th>
                           <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Value</th>
@@ -445,13 +445,13 @@ const PatientDashboard: React.FC = () => {
                       <tbody className="divide-y divide-gray-200">
                         {getRecentLabs().map((lab, index) => (
                           <tr key={`${lab.labType}-${lab.timestamp}-${index}`}>
-                            <td className="px-3 py-2 text-sm font-medium text-gray-900">{lab.labType}</td>
-                            <td className={`px-3 py-2 text-sm ${lab.isAbnormal ? 'text-red-600 font-medium' : 'text-gray-900'}`}>
+                            <td className="px-3 py-2 text-sm font-medium text-gray-900 dark:text-gray-100">{lab.labType}</td>
+                            <td className={`px-3 py-2 text-sm ${lab.isAbnormal ? 'text-red-600 font-medium' : 'text-gray-900 dark:text-gray-100'}`}>
                               {lab.value} {lab.unit}
                               {lab.criticalFlag && <span className="ml-1 text-red-500">⚠</span>}
                             </td>
-                            <td className="px-3 py-2 text-sm text-gray-600">{lab.referenceRange}</td>
-                            <td className="px-3 py-2 text-sm text-gray-600">
+                            <td className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400">{lab.referenceRange}</td>
+                            <td className="px-3 py-2 text-sm text-gray-600 dark:text-gray-400">
                               {new Date(lab.timestamp).toLocaleDateString()}
                             </td>
                           </tr>
@@ -460,7 +460,7 @@ const PatientDashboard: React.FC = () => {
                     </table>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500">No recent lab values</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No recent lab values</p>
                 )}
               </Card>
 
@@ -468,7 +468,7 @@ const PatientDashboard: React.FC = () => {
               <Card>
                 <div className="flex items-center space-x-2 mb-4">
                   <Search className="w-5 h-5 text-blue-500" />
-                  <h3 className="text-lg font-semibold text-gray-900">Quick Drug Search</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Drug Search</h3>
                   <Tooltip content="Search for drug information and interactions">
                     <Info className="w-4 h-4 text-gray-400" />
                   </Tooltip>
@@ -519,7 +519,7 @@ const PatientDashboard: React.FC = () => {
               <Card>
                 <div className="flex items-center space-x-2 mb-6">
                   <Sparkles className="w-5 h-5 text-purple-500" />
-                  <h3 className="text-lg font-semibold text-gray-900">AI & Advanced Features</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">AI & Advanced Features</h3>
                   <Tooltip content="Access powerful AI and analytics tools for this patient">
                     <Info className="w-4 h-4 text-gray-400" />
                   </Tooltip>
@@ -534,8 +534,8 @@ const PatientDashboard: React.FC = () => {
                         <Brain className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900">AI Decision Engine</h4>
-                        <p className="text-xs text-gray-600">Clinical decision support</p>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">AI Decision Engine</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Clinical decision support</p>
                       </div>
                     </div>
                     <p className="text-sm text-gray-700 mb-3">Get AI-powered clinical recommendations and drug interaction analysis</p>
@@ -553,8 +553,8 @@ const PatientDashboard: React.FC = () => {
                         <Shield className="w-5 h-5 text-green-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900">Safety Alerts</h4>
-                        <p className="text-xs text-gray-600">Real-time monitoring</p>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Safety Alerts</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Real-time monitoring</p>
                       </div>
                     </div>
                     <p className="text-sm text-gray-700 mb-3">Monitor drug safety alerts and potential adverse events</p>
@@ -572,8 +572,8 @@ const PatientDashboard: React.FC = () => {
                         <TrendingUp className="w-5 h-5 text-orange-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900">ML Analytics</h4>
-                        <p className="text-xs text-gray-600">Advanced insights</p>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">ML Analytics</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Advanced insights</p>
                       </div>
                     </div>
                     <p className="text-sm text-gray-700 mb-3">Access machine learning analytics and predictive models</p>
@@ -591,8 +591,8 @@ const PatientDashboard: React.FC = () => {
                         <Target className="w-5 h-5 text-purple-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900">Predictive Outcomes</h4>
-                        <p className="text-xs text-gray-600">Treatment predictions</p>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Predictive Outcomes</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Treatment predictions</p>
                       </div>
                     </div>
                     <p className="text-sm text-gray-700 mb-3">Generate AI-powered treatment outcome predictions</p>
@@ -610,8 +610,8 @@ const PatientDashboard: React.FC = () => {
                         <MessageSquare className="w-5 h-5 text-teal-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900">Team Communication</h4>
-                        <p className="text-xs text-gray-600">HIPAA-compliant messaging</p>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Team Communication</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">HIPAA-compliant messaging</p>
                       </div>
                     </div>
                     <p className="text-sm text-gray-700 mb-3">Secure team communication and collaboration</p>
@@ -629,8 +629,8 @@ const PatientDashboard: React.FC = () => {
                         <Smartphone className="w-5 h-5 text-indigo-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900">IoT Monitoring</h4>
-                        <p className="text-xs text-gray-600">Connected devices</p>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">IoT Monitoring</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Connected devices</p>
                       </div>
                     </div>
                     <p className="text-sm text-gray-700 mb-3">Monitor connected health devices and sensors</p>
@@ -648,8 +648,8 @@ const PatientDashboard: React.FC = () => {
                         <Calculator className="w-5 h-5 text-red-600" />
                       </div>
                       <div>
-                        <h4 className="font-semibold text-gray-900">Opioid Risk Report</h4>
-                        <p className="text-xs text-gray-600">Addiction risk assessment</p>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100">Opioid Risk Report</h4>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">Addiction risk assessment</p>
                       </div>
                     </div>
                     <p className="text-sm text-gray-700 mb-3">Comprehensive addiction risk and pharmacogenomic analysis</p>
@@ -694,7 +694,7 @@ const PatientDashboard: React.FC = () => {
               <div className="text-gray-400 mb-4">
                 <TestTube className="w-12 h-12 mx-auto" />
               </div>
-              <p className="text-lg font-medium text-gray-500">Lab Management</p>
+              <p className="text-lg font-medium text-gray-500 dark:text-gray-400">Lab Management</p>
               <p className="text-sm text-gray-400">Coming soon in Phase 2</p>
             </div>
           )}

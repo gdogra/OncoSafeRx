@@ -128,10 +128,10 @@ const AppointmentRequestForm: React.FC<AppointmentRequestFormProps> = ({
         <Card>
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900">Request Appointment</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Request Appointment</h2>
             <button
               onClick={onClose}
-              className="p-1 text-gray-400 hover:text-gray-600"
+              className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400"
             >
               <X className="w-6 h-6" />
             </button>
@@ -296,7 +296,7 @@ const AppointmentRequestForm: React.FC<AppointmentRequestFormProps> = ({
                     onChange={(e) => setFormData({...formData, isVirtual: e.target.checked})}
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <label htmlFor="virtual" className="text-sm text-gray-700">
+                  <label htmlFor="virtual" className="text-sm text-gray-700 dark:text-gray-300">
                     Virtual appointment preferred
                   </label>
                 </div>
@@ -324,7 +324,7 @@ const AppointmentRequestForm: React.FC<AppointmentRequestFormProps> = ({
                   onChange={(e) => setFormData({...formData, isUrgent: e.target.checked})}
                   className="rounded border-gray-300 text-red-600 focus:ring-red-500"
                 />
-                <label htmlFor="urgent" className="text-sm text-gray-700">
+                <label htmlFor="urgent" className="text-sm text-gray-700 dark:text-gray-300">
                   This is an urgent request
                 </label>
               </div>
@@ -354,7 +354,7 @@ const AppointmentRequestForm: React.FC<AppointmentRequestFormProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 dark:bg-gray-800"
               >
                 Cancel
               </button>

@@ -148,7 +148,7 @@ export default function SolidDrugSearch({ placeholder, value, onChange, onSelect
           onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
           placeholder={placeholder}
-          className="w-full pl-3 pr-10 py-3 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white"
+          className="w-full pl-3 pr-10 py-3 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-violet-500 bg-white dark:bg-gray-900"
           aria-autocomplete="list"
           aria-expanded={open}
           aria-haspopup="listbox"
@@ -183,7 +183,7 @@ export default function SolidDrugSearch({ placeholder, value, onChange, onSelect
                 </div>
                 {opt.rxcui && (
                   <div className="flex-shrink-0 ml-3">
-                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                    <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700 dark:text-gray-300">
                       {opt.rxcui}
                     </span>
                   </div>

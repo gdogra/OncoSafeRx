@@ -10,7 +10,7 @@ export default function EHRIntegrationDashboard() {
         </div>
         <div>
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">EHR Integration</h2>
-          <p className="text-sm text-gray-500">Electronic Health Record connectivity</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Electronic Health Record connectivity</p>
         </div>
       </div>
       <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4">

@@ -99,7 +99,7 @@ const NotFound: React.FC = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold text-gray-900 mb-1">{page.label}</h4>
-                      <p className="text-sm text-gray-600">{page.description}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{page.description}</p>
                     </div>
                   </div>
                 </Card>
@@ -136,7 +136,7 @@ const NotFound: React.FC = () => {
         </Card>
 
         {/* Footer Info */}
-        <div className="text-center mt-12 text-gray-500">
+        <div className="text-center mt-12 text-gray-500 dark:text-gray-400">
           <p className="text-sm">
             OncoSafeRx - Advancing Oncology Care Through Intelligent Decision Support
           </p>

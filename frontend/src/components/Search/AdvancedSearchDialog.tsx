@@ -90,10 +90,10 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3">
             <Filter className="w-6 h-6 text-blue-600" />
-            <h2 className="text-2xl font-bold text-gray-900">Advanced Search</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Advanced Search</h2>
             {activeFiltersCount > 0 && (
               <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
                 {activeFiltersCount} filter{activeFiltersCount !== 1 ? 's' : ''}
@@ -109,13 +109,13 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-200">
+        <div className="flex border-b border-gray-200 dark:border-gray-700">
           <button
             onClick={() => setActiveTab('search')}
             className={`px-6 py-3 font-medium ${
               activeTab === 'search'
                 ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
+                : 'text-gray-500 hover:text-gray-700 dark:text-gray-300'
             }`}
           >
             Search & Filters
@@ -125,7 +125,7 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
             className={`px-6 py-3 font-medium ${
               activeTab === 'history'
                 ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
+                : 'text-gray-500 hover:text-gray-700 dark:text-gray-300'
             }`}
           >
             Search History
@@ -135,7 +135,7 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
             className={`px-6 py-3 font-medium ${
               activeTab === 'favorites'
                 ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
+                : 'text-gray-500 hover:text-gray-700 dark:text-gray-300'
             }`}
           >
             Favorites
@@ -276,7 +276,7 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
                     onChange={(e) => handleFilterChange('isOncology', e.target.checked ? true : undefined)}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Oncology drugs only</span>
+                  <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Oncology drugs only</span>
                 </label>
 
                 <label className="flex items-center">
@@ -286,7 +286,7 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
                     onChange={(e) => handleFilterChange('hasGenomicData', e.target.checked ? true : undefined)}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Has genomic data</span>
+                  <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Has genomic data</span>
                 </label>
 
                 <label className="flex items-center">
@@ -296,7 +296,7 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
                     onChange={(e) => handleFilterChange('fdaApproved', e.target.checked ? true : undefined)}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm text-gray-700">FDA approved</span>
+                  <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">FDA approved</span>
                 </label>
 
                 <label className="flex items-center">
@@ -306,7 +306,7 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
                     onChange={(e) => handleFilterChange('isOrphan', e.target.checked ? true : undefined)}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <span className="ml-2 text-sm text-gray-700">Orphan drugs</span>
+                  <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Orphan drugs</span>
                 </label>
               </div>
             </div>
@@ -315,10 +315,10 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
           {activeTab === 'history' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium text-gray-900">Search History</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Search History</h3>
                 <button
                   onClick={() => {}}
-                  className="text-sm text-gray-500 hover:text-gray-700"
+                  className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-300"
                 >
                   Clear History
                 </button>
@@ -327,7 +327,7 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
               {history.length === 0 ? (
                 <div className="text-center py-8">
                   <History className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">No search history yet</p>
+                  <p className="text-gray-500 dark:text-gray-400">No search history yet</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -343,7 +343,7 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-medium">{item.query || 'Advanced search'}</span>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
                           {item.resultCount} result{item.resultCount !== 1 ? 's' : ''}
                         </span>
                       </div>
@@ -359,12 +359,12 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
 
           {activeTab === 'favorites' && (
             <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Favorites</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Favorites</h3>
               
               {Object.keys(favoritesByType).length === 0 ? (
                 <div className="text-center py-8">
                   <Star className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">No favorites yet</p>
+                  <p className="text-gray-500 dark:text-gray-400">No favorites yet</p>
                   <p className="text-sm text-gray-400 mt-2">
                     Save drugs, interactions, and protocols for quick access
                   </p>
@@ -380,7 +380,7 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
                         {items.map((item) => (
                           <div
                             key={item.id}
-                            className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                            className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 dark:bg-gray-800"
                           >
                             <div className="flex items-center justify-between">
                               <span className="font-medium">{item.name}</span>
@@ -415,7 +415,7 @@ const AdvancedSearchDialog: React.FC<AdvancedSearchDialogProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+        <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50 dark:bg-gray-800">
           <button
             onClick={clearFilters}
             className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"

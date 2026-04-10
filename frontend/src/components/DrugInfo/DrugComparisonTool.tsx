@@ -175,7 +175,7 @@ const DrugComparisonTool: React.FC<DrugComparisonToolProps> = ({
       getValue: (drug) => (
         <div>
           <div className="font-medium">{drug.name}</div>
-          <div className="text-sm text-gray-500">{drug.genericName}</div>
+          <div className="text-sm text-gray-500 dark:text-gray-400">{drug.genericName}</div>
         </div>
       )
     },
@@ -201,7 +201,7 @@ const DrugComparisonTool: React.FC<DrugComparisonToolProps> = ({
             <div key={index} className="text-sm">• {indication}</div>
           ))}
           {drug.indications && drug.indications.length > 3 && (
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-500 dark:text-gray-400">
               +{drug.indications.length - 3} more
             </div>
           )}
@@ -219,7 +219,7 @@ const DrugComparisonTool: React.FC<DrugComparisonToolProps> = ({
           </div>
           <div className="space-y-1">
             {drug.sideEffects?.slice(0, 3).map((effect, index) => (
-              <div key={index} className="text-xs text-gray-600">• {effect}</div>
+              <div key={index} className="text-xs text-gray-600 dark:text-gray-400">• {effect}</div>
             ))}
           </div>
         </div>
@@ -237,7 +237,7 @@ const DrugComparisonTool: React.FC<DrugComparisonToolProps> = ({
           </div>
           <div className="space-y-1">
             {drug.contraindications?.slice(0, 2).map((contraindication, index) => (
-              <div key={index} className="text-xs text-gray-600">• {contraindication}</div>
+              <div key={index} className="text-xs text-gray-600 dark:text-gray-400">• {contraindication}</div>
             ))}
           </div>
         </div>
@@ -280,7 +280,7 @@ const DrugComparisonTool: React.FC<DrugComparisonToolProps> = ({
         return (
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600">{score}</div>
-            <div className="text-xs text-gray-500">/ 100</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">/ 100</div>
           </div>
         );
       },
@@ -330,13 +330,13 @@ const DrugComparisonTool: React.FC<DrugComparisonToolProps> = ({
   return (
     <div className={`bg-white border border-gray-200 rounded-lg shadow-sm ${className}`}>
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <BarChart3 className="w-6 h-6 text-blue-600" />
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Drug Comparison</h2>
-              <p className="text-sm text-gray-600">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Drug Comparison</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Compare up to 4 drugs side by side
               </p>
             </div>
@@ -358,7 +358,7 @@ const DrugComparisonTool: React.FC<DrugComparisonToolProps> = ({
       {showAddDrug && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-            <div className="p-4 border-b border-gray-200">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium">Add Drug to Comparison</h3>
                 <button
@@ -390,12 +390,12 @@ const DrugComparisonTool: React.FC<DrugComparisonToolProps> = ({
                       className="w-full p-3 text-left border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       <div className="font-medium">{drug.name}</div>
-                      <div className="text-sm text-gray-600">{drug.category}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">{drug.category}</div>
                     </button>
                   ))}
                   
                 {filteredAvailableDrugs.length === 0 && (
-                  <div className="text-center py-4 text-gray-500">
+                  <div className="text-center py-4 text-gray-500 dark:text-gray-400">
                     No drugs found
                   </div>
                 )}
@@ -410,7 +410,7 @@ const DrugComparisonTool: React.FC<DrugComparisonToolProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200">
+              <tr className="border-b border-gray-200 dark:border-gray-700">
                 <th className="text-left p-4 font-medium text-gray-700 w-32">
                   Metric
                 </th>
@@ -418,8 +418,8 @@ const DrugComparisonTool: React.FC<DrugComparisonToolProps> = ({
                   <th key={drug.rxcui} className="text-left p-4 min-w-64">
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="font-medium text-gray-900">{drug.name}</div>
-                        <div className="text-sm text-gray-500">{drug.genericName}</div>
+                        <div className="font-medium text-gray-900 dark:text-gray-100">{drug.name}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{drug.genericName}</div>
                       </div>
                       <button
                         onClick={() => removeDrug(drug.rxcui)}
@@ -438,11 +438,11 @@ const DrugComparisonTool: React.FC<DrugComparisonToolProps> = ({
                 const Icon = metric.icon;
                 
                 return (
-                  <tr key={metric.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <tr key={metric.id} className="border-b border-gray-100 hover:bg-gray-50 dark:bg-gray-800">
                     <td className="p-4">
                       <div className="flex items-center space-x-2">
-                        <Icon className="w-4 h-4 text-gray-500" />
-                        <span className="font-medium text-gray-700">{metric.label}</span>
+                        <Icon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        <span className="font-medium text-gray-700 dark:text-gray-300">{metric.label}</span>
                       </div>
                     </td>
                     
@@ -480,14 +480,14 @@ const DrugComparisonTool: React.FC<DrugComparisonToolProps> = ({
 
       {/* Summary Insights */}
       {selectedDrugs.length > 1 && (
-        <div className="p-6 border-t border-gray-200 bg-gray-50">
+        <div className="p-6 border-t border-gray-200 bg-gray-50 dark:bg-gray-800">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Comparison Insights</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {selectedDrugs.map((drug) => (
-              <div key={drug.rxcui} className="bg-white p-4 rounded-lg border border-gray-200">
+              <div key={drug.rxcui} className="bg-white p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-medium text-gray-900">{drug.name}</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">{drug.name}</h4>
                   <div className="flex items-center space-x-1">
                     <Star className="w-4 h-4 text-yellow-500" />
                     <span className="text-sm font-medium">{drug.comparisonScore}/100</span>

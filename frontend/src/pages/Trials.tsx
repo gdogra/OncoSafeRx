@@ -969,7 +969,7 @@ const Trials: React.FC = () => {
             <span>Showing sample trials from local dataset. Try again shortly or refine your filters.</span>
             <button
               onClick={() => search()}
-              className="px-2 py-1 rounded border bg-white hover:bg-gray-50 text-gray-700"
+              className="px-2 py-1 rounded border bg-white hover:bg-gray-50 text-gray-700 dark:text-gray-300"
             >
               Retry live data
             </button>
@@ -977,8 +977,8 @@ const Trials: React.FC = () => {
         </Alert>
       )}
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Clinical Trials' }]} />
-      <h1 className="text-2xl font-bold text-gray-900">Clinical Trials (MVP)</h1>
-      <div className="flex items-center gap-3 text-xs text-gray-600">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Clinical Trials (MVP)</h1>
+      <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
         <span>
           Data source: {(
             {
@@ -996,7 +996,7 @@ const Trials: React.FC = () => {
         {diagMsg && <span>• {diagMsg}</span>}
         <button
           onClick={() => { setUsedFallback(false); setDiagMsg(''); setDataSource('unknown'); search(); }}
-          className="px-2 py-1 rounded border bg-white hover:bg-gray-50 text-gray-700"
+          className="px-2 py-1 rounded border bg-white hover:bg-gray-50 text-gray-700 dark:text-gray-300"
         >
           Retry live fetch
         </button>
@@ -1013,7 +1013,7 @@ const Trials: React.FC = () => {
         </div>
       </div>
       {liveTotal !== null && (
-        <div className="flex items-center gap-3 text-xs text-gray-600">
+        <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
           <div>
             Live recruiting interventional studies available now: {liveTotal.toLocaleString()}
             {liveUpdatedAt && (
@@ -1022,7 +1022,7 @@ const Trials: React.FC = () => {
           </div>
           <button
             onClick={async () => { setLiveRefreshTick(t => t + 1); await search(); }}
-            className="px-2 py-1 rounded border bg-white hover:bg-gray-50 text-gray-700"
+            className="px-2 py-1 rounded border bg-white hover:bg-gray-50 text-gray-700 dark:text-gray-300"
             title="Refresh live data"
           >
             Refresh
@@ -1123,12 +1123,12 @@ const Trials: React.FC = () => {
           </div>
         </div>
         {recentDrugs.length > 0 && (
-          <div className="mt-3 text-xs text-gray-700">
+          <div className="mt-3 text-xs text-gray-700 dark:text-gray-300">
             Recent Drugs: {recentDrugs.map((d) => (
               <button
                 key={d}
                 onClick={() => useRecentDrug(d)}
-                className="inline-block bg-white border border-gray-300 rounded-full px-2 py-0.5 mr-1 mb-1 hover:bg-gray-50"
+                className="inline-block bg-white border border-gray-300 rounded-full px-2 py-0.5 mr-1 mb-1 hover:bg-gray-50 dark:bg-gray-800"
                 title="Search with this drug"
               >
                 {d}
@@ -1209,7 +1209,7 @@ const Trials: React.FC = () => {
       {error && <Alert type="error" title="Error">{error}</Alert>}
       {Array.isArray(results) && (
         <Card>
-          <div className="text-sm text-gray-700">{results.length} trial(s) found</div>
+          <div className="text-sm text-gray-700 dark:text-gray-300">{results.length} trial(s) found</div>
           {/* Map view when location present */}
           {(lat && lon) && (
             <div className="h-64 w-full mb-4 rounded overflow-hidden">
@@ -1254,7 +1254,7 @@ const Trials: React.FC = () => {
           )}
           {/* Pagination controls (hidden when using virtualization) */}
           {Array.isArray(results) && !((results as Trial[]).length > 400) && (
-            <div className="flex items-center justify-between my-2 text-sm text-gray-700">
+            <div className="flex items-center justify-between my-2 text-sm text-gray-700 dark:text-gray-300">
               <div className="flex items-center gap-2">
                 <span>Rows:</span>
                 <select
@@ -1265,7 +1265,7 @@ const Trials: React.FC = () => {
                   {[10,20,50,100].map(n => <option key={n} value={n}>{n}</option>)}
                 </select>
                 {nearestCount && parseInt(nearestCount,10)>0 && (
-                  <span className="text-xs text-gray-500">Nearest limit active: showing top {nearestCount}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Nearest limit active: showing top {nearestCount}</span>
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -1334,7 +1334,7 @@ const Trials: React.FC = () => {
                           ))}</span>
                         )}
                       </div>
-                      <div className="text-sm text-gray-600">{t.condition} {t.biomarkers && t.biomarkers.length ? `• Biomarkers: ${t.biomarkers.join(', ')}` : ''}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">{t.condition} {t.biomarkers && t.biomarkers.length ? `• Biomarkers: ${t.biomarkers.join(', ')}` : ''}</div>
                     </div>
                   ))}
                   <div style={{ height: bottomPad }} />
@@ -1384,9 +1384,9 @@ const Trials: React.FC = () => {
                     <span className="inline-block bg-green-100 text-green-700 px-2 py-0.5 text-xs rounded">Nearest</span>
                   )}
                 </div>
-                <div className="text-sm text-gray-600">{t.condition} {t.biomarkers && t.biomarkers.length ? `• Biomarkers: ${t.biomarkers.join(', ')}` : ''}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">{t.condition} {t.biomarkers && t.biomarkers.length ? `• Biomarkers: ${t.biomarkers.join(', ')}` : ''}</div>
                 {t.locations && t.locations.length > 0 && (
-                  <div className="text-xs text-gray-500">Sites: {t.locations.map((l: { name: string; lat: number; lon: number }, i: number) => (
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Sites: {t.locations.map((l: { name: string; lat: number; lon: number }, i: number) => (
                     <span key={i} className="mr-2">
                       {l.name} {lat && lon ? (
                         <a
@@ -1409,7 +1409,7 @@ const Trials: React.FC = () => {
       {includePreprints && preprints.length > 0 && (
         <Card>
           <div className="text-sm font-medium text-gray-800 mb-2">Related Preprints</div>
-          <ul className="list-disc pl-5 text-sm text-gray-700">
+          <ul className="list-disc pl-5 text-sm text-gray-700 dark:text-gray-300">
             {preprints.map((p, i) => (
               <li key={i} className="mb-1">
                 <a href={p.url} target="_blank" rel="noreferrer" className="text-blue-700 hover:underline">{p.title}</a>

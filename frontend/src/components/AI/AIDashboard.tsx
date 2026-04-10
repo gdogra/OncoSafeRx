@@ -125,8 +125,8 @@ const AIDashboard: React.FC = () => {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">AI Recommendations</p>
-                <p className="text-2xl font-bold text-gray-900">{metrics.totalRecommendations}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">AI Recommendations</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{metrics.totalRecommendations}</p>
               </div>
               <Lightbulb className="w-8 h-8 text-blue-600" />
             </div>
@@ -141,13 +141,13 @@ const AIDashboard: React.FC = () => {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Active Models</p>
-                <p className="text-2xl font-bold text-gray-900">{metrics.activeModels}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Models</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{metrics.activeModels}</p>
               </div>
               <Target className="w-8 h-8 text-green-600" />
             </div>
             <div className="mt-4">
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 {metrics.totalModels} total models
               </div>
             </div>
@@ -156,13 +156,13 @@ const AIDashboard: React.FC = () => {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">RWE Studies</p>
-                <p className="text-2xl font-bold text-gray-900">{metrics.rweStudies}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">RWE Studies</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{metrics.rweStudies}</p>
               </div>
               <Database className="w-8 h-8 text-purple-600" />
             </div>
             <div className="mt-4">
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 Real-world evidence base
               </div>
             </div>
@@ -171,15 +171,15 @@ const AIDashboard: React.FC = () => {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">Avg Confidence</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Avg Confidence</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {metrics.averageConfidence ? Math.round(metrics.averageConfidence) : 0}%
                 </p>
               </div>
               <TrendingUp className="w-8 h-8 text-orange-600" />
             </div>
             <div className="mt-4">
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 Model confidence score
               </div>
             </div>
@@ -217,7 +217,7 @@ const AIDashboard: React.FC = () => {
                 <h4 className="font-medium text-gray-900 mb-2">
                   {selectedPatient.firstName} {selectedPatient.lastName}
                 </h4>
-                <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+                <div className="grid grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400">
                   <div>
                     <span className="font-medium">Diagnosis:</span> {selectedPatient.diagnosis}
                   </div>
@@ -265,8 +265,8 @@ const AIDashboard: React.FC = () => {
                   rec.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
                 }`} />
                 <div className="flex-1">
-                  <p className="font-medium text-gray-900">{rec.title}</p>
-                  <p className="text-sm text-gray-500">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{rec.title}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {rec.type} • {rec.confidenceScore}% confidence • {new Date(rec.generatedDate).toLocaleDateString()}
                   </p>
                 </div>
@@ -275,7 +275,7 @@ const AIDashboard: React.FC = () => {
                     ? 'bg-green-100 text-green-800'
                     : rec.validationStatus === 'pending'
                     ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-gray-100 text-gray-800'
+                    : 'bg-gray-100 text-gray-800 dark:text-gray-200'
                 }`}>
                   {rec.validationStatus}
                 </span>
@@ -304,7 +304,7 @@ const AIDashboard: React.FC = () => {
               />
             </div>
           </div>
-          <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+          <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
             <Filter className="w-4 h-4 mr-2" />
             Filters
           </button>
@@ -324,13 +324,13 @@ const AIDashboard: React.FC = () => {
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <div className="flex items-center space-x-3 mb-2">
-                  <h3 className="text-lg font-semibold text-gray-900">{rec.title}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{rec.title}</h3>
                   <span className={`px-2 py-1 text-xs rounded-full ${
                     rec.type === 'treatment' ? 'bg-blue-100 text-blue-800' :
                     rec.type === 'diagnostic' ? 'bg-green-100 text-green-800' :
                     rec.type === 'monitoring' ? 'bg-yellow-100 text-yellow-800' :
                     rec.type === 'genomic' ? 'bg-purple-100 text-purple-800' :
-                    'bg-gray-100 text-gray-800'
+                    'bg-gray-100 text-gray-800 dark:text-gray-200'
                   }`}>
                     {rec.type.replace('_', ' ')}
                   </span>
@@ -341,15 +341,15 @@ const AIDashboard: React.FC = () => {
               
               <div className="flex items-center space-x-2">
                 <div className="text-center">
-                  <div className="text-lg font-bold text-gray-900">{rec.confidenceScore}%</div>
-                  <div className="text-xs text-gray-500">confidence</div>
+                  <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{rec.confidenceScore}%</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">confidence</div>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
-                <div className="text-sm font-medium text-gray-500">Priority</div>
+                <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Priority</div>
                 <div className={`inline-flex items-center px-2 py-1 rounded-full text-sm ${
                   rec.priority === 'high' ? 'bg-red-100 text-red-800' :
                   rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
@@ -360,13 +360,13 @@ const AIDashboard: React.FC = () => {
               </div>
               
               <div>
-                <div className="text-sm font-medium text-gray-500">Evidence Level</div>
-                <div className="text-sm text-gray-900">{rec.evidenceLevel}</div>
+                <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Evidence Level</div>
+                <div className="text-sm text-gray-900 dark:text-gray-100">{rec.evidenceLevel}</div>
               </div>
               
               <div>
-                <div className="text-sm font-medium text-gray-500">Model Type</div>
-                <div className="text-sm text-gray-900">{rec.modelType.replace('_', ' ')}</div>
+                <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Model Type</div>
+                <div className="text-sm text-gray-900 dark:text-gray-100">{rec.modelType.replace('_', ' ')}</div>
               </div>
             </div>
 
@@ -376,7 +376,7 @@ const AIDashboard: React.FC = () => {
                 <div className="space-y-2">
                   {rec.evidenceSources.slice(0, 2).map((source, index) => (
                     <div key={index} className="bg-gray-50 p-3 rounded-lg">
-                      <div className="font-medium text-sm text-gray-900">{source.title}</div>
+                      <div className="font-medium text-sm text-gray-900 dark:text-gray-100">{source.title}</div>
                       <div className="text-xs text-gray-600 mt-1">{source.summary}</div>
                     </div>
                   ))}
@@ -384,8 +384,8 @@ const AIDashboard: React.FC = () => {
               </div>
             )}
 
-            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-              <div className="flex items-center space-x-4 text-sm text-gray-500">
+            <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                 <span>Generated: {new Date(rec.generatedDate).toLocaleDateString()}</span>
                 <span>Model v{rec.modelVersion}</span>
               </div>
@@ -398,12 +398,12 @@ const AIDashboard: React.FC = () => {
                     ? 'bg-yellow-100 text-yellow-800'
                     : rec.validationStatus === 'rejected'
                     ? 'bg-red-100 text-red-800'
-                    : 'bg-gray-100 text-gray-800'
+                    : 'bg-gray-100 text-gray-800 dark:text-gray-200'
                 }`}>
                   {rec.validationStatus}
                 </span>
                 
-                <button className="inline-flex items-center px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50">
+                <button className="inline-flex items-center px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-800">
                   <Eye className="w-4 h-4 mr-1" />
                   Review
                 </button>
@@ -416,7 +416,7 @@ const AIDashboard: React.FC = () => {
           <div className="text-center py-12">
             <Lightbulb className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No AI Recommendations</h3>
-            <p className="text-gray-500">Generate AI recommendations for patients to see intelligent insights</p>
+            <p className="text-gray-500 dark:text-gray-400">Generate AI recommendations for patients to see intelligent insights</p>
           </div>
         )}
       </div>
@@ -430,8 +430,8 @@ const AIDashboard: React.FC = () => {
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center">
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-600">Production Models</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Production Models</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {models.filter(m => m.deploymentStatus === 'production').length}
               </p>
             </div>
@@ -442,8 +442,8 @@ const AIDashboard: React.FC = () => {
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center">
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-600">Average Accuracy</p>
-              <p className="text-2xl font-bold text-gray-900">87%</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Average Accuracy</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">87%</p>
             </div>
             <TrendingUp className="w-8 h-8 text-blue-600" />
           </div>
@@ -452,8 +452,8 @@ const AIDashboard: React.FC = () => {
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <div className="flex items-center">
             <div className="flex-1">
-              <p className="text-sm font-medium text-gray-600">Total Predictions</p>
-              <p className="text-2xl font-bold text-gray-900">1,247</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Predictions</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">1,247</p>
             </div>
             <Zap className="w-8 h-8 text-purple-600" />
           </div>
@@ -461,9 +461,9 @@ const AIDashboard: React.FC = () => {
       </div>
 
       {/* Models List */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Predictive Models</h3>
+      <div className="bg-white rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Predictive Models</h3>
         </div>
         
         <div className="divide-y divide-gray-200">
@@ -491,11 +491,11 @@ const AIDashboard: React.FC = () => {
               status: 'testing'
             }
           ].map((model, index) => (
-            <div key={index} className="p-6 hover:bg-gray-50">
+            <div key={index} className="p-6 hover:bg-gray-50 dark:bg-gray-800">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h4 className="text-lg font-medium text-gray-900">{model.name}</h4>
-                  <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                  <h4 className="text-lg font-medium text-gray-900 dark:text-gray-100">{model.name}</h4>
+                  <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
                     <span>{model.type.replace('_', ' ')}</span>
                     <span>{model.algorithm.replace('_', ' ')}</span>
                     <span>Accuracy: {(model.accuracy * 100).toFixed(1)}%</span>
@@ -508,16 +508,16 @@ const AIDashboard: React.FC = () => {
                       ? 'bg-green-100 text-green-800'
                       : model.status === 'testing'
                       ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-gray-100 text-gray-800'
+                      : 'bg-gray-100 text-gray-800 dark:text-gray-200'
                   }`}>
                     {model.status}
                   </span>
                   
-                  <button className="p-2 text-gray-400 hover:text-gray-600">
+                  <button className="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-400">
                     <Settings className="w-4 h-4" />
                   </button>
                   
-                  <button className="p-2 text-gray-400 hover:text-gray-600">
+                  <button className="p-2 text-gray-400 hover:text-gray-600 dark:text-gray-400">
                     <Play className="w-4 h-4" />
                   </button>
                 </div>
@@ -536,20 +536,20 @@ const AIDashboard: React.FC = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Real-World Evidence Library</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">{rweStudies.length}</div>
-            <div className="text-sm text-gray-600">Total Studies</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{rweStudies.length}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Total Studies</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">156K</div>
-            <div className="text-sm text-gray-600">Total Patients</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">156K</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Total Patients</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">23</div>
-            <div className="text-sm text-gray-600">Cancer Types</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">23</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Cancer Types</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-gray-900">89%</div>
-            <div className="text-sm text-gray-600">Quality Score</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">89%</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Quality Score</div>
           </div>
         </div>
       </div>
@@ -588,15 +588,15 @@ const AIDashboard: React.FC = () => {
                   <span>{study.patients} patients</span>
                   <span>{study.duration}</span>
                 </div>
-                <p className="text-gray-700">{study.keyFinding}</p>
+                <p className="text-gray-700 dark:text-gray-300">{study.keyFinding}</p>
               </div>
               
               <div className="flex items-center space-x-2">
-                <button className="inline-flex items-center px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50">
+                <button className="inline-flex items-center px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-800">
                   <Eye className="w-4 h-4 mr-1" />
                   View
                 </button>
-                <button className="inline-flex items-center px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50">
+                <button className="inline-flex items-center px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 dark:bg-gray-800">
                   <Download className="w-4 h-4 mr-1" />
                   Export
                 </button>
@@ -650,7 +650,7 @@ const AIDashboard: React.FC = () => {
           <div className="h-64 flex items-center justify-center border border-gray-200 rounded-lg">
             <div className="text-center">
               <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-              <p className="text-gray-500">Analytics charts would be displayed here</p>
+              <p className="text-gray-500 dark:text-gray-400">Analytics charts would be displayed here</p>
             </div>
           </div>
         </div>
@@ -663,15 +663,15 @@ const AIDashboard: React.FC = () => {
               <h4 className="font-medium text-gray-900 mb-3">Cost Savings</h4>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Reduced readmissions</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Reduced readmissions</span>
                   <span className="text-sm font-medium">$1.2M</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Optimized treatments</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Optimized treatments</span>
                   <span className="text-sm font-medium">$890K</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Early detection</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Early detection</span>
                   <span className="text-sm font-medium">$650K</span>
                 </div>
               </div>
@@ -681,15 +681,15 @@ const AIDashboard: React.FC = () => {
               <h4 className="font-medium text-gray-900 mb-3">Quality Improvements</h4>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Adherence to guidelines</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Adherence to guidelines</span>
                   <span className="text-sm font-medium">+15%</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Treatment response</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Treatment response</span>
                   <span className="text-sm font-medium">+12%</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Safety events</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Safety events</span>
                   <span className="text-sm font-medium">-28%</span>
                 </div>
               </div>
@@ -704,7 +704,7 @@ const AIDashboard: React.FC = () => {
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">AI & Real-World Evidence Platform</h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           Advanced artificial intelligence and machine learning for precision oncology
         </p>
       </div>
@@ -719,11 +719,11 @@ const AIDashboard: React.FC = () => {
               className={`group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
                 activeTab === id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
               }`}
             >
               <Icon className={`w-5 h-5 mr-2 ${
-                activeTab === id ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500'
+                activeTab === id ? 'text-blue-500' : 'text-gray-400 group-hover:text-gray-500 dark:text-gray-400'
               }`} />
               <div className="text-left">
                 <div>{label}</div>

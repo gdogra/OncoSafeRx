@@ -111,7 +111,7 @@ const Header: React.FC = () => {
       ];
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="bg-white shadow-sm border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -121,8 +121,8 @@ const Header: React.FC = () => {
                 <Activity className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">OncoSafeRx</h1>
-                <p className="text-xs text-gray-500">Precision Oncology Platform</p>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">OncoSafeRx</h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Precision Oncology Platform</p>
               </div>
             </Link>
           </div>
@@ -136,13 +136,13 @@ const Header: React.FC = () => {
                 className={`flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive(path)
                     ? 'text-primary-600 bg-primary-50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:bg-gray-800'
                 }`}
               >
                 <Icon className="w-4 h-4" />
                 <span>{label}</span>
                 {path === '/curated' && curatedCount !== null && (
-                  <span className="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-700">
+                  <span className="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-700 dark:text-gray-300">
                     {curatedCount}
                   </span>
                 )}
@@ -153,9 +153,9 @@ const Header: React.FC = () => {
           {/* Account / Auth controls */}
           <div className="hidden md:flex items-center gap-3 relative" ref={accountRef}>
             {state.isAuthenticated && state.user ? (
-              <div className="flex items-center gap-2 text-sm text-gray-700">
+              <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
                 <button
-                  className="inline-flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-100"
+                  className="inline-flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-100 dark:bg-gray-800"
                   onClick={() => setAccountOpen(v => !v)}
                   aria-haspopup="menu"
                   aria-expanded={accountOpen}
@@ -171,10 +171,10 @@ const Header: React.FC = () => {
                   <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                     <div className="px-3 py-2 text-xs text-gray-700 border-b flex items-center justify-between">
                       <span className="inline-flex items-center gap-2">
-                        <UserIcon className="w-3.5 h-3.5 text-gray-500" />
+                        <UserIcon className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
                         <span className="truncate max-w-[140px]" title={state.user.email}>{state.user.email}</span>
                       </span>
-                      <span className="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-700">
+                      <span className="ml-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-700 dark:text-gray-300">
                         {String(state.user.role || 'user')}
                       </span>
                     </div>
@@ -203,14 +203,14 @@ const Header: React.FC = () => {
                     <div className="py-1">
                       <Link
                         to="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:bg-gray-800"
                         onClick={() => setAccountOpen(false)}
                       >
                         Profile
                       </Link>
                       <Link
                         to="/auth-diagnostics"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:bg-gray-800"
                         onClick={() => setAccountOpen(false)}
                       >
                         Auth Diagnostics
@@ -245,7 +245,7 @@ const Header: React.FC = () => {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-600 hover:text-gray-900 focus:outline-none focus:text-gray-900"
+              className="text-gray-600 hover:text-gray-900 focus:outline-none focus:text-gray-900 dark:text-gray-100"
               aria-label="Toggle mobile menu"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -259,7 +259,7 @@ const Header: React.FC = () => {
       {/* Mobile navigation */}
       {mobileMenuOpen && (
         <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50 dark:bg-gray-800">
             {navItems.map(({ path, label, icon: Icon }) => (
               <Link
                 key={path}
@@ -268,7 +268,7 @@ const Header: React.FC = () => {
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md text-base font-medium transition-colors ${
                   isActive(path)
                     ? 'text-primary-600 bg-primary-50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:bg-gray-800'
                 }`}
               >
                 <Icon className="w-4 h-4" />

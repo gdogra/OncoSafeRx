@@ -280,7 +280,7 @@ const MultiDatabaseSearch: React.FC = () => {
       case 'active': return 'text-green-600 bg-green-100';
       case 'slow': return 'text-yellow-600 bg-yellow-100';
       case 'error': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -301,7 +301,7 @@ const MultiDatabaseSearch: React.FC = () => {
       case 'DailyMed': return 'bg-purple-100 text-purple-800';
       case 'RxNorm': return 'bg-orange-100 text-orange-800';
       case 'OpenFDA': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -311,7 +311,7 @@ const MultiDatabaseSearch: React.FC = () => {
         Build a query with Boolean operators (AND/OR/NOT) and phrases in quotes, select databases, set filters (date, type, evidence level), then review ranked results with links to sources.
       </TipCard>
       <div className="border-b pb-4">
-        <h1 className="text-3xl font-bold text-gray-900">Multi-Database Search</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Multi-Database Search</h1>
         <p className="text-gray-600 mt-2">
           Federated search across multiple oncology databases and literature repositories
         </p>
@@ -328,14 +328,14 @@ const MultiDatabaseSearch: React.FC = () => {
         PubMed, Embase, and Cochrane databases. Results are ranked by relevance and evidence quality.
       </Alert>
 
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="flex space-x-8">
           <button
             onClick={() => setActiveTab('search')}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'search'
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
             }`}
           >
             Search & Filters
@@ -345,7 +345,7 @@ const MultiDatabaseSearch: React.FC = () => {
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'results'
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
             }`}
           >
             Results ({searchResults.length})
@@ -355,7 +355,7 @@ const MultiDatabaseSearch: React.FC = () => {
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'sources'
                 ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
             }`}
           >
             Data Sources
@@ -367,8 +367,8 @@ const MultiDatabaseSearch: React.FC = () => {
         <div className="mt-6" data-tour="multi-search-tabs">
           <div className="space-y-6">
             <Card data-tour="multi-search-query">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
                   <Search className="h-5 w-5" />
                   Search Query
                 </h3>
@@ -396,7 +396,7 @@ const MultiDatabaseSearch: React.FC = () => {
                   </Button>
                 </div>
                 {nameSuggestions.length > 0 && (
-                  <div className="border border-gray-200 rounded-md divide-y bg-white">
+                  <div className="border border-gray-200 rounded-md divide-y bg-white dark:bg-gray-900">
                     {nameSuggestions.map((sug) => (
                       <button
                         key={sug}
@@ -409,7 +409,7 @@ const MultiDatabaseSearch: React.FC = () => {
                   </div>
                 )}
 
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   <strong>Search Tips:</strong> Use AND, OR, NOT for Boolean logic. 
                   Use quotes for exact phrases. Combine drug names with conditions for better results.
                 </div>
@@ -417,8 +417,8 @@ const MultiDatabaseSearch: React.FC = () => {
             </Card>
 
             <Card data-tour="multi-search-databases">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
                   <Database className="h-5 w-5" />
                   Select Databases
                 </h3>
@@ -441,10 +441,10 @@ const MultiDatabaseSearch: React.FC = () => {
                           }}
                           className="rounded"
                         />
-                        <Icon className="h-5 w-5 text-gray-600" />
+                        <Icon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                         <div>
                           <div className="font-medium">{db.name}</div>
-                          <div className="text-sm text-gray-600">{db.description}</div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">{db.description}</div>
                         </div>
                       </label>
                     );
@@ -454,8 +454,8 @@ const MultiDatabaseSearch: React.FC = () => {
             </Card>
 
             <Card data-tour="multi-search-filters">
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
                   <Filter className="h-5 w-5" />
                   Search Filters
                 </h3>
@@ -516,7 +516,7 @@ const MultiDatabaseSearch: React.FC = () => {
                 <div className="flex items-center justify-center py-8">
                   <div className="text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Searching across {selectedDatabases.length} databases...</p>
+                    <p className="text-gray-600 dark:text-gray-400">Searching across {selectedDatabases.length} databases...</p>
                   </div>
                 </div>
               </Card>
@@ -527,7 +527,7 @@ const MultiDatabaseSearch: React.FC = () => {
                 <div className="text-center py-8">
                   <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">No results found</h3>
-                  <p className="text-gray-600">Try adjusting your search terms or selecting different databases.</p>
+                  <p className="text-gray-600 dark:text-gray-400">Try adjusting your search terms or selecting different databases.</p>
                   {effectiveSuggestion && (
                     <div className="mt-3">
                       <button
@@ -548,7 +548,7 @@ const MultiDatabaseSearch: React.FC = () => {
 
             {searchResults.length > 0 && (
               <div className="flex justify-between items-center">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Found {searchResults.length} results across {selectedDatabases.length} databases
                 </p>
                 <Button variant="outline" className="flex items-center gap-2">
@@ -563,7 +563,7 @@ const MultiDatabaseSearch: React.FC = () => {
                 <div className="p-4">
                   <div className="flex items-center gap-2 mb-1">
                     <AlertTriangle className="h-4 w-4 text-red-600" />
-                    <span className="text-sm text-gray-800">No OpenFDA label results for “{searchQuery}”.</span>
+                    <span className="text-sm text-gray-800 dark:text-gray-200">No OpenFDA label results for “{searchQuery}”.</span>
                   </div>
                   {effectiveSuggestion && (
                     <button
@@ -586,7 +586,7 @@ const MultiDatabaseSearch: React.FC = () => {
                 <div className="p-4">
                   <div className="flex items-center gap-2 mb-1">
                     <AlertTriangle className="h-4 w-4 text-purple-600" />
-                    <span className="text-sm text-gray-800">No DailyMed label results for “{searchQuery}”.</span>
+                    <span className="text-sm text-gray-800 dark:text-gray-200">No DailyMed label results for “{searchQuery}”.</span>
                   </div>
                   {effectiveSuggestion && (
                     <button
@@ -609,7 +609,7 @@ const MultiDatabaseSearch: React.FC = () => {
                 <div className="p-4">
                   <div className="flex items-center gap-2 mb-1">
                     <AlertTriangle className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm text-gray-800">No PubMed articles found for “{searchQuery}”. Try broader terms.</span>
+                    <span className="text-sm text-gray-800 dark:text-gray-200">No PubMed articles found for “{searchQuery}”. Try broader terms.</span>
                   </div>
                   {effectiveSuggestion && (
                     <button
@@ -652,7 +652,7 @@ const MultiDatabaseSearch: React.FC = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-4 text-xs text-gray-500">
+                  <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                     <div className="flex items-center gap-1">
                       <Activity className="h-3 w-3" />
                       Relevance: {Math.round(result.relevanceScore)}%
@@ -678,8 +678,8 @@ const MultiDatabaseSearch: React.FC = () => {
         <div className="mt-6">
           <div className="space-y-4">
             <Card>
-              <div className="px-6 py-4 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">Database Status</h3>
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Database Status</h3>
               </div>
               <div className="p-6">
                 <div className="space-y-4">
@@ -689,7 +689,7 @@ const MultiDatabaseSearch: React.FC = () => {
                         <CheckCircle className="h-5 w-5 text-green-500" />
                         <div>
                           <div className="font-medium">{db.name}</div>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
                             {db.totalRecords.toLocaleString()} records • Last updated {db.lastUpdate}
                           </div>
                         </div>

@@ -129,10 +129,10 @@ const FHIRPatients: React.FC = () => {
   return (
     <div className="p-4">
       <div className="mb-4">
-        <h1 className="text-2xl font-semibold text-gray-900">FHIR Patients (Debug)</h1>
-        <p className="text-sm text-gray-600">Search via server proxy with mock fallback when FHIR is unreachable.</p>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">FHIR Patients (Debug)</h1>
+        <p className="text-sm text-gray-600 dark:text-gray-400">Search via server proxy with mock fallback when FHIR is unreachable.</p>
         {health && (
-          <div className="mt-2 text-xs text-gray-500">
+          <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
             Status: <span className={health.status === 'connected' ? 'text-green-600' : 'text-yellow-700'}>{health.status}</span>
             {health.fhirVersion ? ` • FHIR ${health.fhirVersion}` : ''}
             {health.implementation ? ` • ${health.implementation}` : ''}
@@ -176,23 +176,23 @@ const FHIRPatients: React.FC = () => {
       {results && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-white border rounded-lg shadow-sm">
-            <div className="p-3 border-b font-medium text-gray-800">Results ({results.count})</div>
+            <div className="p-3 border-b font-medium text-gray-800 dark:text-gray-200">Results ({results.count})</div>
             <div className="divide-y">
               {results.patients.map((p, idx) => (
                 <button key={p.id || idx}
                         onClick={() => p.id && loadPatient(p.id)}
                         className={`w-full text-left p-3 hover:bg-gray-50 ${selectedId === p.id ? 'bg-blue-50' : ''}`}>
-                  <div className="font-medium text-gray-900">{[p.firstName, p.lastName].filter(Boolean).join(' ') || p.id}</div>
-                  <div className="text-xs text-gray-600">{p.gender || '—'} {p.age ? `• ${p.age}y` : ''} {p.dateOfBirth ? `• DOB ${p.dateOfBirth}` : ''}</div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">{[p.firstName, p.lastName].filter(Boolean).join(' ') || p.id}</div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">{p.gender || '—'} {p.age ? `• ${p.age}y` : ''} {p.dateOfBirth ? `• DOB ${p.dateOfBirth}` : ''}</div>
                 </button>
               ))}
               {results.patients.length === 0 && (
-                <div className="p-3 text-sm text-gray-600">No matches.</div>
+                <div className="p-3 text-sm text-gray-600 dark:text-gray-400">No matches.</div>
               )}
             </div>
           </div>
           <div className="bg-white border rounded-lg shadow-sm">
-            <div className="p-3 border-b font-medium text-gray-800">Details</div>
+            <div className="p-3 border-b font-medium text-gray-800 dark:text-gray-200">Details</div>
             <div className="p-3 text-sm">
               {selected ? (
                 <>
@@ -256,7 +256,7 @@ const FHIRPatients: React.FC = () => {
                   <pre className="text-xs overflow-auto max-h-[50vh] bg-gray-50 p-2 rounded border">{JSON.stringify(selected, null, 2)}</pre>
                 </>
               ) : (
-                <div className="text-gray-500">Select a patient from the list.</div>
+                <div className="text-gray-500 dark:text-gray-400">Select a patient from the list.</div>
               )}
             </div>
           </div>

@@ -262,7 +262,7 @@ const ClinicalDecisionSupport: React.FC<ClinicalDecisionSupportProps> = ({
       case 'high': return 'text-orange-600 bg-orange-50 border-orange-200';
       case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
       case 'low': return 'text-green-600 bg-green-50 border-green-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      default: return 'text-gray-600 bg-gray-50 border-gray-200 dark:border-gray-700';
     }
   };
 
@@ -291,8 +291,8 @@ const ClinicalDecisionSupport: React.FC<ClinicalDecisionSupportProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Brain className="w-6 h-6 text-primary-600" />
-            <h2 className="text-xl font-semibold text-gray-900">AI Clinical Decision Support</h2>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">AI Clinical Decision Support</h2>
+            <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
               <Target className="w-4 h-4" />
               <span>Precision Medicine</span>
             </div>
@@ -300,7 +300,7 @@ const ClinicalDecisionSupport: React.FC<ClinicalDecisionSupportProps> = ({
           {loading && (
             <div className="flex items-center space-x-2">
               <div className="w-4 h-4 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-              <span className="text-sm text-gray-500">Analyzing patient data...</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Analyzing patient data...</span>
             </div>
           )}
         </div>
@@ -309,19 +309,19 @@ const ClinicalDecisionSupport: React.FC<ClinicalDecisionSupportProps> = ({
         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-red-600">{priorityStats.critical}</div>
-            <div className="text-sm text-gray-500">Critical</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Critical</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-orange-600">{priorityStats.high}</div>
-            <div className="text-sm text-gray-500">High Priority</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">High Priority</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-yellow-600">{priorityStats.medium}</div>
-            <div className="text-sm text-gray-500">Medium Priority</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Medium Priority</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-primary-600">{recommendations.length}</div>
-            <div className="text-sm text-gray-500">Total Recommendations</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Total Recommendations</div>
           </div>
         </div>
       </Card>
@@ -330,7 +330,7 @@ const ClinicalDecisionSupport: React.FC<ClinicalDecisionSupportProps> = ({
       <Card>
         <div className="flex items-center space-x-2 mb-4">
           <Users className="w-5 h-5 text-primary-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Patient Profile Summary</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Patient Profile Summary</h3>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
           <div>
@@ -379,7 +379,7 @@ const ClinicalDecisionSupport: React.FC<ClinicalDecisionSupportProps> = ({
       {/* Filters */}
       <Card>
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">Recommendations ({filteredRecommendations.length})</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recommendations ({filteredRecommendations.length})</h3>
           <div className="flex space-x-3">
             <select
               value={selectedCategory}
@@ -422,7 +422,7 @@ const ClinicalDecisionSupport: React.FC<ClinicalDecisionSupportProps> = ({
                 <div className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityColor(recommendation.priority)}`}>
                   {recommendation.priority.toUpperCase()}
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
                   Confidence: {recommendation.confidence}%
                 </div>
               </div>
@@ -452,7 +452,7 @@ const ClinicalDecisionSupport: React.FC<ClinicalDecisionSupportProps> = ({
             <div className="space-y-4">
               <div>
                 <h4 className="font-semibold text-gray-900 mb-2">{recommendation.title}</h4>
-                <p className="text-gray-700">{recommendation.description}</p>
+                <p className="text-gray-700 dark:text-gray-300">{recommendation.description}</p>
                 <p className="text-sm text-gray-600 mt-2">{recommendation.rationale}</p>
               </div>
 
@@ -531,7 +531,7 @@ const ClinicalDecisionSupport: React.FC<ClinicalDecisionSupportProps> = ({
 
               {/* Evidence */}
               <div className="pt-4 border-t border-gray-100">
-                <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                   <Shield className="w-4 h-4" />
                   <span>Evidence:</span>
                   <span>{recommendation.evidence.join(', ')}</span>
@@ -547,7 +547,7 @@ const ClinicalDecisionSupport: React.FC<ClinicalDecisionSupportProps> = ({
           <div className="text-center py-12">
             <Brain className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No Recommendations</h3>
-            <p className="text-gray-500">
+            <p className="text-gray-500 dark:text-gray-400">
               {recommendations.length === 0 
                 ? 'No clinical recommendations generated for this patient profile'
                 : 'No recommendations match the selected filters'

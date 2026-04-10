@@ -371,7 +371,7 @@ const PersonaSelector: React.FC = () => {
       case 'novice': return 'text-blue-600 bg-blue-50';
       case 'intermediate': return 'text-green-600 bg-green-50';
       case 'expert': return 'text-purple-600 bg-purple-50';
-      default: return 'text-gray-600 bg-gray-50';
+      default: return 'text-gray-600 bg-gray-50 dark:bg-gray-800';
     }
   };
 
@@ -380,7 +380,7 @@ const PersonaSelector: React.FC = () => {
       case 'conservative': return 'text-green-700 bg-green-100';
       case 'moderate': return 'text-yellow-700 bg-yellow-100';
       case 'aggressive': return 'text-red-700 bg-red-100';
-      default: return 'text-gray-700 bg-gray-100';
+      default: return 'text-gray-700 bg-gray-100 dark:bg-gray-800';
     }
   };
 
@@ -390,7 +390,7 @@ const PersonaSelector: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
             <Users className="w-5 h-5 text-primary-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Testing Persona</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Testing Persona</h3>
             <div className="flex items-center space-x-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
               <RefreshCw className="w-3 h-3" />
               <span>Test Mode</span>
@@ -462,7 +462,7 @@ const PersonaSelector: React.FC = () => {
                 className={`p-4 border rounded-lg cursor-pointer transition-all ${
                   persona.id === currentPersona?.id
                     ? 'border-primary-300 bg-primary-50'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:bg-gray-800'
                 }`}
               >
                 <div className="flex items-start justify-between">

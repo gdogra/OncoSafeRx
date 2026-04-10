@@ -142,7 +142,7 @@ export const NetworkDashboard: React.FC = () => {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
       case 'in_progress': return 'bg-blue-100 text-blue-800';
       case 'completed': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -185,8 +185,8 @@ export const NetworkDashboard: React.FC = () => {
               <Network className="h-6 w-6 text-blue-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm text-gray-600">Network Sites</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-sm text-gray-600 dark:text-gray-400">Network Sites</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {networkStats.connectedSites}/{networkStats.totalSites}
               </p>
             </div>
@@ -199,8 +199,8 @@ export const NetworkDashboard: React.FC = () => {
               <Users className="h-6 w-6 text-green-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm text-gray-600">Accessible Patients</p>
-              <p className="text-2xl font-bold text-gray-900">{networkStats.totalPatients}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Accessible Patients</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{networkStats.totalPatients}</p>
             </div>
           </div>
         </Card>
@@ -211,8 +211,8 @@ export const NetworkDashboard: React.FC = () => {
               <ArrowRightLeft className="h-6 w-6 text-purple-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm text-gray-600">Cross-Site Referrals</p>
-              <p className="text-2xl font-bold text-gray-900">{networkStats.crossSiteReferrals}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Cross-Site Referrals</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{networkStats.crossSiteReferrals}</p>
             </div>
           </div>
         </Card>
@@ -223,8 +223,8 @@ export const NetworkDashboard: React.FC = () => {
               <Activity className="h-6 w-6 text-orange-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm text-gray-600">Active Consultations</p>
-              <p className="text-2xl font-bold text-gray-900">{networkStats.activeConsultations}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Active Consultations</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{networkStats.activeConsultations}</p>
             </div>
           </div>
         </Card>
@@ -245,14 +245,14 @@ export const NetworkDashboard: React.FC = () => {
                 <div 
                   key={site.siteId} 
                   className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                    selectedSite?.siteId === site.siteId ? 'border-blue-300 bg-blue-50' : 'hover:border-gray-300'
+                    selectedSite?.siteId === site.siteId ? 'border-blue-300 bg-blue-50' : 'hover:border-gray-300 dark:border-gray-600'
                   }`}
                   onClick={() => setSelectedSite(selectedSite?.siteId === site.siteId ? null : site)}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-medium text-gray-900">{site.siteName}</h4>
-                      <p className="text-sm text-gray-500">
+                      <h4 className="font-medium text-gray-900 dark:text-gray-100">{site.siteName}</h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         {site.location.city}, {site.location.country}
                       </p>
                     </div>
@@ -269,14 +269,14 @@ export const NetworkDashboard: React.FC = () => {
                   </div>
                   
                   {selectedSite?.siteId === site.siteId && (
-                    <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-600">Data Sharing:</span>
+                          <span className="text-gray-600 dark:text-gray-400">Data Sharing:</span>
                           <span className="ml-2 font-medium">{site.dataSharing.level}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Specialties:</span>
+                          <span className="text-gray-600 dark:text-gray-400">Specialties:</span>
                           <span className="ml-2 font-medium">{site.clinical?.specialties.length || 0}</span>
                         </div>
                       </div>
@@ -314,19 +314,19 @@ export const NetworkDashboard: React.FC = () => {
           </div>
           <div className="p-6">
             {recentActivity.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                 <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <p>No recent cross-site activity</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {recentActivity.map((activity) => (
-                  <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50">
-                    <div className="p-1 rounded-full bg-white">
+                  <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+                    <div className="p-1 rounded-full bg-white dark:bg-gray-900">
                       {getActivityIcon(activity.type)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                         {activity.description}
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
@@ -355,25 +355,25 @@ export const NetworkDashboard: React.FC = () => {
               <div className="text-2xl font-bold text-blue-600">
                 {getSiteByType('academic_medical_center').length}
               </div>
-              <div className="text-sm text-gray-600">Academic Centers</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Academic Centers</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">
                 {getSiteByType('cancer_center').length}
               </div>
-              <div className="text-sm text-gray-600">Cancer Centers</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Cancer Centers</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">
                 {getSiteByType('community_hospital').length}
               </div>
-              <div className="text-sm text-gray-600">Community Hospitals</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Community Hospitals</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-orange-600">
                 {getSiteByType('research_institute').length}
               </div>
-              <div className="text-sm text-gray-600">Research Institutes</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Research Institutes</div>
             </div>
           </div>
         </div>

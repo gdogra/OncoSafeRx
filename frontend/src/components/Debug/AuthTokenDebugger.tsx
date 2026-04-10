@@ -125,7 +125,7 @@ const AuthTokenDebugger: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
             <Shield className="w-6 h-6 text-blue-600" />
-            <h2 className="text-xl font-semibold text-gray-900">Authentication Token Debugger</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Authentication Token Debugger</h2>
           </div>
           <div className="flex items-center space-x-2">
             <button
@@ -163,7 +163,7 @@ const AuthTokenDebugger: React.FC = () => {
             <div className="bg-blue-50 rounded-lg p-4">
               <div className="flex items-center space-x-2 mb-3">
                 {getStatusIcon(debugInfo.supabase)}
-                <h3 className="font-medium text-gray-900">Supabase Token</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">Supabase Token</h3>
               </div>
               {debugInfo.supabase ? (
                 <div className="space-y-2 text-sm">
@@ -179,7 +179,7 @@ const AuthTokenDebugger: React.FC = () => {
                   )}
                 </div>
               ) : (
-                <div className="text-gray-600">No Supabase token found</div>
+                <div className="text-gray-600 dark:text-gray-400">No Supabase token found</div>
               )}
             </div>
 
@@ -187,7 +187,7 @@ const AuthTokenDebugger: React.FC = () => {
             <div className="bg-green-50 rounded-lg p-4">
               <div className="flex items-center space-x-2 mb-3">
                 {getStatusIcon(debugInfo.backend)}
-                <h3 className="font-medium text-gray-900">Backend JWT</h3>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">Backend JWT</h3>
               </div>
               {debugInfo.backend ? (
                 <div className="space-y-2 text-sm">
@@ -203,7 +203,7 @@ const AuthTokenDebugger: React.FC = () => {
                   )}
                 </div>
               ) : (
-                <div className="text-gray-600">No backend JWT found</div>
+                <div className="text-gray-600 dark:text-gray-400">No backend JWT found</div>
               )}
             </div>
 

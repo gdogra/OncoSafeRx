@@ -154,7 +154,7 @@ const BrandAliasSearch: React.FC<BrandAliasSearchProps> = ({
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             Brand Name Lookup
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Search for brand names to find their generic equivalents. Covers global markets including Europe, India, and more.
           </p>
         </div>
@@ -176,7 +176,7 @@ const BrandAliasSearch: React.FC<BrandAliasSearchProps> = ({
           {query && (
             <button
               onClick={clearSearch}
-              className="absolute right-3 p-1 text-gray-400 hover:text-gray-600"
+              className="absolute right-3 p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400"
             >
               <X className="h-4 w-4" />
             </button>
@@ -220,11 +220,11 @@ const BrandAliasSearch: React.FC<BrandAliasSearchProps> = ({
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
                       {alias.brand}
                     </span>
                     <ArrowRight className="h-3 w-3 text-gray-400" />
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
                       {alias.generic || <em className="text-gray-400">No generic mapping</em>}
                     </span>
                   </div>
@@ -248,7 +248,7 @@ const BrandAliasSearch: React.FC<BrandAliasSearchProps> = ({
       )}
 
       {/* Help text */}
-      <div className="mt-2 text-xs text-gray-500">
+      <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
         Start typing a brand name to see instant suggestions from multiple pharmaceutical databases. Use arrow keys to navigate, Enter to select.
       </div>
     </div>

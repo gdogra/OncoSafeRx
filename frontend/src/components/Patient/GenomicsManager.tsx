@@ -171,12 +171,12 @@ const GenomicsManager: React.FC<GenomicsManagerProps> = ({ patientId }) => {
       case 'normal': return 'bg-green-100 text-green-800';
       case 'rapid': return 'bg-blue-100 text-blue-800';
       case 'ultra-rapid': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
   const getSignificanceColor = (significance?: string) => {
-    if (!significance) return 'bg-gray-100 text-gray-800';
+    if (!significance) return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     const lower = significance.toLowerCase();
     if (lower.includes('high') || lower.includes('pathogenic')) return 'bg-red-100 text-red-800';
     if (lower.includes('moderate') || lower.includes('likely')) return 'bg-yellow-100 text-yellow-800';
@@ -205,8 +205,8 @@ const GenomicsManager: React.FC<GenomicsManagerProps> = ({ patientId }) => {
           <div className="flex items-center space-x-3">
             <Dna className="w-6 h-6 text-primary-600" />
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Genomic Profile</h2>
-              <p className="text-sm text-gray-600">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Genomic Profile</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 {currentPatient.demographics.firstName} {currentPatient.demographics.lastName} - Genetic testing results and pharmacogenomics
               </p>
             </div>
@@ -258,7 +258,7 @@ const GenomicsManager: React.FC<GenomicsManagerProps> = ({ patientId }) => {
               />
             </div>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
             {genetics.length} result{genetics.length !== 1 ? 's' : ''} found
           </div>
         </div>
@@ -268,7 +268,7 @@ const GenomicsManager: React.FC<GenomicsManagerProps> = ({ patientId }) => {
       <Card>
         <div className="flex items-center space-x-2 mb-4">
           <Info className="w-5 h-5 text-blue-500" />
-          <h3 className="text-lg font-semibold text-gray-900">Common Pharmacogenes</h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Common Pharmacogenes</h3>
           <Tooltip content="These genes are commonly tested for drug metabolism and dosing guidance">
             <Info className="w-4 h-4 text-gray-400" />
           </Tooltip>
@@ -277,12 +277,12 @@ const GenomicsManager: React.FC<GenomicsManagerProps> = ({ patientId }) => {
           {getCommonPharmacoGenes().map(({ gene, description }) => {
             const hasData = genetics.some(g => g.geneSymbol.toUpperCase() === gene);
             return (
-              <div key={gene} className={`p-3 rounded-lg border ${hasData ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}>
+              <div key={gene} className={`p-3 rounded-lg border ${hasData ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200 dark:border-gray-700'}`}>
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-medium text-gray-900">{gene}</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">{gene}</span>
                   {hasData && <CheckCircle className="w-4 h-4 text-green-600" />}
                 </div>
-                <p className="text-xs text-gray-600">{description}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400">{description}</p>
               </div>
             );
           })}
@@ -310,7 +310,7 @@ const GenomicsManager: React.FC<GenomicsManagerProps> = ({ patientId }) => {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">{genetic.geneSymbol}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{genetic.geneSymbol}</h3>
                     <div className="flex items-center space-x-2">
                       {genetic.metabolizerStatus && (
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getMetabolizerColor(genetic.metabolizerStatus)}`}>
@@ -327,37 +327,37 @@ const GenomicsManager: React.FC<GenomicsManagerProps> = ({ patientId }) => {
 
                   <div className="grid md:grid-cols-3 gap-4 text-sm">
                     <div>
-                      <span className="font-medium text-gray-700">Alleles:</span>
-                      <p className="text-gray-900">{genetic.alleles.join(' / ') || 'Not specified'}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Alleles:</span>
+                      <p className="text-gray-900 dark:text-gray-100">{genetic.alleles.join(' / ') || 'Not specified'}</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Phenotype:</span>
-                      <p className="text-gray-900">{genetic.phenotype}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Phenotype:</span>
+                      <p className="text-gray-900 dark:text-gray-100">{genetic.phenotype}</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Test Date:</span>
-                      <p className="text-gray-900">{new Date(genetic.testDate).toLocaleDateString()}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Test Date:</span>
+                      <p className="text-gray-900 dark:text-gray-100">{new Date(genetic.testDate).toLocaleDateString()}</p>
                     </div>
                   </div>
 
                   {genetic.testMethod && (
                     <div className="mt-2 text-sm">
-                      <span className="font-medium text-gray-700">Test Method:</span>
-                      <p className="text-gray-900">{genetic.testMethod}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Test Method:</span>
+                      <p className="text-gray-900 dark:text-gray-100">{genetic.testMethod}</p>
                     </div>
                   )}
 
                   {genetic.geneFunction && (
                     <div className="mt-2 text-sm">
-                      <span className="font-medium text-gray-700">Gene Function:</span>
-                      <p className="text-gray-900">{genetic.geneFunction}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Gene Function:</span>
+                      <p className="text-gray-900 dark:text-gray-100">{genetic.geneFunction}</p>
                     </div>
                   )}
 
                   {genetic.notes && (
                     <div className="mt-2 text-sm">
-                      <span className="font-medium text-gray-700">Notes:</span>
-                      <p className="text-gray-900">{genetic.notes}</p>
+                      <span className="font-medium text-gray-700 dark:text-gray-300">Notes:</span>
+                      <p className="text-gray-900 dark:text-gray-100">{genetic.notes}</p>
                     </div>
                   )}
                 </div>
@@ -390,8 +390,8 @@ const GenomicsManager: React.FC<GenomicsManagerProps> = ({ patientId }) => {
       {showAddForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {editingGenetic ? 'Edit Genetic Data' : 'Add Genetic Data'}
               </h3>
             </div>
@@ -545,7 +545,7 @@ const GenomicsManager: React.FC<GenomicsManagerProps> = ({ patientId }) => {
                     notes: ''
                   });
                 }}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 dark:bg-gray-800"
               >
                 Cancel
               </button>

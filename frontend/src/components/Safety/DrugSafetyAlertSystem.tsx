@@ -17,7 +17,7 @@ export default function DrugSafetyAlertSystem() {
         </div>
         <div>
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">Drug Safety Alerts</h2>
-          <p className="text-sm text-gray-500">Real-time safety monitoring</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Real-time safety monitoring</p>
         </div>
       </div>
 

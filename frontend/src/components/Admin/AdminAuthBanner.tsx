@@ -6,7 +6,7 @@ import { refreshAdminTokens } from '../../utils/tokenRefresh';
 import { adminApi } from '../../utils/adminApi';
 
 const Row: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
-  <div className="flex items-center text-xs"><span className="w-48 text-gray-600">{label}</span><span className="text-gray-900">{value}</span></div>
+  <div className="flex items-center text-xs"><span className="w-48 text-gray-600 dark:text-gray-400">{label}</span><span className="text-gray-900 dark:text-gray-100">{value}</span></div>
 );
 
 const AdminAuthBanner: React.FC = () => {
@@ -101,7 +101,7 @@ const AdminAuthBanner: React.FC = () => {
       notes.push(<div key="fallback" className="text-sm text-yellow-800">Enable dev fallback: set <code>ALLOW_SUPABASE_JWT_FALLBACK=true</code> on the API server (development only).</div>);
     }
     if (b.allowQueryToken !== true) {
-      notes.push(<div key="qt" className="text-sm text-gray-800">If your proxy strips Authorization, set <code>ALLOW_QUERY_TOKEN=true</code> on the API server and click “Enable Query-Token”.</div>);
+      notes.push(<div key="qt" className="text-sm text-gray-800 dark:text-gray-200">If your proxy strips Authorization, set <code>ALLOW_QUERY_TOKEN=true</code> on the API server and click “Enable Query-Token”.</div>);
     }
     return notes;
   };

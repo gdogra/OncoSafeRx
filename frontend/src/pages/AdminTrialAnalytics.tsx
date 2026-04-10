@@ -185,7 +185,7 @@ const AdminTrialAnalytics: React.FC = () => {
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Admin', href: '/admin/console' }, { label: 'Trial Analytics' }]} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Trial Analytics</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Trial Analytics</h1>
         <div className="flex items-center gap-2">
           <button onClick={exportCSV} className="inline-flex items-center gap-1 px-2 py-1 border rounded hover:bg-gray-50 text-sm"><Download size={14}/> CSV</button>
           <button onClick={exportJSON} className="inline-flex items-center gap-1 px-2 py-1 border rounded hover:bg-gray-50 text-sm"><Download size={14}/> JSON</button>
@@ -200,8 +200,8 @@ const AdminTrialAnalytics: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs uppercase tracking-wide text-gray-500">Total Drugs Processed</div>
-              <div className="text-2xl font-semibold text-gray-900">{totalDrugsProcessed}</div>
+              <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Drugs Processed</div>
+              <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{totalDrugsProcessed}</div>
             </div>
             <Package className="w-6 h-6 text-blue-600" />
           </div>
@@ -209,8 +209,8 @@ const AdminTrialAnalytics: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs uppercase tracking-wide text-gray-500">Total Oncology Trials</div>
-              <div className="text-2xl font-semibold text-gray-900">{totalOncologyTrials.toLocaleString()}</div>
+              <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Oncology Trials</div>
+              <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{totalOncologyTrials.toLocaleString()}</div>
             </div>
             <Beaker className="w-6 h-6 text-green-600" />
           </div>
@@ -218,8 +218,8 @@ const AdminTrialAnalytics: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs uppercase tracking-wide text-gray-500">Last Run Duration</div>
-              <div className="text-2xl font-semibold text-gray-900">{lastRunDurationMs != null ? `${Math.round(lastRunDurationMs/1000)}s` : '—'}</div>
+              <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Last Run Duration</div>
+              <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{lastRunDurationMs != null ? `${Math.round(lastRunDurationMs/1000)}s` : '—'}</div>
             </div>
             <Clock className="w-6 h-6 text-amber-600" />
           </div>
@@ -233,15 +233,15 @@ const AdminTrialAnalytics: React.FC = () => {
         </div>
         <div className="flex flex-wrap items-end gap-3">
           <div>
-            <label className="block text-xs text-gray-600">Limit drugs</label>
+            <label className="block text-xs text-gray-600 dark:text-gray-400">Limit drugs</label>
             <input type="number" value={limit} onChange={e => setLimit(parseInt(e.target.value || '0'))} className="border rounded px-2 py-1 w-28" />
           </div>
           <div>
-            <label className="block text-xs text-gray-600">Page size</label>
+            <label className="block text-xs text-gray-600 dark:text-gray-400">Page size</label>
             <input type="number" value={pageSize} onChange={e => setPageSize(parseInt(e.target.value || '0'))} className="border rounded px-2 py-1 w-28" />
           </div>
           <div>
-            <label className="block text-xs text-gray-600">Max pages</label>
+            <label className="block text-xs text-gray-600 dark:text-gray-400">Max pages</label>
             <input type="number" value={maxPages} onChange={e => setMaxPages(parseInt(e.target.value || '0'))} className="border rounded px-2 py-1 w-28" />
           </div>
           <button onClick={runAgent} disabled={running} className="px-3 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 disabled:opacity-50">
@@ -283,11 +283,11 @@ const AdminTrialAnalytics: React.FC = () => {
       </div>
 
       <Card>
-        <div className="flex items-center gap-2 mb-3"><BarChart3 className="w-4 h-4 text-gray-600"/><div className="font-medium">Run History</div></div>
+        <div className="flex items-center gap-2 mb-3"><BarChart3 className="w-4 h-4 text-gray-600 dark:text-gray-400"/><div className="font-medium">Run History</div></div>
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
-              <tr className="text-left text-gray-600">
+              <tr className="text-left text-gray-600 dark:text-gray-400">
                 <th className="px-2 py-2">Finished</th>
                 <th className="px-2 py-2">Processed</th>
                 <th className="px-2 py-2">Duration</th>
@@ -303,7 +303,7 @@ const AdminTrialAnalytics: React.FC = () => {
               ))}
               {runs.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="px-2 py-4 text-gray-500">No runs yet</td>
+                  <td colSpan={3} className="px-2 py-4 text-gray-500 dark:text-gray-400">No runs yet</td>
                 </tr>
               )}
             </tbody>
@@ -315,7 +315,7 @@ const AdminTrialAnalytics: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
-              <tr className="text-left text-gray-600">
+              <tr className="text-left text-gray-600 dark:text-gray-400">
                 <th className="px-2 py-2">Drug</th>
                 <th className="px-2 py-2">Total</th>
                 <th className="px-2 py-2">Oncology</th>
@@ -329,7 +329,7 @@ const AdminTrialAnalytics: React.FC = () => {
             <tbody>
               {rows.map((r) => (
                 <tr key={r.drug} className="border-t">
-                  <td className="px-2 py-2 font-medium text-gray-900">{r.drug}</td>
+                  <td className="px-2 py-2 font-medium text-gray-900 dark:text-gray-100">{r.drug}</td>
                   <td className="px-2 py-2">{r.total}</td>
                   <td className="px-2 py-2">{r.oncologyTotal}</td>
                   <td className="px-2 py-2">{r.ddiSignals}</td>

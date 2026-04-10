@@ -101,11 +101,11 @@ const InteroperabilityManager: React.FC = () => {
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       connected: { bg: 'bg-green-100', text: 'text-green-800', label: 'Connected' },
-      disconnected: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Disconnected' },
+      disconnected: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-800 dark:text-gray-200', label: 'Disconnected' },
       error: { bg: 'bg-red-100', text: 'text-red-800', label: 'Error' },
       pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Pending' },
       active: { bg: 'bg-green-100', text: 'text-green-800', label: 'Active' },
-      paused: { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Paused' },
+      paused: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-800 dark:text-gray-200', label: 'Paused' },
       compliant: { bg: 'bg-green-100', text: 'text-green-800', label: 'Compliant' },
       'non-compliant': { bg: 'bg-red-100', text: 'text-red-800', label: 'Non-Compliant' },
       partial: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Partially Compliant' }
@@ -126,7 +126,7 @@ const InteroperabilityManager: React.FC = () => {
       case 'LIMS': return <Activity className="w-5 h-5 text-purple-500" />;
       case 'Pharmacy': return <Shield className="w-5 h-5 text-green-500" />;
       case 'API': return <Globe className="w-5 h-5 text-orange-500" />;
-      case 'Database': return <Server className="w-5 h-5 text-gray-500" />;
+      case 'Database': return <Server className="w-5 h-5 text-gray-500 dark:text-gray-400" />;
       case 'Cloud': return <Cloud className="w-5 h-5 text-cyan-500" />;
       default: return <Link className="w-5 h-5 text-gray-400" />;
     }
@@ -155,13 +155,13 @@ const InteroperabilityManager: React.FC = () => {
         </div>
       )}
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Globe className="w-6 h-6 text-blue-600" />
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Interoperability Manager</h2>
-              <p className="text-sm text-gray-600">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Interoperability Manager</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Manage system integrations, data flows, and compliance standards
               </p>
             </div>
@@ -188,7 +188,7 @@ const InteroperabilityManager: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="flex space-x-8 px-6">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -199,7 +199,7 @@ const InteroperabilityManager: React.FC = () => {
                 className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                   activeTab === tab.id
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:border-gray-600'
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -221,8 +221,8 @@ const InteroperabilityManager: React.FC = () => {
                     <div className="flex items-center space-x-3">
                       {getTypeIcon(integration.type)}
                       <div>
-                        <h3 className="font-medium text-gray-900">{integration.name}</h3>
-                        <p className="text-sm text-gray-600">{integration.type} • {integration.protocol}</p>
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{integration.name}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{integration.type} • {integration.protocol}</p>
                       </div>
                     </div>
                     {getStatusIcon(integration.status)}
@@ -230,25 +230,25 @@ const InteroperabilityManager: React.FC = () => {
                   
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Status:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Status:</span>
                       {getStatusBadge(integration.status)}
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Uptime:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Uptime:</span>
                       <span className="font-medium">{integration.uptime}%</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Latency:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Latency:</span>
                       <span className="font-medium">{integration.latency}ms</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Daily Volume:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Daily Volume:</span>
                       <span className="font-medium">{integration.volume.toLocaleString()}</span>
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       <div className="flex items-center space-x-2 mb-1">
                         <Lock className="w-3 h-3" />
                         <span>{integration.authentication} • {integration.encryptionLevel}</span>
@@ -263,7 +263,7 @@ const InteroperabilityManager: React.FC = () => {
                         </span>
                       ))}
                       {integration.dataTypes.length > 3 && (
-                        <span className="text-xs text-gray-500">+{integration.dataTypes.length - 3} more</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">+{integration.dataTypes.length - 3} more</span>
                       )}
                     </div>
                   </div>
@@ -275,7 +275,7 @@ const InteroperabilityManager: React.FC = () => {
                     >
                       View Details
                     </button>
-                    <button className="p-1 text-gray-400 hover:text-gray-600">
+                    <button className="p-1 text-gray-400 hover:text-gray-600 dark:text-gray-400">
                       <Settings className="w-4 h-4" />
                     </button>
                   </div>
@@ -292,17 +292,17 @@ const InteroperabilityManager: React.FC = () => {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-4">
                     <div className="text-center">
-                      <div className="font-medium text-gray-900">{flow.source}</div>
-                      <div className="text-xs text-gray-500">Source</div>
+                      <div className="font-medium text-gray-900 dark:text-gray-100">{flow.source}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Source</div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className="w-8 border-t border-gray-300"></div>
+                      <div className="w-8 border-t border-gray-300 dark:border-gray-600"></div>
                       <Activity className="w-4 h-4 text-blue-500" />
-                      <div className="w-8 border-t border-gray-300"></div>
+                      <div className="w-8 border-t border-gray-300 dark:border-gray-600"></div>
                     </div>
                     <div className="text-center">
-                      <div className="font-medium text-gray-900">{flow.destination}</div>
-                      <div className="text-xs text-gray-500">Destination</div>
+                      <div className="font-medium text-gray-900 dark:text-gray-100">{flow.destination}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Destination</div>
                     </div>
                   </div>
                   {getStatusBadge(flow.status)}
@@ -310,26 +310,26 @@ const InteroperabilityManager: React.FC = () => {
                 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div>
-                    <span className="text-gray-600">Data Type:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Data Type:</span>
                     <p className="font-medium">{flow.dataType}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Volume:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Volume:</span>
                     <p className="font-medium">{flow.volume.toLocaleString()} records</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Frequency:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Frequency:</span>
                     <p className="font-medium">{flow.frequency}</p>
                   </div>
                   <div>
-                    <span className="text-gray-600">Last Transfer:</span>
+                    <span className="text-gray-600 dark:text-gray-400">Last Transfer:</span>
                     <p className="font-medium">{new Date(flow.lastTransfer).toLocaleString()}</p>
                   </div>
                 </div>
                 
                 {flow.transformations.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-gray-100">
-                    <span className="text-sm text-gray-600">Transformations:</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Transformations:</span>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {flow.transformations.map((transform, index) => (
                         <span key={index} className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
@@ -352,12 +352,12 @@ const InteroperabilityManager: React.FC = () => {
                   <div className="flex items-center space-x-3">
                     <Shield className="w-6 h-6 text-blue-600" />
                     <div>
-                      <h3 className="text-lg font-medium text-gray-900">{metric.standard}</h3>
-                      <p className="text-sm text-gray-600">Last audit: {new Date(metric.lastAudit).toLocaleDateString()}</p>
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">{metric.standard}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Last audit: {new Date(metric.lastAudit).toLocaleDateString()}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-900">{metric.score}%</div>
+                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{metric.score}%</div>
                     {getStatusBadge(metric.status)}
                   </div>
                 </div>
@@ -371,8 +371,8 @@ const InteroperabilityManager: React.FC = () => {
                         <XCircle className="w-5 h-5 text-red-500 mt-0.5" />
                       )}
                       <div className="flex-1">
-                        <div className="font-medium text-gray-900">{req.name}</div>
-                        <div className="text-sm text-gray-600">{req.description}</div>
+                        <div className="font-medium text-gray-900 dark:text-gray-100">{req.name}</div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">{req.description}</div>
                       </div>
                     </div>
                   ))}
@@ -434,15 +434,15 @@ const InteroperabilityManager: React.FC = () => {
                     <div className="flex items-center space-x-4 text-sm">
                       <div className="text-center">
                         <div className="font-medium">{integration.uptime}%</div>
-                        <div className="text-gray-500">Uptime</div>
+                        <div className="text-gray-500 dark:text-gray-400">Uptime</div>
                       </div>
                       <div className="text-center">
                         <div className="font-medium">{integration.latency}ms</div>
-                        <div className="text-gray-500">Latency</div>
+                        <div className="text-gray-500 dark:text-gray-400">Latency</div>
                       </div>
                       <div className="text-center">
                         <div className="font-medium">{integration.errorRate}%</div>
-                        <div className="text-gray-500">Error Rate</div>
+                        <div className="text-gray-500 dark:text-gray-400">Error Rate</div>
                       </div>
                       {getStatusIcon(integration.status)}
                     </div>

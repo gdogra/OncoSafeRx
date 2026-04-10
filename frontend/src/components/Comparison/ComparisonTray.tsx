@@ -47,7 +47,7 @@ const ComparisonTray: React.FC = () => {
       style={{ transform: state.isOpen ? 'translateY(0)' : 'translateY(calc(100% - 48px))' }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center space-x-3">
           <button
             onClick={toggleTray}
@@ -55,14 +55,14 @@ const ComparisonTray: React.FC = () => {
             aria-label={state.isOpen ? 'Collapse comparison tray' : 'Expand comparison tray'}
           >
             {state.isOpen ? (
-              <ChevronDown className="w-5 h-5 text-gray-600" />
+              <ChevronDown className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             ) : (
-              <ChevronUp className="w-5 h-5 text-gray-600" />
+              <ChevronUp className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             )}
           </button>
           <div className="flex items-center space-x-2">
             <GitCompare className="w-5 h-5 text-primary-600" />
-            <span className="font-medium text-gray-900">
+            <span className="font-medium text-gray-900 dark:text-gray-100">
               Drug Comparison ({state.items.length}/{state.maxItems})
             </span>
           </div>
@@ -146,7 +146,7 @@ const ComparisonTray: React.FC = () => {
                   )}
                   
                   <div className="flex items-center justify-between mt-2">
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
                       {item.source && `From ${item.source}`}
                     </span>
                     
@@ -164,7 +164,7 @@ const ComparisonTray: React.FC = () => {
             
             {/* Add more placeholder */}
             {state.items.length < state.maxItems && (
-              <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-3 flex items-center justify-center text-gray-500">
+              <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-3 flex items-center justify-center text-gray-500 dark:text-gray-400">
                 <div className="text-center">
                   <GitCompare className="w-6 h-6 mx-auto mb-1 text-gray-400" />
                   <p className="text-xs">Add drug to compare</p>
@@ -174,7 +174,7 @@ const ComparisonTray: React.FC = () => {
           </div>
           
           {/* Instructions */}
-          <div className="mt-3 pt-3 border-t border-gray-200">
+          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
             <p className="text-xs text-gray-500 text-center">
               Drag to reorder • Add drugs from search results • Compare 2+ drugs for interactions and details
             </p>
@@ -195,7 +195,7 @@ const ComparisonTray: React.FC = () => {
               </div>
             ))}
             {state.items.length > 3 && (
-              <div className="flex-shrink-0 text-xs text-gray-500">
+              <div className="flex-shrink-0 text-xs text-gray-500 dark:text-gray-400">
                 +{state.items.length - 3} more
               </div>
             )}

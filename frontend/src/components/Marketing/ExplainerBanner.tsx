@@ -30,7 +30,7 @@ const ExplainerBanner: React.FC<ExplainerBannerProps> = ({
                 <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
               ))}
             </div>
-            <span className="ml-2 text-sm text-gray-600">Trusted by 500+ Healthcare Organizations</span>
+            <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Trusted by 500+ Healthcare Organizations</span>
           </div>
           
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -58,24 +58,24 @@ const ExplainerBanner: React.FC<ExplainerBannerProps> = ({
             </Link>
           </div>
           
-          <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-gray-200">
+          <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
             <div className="text-center">
               <div className="p-2 bg-blue-100 rounded-lg w-10 h-10 mx-auto mb-2 flex items-center justify-center">
                 <Shield className="h-5 w-5 text-blue-600" />
               </div>
-              <div className="text-xs text-gray-600">1,142+ Drug Interactions</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">1,142+ Drug Interactions</div>
             </div>
             <div className="text-center">
               <div className="p-2 bg-purple-100 rounded-lg w-10 h-10 mx-auto mb-2 flex items-center justify-center">
                 <Brain className="h-5 w-5 text-purple-600" />
               </div>
-              <div className="text-xs text-gray-600">AI-Powered Insights</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">AI-Powered Insights</div>
             </div>
             <div className="text-center">
               <div className="p-2 bg-green-100 rounded-lg w-10 h-10 mx-auto mb-2 flex items-center justify-center">
                 <Clock className="h-5 w-5 text-green-600" />
               </div>
-              <div className="text-xs text-gray-600">24/7 Clinical Support</div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">24/7 Clinical Support</div>
             </div>
           </div>
         </div>
@@ -125,8 +125,8 @@ const ExplainerBanner: React.FC<ExplainerBannerProps> = ({
             <Users className="h-6 w-6 text-green-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Maximize Your OncoSafeRx Experience</h3>
-            <p className="text-sm text-gray-600">Discover advanced features and collaboration tools</p>
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100">Maximize Your OncoSafeRx Experience</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Discover advanced features and collaboration tools</p>
           </div>
         </div>
         <Link

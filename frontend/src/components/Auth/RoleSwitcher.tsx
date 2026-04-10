@@ -99,8 +99,8 @@ const RoleSwitcher: React.FC = () => {
   return (
     <Card className="p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-semibold text-gray-900">Demo: Switch Role</h3>
-        <div className="text-xs text-gray-500">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Demo: Switch Role</h3>
+        <div className="text-xs text-gray-500 dark:text-gray-400">
           Experience different UI perspectives
         </div>
       </div>
@@ -117,8 +117,8 @@ const RoleSwitcher: React.FC = () => {
               <CurrentIcon className={`w-4 h-4 text-${currentRole?.color || 'gray'}-600`} />
             </div>
             <div className="text-left">
-              <div className="font-medium text-gray-900">{currentRole?.label}</div>
-              <div className="text-sm text-gray-500">{currentRole?.description}</div>
+              <div className="font-medium text-gray-900 dark:text-gray-100">{currentRole?.label}</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">{currentRole?.description}</div>
             </div>
           </div>
           <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
@@ -138,7 +138,7 @@ const RoleSwitcher: React.FC = () => {
                     className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
                       isSelected 
                         ? `bg-${role.color}-50 border border-${role.color}-200` 
-                        : 'hover:bg-gray-50'
+                        : 'hover:bg-gray-50 dark:bg-gray-800'
                     }`}
                   >
                     <div className="flex items-center space-x-3">
@@ -146,8 +146,8 @@ const RoleSwitcher: React.FC = () => {
                         <RoleIcon className={`w-4 h-4 text-${role.color}-600`} />
                       </div>
                       <div className="text-left">
-                        <div className="font-medium text-gray-900">{role.label}</div>
-                        <div className="text-sm text-gray-500">{role.description}</div>
+                        <div className="font-medium text-gray-900 dark:text-gray-100">{role.label}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">{role.description}</div>
                       </div>
                     </div>
                     {isSelected && (
@@ -164,7 +164,7 @@ const RoleSwitcher: React.FC = () => {
       {/* Current Role Summary */}
       <div className="mt-4 p-3 bg-gray-50 rounded-lg">
         <div className="text-sm font-medium text-gray-700 mb-2">Current Configuration:</div>
-        <div className="space-y-1 text-xs text-gray-600">
+        <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400">
           <div>• Navigation items: {getRoleConfig(state.user.role).navigationItems.length} visible</div>
           <div>• Quick actions: {getRoleConfig(state.user.role).quickActions.length} available</div>
           <div>• Permissions: {Object.values(getRoleConfig(state.user.role).permissions).filter(Boolean).length} granted</div>

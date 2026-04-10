@@ -78,14 +78,14 @@ const Biostatistics: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="border-b pb-4">
-        <h1 className="text-3xl font-bold text-gray-900">Biostatistical Analysis Tools</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Biostatistical Analysis Tools</h1>
         <p className="text-gray-600 mt-2">
           Statistical analysis tools for survival analysis, treatment effect estimation, and meta-analysis
         </p>
         <div className="flex gap-2 mt-3">
-          <span className="px-2 py-1 text-xs font-medium rounded border border-gray-300 text-gray-700">Kaplan-Meier</span>
-          <span className="px-2 py-1 text-xs font-medium rounded border border-gray-300 text-gray-700">Cox Regression</span>
-          <span className="px-2 py-1 text-xs font-medium rounded border border-gray-300 text-gray-700">Meta-Analysis</span>
+          <span className="px-2 py-1 text-xs font-medium rounded border border-gray-300 text-gray-700 dark:text-gray-300">Kaplan-Meier</span>
+          <span className="px-2 py-1 text-xs font-medium rounded border border-gray-300 text-gray-700 dark:text-gray-300">Cox Regression</span>
+          <span className="px-2 py-1 text-xs font-medium rounded border border-gray-300 text-gray-700 dark:text-gray-300">Meta-Analysis</span>
         </div>
       </div>
 
@@ -118,14 +118,14 @@ const Biostatistics: React.FC = () => {
 
         <div className="lg:col-span-3">
           <div className="bg-white rounded-lg shadow-sm border">
-            <div className="border-b border-gray-200">
+            <div className="border-b border-gray-200 dark:border-gray-700">
               <nav className="flex">
                 <button
                   onClick={() => setActiveAnalysis('survival')}
                   className={`px-6 py-3 text-sm font-medium border-b-2 ${
                     activeAnalysis === 'survival'
                       ? 'border-blue-500 text-blue-600 bg-blue-50'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-300'
                   }`}
                 >
                   Survival Analysis
@@ -135,7 +135,7 @@ const Biostatistics: React.FC = () => {
                   className={`px-6 py-3 text-sm font-medium border-b-2 ${
                     activeAnalysis === 'comparison'
                       ? 'border-blue-500 text-blue-600 bg-blue-50'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-300'
                   }`}
                 >
                   Group Comparison
@@ -145,7 +145,7 @@ const Biostatistics: React.FC = () => {
                   className={`px-6 py-3 text-sm font-medium border-b-2 ${
                     activeAnalysis === 'meta'
                       ? 'border-blue-500 text-blue-600 bg-blue-50'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-300'
                   }`}
                 >
                   Meta-Analysis
@@ -179,7 +179,7 @@ const Biostatistics: React.FC = () => {
                           <div className="flex items-end">
                             <button
                               onClick={generateSampleData}
-                              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800"
                             >
                               Use Sample Data
                             </button>
@@ -202,7 +202,7 @@ const Biostatistics: React.FC = () => {
                               </div>
                               <div>
                                 <div className="font-medium">Censored</div>
-                                <div className="text-xl font-bold text-gray-600">
+                                <div className="text-xl font-bold text-gray-600 dark:text-gray-400">
                                   {survivalData.filter(d => !d.event).length}
                                 </div>
                               </div>
@@ -221,7 +221,7 @@ const Biostatistics: React.FC = () => {
                             <Calculator className="h-4 w-4" />
                             Run Kaplan-Meier Analysis
                           </button>
-                          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                          <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
                             <Calculator className="h-4 w-4" />
                             Cox Regression
                           </button>

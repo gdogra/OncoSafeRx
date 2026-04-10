@@ -188,7 +188,7 @@ const TreatmentTimeline: React.FC<TreatmentTimelineProps> = ({ patientId }) => {
       case 'partial': return 'bg-blue-100 text-blue-800';
       case 'stable': return 'bg-yellow-100 text-yellow-800';
       case 'progression': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -220,7 +220,7 @@ const TreatmentTimeline: React.FC<TreatmentTimelineProps> = ({ patientId }) => {
       case 3: return 'bg-orange-100 text-orange-800';
       case 4: return 'bg-red-100 text-red-800';
       case 5: return 'bg-red-200 text-red-900';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -244,8 +244,8 @@ const TreatmentTimeline: React.FC<TreatmentTimelineProps> = ({ patientId }) => {
           <div className="flex items-center space-x-3">
             <History className="w-6 h-6 text-primary-600" />
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">Treatment History</h2>
-              <p className="text-sm text-gray-600">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Treatment History</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 {currentPatient.demographics.firstName} {currentPatient.demographics.lastName} - Complete treatment timeline and outcomes
               </p>
             </div>
@@ -265,7 +265,7 @@ const TreatmentTimeline: React.FC<TreatmentTimelineProps> = ({ patientId }) => {
         <Card>
           <div className="flex items-center space-x-2 mb-4">
             <Activity className="w-5 h-5 text-gray-400" />
-            <h3 className="text-lg font-semibold text-gray-900">Treatment Summary</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Treatment Summary</h3>
             <Tooltip content="Overview of all treatments and their outcomes">
               <Info className="w-4 h-4 text-gray-400" />
             </Tooltip>
@@ -339,7 +339,7 @@ const TreatmentTimeline: React.FC<TreatmentTimelineProps> = ({ patientId }) => {
               />
             </div>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
             {treatments.length} treatment{treatments.length !== 1 ? 's' : ''} found
           </div>
         </div>
@@ -370,7 +370,7 @@ const TreatmentTimeline: React.FC<TreatmentTimelineProps> = ({ patientId }) => {
               
               <div className="flex items-start space-x-4">
                 <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
-                  treatment.endDate ? 'bg-gray-100 text-gray-600' : 'bg-primary-100 text-primary-600'
+                  treatment.endDate ? 'bg-gray-100 text-gray-600 dark:text-gray-400' : 'bg-primary-100 text-primary-600'
                 }`}>
                   {getTreatmentIcon(treatment.treatmentType)}
                 </div>
@@ -400,19 +400,19 @@ const TreatmentTimeline: React.FC<TreatmentTimelineProps> = ({ patientId }) => {
 
                       <div className="grid md:grid-cols-3 gap-4 text-sm mb-3">
                         <div>
-                          <span className="font-medium text-gray-700">Start Date:</span>
-                          <p className="text-gray-900">{new Date(treatment.startDate).toLocaleDateString()}</p>
+                          <span className="font-medium text-gray-700 dark:text-gray-300">Start Date:</span>
+                          <p className="text-gray-900 dark:text-gray-100">{new Date(treatment.startDate).toLocaleDateString()}</p>
                         </div>
                         {treatment.endDate && (
                           <div>
-                            <span className="font-medium text-gray-700">End Date:</span>
-                            <p className="text-gray-900">{new Date(treatment.endDate).toLocaleDateString()}</p>
+                            <span className="font-medium text-gray-700 dark:text-gray-300">End Date:</span>
+                            <p className="text-gray-900 dark:text-gray-100">{new Date(treatment.endDate).toLocaleDateString()}</p>
                           </div>
                         )}
                         {treatment.cycles && (
                           <div>
-                            <span className="font-medium text-gray-700">Cycles:</span>
-                            <p className="text-gray-900">{treatment.cycles}</p>
+                            <span className="font-medium text-gray-700 dark:text-gray-300">Cycles:</span>
+                            <p className="text-gray-900 dark:text-gray-100">{treatment.cycles}</p>
                           </div>
                         )}
                       </div>
@@ -439,8 +439,8 @@ const TreatmentTimeline: React.FC<TreatmentTimelineProps> = ({ patientId }) => {
                                 <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getToxicityColor(toxicity.grade)}`}>
                                   Grade {toxicity.grade}
                                 </span>
-                                <span className="text-sm text-gray-900">{toxicity.description}</span>
-                                <span className="text-xs text-gray-600">({toxicity.action})</span>
+                                <span className="text-sm text-gray-900 dark:text-gray-100">{toxicity.description}</span>
+                                <span className="text-xs text-gray-600 dark:text-gray-400">({toxicity.action})</span>
                               </div>
                             ))}
                           </div>
@@ -449,7 +449,7 @@ const TreatmentTimeline: React.FC<TreatmentTimelineProps> = ({ patientId }) => {
 
                       {treatment.notes && (
                         <div className="text-sm">
-                          <span className="font-medium text-gray-700">Notes:</span>
+                          <span className="font-medium text-gray-700 dark:text-gray-300">Notes:</span>
                           <p className="text-gray-900 mt-1">{treatment.notes}</p>
                         </div>
                       )}
@@ -485,8 +485,8 @@ const TreatmentTimeline: React.FC<TreatmentTimelineProps> = ({ patientId }) => {
       {showAddForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {editingTreatment ? 'Edit Treatment' : 'Add Treatment'}
               </h3>
             </div>
@@ -635,7 +635,7 @@ const TreatmentTimeline: React.FC<TreatmentTimelineProps> = ({ patientId }) => {
                               Grade {toxicity.grade}
                             </span>
                             <span className="text-sm">{toxicity.description}</span>
-                            <span className="text-xs text-gray-600">({toxicity.action})</span>
+                            <span className="text-xs text-gray-600 dark:text-gray-400">({toxicity.action})</span>
                           </div>
                           <button
                             type="button"
@@ -683,7 +683,7 @@ const TreatmentTimeline: React.FC<TreatmentTimelineProps> = ({ patientId }) => {
                     notes: ''
                   });
                 }}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 dark:bg-gray-800"
               >
                 Cancel
               </button>

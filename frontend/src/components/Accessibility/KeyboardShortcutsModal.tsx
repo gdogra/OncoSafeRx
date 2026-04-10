@@ -82,7 +82,7 @@ const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ isOpen,
         <div className="flex items-center justify-between p-6 border-b">
           <div className="flex items-center space-x-3">
             <Keyboard className="w-6 h-6 text-primary-600" />
-            <h2 id="shortcuts-title" className="text-2xl font-bold text-gray-900">
+            <h2 id="shortcuts-title" className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               Keyboard Shortcuts
             </h2>
           </div>
@@ -96,7 +96,7 @@ const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ isOpen,
         </div>
 
         {/* Search */}
-        <div className="p-6 border-b bg-gray-50">
+        <div className="p-6 border-b bg-gray-50 dark:bg-gray-800">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
@@ -113,7 +113,7 @@ const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ isOpen,
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[60vh]">
           {Object.entries(shortcutsByCategory).length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
               No shortcuts found matching "{searchFilter}"
             </div>
           ) : (
@@ -136,7 +136,7 @@ const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ isOpen,
                           key={index}
                           className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                         >
-                          <span className="text-gray-700">{shortcut.description}</span>
+                          <span className="text-gray-700 dark:text-gray-300">{shortcut.description}</span>
                           <div className="flex items-center space-x-1">
                             {formatShortcutKey(shortcut).split(' + ').map((key, keyIndex, array) => (
                               <React.Fragment key={keyIndex}>
@@ -161,14 +161,14 @@ const KeyboardShortcutsModal: React.FC<KeyboardShortcutsModalProps> = ({ isOpen,
 
         {/* Footer */}
         <div className="px-6 py-4 bg-gray-50 border-t">
-          <div className="flex items-center justify-between text-sm text-gray-600">
+          <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
             <div className="flex items-center space-x-4">
               <span>Press <kbd className="px-1 py-0.5 bg-white border rounded text-xs">F1</kbd> to open this help</span>
               <span>Press <kbd className="px-1 py-0.5 bg-white border rounded text-xs">Esc</kbd> to close</span>
             </div>
             <div className="text-right">
               <p>OncoSafeRx v1.0.0</p>
-              <p className="text-xs text-gray-500">Accessible by design</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Accessible by design</p>
             </div>
           </div>
         </div>

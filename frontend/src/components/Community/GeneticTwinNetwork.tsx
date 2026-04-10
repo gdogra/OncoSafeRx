@@ -127,7 +127,7 @@ const GeneticTwinNetwork: React.FC = () => {
     if (score >= 90) return 'text-green-600 bg-green-50';
     if (score >= 80) return 'text-blue-600 bg-blue-50';
     if (score >= 70) return 'text-yellow-600 bg-yellow-50';
-    return 'text-gray-600 bg-gray-50';
+    return 'text-gray-600 bg-gray-50 dark:bg-gray-800';
   };
 
   const getTreatmentPhaseColor = (phase: string) => {
@@ -137,7 +137,7 @@ const GeneticTwinNetwork: React.FC = () => {
       case 'maintenance': return 'bg-blue-100 text-blue-800';
       case 'survivor': return 'bg-green-100 text-green-800';
       case 'caregiver': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -146,7 +146,7 @@ const GeneticTwinNetwork: React.FC = () => {
       case 'mentor': return <Award className="w-4 h-4 text-gold-600" />;
       case 'mentee': return <UserPlus className="w-4 h-4 text-blue-600" />;
       case 'peer': return <Users className="w-4 h-4 text-purple-600" />;
-      default: return <Users className="w-4 h-4 text-gray-600" />;
+      default: return <Users className="w-4 h-4 text-gray-600 dark:text-gray-400" />;
     }
   };
 
@@ -179,7 +179,7 @@ const GeneticTwinNetwork: React.FC = () => {
             <UserPlus className="w-4 h-4" />
             <span>Become a Mentor</span>
           </button>
-          <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+          <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
             <Settings className="w-4 h-4" />
             <span>Privacy Settings</span>
           </button>
@@ -187,7 +187,7 @@ const GeneticTwinNetwork: React.FC = () => {
       </div>
 
       {/* Navigation */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="-mb-px flex space-x-8">
           {[
             { id: 'matches', label: 'Genetic Matches', icon: Dna },
@@ -201,7 +201,7 @@ const GeneticTwinNetwork: React.FC = () => {
               className={`flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-300'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -226,7 +226,7 @@ const GeneticTwinNetwork: React.FC = () => {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
-            <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
               <Filter className="w-4 h-4" />
               <span>Filters</span>
             </button>
@@ -234,7 +234,7 @@ const GeneticTwinNetwork: React.FC = () => {
 
           {/* Genetic Twins Grid */}
           {filteredTwins.length === 0 ? (
-            <Card className="p-6 text-sm text-gray-600">No genetic matches to display.</Card>
+            <Card className="p-6 text-sm text-gray-600 dark:text-gray-400">No genetic matches to display.</Card>
           ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTwins.map((twin) => (
@@ -247,12 +247,12 @@ const GeneticTwinNetwork: React.FC = () => {
                       </span>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                         {twin.firstName} {twin.lastInitial}.
                       </h3>
                       <div className="flex items-center space-x-2">
                         <MapPin className="w-3 h-3 text-gray-400" />
-                        <span className="text-sm text-gray-600">{twin.location}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{twin.location}</span>
                         {twin.verifiedStatus && (
                           <CheckCircle className="w-3 h-3 text-green-600" />
                         )}
@@ -304,11 +304,11 @@ const GeneticTwinNetwork: React.FC = () => {
                   >
                     Connect
                   </button>
-                  <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                    <MessageCircle className="w-4 h-4 text-gray-600" />
+                  <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
+                    <MessageCircle className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                   </button>
-                  <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                    <Bookmark className="w-4 h-4 text-gray-600" />
+                  <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-800">
+                    <Bookmark className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                   </button>
                 </div>
               </Card>
@@ -322,7 +322,7 @@ const GeneticTwinNetwork: React.FC = () => {
       {activeTab === 'groups' && (
         <div className="space-y-6">
           {supportGroups.length === 0 ? (
-            <Card className="p-6 text-sm text-gray-600">No support groups available.</Card>
+            <Card className="p-6 text-sm text-gray-600 dark:text-gray-400">No support groups available.</Card>
           ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {supportGroups.map((group) => (
@@ -332,7 +332,7 @@ const GeneticTwinNetwork: React.FC = () => {
                     <h3 className="font-semibold text-gray-900 mb-1">{group.name}</h3>
                     <div className="flex items-center space-x-2 mb-2">
                       <Users className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-600">{group.memberCount} members</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">{group.memberCount} members</span>
                       {group.isPrivate && (
                         <Lock className="w-4 h-4 text-gray-400" />
                       )}
@@ -365,7 +365,7 @@ const GeneticTwinNetwork: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
                     Last activity: {group.lastActivity.toLocaleDateString()}
                   </span>
                   <button
@@ -394,7 +394,7 @@ const GeneticTwinNetwork: React.FC = () => {
               Community-Generated Insights
             </h2>
             {communityInsights.length === 0 ? (
-              <p className="text-sm text-gray-600">No insights to display.</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">No insights to display.</p>
             ) : (
             <div className="space-y-4">
               {communityInsights.map((insight, index) => (
@@ -402,7 +402,7 @@ const GeneticTwinNetwork: React.FC = () => {
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <h3 className="font-medium text-gray-900 mb-1">{insight.title}</h3>
-                      <p className="text-sm text-gray-700">{insight.description}</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">{insight.description}</p>
                     </div>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       insight.category === 'treatment' ? 'bg-blue-100 text-blue-800' :
@@ -418,11 +418,11 @@ const GeneticTwinNetwork: React.FC = () => {
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center space-x-1">
                         <Users className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">{insight.participantCount} participants</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{insight.participantCount} participants</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <TrendingUp className="w-4 h-4 text-gray-400" />
-                        <span className="text-sm text-gray-600">{insight.confidence}% confidence</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{insight.confidence}% confidence</span>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-1">
@@ -459,7 +459,7 @@ const GeneticTwinNetwork: React.FC = () => {
                     { id: 'selective', label: 'Selective', description: 'Visible only to approved connections' },
                     { id: 'private', label: 'Private', description: 'Hidden from search, invite-only' }
                   ].map((option) => (
-                    <label key={option.id} className="flex items-start space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                    <label key={option.id} className="flex items-start space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:bg-gray-800">
                       <input
                         type="radio"
                         name="privacy"
@@ -467,8 +467,8 @@ const GeneticTwinNetwork: React.FC = () => {
                         className="mt-1"
                       />
                       <div>
-                        <p className="font-medium text-gray-900">{option.label}</p>
-                        <p className="text-sm text-gray-600">{option.description}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{option.label}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{option.description}</p>
                       </div>
                     </label>
                   ))}
@@ -485,7 +485,7 @@ const GeneticTwinNetwork: React.FC = () => {
                     { id: 'location', label: 'Show approximate location' }
                   ].map((pref) => (
                     <label key={pref.id} className="flex items-center justify-between">
-                      <span className="text-sm text-gray-700">{pref.label}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{pref.label}</span>
                       <input
                         type="checkbox"
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"

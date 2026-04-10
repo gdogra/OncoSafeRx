@@ -221,10 +221,10 @@ const Regimens: React.FC = () => {
     <div className="space-y-6">
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Regimens' }]} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Regimen Templates</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Regimen Templates</h1>
         <div className="flex items-center space-x-2">
           <Calculator className="w-6 h-6 text-blue-600" />
-          <span className="text-sm text-gray-600">Production Ready</span>
+          <span className="text-sm text-gray-600 dark:text-gray-400">Production Ready</span>
         </div>
       </div>
       
@@ -270,7 +270,7 @@ const Regimens: React.FC = () => {
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <LoadingSpinner size="md" />
-              <span className="ml-2 text-gray-600">Loading regimens...</span>
+              <span className="ml-2 text-gray-600 dark:text-gray-400">Loading regimens...</span>
             </div>
           ) : (
             <ul className="divide-y max-h-96 overflow-y-auto">
@@ -293,7 +293,7 @@ const Regimens: React.FC = () => {
                 </li>
               ))}
               {filteredRegimens.length === 0 && !loading && (
-                <li className="py-8 text-center text-gray-500">
+                <li className="py-8 text-center text-gray-500 dark:text-gray-400">
                   {searchQuery || filterIndication ? 'No regimens match your search criteria' : 'No regimens available'}
                 </li>
               )}
@@ -305,19 +305,19 @@ const Regimens: React.FC = () => {
             {detailsLoading ? (
               <div className="flex items-center justify-center py-12">
                 <LoadingSpinner size="lg" />
-                <span className="ml-3 text-gray-600">Loading regimen details...</span>
+                <span className="ml-3 text-gray-600 dark:text-gray-400">Loading regimen details...</span>
               </div>
             ) : !selected ? (
               <div className="text-center py-12">
                 <FileText className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <div className="text-gray-500">Select a regimen from the list to view details and perform dose calculations.</div>
+                <div className="text-gray-500 dark:text-gray-400">Select a regimen from the list to view details and perform dose calculations.</div>
               </div>
             ) : (
               <div className="space-y-6">
                 <div className="border-b border-gray-200 pb-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-xl font-semibold text-gray-900">{selected.name}</h3>
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{selected.name}</h3>
                       <p className="text-gray-600 mt-1">Indication: {selected.indication}</p>
                       {selected.cycleLengthDays && (
                         <p className="text-sm text-gray-500 mt-1">Cycle length: {selected.cycleLengthDays} days</p>
@@ -446,7 +446,7 @@ const Regimens: React.FC = () => {
                         <Info className="w-3 h-3 text-gray-400" />
                       </Tooltip>
                     </div>
-                    <ul className="list-disc ml-6 text-sm text-gray-700">
+                    <ul className="list-disc ml-6 text-sm text-gray-700 dark:text-gray-300">
                       {selected.components.map((c, idx) => (
                         <li key={idx}>{c.name}: {c.dose}</li>
                       ))}
@@ -461,7 +461,7 @@ const Regimens: React.FC = () => {
                         <Info className="w-3 h-3 text-gray-400" />
                       </Tooltip>
                     </div>
-                    <ul className="list-disc ml-6 text-sm text-gray-700">
+                    <ul className="list-disc ml-6 text-sm text-gray-700 dark:text-gray-300">
                       {selected.pretreatment.map((p, idx) => <li key={idx}>{p}</li>)}
                     </ul>
                   </div>
@@ -474,7 +474,7 @@ const Regimens: React.FC = () => {
                         <Info className="w-3 h-3 text-gray-400" />
                       </Tooltip>
                     </div>
-                    <ul className="list-disc ml-6 text-sm text-gray-700">
+                    <ul className="list-disc ml-6 text-sm text-gray-700 dark:text-gray-300">
                       {selected.monitoring.map((m, idx) => <li key={idx}>{m}</li>)}
                     </ul>
                   </div>
@@ -487,7 +487,7 @@ const Regimens: React.FC = () => {
                         <Info className="w-3 h-3 text-gray-400" />
                       </Tooltip>
                     </div>
-                    <ul className="list-disc ml-6 text-sm text-gray-700">
+                    <ul className="list-disc ml-6 text-sm text-gray-700 dark:text-gray-300">
                       {selected.notes.map((n, idx) => <li key={idx}>{n}</li>)}
                     </ul>
                   </div>
@@ -518,7 +518,7 @@ const Regimens: React.FC = () => {
                           </label>
                           <input 
                             type="number" 
-                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.anc ? 'border-red-500' : 'border-gray-300'}`}
+                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.anc ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
                             value={labs.ANC ?? ''} 
                             onChange={e => setLabs({ ...labs, ANC: e.target.value ? Number(e.target.value) : undefined })} 
                             placeholder="e.g., 1500"
@@ -534,7 +534,7 @@ const Regimens: React.FC = () => {
                           </label>
                           <input 
                             type="number" 
-                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.platelets ? 'border-red-500' : 'border-gray-300'}`}
+                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.platelets ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
                             value={labs.platelets ?? ''} 
                             onChange={e => setLabs({ ...labs, platelets: e.target.value ? Number(e.target.value) : undefined })} 
                             placeholder="e.g., 150000"
@@ -550,7 +550,7 @@ const Regimens: React.FC = () => {
                           </label>
                           <input 
                             type="number" 
-                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.creatinine_clearance ? 'border-red-500' : 'border-gray-300'}`}
+                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.creatinine_clearance ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
                             value={labs.CrCl ?? ''} 
                             onChange={e => setLabs({ ...labs, CrCl: e.target.value ? Number(e.target.value) : undefined })} 
                             placeholder="e.g., 90"
@@ -566,7 +566,7 @@ const Regimens: React.FC = () => {
                           </label>
                           <input 
                             type="number" 
-                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.lvef ? 'border-red-500' : 'border-gray-300'}`}
+                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.lvef ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
                             value={labs.LVEF ?? ''} 
                             onChange={e => setLabs({ ...labs, LVEF: e.target.value ? Number(e.target.value) : undefined })} 
                             placeholder="e.g., 65"
@@ -582,7 +582,7 @@ const Regimens: React.FC = () => {
                           <label className="block text-gray-700 mb-1">Height (cm)</label>
                           <input 
                             type="number" 
-                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.height ? 'border-red-500' : 'border-gray-300'}`}
+                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.height ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
                             value={patient.heightCm ?? ''} 
                             onChange={e => setPatient({ ...patient, heightCm: e.target.value ? Number(e.target.value) : undefined })} 
                             placeholder="e.g., 170"
@@ -593,7 +593,7 @@ const Regimens: React.FC = () => {
                           <label className="block text-gray-700 mb-1">Weight (kg)</label>
                           <input 
                             type="number" 
-                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.weight ? 'border-red-500' : 'border-gray-300'}`}
+                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.weight ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
                             value={patient.weightKg ?? ''} 
                             onChange={e => setPatient({ ...patient, weightKg: e.target.value ? Number(e.target.value) : undefined })} 
                             placeholder="e.g., 70"
@@ -604,7 +604,7 @@ const Regimens: React.FC = () => {
                           <label className="block text-gray-700 mb-1">Age (years)</label>
                           <input 
                             type="number" 
-                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.age ? 'border-red-500' : 'border-gray-300'}`}
+                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.age ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
                             value={patient.ageYears ?? ''} 
                             onChange={e => setPatient({ ...patient, ageYears: e.target.value ? Number(e.target.value) : undefined })} 
                             placeholder="e.g., 65"
@@ -628,7 +628,7 @@ const Regimens: React.FC = () => {
                           <input 
                             type="number" 
                             step="0.01"
-                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.creatinine ? 'border-red-500' : 'border-gray-300'}`}
+                            className={`w-full border rounded px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.creatinine ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
                             value={patient.serumCreatinineMgDl ?? ''} 
                             onChange={e => setPatient({ ...patient, serumCreatinineMgDl: e.target.value ? Number(e.target.value) : undefined })} 
                             placeholder="e.g., 1.0"
@@ -720,7 +720,7 @@ const Regimens: React.FC = () => {
                     </div>
                   </div>
                   {calculators && (
-                    <div className="flex items-center space-x-2 mt-2 text-xs text-gray-600">
+                    <div className="flex items-center space-x-2 mt-2 text-xs text-gray-600 dark:text-gray-400">
                       <span>Calculated:</span>
                       {calculators.BSA && (
                         <Tooltip content="Body Surface Area calculated using Dubois formula: BSA = 0.007184 × Weight^0.425 × Height^0.725">
@@ -735,7 +735,7 @@ const Regimens: React.FC = () => {
                     </div>
                   )}
                   {dosingRecs && (
-                    <div className="mt-3 space-y-1 text-sm text-gray-700">
+                    <div className="mt-3 space-y-1 text-sm text-gray-700 dark:text-gray-300">
                       {dosingRecs.length === 0 && <div>No adjustments recommended.</div>}
                       {dosingRecs.map((r, idx) => <div key={idx}>• {r}</div>)}
                     </div>
@@ -755,7 +755,7 @@ const Regimens: React.FC = () => {
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-2">
                           <Calculator className="w-4 h-4 text-blue-600" />
-                          <h5 className="font-medium text-gray-900">Calculated Doses</h5>
+                          <h5 className="font-medium text-gray-900 dark:text-gray-100">Calculated Doses</h5>
                           {calculators.BSA && (
                             <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
                               BSA: {calculators.BSA.toFixed(2)} m²
@@ -774,7 +774,7 @@ const Regimens: React.FC = () => {
                       <div className="overflow-x-auto">
                         <table className="min-w-full text-xs">
                           <thead>
-                            <tr className="text-left text-gray-600 bg-gray-50">
+                            <tr className="text-left text-gray-600 bg-gray-50 dark:bg-gray-800">
                               <th className="px-3 py-2 font-medium">Component</th>
                               <th className="px-3 py-2 font-medium">Regimen Dose</th>
                               <th className="px-3 py-2 font-medium">Calculated (mg)</th>
@@ -801,12 +801,12 @@ const Regimens: React.FC = () => {
                                 vialText = `~${vials} × ${vial} mg`;
                               }
                               return (
-                                <tr key={idx} className="hover:bg-gray-50">
-                                  <td className="px-3 py-2 font-medium text-gray-900">{cd.component}</td>
-                                  <td className="px-3 py-2 text-gray-700">{cd.dose}</td>
-                                  <td className="px-3 py-2 text-gray-700">{cd.calculatedMg !== undefined ? `${cd.calculatedMg} mg` : '-'}</td>
+                                <tr key={idx} className="hover:bg-gray-50 dark:bg-gray-800">
+                                  <td className="px-3 py-2 font-medium text-gray-900 dark:text-gray-100">{cd.component}</td>
+                                  <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{cd.dose}</td>
+                                  <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{cd.calculatedMg !== undefined ? `${cd.calculatedMg} mg` : '-'}</td>
                                   <td className="px-3 py-2 font-medium text-blue-700">{cd.roundedMg !== undefined ? `${cd.roundedMg} mg` : '-'}</td>
-                                  <td className="px-3 py-2 text-gray-600">{cd.note || '-'}</td>
+                                  <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{cd.note || '-'}</td>
                                   <td className="px-3 py-2 text-purple-700 font-medium">{vialText}</td>
                                 </tr>
                               )
@@ -871,7 +871,7 @@ const Regimens: React.FC = () => {
                             </div>
                             
                             {selectedDrugForCalculator && (
-                              <div className="border border-blue-200 rounded p-3 bg-white">
+                              <div className="border border-blue-200 rounded p-3 bg-white dark:bg-gray-900">
                                 <EnhancedDoseCalculator
                                   drug={{
                                     rxcui: 'mock-rxcui', // In real implementation, would need drug lookup

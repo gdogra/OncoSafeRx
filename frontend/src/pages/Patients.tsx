@@ -76,7 +76,7 @@ const Patients: React.FC = () => {
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">
           <Users className="w-8 h-8 text-primary-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Patient Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Patient Management</h1>
           <Tooltip content="Comprehensive patient profile management with clinical data, medication history, and safety alerts">
             <Info className="w-5 h-5 text-gray-400" />
           </Tooltip>
@@ -118,8 +118,8 @@ const Patients: React.FC = () => {
         <Card>
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
-              <p className="text-sm text-gray-600">Common clinical workflows for this patient</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Actions</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Common clinical workflows for this patient</p>
             </div>
             <div className="flex space-x-3">
               <button 
@@ -148,7 +148,7 @@ const Patients: React.FC = () => {
       {/* Educational Content */}
       <Card>
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900">Patient Safety Features</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Patient Safety Features</h2>
           
           <div className="grid md:grid-cols-3 gap-6">
             <div>

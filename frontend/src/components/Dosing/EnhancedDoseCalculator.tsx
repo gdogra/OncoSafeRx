@@ -101,7 +101,7 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
       case 'low':
         return <Info className="w-5 h-5 text-blue-500" />;
       default:
-        return <Info className="w-5 h-5 text-gray-500" />;
+        return <Info className="w-5 h-5 text-gray-500 dark:text-gray-400" />;
     }
   };
 
@@ -146,7 +146,7 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
       <Card>
         <div className="text-center py-8">
           <Calculator className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-          <p className="text-lg font-medium text-gray-500">No Patient Selected</p>
+          <p className="text-lg font-medium text-gray-500 dark:text-gray-400">No Patient Selected</p>
           <p className="text-sm text-gray-400">Select a patient to perform dose calculations</p>
         </div>
       </Card>
@@ -163,8 +163,8 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
               <Calculator className="w-5 h-5 text-primary-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">Enhanced Dose Calculator</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Enhanced Dose Calculator</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 AI-powered dosing with safety alerts for {drug.name}
               </p>
             </div>
@@ -241,14 +241,14 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
               <div>
                 <div className="flex items-center space-x-2 mb-3">
                   <Calculator className="w-5 h-5 text-gray-400" />
-                  <h4 className="text-lg font-semibold text-gray-900">Recommended Dose</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recommended Dose</h4>
                 </div>
                 
                 <div className="flex items-center space-x-4">
                   <div className="text-3xl font-bold text-primary-600">
                     {calculationResult.recommendedDose}
                   </div>
-                  <div className="text-lg text-gray-600">{inputUnit}</div>
+                  <div className="text-lg text-gray-600 dark:text-gray-400">{inputUnit}</div>
                   
                   {calculationResult.recommendedDose !== inputDose && (
                     <div className="flex items-center space-x-1">
@@ -257,7 +257,7 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
                       ) : (
                         <TrendingUp className="w-4 h-4 text-green-500" />
                       )}
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
                         {Math.round(((calculationResult.recommendedDose - inputDose) / inputDose) * 100)}%
                       </span>
                     </div>
@@ -265,7 +265,7 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
                 </div>
 
                 {calculationResult.adjustments.length > 0 && (
-                  <div className="mt-3 text-sm text-gray-600">
+                  <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
                     <span className="font-medium">Adjustments applied:</span>
                     <ul className="mt-1 space-y-1">
                       {calculationResult.adjustments.map((adj: DoseRecommendation, index: number) => (
@@ -279,7 +279,7 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
               <div>
                 <div className="flex items-center space-x-2 mb-3">
                   <Shield className="w-5 h-5 text-gray-400" />
-                  <h4 className="text-lg font-semibold text-gray-900">Safety Score</h4>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Safety Score</h4>
                   <Tooltip content="Overall safety assessment based on patient factors, drug interactions, and clinical alerts">
                     <Info className="w-4 h-4 text-gray-400" />
                   </Tooltip>
@@ -290,7 +290,7 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
                   <div className={`text-3xl font-bold ${getSafetyScoreColor(calculationResult.safetyScore).split(' ')[0]}`}>
                     {calculationResult.safetyScore}
                   </div>
-                  <div className="text-lg text-gray-600">/100</div>
+                  <div className="text-lg text-gray-600 dark:text-gray-400">/100</div>
                 </div>
 
                 <div className={`mt-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getSafetyScoreColor(calculationResult.safetyScore)}`}>
@@ -308,7 +308,7 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
             <Card>
               <div className="flex items-center space-x-2 mb-4">
                 <AlertTriangle className="w-5 h-5 text-red-500" />
-                <h4 className="text-lg font-semibold text-gray-900">
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                   Clinical Alerts ({calculationResult.alerts.length})
                 </h4>
               </div>
@@ -329,7 +329,7 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
                       
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-1">
-                          <h5 className="font-medium text-gray-900">{alert.message}</h5>
+                          <h5 className="font-medium text-gray-900 dark:text-gray-100">{alert.message}</h5>
                           {getCategoryIcon(alert.category)}
                           <span className="text-xs text-gray-500 bg-white px-2 py-0.5 rounded">
                             {alert.category}
@@ -339,12 +339,12 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
                         <p className="text-sm text-gray-700 mb-2">{alert.details}</p>
                         
                         <div className="bg-white bg-opacity-70 rounded p-2">
-                          <span className="text-xs font-medium text-gray-600">Recommended Action:</span>
+                          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Recommended Action:</span>
                           <p className="text-sm text-gray-800 mt-1">{alert.recommendedAction}</p>
                         </div>
                         
                         <div className="flex items-center justify-between mt-2">
-                          <span className="text-xs text-gray-500">Source: {alert.source}</span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">Source: {alert.source}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
                             alert.severity === 'critical' ? 'bg-red-100 text-red-800' :
                             alert.severity === 'high' ? 'bg-orange-100 text-orange-800' :
@@ -367,7 +367,7 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
             <Card>
               <div className="flex items-center space-x-2 mb-4">
                 <Eye className="w-5 h-5 text-blue-500" />
-                <h4 className="text-lg font-semibold text-gray-900">Monitoring Recommendations</h4>
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Monitoring Recommendations</h4>
                 <Tooltip content="Required monitoring parameters based on drug toxicity profile and patient risk factors">
                   <Info className="w-4 h-4 text-gray-400" />
                 </Tooltip>
@@ -375,7 +375,7 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
 
               <div className="overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Parameter</th>
                       <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Frequency</th>
@@ -386,9 +386,9 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
                   <tbody className="divide-y divide-gray-200">
                     {calculationResult.monitoringRecommendations.map((rec: any, index: number) => (
                       <tr key={index}>
-                        <td className="px-4 py-2 text-sm font-medium text-gray-900">{rec.parameter}</td>
-                        <td className="px-4 py-2 text-sm text-gray-600">{rec.frequency}</td>
-                        <td className="px-4 py-2 text-sm text-gray-600">{rec.rationale}</td>
+                        <td className="px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-100">{rec.parameter}</td>
+                        <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">{rec.frequency}</td>
+                        <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">{rec.rationale}</td>
                         <td className="px-4 py-2">
                           <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                             rec.urgency === 'critical' ? 'bg-red-100 text-red-800' :
@@ -414,7 +414,7 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
             >
               <div className="flex items-center space-x-2">
                 <Brain className="w-5 h-5 text-gray-400" />
-                <h4 className="text-lg font-semibold text-gray-900">Advanced Calculations</h4>
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Advanced Calculations</h4>
               </div>
               <div className={`transform transition-transform ${showAdvanced ? 'rotate-180' : ''}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -432,7 +432,7 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
                       {calculationResult.adjustments.map((adj: DoseRecommendation, index: number) => (
                         <div key={index} className="bg-gray-50 rounded p-3">
                           <div className="flex items-center justify-between mb-1">
-                            <span className="font-medium text-gray-900">{adj.adjustmentReason}</span>
+                            <span className="font-medium text-gray-900 dark:text-gray-100">{adj.adjustmentReason}</span>
                             <span className={`text-sm px-2 py-1 rounded ${
                               adj.confidence === 'high' ? 'bg-green-100 text-green-800' :
                               adj.confidence === 'moderate' ? 'bg-yellow-100 text-yellow-800' :
@@ -441,7 +441,7 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
                               {adj.confidence} confidence
                             </span>
                           </div>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-gray-600 dark:text-gray-400">
                             {adj.originalDose} → {adj.recommendedDose} {adj.unit} 
                             (×{adj.adjustmentFactor.toFixed(2)})
                           </div>
@@ -460,33 +460,33 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
                   <h5 className="font-medium text-gray-900 mb-2">Patient Factors Considered:</h5>
                   <div className="grid md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-gray-600">Age:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Age:</span>
                       <span className="ml-2 font-medium">
                         {Math.floor((new Date().getTime() - new Date(currentPatient.demographics.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years
                       </span>
                     </div>
                     {currentPatient.demographics.weightKg && (
                       <div>
-                        <span className="text-gray-600">Weight:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Weight:</span>
                         <span className="ml-2 font-medium">{currentPatient.demographics.weightKg} kg</span>
                       </div>
                     )}
                     {currentPatient.demographics.heightCm && (
                       <div>
-                        <span className="text-gray-600">Height:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Height:</span>
                         <span className="ml-2 font-medium">{currentPatient.demographics.heightCm} cm</span>
                       </div>
                     )}
                     <div>
-                      <span className="text-gray-600">Allergies:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Allergies:</span>
                       <span className="ml-2 font-medium">{currentPatient.allergies.length}</span>
                     </div>
                     <div>
-                      <span className="text-gray-600">Active Medications:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Active Medications:</span>
                       <span className="ml-2 font-medium">{currentPatient.medications.filter(m => m.isActive).length}</span>
                     </div>
                     <div>
-                      <span className="text-gray-600">Genetic Variants:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Genetic Variants:</span>
                       <span className="ml-2 font-medium">{currentPatient.genetics.length}</span>
                     </div>
                   </div>
@@ -502,7 +502,7 @@ const EnhancedDoseCalculator: React.FC<EnhancedDoseCalculatorProps> = ({
         <Card>
           <div className="text-center py-12">
             <Calculator className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p className="text-lg font-medium text-gray-500">Enter dose and calculate</p>
+            <p className="text-lg font-medium text-gray-500 dark:text-gray-400">Enter dose and calculate</p>
             <p className="text-sm text-gray-400">
               Advanced dose calculation with safety alerts will appear here
             </p>

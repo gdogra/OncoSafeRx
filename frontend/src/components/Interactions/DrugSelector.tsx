@@ -133,7 +133,7 @@ const DrugSelector: React.FC<DrugSelectorProps> = ({ onDrugSelect }) => {
       <div className="font-semibold">Drug Information:</div>
       <div>RXCUI: {drug.rxcui}</div>
       {drug.tty && <div>Type: {drug.tty}</div>}
-      <div className="mt-2 pt-2 border-t border-gray-200">
+      <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
         <div className="text-gray-300">Click to add to interaction analysis</div>
       </div>
     </div>
@@ -156,7 +156,7 @@ const DrugSelector: React.FC<DrugSelectorProps> = ({ onDrugSelect }) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center space-x-2 mb-4">
-        <h3 className="text-lg font-medium text-gray-900">Add Medication</h3>
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Add Medication</h3>
         <Tooltip
           content={getClinicalConsiderations()}
           type="clinical"
@@ -176,8 +176,8 @@ const DrugSelector: React.FC<DrugSelectorProps> = ({ onDrugSelect }) => {
       {/* Quick Drug Shortcuts */}
       <div className="space-y-3">
         <div className="flex items-center space-x-2">
-          <Tag className="w-4 h-4 text-gray-500" />
-          <span className="text-sm font-medium text-gray-700">Quick Access:</span>
+          <Tag className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Access:</span>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
           {drugShortcuts.map((shortcut) => (
@@ -186,8 +186,8 @@ const DrugSelector: React.FC<DrugSelectorProps> = ({ onDrugSelect }) => {
               onClick={() => handleShortcutClick(shortcut.term)}
               className="flex flex-col items-start p-2 text-left border border-gray-200 rounded-md hover:bg-gray-50 hover:border-gray-300 transition-colors"
             >
-              <span className="text-sm font-medium text-gray-900">{shortcut.label}</span>
-              <span className="text-xs text-gray-500">{shortcut.category}</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{shortcut.label}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">{shortcut.category}</span>
             </button>
           ))}
         </div>
@@ -201,9 +201,9 @@ const DrugSelector: React.FC<DrugSelectorProps> = ({ onDrugSelect }) => {
 
       {searchResults && searchResults.count > 0 && (
         <div className="border border-gray-200 rounded-lg max-h-96 overflow-y-auto">
-          <div className="p-3 bg-gray-50 border-b border-gray-200">
+          <div className="p-3 bg-gray-50 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-medium text-gray-700">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Found {searchResults.count} results for "{searchResults.query}"
               </p>
               <Tooltip
@@ -240,14 +240,14 @@ const DrugSelector: React.FC<DrugSelectorProps> = ({ onDrugSelect }) => {
                           {drug.name}
                         </p>
                         {(drug as any).originBrand && (
-                          <p className="text-[11px] text-gray-600">
+                          <p className="text-[11px] text-gray-600 dark:text-gray-400">
                             {(drug as any).originBrand}{(drug as any).originRegion ? ` (${(drug as any).originRegion})` : ''}
                           </p>
                         )}
                         <div className="flex items-center space-x-2 mt-1">
-                          <p className="text-xs text-gray-500">RXCUI: {drug.rxcui}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">RXCUI: {drug.rxcui}</p>
                           {drug.tty && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:text-gray-200">
                               {drug.tty}
                             </span>
                           )}
@@ -264,7 +264,7 @@ const DrugSelector: React.FC<DrugSelectorProps> = ({ onDrugSelect }) => {
             <div className="p-3 bg-gray-50 border-t border-gray-200 text-center">
               <div className="flex items-center justify-center space-x-2">
                 <Clock className="w-4 h-4 text-gray-400" />
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   Showing first 10 results. Refine your search for more specific results.
                 </p>
               </div>

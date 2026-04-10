@@ -71,7 +71,7 @@ const ForceLogout: React.FC = () => {
         
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-4"></div>
         
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-gray-500 dark:text-gray-400">
           Check browser console for detailed logs
         </p>
       </div>

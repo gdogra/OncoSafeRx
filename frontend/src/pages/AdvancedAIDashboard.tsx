@@ -109,7 +109,7 @@ export default function AdvancedAIDashboard() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600">Loading Advanced AI Dashboard...</p>
+          <p className="text-gray-600 dark:text-gray-400">Loading Advanced AI Dashboard...</p>
         </div>
       </div>
     );
@@ -124,8 +124,8 @@ export default function AdvancedAIDashboard() {
             <div className="flex items-center space-x-3">
               <Brain className="h-8 w-8 text-blue-600" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Advanced AI Platform</h1>
-                <p className="text-gray-600">Enterprise-Grade Clinical Intelligence</p>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Advanced AI Platform</h1>
+                <p className="text-gray-600 dark:text-gray-400">Enterprise-Grade Clinical Intelligence</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -154,7 +154,7 @@ export default function AdvancedAIDashboard() {
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <Target className="h-6 w-6 text-blue-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Treatment Optimization</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Treatment Optimization</h3>
               </div>
               <button
                 onClick={() => startDemo('treatment')}
@@ -166,7 +166,7 @@ export default function AdvancedAIDashboard() {
             </div>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Accuracy</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Accuracy</span>
                 <span className="text-lg font-bold text-green-600">
                   {aiMetrics ? `${(aiMetrics.treatmentOptimizationAccuracy * 100).toFixed(1)}%` : 'Loading...'}
                 </span>
@@ -193,7 +193,7 @@ export default function AdvancedAIDashboard() {
                 <div className="p-2 bg-red-100 rounded-lg">
                   <Shield className="h-6 w-6 text-red-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Adverse Event Prediction</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Adverse Event Prediction</h3>
               </div>
               <button
                 onClick={() => startDemo('adverse')}
@@ -205,7 +205,7 @@ export default function AdvancedAIDashboard() {
             </div>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Accuracy</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Accuracy</span>
                 <span className="text-lg font-bold text-green-600">
                   {aiMetrics ? `${(aiMetrics.adverseEventPredictionAccuracy * 100).toFixed(1)}%` : 'Loading...'}
                 </span>
@@ -232,7 +232,7 @@ export default function AdvancedAIDashboard() {
                 <div className="p-2 bg-purple-100 rounded-lg">
                   <MessageSquare className="h-6 w-6 text-purple-600" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">Clinical Decision Support</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Clinical Decision Support</h3>
               </div>
               <button
                 onClick={() => startDemo('clinical')}
@@ -244,7 +244,7 @@ export default function AdvancedAIDashboard() {
             </div>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Response Quality</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">Response Quality</span>
                 <span className="text-lg font-bold text-green-600">
                   {aiMetrics ? `${(aiMetrics.nlpClinicalAccuracy * 100).toFixed(1)}%` : 'Loading...'}
                 </span>
@@ -268,7 +268,7 @@ export default function AdvancedAIDashboard() {
         {/* Advanced AI Features Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* NLP & Voice Features */}
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
             <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
               <Cpu className="h-6 w-6 text-indigo-600 mr-3" />
               NLP & Voice AI
@@ -277,7 +277,7 @@ export default function AdvancedAIDashboard() {
               <div className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                 <FileText className="h-8 w-8 text-blue-600 mb-2" />
                 <h4 className="font-semibold text-gray-900 mb-1">Clinical Note Analysis</h4>
-                <p className="text-sm text-gray-600">Automated coding & extraction</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Automated coding & extraction</p>
                 <div className="mt-2 text-xs text-green-600 font-medium">
                   91% Accuracy
                 </div>
@@ -285,7 +285,7 @@ export default function AdvancedAIDashboard() {
               <div className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                 <Mic className="h-8 w-8 text-green-600 mb-2" />
                 <h4 className="font-semibold text-gray-900 mb-1">Voice Documentation</h4>
-                <p className="text-sm text-gray-600">Hands-free clinical notes</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Hands-free clinical notes</p>
                 <div className="mt-2 text-xs text-green-600 font-medium">
                   95% Transcription
                 </div>
@@ -294,7 +294,7 @@ export default function AdvancedAIDashboard() {
           </div>
 
           {/* Computer Vision & Imaging */}
-          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+          <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
             <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
               <Image className="h-6 w-6 text-green-600 mr-3" />
               Medical Imaging AI
@@ -303,7 +303,7 @@ export default function AdvancedAIDashboard() {
               <div className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                 <Activity className="h-8 w-8 text-red-600 mb-2" />
                 <h4 className="font-semibold text-gray-900 mb-1">Radiology Analysis</h4>
-                <p className="text-sm text-gray-600">CT, MRI, PET scan interpretation</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">CT, MRI, PET scan interpretation</p>
                 <div className="mt-2 text-xs text-green-600 font-medium">
                   88% Detection Rate
                 </div>
@@ -311,7 +311,7 @@ export default function AdvancedAIDashboard() {
               <div className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                 <Search className="h-8 w-8 text-purple-600 mb-2" />
                 <h4 className="font-semibold text-gray-900 mb-1">Pathology Vision</h4>
-                <p className="text-sm text-gray-600">Histological pattern recognition</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Histological pattern recognition</p>
                 <div className="mt-2 text-xs text-green-600 font-medium">
                   Beta Testing
                 </div>
@@ -330,18 +330,18 @@ export default function AdvancedAIDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
                 <div className="text-3xl font-bold text-blue-600 mb-2">{federatedStatus.networkSize}</div>
-                <div className="text-sm text-gray-600">Hospital Partners</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Hospital Partners</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-green-600 mb-2">{federatedStatus.totalPatients}</div>
-                <div className="text-sm text-gray-600">Anonymized Records</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Anonymized Records</div>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center space-x-2">
                   <Shield className="h-6 w-6 text-green-600" />
                   <span className="text-lg font-semibold text-green-600">HIPAA Compliant</span>
                 </div>
-                <div className="text-sm text-gray-600">Privacy Preserving</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Privacy Preserving</div>
               </div>
             </div>
           </div>
@@ -360,35 +360,35 @@ export default function AdvancedAIDashboard() {
                 <div className="text-2xl font-bold text-blue-600 mb-1">
                   {analyticsData.clinicalImpact?.adverseEventsPreventedEstimate || 'N/A'}
                 </div>
-                <div className="text-sm text-gray-600">Adverse Events Prevented</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Adverse Events Prevented</div>
               </div>
               <div className="text-center p-4 bg-green-50 rounded-lg">
                 <Target className="h-8 w-8 text-green-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-green-600 mb-1">
                   {analyticsData.clinicalImpact?.treatmentOptimizationsApplied || 'N/A'}
                 </div>
-                <div className="text-sm text-gray-600">Treatment Optimizations</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Treatment Optimizations</div>
               </div>
               <div className="text-center p-4 bg-purple-50 rounded-lg">
                 <Clock className="h-8 w-8 text-purple-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-purple-600 mb-1">
                   {analyticsData.clinicalImpact?.physiciansTimesSaved || 'N/A'}
                 </div>
-                <div className="text-sm text-gray-600">Physician Time Saved</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Physician Time Saved</div>
               </div>
               <div className="text-center p-4 bg-orange-50 rounded-lg">
                 <Users className="h-8 w-8 text-orange-600 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-orange-600 mb-1">
                   {analyticsData.clinicalImpact?.patientSatisfactionImprovement || 'N/A'}
                 </div>
-                <div className="text-sm text-gray-600">Patient Satisfaction ↑</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Patient Satisfaction ↑</div>
               </div>
             </div>
           </div>
         )}
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
+        <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
           <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
             <Zap className="h-6 w-6 text-yellow-500 mr-3" />
             Quick AI Actions
@@ -396,29 +396,29 @@ export default function AdvancedAIDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left">
               <BookOpen className="h-6 w-6 text-blue-600 mb-2" />
-              <div className="font-semibold text-gray-900">Generate Treatment Plan</div>
-              <div className="text-sm text-gray-600">AI-powered plan with physician review</div>
+              <div className="font-semibold text-gray-900 dark:text-gray-100">Generate Treatment Plan</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">AI-powered plan with physician review</div>
               <ChevronRight className="h-4 w-4 text-gray-400 mt-2" />
             </button>
             
             <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left">
               <MessageSquare className="h-6 w-6 text-green-600 mb-2" />
-              <div className="font-semibold text-gray-900">Clinical Decision Support</div>
-              <div className="text-sm text-gray-600">Ask the AI assistant</div>
+              <div className="font-semibold text-gray-900 dark:text-gray-100">Clinical Decision Support</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Ask the AI assistant</div>
               <ChevronRight className="h-4 w-4 text-gray-400 mt-2" />
             </button>
             
             <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left">
               <Upload className="h-6 w-6 text-purple-600 mb-2" />
-              <div className="font-semibold text-gray-900">Analyze Medical Image</div>
-              <div className="text-sm text-gray-600">Upload radiology or pathology</div>
+              <div className="font-semibold text-gray-900 dark:text-gray-100">Analyze Medical Image</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Upload radiology or pathology</div>
               <ChevronRight className="h-4 w-4 text-gray-400 mt-2" />
             </button>
             
             <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left">
               <Search className="h-6 w-6 text-red-600 mb-2" />
-              <div className="font-semibold text-gray-900">Literature Search</div>
-              <div className="text-sm text-gray-600">AI-powered medical research</div>
+              <div className="font-semibold text-gray-900 dark:text-gray-100">Literature Search</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">AI-powered medical research</div>
               <ChevronRight className="h-4 w-4 text-gray-400 mt-2" />
             </button>
           </div>

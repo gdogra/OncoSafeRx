@@ -141,7 +141,7 @@ export function OncologistDashboard() {
       case 'declining':
         return <TrendingUp className="h-4 w-4 text-red-600 rotate-180" />;
       default:
-        return <Activity className="h-4 w-4 text-gray-500" />;
+        return <Activity className="h-4 w-4 text-gray-500 dark:text-gray-400" />;
     }
   };
 
@@ -152,7 +152,7 @@ export function OncologistDashboard() {
       case 'semi_urgent':
         return 'bg-yellow-100 text-yellow-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:text-gray-200';
     }
   };
 

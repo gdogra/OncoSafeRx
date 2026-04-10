@@ -1048,7 +1048,7 @@ export class SupabaseAuthService {
       allergies: dbProfile?.allergies || user.user_metadata?.allergies || fallbackData?.allergies,
       preferences: (dbProfile?.preferences && typeof dbProfile.preferences === 'object') ? dbProfile.preferences : (user.user_metadata?.preferences || this.getDefaultPreferences(role)),
       persona: (dbProfile?.persona && typeof dbProfile.persona === 'object') ? dbProfile.persona : (user.user_metadata?.persona || this.createDefaultPersona(role)),
-      createdAt: user.created_at || new Date().toISOString(),
+      createdAt: dbProfile?.created_at || user.created_at || new Date().toISOString(),
       lastLogin: new Date().toISOString(),
       isActive: true,
       roles: [dbProfile?.role || role],

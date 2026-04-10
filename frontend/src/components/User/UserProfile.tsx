@@ -601,7 +601,7 @@ const UserProfile: React.FC = () => {
 
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 First Name
               </label>
               <div className="relative">
@@ -610,14 +610,14 @@ const UserProfile: React.FC = () => {
                   value={isEditing ? editedUser.firstName || '' : user.firstName || ''}
                   onChange={(e) => setEditedUser(prev => ({ ...prev, firstName: e.target.value }))}
                   disabled={!isEditing}
-                  className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                  className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                 />
                 <User className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Last Name
               </label>
               <input
@@ -625,12 +625,12 @@ const UserProfile: React.FC = () => {
                 value={isEditing ? editedUser.lastName || '' : user.lastName || ''}
                 onChange={(e) => setEditedUser(prev => ({ ...prev, lastName: e.target.value }))}
                 disabled={!isEditing}
-                className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Email Address
               </label>
               <div className="relative">
@@ -639,7 +639,7 @@ const UserProfile: React.FC = () => {
                   value={isEditing ? editedUser.email || '' : user.email || ''}
                   onChange={(e) => setEditedUser(prev => ({ ...prev, email: e.target.value }))}
                   disabled={!isEditing}
-                  className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                  className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                 />
                 <Mail className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
               </div>
@@ -648,7 +648,7 @@ const UserProfile: React.FC = () => {
             {!isPatientOrCaregiver && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Professional Role
                   </label>
                   <div className="relative">
@@ -656,7 +656,7 @@ const UserProfile: React.FC = () => {
                       value={isEditing ? editedUser.role || '' : user.role}
                       onChange={(e) => setEditedUser(prev => ({ ...prev, role: e.target.value as any }))}
                       disabled={!isEditing}
-                      className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                      className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                     >
                       <option value="super_admin">Super Administrator</option>
                       <option value="admin">Administrator</option>
@@ -672,14 +672,14 @@ const UserProfile: React.FC = () => {
 
                 {(user.role === 'oncologist' || (isEditing && editedUser.role === 'oncologist')) && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Specialty
                     </label>
                     <select
                       value={isEditing ? editedUser.specialty || '' : user.specialty || ''}
                       onChange={(e) => setEditedUser(prev => ({ ...prev, specialty: e.target.value }))}
                       disabled={!isEditing}
-                      className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                      className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                     >
                       <option value="">Select specialty...</option>
                       {specialtyOptions.map(specialty => (
@@ -692,7 +692,7 @@ const UserProfile: React.FC = () => {
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Institution
                   </label>
                   <div className="relative">
@@ -701,7 +701,7 @@ const UserProfile: React.FC = () => {
                       value={isEditing ? editedUser.institution || '' : user.institution || ''}
                       onChange={(e) => setEditedUser(prev => ({ ...prev, institution: e.target.value }))}
                       disabled={!isEditing}
-                      className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                      className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                     />
                     <Building className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
                   </div>
@@ -712,7 +712,7 @@ const UserProfile: React.FC = () => {
             {(user.role === 'oncologist' || user.role === 'pharmacist' || 
               (isEditing && (editedUser.role === 'oncologist' || editedUser.role === 'pharmacist'))) && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   License Number
                 </label>
                 <div className="relative">
@@ -721,7 +721,7 @@ const UserProfile: React.FC = () => {
                     value={isEditing ? editedUser.licenseNumber || '' : user.licenseNumber || ''}
                     onChange={(e) => setEditedUser(prev => ({ ...prev, licenseNumber: e.target.value }))}
                     disabled={!isEditing}
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                   />
                   <Award className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
                 </div>
@@ -730,7 +730,7 @@ const UserProfile: React.FC = () => {
 
             {!isPatientOrCaregiver && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Years of Experience
                 </label>
                 <div className="relative">
@@ -741,7 +741,7 @@ const UserProfile: React.FC = () => {
                     value={isEditing ? editedUser.yearsExperience || '' : user.yearsExperience || ''}
                     onChange={(e) => setEditedUser(prev => ({ ...prev, yearsExperience: parseInt(e.target.value) || undefined }))}
                     disabled={!isEditing}
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                   />
                   <Calendar className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
                 </div>
@@ -755,7 +755,7 @@ const UserProfile: React.FC = () => {
               {/* Basic Demographics Row 1 */}
               <div className="grid md:grid-cols-3 gap-4 mb-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Age {isPatientOrCaregiver && <span className="text-red-500">*</span>}
                   </label>
                   <input
@@ -765,20 +765,20 @@ const UserProfile: React.FC = () => {
                     value={isEditing ? editedUser.age || '' : user.age || ''}
                     onChange={(e) => setEditedUser(prev => ({ ...prev, age: parseInt(e.target.value) || undefined }))}
                     disabled={!isEditing}
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                     placeholder="Enter age"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Sex {isPatientOrCaregiver && <span className="text-red-500">*</span>}
                   </label>
                   <select
                     value={isEditing ? editedUser.sex || '' : user.sex || ''}
                     onChange={(e) => setEditedUser(prev => ({ ...prev, sex: e.target.value as any }))}
                     disabled={!isEditing}
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                   >
                     <option value="">Select...</option>
                     <option value="male">Male</option>
@@ -789,7 +789,7 @@ const UserProfile: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Date of Birth
                   </label>
                   <input
@@ -797,7 +797,7 @@ const UserProfile: React.FC = () => {
                     value={isEditing ? editedUser.dateOfBirth || '' : user.dateOfBirth || ''}
                     onChange={(e) => setEditedUser(prev => ({ ...prev, dateOfBirth: e.target.value }))}
                     disabled={!isEditing}
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                   />
                 </div>
               </div>
@@ -856,7 +856,7 @@ const UserProfile: React.FC = () => {
                         }
                       }}
                       disabled={!isEditing}
-                      className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                      className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                       placeholder="Enter cm or e.g., 5' 10&quot;"
                     />
                   ) : (
@@ -884,7 +884,7 @@ const UserProfile: React.FC = () => {
                           setEditedUser(prev => ({ ...prev, height: cm }));
                         }}
                         disabled={!isEditing}
-                        className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                        className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                         placeholder="ft"
                       />
                       <input
@@ -910,7 +910,7 @@ const UserProfile: React.FC = () => {
                           setEditedUser(prev => ({ ...prev, height: cm }));
                         }}
                         disabled={!isEditing}
-                        className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                        className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                         placeholder="in"
                       />
                     </div>
@@ -970,13 +970,13 @@ const UserProfile: React.FC = () => {
                       setEditedUser(prev => ({ ...prev, weight: kg || undefined }));
                     }}
                     disabled={!isEditing}
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                     placeholder={`Enter weight in ${weightUnit}`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     BMI
                     <span className="text-xs text-gray-500 ml-1">(calculated)</span>
                   </label>
@@ -1001,14 +1001,14 @@ const UserProfile: React.FC = () => {
               {/* Additional Demographics Row 3 */}
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Ethnicity
                   </label>
                   <select
                     value={isEditing ? editedUser.ethnicity || '' : user.ethnicity || ''}
                     onChange={(e) => setEditedUser(prev => ({ ...prev, ethnicity: e.target.value }))}
                     disabled={!isEditing}
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                   >
                     <option value="">Select...</option>
                     <option value="asian">Asian</option>
@@ -1024,7 +1024,7 @@ const UserProfile: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Primary Language
                   </label>
                   <input
@@ -1032,13 +1032,13 @@ const UserProfile: React.FC = () => {
                     value={isEditing ? editedUser.primaryLanguage || '' : user.primaryLanguage || ''}
                     onChange={(e) => setEditedUser(prev => ({ ...prev, primaryLanguage: e.target.value }))}
                     disabled={!isEditing}
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                     placeholder="e.g., English, Spanish"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Emergency Contact
                   </label>
                   <input
@@ -1046,7 +1046,7 @@ const UserProfile: React.FC = () => {
                     value={isEditing ? editedUser.emergencyContact || '' : user.emergencyContact || ''}
                     onChange={(e) => setEditedUser(prev => ({ ...prev, emergencyContact: e.target.value }))}
                     disabled={!isEditing}
-                    className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50"
+                    className="block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 dark:disabled:bg-gray-700"
                     placeholder="Name and phone number"
                   />
                 </div>
@@ -1302,7 +1302,7 @@ const UserProfile: React.FC = () => {
                 </h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Default View
                     </label>
                     <select
@@ -1465,7 +1465,7 @@ const UserProfile: React.FC = () => {
               <h3 className="text-md font-medium text-gray-900 mb-4">Change Password</h3>
               <div className="max-w-md space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Current Password
                   </label>
                   <div className="relative">
@@ -1486,7 +1486,7 @@ const UserProfile: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     New Password
                   </label>
                   <div className="relative">
@@ -1507,7 +1507,7 @@ const UserProfile: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Confirm New Password
                   </label>
                   <div className="relative">
@@ -1537,19 +1537,19 @@ const UserProfile: React.FC = () => {
               </div>
             </div>
 
-            <div className="border-t pt-6">
-              <h3 className="text-md font-medium text-gray-900 mb-4">Account Information</h3>
-              <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
+              <h3 className="text-md font-medium text-gray-900 dark:text-white mb-4">Account Information</h3>
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="font-medium text-gray-700">Account Created:</span>
-                    <div className="text-gray-600">
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Account Created:</span>
+                    <div className="text-gray-600 dark:text-gray-400">
                       {new Date(user.createdAt).toLocaleDateString()}
                     </div>
                   </div>
                   <div>
-                    <span className="font-medium text-gray-700">Last Login:</span>
-                    <div className="text-gray-600">
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Last Login:</span>
+                    <div className="text-gray-600 dark:text-gray-400">
                       {new Date(user.lastLogin).toLocaleDateString()}
                     </div>
                   </div>

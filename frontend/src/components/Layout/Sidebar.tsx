@@ -325,12 +325,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student'],
             requiresPermission: null
           },
-          { 
-            path: '/trials', 
-            label: 'Clinical Trials', 
-            icon: TestTube, 
+          {
+            path: '/trials',
+            label: 'Clinical Trials',
+            icon: TestTube,
             description: 'Find relevant trials',
             roles: ['oncologist', 'pharmacist', 'nurse', 'researcher', 'student', 'patient', 'caregiver'],
+            requiresPermission: null
+          },
+          {
+            path: '/precision-medicine',
+            label: 'Precision Medicine',
+            icon: Target,
+            description: 'Biomarker matching & regimen safety',
+            roles: ['oncologist', 'pharmacist', 'researcher', 'student'],
             requiresPermission: null
           },
         ]

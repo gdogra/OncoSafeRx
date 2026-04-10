@@ -2,7 +2,8 @@ import React from 'react';
 import { InteractionCheckResult, DrugInteraction } from '../../types';
 import Card from '../UI/Card';
 import Alert from '../UI/Alert';
-import { AlertTriangle, Info, Database, Globe, MapPinned } from 'lucide-react';
+import { AlertTriangle, Info, Database, Globe, MapPinned, ExternalLink } from 'lucide-react';
+import AdverseEventProfile from '../FAERS/AdverseEventProfile';
 import { useNavigate } from 'react-router-dom';
 import { inferBiomarkerForDrug } from '../../utils/biomarkers';
 import Tooltip from '../UI/Tooltip';
@@ -215,6 +216,37 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
               </div>
             </div>
           )}
+
+          {/* PMID Citations */}
+          {interaction.pmids && (interaction.pmids as string[]).filter(Boolean).length > 0 && (
+            <div>
+              <h4 className="font-medium text-gray-900 mb-2">Evidence Citations</h4>
+              <div className="flex flex-wrap gap-2">
+                {(interaction.pmids as string[]).filter(Boolean).map((pmid: string) => (
+                  <a
+                    key={pmid}
+                    href={`https://pubmed.ncbi.nlm.nih.gov/${pmid}/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+                  >
+                    PMID:{pmid}
+                    <ExternalLink className="w-2.5 h-2.5" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* FAERS Safety Data for both drugs */}
+          <div className="space-y-2">
+            {interaction.drug1?.name && (
+              <AdverseEventProfile drugName={interaction.drug1.name} />
+            )}
+            {interaction.drug2?.name && (
+              <AdverseEventProfile drugName={interaction.drug2.name} />
+            )}
+          </div>
 
           {/* Quick Trials link */}
           <div>

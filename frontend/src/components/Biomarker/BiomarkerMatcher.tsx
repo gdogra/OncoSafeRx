@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
-import { Dna, Target, Shield, Search, ChevronRight, ExternalLink, Pill } from 'lucide-react';
+import { Dna, Target, Shield, Search, ChevronRight, ExternalLink, Pill, FlaskConical } from 'lucide-react';
 import api from '../../services/api';
+
+interface MatchedTrial {
+  nctId: string;
+  title: string;
+  phase: string;
+  status: string;
+  leadOrg: string;
+  nciUrl: string;
+  ctGovUrl: string;
+}
 
 interface Therapy {
   drug: string;
@@ -49,6 +59,7 @@ export default function BiomarkerMatcher() {
   const [selectedBiomarkers, setSelectedBiomarkers] = useState<string[]>([]);
   const [medications, setMedications] = useState('');
   const [results, setResults] = useState<MatchResults | null>(null);
+  const [matchedTrials, setMatchedTrials] = useState<MatchedTrial[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -71,6 +82,14 @@ export default function BiomarkerMatcher() {
         medications: medications.split(',').map(m => m.trim()).filter(Boolean),
       });
       setResults(res.data?.data || null);
+
+      // Also search NCI trials for the first biomarker
+      try {
+        const trialRes = await api.get(`/nci-trials/biomarker/${encodeURIComponent(selectedBiomarkers[0])}?limit=5`);
+        setMatchedTrials(trialRes.data?.data?.trials || []);
+      } catch {
+        setMatchedTrials([]);
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || err.message || 'Failed to match');
     } finally {
@@ -256,6 +275,48 @@ export default function BiomarkerMatcher() {
                         )}
                       </div>
                     ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Matched Clinical Trials */}
+          {matchedTrials.length > 0 && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="px-4 py-3 bg-emerald-50 dark:bg-emerald-900/20 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                <FlaskConical className="h-4 w-4 text-emerald-600" />
+                <span className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
+                  Biomarker-Matched Clinical Trials ({matchedTrials.length})
+                </span>
+              </div>
+              <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                {matchedTrials.map((trial, i) => (
+                  <div key={i} className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white leading-snug">
+                          {trial.title}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1.5">
+                          <span className="text-xs bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-1.5 py-0.5 rounded">
+                            Phase {trial.phase}
+                          </span>
+                          <span className="text-xs text-gray-500">{trial.status}</span>
+                          {trial.leadOrg && <span className="text-xs text-gray-400">• {trial.leadOrg}</span>}
+                        </div>
+                      </div>
+                      <div className="flex gap-1.5 shrink-0">
+                        <a
+                          href={trial.ctGovUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded hover:bg-blue-100 transition-colors"
+                        >
+                          {trial.nctId} <ExternalLink className="h-2.5 w-2.5" />
+                        </a>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

@@ -5,6 +5,7 @@ import { hasPermission, getRoleConfig } from '../utils/roleConfig';
 import Card from '../components/UI/Card';
 import Tooltip from '../components/UI/Tooltip';
 import ScientificDashboard from './ScientificDashboard';
+import OncologistOnboarding from '../components/Onboarding/OncologistOnboarding';
 import AdminHome from './AdminHome';
 import { Navigate } from 'react-router-dom';
 import { Activity, Search, AlertTriangle, Dna, FileText, Users, TrendingUp, Shield, Brain, Target, Calendar, DollarSign, Zap, Heart, FlaskConical, Database, ShieldAlert, BookOpen, Stethoscope, MessageSquare } from 'lucide-react';
@@ -365,11 +366,16 @@ const Dashboard: React.FC = () => {
 
   const headerText = getHeaderText();
 
+  // Show onboarding for oncologists/pharmacists who haven't dismissed it
+  const showOnboarding = !localStorage.getItem('oncosaferx_onboarding_dismissed') &&
+    ['oncologist', 'pharmacist', 'researcher', 'admin'].includes(userRole || '');
+
   return (
     <div className="space-y-8">
-      
-      {/* Debug banner removed */}
-      
+
+      {/* Onboarding tour for new oncologists */}
+      {showOnboarding && <OncologistOnboarding />}
+
       {/* Header */}
       <div className="text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">

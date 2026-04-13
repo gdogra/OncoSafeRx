@@ -96,7 +96,7 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
       try {
         // Try Netlify proxy first
         let response = await fetch(`/api/drugs/suggestions?q=${encodeURIComponent(query)}&limit=${maxSuggestions}`).catch(() => null) as Response | null;
-        if (!response || !response.ok) response = await rxnormFetchSuggestions(query, parseInt(String(${maxSuggestions})) || 12);
+        if (!response || !response.ok) response = await rxnormFetchSuggestions(query, maxSuggestions || 12);
         
         // If 502 Bad Gateway, API is temporarily unavailable
         if (response.status === 502) {

@@ -9,10 +9,16 @@ const getApiUrl = () => {
   if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
     return 'http://localhost:3000/api';
   }
-  return '/api'; // Will 404 in production without backend — handled gracefully
+  return ''; // Empty = no backend available, use client-side fallbacks
 };
 
 const API_BASE_URL = getApiUrl();
+
+/**
+ * True when no backend API is configured (frontend-only deployment on Netlify).
+ * When true, all services skip API calls and go straight to client-side fallbacks.
+ */
+export const IS_FRONTEND_ONLY = !API_BASE_URL || API_BASE_URL === '/api' && typeof window !== 'undefined' && !['localhost', '127.0.0.1'].includes(window.location?.hostname);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -42,11 +48,14 @@ api.interceptors.response.use(
 // Drug services
 export const drugService = {
   searchDrugs: async (query: string) => {
-    // Try backend first, then fall back to RxNorm direct
-    try {
-      const response = await api.get(`/drugs/search?q=${encodeURIComponent(query)}`);
-      return response.data;
-    } catch {
+    // Skip backend in frontend-only mode
+    if (!IS_FRONTEND_ONLY) {
+      try {
+        const response = await api.get(`/drugs/search?q=${encodeURIComponent(query)}`);
+        return response.data;
+      } catch { /* fall through to RxNorm */ }
+    }
+    {
       // Backend unavailable — call RxNorm directly (free, CORS-enabled)
       try {
         const rxRes = await fetch(
@@ -180,99 +189,75 @@ export const drugService = {
 // Interaction services
 export const interactionService = {
   getKnownInteractions: async (params: Record<string, string | number | boolean> = {}) => {
+    // ── Client-side fallback function ──
+    const useFallbackData = async () => {
+      const { FALLBACK_INTERACTIONS } = await import('../data/fallbackInteractions');
+      let results = [...FALLBACK_INTERACTIONS];
+      const { drug, drugA, drugB, severity } = params;
+
+      if (drug && typeof drug === 'string') {
+        const term = drug.toLowerCase();
+        results = results.filter(k => k.drugs.some(d => d.toLowerCase().includes(term)));
+      }
+      if (drugA && drugB && typeof drugA === 'string' && typeof drugB === 'string') {
+        const a = drugA.toLowerCase();
+        const b = drugB.toLowerCase();
+        results = results.filter(k => {
+          const names = k.drugs.map(d => d.toLowerCase());
+          return (names.some(n => n.includes(a)) && names.some(n => n.includes(b)));
+        });
+      }
+      if (severity && typeof severity === 'string') {
+        const sev = severity.toLowerCase();
+        results = results.filter(k => (k.severity || '').toLowerCase() === sev);
+      }
+
+      const enriched = results.map(k => ({
+        ...k,
+        drug_rxnorm: k.drugs.map(name => ({ name, rxcui: null }))
+      }));
+
+      return {
+        count: enriched.length,
+        total: enriched.length,
+        interactions: enriched,
+        message: 'Using curated interaction database (client-side)',
+        fallback: true
+      };
+    };
+
+    // ── Skip API calls entirely in frontend-only mode ──
+    if (IS_FRONTEND_ONLY) {
+      return useFallbackData();
+    }
+
     const maxRetries = 2;
     let lastError: any = null;
-    
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         const search = new URLSearchParams();
         for (const [k,v] of Object.entries(params)) {
           if (v !== undefined && v !== null && v !== '') search.append(k, String(v));
         }
-        
-        console.log(`API call attempt ${attempt}/${maxRetries}: /interactions/known?${search.toString()}`);
+
         const response = await api.get(`/interactions/known?${search.toString()}`);
-        
-        // Use API data directly - fallback logic removed to prevent count inconsistencies
-        const apiData = response.data;
-        
-        // Log if we get unexpected low counts for debugging
-        if (apiData && apiData.total && apiData.total < 50) {
-          console.warn(`Low interaction count received: ${apiData.total}. This may indicate an API issue.`);
-        }
-        
-        console.log(`API call succeeded on attempt ${attempt}, returning ${apiData.total} interactions`);
-        return apiData;
-        
+        return response.data;
+
       } catch (error: any) {
-        console.error(`API call attempt ${attempt} failed:`, error.message);
         lastError = error;
-        
         if (attempt < maxRetries) {
-          console.log(`Retrying in ${attempt * 1000}ms...`);
           await new Promise(resolve => setTimeout(resolve, attempt * 1000));
         }
       }
     }
-    
-    // All attempts failed
-    console.error('All API attempts failed. Final error:', lastError);
-    console.error('Error details:', {
-      message: lastError?.message,
-      status: lastError?.response?.status,
-      statusText: lastError?.response?.statusText,
-      data: lastError?.response?.data,
-      url: lastError?.config?.url,
-      method: lastError?.config?.method,
-      code: lastError?.code
-    });
-    
-    // If timeout error, provide temporary fallback to prevent user frustration
-    if (lastError?.code === 'ECONNABORTED' && lastError?.message?.includes('timeout')) {
-      console.warn('API timeout detected, providing temporary fallback data');
-      
-      // Import fallback data temporarily for timeout scenarios
-      try {
-        const { FALLBACK_INTERACTIONS } = await import('../data/fallbackInteractions');
-        
-        // Apply basic filtering
-        let results = FALLBACK_INTERACTIONS;
-        const { drug, drugA, drugB, severity } = params;
-        
-        if (drug && typeof drug === 'string') {
-          const term = drug.toLowerCase();
-          results = results.filter(k => k.drugs.some(d => d.toLowerCase().includes(term)));
-        }
-        
-        if (drugA && drugB && typeof drugA === 'string' && typeof drugB === 'string') {
-          const a = drugA.toLowerCase();
-          const b = drugB.toLowerCase();
-          results = results.filter(k => {
-            const names = k.drugs.map(d => d.toLowerCase());
-            return (names.some(n => n.includes(a)) && names.some(n => n.includes(b)));
-          });
-        }
-        
-        if (severity && typeof severity === 'string') {
-          const sev = severity.toLowerCase();
-          results = results.filter(k => (k.severity || '').toLowerCase() === sev);
-        }
-        
-        const enriched = results.map(k => ({
-          ...k,
-          drug_rxnorm: k.drugs.map(name => ({ name, rxcui: null }))
-        }));
-        
-        return {
-          count: enriched.length,
-          total: enriched.length,
-          interactions: enriched,
-          message: 'API temporarily unavailable - showing cached data. Please refresh to try again.',
-          fallback: true
-        };
-      } catch (fallbackError) {
-        console.error('Fallback data import failed:', fallbackError);
-      }
+
+    // All API attempts failed — use fallback
+    console.warn('API unavailable, using client-side interaction data');
+    try {
+      return await useFallbackData();
+    } catch (fallbackError) {
+      console.error('Fallback data import failed:', fallbackError);
     }
     
     // Return empty result for other errors
@@ -290,8 +275,9 @@ export const interactionService = {
       // Backend expects an array of RXCUI strings
       const rxcuis = (drugs || []).map(d => String(d.rxcui)).filter(Boolean);
       
-      // Fast-path: if we know no endpoints work in this environment, return curated fallback immediately
-      if (interactionsRouteState === 'none') {
+      // Fast-path: skip API calls in frontend-only mode or if we know no endpoints work
+      if (IS_FRONTEND_ONLY || interactionsRouteState === 'none') {
+        interactionsRouteState = 'none';
         return await interactionService.getKnownInteractions({});
       }
 

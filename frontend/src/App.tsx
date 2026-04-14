@@ -133,6 +133,11 @@ function AppWithAuth() {
                     <Layout><CuratedInteractions /></Layout>
                   </ProtectedRoute>
                 } />
+                <Route path="/curated" element={
+                  <ProtectedRoute>
+                    <Layout><CuratedInteractions /></Layout>
+                  </ProtectedRoute>
+                } />
                 <Route path="/precision-medicine" element={
                   <ProtectedRoute>
                     <Layout><PrecisionMedicine /></Layout>

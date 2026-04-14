@@ -123,7 +123,7 @@ const LoginWizard: React.FC = () => {
     const welcome: Step = { id: 'welcome', title: 'Welcome to OncoSafeRx', description: 'A quick tour to help you get the most out of your tools.' };
     const search: Step = { id: 'search', title: 'Drug Search', description: 'Find drug details, indications, and safety insights.', cta: { label: 'Open Drug Search', to: '/search' }, icon: <Search className="w-6 h-6 text-primary-600" /> };
     const interactions: Step = { id: 'interactions', title: 'Interactions', description: 'Check interactions across multiple medications with severity and management guidance.', cta: { label: 'Open Interactions', to: '/interactions' }, icon: <ShieldAlert className="w-6 h-6 text-red-600" /> };
-    const curated: Step = { id: 'curated', title: 'Curated Pairs', description: 'Explore clinically curated interaction pairs and evidence.', cta: { label: 'View Curated', to: '/curated' }, icon: <Beaker className="w-6 h-6 text-emerald-600" /> };
+    const curated: Step = { id: 'curated', title: 'Curated Pairs', description: 'Explore clinically curated interaction pairs and evidence.', cta: { label: 'View Curated', to: '/curated-interactions' }, icon: <Beaker className="w-6 h-6 text-emerald-600" /> };
     const trials: Step = { id: 'trials', title: 'Clinical Trials', description: 'Discover trials relevant to your patients and biomarkers.', cta: { label: 'Browse Trials', to: '/trials' }, icon: <Beaker className="w-6 h-6 text-violet-600" /> };
 
     const patientSteps: Step[] = [
@@ -203,7 +203,7 @@ const LoginWizard: React.FC = () => {
     
     // Interactions
     '/interactions': { title: 'Interaction Checker', description: 'Check multi-drug interactions and management guidance.' },
-    '/curated': { title: 'Curated Pairs', description: 'Clinically curated interaction pairs and evidence.' },
+    '/curated-interactions': { title: 'Curated Pairs', description: 'Clinically curated interaction pairs and evidence.' },
     '/interaction-matrix': { title: 'Interaction Matrix', description: 'Visual matrix view of drug-drug interactions.' },
     
     // Patient Management

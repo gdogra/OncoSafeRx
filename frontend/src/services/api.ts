@@ -99,90 +99,62 @@ export const drugService = {
   },
 
   getDrugDetails: async (rxcui: string) => {
-    try {
-      const response = await api.get(`/drugs/${rxcui}`);
-      return response.data;
-    } catch (error: any) {
-      // Handle 502 Bad Gateway errors from Netlify proxy
-      if (error.response?.status === 502) {
-        console.warn(`502 Bad Gateway for drug details: ${rxcui}, API temporarily unavailable`);
-        return { 
-          error: 'Drug details service is temporarily experiencing connectivity issues',
-          rxcui,
-          fallback: true
-        };
-      }
-      if (error.response?.status === 404) {
-        console.warn(`Drug details API not available for rxcui: ${rxcui}`);
-        return { 
-          error: 'Drug not found or service temporarily unavailable',
-          message: `No details available for drug ID: ${rxcui}`,
-          rxcui,
-          fallback: true
-        };
-      }
-      // Handle other errors gracefully
-      console.warn(`Error fetching drug details for ${rxcui}:`, error.message);
-      return { 
-        error: 'Unable to retrieve drug details at this time',
-        message: `Please try again later. Drug ID: ${rxcui}`,
-        rxcui,
-        fallback: true
-      };
+    if (!IS_FRONTEND_ONLY) {
+      try {
+        const response = await api.get(`/drugs/${rxcui}`);
+        return response.data;
+      } catch { /* fall through */ }
     }
+    // Fallback: get basic info from RxNorm directly
+    try {
+      const res = await fetch(`https://rxnav.nlm.nih.gov/REST/rxcui/${rxcui}/properties.json`);
+      if (res.ok) {
+        const data = await res.json();
+        const props = data?.properties;
+        return { rxcui, name: props?.name || rxcui, tty: props?.tty, synonym: props?.synonym, fallback: true };
+      }
+    } catch { /* ignore */ }
+    return { rxcui, error: 'Drug details unavailable', fallback: true };
   },
 
   getDrugInteractions: async (rxcui: string) => {
+    if (!IS_FRONTEND_ONLY) {
+      try {
+        const response = await api.get(`/interactions/known?drug=${encodeURIComponent(rxcui)}`);
+        return response.data;
+      } catch { /* fall through */ }
+    }
+    // Client-side: search curated data by drug name
     try {
-      // Use the known interactions endpoint to get interactions for this specific drug
-      const response = await api.get(`/interactions/known?drug=${encodeURIComponent(rxcui)}`);
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        console.warn(`Drug interactions API not available for rxcui: ${rxcui}`);
-        return { interactions: [], message: 'Drug interactions service is currently unavailable' };
-      }
-      throw error;
+      const { FALLBACK_INTERACTIONS } = await import('../data/fallbackInteractions');
+      const matches = FALLBACK_INTERACTIONS.filter(k =>
+        k.drugs.some(d => d.toLowerCase().includes(rxcui.toLowerCase()))
+      );
+      return { interactions: matches, total: matches.length, fallback: true };
+    } catch {
+      return { interactions: [], message: 'Interaction data unavailable', fallback: true };
     }
   },
 
-  searchLabels: async (query: string) => {
-    try {
-      const response = await api.get(`/drugs/labels/search?q=${encodeURIComponent(query)}`);
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        console.warn(`Drug labels search API not available for query: ${query}`);
-        return { results: [], message: 'Drug labels service is currently unavailable' };
-      }
-      throw error;
+  searchLabels: async (_query: string) => {
+    if (!IS_FRONTEND_ONLY) {
+      try { return (await api.get(`/drugs/labels/search?q=${encodeURIComponent(_query)}`)).data; } catch { /* fall through */ }
     }
+    return { results: [], message: 'Drug labels available via FDA DailyMed', fallback: true };
   },
 
-  searchBrandAliases: async (query: string) => {
-    try {
-      const response = await api.get(`/drugs/brand-aliases/search?q=${encodeURIComponent(query)}`);
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        console.warn(`Brand aliases search API not available for query: ${query}`);
-        return { results: [], message: 'Brand aliases service is currently unavailable' };
-      }
-      throw error;
+  searchBrandAliases: async (_query: string) => {
+    if (!IS_FRONTEND_ONLY) {
+      try { return (await api.get(`/drugs/brand-aliases/search?q=${encodeURIComponent(_query)}`)).data; } catch { /* fall through */ }
     }
+    return { results: [], message: 'Brand alias search unavailable in offline mode', fallback: true };
   },
 
-  getLabelDetails: async (setId: string) => {
-    try {
-      const response = await api.get(`/drugs/labels/${setId}`);
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        console.warn(`Drug label details API not available for setId: ${setId}`);
-        return { error: 'Drug label details service is currently unavailable' };
-      }
-      throw error;
+  getLabelDetails: async (_setId: string) => {
+    if (!IS_FRONTEND_ONLY) {
+      try { return (await api.get(`/drugs/labels/${_setId}`)).data; } catch { /* fall through */ }
     }
+    return { error: 'Drug label details available via FDA DailyMed', fallback: true };
   }
 };
 
@@ -329,51 +301,56 @@ export const interactionService = {
         data.interactions.external = (data.interactions.external || []).map((i: any) => ({ ...i, severity: normalize(i.severity) }));
       }
       return data;
-    } catch (error: any) {
-      // Quietly fallback on 404/400/502
-      if (error.response?.status === 404 || error.response?.status === 400 || error.response?.status === 502) {
-        // Fallback to curated known interactions by drug name pairs
-        try {
-          const pairs: Array<{ a: string; b: string }> = [];
-          for (let i = 0; i < drugs.length; i++) {
-            for (let j = i + 1; j < drugs.length; j++) {
-              const a = drugs[i].name;
-              const b = drugs[j].name;
-              if (a && b) pairs.push({ a, b });
-            }
+    } catch {
+      // Fallback: use curated client-side data + RxNorm API
+      try {
+        const { FALLBACK_INTERACTIONS } = await import('../data/fallbackInteractions');
+        const drugNames = drugs.map(d => d.name?.toLowerCase()).filter(Boolean);
+        const collected: any[] = [];
+
+        // Check all pairs against curated data
+        for (let i = 0; i < drugNames.length; i++) {
+          for (let j = i + 1; j < drugNames.length; j++) {
+            const a = drugNames[i], b = drugNames[j];
+            const matches = FALLBACK_INTERACTIONS.filter(k => {
+              const names = k.drugs.map(d => d.toLowerCase());
+              return (names.some(n => n.includes(a)) && names.some(n => n.includes(b)))
+                || (names.some(n => n.includes(b)) && names.some(n => n.includes(a)));
+            });
+            collected.push(...matches);
           }
-          const collected: any[] = [];
-          for (const p of pairs) {
-            const sp = new URLSearchParams();
-            sp.append('drugA', p.a);
-            sp.append('drugB', p.b);
-            sp.append('resolveRx', 'true');
-            const knownResp = await api.get(`/interactions/known?${sp.toString()}`);
-            const known = knownResp.data;
-            if (Array.isArray(known?.interactions) && known.interactions.length > 0) {
-              collected.push(
-                ...known.interactions.map((it: any) => ({
-                  ...it,
-                  severity: (it.severity || '').toLowerCase() === 'high' ? 'major' : (it.severity || '').toLowerCase() === 'low' ? 'minor' : (it.severity || 'unknown'),
-                }))
-              );
-            }
-          }
-          return {
-            interactions: { stored: collected, external: [] },
-            sources: { stored: collected.length, external: 0 },
-            summary: {
-              totalInteractions: collected.length,
-              majorCount: collected.filter(i => i.severity === 'major').length,
-              moderateCount: collected.filter(i => i.severity === 'moderate').length,
-              minorCount: collected.filter(i => i.severity === 'minor').length,
-            },
-          };
-        } catch (e) {
-          console.warn('Curated fallback failed:', (e as any)?.message || e);
         }
+
+        // Also try RxNorm interaction API for additional coverage
+        try {
+          const rxcuis = drugs.map(d => d.rxcui).filter(Boolean);
+          if (rxcuis.length >= 2) {
+            const { checkRxNormInteractions } = await import('./rxnormInteractions');
+            const rxnormResults = await checkRxNormInteractions(rxcuis);
+            // Add RxNorm results that aren't already in curated data
+            for (const rx of rxnormResults) {
+              const isDuplicate = collected.some(c =>
+                c.drugs.some((d: string) => rx.drugs.some(rd => rd.toLowerCase().includes(d.toLowerCase())))
+              );
+              if (!isDuplicate) collected.push(rx);
+            }
+          }
+        } catch { /* RxNorm enrichment is optional */ }
+
+        return {
+          interactions: { stored: collected, external: [] },
+          sources: { stored: collected.length, external: 0 },
+          summary: {
+            totalInteractions: collected.length,
+            majorCount: collected.filter(i => (i.severity || '').toLowerCase() === 'major').length,
+            moderateCount: collected.filter(i => (i.severity || '').toLowerCase() === 'moderate').length,
+            minorCount: collected.filter(i => (i.severity || '').toLowerCase() === 'minor').length,
+          },
+          fallback: true,
+        };
+      } catch (e) {
+        console.warn('Curated fallback failed:', (e as any)?.message || e);
       }
-      // Final fallback: empty results with message
       return {
         interactions: { stored: [], external: [] },
         summary: { totalInteractions: 0, majorCount: 0, moderateCount: 0, minorCount: 0 },
@@ -411,54 +388,48 @@ export const overrideService = {
     reason: string;
     action: 'override' | 'accept';
   }) => {
+    if (IS_FRONTEND_ONLY) {
+      // Store overrides in localStorage when no backend
+      const overrides = JSON.parse(localStorage.getItem('oncosaferx_overrides') || '[]');
+      overrides.push({ ...payload, timestamp: new Date().toISOString() });
+      localStorage.setItem('oncosaferx_overrides', JSON.stringify(overrides.slice(-100)));
+      return { success: true, stored: 'local' };
+    }
     const response = await api.post('/overrides', payload);
     return response.data;
   }
 };
 
-// Genomics services
+// Genomics services — use client-side CPIC data when no backend
 export const genomicsService = {
   getCpicGuidelines: async (gene?: string, drug?: string) => {
+    if (!IS_FRONTEND_ONLY) {
+      try { return (await api.get(`/genomics/cpic/guidelines?${new URLSearchParams({ ...(gene ? {gene} : {}), ...(drug ? {drug} : {}) })}`)).data; } catch { /* fall through */ }
+    }
+    // Client-side CPIC data
     try {
-      const params = new URLSearchParams();
-      if (gene) params.append('gene', gene);
-      if (drug) params.append('drug', drug);
-      
-      const response = await api.get(`/genomics/cpic/guidelines?${params.toString()}`);
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        console.warn('CPIC guidelines API not available');
-        return { guidelines: [], message: 'Genomics service is currently unavailable' };
-      }
-      throw error;
+      const { CPIC_GUIDELINES_EXPANDED } = await import('../data/cpicGuidelinesExpanded') as any;
+      let guidelines = CPIC_GUIDELINES_EXPANDED || [];
+      if (gene) guidelines = guidelines.filter((g: any) => g.gene_symbol?.toLowerCase() === gene.toLowerCase());
+      if (drug) guidelines = guidelines.filter((g: any) => g.drug?.generic_name?.toLowerCase().includes(drug.toLowerCase()));
+      return { guidelines, total: guidelines.length, fallback: true };
+    } catch {
+      return { guidelines: [], message: 'CPIC data unavailable', fallback: true };
     }
   },
 
   getDrugGenomics: async (rxcui: string) => {
-    try {
-      const response = await api.get(`/genomics/drug/${rxcui}/genomics`);
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        console.warn(`Drug genomics API not available for rxcui: ${rxcui}`);
-        return { genomics: [], message: 'Drug genomics service is currently unavailable' };
-      }
-      throw error;
+    if (!IS_FRONTEND_ONLY) {
+      try { return (await api.get(`/genomics/drug/${rxcui}/genomics`)).data; } catch { /* fall through */ }
     }
+    return { genomics: [], message: 'Use the PGx Dosing Calculator for genomic recommendations', fallback: true };
   },
 
   checkGenomicProfile: async (genes: string[], drugs: string[]) => {
-    try {
-      const response = await api.post('/genomics/profile/check', { genes, drugs });
-      return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        console.warn('Genomic profile check API not available');
-        return { profile: [], message: 'Genomic profile service is currently unavailable' };
-      }
-      throw error;
+    if (!IS_FRONTEND_ONLY) {
+      try { return (await api.post('/genomics/profile/check', { genes, drugs })).data; } catch { /* fall through */ }
     }
+    return { profile: [], message: 'Use the PGx Dosing Calculator for profile-based recommendations', fallback: true };
   }
 };
 

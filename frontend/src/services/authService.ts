@@ -891,9 +891,10 @@ export class SupabaseAuthService {
       // Resolve role with clear priority: metadata -> backend profile -> DB -> fallback -> patient
       role = user.user_metadata?.role || fallbackData?.role;
       
-      // Try backend profile (if backend is available). Silent failure — falls back to Supabase direct.
+      // Try backend profile (if backend is available). Skip entirely in frontend-only mode.
+      const isFrontendOnly = !((import.meta as any)?.env?.VITE_API_URL as string)?.trim();
       try {
-        const resp = await authedFetch('/api/supabase-auth/profile').catch(() => null);
+        const resp = isFrontendOnly ? null : await authedFetch('/api/supabase-auth/profile').catch(() => null);
         if (resp && resp.ok) {
           const body = await resp.json().catch(() => ({} as any));
           const u = body?.user;
@@ -1073,7 +1074,7 @@ export class SupabaseAuthService {
         medicalConditions: meta.medical_conditions,
       };
       const metaHasDemo = Object.values(metaDemo).some(v => v !== undefined && v !== null && v !== '');
-      if (!dbHasDemo && metaHasDemo) {
+      if (!dbHasDemo && metaHasDemo && !isFrontendOnly) {
         // Non-blocking; let backend upsert user_demographics
         authedFetch('/api/supabase-auth/profile', {
           method: 'PUT',
@@ -1303,12 +1304,18 @@ export class SupabaseAuthService {
       } else {
         console.warn('⚠️ No auth tokens found, attempting server update without Authorization')
       }
-      console.log('🔧 Making fetch request to /api/supabase-auth/profile...');
-      response = await fetch('/api/supabase-auth/profile', {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(updates)
-      })
+      // Skip backend profile update in frontend-only mode
+      const _isFrontendOnly = !((import.meta as any)?.env?.VITE_API_URL as string)?.trim();
+      if (_isFrontendOnly) {
+        console.log('Frontend-only mode: skipping backend profile update, using Supabase directly');
+        response = new Response(JSON.stringify({ success: true, source: 'supabase-direct' }), { status: 200 });
+      } else {
+        response = await fetch('/api/supabase-auth/profile', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(updates)
+        })
+      }
       
       console.log('🔧 API Response status:', response.status);
       console.log('🔧 API Response ok:', response.ok);

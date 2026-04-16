@@ -91,14 +91,64 @@ export default function RegimenChecker() {
     setLoading(true);
     setError('');
     try {
-      const res = await api.post('/regimen/analyze', {
-        regimenDrugs,
-        concomitantDrugs,
-        pgxProfile: {},
+      // Client-side regimen analysis using cumulativeToxicityService + fallback interactions
+      const { analyzeCumulativeToxicity, getOverallToxicityRisk } = await import('../../services/cumulativeToxicityService');
+      const { FALLBACK_INTERACTIONS } = await import('../../data/fallbackInteractions');
+
+      const allDrugs = [...regimenDrugs, ...concomitantDrugs];
+      const allDrugsLower = allDrugs.map(d => d.toLowerCase());
+
+      // Find pairwise interactions
+      const interactions: Interaction[] = [];
+      for (let i = 0; i < allDrugsLower.length; i++) {
+        for (let j = i + 1; j < allDrugsLower.length; j++) {
+          const a = allDrugsLower[i], b = allDrugsLower[j];
+          const matches = FALLBACK_INTERACTIONS.filter(k => {
+            const names = k.drugs.map(d => d.toLowerCase());
+            return names.some(n => n.includes(a)) && names.some(n => n.includes(b));
+          });
+          for (const m of matches) {
+            interactions.push({
+              drug1: allDrugs[i], drug2: allDrugs[j],
+              severity: m.severity, mechanism: m.mechanism,
+              effect: m.effect, management: m.management,
+            });
+          }
+        }
+      }
+
+      // Cumulative toxicity analysis
+      const toxResults = analyzeCumulativeToxicity(allDrugs);
+      const overallRisk = getOverallToxicityRisk(toxResults);
+
+      const cumulativeToxicities = toxResults
+        .filter(t => t.count > 0)
+        .map(t => ({
+          domain: t.label, drugs: t.matchingDrugs, severity: t.risk,
+          monitoring: t.monitoring, count: t.count,
+        }));
+
+      setResult({
+        summary: {
+          totalDrugs: allDrugs.length,
+          regimenDrugs: regimenDrugs.length,
+          concomitantDrugs: concomitantDrugs.length,
+          totalInteractions: interactions.length,
+          majorInteractions: interactions.filter(i => i.severity === 'major').length,
+          moderateInteractions: interactions.filter(i => i.severity === 'moderate').length,
+          minorInteractions: interactions.filter(i => i.severity === 'minor').length,
+          cumulativeToxicityRisks: cumulativeToxicities.length,
+          overallRisk,
+        },
+        interactions: { all: interactions },
+        cumulativeToxicities,
+        pgxAlerts: [],
+        recommendations: cumulativeToxicities.map(t =>
+          `${t.domain}: ${t.count} contributing agents (${t.drugs.join(', ')}). ${t.monitoring}`
+        ),
       });
-      setResult(res.data?.data || null);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Analysis failed');
+      setError(err.message || 'Analysis failed');
     } finally {
       setLoading(false);
     }

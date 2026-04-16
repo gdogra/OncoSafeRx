@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Dna, Target, Shield, Search, ChevronRight, ExternalLink, Pill, FlaskConical } from 'lucide-react';
-import api from '../../services/api';
 
 interface MatchedTrial {
   nctId: string;
@@ -76,22 +75,61 @@ export default function BiomarkerMatcher() {
     setLoading(true);
     setError('');
     try {
-      const res = await api.post('/biomarkers/patient-match', {
-        cancerType,
-        biomarkers: selectedBiomarkers,
-        medications: medications.split(',').map(m => m.trim()).filter(Boolean),
-      });
-      setResults(res.data?.data || null);
+      // Client-side biomarker matching using biomarkerTherapyService data
+      const { BIOMARKER_THERAPY_MAP, CPIC_GUIDELINES_EXPANDED } = await import('../../data/biomarkerTherapyData');
+      const matchResults: MatchResults = { targetedTherapies: [], immunotherapies: [], pgxAlerts: [], clinicalTrialBiomarkers: [] };
 
-      // Also search NCI trials for the first biomarker
-      try {
-        const trialRes = await api.get(`/nci-trials/biomarker/${encodeURIComponent(selectedBiomarkers[0])}?limit=5`);
-        setMatchedTrials(trialRes.data?.data?.trials || []);
-      } catch {
-        setMatchedTrials([]);
+      for (const bm of selectedBiomarkers) {
+        const bmLower = bm.toLowerCase();
+        const matches = BIOMARKER_THERAPY_MAP.filter((entry: any) =>
+          entry.biomarker.toLowerCase().includes(bmLower) || bmLower.includes(entry.biomarker.toLowerCase())
+        );
+        for (const match of matches) {
+          const relevant = match.tumorTypes.some((t: string) =>
+            t.toLowerCase() === 'any solid tumor' || t.toLowerCase().includes(cancerType.toLowerCase())
+          );
+          if (relevant) {
+            const isImmuno = bmLower.includes('pd-l1') || bmLower.includes('msi') || bmLower.includes('tmb');
+            (isImmuno ? matchResults.immunotherapies : matchResults.targetedTherapies).push({
+              biomarker: match.biomarker, therapies: match.therapies
+            });
+          }
+        }
+        matchResults.clinicalTrialBiomarkers.push(bm);
       }
+
+      // Check PGx for medications
+      const meds = medications.split(',').map(m => m.trim()).filter(Boolean);
+      for (const drug of meds) {
+        const q = drug.toLowerCase();
+        const pgx = (CPIC_GUIDELINES_EXPANDED || []).filter((g: any) =>
+          g.drug?.generic_name?.toLowerCase().includes(q) || g.drug?.name?.toLowerCase().includes(q)
+        );
+        if (pgx.length > 0) matchResults.pgxAlerts.push({ drug, guidelines: pgx });
+      }
+
+      setResults(matchResults);
+
+      // Search ClinicalTrials.gov for trials mentioning the biomarker
+      try {
+        const resp = await fetch(`https://clinicaltrials.gov/api/v2/studies?query.term=${encodeURIComponent(selectedBiomarkers[0] + ' ' + cancerType)}&filter.overallStatus=RECRUITING&pageSize=5&format=json`);
+        if (resp.ok) {
+          const data = await resp.json();
+          const trials = (data.studies || []).map((s: any) => {
+            const id = s.protocolSection?.identificationModule || {};
+            return {
+              nctId: id.nctId || '', title: id.officialTitle || id.briefTitle || '',
+              phase: (s.protocolSection?.designModule?.phases || []).join(', '),
+              status: s.protocolSection?.statusModule?.overallStatus || '',
+              leadOrg: s.protocolSection?.sponsorCollaboratorsModule?.leadSponsor?.name || '',
+              nciUrl: '', ctGovUrl: `https://clinicaltrials.gov/study/${id.nctId}`,
+            };
+          });
+          setMatchedTrials(trials);
+        }
+      } catch { setMatchedTrials([]); }
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Failed to match');
+      setError(err.message || 'Failed to match');
     } finally {
       setLoading(false);
     }

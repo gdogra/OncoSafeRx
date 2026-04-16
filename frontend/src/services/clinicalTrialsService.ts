@@ -1,57 +1,42 @@
-import { authedFetch } from '../utils/authedFetch';
+/**
+ * Clinical Trials Service — Direct ClinicalTrials.gov API
+ * Uses the free, CORS-enabled ClinicalTrials.gov v2 API.
+ * No backend needed.
+ */
 
 export interface ClinicalTrial {
   id: string;
   nctId: string;
   title: string;
-  phase: 'Phase I' | 'Phase II' | 'Phase III' | 'Phase IV';
-  status: 'Recruiting' | 'Active' | 'Completed' | 'Suspended';
+  phase: string;
+  status: string;
   sponsor: string;
   conditions: string[];
   interventions: string[];
   eligibilityCriteria: {
     age: { min?: number; max?: number };
-    gender?: 'Male' | 'Female' | 'All';
-    performanceStatus?: string[];
-    priorTreatments?: string[];
-    excludedMedications?: string[];
-    requiredBiomarkers?: string[];
+    gender?: string;
+    criteria?: string;
   };
-  locations: {
-    facility: string;
-    city: string;
-    state: string;
-    distance?: number;
-  }[];
+  locations: { facility: string; city: string; state: string; country: string }[];
   estimatedEnrollment: number;
   currentEnrollment: number;
   primaryEndpoint: string;
   secondaryEndpoints: string[];
   drugInteractionRisk: 'Low' | 'Moderate' | 'High';
   lastUpdated: string;
+  url: string;
 }
 
 export interface PatientProfile {
   age: number;
-  gender: 'Male' | 'Female';
+  gender: 'Male' | 'Female' | 'All';
   diagnosis: string[];
-  currentMedications: {
-    name: string;
-    dose: string;
-    frequency: string;
-  }[];
+  currentMedications: { name: string; dose: string; frequency: string }[];
   priorTreatments: string[];
   performanceStatus: number;
-  biomarkers: {
-    name: string;
-    value: string;
-    status: 'Positive' | 'Negative' | 'Unknown';
-  }[];
-  genetics: {
-    gene: string;
-    variant: string;
-    status: string;
-  }[];
+  biomarkers: { name: string; value: string; status: string }[];
+  genetics: { gene: string; variant: string; status: string }[];
   zipCode: string;
 }
 
@@ -64,264 +49,298 @@ export interface TrialMatch {
   nextSteps: string[];
 }
 
-class ClinicalTrialsService {
-  private baseUrl = '/api/clinical-trials';
+// ClinicalTrials.gov v2 API base
+const CT_API = 'https://clinicaltrials.gov/api/v2';
 
+// Simple cache
+const cache = new Map<string, { data: any; ts: number }>();
+const CACHE_TTL = 10 * 60_000; // 10 min
+
+function getCached(key: string): any | null {
+  const entry = cache.get(key);
+  if (entry && Date.now() - entry.ts < CACHE_TTL) return entry.data;
+  return null;
+}
+
+function parseTrial(study: any): ClinicalTrial {
+  const proto = study.protocolSection || {};
+  const id = proto.identificationModule || {};
+  const status = proto.statusModule || {};
+  const design = proto.designModule || {};
+  const arms = proto.armsInterventionsModule || {};
+  const eligibility = proto.eligibilityModule || {};
+  const contacts = proto.contactsLocationsModule || {};
+  const description = proto.descriptionModule || {};
+  const outcomes = proto.outcomesModule || {};
+  const sponsor = proto.sponsorCollaboratorsModule || {};
+
+  const interventionNames = (arms.interventions || []).map((i: any) => i.name || '').filter(Boolean);
+  const conditionNames = (proto.conditionsModule?.conditions || []);
+
+  const locations = (contacts.locations || []).slice(0, 5).map((loc: any) => ({
+    facility: loc.facility || '',
+    city: loc.city || '',
+    state: loc.state || '',
+    country: loc.country || '',
+  }));
+
+  const primaryOutcomes = (outcomes.primaryOutcomes || []).map((o: any) => o.measure || '');
+  const secondaryOutcomes = (outcomes.secondaryOutcomes || []).map((o: any) => o.measure || '');
+
+  // Parse age range
+  const minAge = eligibility.minimumAge ? parseInt(eligibility.minimumAge) : undefined;
+  const maxAge = eligibility.maximumAge ? parseInt(eligibility.maximumAge) : undefined;
+
+  return {
+    id: id.nctId || '',
+    nctId: id.nctId || '',
+    title: id.officialTitle || id.briefTitle || '',
+    phase: (design.phases || []).join(', ') || 'N/A',
+    status: status.overallStatus || 'Unknown',
+    sponsor: sponsor.leadSponsor?.name || '',
+    conditions: conditionNames,
+    interventions: interventionNames,
+    eligibilityCriteria: {
+      age: { min: minAge, max: maxAge },
+      gender: eligibility.sex || 'All',
+      criteria: eligibility.eligibilityCriteria || '',
+    },
+    locations,
+    estimatedEnrollment: design.enrollmentInfo?.count || 0,
+    currentEnrollment: 0,
+    primaryEndpoint: primaryOutcomes[0] || '',
+    secondaryEndpoints: secondaryOutcomes,
+    drugInteractionRisk: 'Low',
+    lastUpdated: status.lastUpdatePostDateStruct?.date || '',
+    url: `https://clinicaltrials.gov/study/${id.nctId}`,
+  };
+}
+
+function scoreTrialMatch(trial: ClinicalTrial, profile: PatientProfile): TrialMatch {
+  let score = 50;
+  const reasons: string[] = [];
+  const concerns: string[] = [];
+  const nextSteps: string[] = [];
+
+  // Check age
+  const { min, max } = trial.eligibilityCriteria.age;
+  if (min && profile.age < min) { score -= 30; concerns.push(`Minimum age ${min}, patient is ${profile.age}`); }
+  else if (max && profile.age > max) { score -= 30; concerns.push(`Maximum age ${max}, patient is ${profile.age}`); }
+  else { score += 10; reasons.push('Age within eligible range'); }
+
+  // Check gender
+  const gender = trial.eligibilityCriteria.gender;
+  if (gender && gender !== 'All' && gender !== profile.gender) {
+    score -= 40; concerns.push(`Trial requires ${gender} patients`);
+  }
+
+  // Check condition match
+  const diagLower = profile.diagnosis.map(d => d.toLowerCase());
+  const condMatch = trial.conditions.some(c => diagLower.some(d => c.toLowerCase().includes(d) || d.includes(c.toLowerCase())));
+  if (condMatch) { score += 20; reasons.push('Diagnosis matches trial conditions'); }
+
+  // Check medication conflicts
+  const critText = (trial.eligibilityCriteria.criteria || '').toLowerCase();
+  for (const med of profile.currentMedications) {
+    if (critText.includes(med.name.toLowerCase()) && critText.includes('exclud')) {
+      score -= 15; concerns.push(`${med.name} may be excluded per eligibility criteria`);
+    }
+  }
+
+  // Check intervention relevance
+  const interventionText = trial.interventions.join(' ').toLowerCase();
+  for (const med of profile.currentMedications) {
+    if (interventionText.includes(med.name.toLowerCase())) {
+      score += 10; reasons.push(`Trial involves ${med.name}`);
+    }
+  }
+
+  // Recruiting bonus
+  if (trial.status === 'RECRUITING') { score += 10; reasons.push('Actively recruiting'); }
+
+  // Phase bonus
+  if (trial.phase.includes('3') || trial.phase.includes('III')) { score += 5; reasons.push('Phase 3 trial (large, established)'); }
+
+  score = Math.max(0, Math.min(100, score));
+
+  let eligibilityStatus: TrialMatch['eligibilityStatus'] = 'Possibly Eligible';
+  if (score >= 70) eligibilityStatus = 'Eligible';
+  else if (score >= 50) eligibilityStatus = 'Likely Eligible';
+  else if (score < 30) eligibilityStatus = 'Not Eligible';
+
+  if (trial.status === 'RECRUITING') nextSteps.push('Contact trial coordinator for screening');
+  nextSteps.push(`Review full eligibility: ${trial.url}`);
+
+  return { trial, matchScore: score, eligibilityStatus, matchReasons: reasons, concerns, nextSteps };
+}
+
+class ClinicalTrialsService {
   /**
    * Search for clinical trials matching patient criteria
    */
   async searchTrials(patientProfile: PatientProfile): Promise<TrialMatch[]> {
     try {
-      const response = await authedFetch(`${this.baseUrl}/search`, {
-        method: 'POST',
-        body: JSON.stringify(patientProfile),
+      // Build search query from patient diagnosis + medications
+      const terms = [
+        ...patientProfile.diagnosis,
+        ...patientProfile.currentMedications.map(m => m.name),
+      ].filter(Boolean).join(' OR ');
+
+      if (!terms) return [];
+
+      const cacheKey = `trials:${terms}`;
+      const cached = getCached(cacheKey);
+      if (cached) return cached;
+
+      const params = new URLSearchParams({
+        'query.cond': patientProfile.diagnosis.join(' OR ') || 'cancer',
+        'query.intr': patientProfile.currentMedications.map(m => m.name).join(' OR ') || '',
+        'filter.overallStatus': 'RECRUITING',
+        'pageSize': '20',
+        'format': 'json',
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to search clinical trials');
-      }
+      const resp = await fetch(`${CT_API}/studies?${params}`, { signal: AbortSignal.timeout(10000) });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
 
-      return await response.json();
+      const data = await resp.json();
+      const studies = data.studies || [];
+      const trials = studies.map(parseTrial);
+      const matches = trials
+        .map(t => scoreTrialMatch(t, patientProfile))
+        .sort((a, b) => b.matchScore - a.matchScore);
+
+      cache.set(cacheKey, { data: matches, ts: Date.now() });
+      return matches;
     } catch (error) {
-      console.error('Error searching clinical trials:', error);
-      // Return mock data for demo purposes
-      return this.getMockTrialMatches(patientProfile);
+      console.warn('ClinicalTrials.gov API error:', (error as any)?.message);
+      return [];
     }
   }
 
   /**
-   * Check real-time eligibility for specific trial
+   * Search trials by condition/drug keyword
    */
-  async checkTrialEligibility(
-    trialId: string, 
-    patientProfile: PatientProfile
-  ): Promise<{
-    eligible: boolean;
-    score: number;
-    criteria: {
-      met: string[];
-      failed: string[];
-      unknown: string[];
-    };
-    drugInteractions: {
-      conflicts: string[];
-      warnings: string[];
-      recommendations: string[];
-    };
-  }> {
+  async searchByKeyword(keyword: string, statusFilter: string = 'RECRUITING'): Promise<ClinicalTrial[]> {
     try {
-      const response = await authedFetch(`${this.baseUrl}/${trialId}/eligibility`, {
-        method: 'POST',
-        body: JSON.stringify(patientProfile),
+      const cacheKey = `keyword:${keyword}:${statusFilter}`;
+      const cached = getCached(cacheKey);
+      if (cached) return cached;
+
+      const params = new URLSearchParams({
+        'query.term': keyword,
+        'filter.overallStatus': statusFilter,
+        'pageSize': '20',
+        'format': 'json',
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to check trial eligibility');
-      }
+      const resp = await fetch(`${CT_API}/studies?${params}`, { signal: AbortSignal.timeout(10000) });
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
 
-      return await response.json();
+      const data = await resp.json();
+      const trials = (data.studies || []).map(parseTrial);
+      cache.set(cacheKey, { data: trials, ts: Date.now() });
+      return trials;
     } catch (error) {
-      console.error('Error checking trial eligibility:', error);
-      return this.getMockEligibilityCheck();
+      console.warn('ClinicalTrials.gov search error:', (error as any)?.message);
+      return [];
     }
   }
 
   /**
-   * Get trials by location with drug interaction analysis
+   * Get a specific trial by NCT ID
+   */
+  async getTrialByNctId(nctId: string): Promise<ClinicalTrial | null> {
+    try {
+      const cacheKey = `nct:${nctId}`;
+      const cached = getCached(cacheKey);
+      if (cached) return cached;
+
+      const resp = await fetch(`${CT_API}/studies/${nctId}?format=json`, { signal: AbortSignal.timeout(8000) });
+      if (!resp.ok) return null;
+
+      const data = await resp.json();
+      const trial = parseTrial(data);
+      cache.set(cacheKey, { data: trial, ts: Date.now() });
+      return trial;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Check eligibility (client-side scoring)
+   */
+  async checkTrialEligibility(trialId: string, patientProfile: PatientProfile) {
+    const trial = await this.getTrialByNctId(trialId);
+    if (!trial) return { eligible: false, score: 0, criteria: { met: [], failed: ['Trial not found'], unknown: [] }, drugInteractions: { conflicts: [], warnings: [], recommendations: [] } };
+
+    const match = scoreTrialMatch(trial, patientProfile);
+    return {
+      eligible: match.matchScore >= 50,
+      score: match.matchScore,
+      criteria: {
+        met: match.matchReasons,
+        failed: match.concerns,
+        unknown: [],
+      },
+      drugInteractions: { conflicts: [], warnings: [], recommendations: match.nextSteps },
+    };
+  }
+
+  /**
+   * Get trials by location (uses ClinicalTrials.gov geo search)
    */
   async getTrialsByLocation(zipCode: string, radius: number = 50): Promise<ClinicalTrial[]> {
     try {
-      const response = await authedFetch(
-        `${this.baseUrl}/location?zipCode=${zipCode}&radius=${radius}`
-      );
+      const params = new URLSearchParams({
+        'query.cond': 'cancer',
+        'filter.overallStatus': 'RECRUITING',
+        'filter.geo': `distance(${zipCode},${radius}mi)`,
+        'pageSize': '15',
+        'format': 'json',
+      });
 
-      if (!response.ok) {
-        throw new Error('Failed to get trials by location');
-      }
+      const resp = await fetch(`${CT_API}/studies?${params}`, { signal: AbortSignal.timeout(10000) });
+      if (!resp.ok) return [];
 
-      return await response.json();
-    } catch (error) {
-      console.error('Error getting trials by location:', error);
-      return this.getMockLocationTrials();
+      const data = await resp.json();
+      return (data.studies || []).map(parseTrial);
+    } catch {
+      return [];
     }
   }
 
   /**
-   * Analyze drug interactions for trial protocols
+   * Analyze drug interactions for trial protocols (client-side)
    */
-  async analyzeTrialDrugInteractions(
-    trialId: string,
-    currentMedications: string[]
-  ): Promise<{
-    riskLevel: 'Low' | 'Moderate' | 'High';
-    interactions: {
-      drug1: string;
-      drug2: string;
-      severity: 'Minor' | 'Moderate' | 'Major';
-      mechanism: string;
-      recommendation: string;
-    }[];
-    trialModifications: string[];
-  }> {
-    try {
-      const response = await authedFetch(`${this.baseUrl}/${trialId}/interactions`, {
-        method: 'POST',
-        body: JSON.stringify({ medications: currentMedications }),
-      });
+  async analyzeTrialDrugInteractions(trialId: string, currentMedications: string[]) {
+    const trial = await this.getTrialByNctId(trialId);
+    if (!trial) return { riskLevel: 'Low' as const, interactions: [], trialModifications: [] };
 
-      if (!response.ok) {
-        throw new Error('Failed to analyze trial drug interactions');
-      }
+    // Check the eligibility criteria text for excluded medications
+    const critText = (trial.eligibilityCriteria.criteria || '').toLowerCase();
+    const conflicts: any[] = [];
 
-      return await response.json();
-    } catch (error) {
-      console.error('Error analyzing trial interactions:', error);
-      return this.getMockInteractionAnalysis();
-    }
-  }
-
-  // Mock data for demo purposes
-  private getMockTrialMatches(patientProfile: PatientProfile): TrialMatch[] {
-    const mockTrials: ClinicalTrial[] = [
-      {
-        id: '1',
-        nctId: 'NCT05123456',
-        title: 'Phase II Study of Novel CDK4/6 Inhibitor in Advanced Breast Cancer',
-        phase: 'Phase II',
-        status: 'Recruiting',
-        sponsor: 'Memorial Sloan Kettering Cancer Center',
-        conditions: ['Breast Cancer', 'HER2-Negative Breast Cancer'],
-        interventions: ['Palbociclib + Fulvestrant', 'Novel CDK4/6 Inhibitor'],
-        eligibilityCriteria: {
-          age: { min: 18, max: 75 },
-          gender: 'All',
-          performanceStatus: ['0', '1'],
-          priorTreatments: ['Prior CDK4/6 inhibitor allowed'],
-          requiredBiomarkers: ['ER+', 'HER2-']
-        },
-        locations: [
-          { facility: 'Memorial Sloan Kettering', city: 'New York', state: 'NY', distance: 12.3 },
-          { facility: 'Weill Cornell Medicine', city: 'New York', state: 'NY', distance: 8.7 }
-        ],
-        estimatedEnrollment: 120,
-        currentEnrollment: 87,
-        primaryEndpoint: 'Progression-free survival',
-        secondaryEndpoints: ['Overall survival', 'Response rate', 'Safety'],
-        drugInteractionRisk: 'Moderate',
-        lastUpdated: new Date().toISOString()
-      },
-      {
-        id: '2',
-        nctId: 'NCT05234567',
-        title: 'Immunotherapy Combination for Advanced Lung Cancer',
-        phase: 'Phase III',
-        status: 'Recruiting',
-        sponsor: 'Bristol Myers Squibb',
-        conditions: ['Non-Small Cell Lung Cancer', 'Advanced NSCLC'],
-        interventions: ['Nivolumab + Ipilimumab', 'Standard of Care'],
-        eligibilityCriteria: {
-          age: { min: 18 },
-          gender: 'All',
-          performanceStatus: ['0', '1'],
-          requiredBiomarkers: ['PD-L1 >1%']
-        },
-        locations: [
-          { facility: 'NYU Langone Health', city: 'New York', state: 'NY', distance: 15.2 },
-          { facility: 'Mount Sinai Hospital', city: 'New York', state: 'NY', distance: 18.9 }
-        ],
-        estimatedEnrollment: 450,
-        currentEnrollment: 298,
-        primaryEndpoint: 'Overall survival',
-        secondaryEndpoints: ['Progression-free survival', 'Quality of life'],
-        drugInteractionRisk: 'High',
-        lastUpdated: new Date().toISOString()
-      }
-    ];
-
-    return mockTrials.map(trial => ({
-      trial,
-      matchScore: Math.random() * 40 + 60, // 60-100% match
-      eligibilityStatus: 'Likely Eligible' as const,
-      matchReasons: [
-        'Age within eligible range',
-        'Performance status acceptable',
-        'Diagnosis matches inclusion criteria'
-      ],
-      concerns: [
-        'Current medications may require washout period',
-        'Recent treatment history needs review'
-      ],
-      nextSteps: [
-        'Schedule screening visit',
-        'Obtain recent imaging',
-        'Review medication interactions'
-      ]
-    }));
-  }
-
-  private getMockEligibilityCheck() {
-    return {
-      eligible: true,
-      score: 85,
-      criteria: {
-        met: ['Age 18-75', 'ECOG PS 0-1', 'Adequate organ function'],
-        failed: [],
-        unknown: ['Recent imaging pending review']
-      },
-      drugInteractions: {
-        conflicts: ['Warfarin may increase bleeding risk with trial drug'],
-        warnings: ['Monitor for CYP3A4 interactions'],
-        recommendations: ['Consider dose reduction if drug levels elevated']
-      }
-    };
-  }
-
-  private getMockLocationTrials(): ClinicalTrial[] {
-    return [
-      {
-        id: '3',
-        nctId: 'NCT05345678',
-        title: 'CAR-T Cell Therapy for Relapsed Lymphoma',
-        phase: 'Phase I',
-        status: 'Recruiting',
-        sponsor: 'University of Pennsylvania',
-        conditions: ['B-Cell Lymphoma', 'Relapsed/Refractory Lymphoma'],
-        interventions: ['CD19 CAR-T Cells'],
-        eligibilityCriteria: {
-          age: { min: 18, max: 70 },
-          gender: 'All',
-          performanceStatus: ['0', '1', '2']
-        },
-        locations: [
-          { facility: 'Hospital of the University of Pennsylvania', city: 'Philadelphia', state: 'PA', distance: 95.2 }
-        ],
-        estimatedEnrollment: 24,
-        currentEnrollment: 18,
-        primaryEndpoint: 'Maximum tolerated dose',
-        secondaryEndpoints: ['Safety', 'Efficacy', 'CAR-T expansion'],
-        drugInteractionRisk: 'Low',
-        lastUpdated: new Date().toISOString()
-      }
-    ];
-  }
-
-  private getMockInteractionAnalysis() {
-    return {
-      riskLevel: 'Moderate' as const,
-      interactions: [
-        {
-          drug1: 'Trial Drug X',
-          drug2: 'Warfarin',
-          severity: 'Moderate' as const,
-          mechanism: 'CYP2C9 inhibition',
-          recommendation: 'Monitor INR closely, may need dose adjustment'
+    for (const med of currentMedications) {
+      if (critText.includes(med.toLowerCase())) {
+        const isExcluded = critText.includes('exclud') || critText.includes('prohibit') || critText.includes('not permitted');
+        if (isExcluded) {
+          conflicts.push({
+            drug1: med,
+            drug2: trial.interventions[0] || 'trial drug',
+            severity: 'Major' as const,
+            mechanism: 'Listed in exclusion criteria',
+            recommendation: `Discuss with trial coordinator — ${med} may need to be discontinued`,
+          });
         }
-      ],
-      trialModifications: [
-        'Hold warfarin 7 days before trial start',
-        'Switch to LMWH during trial period',
-        'Resume warfarin after washout period'
-      ]
+      }
+    }
+
+    return {
+      riskLevel: conflicts.length > 0 ? 'High' as const : 'Low' as const,
+      interactions: conflicts,
+      trialModifications: conflicts.length > 0 ? ['Review excluded medications with trial coordinator'] : [],
     };
   }
 }

@@ -41,23 +41,23 @@ const CuratedInteractions: React.FC = () => {
     if (labelMap[key]?.setid || labelMap[key]?.loading) return;
     setLabelMap((m) => ({ ...m, [key]: { loading: true } }));
     try {
-      const resp = await fetch(`/api/drugs/labels/search?q=${encodeURIComponent(key)}`);
-      const data = await resp.json().catch(() => ({} as any));
-      const setid = (data?.results || [])[0]?.setid;
-      if (setid) {
-        let summary = '';
-        try {
-          const lbl = await fetch(`/api/drugs/labels/${setid}`);
-          const jd = await lbl.json().catch(() => ({} as any));
-          const ind = (jd?.indications_and_usage?.[0] || '').replace(/\s+/g,' ').trim();
-          if (ind) {
-            const m = ind.match(/^[^.]+\./);
-            summary = (m ? m[0] : ind).slice(0, 240);
-          }
-        } catch {}
-        setLabelMap((m) => ({ ...m, [key]: { setid, summary } }));
+      // Try OpenFDA drug label API directly (free, CORS-enabled)
+      const encoded = encodeURIComponent(key);
+      const resp = await fetch(
+        `https://api.fda.gov/drug/label.json?search=openfda.generic_name:"${encoded}"+OR+openfda.brand_name:"${encoded}"&limit=1`,
+        { signal: AbortSignal.timeout(5000) }
+      );
+      if (resp.ok) {
+        const data = await resp.json();
+        const label = data?.results?.[0];
+        if (label) {
+          const ind = (label?.indications_and_usage?.[0] || '').replace(/\s+/g, ' ').trim();
+          const summary = ind ? (ind.match(/^[^.]+\./)?.[0] || ind).slice(0, 240) : '';
+          setLabelMap((m) => ({ ...m, [key]: { setid: label?.id || 'fda', summary } }));
+          return;
+        }
       }
-      else setLabelMap((m) => ({ ...m, [key]: { error: true } }));
+      setLabelMap((m) => ({ ...m, [key]: { error: true } }));
     } catch {
       setLabelMap((m) => ({ ...m, [key]: { error: true } }));
     }

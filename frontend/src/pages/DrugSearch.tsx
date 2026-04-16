@@ -127,14 +127,12 @@ const DrugSearchInner: React.FC = () => {
         return;
       }
       
-      const resp = await fetch(`/api/drugs/search?q=aspirin`, { method: 'GET' });
+      // Test RxNorm API connectivity directly (no backend needed)
+      const resp = await fetch('https://rxnav.nlm.nih.gov/REST/drugs.json?name=aspirin', { method: 'GET' });
       if (!resp.ok) {
         setConnStatus('error');
       } else {
-        const data = await resp.json();
-        // Check if we have RxNorm data (online) or local data only (offline)
-        const isOnline = data?.sources?.rxnorm > 0;
-        setConnStatus(isOnline ? 'online' : 'offline');
+        setConnStatus('online');
       }
       setConnCheckedAt(new Date().toLocaleTimeString());
     } catch (e) {
@@ -282,12 +280,19 @@ const DrugSearchInner: React.FC = () => {
     setBasicSuggestionsLoading(true);
     const t = setTimeout(async () => {
       try {
-        const resp = await fetch(`/api/drugs/search?q=${encodeURIComponent(searchQuery)}`);
-        if (!resp.ok) throw new Error('suggestions failed');
-        const data = await resp.json();
+        // Use RxNorm API directly (no backend needed)
+        const resp = await fetch(`https://rxnav.nlm.nih.gov/REST/drugs.json?name=${encodeURIComponent(searchQuery)}`);
+        if (!resp.ok) throw new Error('RxNorm search failed');
+        const rxData = await resp.json();
         if (abort) return;
-        setBasicSuggestions((data.results || []).slice(0, 8).map((s: any) => ({ name: s.name, rxcui: s.rxcui })));
-        setBasicSuggestionsOffline(!data.sources?.rxnorm || data.sources.rxnorm === 0);
+        const results: any[] = [];
+        for (const group of (rxData?.drugGroup?.conceptGroup || [])) {
+          for (const prop of (group.conceptProperties || [])) {
+            results.push({ name: prop.name, rxcui: prop.rxcui });
+          }
+        }
+        setBasicSuggestions(results.slice(0, 8));
+        setBasicSuggestionsOffline(false);
       } catch {
         if (!abort) { setBasicSuggestions([]); setBasicSuggestionsOffline(false); }
       } finally {

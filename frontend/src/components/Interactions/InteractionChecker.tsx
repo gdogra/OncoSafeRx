@@ -1229,19 +1229,37 @@ const InteractionCheckerInner: React.FC = () => {
                 try {
                   // Use client-side alternative finder (no backend needed)
                   const { findAlternatives } = await import('../../services/alternativeFinder');
-                  const drugNames = selectedDrugs.map(d => d.name);
+
+                  // Extract generic drug names from full RxNorm descriptions
+                  // "warfarin sodium 1 MG Oral Tablet [Coumadin]" → "warfarin"
+                  const extractGeneric = (name: string) =>
+                    name.replace(/\s*\[.*?\]/g, '').replace(/\s*\(.*?\)/g, '')
+                        .replace(/\s+\d+.*$/i, '').replace(/\s*{.*$/g, '')
+                        .trim().split(/\s+/)[0]?.toLowerCase() || name.toLowerCase();
+
+                  const drugNames = selectedDrugs.map(d => extractGeneric(d.name));
+                  const uniqueNames = Array.from(new Set(drugNames));
                   const allSuggestions: any[] = [];
 
-                  // Check all drug pairs for alternatives
-                  for (let i = 0; i < drugNames.length; i++) {
-                    for (let j = i + 1; j < drugNames.length; j++) {
-                      const suggestions = findAlternatives(drugNames[i], drugNames[j], drugNames);
+                  // Check unique drug pairs for alternatives
+                  for (let i = 0; i < uniqueNames.length; i++) {
+                    for (let j = i + 1; j < uniqueNames.length; j++) {
+                      const suggestions = findAlternatives(uniqueNames[i], uniqueNames[j], uniqueNames);
                       allSuggestions.push(...suggestions);
                     }
                   }
 
+                  // Deduplicate by alternative name + forDrug
+                  const seen = new Set<string>();
+                  const uniqueSuggestions = allSuggestions.filter(s => {
+                    const key = `${s.forDrug}→${s.alternative}`.toLowerCase();
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                  });
+
                   // Transform to component format
-                  const transformedAlternatives = allSuggestions.map((alt: any) => ({
+                  const transformedAlternatives = uniqueSuggestions.map((alt: any) => ({
                     forDrug: alt.forDrug,
                     withDrug: null,
                     alternative: {

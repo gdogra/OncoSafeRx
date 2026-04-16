@@ -33,8 +33,19 @@ export default function DrugIntelligencePanel({ selectedDrugs, className = '' }:
 
     const results: Record<string, any> = {};
     for (const drug of selectedDrugs) {
-      const name = drug.generic_name || drug.name || '';
-      if (!name) continue;
+      const rawName = drug.generic_name || drug.name || '';
+      if (!rawName) continue;
+      // Extract just the generic drug name — strip dosage forms, brand names, etc.
+      // "warfarin sodium 1 MG Oral Tablet [Coumadin]" → "warfarin"
+      // "cisplatin 1 MG/ML Injectable Solution" → "cisplatin"
+      // "Pembrolizumab (Keytruda)" → "Pembrolizumab"
+      const name = rawName
+        .replace(/\s*\[.*?\]\s*/g, '')       // remove [Brand]
+        .replace(/\s*\(.*?\)\s*/g, '')       // remove (Brand)
+        .replace(/\s+\d+.*$/i, '')           // remove "1 MG Oral Tablet..."
+        .replace(/\s*{.*$/g, '')             // remove {Pack...
+        .trim()
+        .split(/\s+/)[0] || rawName;        // take first word as generic name
       try {
         const res = await fetch(
           `https://api.fda.gov/drug/event.json?search=patient.drug.openfda.generic_name:"${encodeURIComponent(name)}"&count=patient.reaction.reactionmeddrapt.exact&limit=10`

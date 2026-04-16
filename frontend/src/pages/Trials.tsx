@@ -251,11 +251,12 @@ const Trials: React.FC = () => {
     const q = String(searchAddress || '').trim();
     if (!q) { showToast('warning', 'Enter a city or address'); return; }
     try {
-      const url = `${apiBase}/geocode/search?q=${encodeURIComponent(q)}&limit=1`;
+      // Use Nominatim (free OpenStreetMap geocoder) directly
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`;
       const resp = await fetch(url, { headers: { 'Accept': 'application/json' } });
       if (!resp.ok) throw new Error(`Geocode ${resp.status}`);
-      const data = await resp.json();
-      const arr = Array.isArray(data?.data) ? data.data : [];
+      const arr = await resp.json();
+      if (!Array.isArray(arr)) throw new Error('Invalid geocode response');
       if (arr.length === 0) {
         showToast('error', 'No matching location found');
         return;
@@ -285,11 +286,11 @@ const Trials: React.FC = () => {
     const ctl = new AbortController();
     const t = setTimeout(async () => {
       try {
-        const url = `${apiBase}/geocode/search?q=${encodeURIComponent(q)}&addressdetails=1&limit=5`;
+        // Use Nominatim directly (free OpenStreetMap geocoder)
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&addressdetails=1&format=json&limit=5`;
         const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: ctl.signal });
         if (!resp.ok) return;
-        const data = await resp.json();
-        const arr = Array.isArray(data?.data) ? data.data : [];
+        const arr = await resp.json();
         if (Array.isArray(arr)) {
           setAddressSuggestions(arr.map((d: any) => ({ display_name: d.display_name, lat: d.lat, lon: d.lon })));
           setAddrSuggestOpen(true);
@@ -327,10 +328,41 @@ const Trials: React.FC = () => {
         params.set('studyType', includeObservational ? 'INTERVENTIONAL,OBSERVATIONAL' : 'INTERVENTIONAL');
         params.set('includeExpanded', expandedStatuses.toString());
 
-        const resp = await fetch(`${apiBase}/clinical-trials/search?${params.toString()}`);
-        if (!resp.ok) throw new Error(`API ${resp.status}`);
+        // Call ClinicalTrials.gov v2 API directly (free, CORS-enabled)
+        const ctParams = new URLSearchParams({
+          'format': 'json',
+          'pageSize': params.get('pageSize') || '50',
+        });
+        if (condition) ctParams.set('query.cond', condition);
+        if (biomarker) ctParams.set('query.intr', biomarker);
+        ctParams.set('filter.overallStatus', params.get('recruitmentStatus') || 'RECRUITING');
+
+        const resp = await fetch(`https://clinicaltrials.gov/api/v2/studies?${ctParams.toString()}`);
+        if (!resp.ok) throw new Error(`ClinicalTrials.gov ${resp.status}`);
         const data = await resp.json();
-        const studies = data?.data?.studies || [];
+        const rawStudies = data?.studies || [];
+        const studies = rawStudies.map((s: any) => {
+          const proto = s.protocolSection || {};
+          const idMod = proto.identificationModule || {};
+          const statusMod = proto.statusModule || {};
+          const designMod = proto.designModule || {};
+          const armsMod = proto.armsInterventionsModule || {};
+          const contactsMod = proto.contactsLocationsModule || {};
+          return {
+            nctId: idMod.nctId || '',
+            title: idMod.officialTitle || idMod.briefTitle || '',
+            condition: (proto.conditionsModule?.conditions || []).join(', '),
+            phase: (designMod.phases || []).join(', '),
+            status: statusMod.overallStatus || '',
+            url: `https://clinicaltrials.gov/study/${idMod.nctId}`,
+            locations: (contactsMod.locations || []).slice(0, 5).map((loc: any) => ({
+              facility: loc.facility || '', name: loc.facility || '',
+              city: loc.city || '', state: loc.state || '', country: loc.country || '',
+              lat: loc.geoPoint?.lat, lon: loc.geoPoint?.lon,
+            })),
+            interventions: (armsMod.interventions || []).map((i: any) => i.name || ''),
+          };
+        });
         const mapped = studies.map((s: any) => ({
           nct_id: s.nctId,
           title: s.title,
@@ -648,17 +680,39 @@ const Trials: React.FC = () => {
         params.set('studyType', includeObservational ? 'INTERVENTIONAL,OBSERVATIONAL' : 'INTERVENTIONAL');
         if (country) params.set('location', country);
         params.set('includeExpanded', expandedStatuses.toString());
-        console.log('🔍 Default search params:', params.toString());
-        const resp = await fetch(`${apiBase}/clinical-trials/search?${params.toString()}`);
-        console.log('🔍 Default search response:', resp.status, resp.ok);
+        // Call ClinicalTrials.gov v2 API directly (free, CORS)
+        const ctDefParams = new URLSearchParams({
+          'format': 'json',
+          'pageSize': '50',
+          'query.cond': 'cancer',
+          'filter.overallStatus': 'RECRUITING',
+        });
+        const resp = await fetch(`https://clinicaltrials.gov/api/v2/studies?${ctDefParams.toString()}`);
         if (!resp.ok) {
-          const errorText = await resp.text();
-          console.error('🔍 Default search failed:', resp.status, errorText);
-          setDiagMsg(`primary ${resp.status}`);
-          throw new Error(`API ${resp.status}: ${errorText}`);
+          throw new Error(`ClinicalTrials.gov ${resp.status}`);
         }
         const data = await resp.json();
-        const studies = data?.data?.studies || [];
+        const rawDefStudies = data?.studies || [];
+        const studies = rawDefStudies.map((s: any) => {
+          const proto = s.protocolSection || {};
+          const idMod = proto.identificationModule || {};
+          const statusMod = proto.statusModule || {};
+          const designMod = proto.designModule || {};
+          const armsMod = proto.armsInterventionsModule || {};
+          const contactsMod = proto.contactsLocationsModule || {};
+          return {
+            nctId: idMod.nctId || '',
+            title: idMod.officialTitle || idMod.briefTitle || '',
+            condition: (proto.conditionsModule?.conditions || []).join(', '),
+            phase: (designMod.phases || []).join(', '),
+            status: statusMod.overallStatus || '',
+            url: `https://clinicaltrials.gov/study/${idMod.nctId}`,
+            locations: (contactsMod.locations || []).slice(0, 5).map((loc: any) => ({
+              facility: loc.facility || '', name: loc.facility || '',
+              lat: loc.geoPoint?.lat, lon: loc.geoPoint?.lon,
+            })),
+          };
+        });
         const mapped = studies.map((s: any) => ({
           nct_id: s.nctId,
           title: s.title,
@@ -920,8 +974,8 @@ const Trials: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        // Prefer live summary
-        const resp = await fetch(`${apiBase}/clinical-trials/filters/options?recruitmentStatus=RECRUITING,NOT_YET_RECRUITING,ACTIVE_NOT_RECRUITING&studyType=INTERVENTIONAL,OBSERVATIONAL&pageSize=500`);
+        // Use hardcoded common oncology conditions/biomarkers (no backend needed)
+        const resp = { ok: false } as any; // skip backend call
         if (resp.ok) {
           const data = await resp.json();
           const conditions = (data?.data?.conditions || []) as string[];

@@ -1225,62 +1225,51 @@ const InteractionCheckerInner: React.FC = () => {
                 }
 
                 setAltLoading(true); setAltError(null);
-                
-                try {
-                  // Use real drug alternatives API
-                  const response = await fetch('/api/drug-alternatives/find-alternatives', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      drugs: selectedDrugs.map(drug => ({ name: drug.name, rxcui: drug.rxcui })),
-                      patientProfile: currentPatient ? {
-                        age: currentPatient.age,
-                        gender: currentPatient.gender?.toLowerCase(),
-                        allergies: currentPatient.allergies || [],
-                        renalFunction: currentPatient.renalFunction || 'unknown',
-                        hepaticFunction: currentPatient.hepaticFunction || 'unknown'
-                      } : {}
-                    })
-                  });
 
-                  if (!response.ok) {
-                    throw new Error('Failed to fetch alternatives');
+                try {
+                  // Use client-side alternative finder (no backend needed)
+                  const { findAlternatives } = await import('../../services/alternativeFinder');
+                  const drugNames = selectedDrugs.map(d => d.name);
+                  const allSuggestions: any[] = [];
+
+                  // Check all drug pairs for alternatives
+                  for (let i = 0; i < drugNames.length; i++) {
+                    for (let j = i + 1; j < drugNames.length; j++) {
+                      const suggestions = findAlternatives(drugNames[i], drugNames[j], drugNames);
+                      allSuggestions.push(...suggestions);
+                    }
                   }
 
-                  const data = await response.json();
-                  
-                  // Transform API response to match component format
-                  const transformedAlternatives = data.data.alternatives.map((alt: any) => ({
+                  // Transform to component format
+                  const transformedAlternatives = allSuggestions.map((alt: any) => ({
                     forDrug: alt.forDrug,
                     withDrug: null,
                     alternative: {
                       rxcui: `alt-${Date.now()}-${Math.random()}`,
-                      name: alt.alternative?.name || 'Alternative therapy',
-                      tty: alt.alternative?.drugClass || 'Unknown'
+                      name: alt.alternative || 'Alternative therapy',
+                      tty: alt.drugClass || 'Unknown'
                     },
                     rationale: alt.rationale,
-                    score: alt.safetyScore + alt.efficacyScore,
-                    best: alt.safetyScore >= 90 && alt.efficacyScore >= 90,
-                    formulary: alt.formularyStatus,
-                    costHint: alt.costImpact === 'lower' ? 'Generic available - lower cost' : 
-                             alt.costImpact === 'similar' ? 'Similar cost to current therapy' : 'Cost impact unknown',
-                    pgx: [], // Add PGx data if available
-                    citations: [
-                      { label: 'Clinical Evidence', url: '#' },
-                      'Therapeutic guidelines and safety data'
-                    ],
-                    safetyScore: alt.safetyScore,
-                    efficacyScore: alt.efficacyScore,
-                    evidenceLevel: alt.evidenceLevel,
-                    contraindications: alt.contraindications,
-                    clinicalNotes: alt.clinicalNotes,
-                    monitoringRequirements: alt.monitoringRequirements
+                    score: alt.confidence === 'high' ? 90 : 60,
+                    best: alt.confidence === 'high',
+                    formulary: alt.formularyStatus || 'unknown',
+                    costHint: 'Check formulary for cost information',
+                    pgx: [],
+                    citations: alt.citations?.map((c: string) => ({ label: c, url: '#' })) || [],
+                    safetyScore: alt.confidence === 'high' ? 90 : 70,
+                    efficacyScore: 80,
+                    evidenceLevel: alt.confidence === 'high' ? 'high' : 'moderate',
+                    contraindications: [],
+                    clinicalNotes: `Source: ${alt.source}`,
+                    monitoringRequirements: []
                   }));
 
                   setAltAllResults(transformedAlternatives);
                   setAltResults(applyAltFilters(transformedAlternatives, onlyCovered, onlyBest));
+
+                  if (transformedAlternatives.length === 0) {
+                    setAltError('No alternative suggestions found for the current drug combination. Try different drugs or check the curated interactions database.');
+                  }
                   
                 } catch (e) {
                   console.error('Alternatives error:', e);

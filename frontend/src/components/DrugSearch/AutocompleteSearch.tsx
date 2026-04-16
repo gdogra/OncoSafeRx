@@ -1036,7 +1036,7 @@ const AutocompleteSearch: React.FC<AutocompleteSearchProps> = ({
     if (inputValue.trim().length < 2) { setServerOptions([]); setServerOffline(false); return; }
     const t = setTimeout(async () => {
       try {
-        const resp = await fetch(`/api/drugs/search?q=${encodeURIComponent(inputValue)}`);
+        const resp = await fetch(`https://rxnav.nlm.nih.gov/REST/drugs.json?name=${encodeURIComponent(inputValue)}`);
         if (!resp.ok) throw new Error('suggestions failed');
         const data = await resp.json();
         const opts: AutocompleteOption[] = (data.results || []).slice(0, maxResults).map((s: any) => ({

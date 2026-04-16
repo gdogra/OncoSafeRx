@@ -83,6 +83,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
             token = body.refresh_token
           }
           if (!token) throw e
+          // Skip proxy refresh in frontend-only mode (no backend)
+          const _hasApi = !!((import.meta as any)?.env?.VITE_API_URL as string)?.trim()
+          if (!_hasApi) throw e
           const resp = await fetch('/api/supabase-auth/proxy/refresh', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

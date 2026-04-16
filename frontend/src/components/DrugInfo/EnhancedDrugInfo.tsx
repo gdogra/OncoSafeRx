@@ -76,7 +76,7 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
     setLoading(true);
     try {
       // Fetch real enhanced drug data from API
-      const response = await fetch(`/api/drugs/enhanced/${drug.rxcui}`);
+      const response = await fetch(`https://rxnav.nlm.nih.gov/REST/rxcui/${drug.rxcui}/properties.json`);
       if (response.ok) {
         const enhancedData = await response.json();
         // Merge enhanced data into the drug object
@@ -86,7 +86,7 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
       try {
         const q = encodeURIComponent(drug.name || '');
         if (q) {
-          const labelSearch = await fetch(`/api/drugs/labels/search?q=${q}`);
+          const labelSearch = await fetch(`https://api.fda.gov/drug/label.json?search=openfda.generic_name:"${encodeURIComponent(q)}"fetch(`/api/drugs/labels/search?q=${q}`)limit=1`);
           const labelData = await labelSearch.json().catch(() => ({} as any));
           const first = (labelData?.results || [])[0];
           if (first?.setid) setLabelSetId(String(first.setid));

@@ -553,8 +553,46 @@ export class SupabaseAuthService {
       } as any
       
     } catch (proxyError: any) {
-      console.error('❌ Auth proxy signup failed:', proxyError)
-      throw new Error(proxyError.message || 'Signup failed')
+      console.warn('Auth proxy unavailable, using Supabase direct signup')
+      // Fallback: use Supabase client directly (frontend-only mode)
+      try {
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: data.email,
+          password: data.password,
+          options: {
+            data: {
+              first_name: data.firstName || '',
+              last_name: data.lastName || '',
+              role: data.role || 'patient',
+              specialty: data.specialty || '',
+              institution: data.institution || '',
+            }
+          }
+        })
+        if (signUpError) throw signUpError
+        if (signUpData?.user) {
+          const userProfile = await this.buildUserProfile(signUpData.user)
+          return userProfile
+        }
+        // Email confirmation required
+        return {
+          id: 'pending-' + Date.now(),
+          email: data.email,
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          role: (data.role || 'patient') as any,
+          preferences: this.getDefaultPreferences(data.role || 'patient'),
+          persona: this.createDefaultPersona(data.role || 'patient'),
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+          isActive: true,
+          roles: [(data.role || 'patient') as any],
+          permissions: this.getRolePermissions(data.role || 'patient'),
+          emailConfirmationPending: true
+        } as any
+      } catch (directError: any) {
+        throw new Error(directError.message || 'Signup failed')
+      }
     }
   }
 

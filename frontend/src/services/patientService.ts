@@ -19,35 +19,37 @@ export class PatientService {
     }
   }
 
+  // Check if we're in frontend-only mode (no backend)
+  private isFrontendOnly(): boolean {
+    const apiUrl = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
+    return !apiUrl?.trim();
+  }
+
   // Get all patients from database (with localStorage fallback)
   public async getPatients(): Promise<Patient[]> {
+    // Skip API call in frontend-only mode — go straight to localStorage
+    if (this.isFrontendOnly()) {
+      return this.getPatientsFromLocalStorage();
+    }
+
     try {
-      // Use minimal headers - backend has optional auth with fallback user
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-      };
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       const token = this.getAuthToken();
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
         headers['X-Forwarded-Authorization'] = `Bearer ${token}`;
       }
-      
+
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-      
-      const response = await fetch(this.API_BASE_URL, {
-        headers,
-        signal: controller.signal
-      });
-      
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+      const response = await fetch(this.API_BASE_URL, { headers, signal: controller.signal });
       clearTimeout(timeoutId);
-      
+
       if (response.ok) {
         const data = await response.json();
-        console.log(`✅ Loaded ${data.patients?.length || 0} patients from database`);
         return (data.patients || []).map((patient: any) => this.transformApiPatient(patient));
       } else {
-        console.error(`❌ API call failed with status ${response.status}: ${response.statusText}`);
         console.error('🔄 Loading patients from localStorage instead');
         return this.getPatientsFromLocalStorage();
       }

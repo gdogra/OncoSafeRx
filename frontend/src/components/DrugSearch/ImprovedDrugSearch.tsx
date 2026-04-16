@@ -255,7 +255,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
     setServerSuggestionsLoading(true);
     const t = setTimeout(async () => {
       try {
-        let resp = await fetch(`/api/drugs/suggestions?q=${encodeURIComponent(filters.query)}&limit=8`).catch(() => null);
+        let resp = await fetch(`https://rxnav.nlm.nih.gov/REST/drugs.json?name=${encodeURIComponent(filters.query)}`).catch(() => null);
         if (!resp || !resp.ok) resp = await rxnormFetchSuggestions(filters.query, parseInt(String(8)) || 12);
         if (!resp.ok) throw new Error('suggestions failed');
         const data = await resp.json();
@@ -317,7 +317,7 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
     setSearchError(null);
     setSearchResults([]);
     try {
-      const resp = await fetch(`/api/drugs/search?q=${encodeURIComponent(q)}`);
+      const resp = await fetch(`https://rxnav.nlm.nih.gov/REST/drugs.json?name=${encodeURIComponent(q)}`);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const data = await resp.json();
       const results = Array.isArray(data?.results) ? data.results : [];

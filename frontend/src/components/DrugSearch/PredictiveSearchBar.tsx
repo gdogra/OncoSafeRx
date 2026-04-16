@@ -94,8 +94,8 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
       setIsLoadingSuggestions(true);
       
       try {
-        // Try Netlify proxy first
-        let response = await fetch(`/api/drugs/suggestions?q=${encodeURIComponent(query)}&limit=${maxSuggestions}`).catch(() => null) as Response | null;
+        // Go straight to RxNorm (no /api/ backend on Netlify)
+        let response = await rxnormFetchSuggestions(query, maxSuggestions || 12).catch(() => null) as Response | null;
         if (!response || !response.ok) response = await rxnormFetchSuggestions(query, maxSuggestions || 12);
         
         // If 502 Bad Gateway, API is temporarily unavailable
@@ -118,8 +118,8 @@ const PredictiveSearchBar: React.FC<PredictiveSearchBarProps> = ({
           // Clear announcement after 1 second
           setTimeout(() => setAnnounceText(''), 1000);
         } else {
-          // Fallback to basic search API (aligns to server format { results: [...] })
-          let fallbackResponse = await fetch(`/api/drugs/search?q=${encodeURIComponent(query)}`);
+          // Fallback to RxNorm direct search (no backend needed)
+          let fallbackResponse = await fetch(`https://rxnav.nlm.nih.gov/REST/drugs.json?name=${encodeURIComponent(query)}`);
           
           // If 502 Bad Gateway, API is temporarily unavailable
           if (fallbackResponse.status === 502) {

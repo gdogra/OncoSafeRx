@@ -57,7 +57,8 @@ export default function SolidDrugSearch({ placeholder, value, onChange, onSelect
     setLoading(true);
     const t = setTimeout(async () => {
       try {
-        let resp = await fetch(`/api/drugs/suggestions?q=${encodeURIComponent(q)}&limit=${maxResults}`).catch(() => null);
+        // Skip backend, go straight to RxNorm (no /api/ backend on Netlify)
+        let resp = await rxnormFetchSuggestions(q, maxResults || 12).catch(() => null) as Response | null;
         if (!resp || !resp.ok) resp = await rxnormFetchSuggestions(q, maxResults || 12);
         if (!resp.ok) throw new Error('HTTP ' + resp.status);
         const data = await resp.json();

@@ -63,7 +63,7 @@ try {
 async function bootstrap() {
   try {
     const hasEnv = !!(import.meta as any)?.env?.VITE_SUPABASE_URL && !!(import.meta as any)?.env?.VITE_SUPABASE_ANON_KEY
-    if (!hasEnv) {
+    if (!hasEnv && typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname)) {
       const resp = await fetch('/api/frontend/config')
       if (resp.ok) {
         const cfg = await resp.json()

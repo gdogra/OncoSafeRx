@@ -36,7 +36,15 @@ export const SelectionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [selectedDrugs, lastSelected]);
 
   const addDrug = (drug: Drug) => {
-    setSelectedDrugs((prev) => (prev.find((d) => d.rxcui === drug.rxcui) ? prev : [...prev, drug]));
+    setSelectedDrugs((prev) => {
+      // Deduplicate by rxcui OR by drug name (case-insensitive)
+      const nameLower = (drug.name || '').toLowerCase().trim();
+      const isDuplicate = prev.some((d) =>
+        d.rxcui === drug.rxcui ||
+        (nameLower && (d.name || '').toLowerCase().trim() === nameLower)
+      );
+      return isDuplicate ? prev : [...prev, drug];
+    });
     setLastSelected(drug);
     // Track popularity counts for local ranking
     try {
@@ -57,8 +65,16 @@ export const SelectionProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const setDrugs = (drugs: Drug[]) => {
-    setSelectedDrugs(drugs);
-    setLastSelected(drugs[drugs.length - 1] || null);
+    // Deduplicate by name (case-insensitive), keeping first occurrence
+    const seen = new Set<string>();
+    const unique = drugs.filter((d) => {
+      const key = (d.name || d.rxcui || '').toLowerCase().trim();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    setSelectedDrugs(unique);
+    setLastSelected(unique[unique.length - 1] || null);
   };
 
   const value = useMemo(

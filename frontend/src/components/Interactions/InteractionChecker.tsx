@@ -9,6 +9,7 @@ import InteractionResults from './InteractionResults';
 import DrugSelector from './DrugSelector';
 import AdvancedInteractionChecker from './AdvancedInteractionChecker';
 import FeatureErrorBoundary from '../ErrorBoundary/FeatureErrorBoundary';
+import HighRiskDrugWarnings from './HighRiskDrugWarnings';
 import PharmacogenomicsPanel from '../Genomics/PharmacogenomicsPanel';
 import DrugIntelligencePanel from '../AI/DrugIntelligencePanel';
 import { AlertTriangle, X, Info, Dna, Brain } from 'lucide-react';
@@ -1127,6 +1128,9 @@ const InteractionCheckerInner: React.FC = () => {
           </div>
         </Alert>
       )}
+
+      {/* High-Risk Drug Warnings */}
+      <HighRiskDrugWarnings drugs={selectedDrugs} />
 
       {/* Results Summary */}
       {results && !loading && (

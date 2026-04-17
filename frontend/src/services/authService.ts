@@ -61,8 +61,37 @@ export class SupabaseAuthService {
    */
   static async handleOAuthCallback(): Promise<UserProfile | null> {
     try {
+      // The Supabase client is configured with detectSessionInUrl: false
+      // so we must exchange the ?code= param explicitly for PKCE flow.
+      // Also handle legacy hash-based (#access_token=...) redirects.
+      try {
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get('code');
+        const hasHashTokens = /access_token=|refresh_token=/.test(window.location.hash || '');
+
+        if (code) {
+          console.log('🔐 Exchanging OAuth code for session...');
+          const { error: exchErr } = await supabase.auth.exchangeCodeForSession(code);
+          if (exchErr) {
+            console.error('exchangeCodeForSession failed:', exchErr);
+            throw new Error(exchErr.message);
+          }
+          // Clean ?code + ?state off the URL so refreshes don't re-exchange
+          url.searchParams.delete('code');
+          url.searchParams.delete('state');
+          window.history.replaceState({}, '', url.pathname + (url.search ? url.search : '') + url.hash);
+        } else if (hasHashTokens) {
+          // Legacy implicit flow: let the SDK parse the hash
+          // (supabase-js still supports this when tokens are in the hash)
+          // No explicit call needed; getSession() below will pick it up.
+        }
+      } catch (exchangeError: any) {
+        console.error('OAuth code exchange error:', exchangeError);
+        throw exchangeError;
+      }
+
       const { data, error } = await supabase.auth.getSession();
-      
+
       if (error) {
         console.error('OAuth callback error:', error);
         throw new Error(error.message);

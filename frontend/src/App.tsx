@@ -20,7 +20,7 @@ import FeedbackButton from './components/Feedback/FeedbackButton';
 import { useGlobalKeyboardShortcuts } from './hooks/useGlobalKeyboardShortcuts';
 import { useVisitorTracking } from './hooks/useVisitorTracking';
 import setupErrorSuppression from './utils/errorSuppression';
-import { checkForUpdates } from './utils/versionCheck';
+import { checkForUpdates, setupChunkLoadErrorHealing } from './utils/versionCheck';
 import { setupConsoleFilter } from './utils/consoleFilter';
 // ── Core pages ────────────────────────────────────────────────
 const DrugSearch = lazy(() => import('./pages/DrugSearch'));
@@ -68,6 +68,11 @@ function AppWithAuth() {
   // Setup console filter for development mode
   React.useEffect(() => {
     setupConsoleFilter();
+    // Auto-heal if the user has a stale index.html / SW pointing at
+    // chunk hashes that no longer exist after a new Netlify deploy
+    setupChunkLoadErrorHealing();
+    // One-shot reload on version bump
+    checkForUpdates();
   }, []);
   
   // Wait for AuthProvider to finish initialization before rendering

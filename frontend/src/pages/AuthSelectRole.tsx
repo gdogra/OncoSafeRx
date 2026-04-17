@@ -24,8 +24,11 @@ const AuthSelectRole: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
 
-  // Verify we have a session; if not, bounce to /auth
+  // Verify we have a session; if not, bounce to /auth. Prefill email/phone
+  // from the Supabase user if available (Google provides email; phone is
+  // typically empty and user-entered).
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -34,24 +37,43 @@ const AuthSelectRole: React.FC = () => {
         if (!cancelled) navigate('/auth', { replace: true });
         return;
       }
-      if (!cancelled) setEmail(data.session.user.email || '');
+      if (!cancelled) {
+        const u = data.session.user;
+        setEmail(u.email || '');
+        setPhone(u.phone || (u.user_metadata as any)?.phone || '');
+      }
     })();
     return () => { cancelled = true };
   }, [navigate]);
 
+  const isValidEmail = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
+  // Accept US + international; allow digits, spaces, +, -, (, ), min 10 digits
+  const isValidPhone = (s: string) => {
+    const digits = s.replace(/\D/g, '');
+    return digits.length >= 10 && digits.length <= 15;
+  };
+
+  const canContinue = !!selected && isValidEmail(email) && isValidPhone(phone) && !isSaving;
+
   const handleContinue = async () => {
-    if (!selected) return;
+    if (!selected) { setError('Please select a role'); return; }
+    if (!isValidEmail(email)) { setError('Please enter a valid email address'); return; }
+    if (!isValidPhone(phone)) { setError('Please enter a valid phone number (10+ digits)'); return; }
     setIsSaving(true);
     setError(null);
 
     try {
-      // 1) Update Supabase user_metadata with the chosen role
+      const trimmedEmail = email.trim();
+      const trimmedPhone = phone.trim();
+
+      // 1) Update Supabase user_metadata with role, phone (and email if changed)
       const { error: updateErr } = await supabase.auth.updateUser({
-        data: { role: selected }
+        data: { role: selected, phone: trimmedPhone, email: trimmedEmail }
       });
       if (updateErr) throw updateErr;
 
-      // 2) Best-effort upsert to public.users table so server-side role checks work
+      // 2) Best-effort upsert to public.users table so server-side role checks work.
+      //    Phone goes into user_metadata (no phone column on public.users per schema).
       try {
         const { data: sess } = await supabase.auth.getSession();
         const u = sess.session?.user;
@@ -60,7 +82,7 @@ const AuthSelectRole: React.FC = () => {
             .from('users')
             .upsert({
               id: u.id,
-              email: u.email,
+              email: trimmedEmail,
               role: selected,
               first_name: (u.user_metadata?.full_name || u.user_metadata?.name || '').split(' ')[0] || null,
               last_name: (u.user_metadata?.full_name || u.user_metadata?.name || '').split(' ').slice(1).join(' ') || null,
@@ -69,6 +91,25 @@ const AuthSelectRole: React.FC = () => {
         }
       } catch (dbErr) {
         console.warn('Role upsert to public.users failed (non-blocking):', dbErr);
+      }
+
+      // 2b) Best-effort upsert phone into user_demographics (if table exists).
+      //     RLS allows user to write own row; ignore failures so a missing
+      //     table/column doesn't block the signup flow.
+      try {
+        const { data: sess } = await supabase.auth.getSession();
+        const u = sess.session?.user;
+        if (u) {
+          await supabase
+            .from('user_demographics')
+            .upsert({
+              user_id: u.id,
+              phone: trimmedPhone,
+              updated_at: new Date().toISOString(),
+            }, { onConflict: 'user_id' });
+        }
+      } catch (demoErr) {
+        console.warn('Phone upsert to user_demographics failed (non-blocking):', demoErr);
       }
 
       // 3) Rebuild the local profile so AuthContext reflects the new role
@@ -131,6 +172,41 @@ const AuthSelectRole: React.FC = () => {
             })}
           </div>
 
+          {/* Contact details */}
+          <div className="space-y-4 mb-6">
+            <div>
+              <label htmlFor="ar-email" className="block text-sm font-medium text-gray-700 mb-1">
+                Email address
+              </label>
+              <input
+                id="ar-email"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                autoComplete="email"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-gray-900"
+              />
+              <p className="mt-1 text-xs text-gray-500">Confirmed from your sign-in provider. Edit if needed.</p>
+            </div>
+
+            <div>
+              <label htmlFor="ar-phone" className="block text-sm font-medium text-gray-700 mb-1">
+                Phone number
+              </label>
+              <input
+                id="ar-phone"
+                type="tel"
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                placeholder="+1 (555) 123-4567"
+                autoComplete="tel"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 text-gray-900"
+              />
+              <p className="mt-1 text-xs text-gray-500">Used for account recovery and urgent clinical alerts only.</p>
+            </div>
+          </div>
+
           {error && (
             <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
               {error}
@@ -140,7 +216,7 @@ const AuthSelectRole: React.FC = () => {
           <button
             type="button"
             onClick={handleContinue}
-            disabled={!selected || isSaving}
+            disabled={!canContinue}
             className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
           >
             {isSaving ? (

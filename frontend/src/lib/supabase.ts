@@ -47,7 +47,12 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false,
+    // Must be true for PKCE OAuth flow — Supabase auto-exchanges the
+    // ?code= param on return from Google during client init, BEFORE
+    // AuthContext's useEffect runs. This avoids a race where the
+    // App-level "Initializing..." gate mounts before AuthCallback can
+    // run its exchange.
+    detectSessionInUrl: true,
     debug: import.meta.env.MODE !== 'production',
     flowType: 'pkce',
     storageKey: 'oncosaferx-auth'

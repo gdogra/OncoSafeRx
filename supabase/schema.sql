@@ -305,32 +305,21 @@ create policy "users_update_policy" on public.users
     auth.uid() = id or public.is_admin()
   );
 
--- Trigger function to handle new user creation
-create or replace function public.handle_new_user()
-returns trigger language plpgsql security definer as $$
-begin
-  insert into public.users (id, email, first_name, last_name, role, full_name)
-  values (
-    new.id,
-    new.email,
-    coalesce(new.raw_user_meta_data->>'first_name', ''),
-    coalesce(new.raw_user_meta_data->>'last_name', ''),
-    coalesce(new.raw_user_meta_data->>'role', 'user'),
-    concat(
-      coalesce(new.raw_user_meta_data->>'first_name', ''),
-      ' ',
-      coalesce(new.raw_user_meta_data->>'last_name', '')
-    )
-  );
-  return new;
-end;
-$$;
+-- NOTE: The previous on_auth_user_created trigger + handle_new_user() function
+-- were intentionally removed. They auto-inserted public.users with a default
+-- role of 'user' which is NOT a valid application role and caused OAuth
+-- signups to bypass /auth/select-role and then be rejected by RBAC.
+--
+-- The application now handles public.users population client-side in
+-- frontend/src/pages/AuthSelectRole.tsx after the user picks a valid role.
+--
+-- Do not re-introduce this trigger without also ensuring it sets a role
+-- that is in the validated enum set (patient, caregiver, oncologist,
+-- pharmacist, nurse, researcher, student, admin, super_admin) or NULL.
 
--- Trigger to automatically create user profile on signup
+-- Ensure any previously-created trigger/function is gone (idempotent)
 drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute function public.handle_new_user();
+drop function if exists public.handle_new_user();
 
 -- Trigger to update updated_at timestamp
 create trigger trg_users_updated_at

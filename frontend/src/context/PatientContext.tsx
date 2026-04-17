@@ -222,8 +222,15 @@ const useAuthSafely = () => {
 const PATIENTS_DISABLED = String((import.meta as any)?.env?.VITE_PATIENTS_DISABLED || '').toLowerCase() === 'true';
 // Feature flag: disable fallback sample patients entirely
 const DISABLE_SAMPLE_PATIENTS = String((import.meta as any)?.env?.VITE_DISABLE_SAMPLE_PATIENTS || '').toLowerCase() === 'true';
-// Feature flag: enable backend patient API calls
-const ENABLE_PATIENT_API = String((import.meta as any)?.env?.VITE_ENABLE_PATIENT_API || '').toLowerCase() === 'true';
+// Feature flag: enable backend patient API calls.
+// Require BOTH the explicit opt-in AND a configured backend URL. This prevents
+// 404s on Netlify (where no Express backend is deployed) even if the flag is
+// accidentally toggled on in env vars.
+const _API_URL = ((import.meta as any)?.env?.VITE_API_URL as string | undefined) || '';
+const _HAS_BACKEND = !!_API_URL.trim();
+const ENABLE_PATIENT_API =
+  _HAS_BACKEND &&
+  String((import.meta as any)?.env?.VITE_ENABLE_PATIENT_API || '').toLowerCase() === 'true';
 
 export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (PATIENTS_DISABLED) {

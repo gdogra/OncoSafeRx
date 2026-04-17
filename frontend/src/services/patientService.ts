@@ -73,12 +73,16 @@ export class PatientService {
 
   // Get patient by ID from database (with localStorage fallback)
   public async getPatient(id: string): Promise<Patient | null> {
+    if (this.isFrontendOnly()) {
+      const patients = this.getPatientsFromLocalStorage();
+      return patients.find(p => p.id === id) || null;
+    }
     try {
       // Use minimal headers - backend has optional auth with fallback user
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
       };
-      
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
@@ -109,6 +113,10 @@ export class PatientService {
 
   // Save patient to database (with localStorage fallback)
   public async savePatient(patient: Patient): Promise<Patient> {
+    if (this.isFrontendOnly()) {
+      this.savePatientToLocalStorage(patient);
+      return patient;
+    }
     try {
       console.log('🚀 savePatient called with:', { id: patient.id, name: `${patient.firstName} ${patient.lastName}` });
       console.log('🌐 API_BASE_URL:', this.API_BASE_URL);
@@ -235,12 +243,16 @@ export class PatientService {
 
   // Delete patient from database (with localStorage fallback)
   public async deletePatient(id: string): Promise<void> {
+    if (this.isFrontendOnly()) {
+      this.deletePatientFromLocalStorage(id);
+      return;
+    }
     try {
       // Use minimal headers - backend has optional auth with fallback user
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
       };
-      
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       
@@ -280,12 +292,19 @@ export class PatientService {
 
   // Search patients from database (with localStorage fallback)
   public async searchPatients(query: string): Promise<Patient[]> {
+    if (this.isFrontendOnly()) {
+      const q = query.toLowerCase();
+      return this.getPatientsFromLocalStorage().filter(p =>
+        `${p.firstName} ${p.lastName}`.toLowerCase().includes(q) ||
+        (p.mrn || '').toLowerCase().includes(q)
+      );
+    }
     try {
       // Use minimal headers - backend has optional auth with fallback user
       const headers: Record<string, string> = {
         'Content-Type': 'application/json'
       };
-      
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
       

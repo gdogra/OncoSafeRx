@@ -179,19 +179,26 @@ const AuthPage: React.FC = () => {
     }
     
     let cancelled = false;
+    // Skip auth proxy health check in frontend-only mode — no backend exists
+    const apiUrl = (import.meta as any)?.env?.VITE_API_URL as string | undefined
+    const isFrontendOnly = !apiUrl?.trim()
+    if (isFrontendOnly) {
+      if (!cancelled) setProxyEnabled(false)
+      return () => { cancelled = true }
+    }
     (async () => {
       try {
         const backend = (import.meta as any)?.env?.VITE_BACKEND_URL || ''
         const tryOne = async (u: string) => {
           const ctl = new AbortController();
           const t = setTimeout(() => ctl.abort(), 1500);
-          try { 
-            const r = await fetch(u, { signal: ctl.signal }); 
-            return r.ok ? await r.json() : null 
+          try {
+            const r = await fetch(u, { signal: ctl.signal });
+            return r.ok ? await r.json() : null
           } catch (e) {
             return null;
-          } finally { 
-            clearTimeout(t) 
+          } finally {
+            clearTimeout(t)
           }
         }
         const a = await tryOne('/api/supabase-auth/health') || await tryOne(`${backend}/api/supabase-auth/health`)

@@ -28,12 +28,45 @@ const AuthCallback: React.FC = () => {
 
         // Handle the OAuth callback
         const userProfile = await SupabaseAuthService.handleOAuthCallback();
-        
+
         if (userProfile) {
-          console.log('✅ OAuth callback successful, redirecting to dashboard');
-          // Give a moment for the auth context to update
+          console.log('✅ OAuth callback successful');
+
+          // Detect "new" Google users who haven't picked a role yet.
+          // A user is considered "new" when their Supabase user_metadata has
+          // no role AND they haven't been assigned one from the DB. In that
+          // case buildUserProfile falls back to a generic default — we want
+          // to explicitly prompt for role selection before proceeding.
+          const { supabase } = await import('../lib/supabase');
+          const { data: sess } = await supabase.auth.getSession();
+          const u = sess.session?.user;
+          const metadataRole = u?.user_metadata?.role;
+          const provider = u?.app_metadata?.provider;
+          const isOAuthSignup = provider === 'google' || provider === 'github';
+
+          // Check the users table for an existing role
+          let dbRole: string | null = null;
+          if (u?.id) {
+            try {
+              const { data: dbUser } = await supabase
+                .from('users')
+                .select('role')
+                .eq('id', u.id)
+                .maybeSingle();
+              dbRole = (dbUser as any)?.role || null;
+            } catch { /* non-blocking */ }
+          }
+
+          const needsRoleSelection = isOAuthSignup && !metadataRole && !dbRole;
+
           setTimeout(() => {
-            navigate('/', { replace: true });
+            if (needsRoleSelection) {
+              console.log('🆕 New OAuth user — prompting for role selection');
+              navigate('/auth/select-role', { replace: true });
+            } else {
+              console.log('✅ Existing role detected, redirecting to dashboard');
+              navigate('/', { replace: true });
+            }
           }, 100);
         } else {
           console.warn('⚠️ No user profile returned from OAuth callback');

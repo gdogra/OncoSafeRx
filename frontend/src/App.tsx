@@ -35,6 +35,7 @@ const Profile = lazy(() => import('./pages/Profile'));
 // ── Auth pages ───────────────────────────────────────────────
 const AuthPage = lazy(() => import('./pages/AuthPage'));
 const AuthCallback = lazy(() => import('./pages/AuthCallback'));
+const AuthSelectRole = lazy(() => import('./pages/AuthSelectRole'));
 const AuthCheckEmail = lazy(() => import('./pages/AuthCheckEmail'));
 const AuthOtpVerify = lazy(() => import('./pages/AuthOtpVerify'));
 const AuthEmailConfirm = lazy(() => import('./pages/AuthEmailConfirm'));
@@ -97,6 +98,7 @@ function AppWithAuth() {
                 <Route path="/login" element={<AuthPage />} />
                 <Route path="/signup" element={<AuthPage />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
+                <Route path="/auth/select-role" element={<AuthSelectRole />} />
                 <Route path="/auth/check-email" element={<AuthCheckEmail />} />
                 <Route path="/auth/otp-verify" element={<AuthOtpVerify />} />
                 <Route path="/auth/email-confirm" element={<AuthEmailConfirm />} />

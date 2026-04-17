@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { SupabaseAuthService } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
@@ -9,11 +9,27 @@ const AuthCallback: React.FC = () => {
   const { actions } = useAuth();
   const [isProcessing, setIsProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const ranRef = useRef(false);
 
   useEffect(() => {
+    // React StrictMode runs effects twice in dev; guard against double-exchange
+    if (ranRef.current) return;
+    ranRef.current = true;
+
+    // Safety net: if anything hangs for >20s, surface a visible error
+    const hangTimer = setTimeout(() => {
+      console.error('⏱️ OAuth callback timed out after 20s');
+      setError('Sign-in is taking too long. Please try again.');
+      setIsProcessing(false);
+    }, 20_000);
+
     const handleCallback = async () => {
       try {
-        console.log('🔍 OAuth callback processing...');
+        console.log('🔍 OAuth callback processing...', {
+          hasCode: !!searchParams.get('code'),
+          hasHash: !!window.location.hash,
+          url: window.location.pathname + window.location.search,
+        });
         
         // Check for error parameters in URL
         const errorParam = searchParams.get('error');
@@ -52,17 +68,28 @@ const AuthCallback: React.FC = () => {
           const provider = u?.app_metadata?.provider;
           const isOAuthSignup = provider === 'google' || provider === 'github';
 
-          // Check the users table for an existing valid role
+          // Check the users table for an existing valid role (5s timeout
+          // so a slow/blocked RLS query can't stall the whole callback)
           let dbRole: string | null = null;
           if (u?.id) {
             try {
-              const { data: dbUser } = await supabase
+              const query = supabase
                 .from('users')
                 .select('role')
                 .eq('id', u.id)
                 .maybeSingle();
-              dbRole = (dbUser as any)?.role || null;
-            } catch { /* non-blocking */ }
+              const result: any = await Promise.race([
+                query,
+                new Promise(resolve => setTimeout(() => resolve({ data: null, timedOut: true }), 5000))
+              ]);
+              if (result?.timedOut) {
+                console.warn('⏱️ users role lookup timed out — treating as no role');
+              } else {
+                dbRole = (result?.data as any)?.role || null;
+              }
+            } catch (e) {
+              console.warn('users role lookup error (non-blocking):', e);
+            }
           }
 
           // Needs role selection if OAuth signup AND neither source has a
@@ -92,11 +119,15 @@ const AuthCallback: React.FC = () => {
         console.error('❌ OAuth callback error:', error);
         setError(error instanceof Error ? error.message : 'Authentication failed');
         setIsProcessing(false);
+      } finally {
+        clearTimeout(hangTimer);
       }
     };
 
     handleCallback();
-  }, [searchParams, navigate]);
+    return () => { clearTimeout(hangTimer); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Handle errors by redirecting back to auth page
   useEffect(() => {

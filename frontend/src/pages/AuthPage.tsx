@@ -461,15 +461,15 @@ const AuthPage: React.FC = () => {
     if (!validateSignupStep2()) return;
     
     try {
-      const result = await actions.signup(signupData);
-      
-      // Redirect to OTP verification for phone confirmation
-      console.log('✅ Signup successful, redirecting to OTP verification');
-      const params = new URLSearchParams({ 
-        phone: signupData.phone,
-        email: signupData.email
-      });
-      navigate(`/auth/verify-otp?${params.toString()}`);
+      const result: any = await actions.signup(signupData);
+
+      if (result?.emailConfirmationPending) {
+        console.log('📧 Signup successful — email confirmation required');
+        navigate(`/auth/check-email?email=${encodeURIComponent(signupData.email)}`);
+      } else {
+        console.log('✅ Signup successful — session active, redirecting to dashboard');
+        navigate('/', { replace: true });
+      }
     } catch (error) {
       console.error('❌ Signup failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Signup failed. Please try again.';

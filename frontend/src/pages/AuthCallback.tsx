@@ -52,7 +52,6 @@ const AuthCallback: React.FC = () => {
         return;
       }
 
-      // Strip ?code/?state so refresh doesn't re-exchange
       try {
         const url = new URL(window.location.href);
         url.searchParams.delete('code');
@@ -74,35 +73,52 @@ const AuthCallback: React.FC = () => {
       }
     };
 
-    // 1) Listen for SIGNED_IN — fires when SDK finishes auto-exchange
-    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('🔔 onAuthStateChange:', event, !!session?.user);
-      if (event === 'SIGNED_IN' && session?.user) {
-        settle(session.user);
-      }
-    });
+    const withTimeout = <T,>(p: Promise<T>, ms: number, label: string): Promise<T> =>
+      Promise.race([
+        p,
+        new Promise<T>((_, reject) => setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)),
+      ]);
 
-    // 2) Also poll getSession() in case the event fired before we subscribed
+    // Absolute ceiling for the whole callback
+    const ceiling = setTimeout(() => {
+      if (!settled) settle(null, 'Sign-in timed out. Please try again.');
+    }, 15000);
+
     (async () => {
-      const deadline = Date.now() + 8000;
-      while (!settled && Date.now() < deadline) {
-        try {
-          const { data } = await supabase.auth.getSession();
+      const code = searchParams.get('code');
+      try {
+        if (code) {
+          console.log('🔐 Exchanging OAuth code for session…');
+          const { data, error } = await withTimeout(
+            supabase.auth.exchangeCodeForSession(code),
+            10000,
+            'exchangeCodeForSession'
+          ) as any;
+          if (error) throw error;
           if (data?.session?.user) {
+            console.log('✅ Exchange succeeded');
             settle(data.session.user);
             return;
           }
-        } catch (e) {
-          console.warn('getSession poll error:', e);
         }
-        await new Promise(r => setTimeout(r, 300));
+
+        // Fallback: maybe session is already present (hash flow / retry)
+        const { data } = await withTimeout(supabase.auth.getSession(), 5000, 'getSession') as any;
+        if (data?.session?.user) {
+          settle(data.session.user);
+          return;
+        }
+
+        settle(null, 'No session established. Please try again.');
+      } catch (e: any) {
+        console.error('❌ OAuth callback error:', e);
+        settle(null, e?.message || 'Authentication failed');
       }
-      if (!settled) settle(null, 'Sign-in timed out. Please try again.');
     })();
 
     return () => {
       settled = true;
-      sub?.subscription?.unsubscribe();
+      clearTimeout(ceiling);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

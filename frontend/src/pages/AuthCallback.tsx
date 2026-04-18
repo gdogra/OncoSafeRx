@@ -82,23 +82,85 @@ const AuthCallback: React.FC = () => {
     // Absolute ceiling for the whole callback
     const ceiling = setTimeout(() => {
       if (!settled) settle(null, 'Sign-in timed out. Please try again.');
-    }, 15000);
+    }, 30000);
+
+    const directExchange = async (code: string): Promise<any> => {
+      const su = ((import.meta as any)?.env?.VITE_SUPABASE_URL as string || '').trim();
+      const sk = ((import.meta as any)?.env?.VITE_SUPABASE_ANON_KEY as string || '').trim();
+      if (!su || !sk) throw new Error('Supabase env missing for direct exchange');
+
+      // PKCE verifier is stored by supabase-js under a key derived from the project ref
+      let verifier = '';
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i) || '';
+          if (k.endsWith('-code-verifier')) {
+            verifier = localStorage.getItem(k) || '';
+            if (verifier) break;
+          }
+        }
+      } catch {}
+      if (!verifier) throw new Error('PKCE code_verifier missing from storage');
+
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 20000);
+      try {
+        const resp = await fetch(`${su}/auth/v1/token?grant_type=pkce`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: sk,
+            Authorization: `Bearer ${sk}`,
+          },
+          body: JSON.stringify({ auth_code: code, code_verifier: verifier }),
+          signal: ctrl.signal,
+        });
+        const body = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw new Error(body?.error_description || body?.msg || `token exchange ${resp.status}`);
+        return body;
+      } finally {
+        clearTimeout(timer);
+      }
+    };
 
     (async () => {
       const code = searchParams.get('code');
       try {
         if (code) {
-          console.log('🔐 Exchanging OAuth code for session…');
-          const { data, error } = await withTimeout(
-            supabase.auth.exchangeCodeForSession(code),
-            10000,
-            'exchangeCodeForSession'
-          ) as any;
-          if (error) throw error;
-          if (data?.session?.user) {
-            console.log('✅ Exchange succeeded');
-            settle(data.session.user);
-            return;
+          console.log('🔐 Exchanging OAuth code for session (SDK)…');
+          try {
+            const { data, error } = await withTimeout(
+              supabase.auth.exchangeCodeForSession(code),
+              12000,
+              'exchangeCodeForSession'
+            ) as any;
+            if (error) throw error;
+            if (data?.session?.user) {
+              console.log('✅ SDK exchange succeeded');
+              settle(data.session.user);
+              return;
+            }
+          } catch (sdkErr: any) {
+            console.warn('⚠️ SDK exchange failed, trying direct fetch:', sdkErr?.message);
+            const tokens = await directExchange(code);
+            if (tokens?.access_token) {
+              console.log('✅ Direct exchange succeeded, seeding session');
+              const { data: setData, error: setErr } = await withTimeout(
+                supabase.auth.setSession({
+                  access_token: tokens.access_token,
+                  refresh_token: tokens.refresh_token,
+                }),
+                8000,
+                'setSession'
+              ) as any;
+              if (setErr) throw setErr;
+              const user = setData?.session?.user || tokens.user;
+              if (user) {
+                settle(user);
+                return;
+              }
+            }
+            throw sdkErr;
           }
         }
 

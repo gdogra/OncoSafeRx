@@ -62,9 +62,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       'Content-Type': 'application/json'
     },
     fetch: async (url, options = {}) => {
-      // Add timeout and better error handling
+      // Add timeout and better error handling. 30s is enough headroom for
+      // cold Supabase edge regions / slow mobile networks while still
+      // protecting against truly dead requests.
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 30000)
       const doFetch = async () => fetch(url as any, { ...(options as any), signal: controller.signal })
       try {
         return await doFetch()

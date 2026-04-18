@@ -1128,7 +1128,7 @@ const AuthPage: React.FC = () => {
                         id="specialty"
                         value={signupData.specialty || ''}
                         onChange={(e) => handleInputChange('specialty', e.target.value)}
-                        className={`mt-1 block w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                        className={`mt-1 block w-full border rounded-md px-3 py-2 text-sm bg-white text-gray-900 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                           errors.specialty ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
                         }`}
                       >

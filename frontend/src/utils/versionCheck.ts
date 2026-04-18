@@ -1,6 +1,6 @@
 // Force browser to reload when new version is deployed
 export const VERSION_CHECK = {
-  current: "2026-04-17.005",
+  current: "2026-04-17.006",
   timestamp: Date.now()
 };
 

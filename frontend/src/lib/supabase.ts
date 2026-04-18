@@ -47,12 +47,13 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    // We handle PKCE code exchange explicitly in AuthCallback with a
-    // hard timeout, so auto-exchange is disabled to avoid a race where
-    // both paths try to consume the same ?code= and one hangs.
-    detectSessionInUrl: false,
+    // Use implicit flow for OAuth — Google returns tokens in the URL
+    // hash (#access_token=...) rather than a ?code= that needs exchange.
+    // This eliminates the PKCE dance entirely (no code_verifier to lose
+    // in localStorage, no server-side exchange call that can hang).
+    detectSessionInUrl: true,
     debug: import.meta.env.MODE !== 'production',
-    flowType: 'pkce',
+    flowType: 'implicit',
     storageKey: 'oncosaferx-auth'
   },
   global: {

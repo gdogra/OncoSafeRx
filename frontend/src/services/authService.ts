@@ -518,9 +518,59 @@ export class SupabaseAuthService {
   static async signup(data: SignupData): Promise<UserProfile> {
     console.log('📝 Signup attempt for:', data.email)
 
-    // Use server-side auth proxy to bypass Supabase email confirmation issues
+    // Frontend-only mode: skip the /api/supabase-auth/proxy/signup call
+    // (no Express backend deployed) and go straight to Supabase's client.
+    const _hasApi = !!((import.meta as any)?.env?.VITE_API_URL as string)?.trim();
+    if (!_hasApi) {
+      console.log('🔄 Frontend-only mode: signing up via Supabase client directly')
+      try {
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: data.email,
+          password: data.password,
+          options: {
+            data: {
+              first_name: data.firstName || '',
+              last_name: data.lastName || '',
+              role: data.role || 'patient',
+              specialty: data.specialty || '',
+              institution: data.institution || '',
+              license_number: data.licenseNumber || '',
+              years_experience: data.yearsExperience || 0,
+              phone: data.phone || '',
+            }
+          }
+        });
+        if (signUpError) throw signUpError;
+        if (signUpData?.user && signUpData.session) {
+          const userProfile = await this.buildUserProfile(signUpData.user, data);
+          try { localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile)); } catch {}
+          return userProfile;
+        }
+        // Email confirmation required — return a pending profile
+        return {
+          id: 'pending-' + Date.now(),
+          email: data.email,
+          firstName: data.firstName || '',
+          lastName: data.lastName || '',
+          role: (data.role || 'patient') as any,
+          preferences: this.getDefaultPreferences(data.role || 'patient'),
+          persona: this.createDefaultPersona(data.role || 'patient'),
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+          isActive: true,
+          roles: [(data.role || 'patient') as any],
+          permissions: this.getRolePermissions(data.role || 'patient'),
+          emailConfirmationPending: true
+        } as any;
+      } catch (directError: any) {
+        console.error('❌ Direct Supabase signup failed:', directError);
+        throw new Error(directError.message || 'Signup failed');
+      }
+    }
+
+    // Backend mode: use server-side auth proxy
     console.log('🔄 Using server-side auth proxy for signup...')
-    
+
     try {
       const resp = await fetch('/api/supabase-auth/proxy/signup', {
         method: 'POST',

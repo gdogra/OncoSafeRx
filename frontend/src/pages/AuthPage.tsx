@@ -1156,7 +1156,7 @@ const AuthPage: React.FC = () => {
                           type="text"
                           value={signupData.institution || ''}
                           onChange={(e) => handleInputChange('institution', e.target.value)}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         />
                         <Building className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
                       </div>
@@ -1174,7 +1174,7 @@ const AuthPage: React.FC = () => {
                           type="text"
                           value={signupData.licenseNumber || ''}
                           onChange={(e) => handleInputChange('licenseNumber', e.target.value)}
-                          className={`block w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                          className={`block w-full border rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
                             errors.licenseNumber ? 'border-red-300' : 'border-gray-300 dark:border-gray-600'
                           }`}
                         />
@@ -1199,7 +1199,7 @@ const AuthPage: React.FC = () => {
                           max="50"
                           value={signupData.yearsExperience || ''}
                           onChange={(e) => handleInputChange('yearsExperience', e.target.value)}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         />
                         <Calendar className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
                       </div>
@@ -1224,7 +1224,7 @@ const AuthPage: React.FC = () => {
                             max="120"
                             value={signupData.age || ''}
                             onChange={(e) => handleInputChange('age', e.target.value)}
-                            className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                             placeholder="Enter your age"
                           />
                         </div>
@@ -1244,7 +1244,7 @@ const AuthPage: React.FC = () => {
                             type="date"
                             value={signupData.dateOfBirth || ''}
                             onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
-                            className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                           />
                         </div>
                       </div>
@@ -1297,7 +1297,7 @@ const AuthPage: React.FC = () => {
                               handleInputChange('height', Number.isFinite(n) ? String(Math.round(n)) : String(signupData.height || ''));
                             }
                           }}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                           placeholder="Enter cm or e.g., 5' 10&quot;"
                         />
                       ) : (
@@ -1320,7 +1320,7 @@ const AuthPage: React.FC = () => {
                               const cm = convertHeightToCm(feet, inches);
                               handleInputChange('height', cm.toString());
                             }}
-                            className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                             placeholder="ft"
                           />
                           <input
@@ -1341,7 +1341,7 @@ const AuthPage: React.FC = () => {
                               const cm = convertHeightToCm(feet, inches);
                               handleInputChange('height', cm.toString());
                             }}
-                            className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                            className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                             placeholder="in"
                           />
                         </div>
@@ -1395,7 +1395,7 @@ const AuthPage: React.FC = () => {
                           const kg = weightUnit === 'kg' ? value : convertWeightToKg(value);
                           handleInputChange('weight', isNaN(kg) ? '' : String(kg));
                         }}
-                        className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         placeholder={`Enter weight in ${weightUnit}`}
                       />
                       {errors.weight && (
@@ -1413,7 +1413,7 @@ const AuthPage: React.FC = () => {
                           id="sex"
                           value={signupData.sex || ''}
                           onChange={(e) => handleInputChange('sex', e.target.value)}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         >
                           <option value="">Select...</option>
                           <option value="male">Male</option>
@@ -1434,7 +1434,7 @@ const AuthPage: React.FC = () => {
                           id="ethnicity"
                           value={signupData.ethnicity || ''}
                           onChange={(e) => handleInputChange('ethnicity', e.target.value)}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         >
                           <option value="">Select...</option>
                           <option value="asian">Asian</option>
@@ -1461,7 +1461,7 @@ const AuthPage: React.FC = () => {
                           type="text"
                           value={signupData.primaryLanguage || ''}
                           onChange={(e) => handleInputChange('primaryLanguage', e.target.value)}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                           placeholder="e.g., English, Spanish"
                         />
                       </div>
@@ -1478,7 +1478,7 @@ const AuthPage: React.FC = () => {
                           type="text"
                           value={signupData.emergencyContact || ''}
                           onChange={(e) => handleInputChange('emergencyContact', e.target.value)}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                           placeholder="Name and phone number"
                         />
                       </div>
@@ -1493,7 +1493,7 @@ const AuthPage: React.FC = () => {
                         <select
                           value={signupData.address?.country || ''}
                           onChange={(e) => handleInputChange('address.country', e.target.value)}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         >
                           <option value="">Select Country</option>
                           <option value="United States">United States</option>
@@ -1517,7 +1517,7 @@ const AuthPage: React.FC = () => {
                           type="text"
                           value={signupData.address?.street || ''}
                           onChange={(e) => handleInputChange('address.street', e.target.value)}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                           placeholder="Street address"
                         />
                       </div>
@@ -1528,7 +1528,7 @@ const AuthPage: React.FC = () => {
                           type="text"
                           value={signupData.address?.streetLine2 || ''}
                           onChange={(e) => handleInputChange('address.streetLine2', e.target.value)}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                           placeholder="Apartment, suite, unit, etc. (optional)"
                         />
                       </div>
@@ -1539,14 +1539,14 @@ const AuthPage: React.FC = () => {
                           type="text"
                           value={signupData.address?.city || ''}
                           onChange={(e) => handleInputChange('address.city', e.target.value)}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                           placeholder="City"
                         />
                         <input
                           type="text"
                           value={signupData.address?.state || ''}
                           onChange={(e) => handleInputChange('address.state', e.target.value)}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                           placeholder={
                             signupData.address?.country === 'United States' ? 'State' :
                             signupData.address?.country === 'Canada' ? 'Province' :
@@ -1565,7 +1565,7 @@ const AuthPage: React.FC = () => {
                           type="text"
                           value={signupData.address?.zipCode || ''}
                           onChange={(e) => handleInputChange('address.zipCode', e.target.value)}
-                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="block w-full border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-900 bg-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                           placeholder={
                             signupData.address?.country === 'United States' ? 'ZIP Code' :
                             signupData.address?.country === 'United Kingdom' ? 'Postcode' :
@@ -1754,7 +1754,7 @@ const ForgotPasswordLink: React.FC = () => {
             value={resetEmail}
             onChange={(e) => setResetEmail(e.target.value)}
             placeholder="Enter your email address"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 bg-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
             required
           />
         </div>

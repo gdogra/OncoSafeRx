@@ -258,10 +258,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Failsafe timeout to prevent infinite loading - increased for better auth restoration
     const failsafeTimeout = setTimeout(() => {
       if (mounted) {
-        console.warn('🚨 AuthContext: Failsafe timeout triggered after 15 seconds - forcing initialization complete');
+        console.warn('🚨 AuthContext: Failsafe timeout triggered after 5s - forcing initialization complete');
         dispatch({ type: 'AUTH_INITIALIZED' });
       }
-    }, 15000); // 15 second timeout for production auth restoration
+    }, 5000);
 
     // Check for current session
     const checkCurrentUser = async () => {

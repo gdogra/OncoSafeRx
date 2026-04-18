@@ -61,36 +61,38 @@ export class SupabaseAuthService {
    */
   static async handleOAuthCallback(): Promise<UserProfile | null> {
     try {
-      // The Supabase client is configured with detectSessionInUrl: false
-      // so we must exchange the ?code= param explicitly for PKCE flow.
-      // Also handle legacy hash-based (#access_token=...) redirects.
+      // The Supabase client is configured with detectSessionInUrl: true,
+      // so the SDK automatically exchanges ?code= for a session during
+      // client init (before this handler runs). We just wait briefly for
+      // the session to be available and then read it.
+      console.log('🔍 handleOAuthCallback: reading session (auto-exchanged by SDK)');
+
+      // Poll getSession() for up to 6s — covers the window where the SDK
+      // is still finishing its auto-exchange on first render.
+      let session: any = null;
+      const deadline = Date.now() + 6000;
+      let lastErr: any = null;
+      while (Date.now() < deadline) {
+        try {
+          const { data, error } = await supabase.auth.getSession();
+          if (error) { lastErr = error; }
+          if (data?.session?.user) { session = data.session; break; }
+        } catch (e) { lastErr = e; }
+        await new Promise(r => setTimeout(r, 250));
+      }
+
+      // Clean ?code + ?state off the URL regardless, so refreshes are idempotent
       try {
         const url = new URL(window.location.href);
-        const code = url.searchParams.get('code');
-        const hasHashTokens = /access_token=|refresh_token=/.test(window.location.hash || '');
-
-        if (code) {
-          console.log('🔐 Exchanging OAuth code for session...');
-          const { error: exchErr } = await supabase.auth.exchangeCodeForSession(code);
-          if (exchErr) {
-            console.error('exchangeCodeForSession failed:', exchErr);
-            throw new Error(exchErr.message);
-          }
-          // Clean ?code + ?state off the URL so refreshes don't re-exchange
+        if (url.searchParams.has('code') || url.searchParams.has('state')) {
           url.searchParams.delete('code');
           url.searchParams.delete('state');
           window.history.replaceState({}, '', url.pathname + (url.search ? url.search : '') + url.hash);
-        } else if (hasHashTokens) {
-          // Legacy implicit flow: let the SDK parse the hash
-          // (supabase-js still supports this when tokens are in the hash)
-          // No explicit call needed; getSession() below will pick it up.
         }
-      } catch (exchangeError: any) {
-        console.error('OAuth code exchange error:', exchangeError);
-        throw exchangeError;
-      }
+      } catch {}
 
-      const { data, error } = await supabase.auth.getSession();
+      const data = { session } as any;
+      const error = session ? null : (lastErr || null);
 
       if (error) {
         console.error('OAuth callback error:', error);
@@ -98,15 +100,45 @@ export class SupabaseAuthService {
       }
 
       if (data.session?.user) {
-        console.log('✅ OAuth session established', { 
-          userId: data.session.user.id, 
+        console.log('✅ OAuth session established', {
+          userId: data.session.user.id,
           email: data.session.user.email,
-          provider: data.session.user.app_metadata?.provider 
+          provider: data.session.user.app_metadata?.provider
         });
-        
-        const userProfile = await this.buildUserProfile(data.session.user);
-        
-        try { 
+
+        // IMPORTANT: Do NOT call buildUserProfile() here. It performs
+        // multiple DB/REST lookups (users table, /api/supabase-auth/profile,
+        // etc.) that can hang the callback flow — especially for brand-new
+        // users who don't yet have a row in public.users. Build a minimal
+        // profile from session metadata only; the full profile is assembled
+        // later by AuthContext's state listener / getCurrentUser() after
+        // role selection completes.
+        const u = data.session.user;
+        const meta: any = u.user_metadata || {};
+        const metaRole = typeof meta.role === 'string' ? meta.role : '';
+        const local = (u.email || '').split('@')[0] || '';
+        const parts = local ? local.split(/[._-]+/).filter(Boolean) : [];
+        const toTitle = (s: string) => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : s;
+        const userProfile: UserProfile = {
+          id: u.id,
+          email: u.email || '',
+          firstName: meta.first_name || (meta.full_name ? String(meta.full_name).split(' ')[0] : '') || toTitle(parts[0] || '') || 'User',
+          lastName: meta.last_name || (meta.full_name ? String(meta.full_name).split(' ').slice(1).join(' ') : '') || toTitle(parts[1] || '') || '',
+          role: (metaRole || 'patient') as any,
+          specialty: meta.specialty || '',
+          institution: meta.institution || '',
+          licenseNumber: meta.license_number || '',
+          yearsExperience: meta.years_experience || 0,
+          preferences: this.getDefaultPreferences(metaRole || 'patient'),
+          persona: this.createDefaultPersona(metaRole || 'patient'),
+          createdAt: u.created_at || new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+          isActive: true,
+          roles: [(metaRole || 'patient') as any],
+          permissions: this.getRolePermissions(metaRole || 'patient'),
+        } as any;
+
+        try {
           localStorage.setItem('osrx_auth_path', JSON.stringify({ path: 'oauth', at: Date.now() }));
           localStorage.setItem('osrx_user_profile', JSON.stringify(userProfile));
         } catch {}

@@ -1453,11 +1453,89 @@ export class SupabaseAuthService {
       } else {
         console.warn('⚠️ No auth tokens found, attempting server update without Authorization')
       }
-      // Skip backend profile update in frontend-only mode
+      // In frontend-only mode write directly to Supabase. Previously
+      // this faked a success response without persisting anything,
+      // which is why users saw "saved" but the DB never updated.
       const _isFrontendOnly = !((import.meta as any)?.env?.VITE_API_URL as string)?.trim();
       if (_isFrontendOnly) {
-        console.log('Frontend-only mode: skipping backend profile update, using Supabase directly');
-        response = new Response(JSON.stringify({ success: true, source: 'supabase-direct' }), { status: 200 });
+        console.log('Frontend-only mode: writing profile directly to Supabase');
+        try {
+          // 1) user_metadata on auth.users — survives even if the
+          //    public.users row hasn't been created yet
+          const metaUpdates: Record<string, any> = {};
+          if (updates.firstName !== undefined) metaUpdates.first_name = updates.firstName;
+          if (updates.lastName !== undefined) metaUpdates.last_name = updates.lastName;
+          if (updates.role !== undefined) metaUpdates.role = updates.role;
+          if (updates.specialty !== undefined) metaUpdates.specialty = updates.specialty;
+          if (updates.institution !== undefined) metaUpdates.institution = updates.institution;
+          if (updates.licenseNumber !== undefined) metaUpdates.license_number = updates.licenseNumber;
+          if (updates.yearsExperience !== undefined) metaUpdates.years_experience = updates.yearsExperience;
+          if ((updates as any).phone !== undefined) metaUpdates.phone = (updates as any).phone;
+          if (Object.keys(metaUpdates).length > 0) {
+            const { error: metaErr } = await supabase.auth.updateUser({ data: metaUpdates });
+            if (metaErr) throw metaErr;
+          }
+
+          // 2) public.users — upsert the columns the table actually has.
+          //    Schema: id, email, role, first_name, last_name, full_name,
+          //    specialty, institution, license_number, years_experience,
+          //    preferences (jsonb), persona (jsonb), is_active.
+          //    Anything else (phone, age, etc.) lives in user_demographics.
+          const userRow: Record<string, any> = {
+            id: userId,
+            updated_at: new Date().toISOString(),
+          };
+          if (updates.email !== undefined) userRow.email = updates.email;
+          if (updates.role !== undefined) userRow.role = updates.role;
+          if (updates.firstName !== undefined) userRow.first_name = updates.firstName;
+          if (updates.lastName !== undefined) userRow.last_name = updates.lastName;
+          if (updates.firstName || updates.lastName) {
+            userRow.full_name = `${updates.firstName || ''} ${updates.lastName || ''}`.trim();
+          }
+          if (updates.specialty !== undefined) userRow.specialty = updates.specialty;
+          if (updates.institution !== undefined) userRow.institution = updates.institution;
+          if (updates.licenseNumber !== undefined) userRow.license_number = updates.licenseNumber;
+          if (updates.yearsExperience !== undefined) userRow.years_experience = updates.yearsExperience;
+          if (updates.preferences !== undefined) userRow.preferences = updates.preferences;
+          if (updates.persona !== undefined) userRow.persona = updates.persona;
+
+          // Email is required by NOT NULL — pull it from session if not in updates
+          if (!userRow.email) {
+            const { data: sess } = await supabase.auth.getSession();
+            userRow.email = sess?.session?.user?.email || '';
+          }
+
+          const { error: rowErr } = await supabase
+            .from('users')
+            .upsert(userRow, { onConflict: 'id' });
+          if (rowErr) {
+            console.warn('public.users upsert failed (non-blocking):', rowErr);
+          }
+
+          // 3) user_demographics — phone, age, dateOfBirth, height, weight
+          //    were moved out of public.users in the 2025-11-05 migration.
+          const demoUpdates: Record<string, any> = {};
+          if ((updates as any).phone !== undefined) demoUpdates.phone = (updates as any).phone;
+          if (updates.age !== undefined) demoUpdates.age = updates.age;
+          if (updates.dateOfBirth !== undefined) demoUpdates.date_of_birth = updates.dateOfBirth;
+          if (updates.height !== undefined) demoUpdates.height = updates.height;
+          if ((updates as any).weight !== undefined) demoUpdates.weight = (updates as any).weight;
+          if ((updates as any).sex !== undefined) demoUpdates.sex = (updates as any).sex;
+          if (Object.keys(demoUpdates).length > 0) {
+            try {
+              await supabase
+                .from('user_demographics')
+                .upsert({ user_id: userId, ...demoUpdates, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+            } catch (demoErr) {
+              console.warn('user_demographics upsert failed (non-blocking):', demoErr);
+            }
+          }
+
+          response = new Response(JSON.stringify({ success: true, source: 'supabase-direct' }), { status: 200 });
+        } catch (directErr: any) {
+          console.error('❌ Direct Supabase profile update failed:', directErr);
+          response = new Response(JSON.stringify({ success: false, error: directErr?.message }), { status: 500 });
+        }
       } else {
         response = await fetch('/api/supabase-auth/profile', {
           method: 'PUT',

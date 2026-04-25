@@ -123,9 +123,22 @@ const AuthCallback: React.FC = () => {
       }
     };
 
+    // Race SIGNED_IN event against getSession polling — whichever fires
+    // first wins. On implicit flow, detectSessionInUrl auto-consumes the
+    // hash and fires SIGNED_IN within a few hundred ms, which is more
+    // reliable than waiting for getSession to serialize behind the
+    // client's internal init work.
+    const authSub = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user && !settled) {
+        console.log('🔔 onAuthStateChange: SIGNED_IN detected');
+        settle(session.user);
+      }
+    });
+
     (async () => {
       const code = searchParams.get('code');
       try {
+        // PKCE path — only hit when URL actually has ?code=
         if (code) {
           console.log('🔐 Exchanging OAuth code for session (SDK)…');
           try {
@@ -164,14 +177,34 @@ const AuthCallback: React.FC = () => {
           }
         }
 
-        // Fallback: maybe session is already present (hash flow / retry)
-        const { data } = await withTimeout(supabase.auth.getSession(), 5000, 'getSession') as any;
-        if (data?.session?.user) {
-          settle(data.session.user);
-          return;
+        // Implicit flow / hash path: poll getSession with retries. Each
+        // call has a 5s timeout, but we retry up to ~25s so we don't
+        // fail just because the first call serialized behind the SDK's
+        // hash consumption. SIGNED_IN listener above will shortcut us
+        // out the moment the session is ready.
+        const deadline = Date.now() + 25_000;
+        while (!settled && Date.now() < deadline) {
+          try {
+            const { data } = await withTimeout(
+              supabase.auth.getSession(),
+              5000,
+              'getSession'
+            ) as any;
+            if (data?.session?.user) {
+              settle(data.session.user);
+              return;
+            }
+          } catch (err: any) {
+            // Timeout on one attempt is expected while the hash is still
+            // being consumed — log and retry rather than failing.
+            console.log(`getSession attempt timed out (${err?.message || 'unknown'}) — retrying`);
+          }
+          await new Promise(r => setTimeout(r, 500));
         }
 
-        settle(null, 'No session established. Please try again.');
+        if (!settled) {
+          settle(null, 'No session established. Please try again.');
+        }
       } catch (e: any) {
         console.error('❌ OAuth callback error:', e);
         settle(null, e?.message || 'Authentication failed');
@@ -181,6 +214,7 @@ const AuthCallback: React.FC = () => {
     return () => {
       settled = true;
       clearTimeout(ceiling);
+      authSub?.data?.subscription?.unsubscribe?.();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

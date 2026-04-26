@@ -43,7 +43,7 @@ const AuthCallback: React.FC = () => {
     }
 
     let settled = false;
-    const settle = (user: any | null, fail?: string) => {
+    const settle = async (user: any | null, fail?: string) => {
       if (settled) return;
       settled = true;
 
@@ -62,7 +62,33 @@ const AuthCallback: React.FC = () => {
       const metadataRole = user.user_metadata?.role;
       const provider = user.app_metadata?.provider;
       const isOAuthSignup = provider === 'google' || provider === 'github';
-      const hasValidRole = typeof metadataRole === 'string' && VALID_ROLES.has(metadataRole);
+      const metadataHasRole =
+        typeof metadataRole === 'string' && VALID_ROLES.has(metadataRole);
+
+      // Returning signin path: if metadata is missing the role but
+      // public.users already has one (from a prior signup before
+      // metadata writes were consistent), use that and back-fill
+      // metadata so the next signin is fast. Only OAuth users go
+      // through this — email signups already write metadata at signup.
+      let hasValidRole = metadataHasRole;
+      if (isOAuthSignup && !metadataHasRole) {
+        try {
+          const { data: row } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', user.id)
+            .maybeSingle();
+          const dbRole = (row as any)?.role;
+          if (typeof dbRole === 'string' && VALID_ROLES.has(dbRole)) {
+            console.log('↩️ Backfilling user_metadata.role from public.users:', dbRole);
+            // Best-effort metadata sync — don't block the redirect on it
+            supabase.auth.updateUser({ data: { role: dbRole } }).catch(() => {});
+            hasValidRole = true;
+          }
+        } catch (err) {
+          console.warn('public.users role lookup failed, defaulting to select-role flow:', err);
+        }
+      }
 
       if (isOAuthSignup && !hasValidRole) {
         console.log('🆕 OAuth user needs role selection', { metadataRole, provider });

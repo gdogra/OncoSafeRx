@@ -82,11 +82,14 @@ const EnhancedDrugInfo: React.FC<EnhancedDrugInfoProps> = ({ drug, className = '
         // Merge enhanced data into the drug object
         Object.assign(drug, enhancedData);
       }
-      // Try to resolve FDA label setid for quick access
+      // Try to resolve the FDA label setid for quick access. We hit the
+      // OpenFDA endpoint directly (CORS-enabled) since this app deploys
+      // without an Express backend.
       try {
-        const q = encodeURIComponent(drug.name || '');
+        const q = (drug.name || '').trim();
         if (q) {
-          const labelSearch = await fetch(`https://api.fda.gov/drug/label.json?search=openfda.generic_name:"${encodeURIComponent(q)}"fetch(`/api/drugs/labels/search?q=${q}`)limit=1`);
+          const url = `https://api.fda.gov/drug/label.json?search=openfda.generic_name:"${encodeURIComponent(q)}"&limit=1`;
+          const labelSearch = await fetch(url);
           const labelData = await labelSearch.json().catch(() => ({} as any));
           const first = (labelData?.results || [])[0];
           if (first?.setid) setLabelSetId(String(first.setid));

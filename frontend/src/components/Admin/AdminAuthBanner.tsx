@@ -66,7 +66,17 @@ const AdminAuthBanner: React.FC = () => {
     }
   };
 
+  // Frontend-only mode: there is no Express API server to diagnose.
+  // The whole banner is irrelevant in that deploy shape and was firing
+  // a 404 against /api/auth/diagnostics that scared admins. Skip the
+  // fetch entirely so the banner stays hidden.
+  const isFrontendOnly = !((import.meta as any)?.env?.VITE_API_URL as string)?.trim();
+
   const load = async () => {
+    if (isFrontendOnly) {
+      setDiag(null);
+      return;
+    }
     setLoading(true);
     try {
       const resp = await fetch('/api/auth/diagnostics');

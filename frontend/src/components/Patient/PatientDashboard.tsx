@@ -41,7 +41,8 @@ import {
   ArrowRight,
   Sparkles,
   Calculator,
-  Trash2
+  Trash2,
+  Search,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useToast } from '../UI/Toast';

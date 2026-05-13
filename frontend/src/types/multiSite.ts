@@ -3,6 +3,17 @@
  * Supports global healthcare network with sophisticated access controls
  */
 
+import type {
+  PatientDemographics,
+  PatientAllergy,
+  PatientMedication,
+  PatientCondition,
+  PatientLabValues,
+  PatientGenetics,
+  PatientVitals,
+  TreatmentHistory,
+} from './index';
+
 // Network Site Definition
 export interface NetworkSite {
   siteId: string;
@@ -348,9 +359,5 @@ export type ClinicalRole =
   | 'quality_coordinator'
   | 'administrator';
 
-export default {
-  NetworkSite,
-  MultiSiteUserPermissions,
-  MultiSitePatientProfile,
-  NetworkConfiguration
-};
+// Note: interfaces exported above are types-only — no runtime default export
+// (types do not exist at runtime, so they cannot be bundled in a value export).

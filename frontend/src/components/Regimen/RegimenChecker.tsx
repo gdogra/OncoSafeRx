@@ -30,16 +30,27 @@ interface Recommendation {
 interface AnalysisResult {
   summary: {
     totalDrugs: number;
+    regimenDrugs?: number;
+    concomitantDrugs?: number;
     totalInteractions: number;
     majorInteractions: number;
     moderateInteractions: number;
-    overallRisk: string;
+    minorInteractions?: number;
+    cumulativeToxicityRisks?: number;
+    overallRisk: 'low' | 'moderate' | 'high' | 'critical' | string;
   };
   interactions: {
-    withinRegimen: Interaction[];
-    regimenVsConcomitant: Interaction[];
+    all?: Interaction[];
+    withinRegimen?: Interaction[];
+    regimenVsConcomitant?: Interaction[];
   };
-  cumulativeToxicities: CumulativeToxicity[];
+  cumulativeToxicities: Array<{
+    domain: string;
+    drugs: string[];
+    severity: 'none' | 'low' | 'moderate' | 'high' | 'critical' | string;
+    monitoring: string;
+    count: number;
+  }>;
   pgxAlerts: any[];
   recommendations: Recommendation[];
 }
@@ -143,9 +154,12 @@ export default function RegimenChecker() {
         interactions: { all: interactions },
         cumulativeToxicities,
         pgxAlerts: [],
-        recommendations: cumulativeToxicities.map(t =>
-          `${t.domain}: ${t.count} contributing agents (${t.drugs.join(', ')}). ${t.monitoring}`
-        ),
+        recommendations: cumulativeToxicities.map((t) => ({
+          priority: t.severity === 'critical' || t.severity === 'high' ? 'critical' : t.severity === 'moderate' ? 'high' : 'medium',
+          type: 'cumulative_toxicity',
+          message: `${t.domain}: ${t.count} contributing agents (${t.drugs.join(', ')}). ${t.monitoring}`,
+          drugs: t.drugs,
+        })),
       });
     } catch (err: any) {
       setError(err.message || 'Analysis failed');
@@ -352,7 +366,7 @@ export default function RegimenChecker() {
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium text-gray-900 dark:text-white">{tox.domain}</span>
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                        tox.risk === 'high' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                        tox.severity === 'high' || tox.severity === 'critical' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
                       }`}>
                         {tox.count} agents
                       </span>

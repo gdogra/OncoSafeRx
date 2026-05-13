@@ -37,8 +37,8 @@ interface AdvancedInteractionCheckerProps {
   patientProfile?: {
     age?: number;
     weight?: number;
-    renalFunction?: 'normal' | 'mild' | 'moderate' | 'severe';
-    hepaticFunction?: 'normal' | 'mild' | 'moderate' | 'severe';
+    renalFunction?: 'normal' | 'mild' | 'moderate' | 'severe' | 'unknown';
+    hepaticFunction?: 'normal' | 'mild' | 'moderate' | 'severe' | 'unknown';
     comorbidities?: string[];
     allergies?: string[];
   };

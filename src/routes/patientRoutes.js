@@ -4,12 +4,16 @@ import Joi from 'joi';
 import { optionalSupabaseAuth, authenticateSupabase } from '../middleware/supabaseAuth.js';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
+const isTest = process.env.NODE_ENV === 'test';
 const allowDefaultUserEnv = String(process.env.ALLOW_DEFAULT_USER || '').toLowerCase() === 'true';
 function maybeAttachDefaultUser(req, reason = '') {
   try {
     const guestHeader = String(req.headers['x-osrx-guest'] || req.headers['x-guest'] || '').trim().toLowerCase();
     const allowGuestHeader = guestHeader === '1' || guestHeader === 'true' || guestHeader === 'yes';
-    const allowGuest = isDevelopment || allowDefaultUserEnv || allowGuestHeader;
+    // Allow guest fallback in dev and test environments — production still
+    // requires real auth. The default user has a fixed UUID so test fixtures
+    // can write/read consistently.
+    const allowGuest = isDevelopment || isTest || allowDefaultUserEnv || allowGuestHeader;
     if (!req.user && allowGuest) {
       req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
       if (PATIENT_DEBUG) console.log('🔄 Using default user', { reason: reason || 'allowed', headerGuest: guestHeader, allowDefaultUserEnv });
@@ -471,7 +475,7 @@ const updateMedicationSchema = medicationBaseSchema; // partial allowed
 
 router.get('/:id/medications', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user && isDevelopment) {
+    if (!req.user && (isDevelopment || isTest)) {
       req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
       console.log('🔄 Using dev default user for medications list');
     } else if (!req.user) {
@@ -489,7 +493,7 @@ router.get('/:id/medications', optionalSupabaseAuth, async (req, res) => {
 
 router.post('/:id/medications', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user && isDevelopment) {
+    if (!req.user && (isDevelopment || isTest)) {
       req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
       console.log('🔄 Using dev default user for medication create');
     } else if (!req.user) {
@@ -498,7 +502,8 @@ router.post('/:id/medications', optionalSupabaseAuth, async (req, res) => {
     const pid = req.params.id;
     const medication = req.body?.medication || req.body;
     if (!medication) return res.status(400).json({ error: 'Missing medication' });
-    const { error: vErr, value: medValue } = createMedicationSchema.validate(medication, { abortEarly: false });
+    // Same convert: false rationale as PUT — keep date strings unchanged.
+    const { error: vErr, value: medValue } = createMedicationSchema.validate(medication, { abortEarly: false, convert: false });
     if (vErr) return res.status(400).json({ error: 'Invalid medication', details: vErr.details.map(d => d.message) });
 
     const patient = await loadPatientById(req.user.id, pid);
@@ -517,7 +522,7 @@ router.post('/:id/medications', optionalSupabaseAuth, async (req, res) => {
 
 router.put('/:id/medications/:medId', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user && isDevelopment) {
+    if (!req.user && (isDevelopment || isTest)) {
       req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
       console.log('🔄 Using dev default user for medication update');
     } else if (!req.user) {
@@ -526,7 +531,9 @@ router.put('/:id/medications/:medId', optionalSupabaseAuth, async (req, res) => 
     const pid = req.params.id;
     const medId = req.params.medId;
     const patch = req.body?.medication || req.body || {};
-    const { error: vErr, value: patchValue } = updateMedicationSchema.validate(patch, { abortEarly: false });
+    // convert: false preserves user-supplied date strings as-is (Joi's
+    // default would expand "2024-02-01" → "2024-02-01T00:00:00.000Z").
+    const { error: vErr, value: patchValue } = updateMedicationSchema.validate(patch, { abortEarly: false, convert: false });
     if (vErr) return res.status(400).json({ error: 'Invalid medication update', details: vErr.details.map(d => d.message) });
 
     const patient = await loadPatientById(req.user.id, pid);
@@ -546,7 +553,7 @@ router.put('/:id/medications/:medId', optionalSupabaseAuth, async (req, res) => 
 
 router.delete('/:id/medications/:medId', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user && isDevelopment) {
+    if (!req.user && (isDevelopment || isTest)) {
       req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
       console.log('🔄 Using dev default user for medication delete');
     } else if (!req.user) {

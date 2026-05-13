@@ -682,7 +682,7 @@ const DrugMechanismDashboard: React.FC<DrugMechanismDashboardProps> = ({
                     <h6 className="font-semibold text-orange-900 mb-4">Genomic Profile</h6>
                     <div className="space-y-4">
                       <div>
-                        <h7 className="font-medium text-orange-800">Mutations</h7>
+                        <h6 className="font-medium text-orange-800">Mutations</h6>
                         <div className="mt-2 space-y-2">
                           {patientModel.genomics.mutations.map((mutation, i) => (
                             <div key={i} className="p-2 bg-white rounded border border-orange-200">
@@ -779,7 +779,7 @@ const DrugMechanismDashboard: React.FC<DrugMechanismDashboardProps> = ({
                     <h6 className="font-semibold text-red-900 mb-4">Mechanism Timeline</h6>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div>
-                        <h7 className="font-medium text-red-800">Pathway States Over Time</h7>
+                        <h6 className="font-medium text-red-800">Pathway States Over Time</h6>
                         <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
                           {treatmentSimulation.mechanismTimeline.slice(0, 10).map((timepoint: any, i: number) => (
                             <div key={i} className="p-2 bg-white rounded border border-red-200">
@@ -797,7 +797,7 @@ const DrugMechanismDashboard: React.FC<DrugMechanismDashboardProps> = ({
                         </div>
                       </div>
                       <div>
-                        <h7 className="font-medium text-red-800">Drug Concentrations</h7>
+                        <h6 className="font-medium text-red-800">Drug Concentrations</h6>
                         <div className="mt-2 space-y-2">
                           {Object.entries(treatmentSimulation.mechanismTimeline[0]?.drugConcentrations || {}).map(([drug, conc]: any) => (
                             <div key={drug} className="flex justify-between items-center p-2 bg-white rounded border border-red-200">

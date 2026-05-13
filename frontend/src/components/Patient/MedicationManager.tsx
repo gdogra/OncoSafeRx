@@ -19,7 +19,6 @@ import {
   Search
 } from 'lucide-react';
 import EnhancedDrugSearchBar from '../DrugSearch/EnhancedDrugSearchBar';
-import { Drug } from '../../types';
 
 interface MedicationManagerProps {
   patientId?: string;

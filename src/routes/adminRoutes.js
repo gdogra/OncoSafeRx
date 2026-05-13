@@ -726,24 +726,8 @@ router.get('/deploy/status', asyncHandler(async (req, res) => {
   } catch (e) {
     result.warnings.push('netlify_fetch_error');
   }
-  // Render
-  try {
-    // Render removed — backend is a Netlify Function/deploys?limit=1`, {
-        headers: { Authorization: `Bearer ${RENDER_KEY}` }
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        // Render returns an array or object depending on endpoint; accommodate both
-        result.render = Array.isArray(data) ? (data[0] || null) : (data?.deploys?.[0] || data || null);
-      } else {
-        result.warnings.push(`render_http_${resp.status}`);
-      }
-    } else {
-      result.warnings.push('render_not_configured');
-    }
-  } catch (e) {
-    result.warnings.push('render_fetch_error');
-  }
+  // Render integration removed — backend now runs as a Netlify Function.
+  result.warnings.push('render_integration_removed');
   res.json(result);
 }));
 router.get('/config', asyncHandler(async (req, res) => {

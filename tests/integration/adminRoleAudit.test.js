@@ -43,7 +43,10 @@ const mockService = {
   }
 };
 
-jest.unstable_mockModule('../../src/config/supabase.js', () => ({ default: mockService }));
+// Note: jest.unstable_mockModule resolves the module ID from the project
+// root, not from this test file. The setup.js path resolution is the source
+// of truth — use a single-dot-dot path so it lands in <repo>/src/config/.
+jest.unstable_mockModule('../src/config/supabase.js', () => ({ default: mockService }));
 const { default: adminRoutes } = await import('../../src/routes/adminRoutes.js');
 
 const createApp = () => {

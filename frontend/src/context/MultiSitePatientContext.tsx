@@ -291,7 +291,8 @@ const MultiSitePatientContext = createContext<{
 // Provider component
 export function MultiSitePatientProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(multiSitePatientReducer, initialState);
-  const { user } = useAuth();
+  const { state: authState } = useAuth();
+  const user = authState.user;
 
   // Initialize multi-site access service
   useEffect(() => {

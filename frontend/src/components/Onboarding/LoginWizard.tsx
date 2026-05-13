@@ -15,7 +15,7 @@ type Step = {
   target?: string;
 };
 
-type TourArea = 'overview' | 'drug_info' | 'interactions' | 'patients' | 'genomics' | 'clinical_trials' | 'analytics' | 'admin' | 'role_sidebar';
+type TourArea = 'overview' | 'drug_info' | 'interactions' | 'patients' | 'genomics' | 'clinical_trials' | 'analytics' | 'admin' | 'role_sidebar' | 'comprehensive';
 
 const LoginWizard: React.FC = () => {
   const { state } = useAuth();

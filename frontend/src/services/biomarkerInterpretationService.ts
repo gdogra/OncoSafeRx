@@ -177,7 +177,10 @@ class BiomarkerInterpretationService {
       return await response.json();
     } catch (error) {
       console.error('Error monitoring evolution:', error);
-      return this.getMockEvolutionMonitoring();
+      // Mock data is shape-compatible at runtime; cast to the strict return
+      // type since the mock omits some GenomicVariant fields that the real
+      // backend response populates. Used for dev/preview only.
+      return this.getMockEvolutionMonitoring() as any;
     }
   }
 

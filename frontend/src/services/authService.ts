@@ -1223,6 +1223,7 @@ export class SupabaseAuthService {
         medicalConditions: meta.medical_conditions,
       };
       const metaHasDemo = Object.values(metaDemo).some(v => v !== undefined && v !== null && v !== '');
+      const isFrontendOnly = !((import.meta as any)?.env?.VITE_API_URL as string)?.trim();
       if (!dbHasDemo && metaHasDemo && !isFrontendOnly) {
         // Non-blocking; let backend upsert user_demographics
         authedFetch('/api/supabase-auth/profile', {

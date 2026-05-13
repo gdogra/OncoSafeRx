@@ -76,7 +76,10 @@ export default function BiomarkerMatcher() {
     setError('');
     try {
       // Client-side biomarker matching using biomarkerTherapyService data
-      const { BIOMARKER_THERAPY_MAP, CPIC_GUIDELINES_EXPANDED } = await import('../../data/biomarkerTherapyData');
+      const [{ BIOMARKER_THERAPY_MAP }, { CPIC_GUIDELINES_EXPANDED }] = await Promise.all([
+        import('../../data/biomarkerTherapyData'),
+        import('../../data/cpicGuidelinesExpanded'),
+      ]);
       const matchResults: MatchResults = { targetedTherapies: [], immunotherapies: [], pgxAlerts: [], clinicalTrialBiomarkers: [] };
 
       for (const bm of selectedBiomarkers) {
@@ -105,7 +108,17 @@ export default function BiomarkerMatcher() {
         const pgx = (CPIC_GUIDELINES_EXPANDED || []).filter((g: any) =>
           g.drug?.generic_name?.toLowerCase().includes(q) || g.drug?.name?.toLowerCase().includes(q)
         );
-        if (pgx.length > 0) matchResults.pgxAlerts.push({ drug, guidelines: pgx });
+        if (pgx.length > 0) {
+          matchResults.pgxAlerts.push({
+            drug,
+            guidelines: pgx.map((g: any) => ({
+              phenotype: g.phenotype,
+              recommendation: g.recommendation,
+              evidence: g.evidence_level,
+              sources: g.sources || [],
+            })),
+          });
+        }
       }
 
       setResults(matchResults);

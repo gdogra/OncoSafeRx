@@ -27,57 +27,6 @@ import {
 } from 'lucide-react';
 import researchParticipationService, { ResearchStudy, ParticipationHistory, ResearchPreferences } from '../../services/researchParticipationService';
 
-interface ResearchStudy {
-  id: string;
-  title: string;
-  description: string;
-  phase: 'Phase I' | 'Phase II' | 'Phase III' | 'Phase IV' | 'Observational';
-  sponsor: string;
-  institution: string;
-  location: string;
-  status: 'Recruiting' | 'Not Recruiting' | 'Completed' | 'Suspended';
-  eligibilityCriteria: string[];
-  primaryOutcome: string;
-  estimatedDuration: string;
-  participantCount: number;
-  maxParticipants: number;
-  startDate: string;
-  estimatedCompletion: string;
-  matchScore: number;
-  category: 'Treatment' | 'Prevention' | 'Supportive Care' | 'Diagnostic' | 'Screening';
-  compensation: string;
-  requirements: string[];
-  contactInfo: {
-    name: string;
-    phone: string;
-    email: string;
-  };
-  genomicRequirements?: string[];
-  exclusionCriteria: string[];
-}
-
-interface ParticipationHistory {
-  studyId: string;
-  studyTitle: string;
-  status: 'Active' | 'Completed' | 'Withdrawn' | 'Screening';
-  enrollmentDate: string;
-  lastUpdate: string;
-  nextAppointment?: string;
-}
-
-interface ResearchPreferences {
-  maxDistance: number;
-  phases: string[];
-  categories: string[];
-  genomicDataSharing: boolean;
-  compensationRequired: boolean;
-  notifications: {
-    newMatches: boolean;
-    studyUpdates: boolean;
-    appointments: boolean;
-  };
-}
-
 export const ResearchParticipationHub: React.FC = () => {
   const [studies, setStudies] = useState<ResearchStudy[]>([]);
   const [filteredStudies, setFilteredStudies] = useState<ResearchStudy[]>([]);

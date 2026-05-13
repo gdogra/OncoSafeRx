@@ -18,7 +18,7 @@ export interface ClinicalTrial {
     gender?: string;
     criteria?: string;
   };
-  locations: { facility: string; city: string; state: string; country: string }[];
+  locations: { facility: string; city: string; state: string; country: string; distance?: number }[];
   estimatedEnrollment: number;
   currentEnrollment: number;
   primaryEndpoint: string;

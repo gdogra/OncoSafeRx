@@ -405,11 +405,12 @@ class ToxicityPreventionService {
           confidence: 0.89
         },
         
-        triggers: [
-          'WBC trending down: 4.2 → 2.8 → 1.9 × 10³/μL',
-          'Fatigue score increased from 3 to 7/10',
-          'Decreased activity level (40% reduction in daily steps)'
-        ],
+        triggers: {
+          lab_values: ['WBC trending down: 4.2 → 2.8 → 1.9 × 10³/μL'],
+          symptoms: ['Fatigue score increased from 3 to 7/10'],
+          vital_changes: ['Decreased activity level (40% reduction in daily steps)'],
+          drug_interactions: [],
+        },
         
         recommendations: {
           immediate_actions: [

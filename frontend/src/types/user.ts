@@ -51,6 +51,10 @@ export interface UserProfile {
     verified?: boolean;
     notes?: string;
   }>;
+  // Organ-function summaries surfaced in clinical screens (interaction
+  // checker, dose adjuster). Optional — many users won't have these.
+  renalFunction?: 'normal' | 'mild_impairment' | 'moderate_impairment' | 'severe_impairment' | 'esrd' | 'unknown';
+  hepaticFunction?: 'normal' | 'mild_impairment' | 'moderate_impairment' | 'severe_impairment' | 'unknown';
 }
 
 export interface UserPersona {
@@ -133,6 +137,8 @@ export interface SignupData {
     region?: string; // For countries that use regions
     district?: string; // For countries that use districts
   };
+  // Medical information optionally collected at signup (patient flow).
+  allergies?: UserProfile['allergies'];
 }
 
 export interface LoginData {

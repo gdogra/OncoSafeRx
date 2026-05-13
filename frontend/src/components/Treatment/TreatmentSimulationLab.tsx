@@ -34,66 +34,7 @@ import {
 import Card from '../UI/Card';
 import PathwayDiagram from './PathwayDiagram';
 import DrugMechanismDashboard from '../Visualization/DrugMechanismDashboard';
-import treatmentSimulationService, { SimulationScenario, BodySystem, PredictiveModel, DrugPathway } from '../../services/treatmentSimulationService';
-
-interface DrugPathway {
-  drugName: string;
-  mechanism: string;
-  targetProteins: string[];
-  metabolismPathway: string[];
-  expectedEfficacy: number;
-  sideEffectProfile: SideEffect[];
-  genomicFactors: string[];
-  timeToEffect: number;
-  duration: number;
-}
-
-interface SideEffect {
-  name: string;
-  probability: number;
-  severity: 'mild' | 'moderate' | 'severe';
-  timeframe: string;
-  mitigation?: string;
-}
-
-interface SimulationScenario {
-  id: string;
-  name: string;
-  description: string;
-  geneticProfile: {
-    mutations: string[];
-    metabolizerStatus: string[];
-    biomarkers: string[];
-  };
-  treatments: DrugPathway[];
-  outcomeMetrics: {
-    overallSurvival: number;
-    progressionFreeSurvival: number;
-    responseRate: number;
-    qualityOfLife: number;
-    sideEffectBurden: number;
-  };
-  confidence: number;
-}
-
-interface BodySystem {
-  name: string;
-  organs: string[];
-  affectedByTreatment: boolean;
-  impactLevel: 'low' | 'medium' | 'high';
-  expectedChanges: string[];
-  timeToEffect: number;
-}
-
-interface PredictiveModel {
-  scenario: string;
-  timePoints: number[];
-  tumorSize: number[];
-  biomarkerLevels: { [key: string]: number[] };
-  sideEffectSeverity: number[];
-  qualityOfLife: number[];
-  confidence: number[];
-}
+import treatmentSimulationService, { SimulationScenario, BodySystem, PredictiveModel, DrugPathway, SideEffect } from '../../services/treatmentSimulationService';
 
 const TreatmentSimulationLab: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'scenarios' | 'pathways' | 'mechanisms' | 'body' | 'predictions'>('scenarios');
@@ -507,7 +448,7 @@ const TreatmentSimulationLab: React.FC = () => {
                       <button onClick={() => setSelectedTarget(null)} className="text-xs border rounded px-2 py-1">Close</button>
                     </div>
                     <div className="mt-2 text-sm text-gray-700 whitespace-pre-wrap">
-                      {(selectedScenario?.treatments?.[0]?.name || 'The selected drug')} binds to {selectedTarget} to modulate its activity.
+                      {(selectedScenario?.treatments?.[0]?.drugName || 'The selected drug')} binds to {selectedTarget} to modulate its activity.
                       This interaction can change downstream signaling responsible for efficacy and side effects.
                     </div>
                     <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">Explore:</div>
@@ -554,7 +495,7 @@ const TreatmentSimulationLab: React.FC = () => {
                         <button
                           onClick={async () => {
                             try {
-                              const drug = selectedScenario?.treatments?.[0]?.name || selectedScenario?.treatments?.[0]?.drugName || 'Drug';
+                              const drug = selectedScenario?.treatments?.[0]?.drugName || selectedScenario?.treatments?.[0]?.drugName || 'Drug';
                               const info = enzymeKB[selectedEnzyme] || { inhibitors: [], inducers: [] };
                               const text = `Enzyme: ${selectedEnzyme}\nDrug: ${drug}\n\nRole: Participates in metabolism that affects exposure, efficacy and toxicity.\n\nInhibitors: ${info.inhibitors.join(', ') || '—'}\nInducers: ${info.inducers.join(', ') || '—'}`;
                               await navigator.clipboard.writeText(text);
@@ -567,7 +508,7 @@ const TreatmentSimulationLab: React.FC = () => {
                       </div>
                     </div>
                     <div className="mt-2 text-sm text-gray-700 whitespace-pre-wrap">
-                      {selectedEnzyme} participates in the metabolism of {(selectedScenario?.treatments?.[0]?.name || 'the drug')}. Changes in {selectedEnzyme} activity (e.g., inhibitors/inducers or PGx) can alter exposure, efficacy, and toxicity.
+                      {selectedEnzyme} participates in the metabolism of {(selectedScenario?.treatments?.[0]?.drugName || 'the drug')}. Changes in {selectedEnzyme} activity (e.g., inhibitors/inducers or PGx) can alter exposure, efficacy, and toxicity.
                     </div>
                     <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="border rounded p-2">
@@ -592,7 +533,7 @@ const TreatmentSimulationLab: React.FC = () => {
             {/* Simple static pathway diagram with highlighting */}
             <div className="mt-6">
               <PathwayDiagram
-                drugName={selectedScenario?.treatments?.[0]?.drugName || selectedScenario?.treatments?.[0]?.name || 'Drug'}
+                drugName={selectedScenario?.treatments?.[0]?.drugName || selectedScenario?.treatments?.[0]?.drugName || 'Drug'}
                 targets={selectedScenario?.treatments?.[0]?.targetProteins || []}
                 enzymes={selectedScenario?.treatments?.[0]?.metabolismPathway || []}
                 selectedTarget={selectedTarget}

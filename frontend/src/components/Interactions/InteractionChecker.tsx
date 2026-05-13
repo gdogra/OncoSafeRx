@@ -371,7 +371,7 @@ const InteractionCheckerInner: React.FC = () => {
         const fresh = await SupabaseAuthService.getCurrentUser(true);
         if (fresh) {
           try { localStorage.setItem('osrx_user_profile', JSON.stringify(fresh)); } catch {}
-          try { actions.updateProfile(fresh as any); } catch {}
+          try { actions.updatePatientData(fresh as any); } catch {}
         }
       } catch {}
     })();
@@ -1106,7 +1106,7 @@ const InteractionCheckerInner: React.FC = () => {
                     setError(null);
                     setErrorDetails(null);
                     if (selectedDrugs.length >= 2) {
-                      checkInteractions();
+                      handleCheckInteractions();
                     }
                   }}
                   className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"

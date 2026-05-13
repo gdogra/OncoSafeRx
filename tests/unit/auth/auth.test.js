@@ -175,12 +175,14 @@ describe('Authentication Middleware', () => {
       expect(next.called).toBe(false);
     });
 
-    it('should set user on request and call next when valid token provided', () => {
+    it('should set user on request and call next when valid token provided', async () => {
       const token = generateToken(mockUser);
       req.headers.authorization = `Bearer ${token}`;
-      
-      authenticateToken(req, res, next);
-      
+
+      // authenticateToken is async (it may await Supabase introspection or
+      // a JWT fallback). Await it so the post-conditions reflect completion.
+      await authenticateToken(req, res, next);
+
       expect(req.user).toBeDefined();
       expect(req.user.email).toBe(mockUser.email);
       expect(req.user.role).toBe(mockUser.role);

@@ -107,7 +107,8 @@ class CarePlanService {
   async getCarePlanData(): Promise<CarePlanData> {
     try {
       const response = await adminFetch('/careplan/patient');
-      return response;
+      const data = await response.json();
+      return data;
     } catch (error: any) {
       console.error('Error fetching care plan data:', error);
       
@@ -129,7 +130,8 @@ class CarePlanService {
   async getCareTeam(): Promise<CareTeamMember[]> {
     try {
       const response = await adminFetch('/careplan/team');
-      return response;
+      const data = await response.json();
+      return data;
     } catch (error) {
       console.error('Error fetching care team:', error);
       return [];
@@ -142,7 +144,8 @@ class CarePlanService {
   async getCareTasks(): Promise<CareTask[]> {
     try {
       const response = await adminFetch('/careplan/tasks');
-      return response;
+      const data = await response.json();
+      return data;
     } catch (error) {
       console.error('Error fetching care tasks:', error);
       return [];
@@ -155,7 +158,8 @@ class CarePlanService {
   async getCarePlans(): Promise<CarePlan[]> {
     try {
       const response = await adminFetch('/careplan/plans');
-      return response;
+      const data = await response.json();
+      return data;
     } catch (error) {
       console.error('Error fetching care plans:', error);
       return [];
@@ -168,7 +172,8 @@ class CarePlanService {
   async getCommunications(): Promise<CommunicationThread[]> {
     try {
       const response = await adminFetch('/careplan/communications');
-      return response;
+      const data = await response.json();
+      return data;
     } catch (error) {
       console.error('Error fetching communications:', error);
       return [];
@@ -201,7 +206,8 @@ class CarePlanService {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(task)
       });
-      return response;
+      const data = await response.json();
+      return data;
     } catch (error) {
       console.error('Error creating task:', error);
       throw error;

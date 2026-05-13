@@ -14,7 +14,7 @@ import { CPIC_GUIDELINES_EXPANDED } from './cpicGuidelinesExpanded';
  * Actionable biomarker database.
  * Each entry: biomarker → tumor type → approved therapies.
  */
-const BIOMARKER_THERAPY_MAP = [
+export const BIOMARKER_THERAPY_MAP = [
   // ── NSCLC ──────────────────────────────────────────────────────
   { biomarker: 'EGFR exon 19 del / L858R', tumorTypes: ['NSCLC'], therapies: [
     { drug: 'Osimertinib', line: '1L', evidence: 'FDA/NCCN Category 1', note: 'Preferred first-line for EGFR-mutant NSCLC' },

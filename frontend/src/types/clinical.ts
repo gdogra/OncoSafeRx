@@ -2,6 +2,11 @@
 export interface Patient {
   id: string;
   mrn?: string;
+  // Optional account-linkage fields used when a patient record is bound to a
+  // user account (e.g., patient-facing role). May be absent for clinician-
+  // entered records or imported FHIR resources.
+  userId?: string;
+  email?: string;
   firstName: string;
   lastName: string;
   dateOfBirth: string;

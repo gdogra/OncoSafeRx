@@ -228,8 +228,8 @@ const EnhancedDrugSearchBar: React.FC<EnhancedDrugSearchBarProps> = ({
           rxcui: `brand_${brand}`,
           name: generic,
           brandNames: [brand],
-          drugClass: '',
-          description: `Generic: ${generic}, Brand: ${brand}`
+          therapeutic_class: '',
+          indication: `Generic: ${generic}, Brand: ${brand}`,
         };
         onDrugSelect(drug);
       }

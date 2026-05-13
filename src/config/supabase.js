@@ -108,7 +108,11 @@ export class NoOpSupabaseService {
       created_at: now,
       updated_at: now,
       last_login: null,
-      preferences: userData.preferences || {}
+      preferences: userData.preferences || {},
+      // Optional structured patient profile for patient-role accounts.
+      // Round-tripped through the no-op service so downstream code that
+      // expects to read it back from a register response works.
+      ...(userData.patient_profile !== undefined ? { patient_profile: userData.patient_profile } : {}),
     };
     this.users.set(id, user);
     return Promise.resolve({ ...user });
@@ -245,12 +249,16 @@ async function createSupabaseService() {
 // call it synchronously since it catches its own errors.
 let supabaseService;
 try {
-  // createSupabaseService is async but we need a sync export.
-  // Initialize lazily on first use via a proxy, or create sync.
+  // createSupabaseService is async, but we need a sync default export.
+  // Synchronously create a no-op stub; once the real service resolves
+  // asynchronously, copy its methods onto the stub so callers transparently
+  // upgrade. The real SupabaseService class lives in supabase.real.js and is
+  // only available via dynamic import, so it is NOT in scope here — use the
+  // NoOpSupabaseService defined above as the sync fallback.
   const _pending = createSupabaseService();
-  supabaseService = new SupabaseService(); // sync fallback
+  supabaseService = new NoOpSupabaseService();
   _pending.then(svc => { Object.assign(supabaseService, svc); }).catch(() => {});
 } catch {
-  supabaseService = new SupabaseService();
+  supabaseService = new NoOpSupabaseService();
 }
 export default supabaseService;

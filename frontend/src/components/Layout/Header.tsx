@@ -4,6 +4,7 @@ import { Activity, Search, AlertTriangle, Dna, FileText, HelpCircle, Users, Stet
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { interactionService } from '../../services/api';
+import Logo from '../Brand/Logo';
 
 const Header: React.FC = () => {
   const location = useLocation();
@@ -116,14 +117,8 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                <Activity className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">OncoSafeRx</h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Precision Oncology Platform</p>
-              </div>
+            <Link to="/" aria-label="OncoSafeRx home" className="flex items-center">
+              <Logo size="md" tagline />
             </Link>
           </div>
 

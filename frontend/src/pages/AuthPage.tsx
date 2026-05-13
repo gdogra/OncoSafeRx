@@ -20,6 +20,7 @@ import { useToast } from '../components/UI/Toast';
 import Tooltip from '../components/UI/Tooltip';
 import PhoneInput from '../components/UI/PhoneInput';
 import ExplainerBanner from '../components/Marketing/ExplainerBanner';
+import { LogoMark, TAGLINE } from '../components/Brand/Logo';
 import { SecurityManager } from '../utils/security';
 
 const AuthPage: React.FC = () => {
@@ -586,11 +587,12 @@ const AuthPage: React.FC = () => {
       {/* Header */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center">
-              <Activity className="w-7 h-7 text-white" />
+          <div className="flex flex-col items-center mb-4">
+            <div className="flex items-center gap-3">
+              <LogoMark size={44} title="OncoSafeRx" />
+              <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">OncoSafeRx</h1>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">OncoSafeRx</h1>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{TAGLINE}</p>
           </div>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
             {mode === 'signin' ? 'Welcome back' : 'Create your account'}
@@ -643,42 +645,48 @@ const AuthPage: React.FC = () => {
                 <div className="text-xs text-gray-500 dark:text-gray-400">{authModeInfo}</div>
               )}
               {import.meta.env.MODE !== 'production' && (
-                <div className="flex items-center justify-between text-xs text-gray-600 bg-gray-50 p-2 rounded">
-                  <label className="inline-flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={useProxy}
-                      onChange={(e) => setUseProxy(e.target.checked)}
-                      className="rounded border-gray-300 dark:border-gray-600"
-                    />
-                    <span>Use server auth proxy on failure</span>
-                  </label>
-                  <label className="inline-flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={forceProxy}
-                      onChange={(e) => setForceProxy(e.target.checked)}
-                      className="rounded border-gray-300 dark:border-gray-600"
-                    />
-                    <span>Force proxy-first</span>
-                  </label>
-                  <button
-                    type="button"
-                    className="text-blue-600 hover:underline"
-                    onClick={() => {
-                      const forced = localStorage.getItem('osrx_force_production') === 'true'
-                      if (forced) {
-                        localStorage.removeItem('osrx_force_production')
-                        showToast('success', 'Force production disabled');
-                      } else {
-                        localStorage.setItem('osrx_force_production', 'true')
-                        showToast('success', 'Force production enabled');
-                      }
-                    }}
-                  >
-                    Toggle force production
-                  </button>
-                </div>
+                <details className="text-xs text-gray-500 dark:text-gray-400 group">
+                  <summary className="cursor-pointer select-none inline-flex items-center gap-1 hover:text-gray-700">
+                    <span className="text-gray-400 group-open:text-gray-600">▸</span>
+                    Developer options
+                  </summary>
+                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                    <label className="inline-flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={useProxy}
+                        onChange={(e) => setUseProxy(e.target.checked)}
+                        className="rounded border-gray-300 dark:border-gray-600"
+                      />
+                      <span>Use server auth proxy on failure</span>
+                    </label>
+                    <label className="inline-flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={forceProxy}
+                        onChange={(e) => setForceProxy(e.target.checked)}
+                        className="rounded border-gray-300 dark:border-gray-600"
+                      />
+                      <span>Force proxy-first</span>
+                    </label>
+                    <button
+                      type="button"
+                      className="text-blue-600 hover:underline"
+                      onClick={() => {
+                        const forced = localStorage.getItem('osrx_force_production') === 'true'
+                        if (forced) {
+                          localStorage.removeItem('osrx_force_production')
+                          showToast('success', 'Force production disabled');
+                        } else {
+                          localStorage.setItem('osrx_force_production', 'true')
+                          showToast('success', 'Force production enabled');
+                        }
+                      }}
+                    >
+                      Toggle force production
+                    </button>
+                  </div>
+                </details>
               )}
               <div>
                 <label htmlFor="signin-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -757,13 +765,13 @@ const AuthPage: React.FC = () => {
                   </label>
                 </div>
 
-                <div className="flex items-center gap-3 text-sm">
-                  <button type="button" onClick={handleResendConfirmation} className="font-medium text-primary-600 hover:text-primary-500">
-                    Resend confirmation
-                  </button>
-                  <button type="button" onClick={handleMagicLink} className="font-medium text-blue-600 hover:text-blue-500">Magic link</button>
-                  <button type="button" onClick={() => setShowOtp(!showOtp)} className="font-medium text-violet-600 hover:text-violet-500">{showOtp ? 'Hide code' : 'Have a code?'}</button>
-                </div>
+                <button
+                  type="button"
+                  onClick={handleMagicLink}
+                  className="text-sm font-medium text-primary-600 hover:text-primary-500"
+                >
+                  Email me a sign-in link
+                </button>
               </div>
 
               {(errors.submit || state.error) && (
@@ -825,6 +833,24 @@ const AuthPage: React.FC = () => {
                   'Sign In'
                 )}
               </button>
+
+              <div className="flex items-center justify-center gap-1.5 text-xs text-gray-500">
+                <button
+                  type="button"
+                  onClick={() => setShowOtp(!showOtp)}
+                  className="hover:text-gray-700 underline-offset-2 hover:underline"
+                >
+                  {showOtp ? 'Hide one-time code' : 'Have a one-time code?'}
+                </button>
+                <span aria-hidden="true">·</span>
+                <button
+                  type="button"
+                  onClick={handleResendConfirmation}
+                  className="hover:text-gray-700 underline-offset-2 hover:underline"
+                >
+                  Resend confirmation
+                </button>
+              </div>
 
               {/* Divider */}
               <div className="relative my-4">

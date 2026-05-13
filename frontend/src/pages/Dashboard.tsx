@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { hasPermission, getRoleConfig } from '../utils/roleConfig';
 import Card from '../components/UI/Card';
 import Tooltip from '../components/UI/Tooltip';
-import ScientificDashboard from './ScientificDashboard';
 import OncologistOnboarding from '../components/Onboarding/OncologistOnboarding';
 import AdminHome from './AdminHome';
 import { Navigate } from 'react-router-dom';
@@ -21,11 +20,6 @@ const Dashboard: React.FC = () => {
     // Alternatively: return <Navigate to="/admin" replace />;
   }
 
-  // Evidence Explorer (Scientific) default only for research roles
-  // Scientist mode has been removed - this condition is now disabled
-
-  // state, userRole declared above
-  
   // Remove console debug in production
   if ((import.meta as any)?.env?.MODE !== 'production') {
     try { console.log('Dashboard user context:', { userRole, email: user?.email }); } catch {}

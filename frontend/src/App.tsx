@@ -1,7 +1,7 @@
 import React, { useEffect, Suspense, lazy } from 'react';
 // Deployment test - timestamp: 2025-10-09-21:20 UTC - Fix MIME type errors
 import { appVersion } from './utils/env';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { PatientProvider } from './context/PatientContext';
 import { SelectionProvider } from './context/SelectionContext';
@@ -114,13 +114,14 @@ function AppWithAuth() {
                 <Route path="/terms-of-service" element={<Layout><TermsOfService /></Layout>} />
                 <Route path="/privacy-policy" element={<Layout><PrivacyPolicy /></Layout>} />
 
-                {/* ── Core app routes (interaction checker is the homepage) ── */}
+                {/* ── Core app routes ───────────────────────────────────────────
+                     `/` is the homepage and renders the Interaction Checker.
+                     `/interactions` is kept as the explicit, bookmarkable name
+                     for the same screen (canonical for nav menus). The legacy
+                     `/dashboard` and `/curated-interactions` paths exist only
+                     to redirect old bookmarks — do not link to them from new code.
+                  ─────────────────────────────────────────────────────────────── */}
                 <Route path="/" element={
-                  <ProtectedRoute>
-                    <Layout><InteractionChecker /></Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <Layout><InteractionChecker /></Layout>
                   </ProtectedRoute>
@@ -130,14 +131,10 @@ function AppWithAuth() {
                     <Layout><InteractionChecker /></Layout>
                   </ProtectedRoute>
                 } />
+                <Route path="/dashboard" element={<Navigate to="/" replace />} />
                 <Route path="/search" element={
                   <ProtectedRoute>
                     <Layout><DrugSearch /></Layout>
-                  </ProtectedRoute>
-                } />
-                <Route path="/curated-interactions" element={
-                  <ProtectedRoute>
-                    <Layout><CuratedInteractions /></Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/curated" element={
@@ -145,6 +142,7 @@ function AppWithAuth() {
                     <Layout><CuratedInteractions /></Layout>
                   </ProtectedRoute>
                 } />
+                <Route path="/curated-interactions" element={<Navigate to="/curated" replace />} />
                 <Route path="/precision-medicine" element={
                   <ProtectedRoute>
                     <Layout><PrecisionMedicine /></Layout>

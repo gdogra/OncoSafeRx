@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import Button from '../components/UI/Button';
 import Card from '../components/UI/Card';
+import Logo from '../components/Brand/Logo';
 
 const ClinicalLandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ const ClinicalLandingPage: React.FC = () => {
   return (
     <>
       {/* SEO Meta Tags */}
-      <title>OncoSafeRx - #1 Drug Interaction Platform for Healthcare Teams | Sign In</title>
+      <title>OncoSafeRx — Precision oncology decision support | Sign in</title>
       <meta 
         name="description" 
         content="Join 500+ healthcare teams using OncoSafeRx to reduce medication errors by 67%. Real-time drug interaction alerts, automated safety protocols. Sign in to get started."
@@ -73,15 +74,9 @@ const ClinicalLandingPage: React.FC = () => {
         <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-blue-700 rounded-lg flex items-center justify-center mr-3">
-                  <span className="text-white font-bold text-base">OS</span>
-                </div>
-                <div>
-                  <span className="text-xl font-bold text-gray-900 dark:text-gray-100">OncoSafeRx</span>
-                  <div className="text-xs text-gray-500 font-medium">Clinical Decision Support</div>
-                </div>
-              </div>
+              <Link to="/" aria-label="OncoSafeRx home" className="flex items-center">
+                <Logo size="md" tagline />
+              </Link>
               <div className="flex items-center space-x-6">
                 <button onClick={handlePricing} className="text-gray-600 hover:text-gray-900 font-medium">Sign Up Free</button>
                 <button onClick={handleTryDemo} className="text-gray-600 hover:text-gray-900 font-medium">Live Demo</button>
@@ -659,20 +654,14 @@ const ClinicalLandingPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div className="col-span-1 md:col-span-2">
                 <div className="flex items-center mb-6">
-                  <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center mr-3">
-                    <span className="text-white font-bold text-base">OS</span>
-                  </div>
-                  <div>
-                    <span className="text-xl font-bold text-white">OncoSafeRx</span>
-                    <div className="text-sm text-gray-400">#1 Drug Interaction Platform</div>
-                  </div>
+                  <Logo size="md" tagline tone="dark" />
                 </div>
                 <p className="text-gray-400 mb-6 max-w-md">
                   The complete drug interaction platform trusted by 500+ healthcare teams worldwide. 
                   Reduce medication errors and improve patient safety.
                 </p>
                 <div className="flex items-center space-x-4 text-sm">
-                  <span className="text-gray-500 dark:text-gray-400">© 2024 OncoSafeRx</span>
+                  <span className="text-gray-500 dark:text-gray-400">© 2026 OncoSafeRx</span>
                   <span className="text-gray-600 dark:text-gray-400">|</span>
                   <span className="text-gray-500 dark:text-gray-400">Healthcare SaaS Platform</span>
                 </div>

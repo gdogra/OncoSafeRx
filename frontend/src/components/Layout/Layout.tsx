@@ -13,6 +13,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { Shield, FlaskConical } from 'lucide-react';
 import AdminModeBanner from '../Admin/AdminModeBanner';
+import Logo from '../Brand/Logo';
 import AdminApiStatus from '../Admin/AdminApiStatus';
 import LoginWizard from '../Onboarding/LoginWizard';
 import AIChat from '../Help/AIChat';
@@ -84,7 +85,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">OncoSafeRx</h1>
+            <Logo size="sm" />
             <div className="flex items-center gap-2">
               {envLabel && (
                 <span className="px-2 py-0.5 rounded-full text-xs font-medium border bg-gray-50 text-gray-700 border-gray-200 dark:border-gray-700" title={`Environment: ${envLabel}`}>
@@ -192,7 +193,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <div className="px-4 sm:px-6 py-6">
             <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
               <div className="text-sm text-gray-500 text-center sm:text-left">
-                © 2026 OncoSafeRx. Built for precision oncology and pharmacogenomics.
+                © 2026 OncoSafeRx · Precision oncology decision support · Not a substitute for clinical judgment.
               </div>
               <div className="flex space-x-6">
                 <a href="/terms-of-service" className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">

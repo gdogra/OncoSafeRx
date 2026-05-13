@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { hasPermission, getRoleConfig, RolePermissions } from '../../utils/roleConfig';
 import { useKeyboardNavigation } from '../../hooks/useKeyboardNavigation';
 import { adminApi } from '../../utils/adminApi';
+import { LogoMark } from '../Brand/Logo';
 import { 
   Activity, 
   Search, 
@@ -252,22 +253,19 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       `}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <Link 
-            to="/" 
-            className={`flex items-center space-x-3 transition-opacity duration-200 ${
+          <Link
+            to="/"
+            aria-label="OncoSafeRx home"
+            className={`flex items-center gap-2.5 transition-opacity duration-200 ${
               isOpen ? 'opacity-100' : 'opacity-0 lg:opacity-100'
             }`}
           >
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-              roleConfig ? `bg-${roleConfig.primaryColor}-600` : 'bg-primary-600'
-            }`}>
-              <Activity className="w-5 h-5 text-white" />
-            </div>
+            <LogoMark size={32} title="OncoSafeRx" />
             {isOpen && (
-              <div className="min-w-0">
-                <h1 className="text-lg font-bold text-gray-900 truncate">OncoSafeRx</h1>
+              <div className="min-w-0 leading-tight">
+                <h1 className="text-lg font-semibold tracking-tight text-gray-900 truncate">OncoSafeRx</h1>
                 <p className="text-xs text-gray-500 truncate">
-                  {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Precision Oncology'}
+                  {user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Precision oncology'}
                 </p>
               </div>
             )}
@@ -498,7 +496,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">
             <div className="text-xs text-gray-500 text-center">
               <div>Version 2.1.0</div>
-              <div className="mt-1">© 2024 OncoSafeRx</div>
+              <div className="mt-1">© 2026 OncoSafeRx</div>
             </div>
           </div>
         )}

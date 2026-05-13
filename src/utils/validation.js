@@ -26,7 +26,10 @@ export const schemas = {
       .items(
         Joi.string()
           .pattern(/^\d+$/)
-          .messages({ 'string.pattern.base': 'Each drug must be a valid RXCUI (numbers only)' })
+          .messages({
+            'string.base': 'Each drug must be a valid RXCUI string (numbers only) — do not send objects',
+            'string.pattern.base': 'Each drug must be a valid RXCUI (numbers only)',
+          })
       )
       .min(2)
       .max(10)

@@ -25,7 +25,7 @@ const registerSchema = Joi.object({
     'string.max': 'Full name cannot exceed 255 characters',
     'any.required': 'Full name is required'
   }),
-  role: Joi.string().valid('user', 'patient', 'oncologist', 'physician', 'pharmacist', 'resident', 'nurse', 'researcher', 'admin').default('oncologist').messages({
+  role: Joi.string().valid('user', 'patient', 'oncologist', 'physician', 'pharmacist', 'resident', 'nurse', 'researcher', 'admin').default('user').messages({
     'any.only': 'Role must be one of: user, patient, oncologist, physician, pharmacist, resident, nurse, researcher, admin'
   }),
   institution: Joi.string().max(255).optional().messages({
@@ -57,7 +57,10 @@ const loginSchema = Joi.object({
 router.post('/register', 
   validate(registerSchema, 'body'),
   asyncHandler(async (req, res) => {
-    const { email, password, full_name, role = 'oncologist', institution, specialty, license_number, patient_profile } = req.body;
+    // SECURITY: default new self-registrations to the lowest-privilege role.
+    // Privileged roles (oncologist, pharmacist, admin) must be assigned by an
+    // admin after credential verification — never claimed at signup.
+    const { email, password, full_name, role = 'user', institution, specialty, license_number, patient_profile } = req.body;
 
     // Check if user already exists (only enforce when real Supabase is enabled)
     const existingUser = await supabaseService.getUserByEmail(email);

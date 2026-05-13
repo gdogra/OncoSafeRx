@@ -45,6 +45,10 @@ export interface Drug {
   clinicalDecisionSupport?: any;
   costEffectiveness?: any;
   isPatientMedication?: boolean; // True if this drug comes from patient's medication list
+  // Optional regional/branding metadata surfaced when the drug was resolved
+  // via a regional or brand cross-walk (e.g., MHRA / EMA / Health Canada).
+  originBrand?: string;
+  originRegion?: string;
 }
 
 export interface DrugSearchResult {
@@ -68,6 +72,7 @@ export interface DrugInteraction {
   management?: string;
   evidence_level?: 'A' | 'B' | 'C' | 'D';
   sources?: string[];
+  pmids?: string[];
   drug1?: {
     name: string;
     generic_name: string;

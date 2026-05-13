@@ -115,8 +115,18 @@ router.post('/profile/check', async (req, res) => {
     
     // Genes array can be empty for basic drug analysis
     if (!Array.isArray(genes)) {
-      return res.status(400).json({ 
-        error: 'Genes must be an array (can be empty)' 
+      return res.status(400).json({
+        error: 'Genes must be an array (can be empty)'
+      });
+    }
+
+    // Enforce gene-symbol format (HGNC symbols are uppercase letters/digits/underscore).
+    // Lowercase or punctuation-laden values are typically typos — reject early.
+    const badGene = genes.find((g) => typeof g !== 'string' || !/^[A-Z0-9_]+$/.test(g));
+    if (badGene !== undefined) {
+      return res.status(400).json({
+        error: 'Gene names must contain only uppercase letters, numbers, and underscores',
+        invalidGene: badGene,
       });
     }
 

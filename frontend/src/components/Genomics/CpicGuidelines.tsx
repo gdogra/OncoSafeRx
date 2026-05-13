@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CpicGuidelinesResult, CpicGuideline } from '../../types';
 import Card from '../UI/Card';
 import Alert from '../UI/Alert';
 import Tooltip from '../UI/Tooltip';
 import { Search, BookOpen, ExternalLink, Info } from 'lucide-react';
+import { SourceChips, EvidenceLevelBadge } from '../Evidence/CitationLink';
 
 interface CpicGuidelinesProps {
   guidelines: CpicGuidelinesResult | null;
@@ -13,6 +14,37 @@ interface CpicGuidelinesProps {
 const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch }) => {
   const [geneQuery, setGeneQuery] = useState('');
   const [drugQuery, setDrugQuery] = useState('');
+  const [versionLabel, setVersionLabel] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const apiBase = (import.meta as any)?.env?.VITE_API_URL || '/api';
+    fetch(`${apiBase}/genomics/versions`, { credentials: 'include' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return;
+        // Tolerate several shapes: { cpic: { version, lastUpdated } } | { version } | array
+        const v =
+          data?.cpic?.version ||
+          data?.cpic_version ||
+          data?.version ||
+          (Array.isArray(data?.versions) ? data.versions.find((x: any) => /cpic/i.test(x?.source))?.version : null);
+        const updated =
+          data?.cpic?.lastUpdated ||
+          data?.cpic?.updatedAt ||
+          data?.lastUpdated ||
+          null;
+        if (v || updated) {
+          setVersionLabel([v && `CPIC ${v}`, updated && `updated ${String(updated).slice(0, 10)}`].filter(Boolean).join(' · '));
+        }
+      })
+      .catch(() => {
+        /* version metadata is optional — fail silent */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,17 +109,17 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
           </div>
           
           <div className="flex items-center space-x-2">
-            {guideline.evidenceLevel && (
-              <Tooltip content={getEvidenceDescription(guideline.evidenceLevel)}>
-                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium cursor-help ${getEvidenceColor(guideline.evidenceLevel)}`}>
-                  Level {guideline.evidenceLevel}
-                </span>
-              </Tooltip>
-            )}
-            <Tooltip content="RxNorm Concept Unique Identifier - A unique identifier for this medication in the RxNorm database maintained by the National Library of Medicine">
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800 cursor-help">
+            <EvidenceLevelBadge level={guideline.evidenceLevel} />
+            <Tooltip content="RxNorm Concept Unique Identifier — a stable identifier for this medication in the RxNorm database (US National Library of Medicine).">
+              <a
+                href={guideline.drugRxcui ? `https://mor.nlm.nih.gov/RxNav/search?searchBy=RXCUI&searchTerm=${encodeURIComponent(String(guideline.drugRxcui))}` : 'https://www.nlm.nih.gov/research/umls/rxnorm/'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-800 hover:bg-primary-200 transition-colors"
+              >
                 RXCUI: {guideline.drugRxcui}
-              </span>
+                <ExternalLink className="h-2.5 w-2.5" />
+              </a>
             </Tooltip>
           </div>
         </div>
@@ -126,24 +158,53 @@ const CpicGuidelines: React.FC<CpicGuidelinesProps> = ({ guidelines, onSearch })
         {guideline.sources && guideline.sources.length > 0 && (
           <div>
             <h4 className="font-medium text-gray-900 mb-2">Sources</h4>
-            <div className="flex flex-wrap gap-2">
-              {guideline.sources.map((source, idx) => (
-                <span
-                  key={idx}
-                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 dark:text-gray-300"
-                >
-                  {source}
-                </span>
-              ))}
-            </div>
+            <SourceChips sources={guideline.sources} />
           </div>
         )}
+
+        {/* Source provenance footer — every CPIC card links out to the authoritative guideline directory */}
+        <div className="pt-2 mt-1 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
+          <span>Decision support — verify in the source guideline before prescribing.</span>
+          <a
+            href={`https://cpicpgx.org/genes-drugs/`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-blue-600 hover:underline"
+            title={`Open CPIC gene/drug directory in a new tab`}
+          >
+            View CPIC guideline for {guideline.gene} + {guideline.drug}
+            <ExternalLink className="h-3 w-3" />
+          </a>
+        </div>
       </div>
     </Card>
   );
 
   return (
     <div className="space-y-6">
+      {/* Provenance banner — shows which version of CPIC the system is using */}
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs px-3 py-2 rounded-md bg-blue-50 border border-blue-100 text-blue-900">
+        <span className="inline-flex items-center gap-1.5">
+          <BookOpen className="h-3.5 w-3.5" />
+          <span>Recommendations are sourced from CPIC pharmacogenomic guidelines.</span>
+        </span>
+        <span className="inline-flex items-center gap-3">
+          {versionLabel ? (
+            <span className="font-medium">{versionLabel}</span>
+          ) : (
+            <span className="text-blue-700/70">Version metadata unavailable</span>
+          )}
+          <a
+            href="https://cpicpgx.org/guidelines/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 hover:underline"
+          >
+            CPIC.org <ExternalLink className="h-3 w-3" />
+          </a>
+        </span>
+      </div>
+
       {/* Search Form */}
       <Card>
         <form onSubmit={handleSearch} className="space-y-4">

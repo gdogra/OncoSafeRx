@@ -9,6 +9,7 @@ import { inferBiomarkerForDrug } from '../../utils/biomarkers';
 import Tooltip from '../UI/Tooltip';
 import { useAuth } from '../../context/AuthContext';
 import { useSelection } from '../../context/SelectionContext';
+import { SourceChips, EvidenceLevelBadge } from '../Evidence/CitationLink';
 
 interface InteractionResultsProps {
   results: InteractionCheckResult;
@@ -121,11 +122,8 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
           </div>
           
           <div className="flex items-center space-x-2">
-            {interaction.evidence_level && (
-              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getEvidenceColor(interaction.evidence_level)}`}>
-                Evidence Level {interaction.evidence_level}
-              </span>
-            )}
+            <EvidenceLevelBadge level={interaction.evidence_level} />
+
             <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
               interaction.severity === 'major' 
                 ? 'bg-red-100 text-red-800'
@@ -204,25 +202,16 @@ const InteractionResults: React.FC<InteractionResultsProps> = ({ results }) => {
           {interaction.sources && interaction.sources.length > 0 && (
             <div>
               <h4 className="font-medium text-gray-900 mb-2">Sources</h4>
-              <div className="flex flex-wrap gap-2">
-                {interaction.sources.map((source, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 dark:text-gray-300"
-                  >
-                    {source}
-                  </span>
-                ))}
-              </div>
+              <SourceChips sources={interaction.sources} />
             </div>
           )}
 
           {/* PMID Citations */}
-          {interaction.pmids && (interaction.pmids as string[]).filter(Boolean).length > 0 && (
+          {interaction.pmids && interaction.pmids.filter(Boolean).length > 0 && (
             <div>
               <h4 className="font-medium text-gray-900 mb-2">Evidence Citations</h4>
               <div className="flex flex-wrap gap-2">
-                {(interaction.pmids as string[]).filter(Boolean).map((pmid: string) => (
+                {interaction.pmids.filter(Boolean).map((pmid) => (
                   <a
                     key={pmid}
                     href={`https://pubmed.ncbi.nlm.nih.gov/${pmid}/`}

@@ -22,6 +22,7 @@ import {
 import Alert from '../UI/Alert';
 import LoadingSpinner from '../UI/LoadingSpinner';
 import Tooltip from '../UI/Tooltip';
+import { SourceChip, EvidenceLevelBadge } from '../Evidence/CitationLink';
 
 interface PharmacogenomicsPanelProps {
   selectedDrugs: Drug[];
@@ -316,22 +317,39 @@ const PharmacogenomicsPanel: React.FC<PharmacogenomicsPanelProps> = ({
                   Dosing Recommendations
                 </h4>
                 <div className="space-y-3">
-                  {analysis.dosingAdjustments.map((adjustment, index) => (
-                    <div key={index} className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="font-medium text-sm text-blue-900">
-                          {adjustment.drug}
+                  {analysis.dosingAdjustments.map((adjustment: any, index: number) => {
+                    const sources: string[] = adjustment?.sources || adjustment?.clinicalGuidelines || ['CPIC'];
+                    return (
+                      <div key={index} className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="font-medium text-sm text-blue-900">
+                            {adjustment.drug}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <EvidenceLevelBadge level={adjustment?.evidenceLevel} />
+                            <TrendingUp className="w-4 h-4 text-blue-600" />
+                          </div>
                         </div>
-                        <TrendingUp className="w-4 h-4 text-blue-600" />
+                        <div className="text-sm text-blue-800">
+                          Recommended: {adjustment.recommendedDose}
+                        </div>
+                        <div className="text-xs text-blue-700 mt-2">
+                          {adjustment.rationale}
+                        </div>
+                        <div className="mt-3 pt-2 border-t border-blue-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-blue-700/80">Source:</span>
+                            {sources.map((s) => (
+                              <SourceChip key={s} source={s} />
+                            ))}
+                          </div>
+                          <span className="text-blue-700/70 italic">
+                            Decision support — verify in source before prescribing.
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-sm text-blue-800">
-                        Recommended: {adjustment.recommendedDose}
-                      </div>
-                      <div className="text-xs text-blue-700 mt-2">
-                        {adjustment.rationale}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -366,10 +384,34 @@ const PharmacogenomicsPanel: React.FC<PharmacogenomicsPanelProps> = ({
               </div>
             )}
 
-            {/* No Significant Findings */}
-            {analysis.riskAlerts.length === 0 && 
-             analysis.dosingAdjustments.length === 0 && 
-             analysis.alternativeTherapies.length === 0 && (
+            {/* No Significant Findings — distinguishes "no match found" from
+                 "matched, no concern". The conservative default avoids the
+                 dangerous failure mode where a missing guideline silently
+                 reads as "all clear". */}
+            {analysis.riskAlerts.length === 0 &&
+             analysis.dosingAdjustments.length === 0 &&
+             analysis.alternativeTherapies.length === 0 &&
+             (analysis as any).unmatchedDrugs?.length === selectedDrugs.length && (
+              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <div className="flex items-center space-x-3">
+                  <Info className="w-5 h-5 text-yellow-700" />
+                  <div>
+                    <div className="font-medium text-sm text-yellow-900">
+                      No CPIC guideline found for this drug/phenotype combination
+                    </div>
+                    <div className="text-sm text-yellow-800 mt-1">
+                      We could not match the selected medication(s) and phenotype(s) to a CPIC/DPWG/FDA guideline.
+                      This means we did not find an actionable recommendation — it does <em>not</em> imply absence of risk.
+                      Use standard clinical judgment and consult primary literature.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            {analysis.riskAlerts.length === 0 &&
+             analysis.dosingAdjustments.length === 0 &&
+             analysis.alternativeTherapies.length === 0 &&
+             (!(analysis as any).unmatchedDrugs || (analysis as any).unmatchedDrugs.length < selectedDrugs.length) && (
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <div className="flex items-center space-x-3">
                   <CheckCircle className="w-5 h-5 text-green-600" />

@@ -22,6 +22,8 @@ jobs:
         run: npm run lint --if-present
       - name: Test backend
         run: npm test --if-present
+      - name: Boot check (server starts, auth bypasses closed)
+        run: npm run ci:boot-check
       - name: Install and build frontend
         run: |
           cd frontend

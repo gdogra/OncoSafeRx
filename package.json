@@ -28,6 +28,7 @@
     "backfill:profiles": "node src/scripts/backfillAuthUsersToProfiles.js",
     "migrate:users": "node src/scripts/migrateUsersToSupabase.js",
     "sync:patient-profiles": "node src/scripts/syncPatientProfiles.js",
+    "ci:boot-check": "node scripts/boot-check.js",
     "ci:smoke-frontend": "node scripts/smoke-ci.js",
     "ci:smoke-image": "bash -c 'echo use in CI to run container smoke'"
   },

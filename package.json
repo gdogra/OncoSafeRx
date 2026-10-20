@@ -31,6 +31,8 @@
     "build:ddi": "node scripts/build_ddi.mjs",
     "check:ddi": "node scripts/build_ddi.mjs --check",
     "validate:curated": "node scripts/validate_curated.mjs",
+    "build:dosing": "node scripts/build_dosing_rules.mjs",
+    "check:dosing": "node scripts/build_dosing_rules.mjs --check",
     "ci:boot-check": "node scripts/boot-check.js",
     "ci:smoke-frontend": "node scripts/smoke-ci.js",
     "ci:smoke-image": "bash -c 'echo use in CI to run container smoke'"

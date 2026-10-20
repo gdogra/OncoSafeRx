@@ -24,6 +24,8 @@ jobs:
         run: npm test --if-present
       - name: Interaction data is in sync (YAML -> generated module)
         run: npm run check:ddi
+      - name: Dosing rules are in sync (YAML -> generated module)
+        run: npm run check:dosing
       - name: Boot check (server starts, auth bypasses closed)
         run: npm run ci:boot-check
       - name: Install and build frontend

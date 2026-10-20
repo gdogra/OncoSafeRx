@@ -1,0 +1,285 @@
+// GENERATED FILE - do not edit by hand.
+// Source of truth: data/dosing_rules.yaml  (schema: schemas/dosing_rules.schema.json)
+// Regenerate with: npm run build:dosing
+// CI fails if this file is out of date (npm run check:dosing).
+
+export const DOSING_RULES = [
+  {
+    "id": "HEME-COUNTS-DELAY",
+    "drugs": [
+      "*"
+    ],
+    "when": {
+      "lab": "ANC",
+      "lt": 1500
+    },
+    "action": "delay",
+    "severity": "high",
+    "message": "ANC below 1,500/µL: delay the cycle and recheck counts (consider G-CSF per the regimen's risk protocol).",
+    "source": {
+      "label": "Common cytotoxic-regimen treatment thresholds; confirm against the regimen protocol"
+    },
+    "status": "draft"
+  },
+  {
+    "id": "HEME-PLATELETS-DELAY",
+    "drugs": [
+      "*"
+    ],
+    "when": {
+      "lab": "platelets",
+      "lt": 100000
+    },
+    "action": "delay",
+    "severity": "high",
+    "message": "Platelets below 100,000/µL: delay the cycle and recheck counts.",
+    "source": {
+      "label": "Common cytotoxic-regimen treatment thresholds; confirm against the regimen protocol"
+    },
+    "status": "draft"
+  },
+  {
+    "id": "CAPECITABINE-CRCL-LT30",
+    "drugs": [
+      "capecitabine"
+    ],
+    "when": {
+      "lab": "CrCl",
+      "lt": 30
+    },
+    "action": "avoid",
+    "severity": "critical",
+    "message": "CrCl below 30 mL/min: capecitabine is contraindicated in severe renal impairment.",
+    "source": {
+      "label": "Capecitabine (Xeloda) US prescribing information"
+    },
+    "status": "draft"
+  },
+  {
+    "id": "CAPECITABINE-CRCL-30-50",
+    "drugs": [
+      "capecitabine"
+    ],
+    "when": {
+      "lab": "CrCl",
+      "gte": 30,
+      "lt": 51
+    },
+    "action": "reduce_dose",
+    "severity": "high",
+    "message": "CrCl 30-50 mL/min: label recommends reducing the capecitabine starting dose to 75% (monotherapy dose; confirm for combination regimens).",
+    "source": {
+      "label": "Capecitabine (Xeloda) US prescribing information"
+    },
+    "status": "draft"
+  },
+  {
+    "id": "OXALIPLATIN-CRCL-LT30",
+    "drugs": [
+      "oxaliplatin"
+    ],
+    "when": {
+      "lab": "CrCl",
+      "lt": 30
+    },
+    "action": "reduce_dose",
+    "severity": "high",
+    "message": "CrCl below 30 mL/min: label recommends a reduced oxaliplatin starting dose of 65 mg/m².",
+    "source": {
+      "label": "Oxaliplatin (Eloxatin) US prescribing information"
+    },
+    "status": "draft"
+  },
+  {
+    "id": "ANTHRACYCLINE-LVEF-LT50",
+    "drugs": [
+      "doxorubicin"
+    ],
+    "when": {
+      "lab": "LVEF",
+      "lt": 50
+    },
+    "action": "hold",
+    "severity": "critical",
+    "message": "LVEF below 50%: hold the anthracycline and obtain cardiology evaluation before proceeding.",
+    "source": {
+      "label": "Doxorubicin US prescribing information (cardiomyopathy warning); confirm institutional LVEF threshold"
+    },
+    "status": "draft"
+  },
+  {
+    "id": "DPYD-POOR-FLUOROPYRIMIDINE",
+    "drugs": [
+      "5-fu",
+      "fluorouracil",
+      "capecitabine"
+    ],
+    "when": {
+      "phenotype": "DPYD",
+      "in": [
+        "Poor metabolizer"
+      ]
+    },
+    "action": "avoid",
+    "severity": "critical",
+    "message": "DPYD poor metabolizer (activity score 0-0.5): avoid fluoropyrimidines. If no alternative exists, use a strongly reduced dose with early therapeutic drug monitoring.",
+    "source": {
+      "label": "CPIC guideline for fluoropyrimidines and DPYD (2017 update)",
+      "url": "https://cpicpgx.org/guidelines/guideline-for-fluoropyrimidines-and-dpyd/"
+    },
+    "status": "draft"
+  },
+  {
+    "id": "DPYD-INTERMEDIATE-FLUOROPYRIMIDINE",
+    "drugs": [
+      "5-fu",
+      "fluorouracil",
+      "capecitabine"
+    ],
+    "when": {
+      "phenotype": "DPYD",
+      "in": [
+        "Intermediate metabolizer"
+      ]
+    },
+    "action": "reduce_dose",
+    "severity": "high",
+    "message": "DPYD intermediate metabolizer (activity score 1-1.5): reduce the fluoropyrimidine starting dose by 50%, then titrate to toxicity and tolerance.",
+    "source": {
+      "label": "CPIC guideline for fluoropyrimidines and DPYD (2017 update)",
+      "url": "https://cpicpgx.org/guidelines/guideline-for-fluoropyrimidines-and-dpyd/"
+    },
+    "status": "draft"
+  },
+  {
+    "id": "DPYD-GENOTYPE-MISSING",
+    "drugs": [
+      "5-fu",
+      "fluorouracil",
+      "capecitabine"
+    ],
+    "when": {
+      "missing_phenotype": "DPYD"
+    },
+    "action": "info",
+    "severity": "moderate",
+    "message": "No DPYD genotype on file. Consider testing before starting a fluoropyrimidine; DPD deficiency can cause severe or fatal toxicity.",
+    "source": {
+      "label": "CPIC guideline for fluoropyrimidines and DPYD; EMA 2020 recommendation on DPD testing"
+    },
+    "status": "draft"
+  },
+  {
+    "id": "UGT1A1-POOR-IRINOTECAN",
+    "drugs": [
+      "irinotecan"
+    ],
+    "when": {
+      "phenotype": "UGT1A1",
+      "in": [
+        "Poor metabolizer"
+      ]
+    },
+    "action": "reduce_dose",
+    "severity": "high",
+    "message": "UGT1A1 *28/*28: higher risk of severe neutropenia. Label recommends reducing the irinotecan starting dose by at least one dose level; monitor counts closely.",
+    "source": {
+      "label": "Irinotecan (Camptosar) US prescribing information"
+    },
+    "status": "draft"
+  },
+  {
+    "id": "UGT1A1-GENOTYPE-MISSING",
+    "drugs": [
+      "irinotecan"
+    ],
+    "when": {
+      "missing_phenotype": "UGT1A1"
+    },
+    "action": "info",
+    "severity": "low",
+    "message": "No UGT1A1 genotype on file. Testing can identify patients at higher risk of irinotecan neutropenia.",
+    "source": {
+      "label": "Irinotecan (Camptosar) US prescribing information"
+    },
+    "status": "draft"
+  },
+  {
+    "id": "ANC-MISSING",
+    "drugs": [
+      "*"
+    ],
+    "when": {
+      "missing_lab": "ANC"
+    },
+    "action": "info",
+    "severity": "moderate",
+    "message": "ANC not provided. Current counts are required before each cycle; no hematologic check was performed.",
+    "source": {
+      "label": "Standard pre-cycle monitoring"
+    },
+    "status": "draft"
+  },
+  {
+    "id": "PLATELETS-MISSING",
+    "drugs": [
+      "*"
+    ],
+    "when": {
+      "missing_lab": "platelets"
+    },
+    "action": "info",
+    "severity": "moderate",
+    "message": "Platelet count not provided. No platelet check was performed.",
+    "source": {
+      "label": "Standard pre-cycle monitoring"
+    },
+    "status": "draft"
+  },
+  {
+    "id": "CRCL-MISSING",
+    "drugs": [
+      "capecitabine",
+      "oxaliplatin"
+    ],
+    "when": {
+      "missing_lab": "CrCl"
+    },
+    "action": "info",
+    "severity": "moderate",
+    "message": "Creatinine clearance not available (provide CrCl, or age, weight and serum creatinine). No renal dose check was performed.",
+    "source": {
+      "label": "Capecitabine and oxaliplatin US prescribing information"
+    },
+    "status": "draft"
+  },
+  {
+    "id": "LVEF-MISSING",
+    "drugs": [
+      "doxorubicin"
+    ],
+    "when": {
+      "missing_lab": "LVEF"
+    },
+    "action": "info",
+    "severity": "moderate",
+    "message": "LVEF not provided. A baseline LVEF is required before an anthracycline; no cardiac check was performed.",
+    "source": {
+      "label": "Doxorubicin US prescribing information"
+    },
+    "status": "draft"
+  }
+];
+
+export const DOSE_CAPS = [
+  {
+    "id": "VINCRISTINE-MAX-2MG",
+    "drug": "vincristine",
+    "max_mg": 2,
+    "message": "Vincristine dose capped at 2 mg.",
+    "source": {
+      "label": "Standard vincristine dose cap (e.g., R-CHOP protocols)"
+    },
+    "status": "draft"
+  }
+];

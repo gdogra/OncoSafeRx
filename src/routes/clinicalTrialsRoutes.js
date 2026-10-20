@@ -45,39 +45,23 @@ router.post('/search', async (req, res) => {
         sponsor: trial.leadSponsor || trial.sponsor || 'Unknown Sponsor',
         conditions: trial.conditions || [trial.condition || 'Cancer'].filter(Boolean),
         interventions: trial.interventions || [trial.intervention || ''].filter(Boolean),
-        eligibilityCriteria: {
-          age: { min: 18, max: 75 },
-          gender: 'All',
-          performanceStatus: ['0', '1'],
-          priorTreatments: [],
-          excludedMedications: [],
-          requiredBiomarkers: []
-        },
-        locations: trial.locations || [{
-          facility: 'Clinical Site',
-          city: 'New York',
-          state: 'NY',
-          distance: Math.random() * 50
-        }],
-        estimatedEnrollment: trial.enrollment || 100,
-        currentEnrollment: Math.floor((trial.enrollment || 100) * 0.7),
+        eligibilityCriteria: trial.eligibilityCriteria ?? null,
+        locations: trial.locations || [],
+        estimatedEnrollment: trial.enrollment ?? null,
+        currentEnrollment: trial.currentEnrollment ?? null,
         primaryEndpoint: trial.primaryOutcome || 'Clinical efficacy',
         secondaryEndpoints: trial.secondaryOutcomes || ['Safety', 'Tolerability'],
-        drugInteractionRisk: ['Low', 'Moderate', 'High'][Math.floor(Math.random() * 3)],
+        drugInteractionRisk: 'Not assessed',
         lastUpdated: new Date().toISOString()
       },
-      matchScore: Math.random() * 40 + 60, // 60-100% match
-      eligibilityStatus: 'Likely Eligible',
-      matchReasons: [
-        'Age within eligible range',
-        'Performance status acceptable',
-        'Diagnosis matches inclusion criteria'
-      ],
+      // No eligibility engine yet: report that honestly rather than inventing a score.
+      matchScore: null,
+      eligibilityStatus: 'Not evaluated',
+      matchReasons: [],
       concerns: [],
       nextSteps: [
-        'Review eligibility criteria',
-        'Contact study coordinator',
-        'Schedule screening visit'
+        'Review eligibility criteria on ClinicalTrials.gov',
+        'Contact study coordinator'
       ]
     }));
 

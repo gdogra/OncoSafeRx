@@ -32,6 +32,7 @@ import interactionRoutes from './routes/interactionRoutes.js';
 import genomicsRoutes, { fhirRouter as genomicsFhirRoutes } from './routes/genomicsRoutes.js';
 import genomicsPartnerRoutes from './routes/genomicsPartnerRoutes.js';
 import aiPredictionRoutes from './routes/aiPredictionRoutes.js';
+import { simulatedFeature } from './middleware/simulatedFeature.js';
 import alternativesRoutes from './routes/alternativesRoutes.js';
 import regimenRoutes from './routes/regimenRoutes.js';
 import protocolRoutes from './routes/protocolRoutes.js';
@@ -661,12 +662,12 @@ if (PATIENTS_DISABLED) {
 }
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/ai', aiRoutes);
-app.use('/api/ai-prediction', aiPredictionRoutes);
+app.use('/api/ai-prediction', simulatedFeature('AI prediction'), aiPredictionRoutes);
 app.use('/api/advanced-ai', advancedAIRoutes);
 app.use('/api/voice-documentation', voiceDocumentationRoutes);
 app.use('/api/medical-llm', medicalLLMRoutes);
 app.use('/api/clinical-chatbot', clinicalChatbotRoutes);
-app.use('/api/drug-visualization', drugVisualizationRoutes);
+app.use('/api/drug-visualization', simulatedFeature('Drug mechanism visualization'), drugVisualizationRoutes);
 app.use('/api/ehr-integration', ehrIntegrationRoutes);
 app.use('/api/pharmacy-integration', pharmacyIntegrationRoutes);
 app.use('/api/careplan', careplanRoutes);

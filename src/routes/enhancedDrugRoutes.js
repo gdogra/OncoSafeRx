@@ -1,4 +1,5 @@
 import express from 'express';
+import { simulatedFeature } from '../middleware/simulatedFeature.js';
 import { RxNormService } from '../services/rxnormService.js';
 import supabaseService from '../config/supabase.js';
 import clinicalIntelligenceService from '../services/clinicalIntelligenceService.js';
@@ -150,6 +151,7 @@ router.get('/:rxcui',
 
 // Clinical comparison endpoint
 router.post('/compare',
+  simulatedFeature('Clinical drug comparison'),
   optionalAuth,
   asyncHandler(async (req, res) => {
     const { drugs, patient_context, comparison_criteria = ['efficacy', 'safety', 'cost'] } = req.body;

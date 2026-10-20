@@ -2,23 +2,14 @@ import express from 'express';
 import supabaseService from '../config/supabase.js';
 import Joi from 'joi';
 import { optionalSupabaseAuth, authenticateSupabase } from '../middleware/supabaseAuth.js';
+import { attachDefaultUserIfAllowed, isDefaultUserAllowed, defaultDevUser } from '../utils/defaultUser.js';
 
-const isDevelopment = process.env.NODE_ENV === 'development';
-const isTest = process.env.NODE_ENV === 'test';
-const allowDefaultUserEnv = String(process.env.ALLOW_DEFAULT_USER || '').toLowerCase() === 'true';
 function maybeAttachDefaultUser(req, reason = '') {
-  try {
-    const guestHeader = String(req.headers['x-osrx-guest'] || req.headers['x-guest'] || '').trim().toLowerCase();
-    const allowGuestHeader = guestHeader === '1' || guestHeader === 'true' || guestHeader === 'yes';
-    // Allow guest fallback in dev and test environments — production still
-    // requires real auth. The default user has a fixed UUID so test fixtures
-    // can write/read consistently.
-    const allowGuest = isDevelopment || isTest || allowDefaultUserEnv || allowGuestHeader;
-    if (!req.user && allowGuest) {
-      req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
-      if (PATIENT_DEBUG) console.log('🔄 Using default user', { reason: reason || 'allowed', headerGuest: guestHeader, allowDefaultUserEnv });
-    }
-  } catch {}
+  // Dev/test only (see utils/defaultUser.js). Production requires real auth: the
+  // old x-osrx-guest header and ALLOW_DEFAULT_USER env bypass are gone.
+  if (attachDefaultUserIfAllowed(req) && PATIENT_DEBUG) {
+    console.log('🔄 Using default user', { reason: reason || 'allowed' });
+  }
 }
 const APP_DEBUG = String(process.env.APP_DEBUG || '').toLowerCase() === 'true';
 const PATIENT_DEBUG = APP_DEBUG || String(process.env.PATIENT_DEBUG || process.env.DEBUG_PATIENTS || '').toLowerCase() === 'true';
@@ -475,8 +466,8 @@ const updateMedicationSchema = medicationBaseSchema; // partial allowed
 
 router.get('/:id/medications', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user && (isDevelopment || isTest)) {
-      req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
+    if (!req.user && isDefaultUserAllowed()) {
+      req.user = defaultDevUser();
       console.log('🔄 Using dev default user for medications list');
     } else if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
@@ -493,8 +484,8 @@ router.get('/:id/medications', optionalSupabaseAuth, async (req, res) => {
 
 router.post('/:id/medications', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user && (isDevelopment || isTest)) {
-      req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
+    if (!req.user && isDefaultUserAllowed()) {
+      req.user = defaultDevUser();
       console.log('🔄 Using dev default user for medication create');
     } else if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
@@ -522,8 +513,8 @@ router.post('/:id/medications', optionalSupabaseAuth, async (req, res) => {
 
 router.put('/:id/medications/:medId', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user && (isDevelopment || isTest)) {
-      req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
+    if (!req.user && isDefaultUserAllowed()) {
+      req.user = defaultDevUser();
       console.log('🔄 Using dev default user for medication update');
     } else if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
@@ -553,8 +544,8 @@ router.put('/:id/medications/:medId', optionalSupabaseAuth, async (req, res) => 
 
 router.delete('/:id/medications/:medId', optionalSupabaseAuth, async (req, res) => {
   try {
-    if (!req.user && (isDevelopment || isTest)) {
-      req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
+    if (!req.user && isDefaultUserAllowed()) {
+      req.user = defaultDevUser();
       console.log('🔄 Using dev default user for medication delete');
     } else if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });

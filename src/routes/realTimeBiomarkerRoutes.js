@@ -1,18 +1,11 @@
 import express from 'express';
 import realTimeBiomarkerService from '../services/realTimeBiomarkerService.js';
 import { optionalSupabaseAuth } from '../middleware/supabaseAuth.js';
+import { attachDefaultUserIfAllowed } from '../utils/defaultUser.js';
 
-const isDevelopment = process.env.NODE_ENV === 'development';
-const allowDefaultUserEnv = String(process.env.ALLOW_DEFAULT_USER || '').toLowerCase() === 'true';
-function maybeAttachDefaultUser(req, reason = '') {
-  try {
-    const guestHeader = String(req.headers['x-osrx-guest'] || req.headers['x-guest'] || '').trim().toLowerCase();
-    const allowGuestHeader = guestHeader === '1' || guestHeader === 'true' || guestHeader === 'yes';
-    const allowGuest = isDevelopment || allowDefaultUserEnv || allowGuestHeader;
-    if (!req.user && allowGuest) {
-      req.user = { id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', email: 'dev@oncosaferx.com', role: 'oncologist', isDefault: true };
-    }
-  } catch {}
+function maybeAttachDefaultUser(req) {
+  // Dev/test only; never in production (see utils/defaultUser.js).
+  attachDefaultUserIfAllowed(req);
 }
 
 const router = express.Router();

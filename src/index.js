@@ -73,7 +73,6 @@ import fhirRoutes from './routes/fhirRoutes.js';
 import integrationRoutes from './routes/integrationRoutes.js';
 import releaseRoutes from './routes/releaseRoutes.js';
 import multiPlatformRoutes from './routes/multiPlatformRoutes.js';
-import acquisitionEnhancementRoutes from './routes/acquisitionEnhancementRoutes.js';
 import ddiMiningRoutes from './routes/ddiMiningRoutes.js';
 import migrationRoutes from './routes/migrationRoutes.js';
 import dataIntegrationRoutes from './routes/dataIntegration.js';
@@ -620,13 +619,15 @@ app.use('/api/rbac', rbacRoutes);
 app.use('/api/data-architecture', dataArchitectureRoutes);
 app.use('/api/advanced-workflow', advancedWorkflowRoutes);
 app.use('/api/diagnostics', diagnosticsRoutes);
-app.use('/api/debug', debugRoutes);
+// Echo/debug endpoints reflect request headers (incl. auth): dev/test only
+if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+  app.use('/api/debug', debugRoutes);
+}
 app.use('/api/push', pushRoutes);
 app.use('/api/fhir', fhirRoutes);
 app.use('/api/integrations', integrationRoutes);
 app.use('/api', releaseRoutes);
 app.use('/api/multi-platform', multiPlatformRoutes);
-app.use('/api/acquisition', acquisitionEnhancementRoutes);
 app.use('/api/ddi-mining', ddiMiningRoutes);
 app.use('/api/migrations', migrationRoutes);
 app.use('/api/external', dataIntegrationRoutes);
@@ -663,7 +664,7 @@ if (PATIENTS_DISABLED) {
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/ai-prediction', simulatedFeature('AI prediction'), aiPredictionRoutes);
-app.use('/api/advanced-ai', advancedAIRoutes);
+app.use('/api/advanced-ai', simulatedFeature('Advanced AI insights'), advancedAIRoutes);
 app.use('/api/voice-documentation', voiceDocumentationRoutes);
 app.use('/api/medical-llm', medicalLLMRoutes);
 app.use('/api/clinical-chatbot', clinicalChatbotRoutes);

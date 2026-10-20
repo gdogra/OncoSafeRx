@@ -1,4 +1,5 @@
 import express from 'express';
+import { isDefaultUserAllowed } from '../utils/defaultUser.js';
 import Joi from 'joi';
 import { rateLimit } from 'express-rate-limit';
 import client from 'prom-client';
@@ -20,10 +21,13 @@ router.get('/profile',
     try {
       // Allow default user fallback if unauthenticated (to match patient routes behavior)
       let user = req.user;
+      if (!user && !isDefaultUserAllowed()) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
       if (!user) {
         user = {
-          id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', // Default: Gautam
-          email: 'gdogra@gmail.com',
+          id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', // Default dev user (dev/test only)
+          email: 'dev@oncosaferx.com',
           role: 'patient',
           isDefault: true,
           supabaseUser: { user_metadata: {} }
@@ -270,10 +274,13 @@ router.put('/profile',
     try {
       // Allow default user fallback if unauthenticated (to match patient routes behavior)
       let user = req.user;
+      if (!user && !isDefaultUserAllowed()) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
       if (!user) {
         user = {
-          id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', // Default: Gautam
-          email: 'gdogra@gmail.com',
+          id: 'b8b17782-7ecc-492a-9213-1d5d7fb69c5a', // Default dev user (dev/test only)
+          email: 'dev@oncosaferx.com',
           role: 'patient',
           isDefault: true,
           supabaseUser: { user_metadata: {} }

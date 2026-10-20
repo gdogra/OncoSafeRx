@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import { getEnv } from '../utils/env.js';
+import { isDefaultUserAllowed } from '../utils/defaultUser.js';
 
 dotenv.config();
 
@@ -42,7 +43,7 @@ function extractSupabaseToken(req) {
 async function resolveUserFromToken(token) {
   // Dev/maintainer shortcut tokens are never honored in production: anyone can
   // forge a bearer string with these prefixes.
-  const allowDevTokens = (process.env.NODE_ENV || 'development') !== 'production';
+  const allowDevTokens = isDefaultUserAllowed();
 
   // Dev token path
   if (allowDevTokens && token.startsWith('dev-token-')) {

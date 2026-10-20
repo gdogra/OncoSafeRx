@@ -35,4 +35,43 @@ describe('interaction data: single source of truth', () => {
     expect(tam.evidence_level).toBe('A');
     expect(tam.sources).toContain('CPIC-Tamoxifen-CYP2D6');
   });
+
+  describe('citations', () => {
+    const cited = entries.filter((e) => e.citation_status === 'label_mention');
+    test('a large share of entries carry a verifiable FDA-label citation', () => {
+      expect(cited.length).toBeGreaterThan(300);
+    });
+    test('each label citation has setid, DailyMed URL, section, and a non-trivial verbatim snippet', () => {
+      for (const e of cited) {
+        const labels = e.citations.filter((c) => c.source_type === 'label');
+        expect(labels.length).toBeGreaterThanOrEqual(1);
+        for (const c of labels) {
+          expect(c.id).toMatch(/^[0-9a-f-]{36}$/);
+          expect(c.url).toBe(`https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=${c.id}`);
+          expect(c.section).toBeTruthy();
+          expect(c.snippet.length).toBeGreaterThan(20);
+        }
+      }
+    });
+    test('every snippet contains the term it was matched on (auditable, no mismatched citations)', () => {
+      for (const e of cited) {
+        for (const c of e.citations.filter((x) => x.source_type === 'label')) {
+          expect(c.matched).toBeTruthy();
+          if (!c.snippet.toLowerCase().includes(c.matched.toLowerCase())) {
+            throw new Error(`${e.drug_primary}+${e.drug_interactor}: snippet lacks matched term "${c.matched}"`);
+          }
+        }
+      }
+    });
+    test('entries without a citation are explicitly marked unverified, never silently uncited', () => {
+      for (const e of entries) {
+        if (!(e.citations || []).length) expect(e.citation_status).toBe('unverified');
+      }
+    });
+    test('generated module exposes citations and status', () => {
+      const withCites = KNOWN_INTERACTIONS.filter((e) => e.citations?.length);
+      expect(withCites.length).toBeGreaterThan(300);
+      expect(KNOWN_INTERACTIONS.every((e) => ['label_mention', 'unverified'].includes(e.citation_status))).toBe(true);
+    });
+  });
 });

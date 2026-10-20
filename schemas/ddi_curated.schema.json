@@ -64,6 +64,18 @@
             },
             "snippet": {
               "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "section": {
+              "type": "string"
+            },
+            "retrieved": {
+              "type": "string"
+            },
+            "matched": {
+              "type": "string"
             }
           },
           "required": [
@@ -87,6 +99,16 @@
         "items": {
           "type": "string"
         }
+      },
+      "citation_status": {
+        "type": "string",
+        "enum": [
+          "label_mention",
+          "unverified"
+        ]
+      },
+      "citations_checked_on": {
+        "type": "string"
       }
     },
     "additionalProperties": false

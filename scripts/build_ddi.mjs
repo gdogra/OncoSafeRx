@@ -36,6 +36,9 @@ export function buildEntries(entries) {
       sources: [...new Set(sources)],
     };
     if (Array.isArray(e.rxcui) && e.rxcui.length) out.rxcui = e.rxcui;
+    // Real citations (FDA label text) when available; `sources` above stays as the legacy summary.
+    out.citation_status = e.citation_status || 'unverified';
+    if (Array.isArray(e.citations) && e.citations.length) out.citations = e.citations;
     return out;
   });
 }

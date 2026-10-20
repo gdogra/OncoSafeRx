@@ -65,7 +65,7 @@ oncology rules beats breadth of features.
 6. **Knowledge governance:** every rule carries source, evidence level, reviewer, last-reviewed date; a staleness report; surface in the existing provenance UI.
 
 ### Phase 2 — Live in the clinician's workflow (6–10 weeks)
-1. **Real SMART on FHIR**: EHR launch + standalone launch, PKCE, token exchange, scopes, patient context. Validate in the Epic and Oracle Health sandboxes and the public SMART launcher.
+1. ~~**Real SMART on FHIR**~~ DONE for the launch flow + FHIR-to-dosing-input mapping (see `docs/SMART_LAUNCH.md`; verified end to end against the public SMART sandbox). Remaining: Epic / Oracle Health sandbox registration, frontend UI, medicationReference, refresh tokens. Original item: **Real SMART on FHIR**: EHR launch + standalone launch, PKCE, token exchange, scopes, patient context. Validate in the Epic and Oracle Health sandboxes and the public SMART launcher.
 2. **Production CDS Hooks**: `order-select`, `order-sign`, `patient-view`; prefetch templates (MedicationRequest, Observation labs, genomic Observations, Patient, Condition); JWT verification of EHR calls; `/feedback` endpoint wired to override capture; card UUIDs and suggestions with actions.
 3. **Automatic data ingestion:** build the patient context (meds, CrCl inputs, ANC/platelets/LFTs, genotype, diagnoses) from FHIR so nothing is retyped; LOINC/RxNorm mapping layer with unit normalisation.
 4. **OTC / supplement / food interactions** knowledge base (St John's wort, grapefruit, etc.) wired into reconciliation, plus a patient-reported-products intake step.

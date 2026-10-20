@@ -62,7 +62,7 @@ const ClinicalLandingPage: React.FC = () => {
       <title>OncoSafeRx — Precision oncology decision support | Sign in</title>
       <meta 
         name="description" 
-        content="Join 500+ healthcare teams using OncoSafeRx to reduce medication errors by 67%. Real-time drug interaction alerts, automated safety protocols. Sign in to get started."
+        content="Oncology drug interaction and pharmacogenomic decision support, with cited sources. Sign in to get started."
       />
       <meta 
         name="keywords" 
@@ -95,17 +95,17 @@ const ClinicalLandingPage: React.FC = () => {
                 {/* Success Badge */}
                 <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-100 text-green-800 text-sm font-semibold mb-8">
                   <TrendingUp className="h-4 w-4 mr-2" />
-                  #1 Drug Safety Platform • 500+ Healthcare Teams
+                  Oncology drug safety decision support
                 </div>
                 
                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-                  Reduce Medication Errors by
-                  <span className="text-green-600 block">67% in 30 Days</span>
+                  Oncology Drug Safety,
+                  <span className="text-green-600 block">With Cited Sources</span>
                 </h1>
                 
                 <p className="text-xl text-gray-700 mb-6 leading-relaxed">
                   The complete drug interaction platform trusted by healthcare teams worldwide. 
-                  Real-time alerts, automated safety protocols, and seamless EHR integration.
+                  Interaction checks and pharmacogenomic guidance, each linked to its source.
                 </p>
 
                 {/* Key Benefits */}
@@ -116,11 +116,11 @@ const ClinicalLandingPage: React.FC = () => {
                   </div>
                   <div className="flex items-center text-gray-700 dark:text-gray-300">
                     <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span><strong>94% Accuracy Rate</strong> - AI-powered interaction detection</span>
+                    <span><strong>Cited Sources</strong> - Every alert links to its evidence</span>
                   </div>
                   <div className="flex items-center text-gray-700 dark:text-gray-300">
                     <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span><strong>SOC 2 Compliant</strong> - Enterprise-grade security</span>
+                    <span><strong>Encrypted</strong> - Data protected in transit and at rest</span>
                   </div>
                 </div>
 
@@ -150,7 +150,7 @@ const ClinicalLandingPage: React.FC = () => {
                   <span>•</span>
                   <span>⚡ Setup in 15 minutes</span>
                   <span>•</span>
-                  <span>🔒 HIPAA compliant</span>
+                  <span>🔒 Encrypted in transit and at rest</span>
                 </div>
               </div>
 
@@ -214,71 +214,6 @@ const ClinicalLandingPage: React.FC = () => {
                     </div>
                   </div>
                 </Card>
-
-                {/* Floating metrics */}
-                <div className="absolute -top-4 -right-4 bg-white rounded-lg shadow-lg p-4 border border-gray-200 dark:border-gray-700">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">2.3s</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">Avg Response</div>
-                  </div>
-                </div>
-
-                <div className="absolute -bottom-4 -left-4 bg-white rounded-lg shadow-lg p-4 border border-gray-200 dark:border-gray-700">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">94%</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-400">Accuracy Rate</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Social Proof & Customer Logos */}
-        <section className="py-16 bg-gray-50 border-t border-gray-200 dark:border-gray-700">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p className="text-gray-600 font-medium mb-8">Trusted by 500+ healthcare organizations worldwide</p>
-            
-            {/* Customer Logos Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-6 gap-8 items-center opacity-70 mb-12">
-              {/* Placeholder logos - replace with actual customer logos */}
-              <div className="bg-gray-200 rounded-lg p-4 h-16 flex items-center justify-center">
-                <Building className="h-8 w-8 text-gray-400" />
-              </div>
-              <div className="bg-gray-200 rounded-lg p-4 h-16 flex items-center justify-center">
-                <Building className="h-8 w-8 text-gray-400" />
-              </div>
-              <div className="bg-gray-200 rounded-lg p-4 h-16 flex items-center justify-center">
-                <Building className="h-8 w-8 text-gray-400" />
-              </div>
-              <div className="bg-gray-200 rounded-lg p-4 h-16 flex items-center justify-center">
-                <Building className="h-8 w-8 text-gray-400" />
-              </div>
-              <div className="bg-gray-200 rounded-lg p-4 h-16 flex items-center justify-center">
-                <Building className="h-8 w-8 text-gray-400" />
-              </div>
-              <div className="bg-gray-200 rounded-lg p-4 h-16 flex items-center justify-center">
-                <Building className="h-8 w-8 text-gray-400" />
-              </div>
-            </div>
-
-            {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-2">500+</div>
-                <div className="text-gray-600 dark:text-gray-400">Healthcare Teams</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-600 mb-2">67%</div>
-                <div className="text-gray-600 dark:text-gray-400">Error Reduction</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600 mb-2">2.3s</div>
-                <div className="text-gray-600 dark:text-gray-400">Response Time</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-orange-600 mb-2">99.9%</div>
-                <div className="text-gray-600 dark:text-gray-400">Uptime</div>
               </div>
             </div>
           </div>
@@ -325,109 +260,17 @@ const ClinicalLandingPage: React.FC = () => {
               <div className="flex justify-center items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
                 <div className="flex items-center">
                   <Shield className="h-4 w-4 mr-2" />
-                  <span>SOC 2 Compliant</span>
+                  <span>Encrypted</span>
                 </div>
                 <div className="flex items-center">
                   <Lock className="h-4 w-4 mr-2" />
-                  <span>HIPAA Ready</span>
+                  <span>Audit logging</span>
                 </div>
                 <div className="flex items-center">
                   <Globe className="h-4 w-4 mr-2" />
-                  <span>99.9% Uptime SLA</span>
+                  <span>Role-based access</span>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Customer Testimonials */}
-        <section className="py-20 bg-gray-50 dark:bg-gray-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
-                Loved by Healthcare Teams Worldwide
-              </h2>
-              <p className="text-xl text-gray-600 dark:text-gray-400">
-                See how OncoSafeRx is transforming medication safety for healthcare professionals
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Testimonial 1 */}
-              <Card className="p-8 bg-white dark:bg-gray-900">
-                <div className="flex mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <blockquote className="text-gray-700 mb-6 leading-relaxed">
-                  "OncoSafeRx reduced our medication errors by 73% in the first month. The real-time alerts are incredibly accurate and have prevented several serious adverse events."
-                </blockquote>
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                    <span className="font-bold text-blue-700 text-lg">SM</span>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-gray-100">Dr. Sarah Martinez</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Chief Pharmacist, City Medical Center</div>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Testimonial 2 */}
-              <Card className="p-8 bg-white dark:bg-gray-900">
-                <div className="flex mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <blockquote className="text-gray-700 mb-6 leading-relaxed">
-                  "Setup took 10 minutes and our team was productive immediately. The EHR integration is seamless and the support team is outstanding."
-                </blockquote>
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
-                    <span className="font-bold text-green-700 text-lg">JC</span>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-gray-100">Dr. James Chen</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Medical Director, Regional Healthcare</div>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Testimonial 3 */}
-              <Card className="p-8 bg-white dark:bg-gray-900">
-                <div className="flex mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
-                  ))}
-                </div>
-                <blockquote className="text-gray-700 mb-6 leading-relaxed">
-                  "The ROI was immediate. We've prevented costly readmissions and our staff confidence in prescribing has increased dramatically."
-                </blockquote>
-                <div className="flex items-center">
-                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
-                    <span className="font-bold text-purple-700 text-lg">AL</span>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-gray-100">Dr. Anna Lopez</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">VP of Quality, Metro Health System</div>
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            {/* CTA in testimonials */}
-            <div className="text-center mt-12">
-              <Button 
-                onClick={handleSignIn}
-                size="lg" 
-                className="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-4"
-              >
-                Join 500+ Happy Customers
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <p className="text-gray-500 mt-4">Sign in to get started • Full access</p>
             </div>
           </div>
         </section>
@@ -467,7 +310,7 @@ const ClinicalLandingPage: React.FC = () => {
                       Is OncoSafeRx HIPAA compliant?
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400">
-                      Yes, OncoSafeRx is fully HIPAA compliant and SOC 2 Type II certified. All data is encrypted in transit and at rest, with comprehensive audit logs and access controls. We sign BAAs with all customers.
+                      OncoSafeRx encrypts data in transit and at rest and keeps audit logs and role-based access controls. We are working toward formal HIPAA and SOC 2 attestations and have not yet completed them. Please do not enter real patient identifiers until a business associate agreement is in place.
                     </p>
                   </div>
                 </div>
@@ -509,7 +352,7 @@ const ClinicalLandingPage: React.FC = () => {
                       How accurate is the drug interaction detection?
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400">
-                      Our AI-powered system achieves 94% accuracy in detecting clinically significant drug interactions. We continuously update our database with the latest clinical evidence and FDA safety communications.
+                      We have not published an accuracy figure. Interactions come from curated, cited sources and are checked against a regression test set of reviewed cases. Treat all output as decision support for a qualified clinician, not as a substitute for clinical judgment.
                     </p>
                   </div>
                 </div>
@@ -523,7 +366,7 @@ const ClinicalLandingPage: React.FC = () => {
                       What kind of support do you provide?
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400">
-                      Professional plans include priority email and phone support with 4-hour response times. Enterprise customers get dedicated account management, training sessions, and 99.9% uptime SLA.
+                      Contact us for support options. Response-time and uptime commitments are agreed per customer in the service agreement.
                     </p>
                   </div>
                 </div>
@@ -550,10 +393,10 @@ const ClinicalLandingPage: React.FC = () => {
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="mb-8">
               <h2 className="text-4xl lg:text-5xl font-bold mb-6 leading-tight">
-                Ready to Reduce Medication Errors by 67%?
+                Ready to Check Your Next Regimen?
               </h2>
               <p className="text-xl text-green-100 mb-8 leading-relaxed">
-                Join 500+ healthcare teams using OncoSafeRx to improve patient safety. 
+                Check drug interactions and pharmacogenomic guidance for oncology regimens. 
                 Sign in to get started and see results in 30 days.
               </p>
             </div>
@@ -583,10 +426,10 @@ const ClinicalLandingPage: React.FC = () => {
               <div className="bg-white bg-opacity-10 rounded-lg p-6 backdrop-blur-sm">
                 <div className="flex items-center mb-3">
                   <Users className="h-6 w-6 text-green-300 mr-3" />
-                  <span className="font-semibold">Trusted by 500+</span>
+                  <span className="font-semibold">Built for oncology</span>
                 </div>
                 <p className="text-green-100 text-sm">
-                  Healthcare teams worldwide trust OncoSafeRx for medication safety.
+                  Focused on cancer pharmacotherapy and pharmacogenomics.
                 </p>
               </div>
             </div>
@@ -629,15 +472,15 @@ const ClinicalLandingPage: React.FC = () => {
               <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-green-200">
                 <div className="flex items-center">
                   <Shield className="h-4 w-4 mr-2" />
-                  <span>SOC 2 Compliant</span>
+                  <span>Encrypted</span>
                 </div>
                 <div className="flex items-center">
                   <Lock className="h-4 w-4 mr-2" />
-                  <span>HIPAA Ready</span>
+                  <span>Audit logging</span>
                 </div>
                 <div className="flex items-center">
                   <Globe className="h-4 w-4 mr-2" />
-                  <span>99.9% Uptime</span>
+                  <span>Role-based access</span>
                 </div>
                 <div className="flex items-center">
                   <CheckCircle className="h-4 w-4 mr-2" />
@@ -657,7 +500,7 @@ const ClinicalLandingPage: React.FC = () => {
                   <Logo size="md" tagline tone="dark" />
                 </div>
                 <p className="text-gray-400 mb-6 max-w-md">
-                  The complete drug interaction platform trusted by 500+ healthcare teams worldwide. 
+                  Oncology drug interaction and pharmacogenomic decision support. 
                   Reduce medication errors and improve patient safety.
                 </p>
                 <div className="flex items-center space-x-4 text-sm">
@@ -702,11 +545,11 @@ const ClinicalLandingPage: React.FC = () => {
                     Sign In
                   </Button>
                   <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
-                    <span>SOC 2 Compliant</span>
+                    <span>Encrypted</span>
                     <span>•</span>
-                    <span>HIPAA Ready</span>
+                    <span>Audit logging</span>
                     <span>•</span>
-                    <span>99.9% Uptime</span>
+                    <span>Role-based access</span>
                   </div>
                 </div>
               </div>

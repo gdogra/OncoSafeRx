@@ -17,7 +17,7 @@
 
 ## Slide 4: Proven Clinical Validation and Physician Adoption
 - 23 physician interviews, 4.3/5 satisfaction
-- 5 active pilot sites with 47 physicians
+- [UNVERIFIED - confirm with records before use] pilot sites and physician counts
 - Real clinical outcomes: 35% faster decisions, 73% error reduction
 
 ## Slide 5: Google Cloud Integration Ready

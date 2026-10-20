@@ -1,5 +1,7 @@
 # Competitive Analysis for Google Acquisition
 
+> **[UNVERIFIED - DO NOT SHARE EXTERNALLY]** Head-to-head figures below (accuracy, speed, satisfaction vs Watson) have no supporting study in the repository, and the statement that clinical studies are complete is incorrect. Replace with documented data or delete.
+
 ## OncoSafeRx vs Healthcare AI Competition
 
 ### vs IBM Watson for Oncology
@@ -23,6 +25,6 @@
 
 ### OncoSafeRx Unique Advantages
 1. **Clinical Validation**: Real physician usage and testimonials
-2. **Regulatory Readiness**: FDA 510(k) prepared and clinical studies complete
+2. **Regulatory Readiness**: FDA 510(k) preparation guide drafted; no clearance obtained and no completed clinical study
 3. **Google Cloud Ready**: 6-week migration vs 18+ months for competitors
 4. **Oncology Focus**: Deep specialty expertise vs general medical AI

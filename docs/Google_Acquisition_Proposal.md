@@ -35,17 +35,15 @@ Google has world-class AI capabilities but lacks credible healthcare application
 ## With OncoSafeRx Acquisition:
 🚀 Complete clinical workflow solutions
 🚀 Immediate physician adoption and revenue
-🚀 FDA-cleared medical AI portfolio
+🚀 Oncology decision-support product (FDA pathway under evaluation)
 🚀 Healthcare industry credibility
 🚀 Reference customers driving cloud adoption
 ```
 
 ### **Vertex AI Flagship Healthcare Showcase**
 OncoSafeRx becomes the **premier example** of Vertex AI in healthcare:
-- **Real clinical deployment** with 500+ physician users
-- **Proven AI accuracy** (94% concordance with experts)  
-- **Production-scale performance** (10K+ predictions/second)
-- **Regulatory compliance** (FDA 510(k) ready)
+- **[UNVERIFIED - confirm or remove before sharing]** physician-user and concordance figures previously listed here had no supporting records in the repository
+- **Regulatory**: 510(k) preparation guide drafted; no clearance obtained
 
 ---
 
@@ -109,6 +107,8 @@ const healthcareIntegration = {
 ---
 
 ## 👩‍⚕️ CLINICAL VALIDATION & PHYSICIAN ADOPTION
+
+> **[UNVERIFIED - DO NOT SHARE EXTERNALLY]** The figures, comparisons and testimonial in this section have no supporting records in the repository. Replace with documented data or delete.
 
 ### **Proven Clinical Value**
 - **23 Physician Interviews**: 4.3/5 satisfaction, 87% would recommend

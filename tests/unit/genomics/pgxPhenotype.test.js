@@ -50,3 +50,29 @@ describe('PGx phenotype mapping', () => {
     expect(res).toEqual(expect.arrayContaining([{ gene: 'DPYD', phenotype: 'Intermediate metabolizer' }]));
   });
 });
+
+describe('PGx phenotype mapping: safety regressions', () => {
+  const dpyd = (value) => mapObservationsToPhenotypes([{ code: { text: 'DPYD genotype' }, valueString: value }]).find((p) => p.gene === 'DPYD')?.phenotype;
+
+  test('DPYD uses the CPIC activity score: het no-function = intermediate, hom no-function = POOR', () => {
+    expect(dpyd('DPYD *2A heterozygous')).toBe('Intermediate metabolizer');
+    expect(dpyd('DPYD *2A homozygous')).toBe('Poor metabolizer');
+    expect(dpyd('DPYD *2A/*2A')).toBe('Poor metabolizer');
+    expect(dpyd('DPYD *2A and *13 compound heterozygous')).toBe('Poor metabolizer');
+    expect(dpyd('DPYD *2A with c.2846A>T')).toBe('Poor metabolizer'); // AS 0.5
+  });
+
+  test('DPYD decreased-function variants are intermediate; two copies of a decreased allele is AS 1 (intermediate)', () => {
+    expect(dpyd('DPYD HapB3 heterozygous')).toBe('Intermediate metabolizer');
+    expect(dpyd('DPYD c.2846A>T homozygous')).toBe('Intermediate metabolizer');
+  });
+
+  test('a "wildtype" result for another gene never makes DPYD normal', () => {
+    const res = mapObservationsToPhenotypes([{ code: { text: 'CYP2D6' }, valueString: 'CYP2D6 wildtype' }, { code: { text: 'BRAF' }, valueString: 'BRAF wildtype' }]);
+    expect(res.find((p) => p.gene === 'DPYD')).toBeUndefined();
+  });
+
+  test('explicit DPYD wildtype is normal', () => {
+    expect(dpyd('DPYD wildtype, no variants detected')).toBe('Normal metabolizer');
+  });
+});

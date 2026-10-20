@@ -69,10 +69,31 @@ function mapTPMT(text) {
   return null;
 }
 
+// DPYD: CPIC gene activity score = sum of the two alleles' activity (normal allele = 1).
+//   AS 2 normal | 1-1.5 intermediate | 0-0.5 poor.  Previously any no-function variant (even homozygous)
+//   read as "intermediate", which UNDERSTATES fluoropyrimidine risk for poor metabolizers.
+const DPYD_VARIANTS = [
+  { re: /\*2A|C\.1905\+1G>A/i, activity: 0 },
+  { re: /\*13|C\.1679T>G/i, activity: 0 },
+  { re: /C\.2846A>T/i, activity: 0.5 },
+  { re: /HAPB3|C\.1236G>A|C\.1129-5923C>G/i, activity: 0.5 },
+];
+
+export function dpydActivityScore(text) {
+  const found = DPYD_VARIANTS.filter((v) => v.re.test(text));
+  if (!found.length) return null;
+  const twoCopies = /HOMOZYGOUS|\bHOM\b|TWO COPIES|(\*2A|\*13)\s*\/\s*\1/i.test(text);
+  let alleles;
+  if (found.length >= 2) alleles = found.slice(0, 2).map((v) => v.activity);      // two different variants (compound)
+  else if (twoCopies) alleles = [found[0].activity, found[0].activity];
+  else alleles = [found[0].activity, 1];                                           // heterozygous: one normal allele
+  return alleles[0] + alleles[1];
+}
+
 function mapDPYD(text) {
-  if (/DPYD\s*(\*2A|C\.1905\+1G>A|C\.2846A>T|HAPB3|C\.1679T>G|\*13|C\.1236G>A)/i.test(text)) return 'Intermediate metabolizer';
-  // Truly poor is rare; if homozygous for no-function variants (not detected here), treat as poor.
-  if (/NO VARIANT|WILDTYPE/i.test(text)) return 'Normal metabolizer';
+  const as = dpydActivityScore(text);
+  if (as !== null) return as <= 0.5 ? 'Poor metabolizer' : as < 2 ? 'Intermediate metabolizer' : 'Normal metabolizer';
+  if (/NO VARIANT|WILDTYPE|WILD TYPE|NORMAL/i.test(text)) return 'Normal metabolizer';
   return null;
 }
 
@@ -102,7 +123,6 @@ function mapNUDT15(text) {
 export function mapObservationsToPhenotypes(observations = []) {
   const phenotypes = [];
   const texts = observations.map(extractTextFromObservation);
-  const joined = normalizeText(texts.join(' \n '));
 
   const mappers = [
     ['CYP2D6', mapCYP2D6],
@@ -115,8 +135,12 @@ export function mapObservationsToPhenotypes(observations = []) {
     ['NUDT15', mapNUDT15]
   ];
 
+  // Each gene is interpreted ONLY from observations that name that gene. Previously every mapper saw
+  // the text of all observations, so e.g. "BRAF wildtype" could mark DPYD as a normal metabolizer.
   for (const [gene, fn] of mappers) {
-    const ph = fn(joined);
+    const own = texts.filter((t) => normalizeText(t).includes(gene));
+    if (!own.length) continue;
+    const ph = fn(normalizeText(own.join(' \n ')));
     if (ph) phenotypes.push({ gene, phenotype: ph });
   }
 

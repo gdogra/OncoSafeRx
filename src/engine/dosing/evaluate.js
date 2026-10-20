@@ -74,7 +74,7 @@ export function evaluateRegimen({ regimen, labs = {}, phenotypes = {}, patient =
     if (!conditionHolds(rule.when, cleanLabs, phenotypes)) continue;
     findings.push({
       ruleId: rule.id, ruleVersion: VERSIONS.get(rule.id), action: rule.action, severity: rule.severity, message: rule.message,
-      drugs, source: rule.source, ruleStatus: rule.status,
+      drugs, source: rule.source, ruleStatus: rule.status, generic: rule.drugs.includes('*'),
       kind: rule.action === 'info' ? 'data_gap' : 'finding',
     });
   }

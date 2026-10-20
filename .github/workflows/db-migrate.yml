@@ -42,6 +42,7 @@ jobs:
               ;;
             overrides)
               run_sql supabase/migrations/006_alert_overrides.sql
+              run_sql supabase/migrations/007_alert_overrides_ehr_feedback.sql
               ;;
             all)
               run_sql supabase/schema.sql

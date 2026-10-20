@@ -28,7 +28,7 @@ const QT_MATCHERS = buildMatchers(Object.entries(L.qt_drugs).flatMap(([tier, nam
 const SER_MATCHERS = buildMatchers(Object.entries(L.serotonergic_drugs).flatMap(([cls, names]) => names.map((name) => ({ name, cls }))));
 const ALIAS = Object.entries(L.aliases).map(([a, t]) => ({ re: new RegExp(`(^|[^a-z])${esc(a.toLowerCase())}($|[^a-z])`), target: t.toLowerCase() }));
 
-function canonicalText(input) {
+export function canonicalDrugText(input) {
   let t = String(input || '').toLowerCase().replace(/[’`]/g, "'");
   for (const { re, target } of ALIAS) if (re.test(t)) t += ` ${target}`;
   return t;
@@ -37,7 +37,7 @@ function canonicalText(input) {
 function classify(drugs, matchers) {
   const found = new Map();
   for (const d of drugs) {
-    const text = canonicalText(d.name);
+    const text = canonicalDrugText(d.name);
     for (const m of matchers) {
       if (m.re.test(text) && !found.has(m.name)) found.set(m.name, { name: m.name, tier: m.tier || m.cls, origin: d.origin, input: d.name });
     }
@@ -50,6 +50,10 @@ const num = (v) => {
   const n = Number(v);
   return Number.isFinite(n) && n > 0 ? n : null;
 };
+
+/** Every rule id this module can emit (used to resolve CDS Hooks card feedback back to a rule). */
+export const SAFETY_RULE_IDS = ['QT-BASELINE-CRITICAL', 'QT-MULTIPLE-KNOWN', 'QT-ELEVATED', 'QT-MODERATE', 'QT-LOW', 'QT-DATA-GAP',
+  'SEROTONIN-MAOI-COMBINATION', 'SEROTONIN-MULTIPLE-HIGH', 'SEROTONIN-MODERATE', 'SEROTONIN-LOW'];
 
 export function normalizeDrugs({ components = [], medications = [] }) {
   const comp = components.map((c) => ({ name: typeof c === 'string' ? c : c.name, origin: 'regimen' }));

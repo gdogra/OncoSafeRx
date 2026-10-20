@@ -183,15 +183,15 @@ GET /api/regimens
 GET /api/regimens/FOLFOX-6
 ```
 
-### CDS Hooks (Demo)
+### CDS Hooks
+
+Services (see `docs/CDS_HOOKS.md`): `oncosaferx-order-sign`, `oncosaferx-patient-view`. Discovery is public:
 
 ```
-# Discovery
 GET /cds-services
-
-# medication-prescribe
-POST /cds-services/oncosaferx-medication-prescribe
-{ "context": { "medications": ["42463", "1811631"] } }
+POST /cds-services/oncosaferx-order-sign          # EHR-signed JWT required
+POST /cds-services/oncosaferx-patient-view
+POST /cds-services/{id}/feedback
 ```
 
 ### Supabase Auth Proxy (Server)

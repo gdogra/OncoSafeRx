@@ -76,6 +76,12 @@ try {
     const smart = await get('/smart/launch?iss=https://evil.example.com/fhir&launch=x');
     if (smart === 503) console.log('BOOT OK: unconfigured SMART launch -> 503');
     else fail(`/smart/launch returned ${smart} without SMART configuration, expected 503`);
+    const disc = await get('/cds-services');
+    if (disc === 200) console.log('BOOT OK: CDS Hooks discovery -> 200');
+    else fail(`/cds-services returned ${disc}, expected 200`);
+    const cdsRes = await fetch(`${base}/cds-services/oncosaferx-order-sign`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
+    if (cdsRes.status === 503) console.log('BOOT OK: unconfigured CDS service -> 503 (never unauthenticated 200)');
+    else fail(`CDS service returned ${cdsRes.status} without trusted-issuer config, expected 503`);
     for (const experimental of ['/api/digital-twin/health', '/api/medical-llm/health', '/api/ai-prediction/health']) {
       const st = await get(experimental);
       if (st === 404) console.log(`BOOT OK: ${experimental} not mounted`);

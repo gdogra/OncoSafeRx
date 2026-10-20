@@ -195,43 +195,9 @@ const ImprovedDrugSearch: React.FC<{ onOfflineChange?: (offline: boolean) => voi
     ]
   };
 
-  const generateAISuggestions = async (query: string): Promise<AISearchSuggestion[]> => {
-    if (!query || query.length < 2) return [];
-
-    const mockSuggestions: AISearchSuggestion[] = [
-      {
-        type: 'drug',
-        text: 'pembrolizumab',
-        confidence: 0.95,
-        category: 'PD-1 Inhibitor',
-        description: 'Checkpoint inhibitor for multiple cancer types',
-        relevantDrugs: ['nivolumab', 'atezolizumab'],
-        alternativeTerms: ['Keytruda', 'PD-1 inhibitor']
-      },
-      {
-        type: 'indication',
-        text: 'non-small cell lung cancer',
-        confidence: 0.88,
-        category: 'Oncology',
-        description: 'Most common type of lung cancer',
-        relevantDrugs: ['osimertinib', 'erlotinib', 'gefitinib']
-      },
-      {
-        type: 'mechanism',
-        text: 'EGFR tyrosine kinase inhibitor',
-        confidence: 0.82,
-        category: 'Targeted Therapy',
-        description: 'Targets EGFR signaling pathway',
-        relevantDrugs: ['osimertinib', 'erlotinib', 'afatinib']
-      }
-    ];
-
-    return mockSuggestions.filter(s => 
-      s.text.toLowerCase().includes(query.toLowerCase()) ||
-      s.category.toLowerCase().includes(query.toLowerCase()) ||
-      s.alternativeTerms?.some(term => term.toLowerCase().includes(query.toLowerCase()))
-    );
-  };
+  // No AI suggestion service exists yet. The previous implementation returned three
+  // hardcoded entries with invented confidence scores, so it now returns nothing.
+  const generateAISuggestions = async (_query: string): Promise<AISearchSuggestion[]> => [];
 
   useEffect(() => {
     const timer = setTimeout(async () => {

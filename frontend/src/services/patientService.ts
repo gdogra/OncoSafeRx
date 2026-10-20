@@ -575,7 +575,7 @@ export class PatientService {
   private transformApiPatient(apiPatient: any): Patient {
     return {
       id: apiPatient.id,
-      mrn: apiPatient.demographics?.mrn || `MRN${Math.random().toString().slice(2, 8)}`,
+      mrn: apiPatient.demographics?.mrn || '',
       firstName: apiPatient.demographics?.firstName || 'Unknown',
       lastName: apiPatient.demographics?.lastName || 'Patient',
       dateOfBirth: apiPatient.demographics?.dateOfBirth || '1980-01-01',

@@ -383,73 +383,8 @@ class PharmacogenomicsService {
       return await response.json();
     } catch (error) {
       console.error('Error generating dosing recommendation:', error);
-      return this.getMockDosingRecommendation(drugName);
+      throw error;
     }
-  }
-
-  // Mock data for demo purposes
-  private getMockDosingRecommendation(drugName: string): DosingRecommendation {
-    return {
-      drugName,
-      indication: 'Breast Cancer',
-      patientFactors: {
-        age: 65,
-        weight: 70,
-        height: 165,
-        bsa: 1.75,
-        creatinine: 0.9,
-        bilirubin: 0.8,
-        genetics: []
-      },
-      recommendedDose: {
-        amount: '20 mg',
-        frequency: 'Daily',
-        route: 'Oral',
-        duration: '5 years or until progression'
-      },
-      adjustmentFactors: {
-        geneticAdjustment: 0.8,
-        renalAdjustment: 1.0,
-        hepaticAdjustment: 1.0,
-        ageAdjustment: 0.9,
-        combinedAdjustment: 0.72
-      },
-      monitoring: {
-        parameters: ['Endoxifen levels', 'Bone density', 'Lipid profile'],
-        frequency: 'Every 3 months for first year, then every 6 months',
-        targets: [
-          { parameter: 'Endoxifen', target: '>5.9 ng/mL', units: 'ng/mL' },
-          { parameter: 'Bone density', target: 'T-score >-2.5', units: 'T-score' }
-        ]
-      },
-      interactions: [
-        {
-          drug: 'Paroxetine',
-          effect: 'Strong CYP2D6 inhibition',
-          recommendation: 'Avoid concomitant use or consider alternative antidepressant'
-        }
-      ],
-      efficacyPrediction: {
-        likelihood: 'Moderate',
-        responseRate: 0.65,
-        timeToResponse: '3-6 months'
-      },
-      toxicityPrediction: {
-        overallRisk: 'Low',
-        specificRisks: [
-          {
-            toxicity: 'Hot flashes',
-            risk: 'High (>70%)',
-            prevention: 'Lifestyle modifications, consider non-hormonal alternatives'
-          },
-          {
-            toxicity: 'Venous thromboembolism',
-            risk: 'Low (<1%)',
-            prevention: 'Monitor for signs/symptoms, avoid prolonged immobility'
-          }
-        ]
-      }
-    };
   }
 }
 

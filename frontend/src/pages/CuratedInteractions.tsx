@@ -98,8 +98,8 @@ const CuratedInteractions: React.FC = () => {
     console.log('Starting trial search for drug combination...');
     setTrialLoading(prev => ({ ...prev, [key]: true }));
     try {
-      // Create a mock patient profile for searching trials with these drugs
-      const mockProfile = {
+      // Generic search profile (no real patient): trials are filtered by drug name below, not by these demographics
+      const searchProfile = {
         age: 55,
         gender: 'All' as const,
         diagnosis: ['Cancer'], // Generic cancer diagnosis
@@ -114,7 +114,7 @@ const CuratedInteractions: React.FC = () => {
         zipCode: '10001' // NYC
       };
 
-      const trialMatches = await clinicalTrialsService.searchTrials(mockProfile);
+      const trialMatches = await clinicalTrialsService.searchTrials(searchProfile);
       // Filter to trials that specifically mention both drugs
       const relevantTrials = trialMatches
         .map(match => match.trial)

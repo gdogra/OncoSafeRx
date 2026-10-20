@@ -221,7 +221,14 @@ const useAuthSafely = () => {
 // Feature flag to disable patient functionality in the UI
 const PATIENTS_DISABLED = String((import.meta as any)?.env?.VITE_PATIENTS_DISABLED || '').toLowerCase() === 'true';
 // Feature flag: disable fallback sample patients entirely
-const DISABLE_SAMPLE_PATIENTS = String((import.meta as any)?.env?.VITE_DISABLE_SAMPLE_PATIENTS || '').toLowerCase() === 'true';
+// Sample (fictional) patients are opt-in: only in dev builds or when
+// VITE_ENABLE_SAMPLE_PATIENTS=true. They must never appear in a clinical session by default.
+const ENABLE_SAMPLE_PATIENTS =
+  Boolean((import.meta as any)?.env?.DEV) ||
+  String((import.meta as any)?.env?.VITE_ENABLE_SAMPLE_PATIENTS || '').toLowerCase() === 'true';
+const DISABLE_SAMPLE_PATIENTS =
+  !ENABLE_SAMPLE_PATIENTS ||
+  String((import.meta as any)?.env?.VITE_DISABLE_SAMPLE_PATIENTS || '').toLowerCase() === 'true';
 // Feature flag: enable backend patient API calls.
 // Require BOTH the explicit opt-in AND a configured backend URL. This prevents
 // 404s on Netlify (where no Express backend is deployed) even if the flag is
@@ -364,7 +371,7 @@ export const PatientProvider: React.FC<{ children: React.ReactNode }> = ({ child
             }
           }
           } catch (error) {
-            console.warn('Failed to fetch patients from API, using sample data:', error);
+            console.warn('Failed to fetch patients from API:', error);
           }
         })();
 

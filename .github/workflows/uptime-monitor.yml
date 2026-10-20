@@ -8,6 +8,8 @@ on:
 jobs:
   monitor:
     runs-on: ubuntu-latest
+    env:
+      EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
     steps:
       - name: Install jq
         run: |
@@ -22,28 +24,36 @@ jobs:
           API_SUGGEST_URL: ${{ secrets.API_SUGGEST_URL }}
         run: |
           SITE_URL=${SITE_URL:-"https://oncosaferx.com"}
-          API_HEALTH_URL=${API_HEALTH_URL:-"https://oncosaferx.com/api/health"}
-          API_SUGGEST_URL=${API_SUGGEST_URL:-"https://oncosaferx.com/api/drugs/suggestions?q=asp&limit=1"}
+          # The API checks run only when the API URLs are configured as repository secrets.
+          # The site is currently deployed frontend-only, so there is no API at a default URL.
 
           echo "Checking SITE_URL=$SITE_URL"
           SITE_STATUS=$(curl -fsS -o /dev/null -w "%{http_code}" "$SITE_URL" || echo 000)
           echo "SITE_STATUS=$SITE_STATUS"
 
-          echo "Checking API_HEALTH_URL=$API_HEALTH_URL"
-          API_HEALTH_BODY=$(curl -fsS "$API_HEALTH_URL" || true)
-          API_HEALTH_CODE=$([ -n "$API_HEALTH_BODY" ] && echo 200 || echo 000)
-          API_HEALTH_OK=$(echo "$API_HEALTH_BODY" | jq -r '.status // .Status // empty' 2>/dev/null | tr '[:upper:]' '[:lower:]')
-          echo "API_HEALTH_CODE=$API_HEALTH_CODE, API_HEALTH_OK=$API_HEALTH_OK, BODY=$API_HEALTH_BODY"
-
-          echo "Checking API_SUGGEST_URL=$API_SUGGEST_URL"
-          API_SUGGEST_CODE=$(curl -fsS -o /dev/null -w "%{http_code}" "$API_SUGGEST_URL" || echo 000)
-          echo "API_SUGGEST_CODE=$API_SUGGEST_CODE"
+          API_HEALTH_BODY=""; API_HEALTH_CODE="skipped"; API_HEALTH_OK="skipped"; API_SUGGEST_CODE="skipped"
+          if [ -n "$API_HEALTH_URL" ]; then
+            echo "Checking API_HEALTH_URL=$API_HEALTH_URL"
+            API_HEALTH_BODY=$(curl -fsS "$API_HEALTH_URL" || true)
+            API_HEALTH_CODE=$([ -n "$API_HEALTH_BODY" ] && echo 200 || echo 000)
+            API_HEALTH_OK=$(echo "$API_HEALTH_BODY" | jq -r '.status // .Status // empty' 2>/dev/null | tr '[:upper:]' '[:lower:]')
+            echo "API_HEALTH_CODE=$API_HEALTH_CODE, API_HEALTH_OK=$API_HEALTH_OK, BODY=$API_HEALTH_BODY"
+          else
+            echo "API_HEALTH_URL not set: skipping API health check"
+          fi
+          if [ -n "$API_SUGGEST_URL" ]; then
+            echo "Checking API_SUGGEST_URL=$API_SUGGEST_URL"
+            API_SUGGEST_CODE=$(curl -fsS -o /dev/null -w "%{http_code}" "$API_SUGGEST_URL" || echo 000)
+            echo "API_SUGGEST_CODE=$API_SUGGEST_CODE"
+          else
+            echo "API_SUGGEST_URL not set: skipping API suggestions check"
+          fi
 
           FAIL=0
           [ "$SITE_STATUS" != "200" ] && echo "Site check failed" && FAIL=1
-          if [ "$API_HEALTH_CODE" != "200" ] && [ "$API_HEALTH_OK" != "healthy" ]; then
+          if [ -n "$API_HEALTH_URL" ] && [ "$API_HEALTH_CODE" != "200" ] && [ "$API_HEALTH_OK" != "healthy" ]; then
             echo "API health check failed"; FAIL=1; fi
-          if [ "$API_SUGGEST_CODE" != "200" ]; then echo "API suggestions check failed"; FAIL=1; fi
+          if [ -n "$API_SUGGEST_URL" ] && [ "$API_SUGGEST_CODE" != "200" ]; then echo "API suggestions check failed"; FAIL=1; fi
 
           echo "fail=$FAIL" >> $GITHUB_OUTPUT
           echo "site_status=$SITE_STATUS" >> $GITHUB_OUTPUT
@@ -65,14 +75,14 @@ jobs:
           curl -fsS -X POST -H 'Content-type: application/json' --data "$payload" "$SLACK_WEBHOOK_URL"
 
       - name: Email notify (failure)
-        if: failure()
+        if: failure() && env.EMAIL_HOST != ''
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: ${{ secrets.EMAIL_HOST }}
           server_port: ${{ secrets.EMAIL_PORT }}
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: ❌ Uptime check FAILED: ${{ github.repository }}
+          subject: "❌ Uptime check FAILED: ${{ github.repository }}"
           to: ${{ secrets.EMAIL_TO }}
           from: ${{ secrets.EMAIL_FROM }}
           content_type: text/plain

@@ -47,7 +47,6 @@ jobs:
   create_release:
     runs-on: ubuntu-latest
     needs: verify_changelog
-    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4

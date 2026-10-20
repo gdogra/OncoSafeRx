@@ -47,7 +47,6 @@ jobs:
             package.json \
             package-lock.json \
             ecosystem.config.js \
-            .env.example \
             README.md
 
       - name: Upload artifact

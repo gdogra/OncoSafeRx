@@ -1,5 +1,6 @@
 # API proxy to backend
 /api/* https://oncosaferx-backend.onrender.com/api/:splat 200
+/smart/* https://oncosaferx-backend.onrender.com/smart/:splat 200
 
 # Asset files - serve with correct MIME types
 /assets/*.js /assets/:splat 200

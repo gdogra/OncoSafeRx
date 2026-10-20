@@ -1,2 +1,3 @@
 /api/* https://oncosaferx-backend.onrender.com/api/:splat 200
+/smart/* https://oncosaferx-backend.onrender.com/smart/:splat 200
 /* /index.html 200

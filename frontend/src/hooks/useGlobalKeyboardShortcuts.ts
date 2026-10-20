@@ -276,13 +276,24 @@ export function useGlobalKeyboardShortcuts() {
   useEffect(() => {
     const announceShortcuts = () => {
       const announcement = 'Keyboard shortcuts available. Press Shift + ? for help.';
-      const liveRegion = document.querySelector('[aria-live="polite"]');
-      if (liveRegion) {
-        liveRegion.textContent = announcement;
-        setTimeout(() => {
-          liveRegion.textContent = '';
-        }, 2000);
+      // Use a dedicated announcer element. This used to grab the FIRST [aria-live="polite"] on the
+      // page and overwrite its textContent, which wiped React-managed content (e.g. result banners)
+      // and later crashed the page with "removeChild" errors.
+      let liveRegion = document.getElementById('osrx-route-announcer');
+      if (!liveRegion) {
+        liveRegion = document.createElement('div');
+        liveRegion.id = 'osrx-route-announcer';
+        liveRegion.setAttribute('role', 'status');
+        liveRegion.setAttribute('aria-live', 'polite');
+        liveRegion.setAttribute('aria-atomic', 'true');
+        liveRegion.style.cssText = 'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;';
+        document.body.appendChild(liveRegion);
       }
+      const region = liveRegion;
+      region.textContent = announcement;
+      setTimeout(() => {
+        region.textContent = '';
+      }, 2000);
     };
 
     // Announce after a brief delay to avoid conflicts with route announcements

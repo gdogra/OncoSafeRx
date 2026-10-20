@@ -86,7 +86,7 @@ describe('SMART EHR launch', () => {
     expect(a.state.length).toBeGreaterThan(20);
     expect(launch.headers.getSetCookie()[0]).toMatch(/HttpOnly/);
     expect(cb.status).toBe(302);
-    expect(cb.headers.get('location')).toBe('/?smart=1');
+    expect(cb.headers.get('location')).toBe('/?smart=1'); // test config sets postLoginUrl '/'
     expect(seen.token).toMatchObject({ grant_type: 'authorization_code', code: 'the-code', client_id: CLIENT_ID });
 
     const session = jar(cb);
@@ -184,6 +184,10 @@ describe('sealed cookies and config', () => {
     expect(issAllowed(ok, 'https://ehr.example/fhir')).toBe(true);
     expect(issAllowed(ok, 'http://ehr.example/fhir')).toBe(false);
     expect(issAllowed(ok, 'https://other.example/fhir')).toBe(false);
+  });
+
+  test('after a successful launch the browser lands on the safety-check screen by default', () => {
+    expect(getSmartConfig({ NODE_ENV: 'development' }).postLoginUrl).toBe('/safety-check');
   });
 
   test('dev defaults allow only the public SMART sandbox', () => {

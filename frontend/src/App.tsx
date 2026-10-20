@@ -31,6 +31,7 @@ const PrecisionMedicine = lazy(() => import('./pages/PrecisionMedicine'));
 const Trials = lazy(() => import('./pages/Trials'));
 const ClinicalTrials = lazy(() => import('./pages/ClinicalTrials'));
 const Profile = lazy(() => import('./pages/Profile'));
+const SafetyCheck = lazy(() => import('./pages/SafetyCheck'));
 
 // ── Auth pages ───────────────────────────────────────────────
 const AuthPage = lazy(() => import('./pages/AuthPage'));
@@ -161,6 +162,11 @@ function AppWithAuth() {
                 <Route path="/clinical-trials" element={
                   <ProtectedRoute>
                     <Layout><ClinicalTrials /></Layout>
+                  </ProtectedRoute>
+                } />
+                <Route path="/safety-check" element={
+                  <ProtectedRoute>
+                    <Layout><SafetyCheck /></Layout>
                   </ProtectedRoute>
                 } />
                 <Route path="/profile" element={

@@ -136,6 +136,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             requiresPermission: null
           },
           {
+            path: '/safety-check',
+            label: 'Regimen Safety Check',
+            icon: Clipboard,
+            description: 'Dosing, PGx, QT and serotonin checks',
+            roles: clinicalRoles,
+            requiresPermission: null
+          },
+          {
             path: '/search',
             label: 'Drug Search',
             icon: Search,

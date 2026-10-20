@@ -9,7 +9,7 @@
  *   SMART_SCOPE            default below
  *   SMART_ALLOWED_ISS      comma-separated FHIR base URLs this app may launch from (required in production)
  *   SMART_SESSION_SECRET   >= 32 chars; seals the transaction and session cookies (required in production)
- *   SMART_POST_LOGIN_URL   where to send the browser after a successful launch (default "/")
+ *   SMART_POST_LOGIN_URL   where to send the browser after a successful launch (default "/safety-check")
  */
 export const PUBLIC_SANDBOX_ISS = 'https://launch.smarthealthit.org/v/r4/fhir';
 
@@ -34,7 +34,7 @@ export function getSmartConfig(env = process.env) {
     scope: env.SMART_SCOPE || DEFAULT_SCOPE,
     allowedIss: allowed.length ? allowed : (prod ? [] : [PUBLIC_SANDBOX_ISS]),
     sessionSecret: env.SMART_SESSION_SECRET || (prod ? '' : 'dev-only-smart-session-secret-change-me-0000'),
-    postLoginUrl: env.SMART_POST_LOGIN_URL || '/',
+    postLoginUrl: env.SMART_POST_LOGIN_URL || '/safety-check',
     secureCookies: prod,
     sessionMaxSeconds: Number(env.SMART_SESSION_MAX_SECONDS) || 3600,
   };

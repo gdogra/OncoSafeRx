@@ -11,6 +11,17 @@ launch are supported (authorization-code flow with PKCE S256, state, nonce, `aud
 | `GET /api/smart/patient` | Reads Patient / Observation / MedicationRequest and returns inputs for `POST /api/dosing/adjust`. |
 | `POST /api/smart/logout` | Clears the session. |
 
+## The screen
+After a launch the browser lands on `/safety-check` (**Regimen safety check**). Values from the EHR are pre-filled with an
+"EHR · N days ago" chip; stale or unconvertible values are left blank and explained; the clinician can edit anything, add
+medications, pick a regimen and run the check. Findings can be acknowledged or overridden (reason required), which records to
+`/api/overrides` against the rule id and version. The page also works without a launch (manual entry).
+
+## Hosting note (Netlify frontend + separate API)
+The SPA and the API must share an origin for the session cookie. `public/_redirects` proxies `/api/*` **and `/smart/*`** to the
+backend; register `https://<frontend-host>/smart/launch` and `https://<frontend-host>/smart/callback` with the EHR. The CDS Hooks
+endpoints are called by the EHR directly, so `CDS_PUBLIC_BASE_URL` should be the backend's public origin.
+
 ## Configuration
 See the `SMART_*` block in `.env.example`. In production the server refuses to launch (503) until
 `SMART_CLIENT_ID`, `SMART_SESSION_SECRET`, `SMART_REDIRECT_URI` and `SMART_ALLOWED_ISS` are set.

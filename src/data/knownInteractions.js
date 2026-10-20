@@ -134,7 +134,19 @@ export const KNOWN_INTERACTIONS = [
       "44185",
       "11289"
     ],
-    "citation_status": "unverified"
+    "citation_status": "label_mention",
+    "citations": [
+      {
+        "source_type": "label",
+        "id": "1daf714b-704c-4bcc-b6e0-6f0eb2bfe66b",
+        "title": "FAVLYXA (FLUOROURACIL) INJECTION, SOLUTION [AVYXA PHARMA, LLC]",
+        "section": "Drug Interactions",
+        "url": "https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=1daf714b-704c-4bcc-b6e0-6f0eb2bfe66b",
+        "matched": "warfarin",
+        "snippet": "DRUG INTERACTIONS 7.1 Effect of FAVLYXA on Other Drugs Vitamin K Antagonists Monitor INR and PT more frequently in patients receiving FAVLYXA and warfarin.",
+        "retrieved": "2026-10-20"
+      }
+    ]
   },
   {
     "drugs": [

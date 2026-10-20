@@ -3,8 +3,11 @@
 # Validated by schemas/ddi_curated.schema.json. One row per unordered drug pair.
 # Fields: drug_primary, drug_interactor, severity, mechanism, effect, recommendation,
 #         evidence_level (high|moderate|low|unknown), evidence_source | sources[], citations[], rxcui[]
-# NOTE: entries migrated from the old JS list carry generic source labels ("Studies",
-# "FDA") rather than citations. Replace with real citations as they are reviewed.
+# CITATIONS: scripts/cite_ddi.mjs attaches verbatim FDA-label snippets (citation_status: label_mention =
+# the label of one drug discusses the other; it does NOT confirm our severity grade). Entries marked
+# unverified have no checkable source yet; their `sources` text is a legacy summary only.
+# Some rows are not drug pairs (e.g. "abacavir + hla-b5701 positive", "aspirin + children with viral
+# illness"); they are population/PGx warnings and should move out of this list.
 
 - drug_primary: capecitabine
   drug_interactor: warfarin
@@ -106,8 +109,19 @@
   rxcui:
     - '44185'
     - '11289'
-  citation_status: unverified
+  citation_status: label_mention
   citations_checked_on: '2026-10-20'
+  citations:
+    - source_type: label
+      id: 1daf714b-704c-4bcc-b6e0-6f0eb2bfe66b
+      title: FAVLYXA (FLUOROURACIL) INJECTION, SOLUTION [AVYXA PHARMA, LLC]
+      section: Drug Interactions
+      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=1daf714b-704c-4bcc-b6e0-6f0eb2bfe66b
+      matched: warfarin
+      snippet: >-
+        DRUG INTERACTIONS 7.1 Effect of FAVLYXA on Other Drugs Vitamin K Antagonists Monitor INR and PT more frequently
+        in patients receiving FAVLYXA and warfarin.
+      retrieved: '2026-10-20'
 - drug_primary: abacavir
   drug_interactor: hla-b5701 positive
   severity: major

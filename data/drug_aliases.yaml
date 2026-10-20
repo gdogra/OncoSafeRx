@@ -15,3 +15,9 @@
   canonical_name: pazopanib
 - name: Votrient
   canonical_name: pazopanib
+- name: 5-fluorouracil
+  canonical_name: fluorouracil
+- name: 5-FU
+  canonical_name: fluorouracil
+- name: Fluorouracil
+  canonical_name: fluorouracil

@@ -70,6 +70,11 @@ try {
       if (status === 401 || status === 403) console.log(`BOOT OK: ${label} -> ${status}`);
       else fail(`${label} on ${path} returned ${status}, expected 401/403`);
     }
+    for (const experimental of ['/api/digital-twin/health', '/api/medical-llm/health', '/api/ai-prediction/health']) {
+      const st = await get(experimental);
+      if (st === 404) console.log(`BOOT OK: ${experimental} not mounted`);
+      else fail(`${experimental} returned ${st} in production, expected 404`);
+    }
     const debug = await get('/api/debug/echo');
     if (debug === 404) console.log('BOOT OK: /api/debug not mounted in production');
     else fail(`/api/debug/echo returned ${debug} in production, expected 404`);

@@ -51,7 +51,7 @@ oncology rules beats breadth of features.
 
 ### Phase 0 — Credibility cleanup (1–2 weeks)
 - Remove or hard-gate (`NODE_ENV!=='production'` + visible "SIMULATED" banner) every route that returns `Math.random()` output; delete fabricated accuracy/count fields.
-- Unmount speculative modules from `src/index.js` unless they have real data behind them (digital twin, CRISPR, AR surgery, autonomous treatment, global network).
+- ~~Unmount speculative modules~~ DONE for 20 route modules (no frontend callers, no tests, simulated/canned/unvalidated output): they now live in `src/experimental/mountExperimental.js`, load only with `ENABLE_EXPERIMENTAL_ROUTES=true` outside production, and are stamped as simulated. Not unmounted because they are DB-backed: careplan, oncologist/patient/student-features, ehr-integration, pharmacy-integration. Still to review: the CRISPR / AR surgery / autonomous / global-network service files (no routes; delete if unused).
 - ~~Consolidate DDI knowledge into one source of truth~~ DONE: `data/ddi_curated.yaml` is canonical; `npm run build:ddi` generates `src/data/knownInteractions.js`; CI runs `check:ddi`. Migration merged 76 duplicate pairs (9 had conflicting severities; the more severe was kept) and dropped 15 "X + none significant" placeholders. Follow-up: migrated entries carry generic source labels ("Studies", "FDA"), not citations; replace with real citations as reviewed. Also review class-level and non-drug rows (e.g. "elderly + nsaids").
 - Audit `docs/` (pitch, acquisition, FDA) for claims that rest on the removed features.
 - Clean repo root (one-off SQL fixes, `test-signup*.js`, `localStorage-debug.js`) into `scripts/` or delete.

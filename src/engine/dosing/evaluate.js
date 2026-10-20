@@ -5,6 +5,7 @@
 import { createHash } from 'node:crypto';
 import { DOSING_RULES, DOSE_CAPS } from './rules.generated.js';
 import { parseDose } from './parseDose.js';
+import { evaluateRegimenSafety } from '../risk/qtSerotonin.js';
 import { calculateBSA, calculateCrCl } from '../calculators.js';
 
 // Content hash of a rule: changes whenever the rule's wording, thresholds or source change,
@@ -53,7 +54,7 @@ function conditionHolds(when, labs, phenotypes) {
   return false;
 }
 
-export function evaluateRegimen({ regimen, labs = {}, phenotypes = {}, patient = {}, rounding = 5 }) {
+export function evaluateRegimen({ regimen, labs = {}, phenotypes = {}, patient = {}, rounding = 5, medications = [], riskConditions = [] }) {
   const components = regimen.components || [];
 
   const cleanLabs = {};
@@ -77,6 +78,10 @@ export function evaluateRegimen({ regimen, labs = {}, phenotypes = {}, patient =
       kind: rule.action === 'info' ? 'data_gap' : 'finding',
     });
   }
+
+  // Whole-regimen screens across regimen drugs + concomitant medications
+  const safety = evaluateRegimenSafety({ components, medications, labs, patient, riskConditions });
+  findings.push(...safety.findings);
 
   const unit = num(rounding) || 5;
   const calculatedDoses = components.map((c) => {
@@ -104,7 +109,7 @@ export function evaluateRegimen({ regimen, labs = {}, phenotypes = {}, patient =
   });
 
   findings.sort((a, b) => (SEVERITY_RANK[b.severity] || 0) - (SEVERITY_RANK[a.severity] || 0));
-  return { calculators: { BSA: bsa, CrCl: cleanLabs.CrCl }, findings, calculatedDoses };
+  return { calculators: { BSA: bsa, CrCl: cleanLabs.CrCl }, findings, calculatedDoses, interactionScreens: { qtDrugs: safety.qt.hits, qtRiskFactors: safety.qt.factors, serotonergicDrugs: safety.serotonin.hits } };
 }
 
 export default evaluateRegimen;

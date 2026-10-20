@@ -33,6 +33,8 @@
     "validate:curated": "node scripts/validate_curated.mjs",
     "build:dosing": "node scripts/build_dosing_rules.mjs",
     "check:dosing": "node scripts/build_dosing_rules.mjs --check",
+    "build:safety": "node scripts/build_safety_classes.mjs",
+    "check:safety": "node scripts/build_safety_classes.mjs --check",
     "ci:boot-check": "node scripts/boot-check.js",
     "ci:smoke-frontend": "node scripts/smoke-ci.js",
     "ci:smoke-image": "bash -c 'echo use in CI to run container smoke'"

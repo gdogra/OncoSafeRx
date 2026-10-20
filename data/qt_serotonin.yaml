@@ -1,0 +1,60 @@
+# Drug lists and thresholds for the whole-regimen QT-prolongation and serotonin-syndrome checks.
+# SINGLE SOURCE OF TRUTH. Edit, then run: npm run build:safety  (regenerates src/engine/risk/lists.generated.js)
+#
+# status: draft - assembled from public labeling and general knowledge, NOT yet reviewed by a
+#   pharmacist/oncologist.
+#
+# LICENSING / VERIFICATION WARNING: the QT categories below mirror the structure of the CredibleMeds
+#   QTdrugs lists (known | possible | conditional risk of TdP). CredibleMeds is the reference and its
+#   data is licensed for commercial/bulk use. Before this list is used beyond internal evaluation:
+#   (1) verify every entry against the live CredibleMeds list, and (2) obtain a data license, or replace
+#   this list with a licensed feed. Absence from this list does NOT mean a drug is safe.
+
+status: draft
+
+thresholds:
+  qtc_critical_ms: 500            # baseline QTc at/above this: avoid QT-prolonging drugs unless benefit clearly outweighs risk
+  qtc_prolonged_male_ms: 450
+  qtc_prolonged_female_ms: 460
+  potassium_low_mmol_l: 3.5
+  magnesium_low_mg_dl: 1.7
+  age_risk_years: 65
+
+# category: known | possible | conditional  (conditional = risk mainly via other factors, e.g. hypokalemia/hypomagnesemia)
+qt_drugs:
+  known: [arsenic trioxide, vandetanib, nilotinib, toremifene, anagrelide, ondansetron, haloperidol, methadone, citalopram, escitalopram, amiodarone, sotalol, dofetilide, ibutilide, quinidine, procainamide, disopyramide, chlorpromazine, droperidol, pimozide, thioridazine, azithromycin, clarithromycin, erythromycin, levofloxacin, moxifloxacin, ciprofloxacin, fluconazole, donepezil, domperidone, propofol, pentamidine, cisapride, bepridil]
+  possible: [crizotinib, vemurafenib, lapatinib, sunitinib, pazopanib, dasatinib, bosutinib, ribociclib, osimertinib, eribulin, vorinostat, romidepsin, panobinostat, gilteritinib, ivosidenib, encorafenib, ceritinib, degarelix, leuprolide, granisetron, dolasetron, olanzapine, quetiapine, risperidone, venlafaxine, mirtazapine, salmeterol, tacrolimus]
+  conditional: [fluoxetine, sertraline, paroxetine, trazodone, amitriptyline, hydroxyzine, loperamide, metoclopramide, omeprazole, esomeprazole, pantoprazole, lansoprazole, furosemide, hydrochlorothiazide, indapamide]
+
+# class: maoi (MAO inhibition; combining with other serotonergic drugs is the highest-risk pairing)
+#        high (strongly serotonergic) | moderate (contributes, usually with others)
+serotonergic_drugs:
+  maoi: [phenelzine, tranylcypromine, isocarboxazid, selegiline, rasagiline, safinamide, linezolid, methylene blue]
+  high: [fluoxetine, sertraline, paroxetine, citalopram, escitalopram, fluvoxamine, venlafaxine, desvenlafaxine, duloxetine, clomipramine, amitriptyline, nortriptyline, imipramine, tramadol, meperidine, methadone, tapentadol, dextromethorphan, st john's wort]
+  moderate: [ondansetron, granisetron, dolasetron, palonosetron, fentanyl, sumatriptan, rizatriptan, zolmitriptan, trazodone, buspirone, mirtazapine, lithium, metoclopramide, procarbazine, carbamazepine, oxycodone, ritonavir]
+
+# generic-name aliases (brand -> generic). Matching is on whole words, case-insensitive.
+aliases:
+  zofran: ondansetron
+  kytril: granisetron
+  reglan: metoclopramide
+  zyprexa: olanzapine
+  seroquel: quetiapine
+  risperdal: risperidone
+  prozac: fluoxetine
+  zoloft: sertraline
+  paxil: paroxetine
+  celexa: citalopram
+  lexapro: escitalopram
+  effexor: venlafaxine
+  cymbalta: duloxetine
+  ultram: tramadol
+  zyvox: linezolid
+  cordarone: amiodarone
+  tykerb: lapatinib
+  tasigna: nilotinib
+  caprelsa: vandetanib
+  trisenox: arsenic trioxide
+  matulane: procarbazine
+  imitrex: sumatriptan
+  desyrel: trazodone

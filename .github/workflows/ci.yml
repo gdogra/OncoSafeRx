@@ -26,6 +26,8 @@ jobs:
         run: npm run check:ddi
       - name: Dosing rules are in sync (YAML -> generated module)
         run: npm run check:dosing
+      - name: QT/serotonin lists are in sync (YAML -> generated module)
+        run: npm run check:safety
       - name: Boot check (server starts, auth bypasses closed)
         run: npm run ci:boot-check
       - name: Install and build frontend

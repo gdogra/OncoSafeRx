@@ -64,6 +64,8 @@ try {
       ['/api/patients', { Authorization: 'Bearer gdogra-token-x' }, 'forged gdogra token'],
       ['/api/patients', { Authorization: 'Bearer dev-token-admin-1' }, 'forged dev token'],
       ['/api/supabase-auth/profile', { 'x-osrx-guest': '1' }, 'unauthenticated profile'],
+      ['/api/overrides', {}, 'unauthenticated override history'],
+      ['/api/overrides/summary', { 'x-osrx-guest': '1' }, 'unauthenticated override summary'],
     ];
     for (const [path, headers, label] of checks) {
       const status = await get(path, headers);

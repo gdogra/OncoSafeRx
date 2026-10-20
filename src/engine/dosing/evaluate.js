@@ -2,9 +2,15 @@
  * Pure dosing-rule evaluator. No I/O. Rules come from data/dosing_rules.yaml
  * (via the generated module) so clinicians can review them as data.
  */
+import { createHash } from 'node:crypto';
 import { DOSING_RULES, DOSE_CAPS } from './rules.generated.js';
 import { parseDose } from './parseDose.js';
 import { calculateBSA, calculateCrCl } from '../calculators.js';
+
+// Content hash of a rule: changes whenever the rule's wording, thresholds or source change,
+// so recorded overrides can be tied to the exact rule version the clinician saw.
+export const ruleVersion = (rule) => createHash('sha256').update(JSON.stringify(rule)).digest('hex').slice(0, 12);
+const VERSIONS = new Map([...DOSING_RULES, ...DOSE_CAPS].map((r) => [r.id, ruleVersion(r)]));
 
 const SEVERITY_RANK = { critical: 4, high: 3, moderate: 2, low: 1 };
 const UNKNOWN_PHENOTYPES = new Set(['', 'unknown', 'indeterminate', 'not tested', 'n/a', 'na', 'none']);
@@ -66,7 +72,7 @@ export function evaluateRegimen({ regimen, labs = {}, phenotypes = {}, patient =
     if (!drugs.length) continue;
     if (!conditionHolds(rule.when, cleanLabs, phenotypes)) continue;
     findings.push({
-      ruleId: rule.id, action: rule.action, severity: rule.severity, message: rule.message,
+      ruleId: rule.id, ruleVersion: VERSIONS.get(rule.id), action: rule.action, severity: rule.severity, message: rule.message,
       drugs, source: rule.source, ruleStatus: rule.status,
       kind: rule.action === 'info' ? 'data_gap' : 'finding',
     });
@@ -89,7 +95,7 @@ export function evaluateRegimen({ regimen, labs = {}, phenotypes = {}, patient =
       out.roundedMg = capMg;
       const cap = caps[0];
       findings.push({
-        ruleId: cap?.id || 'DOSE-CAP', action: 'cap', severity: 'high',
+        ruleId: cap?.id || 'DOSE-CAP', ruleVersion: VERSIONS.get(cap?.id), action: 'cap', severity: 'high',
         message: `${c.name}: calculated ${Math.round(calculatedMg)} mg exceeds the ${capMg} mg cap; capped at ${capMg} mg.`,
         drugs: [c.name], source: cap?.source || { label: 'Regimen-listed maximum dose' }, ruleStatus: cap?.status || 'draft', kind: 'finding',
       });

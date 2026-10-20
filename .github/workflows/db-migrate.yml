@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       target:
-        description: 'Which migrations to run (frontend-users|core|all)'
+        description: 'Which migrations to run (frontend-users|core|overrides|all)'
         required: true
         default: 'frontend-users'
 
@@ -39,6 +39,9 @@ jobs:
               ;;
             core)
               run_sql supabase/schema.sql
+              ;;
+            overrides)
+              run_sql supabase/migrations/006_alert_overrides.sql
               ;;
             all)
               run_sql supabase/schema.sql

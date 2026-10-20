@@ -11,7 +11,7 @@ Supabase.
 
 ## What works today (verified in code)
 - Drug search and FDA label lookup (RxNorm, DailyMed).
-- Drug-drug interaction checking over ~750 curated interactions, with a
+- Drug-drug interaction checking over ~570 curated drug pairs (plus ~90 patient-factor and food warnings), with a
   regression test corpus.
 - PGx phenotype derivation (CYP2D6, CYP2C19, UGT1A1, TPMT, DPYD, NUDT15) and
   CPIC-backed guideline data, with a regression test corpus.

@@ -3,12 +3,37 @@ import path from 'node:path';
 import yaml from 'js-yaml';
 import { render } from '../../../scripts/build_ddi.mjs';
 import { KNOWN_INTERACTIONS } from '../../../src/data/knownInteractions.js';
+import { NON_DDI_WARNINGS } from '../../../src/data/nonDdiWarnings.js';
 
 const yamlPath = path.join(process.cwd(), 'data/ddi_curated.yaml');
 const entries = yaml.load(fs.readFileSync(yamlPath, 'utf8'));
 const pairKey = (a, b) => [a, b].map((d) => d.toLowerCase().trim()).sort().join('|');
 
 describe('interaction data: single source of truth', () => {
+  test('non-DDI warnings module is exactly what its YAML builds', async () => {
+    const { renderWarnings } = await import('../../../scripts/build_ddi.mjs');
+    const warn = yaml.load(fs.readFileSync(path.join(process.cwd(), 'data/non_ddi_warnings.yaml'), 'utf8'));
+    const generated = fs.readFileSync(path.join(process.cwd(), 'src/data/nonDdiWarnings.js'), 'utf8');
+    expect(generated).toBe(renderWarnings(warn));
+  });
+
+  test('the drug-drug list contains only drugs: no populations, conditions, genotypes or foods', () => {
+    const banned = /^(children|infants|neonates|elderly|pregnancy|adolescents|asthma|hypertension|glaucoma|heart failure|liver disease|chronic kidney disease|radiation|sun exposure|grapefruit juice|coffee|green tea|high doses|ice)$|\bpositive$|\bdeficiency$|\bsyndrome$|\bfoods?$|\bdiet$|^children /i;
+    for (const e of KNOWN_INTERACTIONS) for (const d of e.drugs) expect(d).not.toMatch(banned);
+  });
+
+  test('moved rows are preserved, categorised and still point at a real drug', () => {
+    expect(NON_DDI_WARNINGS.length).toBeGreaterThan(80);
+    for (const w of NON_DDI_WARNINGS) {
+      expect(['patient_factor', 'food', 'nonspecific']).toContain(w.category);
+      expect(w.drug).toBeTruthy();
+      expect(w.subject).toBeTruthy();
+      expect(w.drug.toLowerCase()).not.toBe(w.subject.toLowerCase());
+    }
+    const abacavir = NON_DDI_WARNINGS.find((w) => w.drug === 'abacavir' && /hla-b5701/i.test(w.subject));
+    expect(abacavir).toMatchObject({ category: 'patient_factor', severity: 'major' });
+  });
+
   test('generated module is exactly what the YAML builds (run `npm run build:ddi`)', () => {
     const generated = fs.readFileSync(path.join(process.cwd(), 'src/data/knownInteractions.js'), 'utf8');
     expect(generated).toBe(render(entries));

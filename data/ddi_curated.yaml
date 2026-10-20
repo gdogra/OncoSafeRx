@@ -6,8 +6,7 @@
 # CITATIONS: scripts/cite_ddi.mjs attaches verbatim FDA-label snippets (citation_status: label_mention =
 # the label of one drug discusses the other; it does NOT confirm our severity grade). Entries marked
 # unverified have no checkable source yet; their `sources` text is a legacy summary only.
-# Some rows are not drug pairs (e.g. "abacavir + hla-b5701 positive", "aspirin + children with viral
-# illness"); they are population/PGx warnings and should move out of this list.
+# Population, genotype, condition and food warnings are NOT drug pairs; they live in data/non_ddi_warnings.yaml.
 
 - drug_primary: capecitabine
   drug_interactor: warfarin
@@ -122,20 +121,6 @@
         DRUG INTERACTIONS 7.1 Effect of FAVLYXA on Other Drugs Vitamin K Antagonists Monitor INR and PT more frequently
         in patients receiving FAVLYXA and warfarin.
       retrieved: '2026-10-20'
-- drug_primary: abacavir
-  drug_interactor: hla-b5701 positive
-  severity: major
-  mechanism: Genetic hypersensitivity
-  effect: Fatal hypersensitivity reaction
-  recommendation: Mandatory screening
-  evidence_level: high
-  sources:
-    - HIV guidelines
-  rxcui:
-    - '190521'
-    - hla_b5701
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: abatacept
   drug_interactor: anti-tnf agents
   severity: major
@@ -221,34 +206,6 @@
   rxcui:
     - '35208'
     - '8588'
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: ace inhibitors
-  drug_interactor: pregnancy
-  severity: major
-  mechanism: Fetal kidney development disruption
-  effect: Oligohydramnios and fetal death
-  recommendation: Discontinue immediately; use alternative antihypertensive
-  evidence_level: high
-  sources:
-    - Obstetric guidelines
-  rxcui:
-    - '35208'
-    - pregnancy
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: ace inhibitors
-  drug_interactor: renal stenosis
-  severity: major
-  mechanism: Reduced GFR
-  effect: Kidney injury
-  recommendation: Contraindicated
-  evidence_level: high
-  sources:
-    - Guidelines
-  rxcui:
-    - '35208'
-    - stenosis
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: acetaminophen
@@ -438,20 +395,6 @@
     - live_vaccines
   citation_status: unverified
   citations_checked_on: '2026-10-20'
-- drug_primary: alendronate
-  drug_interactor: coffee
-  severity: moderate
-  mechanism: Reduced absorption
-  effect: Decreased efficacy
-  recommendation: Take with water only
-  evidence_level: high
-  sources:
-    - Studies
-  rxcui:
-    - '19552'
-    - coffee
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: allopurinol
   drug_interactor: azathioprine
   severity: major
@@ -487,20 +430,6 @@
         azathioprine is inhibited by XO inhibitors (allopurinol or febuxostat).
       retrieved: '2026-10-20'
   citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: allopurinol
-  drug_interactor: hla-b5801 positive
-  severity: major
-  mechanism: Genetic hypersensitivity
-  effect: DRESS syndrome
-  recommendation: Avoid in HLA-B*5801 positive
-  evidence_level: high
-  sources:
-    - Dermatology
-  rxcui:
-    - '519'
-    - hla_b5801
-  citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: allopurinol
   drug_interactor: mercaptopurine
@@ -624,31 +553,6 @@
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: amiodarone
-  drug_interactor: elderly
-  severity: major
-  mechanism: Increased sensitivity
-  effect: Organ toxicity
-  recommendation: Monitor closely
-  evidence_level: high
-  sources:
-    - Guidelines
-  rxcui:
-    - '703'
-    - elderly
-  citations:
-    - source_type: label
-      id: 4c149392-a4f0-4e2d-a13f-2b94810005de
-      title: AMIODARONE HYDROCHLORIDE TABLET [REMEDYREPACK INC.]
-      section: Warnings and Precautions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=4c149392-a4f0-4e2d-a13f-2b94810005de
-      matched: elderly
-      snippet: >-
-        Monitor thyroid function prior to treatment and periodically thereafter, particularly in elderly patients, and
-        in any patient with a history of thyroid nodules, goiter, or other thyroid dysfunction.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: amiodarone
   drug_interactor: simvastatin
   severity: major
   mechanism: CYP3A4 inhibition increases simvastatin exposure
@@ -682,29 +586,6 @@
         Amiodarone, Dronedarone, Ranolazine, or Calcium Channel Blockers Clinical Impact: The risk of myopathy and
         rhabdomyolysis is increased by concomitant use of amiodarone, dronedarone, ranolazine, or calcium channel
         blockers with simvastatin.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: amiodarone
-  drug_interactor: sun exposure
-  severity: moderate
-  mechanism: Photosensitization and skin discoloration
-  effect: Blue-gray skin pigmentation
-  recommendation: Use sun protection; may be irreversible
-  evidence_level: high
-  sources:
-    - Cardiology literature
-  rxcui:
-    - '703'
-    - sun
-  citations:
-    - source_type: label
-      id: 4c149392-a4f0-4e2d-a13f-2b94810005de
-      title: AMIODARONE HYDROCHLORIDE TABLET [REMEDYREPACK INC.]
-      section: Warnings and Precautions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=4c149392-a4f0-4e2d-a13f-2b94810005de
-      matched: sun exposure
-      snippet: The risk may be increased in patients of fair complexion or those with excessive sun exposure.
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
@@ -847,20 +728,6 @@
   rxcui:
     - '2467892'
     - live_vaccines
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: anticholinergics
-  drug_interactor: elderly
-  severity: major
-  mechanism: Age-related increased sensitivity
-  effect: Delirium, falls, cognitive decline
-  recommendation: Avoid in elderly; use anticholinergic-sparing alternatives
-  evidence_level: high
-  sources:
-    - Beers Criteria
-  rxcui:
-    - '704'
-    - elderly
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: anticoagulants
@@ -1023,21 +890,6 @@
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: aspirin
-  drug_interactor: children with viral illness
-  severity: major
-  mechanism: Association with Reye syndrome
-  effect: Hepatic failure and encephalopathy
-  recommendation: Avoid aspirin in children <16 years with viral illness
-  evidence_level: high
-  sources:
-    - CDC recommendations
-    - Pediatric guidelines
-  rxcui:
-    - '1191'
-    - pediatric_viral
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: aspirin
   drug_interactor: methotrexate
   severity: major
   mechanism: Reduced methotrexate clearance
@@ -1168,31 +1020,6 @@
         D) OATP1B1 substrates Gemfibrozil is an inhibitor of OATP1B1 transporter and may increase exposure of drugs that
         are substrates of OATP1B1 (e.g., atrasentan, atorvastatin, bosentan, ezetimibe, fluvastatin, glyburide, SN-38
         [active metabolite of irinotecan], rosuvastatin, pitavastatin, pravastatin, rifampin, valsartan, olmesartan).
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: atorvastatin
-  drug_interactor: grapefruit juice
-  severity: major
-  mechanism: CYP3A4 inhibition
-  effect: Myopathy risk
-  recommendation: Avoid grapefruit
-  evidence_level: high
-  sources:
-    - Pharmacology
-  rxcui:
-    - '83367'
-    - grapefruit
-  citations:
-    - source_type: label
-      id: 4509aa67-06d4-41d1-80b6-c9bd8ad0bf07
-      title: ATORVASTATIN CALCIUM TABLET, FILM COATED [PD-RX PHARMACEUTICALS, INC.]
-      section: Drug Interactions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=4509aa67-06d4-41d1-80b6-c9bd8ad0bf07
-      matched: grapefruit juice
-      snippet: >-
-        DRUG INTERACTIONS See full prescribing information for details regarding concomitant use of atorvastatin calcium
-        with other drugs or grapefruit juice that increase the risk of myopathy and rhabdomyolysis (2.5, 7.1).
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
@@ -1415,36 +1242,6 @@
     - alcohol
   citation_status: unverified
   citations_checked_on: '2026-10-20'
-- drug_primary: benzodiazepines
-  drug_interactor: elderly
-  severity: major
-  mechanism: Increased CNS sensitivity
-  effect: Falls, confusion, cognitive impairment
-  recommendation: Use lowest effective dose; consider alternatives
-  evidence_level: high
-  sources:
-    - Beers Criteria
-    - Geriatrics guidelines
-  rxcui:
-    - '1372'
-    - elderly
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: beta-blockers
-  drug_interactor: asthma
-  severity: major
-  mechanism: Bronchospasm
-  effect: Respiratory distress
-  recommendation: Use cardioselective
-  evidence_level: high
-  sources:
-    - Guidelines
-    - Pulmonology
-  rxcui:
-    - '7442'
-    - asthma
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: beta2-agonists
   drug_interactor: beta-blockers
   severity: major
@@ -1485,31 +1282,6 @@
         hemolytic uremic syndrome, sometimes leading to renal failure or a fatal outcome, occurred in clinical trials
         and in postmarketing experience of sunitinib malate as monotherapy and administered in combination with
         bevacizumab.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: bevacizumab
-  drug_interactor: wound healing
-  severity: moderate
-  mechanism: Vegf inhibition
-  effect: Impaired wound healing
-  recommendation: Delay surgery appropriately
-  evidence_level: moderate
-  sources:
-    - Surgery
-  rxcui:
-    - '364938'
-    - surgery
-  citations:
-    - source_type: label
-      id: 4cdcccda-7b9a-49d0-ac50-f4605a3c0ebe
-      title: VEGZELMA (BEVACIZUMAB-ADCD) INJECTION, SOLUTION [CELLTRION USA, INC.]
-      section: Warnings and Precautions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=4cdcccda-7b9a-49d0-ac50-f4605a3c0ebe
-      matched: wound healing
-      snippet: >-
-        Surgery and Wound Healing Complications: In patients who experience wound healing complications during VEGZELMA
-        treatment, withhold VEGZELMA until adequate wound healing.
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
@@ -1591,20 +1363,6 @@
         increased risks of major bleeding events compared to patients not receiving these concomitant medications.
       retrieved: '2026-10-20'
   citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: bleomycin
-  drug_interactor: high oxygen
-  severity: major
-  mechanism: Pulmonary toxicity
-  effect: Pneumonitis
-  recommendation: Minimize O2
-  evidence_level: high
-  sources:
-    - Guidelines
-  rxcui:
-    - '1341'
-    - oxygen
-  citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: bleomycin
   drug_interactor: oxygen
@@ -2017,20 +1775,6 @@
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
 - drug_primary: carbamazepine
-  drug_interactor: hla-b5701 positive
-  severity: major
-  mechanism: Genetic hypersensitivity
-  effect: Severe cutaneous reactions
-  recommendation: Screen before therapy
-  evidence_level: high
-  sources:
-    - Pharmacogenomics
-  rxcui:
-    - '2002'
-    - hla_b5701
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: carbamazepine
   drug_interactor: macrolides
   severity: major
   mechanism: CYP3A4 inhibition
@@ -2223,20 +1967,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: cc-486
-  drug_interactor: cyp interactions
-  severity: moderate
-  mechanism: Multiple CYP pathways
-  effect: Variable drug levels
-  recommendation: Monitor clinical response
-  evidence_level: moderate
-  sources:
-    - Hematology
-  rxcui:
-    - '1551102'
-    - cyp_interactions
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: ccb
   drug_interactor: carbamazepine
   severity: moderate
@@ -2263,20 +1993,6 @@
   rxcui:
     - cd19_cart
     - immunoglobulins
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: cd22 car-t
-  drug_interactor: b-cell function
-  severity: major
-  mechanism: B-cell depletion
-  effect: Prolonged B-cell aplasia
-  recommendation: Monitor B-cell recovery
-  evidence_level: high
-  sources:
-    - CAR-T studies
-  rxcui:
-    - cd22_cart
-    - bcell_function
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: cefepime
@@ -2436,34 +2152,6 @@
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: chloramphenicol
-  drug_interactor: infants
-  severity: major
-  mechanism: Immature metabolism
-  effect: Gray baby syndrome
-  recommendation: Avoid in newborns
-  evidence_level: high
-  sources:
-    - Guidelines
-  rxcui:
-    - '2356'
-    - pediatric
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: chloramphenicol
-  drug_interactor: neonates
-  severity: major
-  mechanism: Immature glucuronidation
-  effect: Gray baby syndrome
-  recommendation: Avoid in neonates
-  evidence_level: high
-  sources:
-    - NICU guidelines
-  rxcui:
-    - '2556'
-    - neonates
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: chloramphenicol
   drug_interactor: phenytoin
   severity: major
   mechanism: CYP inhibition increases phenytoin levels
@@ -2618,33 +2306,6 @@
       url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=44b548ef-1679-4d15-86ad-0d9636b48a45
       matched: cyp2d6 substrates
       snippet: CYP2D6 Substrates Cinacalcet is a strong inhibitor of CYP2D6.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: ciprofloxacin
-  drug_interactor: dairy products
-  severity: major
-  mechanism: Calcium chelation
-  effect: Reduced efficacy
-  recommendation: Separate by 2 hours
-  evidence_level: high
-  sources:
-    - Studies
-  rxcui:
-    - '2551'
-    - dairy
-  citations:
-    - source_type: label
-      id: bb2edaca-6cf2-4100-83f5-8ce142f68e59
-      title: CIPROFLOXACIN (CIPROFLOXACIN HYDROCHLORIDE) TABLET, FILM COATED [PD-RX PHARMACEUTICALS, INC.]
-      section: Drug Interactions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=bb2edaca-6cf2-4100-83f5-8ce142f68e59
-      matched: dairy products
-      snippet: >-
-        example, sevelamer, lanthanum carbonate); sucralfate; Videx ®(didanosine) chewable/buffered tablets or pediatric
-        powder; other highly buffered drugs; or products containing calcium, iron, or zinc and dairy products)
-        Ciprofloxacin should be taken at least two hours before or six hours after Multivalent cation-containing
-        products administration [see Dosage and Administration (2.4)]. Decrease Ciprofloxacin absorption, r
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
@@ -2982,32 +2643,6 @@
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
 - drug_primary: codeine
-  drug_interactor: children
-  severity: major
-  mechanism: Variable metabolism
-  effect: Respiratory depression
-  recommendation: Avoid <12 years
-  evidence_level: high
-  sources:
-    - FDA
-    - FDA warnings
-  rxcui:
-    - '2670'
-    - pediatric
-  citations:
-    - source_type: label
-      id: 3da3efd7-e278-4d79-9130-eef3992097e4
-      title: CODEINE-GUAIFENESIN (CODEINE PHOSPHATE AND GUAIFENESIN) SOLUTION [WESTMINSTER PHARMACEUTICALS, LLC]
-      section: Warnings
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3da3efd7-e278-4d79-9130-eef3992097e4
-      matched: children
-      snippet: >-
-        A special measuring device should be used to give an accurate dose of this product to children under 6 years of
-        age.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: codeine
   drug_interactor: quinidine
   severity: moderate
   mechanism: CYP2D6 inhibition
@@ -3302,31 +2937,6 @@
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
 - drug_primary: cyclosporine
-  drug_interactor: grapefruit juice
-  severity: major
-  mechanism: CYP3A4 inhibition
-  effect: Enhanced toxicity
-  recommendation: Avoid completely
-  evidence_level: high
-  sources:
-    - Guidelines
-  rxcui:
-    - '3008'
-    - grapefruit
-  citations:
-    - source_type: label
-      id: aaf79e72-26bf-4152-9cd1-10d8c30fa4fe
-      title: CYCLOSPORINE CAPSULE, LIQUID FILLED [AUROBINDO PHARMA LIMITED]
-      section: Drug Interactions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=aaf79e72-26bf-4152-9cd1-10d8c30fa4fe
-      matched: grapefruit juice
-      snippet: >-
-        Grapefruit juice Grapefruit and grapefruit juice affect metabolism, increasing blood concentrations of
-        cyclosporine, thus should be avoided.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: cyclosporine
   drug_interactor: simvastatin
   severity: major
   mechanism: Increased statin exposure via CYP3A4 inhibition
@@ -3361,20 +2971,6 @@
         concomitant use of cyclosporine, danazol, or gemfibrozil with simvastatin.
       retrieved: '2026-10-20'
   citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: cyclosporine
-  drug_interactor: uva therapy
-  severity: major
-  mechanism: Enhanced skin cancer risk
-  effect: Squamous cell carcinoma
-  recommendation: Avoid combination
-  evidence_level: high
-  sources:
-    - Dermatology
-  rxcui:
-    - '3008'
-    - uva_therapy
-  citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: cyclosporine drops
   drug_interactor: systemic immunosuppressants
@@ -3454,31 +3050,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: dantrolene
-  drug_interactor: malignant hyperthermia
-  severity: minor
-  mechanism: Specific antidote
-  effect: Life-saving treatment
-  recommendation: First-line therapy
-  evidence_level: high
-  sources:
-    - Emergency medicine
-  rxcui:
-    - '2986'
-    - malignant_hyperthermia
-  citations:
-    - source_type: label
-      id: c10e7eb1-0155-43ff-aa56-8cd468e8e84d
-      title: DANTROLENE SODIUM CAPSULE [REMEDYREPACK INC.]
-      section: Drug Interactions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=c10e7eb1-0155-43ff-aa56-8cd468e8e84d
-      matched: malignant hyperthermia
-      snippet: >-
-        Until the relevance of these findings to humans is established, the combination of Dantrolene Sodium and calcium
-        channel blockers is not recommended during the management of malignant hyperthermia.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
 - drug_primary: daprodustat
   drug_interactor: strong cyp2c8 inhibitors
   severity: moderate
@@ -3528,31 +3099,6 @@
       snippet: >-
         aureus bacteremia/endocarditis trial, some patients who received prior or concomitant treatment with an HMG-CoA
         reductase inhibitor developed elevated CPK [see Adverse Reactions (6.1)].
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: darbepoetin
-  drug_interactor: hypertension
-  severity: moderate
-  mechanism: Increased blood pressure
-  effect: Uncontrolled hypertension
-  recommendation: Monitor BP closely
-  evidence_level: high
-  sources:
-    - Nephrology
-  rxcui:
-    - '351841'
-    - hypertension
-  citations:
-    - source_type: label
-      id: 0fd36cb9-c4f6-4167-93c9-8530865db3f9
-      title: ARANESP (DARBEPOETIN ALFA) INJECTION, SOLUTION ARANESP (DARBEPOETIN ALFA) SOLUTION [AMGEN, INC]
-      section: Contraindications
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=0fd36cb9-c4f6-4167-93c9-8530865db3f9
-      matched: hypertension
-      snippet: >-
-        CONTRAINDICATIONS Aranesp is contraindicated in patients with: Uncontrolled hypertension [see Warnings and
-        Precautions (5.3)].
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
@@ -3640,20 +3186,6 @@
   rxcui:
     - '1535469'
     - albumin
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: desflurane
-  drug_interactor: sympathetic stimulation
-  severity: moderate
-  mechanism: Airway irritation
-  effect: Tachycardia and hypertension
-  recommendation: Pre-treat with opioids
-  evidence_level: high
-  sources:
-    - Anesthesia
-  rxcui:
-    - '3243'
-    - sympathetic_stimulation
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: desmopressin
@@ -3897,20 +3429,6 @@
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
 - drug_primary: digoxin
-  drug_interactor: elderly
-  severity: major
-  mechanism: Reduced clearance
-  effect: Toxicity
-  recommendation: Lower doses
-  evidence_level: high
-  sources:
-    - Guidelines
-  rxcui:
-    - '3407'
-    - elderly
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: digoxin
   drug_interactor: ginseng
   severity: moderate
   mechanism: Variable effects
@@ -3934,20 +3452,6 @@
         Ashwagandha or Dashen can cause similar interference.
       retrieved: '2026-10-20'
   citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: digoxin
-  drug_interactor: high fiber foods
-  severity: moderate
-  mechanism: Reduced absorption
-  effect: Decreased digoxin efficacy
-  recommendation: Maintain consistent fiber intake
-  evidence_level: moderate
-  sources:
-    - Clinical studies
-  rxcui:
-    - '3407'
-    - fiber
-  citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: digoxin
   drug_interactor: quinidine
@@ -4537,31 +4041,6 @@
     - '42316'
   citation_status: unverified
   citations_checked_on: '2026-10-20'
-- drug_primary: eculizumab
-  drug_interactor: meningococcal infection
-  severity: major
-  mechanism: Terminal complement inhibition
-  effect: Life-threatening meningitis
-  recommendation: Mandatory vaccination and prophylaxis
-  evidence_level: high
-  sources:
-    - Hematology
-  rxcui:
-    - '341002'
-    - meningococcal
-  citations:
-    - source_type: label
-      id: 1fa1aa80-1c59-44d4-9841-b6c52882651b
-      title: EPYSQLI (ECULIZUMAB-AAGH) INJECTION, SOLUTION [TEVA PHARMACEUTICALS USA, INC.]
-      section: Warnings and Precautions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=1fa1aa80-1c59-44d4-9841-b6c52882651b
-      matched: meningococcal infection
-      snippet: >-
-        Closely monitor patients for early signs and symptoms of meningococcal infection and evaluate patients
-        immediately if infection is suspected.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
 - drug_primary: edoxaban
   drug_interactor: phenytoin
   severity: major
@@ -4824,31 +4303,6 @@
       snippet: >-
         Patients on beta-blockers may not manifest changes in heart rate, but blood pressure monitoring can detect a
         transient rise in systolic blood pressure.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: epoetin alfa
-  drug_interactor: iron deficiency
-  severity: moderate
-  mechanism: Iron-dependent erythropoiesis
-  effect: Reduced EPO response
-  recommendation: Correct iron deficiency first
-  evidence_level: high
-  sources:
-    - Nephrology
-  rxcui:
-    - '5542'
-    - iron_deficiency
-  citations:
-    - source_type: label
-      id: 1f2d0b28-9cc5-4523-80b8-637fdaf3f7a5
-      title: EPOGEN (EPOETIN ALFA) SOLUTION [AMGEN, INC]
-      section: Warnings and Precautions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=1f2d0b28-9cc5-4523-80b8-637fdaf3f7a5
-      matched: iron deficiency
-      snippet: >-
-        Lack or Loss of Hemoglobin Response to Epogen For lack or loss of hemoglobin response to Epogen, initiate a
-        search for causative factors (e.g., iron deficiency, infection, inflammation, bleeding).
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
@@ -5174,34 +4628,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: etomidate
-  drug_interactor: adrenal insufficiency
-  severity: major
-  mechanism: Adrenal suppression
-  effect: Cardiovascular collapse
-  recommendation: Avoid in sepsis
-  evidence_level: high
-  sources:
-    - Emergency medicine
-  rxcui:
-    - '4058'
-    - adrenal_insufficiency
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: etomidate
-  drug_interactor: adrenal suppression
-  severity: major
-  mechanism: Adrenal steroidogenesis inhibition
-  effect: Adrenal insufficiency
-  recommendation: Avoid in sepsis
-  evidence_level: high
-  sources:
-    - Critical care
-  rxcui:
-    - '4058'
-    - adrenal_suppression
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: everolimus
   drug_interactor: live vaccines
   severity: major
@@ -5387,32 +4813,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: felodipine
-  drug_interactor: grapefruit juice
-  severity: major
-  mechanism: CYP3A4 inhibition dramatically increases levels
-  effect: Severe hypotension
-  recommendation: Avoid grapefruit juice completely
-  evidence_level: high
-  sources:
-    - Clinical pharmacology
-  rxcui:
-    - '25789'
-    - grapefruit
-  citations:
-    - source_type: label
-      id: 55637724-8757-11de-8a39-0800200c9a66
-      title: FELODIPINE TABLET, EXTENDED RELEASE FELODIPINE TABLET, FILM COATED, EXTENDED RELEASE [PAR HEALTH USA, LLC]
-      section: Drug Interactions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=55637724-8757-11de-8a39-0800200c9a66
-      matched: grapefruit juice
-      snippet: >-
-        Co-administration of CYP3A4 inhibitors (e.g., ketoconazole, itraconazole, erythromycin, grapefruit juice,
-        cimetidine) with felodipine may lead to several-fold increases in the plasma levels of felodipine, either due to
-        an increase in bioavailability or due to a decrease in metabolism.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
 - drug_primary: fenfluramine
   drug_interactor: stiripentol
   severity: major
@@ -5539,20 +4939,6 @@
   rxcui:
     - '885'
     - oral_medications
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: fexofenadine
-  drug_interactor: apple juice
-  severity: moderate
-  mechanism: OATP inhibition reduces absorption
-  effect: Reduced antihistamine effect
-  recommendation: Take with water; avoid fruit juices
-  evidence_level: high
-  sources:
-    - Clinical studies
-  rxcui:
-    - '25014'
-    - apple_juice
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: finasteride
@@ -5721,62 +5107,6 @@
         induction of hepatic enzymes.
       retrieved: '2026-10-20'
   citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: flumazenil
-  drug_interactor: tricyclic antidepressant overdose
-  severity: major
-  mechanism: Unmasking of seizures
-  effect: Status epilepticus
-  recommendation: Avoid in mixed overdoses
-  evidence_level: high
-  sources:
-    - Toxicology
-  rxcui:
-    - '4450'
-    - '321988'
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: fluoroquinolones
-  drug_interactor: adolescents
-  severity: moderate
-  mechanism: Cartilage effects
-  effect: Arthropathy
-  recommendation: Reserve for specific use
-  evidence_level: moderate
-  sources:
-    - Guidelines
-  rxcui:
-    - '26785'
-    - adolescent
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: fluoroquinolones
-  drug_interactor: children
-  severity: moderate
-  mechanism: Cartilage development effects
-  effect: Potential arthropathy
-  recommendation: Reserve for specific indications; monitor joint symptoms
-  evidence_level: moderate
-  sources:
-    - Pediatric infectious disease guidelines
-  rxcui:
-    - '387207'
-    - pediatric
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: fluoroquinolones
-  drug_interactor: sun exposure
-  severity: moderate
-  mechanism: Phototoxic reaction
-  effect: Severe burns and blistering
-  recommendation: Avoid UV exposure during therapy
-  evidence_level: high
-  sources:
-    - FDA warnings
-  rxcui:
-    - '387207'
-    - sun
-  citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: fluoroquinolones
   drug_interactor: theophylline
@@ -6031,31 +5361,6 @@
     - '4821'
   citation_status: unverified
   citations_checked_on: '2026-10-20'
-- drug_primary: gemcitabine
-  drug_interactor: radiation
-  severity: major
-  mechanism: Radiosensitization
-  effect: Severe mucositis and toxicity
-  recommendation: Dose reduction needed
-  evidence_level: high
-  sources:
-    - Radiation oncology
-  rxcui:
-    - '40639'
-    - radiation
-  citations:
-    - source_type: label
-      id: 44bcc16c-341d-49e8-a1c6-95d084667aca
-      title: GEMCITABINE (GEMCITABINE HYDROCHLORIDE) INJECTION, POWDER, LYOPHILIZED, FOR SOLUTION [SAGENT PHARMACEUTICALS]
-      section: Warnings and Precautions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=44bcc16c-341d-49e8-a1c6-95d084667aca
-      matched: radiation
-      snippet: >-
-        Exacerbation of Radiation Therapy Toxicity: May cause severe and life-threatening toxicity when administered
-        during or within 7 days of radiation therapy.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
 - drug_primary: ginkgo biloba
   drug_interactor: aspirin
   severity: moderate
@@ -6260,45 +5565,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: grapefruit juice
-  drug_interactor: simvastatin
-  severity: major
-  mechanism: CYP3A4 inhibition
-  effect: Rhabdomyolysis
-  recommendation: Avoid grapefruit completely
-  evidence_level: high
-  sources:
-    - FDA
-  rxcui:
-    - grapefruit
-    - '36567'
-  citations:
-    - source_type: label
-      id: 3f6fad0b-0278-433f-86db-761b673a5803
-      title: SIMVASTATIN TABLET, FILM COATED [PREFERRED PHARMACEUTICALS, INC.]
-      section: Drug Interactions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=3f6fad0b-0278-433f-86db-761b673a5803
-      matched: grapefruit juice
-      snippet: >-
-        DRUG INTERACTIONS • See full prescribing information for details regarding concomitant use of simvastatin with
-        other drugs or grapefruit juice that increase the risk of myopathy and rhabdomyolysis.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: green tea
-  drug_interactor: warfarin
-  severity: moderate
-  mechanism: Vitamin K content
-  effect: Reduced anticoagulation
-  recommendation: Maintain consistent intake
-  evidence_level: moderate
-  sources:
-    - Studies
-  rxcui:
-    - green_tea
-    - '11289'
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: griseofulvin
   drug_interactor: oral contraceptives
   severity: moderate
@@ -6367,20 +5633,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: halothane
-  drug_interactor: malignant hyperthermia
-  severity: major
-  mechanism: Genetic susceptibility
-  effect: Life-threatening hyperthermia
-  recommendation: Avoid in susceptible patients
-  evidence_level: high
-  sources:
-    - Anesthesiology
-  rxcui:
-    - '5138'
-    - malignant_hyperthermia
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: heparin
   drug_interactor: aspirin
   severity: major
@@ -6436,20 +5688,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: high-protein diet
-  drug_interactor: levodopa
-  severity: moderate
-  mechanism: Competitive amino acid transport
-  effect: Reduced levodopa efficacy
-  recommendation: Take on empty stomach
-  evidence_level: high
-  sources:
-    - Neurology
-  rxcui:
-    - protein
-    - '6047'
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: hydralazine
   drug_interactor: isoniazid
   severity: moderate
@@ -6502,20 +5740,6 @@
         significant adverse interactions.
       retrieved: '2026-10-20'
   citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: hydrochlorothiazide
-  drug_interactor: sun exposure
-  severity: moderate
-  mechanism: Photosensitivity reaction
-  effect: Erythema and blistering
-  recommendation: Use broad-spectrum sunscreen
-  evidence_level: high
-  sources:
-    - Dermatology
-  rxcui:
-    - '5487'
-    - sun
-  citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: hydrocodone
   drug_interactor: muscle relaxants
@@ -7007,20 +6231,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: iron supplements
-  drug_interactor: tea/coffee
-  severity: moderate
-  mechanism: Tannins reduce iron absorption
-  effect: Treatment failure of iron deficiency
-  recommendation: Separate administration by 2 hours
-  evidence_level: high
-  sources:
-    - Hematology guidelines
-  rxcui:
-    - '6045'
-    - tea
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: isavuconazole
   drug_interactor: strong cyp3a4 inducers
   severity: major
@@ -7057,31 +6267,6 @@
       snippet: >-
         ARNINGS Amplification of the vasodilatory effects of isosorbide mononitrate by sildenafil can result in severe
         hypotension.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: isotretinoin
-  drug_interactor: pregnancy
-  severity: major
-  mechanism: Teratogenic effects
-  effect: Severe birth defects
-  recommendation: Absolute contraindication; reliable contraception required
-  evidence_level: high
-  sources:
-    - FDA black box warning
-  rxcui:
-    - '6066'
-    - pregnancy
-  citations:
-    - source_type: label
-      id: 27b3cf26-f22e-5b70-1c24-009933b7c6ee
-      title: ZENATANE (ISOTRETINOIN) CAPSULE, GELATIN COATED [DR. REDDY'S LABORATORIES LIMITED ]
-      section: Contraindications
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=27b3cf26-f22e-5b70-1c24-009933b7c6ee
-      matched: pregnancy
-      snippet: >-
-        CONTRAINDICATIONS Zenatane is contraindicated in: Pregnancy [see Warnings and Precautions (5.1) and Use in
-        Specific Populations (8.1)].
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
@@ -7273,34 +6458,6 @@
   rxcui:
     - '206585'
     - hepatotoxic
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: ketamine
-  drug_interactor: increased intracranial pressure
-  severity: major
-  mechanism: Increased cerebral blood flow
-  effect: Worsening intracranial pressure
-  recommendation: Avoid in head trauma
-  evidence_level: high
-  sources:
-    - Neurosurgery
-  rxcui:
-    - '6130'
-    - increased_icp
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: ketamine
-  drug_interactor: psychiatric disorders
-  severity: moderate
-  mechanism: Dissociative effects
-  effect: Emergence phenomena
-  recommendation: Pre-treat with benzodiazepines
-  evidence_level: high
-  sources:
-    - Psychiatry
-  rxcui:
-    - '6130'
-    - psychiatric_disorders
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: ketoconazole
@@ -7648,20 +6805,6 @@
     - '6045'
   citation_status: unverified
   citations_checked_on: '2026-10-20'
-- drug_primary: levothyroxine
-  drug_interactor: soy products
-  severity: moderate
-  mechanism: Reduced absorption
-  effect: Hypothyroidism
-  recommendation: Separate administration by 4 hours
-  evidence_level: high
-  sources:
-    - Endocrinology guidelines
-  rxcui:
-    - '10582'
-    - soy
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: licorice
   drug_interactor: digoxin
   severity: moderate
@@ -7688,20 +6831,6 @@
   rxcui:
     - '6270'
     - '7302'
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: linezolid
-  drug_interactor: tyramine-rich foods
-  severity: major
-  mechanism: MAO inhibition prevents tyramine metabolism
-  effect: Hypertensive crisis
-  recommendation: Avoid aged cheeses, cured meats, fermented foods
-  evidence_level: high
-  sources:
-    - FDA black box warning
-  rxcui:
-    - '104894'
-    - tyramine
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: liraglutide
@@ -8067,20 +7196,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: maoi
-  drug_interactor: bipolar disorder
-  severity: major
-  mechanism: Risk of manic switch
-  effect: Severe mania and psychosis
-  recommendation: Use with mood stabilizer
-  evidence_level: high
-  sources:
-    - Psychiatry
-  rxcui:
-    - '7531'
-    - bipolar
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: mefloquine
   drug_interactor: halofantrine
   severity: major
@@ -8267,33 +7382,6 @@
     - '6809'
     - '72107'
   citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: metformin
-  drug_interactor: heart failure
-  severity: moderate
-  mechanism: Lactic acidosis
-  effect: Acidosis risk
-  recommendation: Avoid if decompensated
-  evidence_level: high
-  sources:
-    - Guidelines
-  rxcui:
-    - '6809'
-    - hf
-  citations:
-    - source_type: label
-      id: 104b5f5b-cc83-450d-82ec-1fd20c4f7119
-      title: METFORMIN HYDROCHLORIDE TABLET, EXTENDED RELEASE [REMEDYREPACK INC.]
-      section: Warnings and Precautions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=104b5f5b-cc83-450d-82ec-1fd20c4f7119
-      matched: heart failure
-      snippet: >-
-        Stop metformin hydrochloride extended-release tablets at the time of, or prior to, an iodinated contrast imaging
-        procedure in patients with an eGFR between 30 and 60 mL/minute/1.73 m 2; in patients with a history of hepatic
-        impairment, alcoholism, or heart failure; or in patients who will be administered intra-arterial iodinated
-        contrast.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
   citations_checked_on: '2026-10-20'
 - drug_primary: metformin
   drug_interactor: iodinated contrast
@@ -8772,20 +7860,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: midazolam
-  drug_interactor: grapefruit juice
-  severity: moderate
-  mechanism: CYP3A4 inhibition
-  effect: Prolonged sedation
-  recommendation: Avoid grapefruit juice
-  evidence_level: high
-  sources:
-    - Studies
-  rxcui:
-    - '6960'
-    - grapefruit
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: milrinone
   drug_interactor: phosphodiesterase inhibitors
   severity: moderate
@@ -8876,20 +7950,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: molidustat
-  drug_interactor: cyp2c19 polymorphism
-  severity: moderate
-  mechanism: Genetic variation in metabolism
-  effect: Variable drug levels
-  recommendation: Consider genetic testing
-  evidence_level: moderate
-  sources:
-    - Pharmacogenomics
-  rxcui:
-    - molidustat
-    - cyp2c19_variants
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: momelotinib
   drug_interactor: cyp1a2 inhibitors
   severity: moderate
@@ -8902,20 +7962,6 @@
   rxcui:
     - momelotinib
     - cyp1a2_inhibitors
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: monoamine oxidase inhibitors
-  drug_interactor: tyramine foods
-  severity: major
-  mechanism: MAO inhibition prevents tyramine breakdown
-  effect: Hypertensive crisis
-  recommendation: Strict tyramine-restricted diet
-  evidence_level: high
-  sources:
-    - Psychiatry guidelines
-  rxcui:
-    - maoi
-    - tyramine
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: montelukast
@@ -9075,34 +8121,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: naloxone
-  drug_interactor: clonidine overdose
-  severity: moderate
-  mechanism: Alpha-2 rebound
-  effect: Severe hypertension
-  recommendation: Use lower naloxone doses
-  evidence_level: moderate
-  sources:
-    - Toxicology
-  rxcui:
-    - '7242'
-    - '2599'
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: naproxen
-  drug_interactor: sun exposure
-  severity: moderate
-  mechanism: Photosensitization
-  effect: Pseudoporphyria cutanea tarda
-  recommendation: Use sun protection
-  evidence_level: moderate
-  sources:
-    - Case reports
-  rxcui:
-    - '7258'
-    - sun
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: natalizumab
   drug_interactor: immunosuppressants
   severity: major
@@ -9196,31 +8214,6 @@
     - '7243'
     - '4337'
   citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: nifedipine
-  drug_interactor: grapefruit juice
-  severity: moderate
-  mechanism: CYP3A4 inhibition increases nifedipine exposure
-  effect: Enhanced hypotensive effect
-  recommendation: Avoid grapefruit juice; monitor blood pressure
-  evidence_level: high
-  sources:
-    - Clinical pharmacology
-  rxcui:
-    - '7240'
-    - grapefruit
-  citations:
-    - source_type: label
-      id: 593d8ca3-c303-4512-96a6-d4860e02cd83
-      title: NIFEDIPINE TABLET, FILM COATED, EXTENDED RELEASE [CARDINAL HEALTH 107, LLC]
-      section: Drug Interactions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=593d8ca3-c303-4512-96a6-d4860e02cd83
-      matched: grapefruit juice
-      snippet: >-
-        Other Interactions: Grapefruit Juice: Co-administration of nifedipine with grapefruit juice resulted in
-        approximately a doubling in nifedipine AUC and C max with no change in half-life.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
   citations_checked_on: '2026-10-20'
 - drug_primary: nilotinib
   drug_interactor: proton pump inhibitors
@@ -9337,20 +8330,6 @@
     - '6547'
   citation_status: unverified
   citations_checked_on: '2026-10-20'
-- drug_primary: nitrous oxide
-  drug_interactor: vitamin b12 deficiency
-  severity: major
-  mechanism: B12 inactivation
-  effect: Megaloblastic anemia
-  recommendation: Check B12 levels
-  evidence_level: high
-  sources:
-    - Anesthesia
-  rxcui:
-    - '7417'
-    - b12_deficiency
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: norepinephrine
   drug_interactor: tcas
   severity: major
@@ -9415,74 +8394,6 @@
         (anticoagulant) or steroid drug take other drugs containing prescription or nonprescription NSAIDs (aspirin,
         ibuprofen, naproxen, or others) have 3 or more alcoholic drinks every day while using this product take more or
         for a longer time than directed Do not use if you are allergic to aspirin or any other pain
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: nsaids
-  drug_interactor: chronic kidney disease
-  severity: major
-  mechanism: Nephrotoxicity
-  effect: Progressive damage
-  recommendation: Avoid chronic use
-  evidence_level: high
-  sources:
-    - Guidelines
-  rxcui:
-    - '26548'
-    - ckd
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: nsaids
-  drug_interactor: elderly
-  severity: major
-  mechanism: Toxicity risk
-  effect: GI/renal damage
-  recommendation: Prefer acetaminophen
-  evidence_level: high
-  sources:
-    - Guidelines
-    - Geriatrics
-  rxcui:
-    - '26548'
-    - elderly
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: nsaids
-  drug_interactor: heart failure
-  severity: moderate
-  mechanism: Fluid retention and reduced prostaglandins
-  effect: Worsening heart failure
-  recommendation: Avoid or monitor closely
-  evidence_level: high
-  sources:
-    - Cardiology
-  rxcui:
-    - '7804'
-    - heart_failure
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: ocrelizumab
-  drug_interactor: hepatitis b reactivation
-  severity: major
-  mechanism: B-cell depletion
-  effect: HBV reactivation
-  recommendation: Screen and monitor for HBV
-  evidence_level: high
-  sources:
-    - MS treatment
-  rxcui:
-    - '1956226'
-    - hepatitis_b
-  citations:
-    - source_type: label
-      id: 9da42362-3bb5-4b83-b4bb-b59fd4e55f0d
-      title: OCREVUS (OCRELIZUMAB) INJECTION [GENENTECH, INC.]
-      section: Warnings and Precautions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=9da42362-3bb5-4b83-b4bb-b59fd4e55f0d
-      matched: hepatitis b reactivation
-      snippet: >-
-        Hepatitis B Virus (HBV) Reactivation Hepatitis B reactivation has been reported in MS patients treated with
-        OCREVUS in the postmarketing setting.
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
@@ -9629,20 +8540,6 @@
     - alcohol
   citation_status: unverified
   citations_checked_on: '2026-10-20'
-- drug_primary: orelabrutinib
-  drug_interactor: cyp3a4 interactions
-  severity: moderate
-  mechanism: CYP3A4 substrate
-  effect: Variable drug levels
-  recommendation: Monitor for efficacy and toxicity
-  evidence_level: low
-  sources:
-    - Clinical
-  rxcui:
-    - orelabrutinib
-    - cyp3a4_interactions
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: orlistat
   drug_interactor: cyclosporine
   severity: moderate
@@ -9700,20 +8597,6 @@
       snippet: If not possible, increase TAGRISSO to 160 mg daily in patients receiving a strong CYP3A4 inducer.
       retrieved: '2026-10-20'
   citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: oxaliplatin
-  drug_interactor: ice
-  severity: major
-  mechanism: Cold-induced peripheral neuropathy exacerbation
-  effect: Severe acute neuropathy and laryngeal spasm
-  recommendation: Avoid cold exposure during and after infusion
-  evidence_level: high
-  sources:
-    - NCCN guidelines
-  rxcui:
-    - '75009'
-    - cold
-  citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: oxcarbazepine
   drug_interactor: felodipine
@@ -9996,20 +8879,6 @@
     - '2670'
   citation_status: unverified
   citations_checked_on: '2026-10-20'
-- drug_primary: parsaclisib
-  drug_interactor: cyp3a4 interactions
-  severity: moderate
-  mechanism: CYP3A4 substrate
-  effect: Variable exposure
-  recommendation: Dose adjustment may be needed
-  evidence_level: low
-  sources:
-    - Studies
-  rxcui:
-    - parsaclisib
-    - cyp3a4_interactions
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: pegcetacoplan
   drug_interactor: live vaccines
   severity: major
@@ -10022,20 +8891,6 @@
   rxcui:
     - '2103177'
     - live_vaccines
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: peginesatide
-  drug_interactor: antibody formation
-  severity: major
-  mechanism: Immune-mediated PRCA
-  effect: Severe anemia
-  recommendation: Discontinue if PRCA suspected
-  evidence_level: high
-  sources:
-    - FDA
-  rxcui:
-    - '1185253'
-    - prca
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: pemetrexed
@@ -10129,20 +8984,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: phenothiazines
-  drug_interactor: sun exposure
-  severity: moderate
-  mechanism: Photosensitivity reaction
-  effect: Severe sunburn and pigmentation
-  recommendation: Avoid sun exposure
-  evidence_level: high
-  sources:
-    - Psychiatry
-  rxcui:
-    - '8076'
-    - sun
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: phenylephrine
   drug_interactor: maoi
   severity: major
@@ -10206,20 +9047,6 @@
         Chinese ancestry taking other antiepileptic drugs associated with SJS/TEN, including phenytoin.
       retrieved: '2026-10-20'
   citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: phenytoin
-  drug_interactor: cyt p450 variants
-  severity: major
-  mechanism: Genetic polymorphism
-  effect: Severe skin reactions
-  recommendation: Genetic testing recommended
-  evidence_level: high
-  sources:
-    - Pharmacogenomics
-  rxcui:
-    - '8183'
-    - cyp_variants
-  citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: phenytoin
   drug_interactor: folic acid
@@ -10936,20 +9763,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: propofol infusion syndrome
-  drug_interactor: high doses
-  severity: major
-  mechanism: Mitochondrial dysfunction
-  effect: Metabolic acidosis and death
-  recommendation: Limit dose and duration
-  evidence_level: high
-  sources:
-    - Critical care
-  rxcui:
-    - '8782'
-    - high_dose_propofol
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: propranolol
   drug_interactor: cimetidine
   severity: moderate
@@ -11080,34 +9893,6 @@
   rxcui:
     - '40790'
     - '32968'
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: proton pump inhibitors
-  drug_interactor: elderly
-  severity: moderate
-  mechanism: Long-term use effects
-  effect: C. diff infection and fracture risk
-  recommendation: Limit to shortest duration needed
-  evidence_level: moderate
-  sources:
-    - Geriatric guidelines
-  rxcui:
-    - '40790'
-    - elderly
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: psychotropics
-  drug_interactor: elderly
-  severity: major
-  mechanism: CNS sensitivity
-  effect: Falls, confusion
-  recommendation: Lowest doses
-  evidence_level: high
-  sources:
-    - Beers
-  rxcui:
-    - psychotropic
-    - elderly
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: quetiapine
@@ -11395,32 +10180,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: ravulizumab
-  drug_interactor: encapsulated bacteria
-  severity: major
-  mechanism: Complement pathway inhibition
-  effect: Severe bacterial infections
-  recommendation: Antibiotic prophylaxis may be needed
-  evidence_level: high
-  sources:
-    - Immunology
-  rxcui:
-    - '2103944'
-    - encapsulated_bacteria
-  citations:
-    - source_type: label
-      id: a9a590d9-0217-43c7-908d-e62a71279791
-      title: ULTOMIRIS (RAVULIZUMAB) SOLUTION, CONCENTRATE [ALEXION PHARMACEUTICALS INC.]
-      section: Warnings and Precautions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=a9a590d9-0217-43c7-908d-e62a71279791
-      matched: encapsulated bacteria
-      snippet: >-
-        ULTOMIRIS blocks terminal complement activation; therefore, patients may have increased susceptibility to
-        infections, especially with encapsulated bacteria, such as infections caused by Neisseria meningitidis but also
-        Streptococcus pneumoniae, Haemophilus influenzae, and to a lesser extent, Neisseria gonorrhoeae.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
 - drug_primary: remdesivir
   drug_interactor: chloroquine
   severity: moderate
@@ -11695,20 +10454,6 @@
       snippet: Renal toxicity when used in combination with cisplatin (5.8).
       retrieved: '2026-10-20'
   citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: rituximab
-  drug_interactor: hepatitis b reactivation
-  severity: major
-  mechanism: B-cell suppression
-  effect: Fatal hepatitis B reactivation
-  recommendation: Screen and monitor for HBV
-  evidence_level: high
-  sources:
-    - Hepatology
-  rxcui:
-    - '121191'
-    - hepatitis_b
-  citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: rituximab
   drug_interactor: live vaccines
@@ -12203,20 +10948,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: sglt2 inhibitors
-  drug_interactor: ketosis-prone conditions
-  severity: major
-  mechanism: Enhanced ketogenesis
-  effect: Diabetic ketoacidosis
-  recommendation: Monitor ketones and hold during illness
-  evidence_level: high
-  sources:
-    - Endocrinology
-  rxcui:
-    - '1373463'
-    - dka_risk
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: sildenafil
   drug_interactor: alpha-blockers
   severity: major
@@ -12614,20 +11345,6 @@
     - red_yeast
   citation_status: unverified
   citations_checked_on: '2026-10-20'
-- drug_primary: stimulants
-  drug_interactor: hypertension
-  severity: moderate
-  mechanism: Sympathetic activation
-  effect: Hypertensive crisis
-  recommendation: Control BP before starting stimulants
-  evidence_level: high
-  sources:
-    - ADHD guidelines
-  rxcui:
-    - '9819'
-    - hypertension
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: stiripentol
   drug_interactor: valproate
   severity: moderate
@@ -12652,20 +11369,6 @@
         and weight.
       retrieved: '2026-10-20'
   citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: succinylcholine
-  drug_interactor: plasma cholinesterase deficiency
-  severity: major
-  mechanism: Genetic enzyme deficiency
-  effect: Prolonged paralysis
-  recommendation: Screen family history
-  evidence_level: high
-  sources:
-    - Anesthesiology
-  rxcui:
-    - '9906'
-    - pseudocholinesterase
-  citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: sucralfate
   drug_interactor: levothyroxine
@@ -12782,20 +11485,6 @@
   rxcui:
     - '10180'
     - '6878'
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: sulfonamides
-  drug_interactor: sun exposure
-  severity: moderate
-  mechanism: Phototoxic mechanism
-  effect: Skin burns and rash
-  recommendation: Limit sun exposure
-  evidence_level: high
-  sources:
-    - Dermatology
-  rxcui:
-    - '10180'
-    - sun
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: sulfonylureas
@@ -13202,71 +11891,6 @@
       retrieved: '2026-10-20'
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
-- drug_primary: tetracycline
-  drug_interactor: children
-  severity: major
-  mechanism: Tooth discoloration
-  effect: Permanent staining
-  recommendation: Avoid <8 years
-  evidence_level: high
-  sources:
-    - Guidelines
-  rxcui:
-    - '10395'
-    - pediatric
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: tetracycline
-  drug_interactor: dairy products
-  severity: major
-  mechanism: Calcium chelation reduces absorption
-  effect: Antibiotic treatment failure
-  recommendation: Take 1 hour before or 2 hours after dairy
-  evidence_level: high
-  sources:
-    - Clinical studies
-  rxcui:
-    - '10395'
-    - dairy
-  citations:
-    - source_type: label
-      id: 5cdacbf5-67be-42eb-bd54-8acc32ea1abc
-      title: PYLERA (BISMUTH SUBCITRATE POTASSIUM, METRONIDAZOLE, AND TETRACYCLINE HYDROCHLORIDE) CAPSULE [H2-PHARMA, LLC]
-      section: Drug Interactions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=5cdacbf5-67be-42eb-bd54-8acc32ea1abc
-      matched: dairy products
-      snippet: 'Antacids, Multivitamins or Dairy Products: Decreased absorption of PYLERA; do not take concomitantly.'
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: tetracyclines
-  drug_interactor: children <8 years
-  severity: major
-  mechanism: Calcium binding in teeth and bones
-  effect: Permanent tooth discoloration
-  recommendation: Avoid in children <8 years
-  evidence_level: high
-  sources:
-    - Pediatric guidelines
-  rxcui:
-    - '10395'
-    - pediatric_young
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: tetracyclines
-  drug_interactor: sun exposure
-  severity: moderate
-  mechanism: Drug-induced photosensitization
-  effect: Severe sunburn and skin reactions
-  recommendation: Use sunscreen and protective clothing
-  evidence_level: high
-  sources:
-    - Dermatology guidelines
-  rxcui:
-    - '10395'
-    - sun
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: thalidomide
   drug_interactor: sedatives
   severity: major
@@ -13291,20 +11915,6 @@
         conduction and/or cause peripheral neuropathy must be used.
       retrieved: '2026-10-20'
   citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: theophylline
-  drug_interactor: charcoal-broiled foods
-  severity: moderate
-  mechanism: CYP1A2 induction increases clearance
-  effect: Reduced theophylline levels
-  recommendation: Monitor theophylline levels with diet changes
-  evidence_level: moderate
-  sources:
-    - Clinical studies
-  rxcui:
-    - '10379'
-    - charcoal
-  citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: theophylline
   drug_interactor: cimetidine
@@ -13419,20 +12029,6 @@
         theophylline concentrations.
       retrieved: '2026-10-20'
   citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: thiazide diuretics
-  drug_interactor: sun exposure
-  severity: moderate
-  mechanism: Photosensitization reaction
-  effect: Severe sunburn
-  recommendation: Avoid excessive sun exposure
-  evidence_level: high
-  sources:
-    - Dermatology
-  rxcui:
-    - '10387'
-    - sun
-  citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: thiazolidinediones
   drug_interactor: insulin
@@ -13886,62 +12482,6 @@
     - '10395'
   citation_status: unverified
   citations_checked_on: '2026-10-20'
-- drug_primary: tricyclic antidepressants
-  drug_interactor: elderly
-  severity: major
-  mechanism: Anticholinergic and sedating effects
-  effect: Falls, cognitive impairment, arrhythmias
-  recommendation: Use SSRI alternatives
-  evidence_level: high
-  sources:
-    - Geriatric psychiatry
-  rxcui:
-    - '321988'
-    - elderly
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: tricyclic antidepressants
-  drug_interactor: glaucoma
-  severity: major
-  mechanism: Anticholinergic effects
-  effect: Acute angle-closure glaucoma
-  recommendation: Contraindicated in narrow-angle glaucoma
-  evidence_level: high
-  sources:
-    - Ophthalmology
-  rxcui:
-    - '321988'
-    - glaucoma
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: tricyclics
-  drug_interactor: bph
-  severity: moderate
-  mechanism: Anticholinergic effects
-  effect: Urinary retention
-  recommendation: Use alternatives
-  evidence_level: high
-  sources:
-    - Guidelines
-  rxcui:
-    - '704'
-    - bph
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: tyramine-rich foods
-  drug_interactor: maoi
-  severity: major
-  mechanism: Inhibited tyramine metabolism
-  effect: Hypertensive crisis
-  recommendation: Strict dietary restrictions
-  evidence_level: high
-  sources:
-    - Psychiatry guidelines
-  rxcui:
-    - tyramine
-    - '7531'
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
 - drug_primary: umbralisib
   drug_interactor: strong cyp3a4 inducers
   severity: major
@@ -14134,20 +12674,6 @@
         injection.
       retrieved: '2026-10-20'
   citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: vecuronium
-  drug_interactor: liver disease
-  severity: major
-  mechanism: Impaired hepatic metabolism
-  effect: Prolonged paralysis
-  recommendation: Use alternative agent
-  evidence_level: high
-  sources:
-    - Hepatology
-  rxcui:
-    - '11124'
-    - liver_disease
-  citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: venetoclax
   drug_interactor: strong cyp3a4 inhibitors
@@ -14534,34 +13060,6 @@
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: warfarin
-  drug_interactor: cranberry juice
-  severity: moderate
-  mechanism: Potential CYP2C9 inhibition
-  effect: Variable effect on INR
-  recommendation: Monitor INR if consuming large quantities
-  evidence_level: low
-  sources:
-    - Case reports
-  rxcui:
-    - '11289'
-    - cranberry
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: warfarin
-  drug_interactor: elderly
-  severity: major
-  mechanism: Increased bleeding risk
-  effect: Hemorrhage
-  recommendation: Lower doses
-  evidence_level: high
-  sources:
-    - Guidelines
-  rxcui:
-    - '11289'
-    - elderly
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: warfarin
   drug_interactor: fish oil
   severity: moderate
   mechanism: Antiplatelet effects
@@ -14616,31 +13114,6 @@
   citation_status: label_mention
   citations_checked_on: '2026-10-20'
 - drug_primary: warfarin
-  drug_interactor: green leafy vegetables
-  severity: moderate
-  mechanism: Vitamin K content
-  effect: Reduced anticoagulation
-  recommendation: Consistent intake
-  evidence_level: high
-  sources:
-    - Guidelines
-  rxcui:
-    - '11289'
-    - leafy_greens
-  citations:
-    - source_type: label
-      id: cdbbc317-35d3-42ba-94f0-c83891358529
-      title: WARFARIN SODIUM TABLET [CARDINAL HEALTH 107, LLC]
-      section: Drug Interactions
-      url: https://dailymed.nlm.nih.gov/dailymed/lookup.cfm?setid=cdbbc317-35d3-42ba-94f0-c83891358529
-      matched: green leafy vegetables
-      snippet: >-
-        Patients taking warfarin sodium should avoid drastic changes in dietary habits, such as eating large amounts of
-        green leafy vegetables.
-      retrieved: '2026-10-20'
-  citation_status: label_mention
-  citations_checked_on: '2026-10-20'
-- drug_primary: warfarin
   drug_interactor: thyroid hormones
   severity: moderate
   mechanism: Increased metabolism of clotting factors
@@ -14681,20 +13154,6 @@
   rxcui:
     - '11289'
     - '11250'
-  citation_status: unverified
-  citations_checked_on: '2026-10-20'
-- drug_primary: warfarin
-  drug_interactor: vitamin k foods
-  severity: major
-  mechanism: Vitamin K antagonizes warfarin effect
-  effect: Reduced anticoagulation
-  recommendation: Maintain consistent vitamin K intake
-  evidence_level: high
-  sources:
-    - Anticoagulation guidelines
-  rxcui:
-    - '11289'
-    - vitamin_k
   citation_status: unverified
   citations_checked_on: '2026-10-20'
 - drug_primary: zafirlukast

@@ -17,6 +17,8 @@ import addFormats from 'ajv-formats';
 const root = process.cwd();
 const yamlPath = path.join(root, 'data/ddi_curated.yaml');
 const outPath = path.join(root, 'src/data/knownInteractions.js');
+const warnYamlPath = path.join(root, 'data/non_ddi_warnings.yaml');
+const warnOutPath = path.join(root, 'src/data/nonDdiWarnings.js');
 const schemaPath = path.join(root, 'schemas/ddi_curated.schema.json');
 
 const EVIDENCE_TO_LEGACY = { high: 'A', moderate: 'B', low: 'C', unknown: 'unknown' };
@@ -55,6 +57,27 @@ export default KNOWN_INTERACTIONS;
 `;
 }
 
+export function renderWarnings(entries) {
+  const rows = entries.map((e) => ({
+    drug: e.drug, subject: e.subject, category: e.category, severity: e.severity,
+    mechanism: e.mechanism || '', effect: e.effect || e.mechanism || '', management: e.recommendation || '',
+    evidence_level: EVIDENCE_TO_LEGACY[e.evidence_level] || 'unknown',
+    sources: [...new Set(Array.isArray(e.sources) && e.sources.length ? e.sources : [e.evidence_source].filter(Boolean))],
+    ...(Array.isArray(e.rxcui) && e.rxcui.length ? { rxcui: e.rxcui } : {}),
+    citation_status: e.citation_status || 'unverified',
+    ...(Array.isArray(e.citations) && e.citations.length ? { citations: e.citations } : {}),
+  }));
+  return `// GENERATED FILE - do not edit by hand.
+// Source of truth: data/non_ddi_warnings.yaml  (schema: schemas/non_ddi_warnings.schema.json)
+// Patient-factor / food warnings: NOT drug-drug interactions. Regenerate with: npm run build:ddi
+// CI fails if this file is out of date (npm run check:ddi).
+
+export const NON_DDI_WARNINGS = ${JSON.stringify(rows, null, 2)};
+
+export default NON_DDI_WARNINGS;
+`;
+}
+
 function main() {
   const entries = yaml.load(fs.readFileSync(yamlPath, 'utf8'));
   const ajv = new Ajv({ allErrors: true, strict: false });
@@ -74,18 +97,33 @@ function main() {
     }
     seen.set(key, true);
   }
+  const warnings = yaml.load(fs.readFileSync(warnYamlPath, 'utf8'));
+  const validateWarn = ajv.compile(JSON.parse(fs.readFileSync(path.join(root, 'schemas/non_ddi_warnings.schema.json'), 'utf8')));
+  if (!validateWarn(warnings)) {
+    console.error('non_ddi_warnings.yaml failed schema validation:', JSON.stringify(validateWarn.errors.slice(0, 5), null, 2));
+    process.exit(1);
+  }
+  const wkeys = new Set();
+  for (const w of warnings) {
+    const k = [w.drug, w.subject].map((x) => x.toLowerCase().trim()).join('|');
+    if (wkeys.has(k)) { console.error(`Duplicate warning: ${k}`); process.exit(1); }
+    wkeys.add(k);
+  }
   const next = render(entries);
+  const nextWarn = renderWarnings(warnings);
   if (process.argv.includes('--check')) {
     const current = fs.existsSync(outPath) ? fs.readFileSync(outPath, 'utf8') : '';
-    if (current !== next) {
-      console.error('src/data/knownInteractions.js is out of date. Run: npm run build:ddi');
+    const currentWarn = fs.existsSync(warnOutPath) ? fs.readFileSync(warnOutPath, 'utf8') : '';
+    if (current !== next || currentWarn !== nextWarn) {
+      console.error('Generated interaction modules are out of date. Run: npm run build:ddi');
       process.exit(1);
     }
-    console.log(`DDI check OK (${entries.length} interactions)`);
+    console.log(`DDI check OK (${entries.length} interactions, ${warnings.length} non-DDI warnings)`);
     return;
   }
   fs.writeFileSync(outPath, next);
-  console.log(`Wrote ${entries.length} interactions to src/data/knownInteractions.js`);
+  fs.writeFileSync(warnOutPath, nextWarn);
+  console.log(`Wrote ${entries.length} interactions and ${warnings.length} non-DDI warnings`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) main();

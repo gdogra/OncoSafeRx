@@ -3,6 +3,7 @@ import { RxNormService } from '../services/rxnormService.js';
 import { DrugInteraction } from '../models/Interaction.js';
 import supabaseService from '../config/supabase.js';
 import KNOWN_INTERACTIONS from '../data/knownInteractions.js';
+import NON_DDI_WARNINGS from '../data/nonDdiWarnings.js';
 import RXCUI_MAP from '../data/rxcuiMap.js';
 import { interactionLimiter } from '../middleware/rateLimiter.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
@@ -33,6 +34,20 @@ function requireAdminToken(req, res, next) {
   }
   next();
 }
+
+// Patient-factor and food warnings (children, elderly, HLA-B*5701 positive, grapefruit juice, ...).
+// These are not drug-drug interactions, so they are served separately from /known.
+// Query: ?drug=<name substring>&category=patient_factor|food|nonspecific&severity=
+router.get('/warnings', (req, res) => {
+  const drug = String(req.query.drug || '').toLowerCase().trim();
+  const category = String(req.query.category || '').toLowerCase().trim();
+  const severity = String(req.query.severity || '').toLowerCase().trim();
+  const results = NON_DDI_WARNINGS.filter((w) =>
+    (!drug || w.drug.toLowerCase().includes(drug)) &&
+    (!category || w.category === category) &&
+    (!severity || w.severity === severity));
+  res.json({ count: results.length, warnings: results });
+});
 
 router.get('/known', async (req, res) => {
   try {

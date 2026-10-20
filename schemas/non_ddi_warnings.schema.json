@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oncosaferx.com/schemas/non_ddi_warnings.schema.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "drug",
+      "subject",
+      "category",
+      "severity",
+      "recommendation",
+      "evidence_level"
+    ],
+    "properties": {
+      "severity": {
+        "type": "string",
+        "enum": [
+          "minor",
+          "moderate",
+          "major",
+          "contraindicated"
+        ]
+      },
+      "mechanism": {
+        "type": "string"
+      },
+      "recommendation": {
+        "type": "string"
+      },
+      "evidence_source": {
+        "type": "string"
+      },
+      "evidence_level": {
+        "type": "string",
+        "enum": [
+          "high",
+          "moderate",
+          "low",
+          "unknown"
+        ]
+      },
+      "citations": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "source_type": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "snippet": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "section": {
+              "type": "string"
+            },
+            "retrieved": {
+              "type": "string"
+            },
+            "matched": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "source_type"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "effect": {
+        "type": "string"
+      },
+      "sources": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "rxcui": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "citation_status": {
+        "type": "string",
+        "enum": [
+          "label_mention",
+          "unverified"
+        ]
+      },
+      "citations_checked_on": {
+        "type": "string"
+      },
+      "drug": {
+        "type": "string",
+        "minLength": 1
+      },
+      "subject": {
+        "type": "string",
+        "minLength": 1
+      },
+      "category": {
+        "type": "string",
+        "enum": [
+          "patient_factor",
+          "food",
+          "nonspecific"
+        ]
+      }
+    },
+    "additionalProperties": false
+  }
+}
